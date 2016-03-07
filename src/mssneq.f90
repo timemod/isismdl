@@ -1,0 +1,247 @@
+module mssneq
+    use msvars
+    use mscalc
+    
+    contains
+
+subroutine msisng(xresult, iequ, jtime,ier)
+use nuna
+integer, intent(in) ::  iequ, jtime
+integer, intent(out) :: ier
+real(kind = SOLVE_RKIND), intent(out) :: xresult
+
+
+real(kind = SOLVE_RKIND) :: temp
+
+!     call single equation solver (onequ)
+!     xresult contains the result (or missing/invalid value if ier > 0 )
+
+!     ier   return status
+!      0    all ok
+!      1      syntax error in equation
+!      2      computational problems
+!      3      missing rhs variable
+
+ier = 0
+
+call onequ(ier, temp, mdl%nrecp(iequ) + 1_MC_IKIND, mdl%nrecp(iequ+1), jtime)
+if (ier /= 0) then
+   xresult = NA
+else
+   xresult = temp
+endif
+
+return
+end subroutine msisng
+
+!-----------------------------------------------------------------------
+
+subroutine msinwt( xresult, xdst, lhs, jca, iequ, jtime, xtest,ier)
+
+!     solve a single (implicit) equation with Newton
+!     and numerical derivatives
+
+!     xdst    address of left hand side variable
+!             used during iteration (modifying mdl_data or dfile)
+!             on exit unmodified from initial value
+!     xresult contains solution for lhs variable on exit
+!             missing/invalid value if ier > 0 and ier <=3 or ier == 7
+!             last value in all other cases
+
+!     jca  if not 0 then index in constant_adjustments
+
+!     ier     return status
+!      0      all ok (convergence)
+!      1      syntax error in equation
+!      2      computational problems
+!      3      missing rhs variable
+!      4      not converged within 50 iterations
+!      5      zero derivative
+!      6      function value not converged but rhs has converged
+!      7      missing initial value for implicit variable
+
+use nuna
+integer ::   lhs, jca, iequ
+integer ::   jtime, ier
+real*8   xresult, xdst
+real*8   xtest
+
+real*8   result, result2, delres, caval
+real*8   xsave, zsave, zsave2, delta
+
+!     loop for implicit equation with lik(lhs)=true
+!     for type M (implicit frml) add CA to result
+
+real*8  DELEPS, DRVEPS, RESTOL
+real*8  Qone
+parameter( DELEPS = 1d-2 )
+parameter( DRVEPS = 1d-6 )
+parameter( RESTOL = 1d-4 )
+parameter( Qone = 1.0d0)
+integer ::  iter
+
+logical ::    error
+integer(kind = MC_IKIND) :: ipb, ipe
+
+ier = 0
+
+!     test if xdst contains valid starting value
+!     if not try 1 period lagged value
+!     if still not valid then quit with ier = 7
+
+if( nuifna(xdst) ) then
+
+   call get_var_value(mws, lhs, jtime - 1, xsave, error)
+   if( nuifna(xsave) ) then
+       xresult = xsave
+       ier = 7
+       return
+   endif
+   xdst = xsave
+
+endif
+
+!     save current value of destination
+!     for restoring at end of loop
+
+xsave = xdst
+zsave = xdst
+
+if( jca .ne. 0 ) caval = mws%constant_adjustments(jca, jtime)
+
+ipb = mdl%nrecp(iequ) + 1
+ipe = mdl%nrecp(iequ + 1)
+
+do  iter=1,50
+
+   call onequ(ier, result, ipb, ipe, jtime)
+   if( ier .ne. 0 ) goto 600
+
+   if( jca .ne. 0 ) result = result + caval
+
+!        get current value of implicit lhs-variable
+
+   zsave = xdst
+
+   delta = DELEPS + DELEPS*abs(zsave)
+
+   xdst = zsave + delta
+
+   call onequ(ier, result2, ipb, ipe, jtime)
+   if( ier .ne. 0 ) goto 600
+
+!        avoid finite precision errors
+
+   delta = xdst - zsave
+
+   if( jca .ne. 0 ) result2 = result2 + caval
+
+   delres = result2 - result
+   if( abs(delres) .lt. DRVEPS*delta ) goto 150
+
+   zsave2 = zsave - delta/delres * result
+
+!        test for convergence of x value
+
+   if(abs(zsave) .lt. Qone) then
+      if(abs(zsave2-zsave) .le. xtest) goto 160
+   else
+      if(abs( (zsave2-zsave)/zsave ) .le. xtest) goto 160
+   endif
+
+   xdst = zsave2
+
+enddo
+ier = 4
+goto 300
+
+150 ier = 5
+goto 300
+
+160 continue
+!     make sure result has also converged
+if( abs(result) .gt. RESTOL ) ier = 6
+
+300 continue
+!     store result
+
+xresult = zsave
+goto 800
+
+!     error returns from onequ
+!     store missing/invalid in xresult and restore initial value of xdst
+
+600 xresult = NA
+
+!     restore initial value of xdst
+
+800 xdst    = xsave
+
+return
+end subroutine msinwt
+
+!-----------------------------------------------------------------------
+
+subroutine msverr(ier, jtime, iequ)
+use mdl_name_utils
+use msimot
+
+!     print error message for single equation solver
+
+integer ::   ier, jtime, iequ
+
+character*8   stj
+
+call mcf7ex(name, nlen, mdl%ienames(iequ), mdl%enames)
+call sjttmp( stj, jtime)
+
+goto( 1, 2, 3, 4, 5, 6, 7) ier
+goto 500
+
+1 continue
+write(str, '(2a)' ) 'in equation: ',name(:nlen)
+call strout(O_ERRQ)
+str = 'quitting this equation'
+goto 100
+
+2 continue
+!     computational error (message already printed)
+goto 110
+
+3 continue
+!     missing rhs (no message)
+goto 110
+
+4 continue
+str = 'No convergence in 50 iterations'
+goto 100
+
+5 continue
+str = 'Zero derivative in implicit equation'
+goto 110
+
+6 continue
+str = 'Implicit equation has not converged'
+call strout(O_ERRQ)
+str = 'No better point found'
+goto 100
+
+7 continue
+str = 'Missing/invalid initial value in implicit equation'
+
+100 continue
+
+call strout(O_ERRF)
+
+110 continue
+
+write(str, '(4a)') 'in period ',stj,' for equation: ',name(:nlen)
+
+call strout(O_ERRF)
+
+500 continue
+
+return
+end subroutine msverr
+
+end module mssneq

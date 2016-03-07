@@ -1,0 +1,65 @@
+PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)  $(FLIBS)
+# used when checking
+FCFLAGS=-O0
+PKG_FCFLAGS = -fimplicit-none
+
+all: $(SHLIB)
+
+# dependencies C files
+report.o : report.h
+c_calls.o : report.h get_info.h c_calls.h
+fix_report.o : report.h current_period.h
+
+# dependencies Fortran files
+mif_file.o : mdl_flen.o
+model_type.o : model_params.o mdl_name_utils.o
+period_type.o : model_params.o
+mws_type.o : model_type.o mws_params.o period_type.o kinds.o nuna.o mdlvars.o \
+            solve_options_type.o nucnst.o
+invpol.o : model_params.o
+mdl_name_utils.o : mdl_nlen.o
+mdl_output.o : mdl_nlen.o
+mif_read.o : mif_file.o model_type.o invpol.o mdl_name_utils.o kinds.o\
+             isischar_utils.o
+fortran_calls.o : modelworkspaces.o mws_type.o msslvq.o msimul.o
+init.o : mcedef.o nuna.o
+modelworkspaces.o : mws_type.o init.o
+mws_utils.o : modelworkspaces.o
+get_info.o : modelworkspaces.o
+isischar_utils.o : c_iso_tables.o model_params.o mdl_name_utils.o
+mscalc.o : mws_type.o msvars.o mcstak.o  msufstack.o mcedef.o \
+           msshift.inc mspushv.inc mspushf.inc \
+           nuv.o nuna.o msimot.o
+nuv.o : kinds.o
+msvars.o : mws_type.o kinds.o liqrco.o liqrsq.o solve_options_type.o
+mssneq.o : msvars.o mscalc.o mdl_name_utils.o msimot.o
+msslvq.o : msvars.o mssneq.o nuna.o
+mdlvars.o : model_params.o kinds.o nuna.o
+nuna.o : kinds.o
+msutil.o : msvars.o nuna.o kinds.o model_params.o msolot.o msimod.o
+mssolve.o : msutil.o msnwut.o msbrdn.o msolot.o
+msbrdn.o : kinds.o msvars.o nucnst.o msnwut.o liqrco.o liqrup.o msjcot.o
+msnwut.o : scalemat.o msfbvl.o nuna.o msvars.o nuv.o nucnst.o
+nucnst.o : kinds.o
+msfbvl.o : msvars.o kinds.o mscalc.o nuna.o
+scalemat.o : kinds.o nuv.o nucnst.o
+solve_options_type.o : kinds.o model_type.o scalemat.o
+mdbrdn.o : kinds.o nuna.o liqrco.o liqrup.o nucnst.o
+liqrup.o : kinds.o nuv.o
+nuv.o : kinds.o nucnst.o
+msimul.o : msvars.o msutil.o nucnst.o msratop.o nucnst.o mssolve.o msfix.o msfitm.o msimot.o msolot.o msimox.o
+msimot.o : msvars.o nucnst.o nuna.o mdl_name_utils.o mdl_nlen.o
+msolot.o : msimot.o
+msimox.o : msratop.o msvars.o msimot.o mdl_name_utils.o
+msjcot.o : msvars.o msimot.o mdl_name_utils.o
+msimod.o : msolot.o msvars.o mdl_name_utils.o
+msfito.o : msimot.o msvars.o mdl_name_utils.o kinds.o nucnst.o
+msfix.o : msvars.o kinds.o nuna.o
+mccedp.o : kinds.o model_type.o mcdep.o mcvars.o mcpars.o mcodep.o
+mcodep.o : model_type.o  msufstack.o mcdep.o mcedef.o mcstak.o
+mdgfbo.o : mccedp.o  mcfbor.o model_type.o
+mcfbor.o : model_type.o mccedp.o 
+mcvars.o : model_type.o mdl_flen.o
+msfitm.o : kinds.o liqrmn.o msvars.o nucnst.o nuna.o msfbvl.o scalemat.o \
+           msnwut.o nuv.o msfito.o
+liqrmn.o : kinds.o nucnst.o

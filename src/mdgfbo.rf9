@@ -1,0 +1,53 @@
+subroutine mdgfbo(errflg)
+    use mccedp
+    use interfaces
+    use mws
+    use mcfbor
+    integer, intent(out) :: errflg
+
+    !
+    ! generate feedback ordering for the efficient
+    ! calculation of the Jacobian for the model in solve
+    ! memory.
+    !  errflg : 0 ok
+    !           > 0: some error has occurred
+    !
+
+*CALL ER$ERGLOB$PF9
+
+    character(len = 6) :: rname = "MDGFBO"
+    integer :: fbor_err
+
+    !
+    ! generate dependency structure
+    !
+    call mcgedp(.false., errflg)
+    if (errflg /= 0) then
+        if (errflg == 10) then
+            ! out of memory
+            call erfset(rname, errec, 643441, 1, 1, errflg);
+        else
+            ! internal error
+            call erfset(rname, errec, 646201, 1, 1, errflg);
+        endif
+        goto 999
+    endif
+
+    !
+    ! generate feedback ordering
+    !
+    call gen_fb_order(0, mdl, errflg)
+
+    if (errflg == 3) then
+         ! out of memory
+         call erfset(rname, errec, 643441, 1, 1, errflg);
+     endif
+
+999 continue
+
+
+
+    ! clear dependency structure data
+    call  clear_edep
+
+end subroutine mdgfbo
