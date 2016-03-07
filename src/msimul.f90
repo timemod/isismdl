@@ -424,7 +424,7 @@ do jt = jstart, jend, step
 
       ! update period indicators for messages
       jc = jt + step
-      call set_current_period(jc)
+      call sjcstr(jc)
 
       call store_solution_prepare_next(jt, quit)
       if (quit) then

@@ -5,7 +5,6 @@ subroutine set_period_fortran(model_index, start, end, freq, ier)
     integer, intent(in) :: freq
     logical, intent(out) :: ier
     call mws_setper(mws_array(model_index), start, end, freq, ier)
-    call set_base_period(start(1), start(2), freq)
 end subroutine set_period_fortran
 
 subroutine get_data_fortran(mws_index, nvar, ivar, ntime, jtb, jte, mat)
