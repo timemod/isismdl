@@ -3,7 +3,19 @@ PKG_CFLAGS = -DMCISIS
 # used when checking
 PKG_FCFLAGS = -fimplicit-none
 
+# options for lex and yacc
+LEX = flex
+YACC = bison
+LYPREFIX = mc
+
 all: $(SHLIB)
+
+# rules for lex and yacc
+scan.c : scan.l
+	$(LEX)  -P$(LYPREFIX) -o$@ -i $<
+
+xpctab.c : xpctab.y 
+	$(YACC) -v  -d -p $(LYPREFIX) -o $@ $<
 
 # dependencies C files
 report.o : report.h
@@ -70,11 +82,10 @@ mdordr.o : mdl_name_utils.o mccedp.o model_type.o kinds.o mcordr.o \
 mcordr.o : kinds.o model_type.o mccedp.o
 mcirbf.o : model_type.o kinds.o mcordr.o mdl_name_utils
 
-# dependencies for the model compiler (the code in directory compiler)
-scan.o : scan.c
-
+scan.o : scan.c symbol.h ecode.h mcinit.h util.h mchdr.h xpcdef.h xpctab.h \
+         flags.h
 xpctab.o : xpctab.c symbol.h mcinit.h xpcdef.h mchdr.h  \
-                      util.h ecode.h outmdl.h macromodtypes.h dependencies.h
+            util.h ecode.h outmdl.h macromodtypes.h dependencies.h
 
 xpc.o : xpc.c symbol.h xpcdef.h util.h mcinit.h mchdr.h flags.h \
 	           dependencies.h mcopt.h

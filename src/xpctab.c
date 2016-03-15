@@ -85,9 +85,6 @@
 #include <string.h>
 
 #include "symbol.h"
-#ifndef MCISIS
-#include "mdldef.h"
-#endif
 #include "mcinit.h"
 #include "xpcdef.h"
 #include "mchdr.h"
@@ -136,7 +133,7 @@ void FNAME(save_parameter)(FINT *, FREAL8 *);
 
 
 /* Line 268 of yacc.c  */
-#line 138 "xpctab.c"
+#line 137 "xpctab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -196,6 +193,39 @@ void FNAME(save_parameter)(FINT *, FREAL8 *);
      T_POW = 288
    };
 #endif
+/* Tokens.  */
+#define T_END 258
+#define T_FUNCTION 259
+#define T_UL_FUNCTION 260
+#define T_FRML 261
+#define T_IDENT 262
+#define T_PARAM 263
+#define T_NAME 264
+#define T_UFUNC 265
+#define T_ULFUNC 266
+#define T_IF 267
+#define T_THEN 268
+#define T_ELSE 269
+#define T_ELSEIF 270
+#define T_ENDIF 271
+#define T_SUM 272
+#define T_DEL 273
+#define T_BUILTIN 274
+#define T_NUMBER 275
+#define T_INTNUM 276
+#define T_GE 277
+#define T_GT 278
+#define T_LT 279
+#define T_LE 280
+#define T_EQ 281
+#define NE 282
+#define T_NOT 283
+#define T_AND 284
+#define T_OR 285
+#define T_NE 286
+#define UNARYMINUS 287
+#define T_POW 288
+
 
 
 
@@ -204,7 +234,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 66 "xpctab.y"
+#line 65 "xpctab.y"
 
         int     ival;
         real    dval;
@@ -214,7 +244,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 216 "xpctab.c"
+#line 248 "xpctab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -226,7 +256,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 228 "xpctab.c"
+#line 260 "xpctab.c"
 
 #ifdef short
 # undef short
@@ -563,18 +593,18 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   127,   127,   130,   131,   134,   135,   138,   139,   140,
-     142,   145,   149,   152,   155,   156,   159,   160,   161,   165,
-     166,   167,   168,   171,   172,   174,   176,   180,   181,   182,
-     183,   184,   185,   186,   189,   190,   193,   196,   199,   200,
-     203,   204,   207,   214,   215,   217,   219,   223,   224,   227,
-     237,   238,   239,   242,   242,   246,   246,   250,   251,   260,
-     261,   263,   264,   267,   271,   272,   274,   275,   276,   279,
-     280,   283,   286,   287,   289,   292,   295,   296,   299,   302,
-     306,   307,   310,   311,   312,   313,   314,   317,   318,   321,
-     322,   323,   324,   325,   326,   327,   328,   329,   330,   331,
-     338,   339,   346,   347,   353,   354,   363,   364,   365,   366,
-     367,   370,   371,   372,   373,   376,   377,   378
+       0,   126,   126,   129,   130,   133,   134,   137,   138,   139,
+     141,   144,   148,   151,   154,   155,   158,   159,   160,   164,
+     165,   166,   167,   170,   171,   173,   175,   179,   180,   181,
+     182,   183,   184,   185,   188,   189,   192,   195,   198,   199,
+     202,   203,   206,   213,   214,   216,   218,   222,   223,   226,
+     236,   237,   238,   241,   241,   245,   245,   249,   250,   259,
+     260,   262,   263,   266,   270,   271,   273,   274,   275,   278,
+     279,   282,   285,   286,   288,   291,   294,   295,   298,   301,
+     305,   306,   309,   310,   311,   312,   313,   316,   317,   320,
+     321,   322,   323,   324,   325,   326,   327,   328,   329,   330,
+     337,   338,   345,   346,   352,   353,   362,   363,   364,   365,
+     366,   369,   370,   371,   372,   375,   376,   377
 };
 #endif
 
@@ -1690,70 +1720,70 @@ yyreduce:
         case 4:
 
 /* Line 1806 of yacc.c  */
-#line 131 "xpctab.y"
+#line 130 "xpctab.y"
     {reset_scanner(); YYACCEPT;}
     break;
 
   case 10:
 
 /* Line 1806 of yacc.c  */
-#line 143 "xpctab.y"
+#line 142 "xpctab.y"
     { eqn_epilogue(NULL, (yyvsp[(1) - (5)].ival), (yyvsp[(2) - (5)].sp), (yyvsp[(4) - (5)].ep), 0);}
     break;
 
   case 11:
 
 /* Line 1806 of yacc.c  */
-#line 146 "xpctab.y"
+#line 145 "xpctab.y"
     { eqn_epilogue(NULL, (yyvsp[(1) - (5)].ival), (yyvsp[(2) - (5)].sp), (yyvsp[(4) - (5)].ep), 1);}
     break;
 
   case 12:
 
 /* Line 1806 of yacc.c  */
-#line 150 "xpctab.y"
+#line 149 "xpctab.y"
     { eqn_epilogue((yyvsp[(2) - (6)].sp), (yyvsp[(1) - (6)].ival), (yyvsp[(3) - (6)].sp), (yyvsp[(5) - (6)].ep), 0);}
     break;
 
   case 13:
 
 /* Line 1806 of yacc.c  */
-#line 153 "xpctab.y"
+#line 152 "xpctab.y"
     { eqn_epilogue((yyvsp[(2) - (6)].sp), (yyvsp[(1) - (6)].ival), (yyvsp[(3) - (6)].sp), (yyvsp[(5) - (6)].ep), 1);}
     break;
 
   case 14:
 
 /* Line 1806 of yacc.c  */
-#line 155 "xpctab.y"
+#line 154 "xpctab.y"
     { (yyval.sp) = NULL;}
     break;
 
   case 15:
 
 /* Line 1806 of yacc.c  */
-#line 156 "xpctab.y"
+#line 155 "xpctab.y"
     { cleanup(0); yyerrok; }
     break;
 
   case 16:
 
 /* Line 1806 of yacc.c  */
-#line 159 "xpctab.y"
+#line 158 "xpctab.y"
     { eqn_prologue(); (yyval.ival) = 1;}
     break;
 
   case 17:
 
 /* Line 1806 of yacc.c  */
-#line 160 "xpctab.y"
+#line 159 "xpctab.y"
     { eqn_prologue(); (yyval.ival) = 0;}
     break;
 
   case 18:
 
 /* Line 1806 of yacc.c  */
-#line 161 "xpctab.y"
+#line 160 "xpctab.y"
     { /* error: illegal equation type */
                           eqtyp_err((yyvsp[(1) - (1)].sp)); (yyval.ival) = 0;}
     break;
@@ -1761,245 +1791,245 @@ yyreduce:
   case 19:
 
 /* Line 1806 of yacc.c  */
-#line 165 "xpctab.y"
+#line 164 "xpctab.y"
     {(yyval.sp) = (yyvsp[(1) - (1)].sp);}
     break;
 
   case 20:
 
 /* Line 1806 of yacc.c  */
-#line 166 "xpctab.y"
+#line 165 "xpctab.y"
     {(yyval.sp) = (yyvsp[(1) - (1)].sp);}
     break;
 
   case 21:
 
 /* Line 1806 of yacc.c  */
-#line 167 "xpctab.y"
+#line 166 "xpctab.y"
     {(yyval.sp) = (yyvsp[(1) - (1)].sp);}
     break;
 
   case 22:
 
 /* Line 1806 of yacc.c  */
-#line 168 "xpctab.y"
+#line 167 "xpctab.y"
     {(yyval.sp) = (yyvsp[(1) - (1)].sp);}
     break;
 
   case 27:
 
 /* Line 1806 of yacc.c  */
-#line 180 "xpctab.y"
+#line 179 "xpctab.y"
     {(yyval.sp)=(yyvsp[(1) - (1)].sp);}
     break;
 
   case 28:
 
 /* Line 1806 of yacc.c  */
-#line 181 "xpctab.y"
+#line 180 "xpctab.y"
     {(yyval.sp)=(yyvsp[(1) - (1)].sp);}
     break;
 
   case 29:
 
 /* Line 1806 of yacc.c  */
-#line 182 "xpctab.y"
+#line 181 "xpctab.y"
     {(yyval.sp)=(yyvsp[(1) - (1)].sp);}
     break;
 
   case 30:
 
 /* Line 1806 of yacc.c  */
-#line 183 "xpctab.y"
+#line 182 "xpctab.y"
     {(yyval.sp)=(yyvsp[(1) - (1)].sp);}
     break;
 
   case 31:
 
 /* Line 1806 of yacc.c  */
-#line 184 "xpctab.y"
+#line 183 "xpctab.y"
     {(yyval.sp)=(yyvsp[(1) - (1)].sp);}
     break;
 
   case 32:
 
 /* Line 1806 of yacc.c  */
-#line 185 "xpctab.y"
+#line 184 "xpctab.y"
     {(yyval.sp)=(yyvsp[(1) - (1)].sp);}
     break;
 
   case 33:
 
 /* Line 1806 of yacc.c  */
-#line 186 "xpctab.y"
+#line 185 "xpctab.y"
     {(yyval.sp)=(yyvsp[(1) - (1)].sp);}
     break;
 
   case 36:
 
 /* Line 1806 of yacc.c  */
-#line 193 "xpctab.y"
+#line 192 "xpctab.y"
     { set_parval(); }
     break;
 
   case 37:
 
 /* Line 1806 of yacc.c  */
-#line 196 "xpctab.y"
+#line 195 "xpctab.y"
     { make_param((yyvsp[(1) - (1)].sp));}
     break;
 
   case 38:
 
 /* Line 1806 of yacc.c  */
-#line 199 "xpctab.y"
+#line 198 "xpctab.y"
     { if (add_pval((yyvsp[(1) - (1)].dval))) YYERROR;}
     break;
 
   case 39:
 
 /* Line 1806 of yacc.c  */
-#line 200 "xpctab.y"
+#line 199 "xpctab.y"
     { if (add_pval((yyvsp[(2) - (2)].dval))) YYERROR;}
     break;
 
   case 40:
 
 /* Line 1806 of yacc.c  */
-#line 203 "xpctab.y"
+#line 202 "xpctab.y"
     { (yyval.dval) = ((yyvsp[(1) - (2)].ival) == '-') ? -(yyvsp[(2) - (2)].dval) : (yyvsp[(2) - (2)].dval); }
     break;
 
   case 41:
 
 /* Line 1806 of yacc.c  */
-#line 204 "xpctab.y"
+#line 203 "xpctab.y"
     {(yyval.dval) = (yyvsp[(1) - (1)].ival);}
     break;
 
   case 42:
 
 /* Line 1806 of yacc.c  */
-#line 207 "xpctab.y"
+#line 206 "xpctab.y"
     { (yyval.ival) = ((yyvsp[(1) - (2)].ival) == '-') ? -(yyvsp[(2) - (2)].ival) : (yyvsp[(2) - (2)].ival); }
     break;
 
   case 43:
 
 /* Line 1806 of yacc.c  */
-#line 214 "xpctab.y"
+#line 213 "xpctab.y"
     { check_lhs((yyvsp[(1) - (1)].sp)); }
     break;
 
   case 44:
 
 /* Line 1806 of yacc.c  */
-#line 216 "xpctab.y"
+#line 215 "xpctab.y"
     { check_lhs((yyvsp[(1) - (1)].sp)); }
     break;
 
   case 45:
 
 /* Line 1806 of yacc.c  */
-#line 218 "xpctab.y"
+#line 217 "xpctab.y"
     { check_lhs((yyvsp[(1) - (1)].sp)); }
     break;
 
   case 46:
 
 /* Line 1806 of yacc.c  */
-#line 220 "xpctab.y"
+#line 219 "xpctab.y"
     { check_lhs((yyvsp[(1) - (1)].sp)); }
     break;
 
   case 47:
 
 /* Line 1806 of yacc.c  */
-#line 223 "xpctab.y"
+#line 222 "xpctab.y"
     { (yyval.sp) = (yyvsp[(3) - (4)].sp); if(check_implicit((yyvsp[(1) - (4)].ival), (yyvsp[(3) - (4)].sp))) YYERROR; }
     break;
 
   case 48:
 
 /* Line 1806 of yacc.c  */
-#line 226 "xpctab.y"
+#line 225 "xpctab.y"
     { (yyval.sp) = (yyvsp[(3) - (4)].sp); if(check_implicit((yyvsp[(1) - (4)].ival), (yyvsp[(3) - (4)].sp))) YYERROR; }
     break;
 
   case 49:
 
 /* Line 1806 of yacc.c  */
-#line 229 "xpctab.y"
+#line 228 "xpctab.y"
     { (yyval.sp) = (yyvsp[(3) - (4)].sp); if(check_implicit((yyvsp[(1) - (4)].ival), (yyvsp[(3) - (4)].sp))) YYERROR; }
     break;
 
   case 53:
 
 /* Line 1806 of yacc.c  */
-#line 242 "xpctab.y"
+#line 241 "xpctab.y"
     { if (ufunc_prologue((yyvsp[(1) - (1)].sp), 0)) YYERROR;}
     break;
 
   case 54:
 
 /* Line 1806 of yacc.c  */
-#line 243 "xpctab.y"
+#line 242 "xpctab.y"
     { ufunc_epilogue((yyvsp[(1) - (7)].sp), (yyvsp[(7) - (7)].ep), 0); }
     break;
 
   case 55:
 
 /* Line 1806 of yacc.c  */
-#line 246 "xpctab.y"
+#line 245 "xpctab.y"
     { if (ufunc_prologue((yyvsp[(1) - (1)].sp), 1)) YYERROR;}
     break;
 
   case 56:
 
 /* Line 1806 of yacc.c  */
-#line 247 "xpctab.y"
+#line 246 "xpctab.y"
     { ufunc_epilogue((yyvsp[(1) - (5)].sp), 0, 1); }
     break;
 
   case 57:
 
 /* Line 1806 of yacc.c  */
-#line 250 "xpctab.y"
+#line 249 "xpctab.y"
     { make_formal((yyvsp[(1) - (1)].sp)); }
     break;
 
   case 58:
 
 /* Line 1806 of yacc.c  */
-#line 251 "xpctab.y"
+#line 250 "xpctab.y"
     { make_formal((yyvsp[(3) - (3)].sp)); }
     break;
 
   case 59:
 
 /* Line 1806 of yacc.c  */
-#line 260 "xpctab.y"
+#line 259 "xpctab.y"
     { (yyval.ep) = mk_const((yyvsp[(1) - (1)].dval)); }
     break;
 
   case 60:
 
 /* Line 1806 of yacc.c  */
-#line 261 "xpctab.y"
+#line 260 "xpctab.y"
     { (yyval.ep) = mk_const((yyvsp[(1) - (1)].ival)); }
     break;
 
   case 61:
 
 /* Line 1806 of yacc.c  */
-#line 263 "xpctab.y"
+#line 262 "xpctab.y"
     { (yyval.ep) = do_builtin((yyvsp[(1) - (4)].sp), (yyvsp[(3) - (4)].ep)); }
     break;
 
   case 62:
 
 /* Line 1806 of yacc.c  */
-#line 264 "xpctab.y"
+#line 263 "xpctab.y"
     { 
                               if (((yyval.ep) = do_funccall((yyvsp[(1) - (4)].sp), (yyvsp[(3) - (4)].ep))) == 0) YYERROR;
                                            }
@@ -2008,7 +2038,7 @@ yyreduce:
   case 63:
 
 /* Line 1806 of yacc.c  */
-#line 267 "xpctab.y"
+#line 266 "xpctab.y"
     { 
                               if (((yyval.ep) = do_funccall((yyvsp[(1) - (4)].sp), (yyvsp[(3) - (4)].ep))) == 0) YYERROR;
                                            }
@@ -2017,98 +2047,98 @@ yyreduce:
   case 64:
 
 /* Line 1806 of yacc.c  */
-#line 271 "xpctab.y"
+#line 270 "xpctab.y"
     { (yyval.ep) = del_epilogue((yyvsp[(5) - (6)].ep)); }
     break;
 
   case 65:
 
 /* Line 1806 of yacc.c  */
-#line 272 "xpctab.y"
+#line 271 "xpctab.y"
     { (yyval.ep) = sum_epilogue((yyvsp[(5) - (6)].ep)); }
     break;
 
   case 70:
 
 /* Line 1806 of yacc.c  */
-#line 280 "xpctab.y"
+#line 279 "xpctab.y"
     { do_lag((yyvsp[(1) - (1)].ep));}
     break;
 
   case 71:
 
 /* Line 1806 of yacc.c  */
-#line 283 "xpctab.y"
+#line 282 "xpctab.y"
     {(yyval.ep) = add_elsepart((yyvsp[(1) - (3)].ep), (yyvsp[(3) - (3)].ep));}
     break;
 
   case 72:
 
 /* Line 1806 of yacc.c  */
-#line 286 "xpctab.y"
+#line 285 "xpctab.y"
     {(yyval.ep) = (yyvsp[(1) - (1)].ep);}
     break;
 
   case 73:
 
 /* Line 1806 of yacc.c  */
-#line 287 "xpctab.y"
+#line 286 "xpctab.y"
     {(yyval.ep) = add_elsepart((yyvsp[(1) - (2)].ep), (yyvsp[(2) - (2)].ep));}
     break;
 
   case 74:
 
 /* Line 1806 of yacc.c  */
-#line 289 "xpctab.y"
+#line 288 "xpctab.y"
     {(yyval.ep) = mk_ifnode((yyvsp[(2) - (4)].ep), (yyvsp[(4) - (4)].ep));}
     break;
 
   case 75:
 
 /* Line 1806 of yacc.c  */
-#line 292 "xpctab.y"
+#line 291 "xpctab.y"
     {(yyval.ep) = mk_ifnode((yyvsp[(2) - (4)].ep), (yyvsp[(4) - (4)].ep));}
     break;
 
   case 76:
 
 /* Line 1806 of yacc.c  */
-#line 295 "xpctab.y"
+#line 294 "xpctab.y"
     {(yyval.ep) = (yyvsp[(1) - (1)].ep);}
     break;
 
   case 77:
 
 /* Line 1806 of yacc.c  */
-#line 296 "xpctab.y"
+#line 295 "xpctab.y"
     {(yyval.ep) = add_elsepart((yyvsp[(1) - (2)].ep), (yyvsp[(2) - (2)].ep));}
     break;
 
   case 78:
 
 /* Line 1806 of yacc.c  */
-#line 299 "xpctab.y"
+#line 298 "xpctab.y"
     { if( del_prologue((yyvsp[(1) - (1)].ival)) ) YYERROR; }
     break;
 
   case 79:
 
 /* Line 1806 of yacc.c  */
-#line 303 "xpctab.y"
+#line 302 "xpctab.y"
     { if( sum_prologue((yyvsp[(1) - (5)].sp), (yyvsp[(3) - (5)].ival), (yyvsp[(5) - (5)].ival)) ) YYERROR; }
     break;
 
   case 80:
 
 /* Line 1806 of yacc.c  */
-#line 306 "xpctab.y"
+#line 305 "xpctab.y"
     { (yyval.ep) = (yyvsp[(2) - (3)].ep); }
     break;
 
   case 81:
 
 /* Line 1806 of yacc.c  */
-#line 307 "xpctab.y"
+#line 306 "xpctab.y"
     { Binary :
                                                   (yyval.ep) = mk_binenode((yyvsp[(2) - (3)].ival), (yyvsp[(1) - (3)].ep), (yyvsp[(3) - (3)].ep));
                                         }
@@ -2117,35 +2147,35 @@ yyreduce:
   case 82:
 
 /* Line 1806 of yacc.c  */
-#line 310 "xpctab.y"
+#line 309 "xpctab.y"
     { goto Binary; }
     break;
 
   case 83:
 
 /* Line 1806 of yacc.c  */
-#line 311 "xpctab.y"
+#line 310 "xpctab.y"
     { goto Binary; }
     break;
 
   case 84:
 
 /* Line 1806 of yacc.c  */
-#line 312 "xpctab.y"
+#line 311 "xpctab.y"
     { goto Binary; }
     break;
 
   case 85:
 
 /* Line 1806 of yacc.c  */
-#line 313 "xpctab.y"
+#line 312 "xpctab.y"
     { goto Binary; }
     break;
 
   case 86:
 
 /* Line 1806 of yacc.c  */
-#line 314 "xpctab.y"
+#line 313 "xpctab.y"
     { Unary :
                                                  (yyval.ep) = mk_unop((yyvsp[(1) - (2)].ival), (yyvsp[(2) - (2)].ep));
                                         }
@@ -2154,189 +2184,189 @@ yyreduce:
   case 87:
 
 /* Line 1806 of yacc.c  */
-#line 317 "xpctab.y"
+#line 316 "xpctab.y"
     { (yyval.ep) = (yyvsp[(2) - (2)].ep); }
     break;
 
   case 89:
 
 /* Line 1806 of yacc.c  */
-#line 321 "xpctab.y"
+#line 320 "xpctab.y"
     { goto Binary; }
     break;
 
   case 90:
 
 /* Line 1806 of yacc.c  */
-#line 322 "xpctab.y"
+#line 321 "xpctab.y"
     { goto Binary; }
     break;
 
   case 91:
 
 /* Line 1806 of yacc.c  */
-#line 323 "xpctab.y"
+#line 322 "xpctab.y"
     { goto Binary; }
     break;
 
   case 92:
 
 /* Line 1806 of yacc.c  */
-#line 324 "xpctab.y"
+#line 323 "xpctab.y"
     { goto Binary; }
     break;
 
   case 93:
 
 /* Line 1806 of yacc.c  */
-#line 325 "xpctab.y"
+#line 324 "xpctab.y"
     { goto Binary; }
     break;
 
   case 94:
 
 /* Line 1806 of yacc.c  */
-#line 326 "xpctab.y"
+#line 325 "xpctab.y"
     { goto Binary; }
     break;
 
   case 95:
 
 /* Line 1806 of yacc.c  */
-#line 327 "xpctab.y"
+#line 326 "xpctab.y"
     { goto Binary; }
     break;
 
   case 96:
 
 /* Line 1806 of yacc.c  */
-#line 328 "xpctab.y"
+#line 327 "xpctab.y"
     { goto Binary; }
     break;
 
   case 97:
 
 /* Line 1806 of yacc.c  */
-#line 329 "xpctab.y"
+#line 328 "xpctab.y"
     { goto Binary; }
     break;
 
   case 98:
 
 /* Line 1806 of yacc.c  */
-#line 330 "xpctab.y"
+#line 329 "xpctab.y"
     { goto Unary;  }
     break;
 
   case 99:
 
 /* Line 1806 of yacc.c  */
-#line 331 "xpctab.y"
+#line 330 "xpctab.y"
     { (yyval.ep) = mk_unop(T_NOT, (yyvsp[(2) - (2)].ep)); }
     break;
 
   case 100:
 
 /* Line 1806 of yacc.c  */
-#line 338 "xpctab.y"
+#line 337 "xpctab.y"
     { (yyval.ep) = mk_fargs(0 , (yyvsp[(1) - (1)].ep) ); }
     break;
 
   case 101:
 
 /* Line 1806 of yacc.c  */
-#line 339 "xpctab.y"
+#line 338 "xpctab.y"
     { (yyval.ep) = mk_fargs((yyvsp[(1) - (3)].ep), (yyvsp[(3) - (3)].ep) ); }
     break;
 
   case 102:
 
 /* Line 1806 of yacc.c  */
-#line 346 "xpctab.y"
+#line 345 "xpctab.y"
     { (yyval.ep) = mk_fargs(0 , (yyvsp[(1) - (1)].ep) ); }
     break;
 
   case 103:
 
 /* Line 1806 of yacc.c  */
-#line 347 "xpctab.y"
+#line 346 "xpctab.y"
     { (yyval.ep) = mk_fargs((yyvsp[(1) - (3)].ep), (yyvsp[(3) - (3)].ep) ); }
     break;
 
   case 106:
 
 /* Line 1806 of yacc.c  */
-#line 363 "xpctab.y"
+#line 362 "xpctab.y"
     { (yyval.ep) = do_var((yyvsp[(1) - (1)].sp),  0, 0 , 0); }
     break;
 
   case 107:
 
 /* Line 1806 of yacc.c  */
-#line 364 "xpctab.y"
+#line 363 "xpctab.y"
     { (yyval.ep) = do_var((yyvsp[(1) - (4)].sp), (yyvsp[(3) - (4)].ival), 0 , 0); }
     break;
 
   case 108:
 
 /* Line 1806 of yacc.c  */
-#line 365 "xpctab.y"
+#line 364 "xpctab.y"
     { (yyval.ep) = do_var((yyvsp[(1) - (4)].sp),  0, (yyvsp[(3) - (4)].sp), 0); }
     break;
 
   case 109:
 
 /* Line 1806 of yacc.c  */
-#line 366 "xpctab.y"
+#line 365 "xpctab.y"
     { (yyval.ep) = do_var((yyvsp[(1) - (6)].sp),-(yyvsp[(5) - (6)].ival), (yyvsp[(3) - (6)].sp), 0); }
     break;
 
   case 110:
 
 /* Line 1806 of yacc.c  */
-#line 367 "xpctab.y"
+#line 366 "xpctab.y"
     { (yyval.ep) = do_var((yyvsp[(1) - (6)].sp), (yyvsp[(5) - (6)].ival), (yyvsp[(3) - (6)].sp), 0); }
     break;
 
   case 111:
 
 /* Line 1806 of yacc.c  */
-#line 370 "xpctab.y"
+#line 369 "xpctab.y"
     { (yyval.ep) = do_var((yyvsp[(1) - (4)].sp), (yyvsp[(3) - (4)].ival), 0 , 1); }
     break;
 
   case 112:
 
 /* Line 1806 of yacc.c  */
-#line 371 "xpctab.y"
+#line 370 "xpctab.y"
     { (yyval.ep) = do_var((yyvsp[(1) - (4)].sp),  0, (yyvsp[(3) - (4)].sp), 1); }
     break;
 
   case 113:
 
 /* Line 1806 of yacc.c  */
-#line 372 "xpctab.y"
+#line 371 "xpctab.y"
     { (yyval.ep) = do_var((yyvsp[(1) - (6)].sp),-(yyvsp[(5) - (6)].ival), (yyvsp[(3) - (6)].sp), 1); }
     break;
 
   case 114:
 
 /* Line 1806 of yacc.c  */
-#line 373 "xpctab.y"
+#line 372 "xpctab.y"
     { (yyval.ep) = do_var((yyvsp[(1) - (6)].sp), (yyvsp[(5) - (6)].ival), (yyvsp[(3) - (6)].sp), 1); }
     break;
 
   case 115:
 
 /* Line 1806 of yacc.c  */
-#line 376 "xpctab.y"
+#line 375 "xpctab.y"
     { (yyval.ival) = 0; }
     break;
 
 
 
 /* Line 1806 of yacc.c  */
-#line 2338 "xpctab.c"
+#line 2370 "xpctab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2567,7 +2597,7 @@ yyreturn:
 
 
 /* Line 2067 of yacc.c  */
-#line 384 "xpctab.y"
+#line 383 "xpctab.y"
 
 
 /*

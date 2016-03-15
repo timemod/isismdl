@@ -70,6 +70,39 @@
      T_POW = 288
    };
 #endif
+/* Tokens.  */
+#define T_END 258
+#define T_FUNCTION 259
+#define T_UL_FUNCTION 260
+#define T_FRML 261
+#define T_IDENT 262
+#define T_PARAM 263
+#define T_NAME 264
+#define T_UFUNC 265
+#define T_ULFUNC 266
+#define T_IF 267
+#define T_THEN 268
+#define T_ELSE 269
+#define T_ELSEIF 270
+#define T_ENDIF 271
+#define T_SUM 272
+#define T_DEL 273
+#define T_BUILTIN 274
+#define T_NUMBER 275
+#define T_INTNUM 276
+#define T_GE 277
+#define T_GT 278
+#define T_LT 279
+#define T_LE 280
+#define T_EQ 281
+#define NE 282
+#define T_NOT 283
+#define T_AND 284
+#define T_OR 285
+#define T_NE 286
+#define UNARYMINUS 287
+#define T_POW 288
+
 
 
 
@@ -78,7 +111,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 66 "xpctab.y"
+#line 65 "xpctab.y"
 
         int     ival;
         real    dval;
@@ -88,7 +121,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 92 "xpctab.h"
+#line 125 "xpctab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
