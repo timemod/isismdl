@@ -1,4 +1,5 @@
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)  $(FLIBS)
+PKG_CFLAGS = -DMCISIS
 # used when checking
 PKG_FCFLAGS = -fimplicit-none
 
@@ -62,3 +63,62 @@ mcvars.o : model_type.o mdl_flen.o
 msfitm.o : kinds.o liqrmn.o msvars.o nucnst.o nuna.o msfbvl.o scalemat.o \
            msnwut.o nuv.o msfito.o
 liqrmn.o : kinds.o nucnst.o
+
+mcisis.o : mcvars.o mccedp.o mdordr.o filenameutils.o mcpars.o
+mdordr.o : mdl_name_utils.o mccedp.o model_type.o kinds.o mcordr.o \
+           mcirfb.o mcfbor.o 
+mcordr.o : kinds.o model_type.o mccedp.o
+mcirbf.o : model_type.o kinds.o mcordr.o mdl_name_utils
+
+# dependencies for the model compiler (the code in directory compiler)
+scan.o : scan.c
+
+xpctab.o : xpctab.c symbol.h mcinit.h xpcdef.h mchdr.h  \
+                      util.h ecode.h outmdl.h macromodtypes.h dependencies.h
+
+xpc.o : xpc.c symbol.h xpcdef.h util.h mcinit.h mchdr.h flags.h \
+	           dependencies.h mcopt.h
+
+mcexec.o : mcexec.c symbol.h xpcdef.h \
+	util.h mcinit.h mchdr.h fname.h \
+	ecode.h flags.h futils.h \
+        dependencies.h mcopt.h
+
+scan_params.o : scan_params.c symbol.h xpcdef.h \
+	xpctab.h util.h ecode.h mchdr.h \
+        dependencies.h mcopt.h
+
+symbol.o : symbol.c symbol.h xpcdef.h \
+	util.h dependencies.h 
+
+mcinit.o : mcinit.c symbol.h xpcdef.h \
+	util.h mcinit.h xpctab.h \
+        dependencies.h
+
+ecode.o : ecode.c symbol.h xpcdef.h \
+	util.h mcinit.h ecode.h xpctab.h \
+	mchdr.h dependencies.h mcopt.h
+
+outipcode.o : outipcode.c symbol.h xpcdef.h \
+	util.h mcinit.h ecode.h ipcode.h \
+	mchdr.h outmdl.h macromodtypes.h \
+        dependencies.h mcopt.h
+
+expsymtab.o : expsymtab.c xpcdef.h symbol.h mcinit.h
+
+util.o : util.c util.h
+fname.o : fname.c fname.h
+
+oprintf.o :oprintf.c oprintf.h util.h
+
+mcip.o: mchdr.h flags.h macromodtypes.h mcopt.h
+
+include_paths.o: mchdr.h util.h futils.h mcopt.h
+
+flags.o : flags.c flags.h
+
+dependencies.o : dependencies.h util.h
+
+mcopt_init.o : mcopt.h
+
+futils.o : futils.c futils.h

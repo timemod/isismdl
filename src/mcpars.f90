@@ -1,4 +1,5 @@
 module mcpars
+
 !     defines file units to be used by model compiler
 !             filename extensions
 !             version identification strings
@@ -18,9 +19,6 @@ character*1  extsep
 parameter( extsep = '.' )
 parameter( mdlext = extsep // 'mdl' , xrfext = extsep // 'mrf' , &
 &          mifext = extsep // 'mif' )
-
-!     WARNING: if you change the mif and mws version,
-!     you should also modify mcpars.PF9!
 
 !     current .mif version identification string
 character*11 mifver
