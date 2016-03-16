@@ -1,6 +1,0 @@
-# list of objects files for the model compiler
-COMPILER_OBJECTS = \
-               scan.o xpctab.o mcexec.o scan_params.o \
-	       symbol.o init.o ecode.o outipcode.o expsymtab.o util.o \
-	       fname.o include_paths.o mcip.o flags.o dependencies.o \
-	       mcopt_init.o
