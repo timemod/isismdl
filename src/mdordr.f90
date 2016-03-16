@@ -3,7 +3,7 @@
    contains
 
    subroutine order_mdl(mdl, fixcnt, fbfix, usinac, fixepi, &
-&                       checkfbrd, dofbrd, logunit, fbrdcnt, errflg, fbor_err)
+&                       checkfbrd, dofbrd, fbrdcnt, errflg, fbor_err)
 
     !
     ! full ordering of the model:
@@ -23,7 +23,6 @@
     integer, intent(in), optional  :: fixcnt
     integer, intent(in), optional  :: fbfix(*)
     logical, intent(in), optional  :: usinac, fixepi, checkfbrd, dofbrd
-    integer, intent(in) :: logunit
     integer, intent(out), optional :: fbrdcnt, errflg, fbor_err
 
 !    in  Fixcnt : integer   * 0 for no fixed feedback variables
@@ -121,7 +120,7 @@ endif
 !        call xtime(told)
 !*ENDIF
         call rm_redundant_fb(mdl, ier, errval, usinac = usinac, &
-&                            fixepi = fixepi, dofbrd = dofbrd, logunt = logunit)
+&                            fixepi = fixepi, dofbrd = dofbrd)
 !*IF TIMER
 !        call xtime(tnew)
 !        call mctimer('Checking redundant fb variables', told, tnew)

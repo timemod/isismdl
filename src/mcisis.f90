@@ -1,11 +1,12 @@
 subroutine mcisis(modelnaml,modelnams, &
-&                 dofbrd, genfbo, fbomif, prifbi, prisjc, strict, &
-&                 mrfopt, fbcopt, gen_dep_file, logunt, mcstat)
+&                 idofbrd, igenfbo, ifbomif, iprifbi, iprisjc, &
+&                 mrfopt, fbcopt, igen_dep_file, mcstat)
 use mcvars
 use mccedp
 use mdordr
 use mcpars
-!use mcxref
+use init
+use mcxref
 
 !     Isis model compiler
 !      input is mdl file
@@ -17,29 +18,30 @@ use mcpars
 
 !         In    modelnaml   Integer     length of modelname (bytes)
 !         In    modelnams   Integer(*)  modelname
-!         In    dofbrd      Logical     true  for    remove redundant fb vars
-!                                       false to NOT remove redundant fb vars
+!         In    idofbrd     Integer     1 for    remove redundant fb vars
+!                                       0 to NOT remove redundant fb vars
 
-!         In    genfbo      Logical     true  for generate feedback ordering
-!                                       false to NOT generate fb ordering
+!         In    igenfbo     Integer     1 for generate feedback ordering
+!                                       0 to NOT generate fb ordering
 
-!         In    fbomif      Logical     true  for write feedback ordering on mif
-!                                       false to  NOT write feedback ordering on mif
+!         In    ifbomif     Integer     1  for write feedback ordering on mif
+!                                       0 to  NOT write feedback ordering on mif
 
-!         In    prifbi      Logical     true to print in crossreference info
+!         In    iprifbi     Integer     0 to print in crossreference info
 !                                             on how each fb var was chosen
-!                                       false to not print this info
+!                                       1 to not print this info
 
-!         In    prisjc      Logical     true to print rhs symbolic jacobian
+!         In    iprisjc     Integer     0 to print rhs symbolic jacobian
 !                                            + statistics
-!                                       false to not print
+!                                       1 to not print
 
-!         In    mrfopt      Integer(*)  options/flags for cross reference
+!         In    mrfopt      Integer(2)  options/flags for cross reference
 
-!         In    fbcopt      Integer(*)  options for printing feedback cycle
+!         In    fbcopt      Integer(2)  options for printing feedback cycle
 !                                       passed to mcxref
 
-!         In    logunt      Integer     Isis logfile unitnumber
+!         In    igen_dep_file Integer    0 to generate a dependency file
+!                                        1 to not generate a dependency file
 !         Out   mcstat      Integer     status flag
 !                                         0 all ok
 !                                         1 model file does not exist
@@ -57,10 +59,14 @@ use mcpars
 !     different error handling
 !     different intermediate code and output files
 
-integer ::  logunt, mcstat
-integer ::  modelnaml, modelnams(4)
-logical ::  dofbrd, genfbo, fbomif, prifbi, prisjc, strict, gen_dep_file
-integer ::  mrfopt(*), fbcopt(*)
+integer, intent(out) ::  mcstat
+integer, intent(in) ::  modelnaml, modelnams(*)
+integer, intent(in) ::  idofbrd, igenfbo, ifbomif, iprifbi, iprisjc,  &
+                                   igen_dep_file
+integer, intent(in) ::  mrfopt(*), fbcopt(*)
+
+
+logical ::  dofbrd, genfbo, fbomif, prifbi, prisjc, gen_dep_file
 
 !     for copy of fbcopt
 
@@ -100,6 +106,14 @@ integer ::  istrict, i_gen_dep_file
 integer ::  remove_xrffile, remove_miffile, xrf_err, mif_err
 integer ::  fbor_err
 
+! convert integers (passed from C) to logicals
+dofbrd = idofbrd > 0
+genfbo = igenfbo > 0
+fbomif = ifbomif > 0
+prifbi = iprifbi > 0
+prisjc = iprisjc > 0
+gen_dep_file = igen_dep_file > 0
+
 mcstat = 0
 faterr = .false.
 nerror = 0
@@ -109,38 +123,42 @@ mcrcod = 0
 ier    = 0
 mc_alloc_stat = 0
 
-call mcimsg(1, 0, logunt)
+! initialise the modules
+! TODO: is there a way to do this when the dynamic library is loaded?
+call init_modules
+
+call mcimsg(1, 0)
 
 call mcifig
 
-!     initialise model compiler, determine pathname modelfile
+! initialise model compiler, determine pathname modelfile
 call mcfileadmin(modelnaml, modelnams, pathnm)
 
-!     generate names of the mif and mrf file
+! generate names of the mif and mrf file
 call mkfnam(mifnam, mifext)
 call mkfnam(xrfnam,xrfext)
 
-!     delete the mif and mrf file if they already exist
-mif_err = remove_miffile(logunt)
-xrf_err = remove_xrffile(logunt)
+!  delete the mif and mrf file if they already exist
+mif_err = remove_miffile()
+xrf_err = remove_xrffile()
 
 if (mif_err /= 0 .or. xrf_err /= 0) then
     mcstat = 3
     goto 2000
 endif
 
-!     open files
+! open files
 
-!     unit parunt first for parameter list,
-!     later for model structure (ordering information)
+! unit parunt first for parameter list,
+! later for model structure (ordering information)
 open(parunt,status='scratch',form='unformatted',iostat=ios)
 if(ios.ne.0) goto 980
 
-!     unit polunt for equation code
+! unit polunt for equation code
 open(polunt,form='UNFORMATTED',status='scratch',iostat=ios)
 if(ios.ne.0) goto 980
 
-!     unit ufnunt for function code
+! unit ufnunt for function code
 open(ufnunt,form='UNFORMATTED',status='scratch',iostat=ios)
 if(ios.ne.0) goto 980
 
@@ -175,13 +193,9 @@ endif
 !*ENDIF
 
 
-!     call the xpc model compiler
+! call the xpc model compiler
 
-if (strict) then
-   istrict = 1
-else
-   istrict = 0
-endif
+istrict = 1
 if (gen_dep_file) then
    i_gen_dep_file = 1
 else
@@ -192,7 +206,7 @@ nb = len_trim(pathnm) + 1
 pathnm(nb:nb) = char(0)
 mcstat = mcip(pathnm, istrict, i_gen_dep_file)
 
-call mcimsg(3, 0, logunt)
+call mcimsg(3, 0)
 
 !*IF TIMER
 !      call xtime(tnew)
@@ -220,14 +234,13 @@ call sort_names
 !     read coefficients from file
 call read_coef
 
-call mcimsg(8, int(mdl%neq, ISIS_IKIND), logunt)
+call mcimsg(8, int(mdl%neq, ISIS_IKIND))
 
 if (mdl%neq .le. 0) goto 850
 
-call mcimsg(4, 0, logunt)
+call mcimsg(4, 0)
 
-!     set unused bytes in string memory to zero
-
+! set unused bytes in string memory to zero
 call mcszer(mdl%enames, mdl%ielast, size(mdl%enames))
 call mcszer(mdl%vnames, mdl%ivlast, size(mdl%vnames))
 call mcszer(mdl%pnames, mdl%iplast, size(mdl%pnames))
@@ -242,6 +255,7 @@ if (mdl%nulf > 0) call mcszer(mdl%ulfnames, mdl%iulflast, size(mdl%ulfnames))
 !     file depunt
 
 call mc_analyse_model(ier)
+
 !*IF TIMER
 !      call xtime(tnew)
 !      call mctimer('Analysing dependencies        ', told, tnew)
@@ -250,7 +264,7 @@ if (ier /= 0) then
     if (ier == 10) then
         mcstat = 4
     else
-        call mcdeperr(ier, logunt)
+        call mcdeperr(ier)
         mcstat = 3
     endif
     goto 2000
@@ -279,8 +293,7 @@ endif
 !*IF TIMER
 !      call xtime(told)
 !*ENDIF
-call order_mdl(mdl, dofbrd = dofbrd, logunit = logunt, &
-&              errflg = orderr, fbor_err = fbor_err)
+call order_mdl(mdl, dofbrd = dofbrd, errflg = orderr, fbor_err = fbor_err)
 !*IF TIMER
 !      call xtime(tnew)
 !      call mctimer('Total time ordering model            ',told,tnew)
@@ -294,18 +307,18 @@ if (orderr .ne. 0 ) then
     endif
 endif
 if (genfbo .and. mdl%nfb > 1) then
-    call mcimsg(12,0,logunt)
+    call mcimsg(12,0)
 endif
 if (genfbo .and. mdl%nfb > 1 .and. fbor_err /= 0) then
     if (fbor_err == 2) then
-        call mcimsg(13, 0, logunt)
+        call mcimsg(13, 0)
     else if (fbor_err == 3) then
-        call mcimsg(14, mdl%fbomem, logunt)
+        call mcimsg(14, mdl%fbomem)
     endif
-    call mcimsg(15,0,logunt)
+    call mcimsg(15,0)
 endif
 
-call mcimsg(5, 0, logunt)
+call mcimsg(5, 0)
 
 call datim(mdl%time, 1)
 call datim(mdl%date, 2)
@@ -317,7 +330,7 @@ call check_variables
 !call mcwmif(mdl, mifnam, ier)
 !*IF TIMER
 !      call xtime(tnew)
-!      call mctimer('Mcwmif                        ',told,tnew,logunt)
+!      call mctimer('Mcwmif                        ',told,tnew)
 !*ENDIF
 if (ier .ne. 0 ) then
     if (ier == 5) then
@@ -333,8 +346,7 @@ if (ier .ne. 0 ) then
 endif
 
 !     write cross-reference file
-
-call mcimsg(6, 0, logunt)
+call mcimsg(6, 0)
 
 
 !  TEMPORARY
@@ -364,20 +376,20 @@ endif
 !*IF TIMER
 !      call xtime(told)
 !*ENDIF
-!call write_xref(ier, mrfopt, fbcpar, prifbi, prisjc)
+call write_xref(ier, mrfopt, fbcpar, prifbi, prisjc)
 !*IF TIMER
 !      call xtime(tnew)
-!      call mctimer('Mcxref                        ',told,tnew,logunt)
+!      call mctimer('Mcxref                        ',told,tnew)
 !*ENDIF
 
 if( ier .ne. 0 ) then
 !        an error occurred in mcxref
-   call mcxerr(logunt)
-   call mcgerr(4,logunt)
+   call mcxerr
+   call mcgerr(4)
    mcstat = 3
 endif
 
-call mcimsg(7, 0, logunt)
+call mcimsg(7, 0)
 
 
 !     FINISHED
@@ -395,7 +407,7 @@ goto 999
 
 976 continue
 !     errors in mcwmif
-call mcxerr(logunt)
+call mcxerr
 mcrcod = 3
 goto 999
 
@@ -408,11 +420,11 @@ goto 999
 
 999 continue
 if( filerr .ne. 0 ) then
-   call mcferr(logunt)
+   call mcferr
 elseif( mcrcod .gt. 100 ) then
-   call mcoerr(orderr, logunt)
+   call mcoerr(orderr)
 else
-   call mcgerr(mcrcod, logunt)
+   call mcgerr(mcrcod)
 endif
 mcstat = 3
 
@@ -511,14 +523,13 @@ end
 
 !-----------------------------------------------------------------------
 
-subroutine mcoerr(errcod, logunt)
+subroutine mcoerr(errcod)
 
 !     ordering error message
 
 !     In    errcod   Integer    type error
-!     In    logunt   Integer    Isis log unitnumber
 
-integer ::  errcod, logunt
+integer ::  errcod
 character*80 errmsg
 
 goto(1,2,3,4,5,6,7,8,9,10,11,12,13) errcod
@@ -554,23 +565,22 @@ goto 100
 
 100 continue
 
-!call fmtlog('B5*Mcordr: ' // errmsg(:len_trim(errmsg)) // '*EX', logunt)
+!call fmtlog('B5*Mcordr: ' // errmsg(:len_trim(errmsg)) // '*EX')
 
 return
 end
 
 !-----------------------------------------------------------------------
 
-subroutine mcdeperr(errcod, logunt)
+subroutine mcdeperr(errcod)
 use msufstack
 use mcdep
 
-integer ::  errcod, logunt
+integer ::  errcod
 
 !           error message in mcodep
 
 !     In    errcod   Integer    type error
-!     In    logunt   Integer    Isis log unitnumber
 
 
   character(len = 50) :: errmsg
@@ -593,7 +603,7 @@ integer ::  errcod, logunt
 
   end select
 
-  !call fmtlog('B5*' // errmsg(:len_trim(errmsg)) // '*EX', logunt)
+  !call fmtlog('B5*' // errmsg(:len_trim(errmsg)) // '*EX')
 
   return
 
@@ -601,14 +611,13 @@ end subroutine mcdeperr
 
 !-----------------------------------------------------------------------
 
-subroutine mcgerr( errcod, logunt)
+subroutine mcgerr( errcod)
 
 !     general error message for a variety of errors
 
 !     In    errcod   Integer    type error
-!     In    logunt   Integer    Isis log unitnumber
 
-integer ::  errcod, logunt
+integer ::  errcod
 character*50 errmsg
 
 select case(errcod)
@@ -625,21 +634,18 @@ case default
 
 end select
 
-!call fmtlog('B5*' // errmsg(:len_trim(errmsg)) // '*EX', logunt)
+!call fmtlog('B5*' // errmsg(:len_trim(errmsg)) // '*EX')
 
 return
 end subroutine mcgerr
 
 !-----------------------------------------------------------------------
 
-subroutine mcferr(logunt)
+subroutine mcferr
 use mcvars
 
 !     error message for a file (read/write) error
 
-!     In    logunt   Integer    Isis log unitnumber
-
-integer ::  logunt
 character*80 errmsg
 
 if( filerr .eq. 1 ) then
@@ -690,16 +696,15 @@ else
 
 endif
 
-!call fmtlog('B5*' // errmsg(:len_trim(errmsg)) // '*EX', logunt)
+!call fmtlog('B5*' // errmsg(:len_trim(errmsg)) // '*EX')
 
 return
 end
 
 !-----------------------------------------------------------------------
 
-subroutine mcxerr(logunt)
+subroutine mcxerr
 use mcvars
-integer ::  logunt
 
 !     error message during scanning/compiling model
 !     message is in common variable errstr
@@ -710,18 +715,18 @@ integer ::  slen
 
 slen = len_trim(errstr)
 
-!call fmtlog('B5*' // errstr(:slen) // '*EX', logunt)
+!call fmtlog('B5*' // errstr(:slen) // '*EX')
 
 return
 end
 
 !-----------------------------------------------------------------------
 
-subroutine mcimsg( msgnum, mpar, logunt )
+subroutine mcimsg( msgnum, mpar)
 
 !     print progress .. messages
 
-integer ::  msgnum, mpar, logunt
+integer ::  msgnum, mpar
 character*80 str
 
 goto(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) msgnum
@@ -808,7 +813,7 @@ str = 'B7*More than 5 passes for redundant feedbacks*EX'
 goto 100
 
 100 continue
-!call fmtlog(str, logunt)
+!call fmtlog(str)
 
 200 return
 end
@@ -894,32 +899,31 @@ end subroutine read_coef
 !******************************************************************************
 
 integer function save_equation(np, pol)
-   use mcvars
-   use mcpars
-   use invpol
-   integer(kind = MC_IKIND), intent(in) :: np
-   integer(kind = MC_IKIND), dimension(*), intent(in) :: pol
-!          Write polish code of an equation to scratch file polunt.
-!          The function returns 0 if no errors are detected.
-!          It returns maxpol when the lenght of the polish code (np)
-!          is longer than maxpol (in other subroutines the polish
-!          code has to fit in array polish).
+    use mcvars
+    use mcpars
+    use invpol
+    integer(kind = MC_IKIND), intent(in) :: np
+    integer(kind = MC_IKIND), dimension(*), intent(in) :: pol
+    ! Write polish code of an equation to scratch file polunt.
+    ! The function returns 0 if no errors are detected.
+    ! It returns maxpol when the lenght of the polish code (np)
+    ! is longer than maxpol (in other subroutines the polish
+    ! code has to fit in array polish).
 
-   if (np > maxpol) then
-       save_equation = maxpol
-       return
-   endif
+    if (np > maxpol) then
+        save_equation = maxpol
+        return
+    endif
 
-   write(polunt) np, pol(:np)
-   mdl%eqblen = mdl%eqblen + np
+    write(polunt) np, pol(:np)
+    mdl%eqblen = mdl%eqblen + np
 
-!*IF DEBUG_XPC
-!         print *,'polish code equation written to polunt ',
-!     *            pol(:np)
-!*ENDIF
+#ifdef DEBUG_COMPILER
+    print *,'polish code equation written to polunt ', pol(:np)
+#endif
 
-   save_equation = 0
-   return
+    save_equation = 0
+    return
 
 end function save_equation
 
@@ -984,9 +988,8 @@ subroutine mc_alloc(eqCount, varCount, parCount, coefCount, &
 &                   funCharCount, ulFunCharCount, caCount, leadVarCount, stat)
    use mcvars
 
-!   subroutine mc_alloc is called by the xpc model compiler to allocate
-!   the arrays for the name registration
-
+   ! subroutine mc_alloc is called by the xpc model compiler to allocate
+   ! the arrays for the name registration
 
    integer(kind = MC_IKIND), intent(in) :: eqCount, varCount, &
 &       parCount, coefCount, funCount, ulFunCount, &
@@ -994,23 +997,23 @@ subroutine mc_alloc(eqCount, varCount, parCount, coefCount, &
 &       ulFunCharCount, caCount, leadVarCount
    integer(kind = MC_IKIND), intent(out) :: stat
 
-!*IF DEBUG_XPC
-!         print *
-!         print *,'mc_alloc, eqCount = ', eqCount
-!         print *,'mc_alloc, eqoCharCount = ', eqCharCount
-!         print *,'mc_alloc, varCount = ', varCount
-!         print *,'mc_alloc, varCharCount = ', varCharCount
-!         print *,'mc_alloc, parCount = ', parCount
-!         print *,'mc_alloc, parCharCount = ', parCharCount
-!         print *,'mc_alloc, coefCount = ', coefCount
-!         print *,'mc_alloc, funCount = ', funCount
-!         print *,'mc_alloc, ulFunCount = ', ulFunCount
-!         print *,'mc_alloc, funCharCount = ', funCharCount
-!         print *,'mc_alloc, ulFunCharCount = ', ulFunCharCount
-!         print *,'mc_alloc, caCount = ', caCount
-!         print *,'mc_alloc, leadVarCount = ', leadVarCount
-!         print *
-!*ENDIF
+#ifdef DEBUG_COMPILER
+         print *
+         print *,'mc_alloc, eqCount = ', eqCount
+         print *,'mc_alloc, eqoCharCount = ', eqCharCount
+         print *,'mc_alloc, varCount = ', varCount
+         print *,'mc_alloc, varCharCount = ', varCharCount
+         print *,'mc_alloc, parCount = ', parCount
+         print *,'mc_alloc, parCharCount = ', parCharCount
+         print *,'mc_alloc, coefCount = ', coefCount
+         print *,'mc_alloc, funCount = ', funCount
+         print *,'mc_alloc, ulFunCount = ', ulFunCount
+         print *,'mc_alloc, funCharCount = ', funCharCount
+         print *,'mc_alloc, ulFunCharCount = ', ulFunCharCount
+         print *,'mc_alloc, caCount = ', caCount
+         print *,'mc_alloc, leadVarCount = ', leadVarCount
+         print *
+#endif
 
    call allocate_model(mdl, eqCount, varCount, parCount, &
 &                      coefCount, funCount, ulFunCount, &
@@ -1136,9 +1139,8 @@ end subroutine add_ulfuncname
 
 ! -----------------------------------------------------------
 
-integer function remove_xrffile(logunt)
+integer function remove_xrffile()
   use mcvars
-  integer :: logunt
 
   integer :: delete_file
 
@@ -1146,17 +1148,16 @@ integer function remove_xrffile(logunt)
 
   if (remove_xrffile /= 0) then
       errstr = 'Cannot open mrf file for write'
-      call mcxerr(logunt)
-      call mcgerr(4,logunt)
+      call mcxerr
+      call mcgerr(4)
   endif
 
 end function remove_xrffile
 
 ! -----------------------------------------------------------
 
-integer function remove_miffile(logunt)
+integer function remove_miffile()
   use mcvars
-  integer :: logunt
 
   integer :: delete_file
 
@@ -1164,8 +1165,8 @@ integer function remove_miffile(logunt)
 
   if (remove_miffile /= 0) then
       errstr = 'Cannot open mif file for write'
-      call mcxerr(logunt)
-      call mcgerr(3,logunt)
+      call mcxerr
+      call mcgerr(3)
   endif
 
 end function remove_miffile

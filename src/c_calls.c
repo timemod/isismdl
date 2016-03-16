@@ -21,7 +21,8 @@ extern void F77_NAME(set_fix_fit_fortran)(int *mws_index, int *, int *ivar,
                                       double *data, int *icol, int *fix);
 extern void F77_NAME(solve_fortran)(int *mws_index, int *startp, int *endp,
                                     int *error);
-extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index, double *value);
+extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index,
+                                      double *value);
 
 SEXP read_mdl_c(SEXP filename) {
 

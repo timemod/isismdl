@@ -2,7 +2,7 @@ module mcirfb
 
 contains
 
-subroutine rm_redundant_fb(mdl, orderr, errpar, usinac, fixepi, dofbrd, logunt)
+subroutine rm_redundant_fb(mdl, orderr, errpar, usinac, fixepi, dofbrd)
 use model_type
 use kinds
 use mcordr
@@ -13,7 +13,6 @@ use mcordr
 type(model), intent(inout) :: mdl
 integer, intent(out) :: orderr, errpar
 logical, intent(in), optional :: usinac, fixepi, dofbrd
-integer, intent(in) :: logunt
 logical :: mem_error
 
 !     Locals
@@ -42,13 +41,13 @@ endif
 
 !     Determine if feedback set + order has redundant feedbacks
 
-call mcimsg(9,0,logunt)
+call mcimsg(9,0)
 
 xpass = 1
 
 call mcfbrd
 
-call mcimsg(10,fbrc, logunt)
+call mcimsg(10,fbrc)
 
 if (fbrc .gt. 0 ) then
 !        redundant feedback variables detected ==> print
@@ -57,11 +56,11 @@ if (fbrc .gt. 0 ) then
 
    if( .not. dofbrd_tmp)  then
 !           don't remove redundant feedback variables so quit
-      call mcimsg(11, 1, logunt)
+      call mcimsg(11, 1)
       goto 200
    endif
 
-   call mcimsg(11,0   , logunt)
+   call mcimsg(11,0)
 
 !        iterate until no more redundant feedback variables are detected
 
@@ -83,7 +82,7 @@ if (fbrc .gt. 0 ) then
       if (mdl%nfb .gt. nfbp ) then
 !              message that feedback sized has increased
 
-         call mcimsg(16, mdl%nfb - nfbp, logunt)
+         call mcimsg(16, mdl%nfb - nfbp)
 
 !              increase size of work arrays
          if (mdl%nfb > size(fbred)) then
@@ -99,22 +98,22 @@ if (fbrc .gt. 0 ) then
          call mcfbrd
 
          if (fbrc .ne. 0 ) then
-             call mcimsg(10,fbrc, logunt)
+             call mcimsg(10,fbrc)
              if( xpass .lt. 5) then
                 call mcfrms
                 xpass = xpass + 1
                 goto 100
              else
-                call mcimsg(18,0 ,logunt)
+                call mcimsg(18,0)
              endif
          else
          endif
       else
 !               No additional feedbacks created ==> done
-           call mcimsg(16, mdl%nfb - nfbp, logunt)
+           call mcimsg(16, mdl%nfb - nfbp)
       endif
 
-      call mcimsg(17,xpass,logunt)
+      call mcimsg(17,xpass)
 
 endif
 
@@ -229,7 +228,7 @@ integer ::  nlen1,nlen2
 &           fbrnam(1:nlen1),' (first)*EX'
       endif
 
-      !call fmtlog(str, logunt)
+      !call fmtlog(str)
     end do
 
     return

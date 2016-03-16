@@ -219,7 +219,7 @@ if (dep_alloc_stat > 0) then
     return
 endif
 
-!     read polish code user functions from file ufnunt
+! read polish code user functions from file ufnunt
 
 rewind ufnunt
 do i = 1, mdl%nuf
@@ -244,11 +244,10 @@ do i = 1, mdl%neq
    end do
 
 
-!        nsimv: number of simultaneous variables for normal solve
+   ! nsimv: number of simultaneous variables for normal solve
    maxarc = maxarc + nsimv
    maxref = maxref + nv + nparv
    if (ier.ne. 0 ) exit
-
 enddo
 
 goto 920

@@ -114,8 +114,8 @@ call init_ufstack
 ip    = ipequb
 
 
-!     fetch next opcode from byte array
-!     increment instruction pointer
+! fetch next opcode from byte array
+! increment instruction pointer
 
 do while (ier .eq. 0)
 
@@ -128,7 +128,7 @@ do while (ier .eq. 0)
   case (E_LIRL, E_LIRL8, E_LISUM)
      call push_value
 
-!          model parameters
+  !  model parameters
   case (E_LIP0:E_LIP5, E_LAP0:E_LAP5)
      call push_value
      if (mode == CMPMDL) then
@@ -136,9 +136,9 @@ do while (ier .eq. 0)
          call setsmv(kxar,nparv,iparv,maxrhs,ier)
      endif
 
-!          arithmetic binary
-!          relational operators, .or., .and.
-!          2-argument functions e.g. HYPOT or FIBUR
+  ! arithmetic binary
+  ! relational operators, .or., .and.
+  ! 2-argument functions e.g. HYPOT or FIBUR
   case (E_ADD:E_MIN, E_LT:E_NE, E_AND, E_OR, E_ADDZ:E_NEZ, E_HYPOT, E_FIBUR)
 
      if (nstack < 2) then
@@ -220,15 +220,15 @@ do while (ier .eq. 0)
      endif
 
   case (E_ELSE)
-!          have executed then part of an if expression
-!          keep it on the stack
+    ! have executed then part of an if expression
+    ! keep it on the stack
      continue
 
   case (E_SUM)
-!          fetch lower and upper bound of sum as integer
-!          set type on stack to .false. (for start 0.0)
-!          NOTE: sum functions may not be nested, so there is no need to
-!          store mindo and maxdo on a stack.
+     ! fetch lower and upper bound of sum as integer
+     ! set type on stack to .false. (for start 0.0)
+     ! NOTE: sum functions may not be nested, so there is no need to
+     ! store mindo and maxdo on a stack.
      mindo  = mdl%equat(ip)
      maxdo  = mdl%equat(ip+1)
 
@@ -237,21 +237,21 @@ do while (ier .eq. 0)
      maxdo  = 0
 
   case (E_DEL)
-!          remember Del argument in ndel
-!          NOTE: del functions may not be nested, so there is no need to
-!          store ndel on a stack.
+     ! remember Del argument in ndel
+     !  NOTE: del functions may not be nested, so there is no need to
+     ! store ndel on a stack.
      ndel   = - mdl%equat(ip)
 
   case (E_ENDDEL)
      ndel   = 0
 
-!          User function
+  ! User function
   case (E_CALL)
 
      juf = mdl%equat(ip)
 
-!           determine nstuf: place on stack before the arguments
-!           of the user function
+     ! determine nstuf: place on stack before the arguments
+     ! of the user function
      nstuf_old = nstuf
      nstuf = nstack - mdl%narguf(juf)
 
@@ -262,10 +262,10 @@ do while (ier .eq. 0)
      call push_userf(ip + opskip(ipcode), idum,  nstuf, nstuf_old, ier)
      if (ier /= 0) ier = 5
 
-!          set new context
+     !  set new context
      ip    = mdl%nrecuf(juf) + 1
 
-!          User language function
+  ! User language function
   case (E_ULCALL)
 
      narg = mdl%equat(ip + 1)
@@ -277,25 +277,25 @@ do while (ier .eq. 0)
          stack(nstack)%is_ref = .false.
      endif
 
-!       return from user statement function
+  ! return from user statement function
   case (E_RET)
-!          no automatic skip here
-!          reset equation context
+     ! no automatic skip here
+     ! reset equation context
 
      call pop_userf(ip, idum, nstuf, nstuf_old)
 
-!          pop arguments and reset nstuf
+     ! pop arguments and reset nstuf
      nstack = nstuf + 1
      nstuf = nstuf_old
 
-!          top of stack now contains function result (this is a value)
+     ! top of stack now contains function result (this is a value)
      if (nstack > 0) then
          stack(nstack)%is_ref = .false.
      else
          ier = 2
      endif
 
-!          ip now points to "byte" after <call> opcode + args
+     ! ip now points to "byte" after <call> opcode + args
 
   case (E_STOP)
      if( nstack .ne. 1 ) ier = 2
@@ -308,14 +308,13 @@ do while (ier .eq. 0)
 
   if (ier /= 0) exit
 
-!       move to the next ip code by skipping arguments, except
-!       if ipcode == E_CALL. In that case ip already points
-!       to start of the code for the user function
+  ! move to the next ip code by skipping arguments, except
+  ! if ipcode == E_CALL. In that case ip already points
+  ! to start of the code for the user function
   if (ipcode /= E_CALL) ip = ip + opskip(ipcode)
 
 
 end do
-
 
 return
 

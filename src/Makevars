@@ -1,7 +1,7 @@
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)  $(FLIBS)
 PKG_CFLAGS = -DMCISIS
-# used when checking
-PKG_FCFLAGS = -fimplicit-none
+#PKG_FCFLAGS = -fimplicit-none -DDEBUG_COMPILER -cpp
+PKG_FCFLAGS = -fimplicit-none -cpp
 
 # options for lex and yacc
 LEX = flex
@@ -76,7 +76,10 @@ msfitm.o : kinds.o liqrmn.o msvars.o nucnst.o nuna.o msfbvl.o scalemat.o \
            msnwut.o nuv.o msfito.o
 liqrmn.o : kinds.o nucnst.o
 
-mcisis.o : mcvars.o mccedp.o mdordr.o filenameutils.o mcpars.o
+mcisis.o : mcvars.o mccedp.o mdordr.o filenameutils.o mcpars.o mcxref.o
+mcxref.o : mcvars.o kinds.o mdl_name_utils.o mcdep.o mcpars.o mcjsbl.o
+mcjsbl.o : model_type.o mccedp.o
+mcosjc.o : model_params.o mdl_name_utils.o
 mdordr.o : mdl_name_utils.o mccedp.o model_type.o kinds.o mcordr.o \
            mcirfb.o mcfbor.o 
 mcordr.o : kinds.o model_type.o mccedp.o
