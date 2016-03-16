@@ -82,7 +82,7 @@ mcwmif.o : model_type.o invpol.o mcpars.o
 mdordr.o : mdl_name_utils.o mccedp.o model_type.o kinds.o mcordr.o \
            mcirfb.o mcfbor.o 
 mcordr.o : kinds.o model_type.o mccedp.o
-mcirbf.o : model_type.o kinds.o mcordr.o mdl_name_utils
+mcirfb.o : model_type.o kinds.o mcordr.o mdl_name_utils.o
 
 scan.o : scan.c symbol.h ecode.h mcinit.h util.h mchdr.h xpcdef.h xpctab.h \
          flags.h
