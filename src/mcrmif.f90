@@ -197,7 +197,6 @@ end
 subroutine rdmifc(mdl, ier,fstat)
 use model_type
 use mif_file
-use isischar_utils
 
 !     reads index arrays from model code file
 !     reads equation code from model code file
@@ -306,16 +305,7 @@ do i = 1, mdl%nrv
     mdl%mxlead = max(mdl%ibx2(i+1) - mdl%ibx2(i), mdl%mxlead)
 end do
 
-
-!
-! convert all names from internal to ASCII characters
-!
-call convert_names(mdl%neq, mdl%ienames, mdl%enames, mdl%indexe, .true.)
-call convert_names(mdl%nrv, mdl%ivnames, mdl%vnames, mdl%indexv, .true.)
-call convert_names(mdl%nrp, mdl%ipnames, mdl%pnames, mdl%indexp, .true.)
-call convert_names(mdl%nuf, mdl%ifnames, mdl%fnames, idumar, .false.)
-
-!     read function and equation code
+! read function and equation code
 
 if (mifvernum >= 3) then
     call read_polish

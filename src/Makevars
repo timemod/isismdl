@@ -1,7 +1,7 @@
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)  $(FLIBS)
 PKG_CFLAGS = -DMCISIS
 #PKG_FCFLAGS = -fimplicit-none -DDEBUG_COMPILER -cpp
-PKG_FCFLAGS = -fimplicit-none -cpp
+PKG_FCFLAGS = -fimplicit-none -cpp 
 
 # options for lex and yacc
 LEX = flex
@@ -31,14 +31,12 @@ mws_type.o : model_type.o mws_params.o period_type.o kinds.o nuna.o mdlvars.o \
 invpol.o : model_params.o
 mdl_name_utils.o : mdl_nlen.o
 mdl_output.o : mdl_nlen.o
-mif_read.o : mif_file.o model_type.o invpol.o mdl_name_utils.o kinds.o\
-             isischar_utils.o
+mcrmif.o : mif_file.o model_type.o invpol.o mdl_name_utils.o kinds.o
 fortran_calls.o : modelworkspaces.o mws_type.o msslvq.o msimul.o
 init.o : mcedef.o nuna.o
 modelworkspaces.o : mws_type.o init.o
 mws_utils.o : modelworkspaces.o
 get_info.o : modelworkspaces.o
-isischar_utils.o : c_iso_tables.o model_params.o mdl_name_utils.o
 mscalc.o : mws_type.o msvars.o mcstak.o  msufstack.o mcedef.o \
            msshift.inc mspushv.inc mspushf.inc \
            nuv.o nuna.o msimot.o
@@ -76,10 +74,11 @@ msfitm.o : kinds.o liqrmn.o msvars.o nucnst.o nuna.o msfbvl.o scalemat.o \
            msnwut.o nuv.o msfito.o
 liqrmn.o : kinds.o nucnst.o
 
-mcisis.o : mcvars.o mccedp.o mdordr.o filenameutils.o mcpars.o mcxref.o
+mcisis.o : mcvars.o mccedp.o mdordr.o filenameutils.o mcpars.o mcxref.o mcwmif.o
 mcxref.o : mcvars.o kinds.o mdl_name_utils.o mcdep.o mcpars.o mcjsbl.o
 mcjsbl.o : model_type.o mccedp.o
 mcosjc.o : model_params.o mdl_name_utils.o
+mcwmif.o : model_type.o invpol.o mcpars.o
 mdordr.o : mdl_name_utils.o mccedp.o model_type.o kinds.o mcordr.o \
            mcirfb.o mcfbor.o 
 mcordr.o : kinds.o model_type.o mccedp.o

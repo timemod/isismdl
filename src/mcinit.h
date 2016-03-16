@@ -1,7 +1,7 @@
 #ifndef INIT_H
 #define INIT_H
 
-void    init( void );
+void  mcinit( void );
 
 extern  SymTab  *Stp;   /* pointer to Symbol table */
 

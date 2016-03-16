@@ -29,13 +29,11 @@
 #define ONE_EIGHTH  (NUM_BITS / 8)
 #define HIGH_BITS   (~ ((unsigned) ~0 >> ONE_EIGHTH))
 
-static  unsigned hashf(char *s)
-{
+static  unsigned hashf(char *s) {
     unsigned h, tmp;
 
-    for( h = 0; *s; s++ )
-    {
-        h = (h << ONE_EIGHTH) + tolower(*s);
+    for (h = 0; *s; s++ ) {
+        h = (h << ONE_EIGHTH) + *s;
         if( (tmp = h & HIGH_BITS) != 0 )
             h = (h ^ (tmp >> THREE_FOURTHS)) & ~ HIGH_BITS;
     }
@@ -44,20 +42,7 @@ static  unsigned hashf(char *s)
 }
 #endif
 
-#if 0
-static  unsigned hashf( char *s )
-{
-    unsigned    h = 0;
-
-    for( ; *s; s++ )
-            h = (h << 1) ^ tolower(*s);
-
-    return h % HASHSIZE;
-}
-#endif
-
-SymTab  *sym_init( void )
-{
+SymTab  *sym_init(void) {
         SymTab  *stab;
         size_t  i;
 
@@ -68,9 +53,8 @@ SymTab  *sym_init( void )
         return stab;
 }
 
-Symbol  *sym_tlookup(SymTab *stab, char *s, int t)
-{
-        /* find s + type t in symbol table */
+Symbol *sym_tlookup(SymTab *stab, char *s, int t) {
+    /* find s + type t in symbol table */
 
     Symbol  *sp;
 
@@ -116,16 +100,9 @@ Symbol  *sym_install(SymTab *stab, char *s, int t )
     return sp;
 }
 
-Symbol  *sym_create( SymTab *stab, char *s , int t )
-{
+Symbol *sym_create(SymTab *stab, char *s , int t) {
         Symbol  *sp;
         char *p = s;
-
-        /* convert symbol name to uppercase */
-        while (*p != '\0') {
-	       *p = toupper(*p);
-	       p++;
-        }
 
         sp = sym_lookup( stab, s );
         if( sp == NULL )

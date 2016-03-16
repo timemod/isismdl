@@ -674,7 +674,7 @@ void  eqn_epilogue(Symbol *eqnamesp, int isfrml, Symbol *lhs, Enodep ex,
         eqn_name = eqnamesp->name;
         if ((eqnamesp->type == T_BUILTIN) || (eqnamesp->xpctype == XP_CMD)) {
            /* the name of the equation is a keyword: convert to uppercase */
-           for (p = eqn_name; (*p = toupper(*p)) != '\0'; p++);
+           for (p = eqn_name; (*p = tolower(*p)) != '\0'; p++);
         }
     } else 
         eqn_name = lhs->name;

@@ -17,3 +17,4 @@ islm_model$set_data(data)
 result <- islm_model$solve("2010Q3/2011Q4")
 print(result)
 print(islm_model$get_data())
+

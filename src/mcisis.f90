@@ -327,7 +327,7 @@ call datim(mdl%date, 2)
 !      call xtime(told)
 !*ENDIF
 call check_variables
-!call mcwmif(mdl, mifnam, ier)
+call mcwmif(mdl, mifnam, ier)
 !*IF TIMER
 !      call xtime(tnew)
 !      call mctimer('Mcwmif                        ',told,tnew)
@@ -936,12 +936,11 @@ integer function save_userfunction(np, pol)
    integer(kind = MC_IKIND), intent(in) :: np
    integer(kind = MC_IKIND), dimension(*), intent(in) :: pol(*)
 
-!          Write polish code of a user function to scratch file ufnunt.
-!          The function returns 0 if no errors are detected.
-!          It returns maxpol when the length of the polish code (np)
-!          is longer than maxpol (in other subroutines the polish
-!          code has to fit in array polish).
-
+   ! Write polish code of a user function to scratch file ufnunt.
+   ! The function returns 0 if no errors are detected.
+   ! It returns maxpol when the length of the polish code (np)
+   ! is longer than maxpol (in other subroutines the polish
+   ! code has to fit in array polish).
 
    if (np > maxpol) then
        save_userfunction = maxpol
@@ -951,10 +950,9 @@ integer function save_userfunction(np, pol)
    write(ufnunt) np, pol(:np)
    mdl%ufblen = mdl%ufblen + np
 
-!*IF DEBUG_XPC
-!         print *,'polish code userfunction written to polunt ',
-!     *            pol(:np)
-!*ENDIF
+#ifdef DEBUG_COMPILER
+   print *,'polish code userfunction written to polunt ',  pol(:np)
+#endif
 
    save_userfunction = 0
    return
@@ -973,9 +971,9 @@ integer ::  n
 
 integer ::  ios
 
-!*IF DEBUG_XPC
-!          print *,'writing parameter values ', values(:n)
-!*ENDIF
+#ifdef DEBUG_COMPILER
+    print *,'writing parameter values ', values(:n)
+#endif
     write(parunt, iostat = ios) n, values(:n)
 
 end subroutine save_parameter
@@ -1043,13 +1041,13 @@ subroutine add_eqname(k, nmlen, name, lhs_num, type)
 
    integer :: i
 
-!*IF DEBUG_XPC
-!         character(len = 100) :: eqnam
-!
-!         call byasf7(name, 1, nmlen, eqnam)
-!         print *,'add_eqname: k, type, lhs_num, nmlen, naam' ,
-!     *           k, type, lhs_num, nmlen, eqnam(:nmlen)
-!*ENDIF
+#ifdef DEBUG_COMPILER
+   character(len = 100) :: eqnam
+
+   call byasf7(name, 1, nmlen, eqnam)
+   print *,'add_eqname: k, type, lhs_num, nmlen, naam' , &
+                k, type, lhs_num, nmlen, eqnam(:nmlen)
+#endif
    i = add_name(name, nmlen, k, mdl%enames, mdl%ienames, &
 &               nre, size(mdl%enames), mdl%ielast)
    mdl%lhsnum(k) =  lhs_num
@@ -1068,12 +1066,12 @@ subroutine add_varname(k, nmlen, name, type)
 
    integer :: i
 
-!*IF DEBUG_XPC
-!         character(len = 100) :: varnam
-!         call byasf7(name, 1, nmlen, varnam)
-!         print *,'add_varname: k, type, nmlen, naam' ,
-!     *              k, type, nmlen, varnam(:nmlen)
-!*ENDIF
+#ifdef DEBUG_COMPILER
+         character(len = 100) :: varnam
+         call byasf7(name, 1, nmlen, varnam)
+         print *,'add_varname: k, type, nmlen, naam' ,  &
+             k, type, nmlen, varnam(:nmlen)
+#endif
 
    i = add_name(name, nmlen, k, mdl%vnames, mdl%ivnames, &
 &               mdl%nrv, size(mdl%vnames), mdl%ivlast)
@@ -1089,9 +1087,9 @@ subroutine add_parname(k, nmlen, name)
    integer(kind = MC_IKIND) :: k, nmlen, name(*)
    integer :: i
 
-!*IF DEBUG_XPC
-!         print *,'add_parname: k, nmlen', k, nmlen, name(1)
-!*ENDIF
+#ifdef DEBUG_COMPILER
+   print *,'add_parname: k, nmlen', k, nmlen, name(1)
+#endif
 
    i = add_name(name, nmlen, k, mdl%pnames, mdl%ipnames, &
 &               mdl%nrp, size(mdl%pnames), mdl%iplast)
@@ -1105,10 +1103,9 @@ subroutine add_funcname(k, nmlen, name, argCount)
    integer(kind = MC_IKIND) ::  k, name(*), nmlen, argCount
    integer                  :: i
 
-!*IF DEBUG_XPC
-!         print *,'add_funname: k, argCount, nmlen', k, argCount,
-!     *            nmlen, name(1)
-!*ENDIF
+#ifdef DEBUG_COMPILER
+   print *,'add_funname: k, argCount, nmlen', k, argCount, nmlen, name(1)
+#endif
 
    i = add_name(name, nmlen, k, mdl%fnames, mdl%ifnames, &
 &               mdl%nuf, size(mdl%fnames), mdl%iflast)
@@ -1127,10 +1124,10 @@ subroutine add_ulfuncname(k, nmlen, name)
    ! register user language function name
    !
 
-!*IF DEBUG_XPC
-!         print *,'add_ulfunname: k, argCount, nmlen', k, argCount,
-!     *            nmlen, name(1)
-!*ENDIF
+#ifdef DEBUG_COMPILER
+   print *,'add_ulfunname: k, argCount, nmlen', k, argCount, &
+                 nmlen, name(1)
+#endif
 
    i = add_name(name, nmlen, k, mdl%ulfnames, mdl%iulfnames, &
 &               mdl%nulf, size(mdl%ulfnames), mdl%iulflast)

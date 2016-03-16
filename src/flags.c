@@ -8,8 +8,6 @@
 
 #define HASHSIZE 101
 
-static void tolowercase(char *s);
-
 struct nlist {
     char *flag;
     struct nlist *next;
@@ -50,8 +48,6 @@ int add_flag(char *flag) {
     struct nlist *np;
     unsigned int hashval;
 
-    tolowercase(flag);
-    
     if ((np = lookup(flag)) == NULL) { /* flag not yet present */
         np = (struct nlist *) malloc(sizeof(struct nlist));
         if (np == NULL) {
@@ -70,7 +66,6 @@ int flag_present(char *flag) {
 
     /* Returns 1 if flag is present in the table, and 0 if not */
 
-    tolowercase(flag);
     return lookup(flag) != NULL;
 }
 
@@ -95,15 +90,3 @@ void clear_flags(void) {
        }
     }
 }
-
-static void tolowercase(char *s) {
-
-    /* convert string s to lowercase characters */
-    
-    char *p = s;
-    while (*p != '\0') {
-        *p = toupper(*p);
-        p++;
-    }
-}
-
