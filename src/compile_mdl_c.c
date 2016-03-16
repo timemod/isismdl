@@ -23,6 +23,7 @@ SEXP compile_mdl_c(SEXP filename) {
     fbcopt[1] = 200;
     mrfopt[0] = 128;
     mrfopt[1] = 1;
+    igen_dep_file = 0;
 
     F77_CALL(mcisis)(&modelnmlen, modelnm, &idofbrd, &igenfbo, &ifbomif,
                      &iprifbi, &iprisjc, mrfopt, fbcopt, &igen_dep_file, 
