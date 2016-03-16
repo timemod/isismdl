@@ -10,26 +10,27 @@
 // Later may it smaller (1024 or so).
 #define INITIAL_SIZE 1024000
 
-int mws_index;
-
 static char *report_text = NULL;
 static char *pos;
 static size_t size;
 
 char *summary;
 
-
-void init_report(int mws_index_, const char *period_string) {
-
-    summary = "Solved";
-
+void init_report(void) {
     if (report_text == NULL) {
         size = INITIAL_SIZE;
         report_text = malloc(size);
+        *report_text = '\0';
     }
     pos = report_text;
+}
+
+void init_solve_report(const char *period_string) {
+
+    summary = "Solved";
+
+    init_report();
         
-    mws_index = mws_index_;
     rep_printf("Simulation Period: %s\n", period_string);
     rep_printf("Solve options\n...\nblablabla\n...\n");
 }
@@ -93,6 +94,6 @@ void F77_SUB(report_solve_error)(int *error) {
      rep_printf("%s\n", summary);
 }
 
-char *get_solve_summary(void) {
+char *get_summary(void) {
     return summary;
 }

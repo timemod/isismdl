@@ -1,0 +1,5 @@
+syntax error, unexpected name
+Line: 6 of file example/fout.mdl
+frml t = t0 + t1 * y aap;
+                        ^
+

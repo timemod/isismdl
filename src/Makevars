@@ -20,6 +20,7 @@ xpctab.c : xpctab.y
 # dependencies C files
 report.o : report.h
 c_calls.o : report.h get_info.h c_calls.h
+compile_mdl.o : report.h 
 fix_report.o : report.h current_period.h
 
 # dependencies Fortran files
@@ -58,7 +59,7 @@ mdbrdn.o : kinds.o nuna.o liqrco.o liqrup.o nucnst.o
 liqrup.o : kinds.o nuv.o
 nuv.o : kinds.o nucnst.o
 msimul.o : msvars.o msutil.o nucnst.o msratop.o nucnst.o mssolve.o msfix.o msfitm.o msimot.o msolot.o msimox.o
-msimot.o : msvars.o nucnst.o nuna.o mdl_name_utils.o mdl_nlen.o
+msimot.o : msvars.o nucnst.o nuna.o mdl_name_utils.o mdl_nlen.o output_utils.o
 msolot.o : msimot.o
 msimox.o : msratop.o msvars.o msimot.o mdl_name_utils.o
 msjcot.o : msvars.o msimot.o mdl_name_utils.o
@@ -74,7 +75,8 @@ msfitm.o : kinds.o liqrmn.o msvars.o nucnst.o nuna.o msfbvl.o scalemat.o \
            msnwut.o nuv.o msfito.o
 liqrmn.o : kinds.o nucnst.o
 
-mcisis.o : mcvars.o mccedp.o mdordr.o filenameutils.o mcpars.o mcxref.o mcwmif.o
+mcisis.o : mcvars.o mccedp.o mdordr.o filenameutils.o mcpars.o mcxref.o \
+           mcwmif.o output_utils.o
 mcxref.o : mcvars.o kinds.o mdl_name_utils.o mcdep.o mcpars.o mcjsbl.o
 mcjsbl.o : model_type.o mccedp.o
 mcosjc.o : model_params.o mdl_name_utils.o

@@ -13,7 +13,7 @@ SEXP compile_mdl_c(SEXP filename) {
     int idofbrd, igenfbo, ifbomif, iprifbi, iprisjc,
         mrfopt[2], fbcopt[2], igen_dep_file, mcstat;
 
-    /* initialise option */
+    /* initialise options */
     idofbrd = 1;
     igenfbo = 1;
     ifbomif = 0;
@@ -28,6 +28,7 @@ SEXP compile_mdl_c(SEXP filename) {
     F77_CALL(mcisis)(&modelnmlen, modelnm, &idofbrd, &igenfbo, &ifbomif,
                      &iprifbi, &iprisjc, mrfopt, fbcopt, &igen_dep_file, 
                      &mcstat);
+
     if (mcstat != 0) {
         char *format;
         switch (mcstat) {
@@ -42,5 +43,7 @@ SEXP compile_mdl_c(SEXP filename) {
         }
         error(format, modelnm);
     }
-    return R_NilValue;
+    
+
+    return ScalarLogical(mcstat == 0);
 }

@@ -612,39 +612,40 @@ end subroutine mcdeperr
 !-----------------------------------------------------------------------
 
 subroutine mcgerr( errcod)
+    use output_utils
 
-!     general error message for a variety of errors
+    ! general error message for a variety of errors
 
-!     In    errcod   Integer    type error
+    !  In    errcod   Integer    type error
 
-integer ::  errcod
-character*50 errmsg
+    integer ::  errcod
+    character*50 errmsg
 
-select case(errcod)
-case (1)
-    errmsg = 'Model has no equations'
-case (2)
-    errmsg = 'Error ordering model'
-case (3)
-    errmsg = 'Problem writing MIF file'
-case (4)
-    errmsg = 'Problem generating cross reference'
-case default
-    errmsg = 'Unknown error in mcisis'
+    select case(errcod)
+    case (1)
+        errmsg = 'Model has no equations'
+    case (2)
+        errmsg = 'Error ordering model'
+    case (3)
+        errmsg = 'Problem writing MIF file'
+    case (4)
+        errmsg = 'Problem generating cross reference'
+    case default
+        errmsg = 'Unknown error in mcisis'
+    end select
+    
+    call macromod_error(errmsg)
 
-end select
-
-!call fmtlog('B5*' // errmsg(:len_trim(errmsg)) // '*EX')
-
-return
+    return
 end subroutine mcgerr
 
 !-----------------------------------------------------------------------
 
 subroutine mcferr
 use mcvars
+use output_utils
 
-!     error message for a file (read/write) error
+! error message for a file (read/write) error
 
 character*80 errmsg
 
@@ -696,7 +697,7 @@ else
 
 endif
 
-!call fmtlog('B5*' // errmsg(:len_trim(errmsg)) // '*EX')
+call macromod_warn(errmsg)
 
 return
 end
@@ -705,131 +706,130 @@ end
 
 subroutine mcxerr
 use mcvars
+use output_utils
 
-!     error message during scanning/compiling model
-!     message is in common variable errstr
-!     write is now written to the Isis log file and to the .err file
-!     errtyp == 1 implies a continuation message
+    ! error message during scanning/compiling model
+    ! message is in common variable errstr
+    ! write is now written to the Isis log file and to the .err file
+    ! errtyp == 1 implies a continuation message
 
-integer ::  slen
+    call macromod_warn(errstr)
 
-slen = len_trim(errstr)
-
-!call fmtlog('B5*' // errstr(:slen) // '*EX')
-
-return
-end
+    return
+end subroutine mcxerr
 
 !-----------------------------------------------------------------------
 
 subroutine mcimsg( msgnum, mpar)
+use output_utils
+integer, intent(in) ::  msgnum, mpar
 
-!     print progress .. messages
+! print progress .. messages
 
-integer ::  msgnum, mpar
 character*80 str
 
 goto(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) msgnum
 goto 200
 
 1 continue
-str = 'B5*ISIS Model-Compiler 3.00*EX'
+str = 'Isis Model Compiler 3.00'
 goto 100
 
 2 continue
-str = 'B7*Scanning model...*EX'
+str = 'Scanning model...'
 goto 100
 
 3 continue
-str = 'B7*Compiling model...*EX'
+str = 'Compiling model...'
 goto 100
 
 4 continue
-str = 'B7*Ordering equations...*EX'
+str = 'Ordering equations...'
 goto 100
 
 5 continue
-str = 'B7*Writing MIF file...*EX'
+str = 'Writing MIF file...'
 goto 100
 
 6 continue
-str = 'B7*Writing cross-reference file...*EX'
+str = 'Writing cross-reference file...'
 goto 100
 
 7 continue
-str = 'B5*End compilation*EX'
+str = 'End compilation'
 goto 100
 
 8 continue
-str = 'B7*         equations processed*EX'
-write(str(4:11),'(i8)' ) mpar
+str = '         equations processed'
+write(str(1:8),'(i8)' ) mpar
 goto 100
 
 9 continue
-str = 'B7*Checking redundant feedback variables*EX'
+str = 'Checking redundant feedback variables'
 goto 100
 
 10 continue
-str = 'B7*      redundant feedback variables detected*EX'
+str = '         redundant feedback variables detected'
 write(str(4:8),'(i5)' ) mpar
 goto 100
 
 11 continue
-if( mpar .eq. 0 ) then
-    str = 'B7*Removing redundant feedback variables*EX'
+if (mpar == 0) then
+    str = 'Removing redundant feedback variables'
 else
-    str = 'B7*Not removing redundant feedback variables*EX'
+    str = 'Not removing redundant feedback variables'
 endif
 goto 100
 
 12 continue
-str = 'B7*Generating feedback variable ordering*EX'
+str = 'Generating feedback variable ordering'
 goto 100
 
 13 continue
-str = 'B7*Feedback jacobian too dense (< 10% step reduction)*EX'
+str = 'Feedback jacobian too dense (< 10% step reduction)'
 goto 100
 
 14 continue
-str = 'B7*Out of memory for feedback ordering*EX'
+str = 'Out of memory for feedback ordering'
 goto 100
 
 15 continue
-str = 'B7*NO feedback ordering generated and installed*EX'
+str = 'NO feedback ordering generated and installed'
 goto 100
 
 16 continue
-str = 'B8*       feedback variables added*EX'
+str = '       feedback variables added'
 write(str(4:9),'(i6)' ) mpar
 goto 100
 
 17 continue
-str = 'B7*Redundancies resolved in    passes*EX'
+str = 'Redundancies resolved in    passes'
 write(str(29:30),'(i2)' ) mpar
 goto 100
 
 18 continue
-str = 'B7*More than 5 passes for redundant feedbacks*EX'
+str = 'More than 5 passes for redundant feedbacks'
 goto 100
 
 100 continue
-!call fmtlog(str)
+
+call macromod_out(str)
 
 200 return
-end
+end subroutine mcimsg
 
 !-----------------------------------------------------------------------
 
 subroutine mcszer(names, lastp, kmax)
     use model_params
 
-!         set unused bytes to 0 in names
+    ! set unused bytes to 0 in names
 
     integer(kind = MC_IKIND) :: names(*), lastp, kmax
 
-integer ::  end
+    integer ::  end
 
-!         last used byte
+    ! last used byte
     end = lastp / 64
 
     call byszer(names, end+1, kmax*MCNYI4 - (end+1) + 1)

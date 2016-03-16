@@ -180,11 +180,11 @@ SEXP solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP period_string_) {
     int endp= asInteger(endp_);
     const char *period_string = CHAR(STRING_ELT(period_string_, 0));
 
-    init_report(mws_index, period_string);
+    init_solve_report(period_string);
     int error;
     F77_CALL(solve_fortran)(&mws_index, &startp, &endp, &error);
     char *report_text = close_report();
-    char *summary = get_solve_summary();
+    char *summary = get_summary();
     if (error) {
         warning(
 "\nSolve model issued error messages.\nThe solve may be unsuccesfull/incomplete or erroneous.\nSee the solve_report returned by solve for details.");

@@ -20,11 +20,6 @@ module msimot
     integer, parameter, private :: STRLEN = 255
     character(len = STRLEN), save ::  str
 
-    ! byte string for output
-    ! TODO: use c_char type of iso-c-binding, also update byf7as.
-    ! NOTE: one extra byte for the terminating 0.
-    integer, parameter, private ::  MDNYI4 = 4
-    integer, dimension((STRLEN + 1 - 1) / MDNYI4 + 1), private :: istr
     integer, save :: spos
 
     ! for extracting variable name
@@ -48,6 +43,8 @@ module msimot
 contains
 
     subroutine strout(otype)
+        use output_utils
+        integer, intent(in) :: otype
 
         ! handle output in this routine
 
@@ -80,12 +77,9 @@ contains
 
         ! carcon is used for FTN carriage control
 
-        integer, intent(in) :: otype
-        integer :: nb
-    
-        call byf7as(str, istr, 1, nb)
-        call report_str(istr)
 
+        call macromod_report(str)
+    
         select case (otype)
         case (O_ERRM, O_ERRF, O_ERRQ)
             errcnt = errcnt + 1
