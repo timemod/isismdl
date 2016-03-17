@@ -710,9 +710,8 @@ character*(*) line
 
 character*(*) name
 integer ::   n4blank
-integer ::   lenstr
 
-n4blank = ( (lenstr(name)-1)/4 + 1 )*4
+n4blank = ( (len_trim(name)-1)/4 + 1 )*4
 if(icode .eq. 0) then
    if(lp .gt. 0) write(xrfunt,'(a)',err=990,iostat=ios) line(:lp)
    if(name .eq. ' ') then

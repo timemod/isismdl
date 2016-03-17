@@ -441,15 +441,13 @@ integer(kind = SOLVE_IKIND), intent(in) :: numw(*), numu(*), nw, nu, nu_max
 ! output of D matrix
 
 character*80 dhdr
-integer ::   lenstr
-external lenstr
 
 integer ::  i
 
 write(dhdr,'(4a,i4)') 'Transpose of matrix D (scaled with rms)', &
 & ' in period ', perstr, ' at iteration ',fiter
 
-call matotn(dj, nu_max, nu, nw, numu(:nu), numw(:nw), dhdr(:lenstr(dhdr)))
+call matotn(dj, nu_max, nu, nw, numu(:nu), numw(:nw), trim(dhdr))
 
 call strini(' ', 1)
 call strout(O_OUTB)
@@ -472,8 +470,6 @@ integer(kind = SOLVE_IKIND), intent(in) :: numu(*), nu
 integer ::   maxlen
 
 integer ::   i, ires
-integer ::   lenstr
-external lenstr
 
 integer ::   colwid, rpos
 
@@ -497,7 +493,7 @@ call strout(O_OUTB)
 call strini(' ', 1 + maxlen)
 
 do  i=1,2
-   nlen = lenstr(chdr(i))
+   nlen = len_trim(chdr(i))
    rpos = spos + colwid - nlen
    str(rpos : rpos + nlen - 1) = chdr(i)
    spos = spos + colwid + ICSPAC

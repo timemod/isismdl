@@ -16,7 +16,6 @@ integer(kind = MC_IKIND) :: xdim, nxrc, inames(*), names(*), rcidx(*), x(xdim, *
 
 integer ::        colwid, maxrhl, maxchl
 integer ::        ncpb,ncpe,npcols,i,j
-integer ::        lenstr
 
 !     for extracting variable name
 
@@ -68,7 +67,7 @@ do  ncpb = 1, nxrc, npcols
         spos = spos + colwid + ICSPAC
      enddo
 
-     write(mftunt,'(1x,a)') str(:lenstr(str))
+     write(mftunt,'(1x,a)') trim(str)
 
      do  i=1,nxrc
 
@@ -91,7 +90,7 @@ do  ncpb = 1, nxrc, npcols
            spos = spos + colwid + ICSPAC
         enddo
 
-        write(mftunt,'(1x,a)') str(:lenstr(str))
+        write(mftunt,'(1x,a)') trim(str)
 
      enddo
 enddo

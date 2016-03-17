@@ -210,7 +210,6 @@ logical ::  chkfb
 
 
     character*80 str
-integer ::  lenstr
 integer ::  i
 integer ::  nlen1,nlen2
 
