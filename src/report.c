@@ -74,8 +74,8 @@ void rep_printf(const char *format, ...) {
     */
 }
 
-// add ascii string str to the report, as a separate line
-void F77_SUB(report_str)(char *str) {
+// add string str to the report, as a separate line
+void report_str(char *str) {
     rep_printf("%s\n", str);
 }
 

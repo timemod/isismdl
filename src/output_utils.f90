@@ -1,24 +1,20 @@
 module output_utils
 
-    ! buffer for string conversion
-    ! byte string for output
-    ! TODO: use c_char type of iso-c-binding, also update byf7as.
-    ! NOTE: one extra byte for the terminating 0.
-    ! todo: is parameter STRLEN long enough?
-
-    integer, parameter, private :: STRLEN = 255
-    integer, parameter, private ::  MDNYI4 = 4
-    integer, dimension((STRLEN + 1 - 1) / MDNYI4 + 1), private :: istr
+    interface   
+        ! interface to C function report_str
+        subroutine report_str(string) bind(C, name = "report_str")
+            use iso_c_binding, only : c_char
+            character(kind = c_char), intent(in) :: string
+        end subroutine report_str
+    end interface
 
     contains
 
         subroutine macromod_report(string)
+            use iso_c_binding, only : C_NULL_CHAR
             character(len = *), intent(in) :: string
 
-            integer :: nb
-
-            call byf7as(string, istr, 1, nb)
-            call report_str(istr)
+            call report_str(trim(string) // C_NULL_CHAR)
 
         end subroutine macromod_report
 

@@ -29,6 +29,7 @@ module mws_type
             !
             ! initialise mws after reading a model
             !
+            use output_utils, only : macromod_error
             type(modelworkspace), intent(inout) :: mws
             integer, intent(out) :: error
         
@@ -40,7 +41,7 @@ module mws_type
             if (stat == 0) allocate(mws%test(mws%mdl%nrv), stat = stat)
             if (stat == 0) allocate(mws%ftrelax(mws%mdl%nendex), stat = stat)
             if (stat /= 0) then
-                call rexit("Not enough memory to allocate the mws")
+                call macromod_error("Not enough memory to allocate the mws")
                 error = 1
                 return
             endif
@@ -100,6 +101,7 @@ module mws_type
         ! If not, then the array is allocated and initialised.
         !
         subroutine mddata(mws, error)
+            use output_utils, only : macromod_error
             type(modelworkspace), intent(inout) :: mws
             logical, intent(out) :: error
         
@@ -110,7 +112,7 @@ module mws_type
             if (allocated(mws%mdl_data)) return
         
             if (mws%mdl%nrv == 0 .or. mws%perlen == 0) then
-                call rexit("Model has not been loaded")
+                call macromod_error("Model has not been loaded")
                 error = .true.
                 return
             endif
@@ -120,7 +122,7 @@ module mws_type
 &                                                            mws%perlen), &
 &                                   stat = stat)
             if (stat /= 0) then
-                call rexit("Not enough memory to allocate the mws")
+                call macromod_error("Not enough memory to allocate the mws")
                 error = .true.
                 return
              endif

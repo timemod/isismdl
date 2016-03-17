@@ -28,7 +28,7 @@ mif_file.o : mdl_flen.o
 model_type.o : model_params.o mdl_name_utils.o
 period_type.o : model_params.o
 mws_type.o : model_type.o mws_params.o period_type.o kinds.o nuna.o mdlvars.o \
-            solve_options_type.o nucnst.o
+            solve_options_type.o nucnst.o output_utils.o
 invpol.o : model_params.o
 mdl_name_utils.o : mdl_nlen.o
 mdl_output.o : mdl_nlen.o

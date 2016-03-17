@@ -197,7 +197,7 @@ SEXP solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP period_string_) {
     SET_VECTOR_ELT(list, 2, mkString(report_text));
     SEXP names = PROTECT(allocVector(STRSXP, 3));
     SET_STRING_ELT(names, 0, mkChar("success"));
-    SET_STRING_ELT(names, 1, mkChar("summary"));
+    SET_STRING_ELT(names, 1, mkChar("message"));
     SET_STRING_ELT(names, 2, mkChar("full_report"));
     setAttrib(list, R_NamesSymbol, names);
     UNPROTECT(2);
