@@ -126,7 +126,7 @@ fname.o : fname.c fname.h
 
 oprintf.o :oprintf.c oprintf.h util.h
 
-mcip.o: mchdr.h flags.h macromodtypes.h mcopt.h
+mcip.o: mchdr.h flags.h mcopt.h
 
 include_paths.o: mchdr.h util.h futils.h mcopt.h
 

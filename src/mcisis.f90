@@ -7,6 +7,16 @@ use mdordr
 use mcpars
 use init
 use mcxref
+use iso_c_binding, only : C_NULL_CHAR
+
+interface
+    function mcip(mfname, strict, gen_dep_file) bind(c)
+        use iso_c_binding, only : c_int, c_char
+        integer(c_int) :: mcip
+        character(kind = c_char), intent(in) :: mfname
+        integer(c_int), intent(in) :: strict, gen_dep_file
+    end function mcip
+end interface
 
 !     Isis model compiler
 !      input is mdl file
@@ -92,9 +102,8 @@ external davail
 !     name of model file with path
 character*(MAXFLEN + 1) pathnm
 
-integer ::   ios, nb
+integer ::   ios
 integer ::   ier,errpar,mcrcod,orderr
-integer, external :: mcip
 
 integer ::  istrict, i_gen_dep_file
 
@@ -202,9 +211,7 @@ else
    i_gen_dep_file = 0
 endif
 
-nb = len_trim(pathnm) + 1
-pathnm(nb:nb) = char(0)
-mcstat = mcip(pathnm, istrict, i_gen_dep_file)
+mcstat = mcip(trim(pathnm) // C_NULL_CHAR, istrict, i_gen_dep_file)
 
 call mcimsg(3, 0)
 
