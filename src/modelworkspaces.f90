@@ -1,6 +1,5 @@
 module modelworkspaces
     use mws_type
-    use init
     integer, parameter, private :: MAX_SIZE = 100
     type(modelworkspace), dimension(MAX_SIZE), target, save :: mws_array
     logical, dimension(MAX_SIZE), private, save :: mws_used = .false.
@@ -10,7 +9,8 @@ module modelworkspaces
     ! for different instances of models.
     ! This is only a prototype with limitations (these should be
     ! corrected in a true production environment):
-    ! There is a maximum of MAX_SIZE models that can be handled.
+    ! There is a maximum of MAX_SIZE models that can be handled
+    ! simultaneously.
     !
 
     contains
@@ -18,11 +18,6 @@ module modelworkspaces
             use output_utils, only : macromod_error
     
             integer :: i
-
-            ! initialise module 
-            ! TODO: this method should only be called when the
-            ! dynamic library is loaded. Is this possible?
-            call init_modules()
 
             ! find first free mws
             do i = 1, MAX_SIZE

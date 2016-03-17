@@ -5,7 +5,6 @@ use mcvars
 use mccedp
 use mdordr
 use mcpars
-use init
 use mcxref
 use iso_c_binding, only : C_NULL_CHAR
 
@@ -131,10 +130,6 @@ filios = 0
 mcrcod = 0
 ier    = 0
 mc_alloc_stat = 0
-
-! initialise the modules
-! TODO: is there a way to do this when the dynamic library is loaded?
-call init_modules
 
 call mcimsg(1, 0)
 

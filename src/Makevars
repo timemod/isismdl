@@ -34,8 +34,8 @@ mdl_name_utils.o : mdl_nlen.o
 mdl_output.o : mdl_nlen.o
 mcrmif.o : mif_file.o model_type.o invpol.o mdl_name_utils.o kinds.o
 fortran_calls.o : modelworkspaces.o mws_type.o msslvq.o msimul.o
-init.o : mcedef.o nuna.o
-modelworkspaces.o : mws_type.o init.o output_utils.o
+init_modules.o : mcedef.o nuna.o
+modelworkspaces.o : mws_type.o output_utils.o
 mws_utils.o : modelworkspaces.o
 get_info.o : modelworkspaces.o
 mscalc.o : mws_type.o msvars.o mcstak.o  msufstack.o mcedef.o \
