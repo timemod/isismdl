@@ -17,6 +17,7 @@ setOldClass("regperiod_range")
 #' @useDynLib macromod set_rms_c
 #' @useDynLib macromod run_equations_fortran
 #' @useDynLib macromod solve_c
+#' @useDynLib macromod remove_mws_fortran
 #' @import regts
 #' @import methods
 #' @field model_period the model period
@@ -24,7 +25,9 @@ MacroModel <- setRefClass("MacroModel",
     fields = list(model_index = "integer",
                   model_period = "regperiod_range"),
     methods = list(
-        # TODO: add finalize function, and clear the memory
+        finalize = function() {
+            .Fortran("remove_mws_fortran", model_index = model_index)
+        },
         get_variable_names = function() {
             "Returns the names of the model variables"
             return (.Call(get_variable_names_c, as.integer(model_index)))

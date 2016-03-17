@@ -88,3 +88,11 @@ subroutine solve_fortran(mws_index, jtb, jte, error)
     error = simerr
     call msclear
 end subroutine solve_fortran
+
+subroutine remove_mws_fortran(model_index)
+    use modelworkspaces
+    integer, intent(in) :: model_index
+    call clear_mws(mws_array(model_index))
+    call remove_mws(model_index)
+end subroutine remove_mws_fortran
+

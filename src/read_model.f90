@@ -11,6 +11,7 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, ier)
     integer :: fstat
 
     model_index = create_mws()
+    if (model_index < 0) return
 
     call read_mif_file(mws_array(model_index)%mdl, modelnmlen, modelnm, ier, &
 &                      fstat)

@@ -34,7 +34,7 @@ module mws_type
             integer, intent(out) :: error
         
             integer :: stat
-        
+            
             error = 0
 
             allocate(mws%dfile(mws%mdl%nd), stat = stat)
@@ -66,6 +66,7 @@ module mws_type
             deallocate(mws%rmsu, stat = stat)
             call clear_mdl_variables(mws%fix_vars)
             call clear_mdl_variables(mws%fit_targets)
+            call deallocate_model(mws%mdl)
         end subroutine clear_mws
 
         !
