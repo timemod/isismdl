@@ -22,13 +22,13 @@ subroutine get_period_info(model_index, per_len, max_lag, max_lead)
     max_lead = mws_array(model_index)%mdl%mxlead
 end subroutine get_period_info
 
-subroutine get_variable_name(model_index, i, nam, nlen)
+subroutine get_variable_name(model_index, i, nam, nlen, alphabet)
     use modelworkspaces
     use iso_c_binding
-    integer(c_int), intent(in)   :: model_index, i
+    integer(c_int), intent(in)   :: model_index, i, alphabet
     integer(c_int), intent(out)  :: nlen
     integer, dimension(*), intent(out) :: nam
-    call get_var_name(mws_array(model_index)%mdl, i, .false., nam, nlen);
+    call get_var_name(mws_array(model_index)%mdl, i, alphabet /= 0, nam, nlen);
 end subroutine get_variable_name
 
 integer(c_int) function get_var_index(model_index, name, namelen)

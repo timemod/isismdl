@@ -7,9 +7,8 @@
 
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
-extern void F77_NAME(get_data_fortran)(int *mws_index, int *nvar, int *ivar, 
-                                       int *ntime, int *jtb, int *jte, 
-                                       double *data);
+extern void F77_NAME(get_data_all)(int *mws_index, int *nvar, int *ntime, int *jtb,
+                                   int *jte, double *data);
 extern void F77_NAME(set_data_fortran)(int *mws_index, int *nvar, int *ivar, 
                                        int *ntime, int *jtb, int *jte, 
                                        double *data, int *icol);
@@ -52,9 +51,11 @@ SEXP get_variable_names_c(SEXP model_index_) {
                              // TODO: parameter for 32
     int variable_count = F77_CALL(get_variable_count)(&model_index);
     int ivar, len;
+    int alphabet = 1;
     SEXP names = PROTECT(allocVector(STRSXP, variable_count));
     for (ivar = 1; ivar <= variable_count; ivar++) {
-        F77_CALL(get_variable_name)(&model_index, &ivar, variable_name, &len);
+        F77_CALL(get_variable_name)(&model_index, &ivar, variable_name, &len,
+                 &alphabet);
         variable_name[len] = '\0';
         SET_STRING_ELT(names, ivar - 1, mkChar(variable_name));
     }
@@ -82,17 +83,10 @@ SEXP get_data_c(SEXP mws_index_) {
     SET_VECTOR_ELT(dim_names, 1, col_names);
     setAttrib(data, R_DimNamesSymbol, dim_names);
 
-    int *ivar = (int *) R_alloc(nvar, sizeof(int));
-    int i;
-    for (i = 0; i < nvar; i++) {
-        ivar[i] = i + 1;  // fortran has an index origin of 1!
-    }
-
     // fill in model data
     int jtb = -max_lag + 1;
     int jte = per_len + max_lead;
-    F77_CALL(get_data_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb, &jte, 
-                               REAL(data));
+    F77_CALL(get_data_all)(&mws_index, &nvar, &ntime, &jtb, &jte, REAL(data));
 
     SEXP list = PROTECT(allocVector(VECSXP, 2));
     SET_VECTOR_ELT(list, 0, data);
