@@ -16,6 +16,8 @@ A reference class to a macroecomic model
 \section{Methods}{
 
 \describe{
+\item{\code{fill_mdl_data(period)}}{Calculates missing model data from identities}
+
 \item{\code{get_data()}}{Returns the model data}
 
 \item{\code{get_variable_names()}}{Returns the names of the model variables}

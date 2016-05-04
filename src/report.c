@@ -35,6 +35,12 @@ void init_solve_report(const char *period_string) {
     rep_printf("Solve options\n...\nblablabla\n...\n");
 }
 
+void init_filmdt_report(const char *period_string) {
+    init_report();
+    rep_printf("Fillmdt Period: %s\n", period_string);
+}
+
+
 char *close_report(void) {
     return report_text;
 }

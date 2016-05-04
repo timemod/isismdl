@@ -33,7 +33,7 @@ invpol.o : model_params.o
 mdl_name_utils.o : mdl_nlen.o
 mdl_output.o : mdl_nlen.o
 mcrmif.o : mif_file.o model_type.o invpol.o mdl_name_utils.o kinds.o
-fortran_calls.o : modelworkspaces.o mws_type.o msslvq.o msimul.o
+fortran_calls.o : modelworkspaces.o mws_type.o msslvq.o msimul.o  msfill.o
 init_modules.o : mcedef.o nuna.o
 modelworkspaces.o : mws_type.o output_utils.o
 mws_utils.o : modelworkspaces.o
@@ -74,6 +74,7 @@ mcvars.o : model_type.o mdl_flen.o
 msfitm.o : kinds.o liqrmn.o msvars.o nucnst.o nuna.o msfbvl.o scalemat.o \
            msnwut.o nuv.o msfito.o
 liqrmn.o : kinds.o nucnst.o
+msfill.o : mws_type.o msimot.o nuna.o msvars.o msimot.o modelworkspaces.o
 
 mcisis.o : mcvars.o mccedp.o mdordr.o filenameutils.o mcpars.o mcxref.o \
            mcwmif.o output_utils.o

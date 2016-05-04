@@ -17,6 +17,7 @@ setOldClass("regperiod_range")
 #' @useDynLib macromod set_rms_c
 #' @useDynLib macromod run_equations_fortran
 #' @useDynLib macromod solve_c
+#' @useDynLib macromod filmdt_c
 #' @useDynLib macromod remove_mws_fortran
 #' @import regts
 #' @import methods
@@ -76,6 +77,15 @@ MacroModel <- setRefClass("MacroModel",
                                jtb = js$startp, jte = js$endp,
                                solve_period = as.character(period))
             class(retval) <- "solve_report"
+            return (retval)
+        },
+        fill_mdl_data = function(period) {
+            "Calculates missing model data from identities"
+            js <- get_period_indices(period, model_period)
+            retval <- .Call("filmdt_c", model_index = model_index,
+                            jtb = js$startp, jte = js$endp,
+                            solve_period = as.character(period))
+            class(retval) <- "filmdt_report"
             return (retval)
         }
     )

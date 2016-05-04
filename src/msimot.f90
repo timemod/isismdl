@@ -469,7 +469,6 @@ end subroutine simot3
 !-----------------------------------------------------------------------
 
 subroutine simot4(iv, p)
-use msvars
 use mdl_name_utils
 
 ! print message for invalid/missing exogenous variable
@@ -489,7 +488,6 @@ end subroutine simot4
 !-----------------------------------------------------------------------
 
 subroutine simot5(iv, p)
-use msvars
 use mdl_name_utils
 
 !     print message for invalid/missing constant adjustment
@@ -544,7 +542,6 @@ end subroutine nshfmt
 !-----------------------------------------------------------------------
 
 subroutine matotn(x, xdim, nxr, nxc, ridx, cidx, mathdr)
-use msvars
 use mdl_name_utils
 use nucnst
 

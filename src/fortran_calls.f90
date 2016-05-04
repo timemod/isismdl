@@ -93,6 +93,19 @@ subroutine solve_fortran(mws_index, jtb, jte, error)
     call msclear
 end subroutine solve_fortran
 
+subroutine filmdt_fortran(mws_index, jtb, jte)
+    use modelworkspaces
+    use msvars
+    use msfill
+    use iso_c_binding
+    integer(c_int), intent(in) :: mws_index, jtb, jte
+
+    call msvarsinit(mws_array(mws_index))
+    call fill_mdl_data(jtb, jte, 2)
+
+end subroutine filmdt_fortran
+
+
 subroutine remove_mws_fortran(model_index)
     use modelworkspaces
     integer, intent(in) :: model_index

@@ -20,6 +20,7 @@ extern void F77_NAME(set_fix_fit_fortran)(int *mws_index, int *, int *ivar,
                                       double *data, int *icol, int *fix);
 extern void F77_NAME(solve_fortran)(int *mws_index, int *startp, int *endp,
                                     int *error);
+extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp);
 extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index,
                                       double *value);
 
@@ -197,3 +198,23 @@ SEXP solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP period_string_) {
     UNPROTECT(2);
     return list;
 }
+
+
+SEXP filmdt_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP period_string_) {
+
+    // process arguments
+    int mws_index = asInteger(mws_index_);
+    int startp = asInteger(startp_);
+    int endp= asInteger(endp_);
+    const char *period_string = CHAR(STRING_ELT(period_string_, 0));
+
+    init_filmdt_report(period_string);
+    F77_CALL(filmdt_fortran)(&mws_index, &startp, &endp);
+    char *report_text = close_report();
+
+    // create ouput: solve_report
+    SEXP ret = mkString(report_text);
+    return ret;
+}
+
+
