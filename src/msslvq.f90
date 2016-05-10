@@ -17,7 +17,7 @@ logical, intent(in) :: update
 integer, intent(out):: errflg
 
 real(kind = SOLVE_RKIND) :: result
-integer ::        lhs,jca, jdfile,jtime
+integer ::        lhs,jca, jtime
 integer ::        ier
 
 logical  :: error, old_lik
@@ -46,7 +46,7 @@ if( jca .ne. 0 ) then
    endif
 endif
 
-do jtime =jt1, jt2
+do jtime = jt1, jt2
 
    if (.not. period_ok(mws, lhs, jtime)) cycle
 
@@ -61,35 +61,31 @@ do jtime =jt1, jt2
 
    ! now test behavioural equation
    if (eqtype == 'B' .or. eqtype == 'M') then
-
-       !   if outside main period no valid result is possible
-       !      but if lhs is endogenous then
-       !             it may be required to store invalid lhs
-       !
-       !          if lhs is fixed nothing to store (no CA storage available)
-
-       !   if lhs is endogenous ca() must be valid
-       !   if lhs is fixed      lhs  must be valid
-
-      if (jtime < 1 .or. jtime > mws%perlen) then
-          if (mdl%lik(lhs) ) then
-              goto 480
-          else
-              cycle
-          endif
-      else if (mdl%lik(lhs)) then
-          if (nuifna(mws%constant_adjustments(jca, jtime))) goto 480
-      else
-          if (nuifna(mws%mdl_data(lhs, jtime))) goto 480
-      endif
+       ! If outside main period no valid result is possible
+       ! but if lhs is endogenous then
+       ! it may be required to store invalid lhs
+       ! if lhs is fixed nothing to store (no CA storage available)
+       if (jtime < 1 .or. jtime > mws%perlen) then
+           if (mdl%lik(lhs) ) then
+               goto 480
+           else
+               cycle
+           endif
+       else if (mdl%lik(lhs)) then
+           ! if lhs is endogenous ca() must be valid
+           if (nuifna(mws%constant_adjustments(jca, jtime))) goto 480
+       else
+           ! if lhs is fixed lhs must be valid
+           if (nuifna(mws%mdl_data(lhs, jtime))) goto 480
+       endif
 
    endif
 
-   if( eqtype == 'I' ) then
+   if (eqtype == 'I') then
       ! identity
       call msisng(result, eqnum, jtime, ier)
 
-   else if( eqtype == 'B' ) then
+   else if (eqtype == 'B') then
 
        ! behavioural explicit equation
        ! if lhs is endogenous then add CA to result
@@ -109,28 +105,16 @@ do jtime =jt1, jt2
        ! implicit behavioural equation
        ! if lhs is fixed then CA = - rhs (excluding CA)
        ! else newton solve equation
-
       if (mdl%lik(lhs) ) then
-          call msinwt( result, mws%mdl_data(lhs, jtime), lhs, jca, &
-&                      eqnum, jtime, mws%test(lhs), ier )
+          call msinwt(result, lhs, jca, eqnum, jtime, ier)
       else
           call msisng(result,eqnum, jtime, ier)
           if( ier .eq. 0 ) result = - result
       endif
 
-   else if( eqtype == 'N') then
-
-      ! implicit identity (solve with newton)
-
-      if (jtime >= 1 .and. jtime <= mws%perlen) then
-          call msinwt( result, mws%mdl_data(lhs, jtime), lhs, 0, &
-&                      eqnum, jtime, mws%test(lhs), ier)
-      else
-          jdfile = get_dfile_index(mws, lhs, jtime)
-          call msinwt( result, mws%dfile(jdfile), lhs, 0, &
-&                      eqnum, jtime, mws%test(lhs), ier)
-      endif
-
+   else if (eqtype == 'N') then
+       ! implicit identity (solve with newton)
+       call msinwt(result, lhs, 0, eqnum, jtime, ier)
    endif
 
    ! result holds solution

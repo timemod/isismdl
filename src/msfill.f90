@@ -55,7 +55,7 @@ subroutine fill_mdl_data(jt1, jt2, repopt)
         logical ::     error
 
         real*8 x, xresult
-        integer ::  i, iequ, lhsvar, jdatts, jdfile, ier
+        integer ::  i, iequ, lhsvar, ier
 
         didfb = .false.
         
@@ -69,7 +69,7 @@ subroutine fill_mdl_data(jt1, jt2, repopt)
            if (eqtype /= 'I' .and. eqtype /= 'N') cycle
 
            ! possibly something to do
-           ! calculate index in mws%mdl_data/dfile array
+           ! calculate index in mws%mdl_data array
            ! if available entry is not missing do nothing
            call get_var_value(mws, lhsvar, jtime, x, error)
 
@@ -77,13 +77,9 @@ subroutine fill_mdl_data(jt1, jt2, repopt)
 
            if (eqtype == 'I') then
                call msisng(xresult, iequ, jtime, ier)
-           elseif (jtime >= 1 .and. jtime <= mws%perlen) then
-               call msinwt(xresult, mws%mdl_data(lhsvar, jtime), &
-                           lhsvar, 0, iequ, jtime, mws%test(lhsvar), ier)
            else
-               jdfile = get_dfile_index(mws, lhsvar, jtime)
-               call msinwt(xresult, mws%dfile(jdfile), lhsvar, 0, &
-                           iequ, jtime, mws%test(lhsvar), ier)
+               ! implicit identity (solve with newton)
+               call msinwt(xresult, lhsvar, 0, iequ, jtime, ier)
            endif
 
            if (ier /= 0 .and. ier /= 3 .and. ier /= 7) then

@@ -334,7 +334,7 @@ do k = 1, mdl%nendex
    if (opts%uplead) then
        do j = jl + 1, jl + mdl%ibx2(i + 1) - mdl%ibx2(i)
            if (j > mws%perlen) then
-              mws%dfile(mdl%ibx2(i) + j - mws%perlen - 1) = xnew
+              mws%leads(i, j - mws%perlen) = xnew
            else
               mws%mdl_data(i, j) = xnew
            endif

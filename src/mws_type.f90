@@ -8,13 +8,13 @@ module mws_type
     use solve_options_type
 
     type modelworkspace
-        integer :: perlen = 0! length of the model data period
+        integer :: perlen = 0 ! length of the model period
         type(period) :: start_period
         type(period) :: end_period
         real(kind = MWS_RKIND), dimension(:, :), allocatable :: &
-&                             mdl_data, constant_adjustments
-        real(kind = MWS_RKIND), dimension(:), allocatable :: &
-&                             dfile, test, ftrelax
+                             mdl_data, constant_adjustments, lags, &
+                             leads
+        real(kind = MWS_RKIND), dimension(:), allocatable :: test, ftrelax
         type(model) :: mdl
         type(mdl_variables) :: fix_vars
         type(mdl_variables) :: fit_targets
@@ -37,7 +37,9 @@ module mws_type
             
             error = 0
 
-            allocate(mws%dfile(mws%mdl%nd), stat = stat)
+            allocate(mws%lags(mws%mdl%nrv, mws%mdl%mxlag), stat = stat)
+            if (stat == 0) allocate(mws%leads(mws%mdl%nrv, mws%mdl%mxlead), &
+                                    stat = stat)
             if (stat == 0) allocate(mws%test(mws%mdl%nrv), stat = stat)
             if (stat == 0) allocate(mws%ftrelax(mws%mdl%nendex), stat = stat)
             if (stat /= 0) then
@@ -45,10 +47,10 @@ module mws_type
                 error = 1
                 return
             endif
-        
-            if (mws%mdl%nd > 0) mws%dfile = NA
+            mws%lags = NA
+            mws%leads = NA
             mws%test = TSTDFL
-            if (mws%mdl%nendex > 0) mws%ftrelax = NA
+            mws%ftrelax = NA
         
             call set_default_options(mws%mdl, mws%solve_opts)
         
@@ -59,10 +61,13 @@ module mws_type
             integer :: stat
             mws%perlen = 0
             deallocate(mws%mdl_data, stat = stat)
+            deallocate(mws%lags, stat = stat)
+            deallocate(mws%leads, stat = stat)
             deallocate(mws%constant_adjustments, stat = stat)
             deallocate(mws%test, stat = stat)
             deallocate(mws%ftrelax, stat = stat)
-            deallocate(mws%dfile, stat = stat)
+            deallocate(mws%lags, stat = stat)
+            deallocate(mws%leads, stat = stat)
             deallocate(mws%rmsu, stat = stat)
             call clear_mdl_variables(mws%fix_vars)
             call clear_mdl_variables(mws%fit_targets)
@@ -91,10 +96,9 @@ module mws_type
 
             deallocate(mws%mdl_data, stat = stat)
             deallocate(mws%constant_adjustments, stat = stat)
-            if (allocated(mws%dfile)) then
-                mws%dfile = NA
-            endif
             call mddata(mws, error)
+            mws%lags = NA
+            mws%leads = NA
         end subroutine mws_setper
 
         !
@@ -130,7 +134,7 @@ module mws_type
         
             ! initialise data arrays
             mws%mdl_data = NA
-            mws%constant_adjustments= 0
+            mws%constant_adjustments = 0
         
         end subroutine mddata
 
@@ -170,11 +174,8 @@ module mws_type
             ! This function returns .true. if itime is
             ! a valid time index for variable ivar
             !
-            if (itime >= 1 .and. itime <= mws%perlen) then
-                period_ok = .true.
-            else
-               period_ok = get_dfile_index(mws, ivar, itime) > 0
-            endif
+            period_ok = itime >= 1 - mws%mdl%mxlag .and. &
+                        itime <= mws%perlen + mws%mdl%mxlead
         end function period_ok
 
         subroutine get_var_value(mws, ivar, itime, value, error)
@@ -183,19 +184,19 @@ module mws_type
             real(kind = MWS_RKIND), intent(out) :: value
             logical, intent(out) :: error
 
-            integer :: idx
+            if (.not. period_ok(mws, ivar, itime)) then
+                error = .true.
+                value = NA
+                return
+            endif
 
             error = .false.
-            if ((itime >= 1) .and. (itime <= mws%perlen)) then
+            if (itime <= 0) then
+                value = mws%lags(ivar, itime + mws%mdl%mxlag) 
+            elseif (itime <= mws%perlen) then
                 value = mws%mdl_data(ivar, itime)
             else
-                idx = get_dfile_index(mws, ivar, itime)
-                error = idx <= 0
-                if (.not. error) then
-                    value = mws%dfile(idx)
-                else
-                    value = NA
-                endif
+                value = mws%leads(ivar, itime - mws%perlen) 
             endif
         end subroutine get_var_value
 
@@ -212,12 +213,12 @@ module mws_type
                 return
             endif
 
-            if (itime .lt. 1) then
-                mws%dfile(mws%mdl%ibx1(ivar) - itime) = value
+            if (itime < 1) then
+                mws%lags(ivar, itime + mws%mdl%mxlag) = value
             elseif (itime .le. mws%perlen) then
                 mws%mdl_data(ivar, itime) = value
             else
-                mws%dfile(mws%mdl%ibx2(ivar) + itime - mws%perlen - 1) = value
+                mws%leads(ivar, itime - mws%perlen) = value
             endif
         end subroutine set_var_value
 
@@ -356,7 +357,6 @@ module mws_type
             if (.not. error) mws%rmsu(aci) = value
 
         end subroutine set_rms
-
 
         subroutine mknumu(mws, numu, numr, nu)
             use nucnst

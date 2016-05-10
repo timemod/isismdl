@@ -247,12 +247,12 @@ subroutine init_lags_leads_check(quit)
 use msimod
 logical, intent(out) :: quit
  
-!     initialize lags and leads (and check for validity)
-!     NOTE: here jf and jl (the sample indicators) must
-!           be within the legal period for the data and dfile arrays
-!           jf >= 1 and jl <= perlen
+! initialize lags and leads (and check for validity)
+! NOTE: here jf and jl (the sample indicators) must
+!       be within the legal period for the data arrays
+!       jf >= 1 and jl <= mws%perlen
 
-!     quit == .true.  for quit/stop simulation
+! quit == .true.  for quit/stop simulation
 
 
 logical :: error
@@ -347,13 +347,13 @@ do k = 1, mdl%nendex
     if (i .le. 0) cycle
     if (.not. mdl%lik(i)) cycle
 
-!         if updating leads beyond sample (lik(i)=.true. here) then
-!         fill in leads beyond sample horizon from last value for period jl
+    ! if updating leads beyond sample (lik(i)=.true. here) then
+    ! fill in leads beyond sample horizon from last value for period jl
 
     if (opts%uplead) then
         do j = jl + 1, jl + mdl%ibx2(i + 1) - mdl%ibx2(i)
             if (j > mws%perlen) then
-                 mws%dfile(mdl%ibx2(i) + j - mws%perlen - 1) = mws%mdl_data(i, jl)
+                 mws%leads(i, j - mws%perlen) = mws%mdl_data(i, jl)
              else
                  mws%mdl_data(i, j) = mws%mdl_data(i, jl)
             endif
@@ -370,10 +370,10 @@ end subroutine init_lags_leads_check
 subroutine reset_lags_leads(jf)
 integer, intent(in) :: jf
 
-!     reset lags and leads for first period of a simulation
-!     called in ratex mode after first ratex iteration
-!     should NOT be used to initialize d-vector (use
-!     init_lags_leads_check)
+! reset lags and leads for first period of a simulation
+! called in ratex mode after first ratex iteration
+! should NOT be used to initialize d-vector (use
+! init_lags_leads_check)
 
 integer ::  i, j, jlag, jlead
 
@@ -384,10 +384,10 @@ do i =1, mdl%nrv
    do j = mdl%ibx1(i), mdl%ibx1(i + 1) - 1
 
       jlag = jf - (1 + j - mdl%ibx1(i))
-      if(jlag .le. 0 ) then
-         lags_leads(j) = mws%dfile(j-jf+1)
+      if (jlag <= 0) then
+          lags_leads(j) = mws%lags(i, j + mws%mdl%mxlag)
       else
-         lags_leads(j) = mws%mdl_data(i, jlag)
+          lags_leads(j) = mws%mdl_data(i, jlag)
       endif
 
    enddo
@@ -398,7 +398,7 @@ do i =1, mdl%nrv
 
       jlead = jf + j - mdl%ibx2(i) + 1
       if (jlead > mws%perlen) then
-         lags_leads(j) = mws%dfile(j + jf - mws%perlen)
+         lags_leads(j) = mws%leads(i, jlead - mws%perlen)
       else
          lags_leads(j) = mws%mdl_data(i, jlead)
       endif
@@ -504,7 +504,7 @@ subroutine getnld(jt, forwards, chk, nonval)
     integer, intent(out) :: nonval  ! the number of missing new leads
 
     ! update lags_leads vector for leads in next period
-    ! get longest leads from dfile or mdl_data
+    ! get longest leads from mws%leads or mws%mdl_data
 
     integer :: ivar
     logical :: is_na
