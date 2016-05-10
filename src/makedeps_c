@@ -1,0 +1,26 @@
+bynext.o : macromodtypes.h
+byscmp.o : macromodtypes.h
+bysmov.o : macromodtypes.h
+c_calls.o : c_calls.h get_info.h report.h
+dependencies.o : dependencies.h util.h
+ecode.o : dependencies.h ecode.h mchdr.h mcinit.h symbol.h util.h \
+         xpcdef.h xpctab.h
+expsymtab.o : macromodtypes.h mcinit.h symbol.h xpcdef.h
+fname.o : fname.h
+futils.o : futils.h
+include_paths.o : futils.h mchdr.h util.h
+mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h mchdr.h \
+          mcinit.h outecode.h outmdl.h symbol.h util.h xpcdef.h
+mcinit.o : ecode.h mcinit.h symbol.h util.h xpcdef.h xpctab.h
+mcip.o : flags.h mchdr.h util.h
+mcopt_init.o : mcopt.h
+outipcode.o : ecode.h ipcode.h macromodtypes.h mchdr.h mcinit.h \
+             outmdl.h symbol.h util.h xpcdef.h
+report.o : report.h
+scan.o : ecode.h flags.h fname.h mchdr.h mcinit.h symbol.h util.h \
+        xpcdef.h xpctab.h
+scan_params.o : ecode.h mchdr.h symbol.h util.h xpcdef.h xpctab.h
+symbol.o : symbol.h util.h xpcdef.h
+util.o : util.h
+xpctab.o : dependencies.h ecode.h macromodtypes.h mchdr.h mcinit.h \
+          outmdl.h symbol.h util.h xpcdef.h

@@ -8,7 +8,13 @@ LEX = flex
 YACC = bison
 LYPREFIX = mc
 
-all: $(SHLIB)
+TOOLDIR = ../tools
+SRCF90 = $(wildcard *.f90)
+SRCC = $(wildcard *.c)
+DEP_F90 = makedeps_f90
+DEP_C = makedeps_c
+
+all: $(DEP_F90) $(DEP_C) $(SHLIB)
 
 # rules for lex and yacc
 scan.c : scan.l
@@ -17,124 +23,16 @@ scan.c : scan.l
 xpctab.c : xpctab.y 
 	$(YACC) -v  -d -p $(LYPREFIX) -o $@ $<
 
+$(DEP_F90) : $(SRCF90)
+	@echo Calling gendepend_f90.py
+	@python $(TOOLDIR)/gendepend_f90.py  $(DEP_F90) $(?F)
+
+$(DEP_C) : $(SRCC)
+	@echo Calling gendepend_c.py
+	@python $(TOOLDIR)/gendepend_c.py  $(DEP_C) $(?F)
+
 # dependencies C files
-report.o : report.h
-c_calls.o : report.h get_info.h c_calls.h
-compile_mdl.o : report.h 
-fix_report.o : report.h current_period.h
+include $(DEP_C)
 
 # dependencies Fortran files
-mif_file.o : mdl_flen.o
-model_type.o : model_params.o mdl_name_utils.o
-period_type.o : model_params.o
-mws_type.o : model_type.o mws_params.o period_type.o kinds.o nuna.o mdlvars.o \
-            solve_options_type.o nucnst.o output_utils.o
-invpol.o : model_params.o
-mdl_name_utils.o : mdl_nlen.o
-mdl_output.o : mdl_nlen.o
-mcrmif.o : mif_file.o model_type.o invpol.o mdl_name_utils.o kinds.o
-fortran_calls.o : modelworkspaces.o mws_type.o msslvq.o msimul.o  msfill.o
-init_modules.o : mcedef.o nuna.o
-modelworkspaces.o : mws_type.o output_utils.o
-mws_utils.o : modelworkspaces.o
-get_info.o : modelworkspaces.o
-mscalc.o : mws_type.o msvars.o mcstak.o  msufstack.o mcedef.o \
-           msshift.inc mspushv.inc mspushf.inc \
-           nuv.o nuna.o msimot.o
-nuv.o : kinds.o
-msvars.o : mws_type.o kinds.o liqrco.o liqrsq.o solve_options_type.o
-mssneq.o : msvars.o mscalc.o mdl_name_utils.o msimot.o
-msslvq.o : msvars.o mssneq.o nuna.o
-mdlvars.o : model_params.o kinds.o nuna.o
-nuna.o : kinds.o
-msutil.o : msvars.o nuna.o kinds.o model_params.o msolot.o msimod.o
-mssolve.o : msutil.o msnwut.o msbrdn.o msolot.o
-msbrdn.o : kinds.o msvars.o nucnst.o msnwut.o liqrco.o liqrup.o msjcot.o
-msnwut.o : scalemat.o msfbvl.o nuna.o msvars.o nuv.o nucnst.o
-nucnst.o : kinds.o
-msfbvl.o : msvars.o kinds.o mscalc.o nuna.o
-scalemat.o : kinds.o nuv.o nucnst.o
-solve_options_type.o : kinds.o model_type.o scalemat.o
-mdbrdn.o : kinds.o nuna.o liqrco.o liqrup.o nucnst.o
-liqrup.o : kinds.o nuv.o
-nuv.o : kinds.o nucnst.o
-msimul.o : msvars.o msutil.o nucnst.o msratop.o nucnst.o mssolve.o msfix.o msfitm.o msimot.o msolot.o msimox.o
-msimot.o : msvars.o nucnst.o nuna.o mdl_name_utils.o mdl_nlen.o output_utils.o
-msolot.o : msimot.o
-msimox.o : msratop.o msvars.o msimot.o mdl_name_utils.o
-msjcot.o : msvars.o msimot.o mdl_name_utils.o
-msimod.o : msolot.o msvars.o mdl_name_utils.o
-msfito.o : msimot.o msvars.o mdl_name_utils.o kinds.o nucnst.o
-msfix.o : msvars.o kinds.o nuna.o
-mccedp.o : kinds.o model_type.o mcdep.o mcvars.o mcpars.o mcodep.o
-mcodep.o : model_type.o  msufstack.o mcdep.o mcedef.o mcstak.o
-mdgfbo.o : mccedp.o  mcfbor.o model_type.o
-mcfbor.o : model_type.o mccedp.o 
-mcvars.o : model_type.o mdl_flen.o
-msfitm.o : kinds.o liqrmn.o msvars.o nucnst.o nuna.o msfbvl.o scalemat.o \
-           msnwut.o nuv.o msfito.o
-liqrmn.o : kinds.o nucnst.o
-msfill.o : mws_type.o msimot.o nuna.o msvars.o msimot.o modelworkspaces.o
-
-mcisis.o : mcvars.o mccedp.o mdordr.o filenameutils.o mcpars.o mcxref.o \
-           mcwmif.o output_utils.o
-mcxref.o : mcvars.o kinds.o mdl_name_utils.o mcdep.o mcpars.o mcjsbl.o
-mcjsbl.o : model_type.o mccedp.o
-mcosjc.o : model_params.o mdl_name_utils.o
-mcwmif.o : model_type.o invpol.o mcpars.o
-mdordr.o : mdl_name_utils.o mccedp.o model_type.o kinds.o mcordr.o \
-           mcirfb.o mcfbor.o 
-mcordr.o : kinds.o model_type.o mccedp.o
-mcirfb.o : model_type.o kinds.o mcordr.o mdl_name_utils.o
-
-scan.o : scan.c symbol.h ecode.h mcinit.h util.h mchdr.h xpcdef.h xpctab.h \
-         flags.h
-xpctab.o : xpctab.c symbol.h mcinit.h xpcdef.h mchdr.h  \
-            util.h ecode.h outmdl.h macromodtypes.h dependencies.h
-
-xpc.o : xpc.c symbol.h xpcdef.h util.h mcinit.h mchdr.h flags.h \
-	           dependencies.h mcopt.h
-
-mcexec.o : mcexec.c symbol.h xpcdef.h \
-	util.h mcinit.h mchdr.h fname.h \
-	ecode.h flags.h futils.h \
-        dependencies.h mcopt.h
-
-scan_params.o : scan_params.c symbol.h xpcdef.h \
-	xpctab.h util.h ecode.h mchdr.h \
-        dependencies.h mcopt.h
-
-symbol.o : symbol.c symbol.h xpcdef.h \
-	util.h dependencies.h 
-
-mcinit.o : mcinit.c symbol.h xpcdef.h \
-	util.h mcinit.h xpctab.h \
-        dependencies.h
-
-ecode.o : ecode.c symbol.h xpcdef.h \
-	util.h mcinit.h ecode.h xpctab.h \
-	mchdr.h dependencies.h mcopt.h
-
-outipcode.o : outipcode.c symbol.h xpcdef.h \
-	util.h mcinit.h ecode.h ipcode.h \
-	mchdr.h outmdl.h macromodtypes.h \
-        dependencies.h mcopt.h
-
-expsymtab.o : expsymtab.c xpcdef.h symbol.h mcinit.h
-
-util.o : util.c util.h
-fname.o : fname.c fname.h
-
-oprintf.o :oprintf.c oprintf.h util.h
-
-mcip.o: mchdr.h flags.h mcopt.h
-
-include_paths.o: mchdr.h util.h futils.h mcopt.h
-
-flags.o : flags.c flags.h
-
-dependencies.o : dependencies.h util.h
-
-mcopt_init.o : mcopt.h
-
-futils.o : futils.c futils.h
+include $(DEP_F90)

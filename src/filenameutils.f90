@@ -1,4 +1,4 @@
-module filenamutils
+module filenameutils
 
 private :: get_dir_loc
 
@@ -61,4 +61,4 @@ subroutine split_path(filename, dirname, basename, dirsep)
 
 end subroutine split_path
 
-end module filenamutils
+end module filenameutils

@@ -460,7 +460,7 @@ end
 
 subroutine mcfileadmin(modelnaml, modelnams, pathnm)
 use mcvars
-use filenamutils
+use filenameutils
 integer, intent(in) :: modelnaml, modelnams(*)
 character(len = *), intent(out) :: pathnm
 

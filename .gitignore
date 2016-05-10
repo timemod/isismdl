@@ -4,8 +4,4 @@
 src/*.o
 src/*.so
 src/*.dll
-src/*.mod
-example/*.out
-example/*.log
-example/*.dbg
-example/*.mrf
+src/*.pkl
