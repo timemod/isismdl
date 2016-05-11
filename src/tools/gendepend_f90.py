@@ -1,22 +1,15 @@
 # Create dictionaries with dependencies of Fortran files on modules
 # and include files
-
 import sys
 import glob
 import os
 import cPickle
-import textwrap
 import re
 
-# current directory
-startdir = os.getcwd()
-
-dep_filename  = sys.argv[1]
-dict_filename = "dep_f90.pkl"
 use_pattern = "^use\s+([a-z][a-z0-9_]*)"
 include_pattern = "^include\s+\"(.+)\""
 
-def main():
+def gendepend(dict_filename):
 
     try:
         # check if dictionaries are present
@@ -41,22 +34,6 @@ def main():
     dict_file = open(dict_filename, 'wb')
     cPickle.dump(dep_dict, dict_file)
     dict_file.close()
-
-    # write dependency file
-    f = open(dep_filename, 'w')
-    srcs = list(dep_dict.keys())
-    srcs.sort()
-    for src in srcs:
-        rule = os.path.splitext(src)[0] + ".o :"
-        nblanks = len(rule)
-        depends = list(dep_dict[src])
-        depends.sort()
-        for depend in depends :
-            rule = rule + " " + depend
-        rule = (" \\\n" + ' ' * nblanks).join(textwrap.wrap(rule))
-        f.write(rule)
-        f.write('\n')
-    f.close()
 
 def update_dep_dict(src_files, dep_dict):
     # update dependency dictionaries dep_dict
@@ -89,5 +66,7 @@ def read_depend(srcfile) :
             depend.add(include_name)
     return depend
 
-#call main program
-main()
+# main program
+if __name__ == "__main__":
+    dict_filename = sys.argv[1]
+    gendepend(dict_filename)

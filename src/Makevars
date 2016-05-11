@@ -8,13 +8,18 @@ LEX = flex
 YACC = bison
 LYPREFIX = mc
 
-TOOLDIR = ../tools
+TOOLDIR = tools
 SRCF90 = $(wildcard *.f90)
 SRCC = $(wildcard *.c)
 DEP_F90 = makedeps_f90
 DEP_C = makedeps_c
+DEP_F90_PKL = dep_f90.pkl
+DEP_C_PKL = dep_c.pkl
 
-all: $(DEP_F90) $(DEP_C) $(SHLIB)
+all: check $(SHLIB)
+
+check:
+	@python $(TOOLDIR)/check_srcfiles.py
 
 # rules for lex and yacc
 scan.c : scan.l
@@ -23,13 +28,17 @@ scan.c : scan.l
 xpctab.c : xpctab.y 
 	$(YACC) -v  -d -p $(LYPREFIX) -o $@ $<
 
-$(DEP_F90) : $(SRCF90)
-	@echo Calling gendepend_f90.py
-	@python $(TOOLDIR)/gendepend_f90.py  $(DEP_F90) $(?F)
+$(DEP_F90_PKL) : $(SRCF90)
+	@python $(TOOLDIR)/gendepend_f90.py  $@
 
-$(DEP_C) : $(SRCC)
-	@echo Calling gendepend_c.py
-	@python $(TOOLDIR)/gendepend_c.py  $(DEP_C) $(?F)
+$(DEP_C_PKL) : $(SRCC)
+	@python $(TOOLDIR)/gendepend_c.py  $@
+
+$(DEP_F90) : $(DEP_F90_PKL)
+	@python $(TOOLDIR)/write_makedeps.py $< $@
+
+$(DEP_C) : $(DEP_C_PKL)
+	@python $(TOOLDIR)/write_makedeps.py $< $@
 
 # dependencies C files
 include $(DEP_C)
