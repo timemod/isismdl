@@ -1,3 +1,11 @@
+subroutine get_max_lag_lead_fortran(model_index, maxlag, maxlead)
+    use modelworkspaces
+    integer, intent(in) :: model_index
+    integer, intent(out) :: maxlag, maxlead
+    maxlag = mws_array(model_index)%mdl%mxlag
+    maxlead = mws_array(model_index)%mdl%mxlead
+end subroutine get_max_lag_lead_fortran
+
 subroutine set_period_fortran(model_index, start, end, freq, ier)
     use modelworkspaces
     integer, intent(in) :: model_index

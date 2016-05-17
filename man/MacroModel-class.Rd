@@ -4,19 +4,29 @@
 \name{MacroModel-class}
 \alias{MacroModel}
 \alias{MacroModel-class}
-\title{A reference class to a macroecomic model}
+\title{A reference class representing a macroecomic model}
 \description{
-A reference class to a macroecomic model
+A reference class representing a macroecomic model
 }
 \section{Fields}{
 
 \describe{
-\item{\code{model_period}}{the model period}
+\item{\code{maxlag}}{the maximum lag of the model}
+
+\item{\code{maxlead}}{the maximum lead of the model}
+
+\item{\code{model_period}}{the model period. This is the maximum period for which
+the model will be solved.}
+
+\item{\code{model_data_period}}{the model data period, i.e. the model
+period extended wih the lag period and lead period. For example, suppose that the
+model has a maximum lag of 2 and a maximum lead of 1. If the model period is
+\code{"2015Q3/2016Q2"}, then the model data period is \code{"2015Q1/2016Q2"}.}
 }}
 \section{Methods}{
 
 \describe{
-\item{\code{fill_mdl_data(period)}}{Calculates missing model data from identities}
+\item{\code{fill_mdl_data(period = model_data_period)}}{Calculates missing model data from identities.}
 
 \item{\code{get_data()}}{Returns the model data}
 
@@ -30,10 +40,17 @@ A reference class to a macroecomic model
 
 \item{\code{set_fix(ts_data)}}{Sets the fix data}
 
-\item{\code{set_period(period)}}{Sets the model period}
+\item{\code{set_period(period)}}{Sets the model period. This is the longest period for which
+the model will be solved. This method also allocates storage for
+all model timeseries and constant adjustments. Model timeseries are
+available for the so called 'model data period', which is
+the model period extended with a lag and lead period. Constant
+adjustments are only available for the model period. This method
+also initialises all model timeseries with \code{NA} and all constant
+adjusments with 0.}
 
 \item{\code{set_rms(rms_list)}}{Sets the rms values}
 
-\item{\code{solve(period)}}{Solves the model for the specified period}
+\item{\code{solve(period = model_period)}}{Solves the model for the specified period}
 }}
 

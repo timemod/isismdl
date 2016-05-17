@@ -15,7 +15,7 @@ data[, 'x'] <- 2300
 data[, 'c'] <- 200
 data[, 'i'] <- 110
 islm_model$set_data(data)
-result <- islm_model$fill_mdl_data("2010Q3/2011Q4")
+result <- islm_model$fill_mdl_data()
 print(result)
 print(islm_model$get_data())
 

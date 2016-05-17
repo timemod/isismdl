@@ -8,7 +8,7 @@ setOldClass("regperiod_range")
 # TODO: maybe a R6 class is better suited? Check this out.
 
 
-#' A reference class to a macroecomic model
+#' A reference class representing a macroecomic model
 #'
 #' @useDynLib macromod get_variable_names_c
 #' @useDynLib macromod set_period_fortran
@@ -21,10 +21,20 @@ setOldClass("regperiod_range")
 #' @useDynLib macromod remove_mws_fortran
 #' @import regts
 #' @import methods
-#' @field model_period the model period
+#' @field maxlag the maximum lag of the model
+#' @field maxlead the maximum lead of the model
+#' @field model_period the model period. This is the maximum period for which
+#' the model will be solved.
+#' @field model_data_period the model data period, i.e. the model
+#' period extended wih the lag period and lead period. For example, suppose that the
+#' model has a maximum lag of 2 and a maximum lead of 1. If the model period is
+#' \code{"2015Q3/2016Q2"}, then the model data period is \code{"2015Q1/2016Q2"}.
 MacroModel <- setRefClass("MacroModel",
     fields = list(model_index = "integer",
-                  model_period = "regperiod_range"),
+                  maxlag = "integer",
+                  maxlead = "integer",
+                  model_period = "regperiod_range",
+                  model_data_period = "regperiod_range"),
     methods = list(
         finalize = function() {
             .Fortran("remove_mws_fortran", model_index = model_index)
@@ -34,13 +44,25 @@ MacroModel <- setRefClass("MacroModel",
             return (.Call(get_variable_names_c, as.integer(model_index)))
         },
         set_period = function(period) {
-            "Sets the model period"
+            "Sets the model period. This is the longest period for which
+             the model will be solved. This method also allocates storage for
+             all model timeseries and constant adjustments. Model timeseries are
+             available for the so called 'model data period', which is
+             the model period extended with a lag and lead period. Constant
+             adjustments are only available for the model period. This method
+             also initialises all model timeseries with \\code{NA} and all constant
+             adjusments with 0."
             period <- as.regperiod_range(period)
             model_period <<- period
             retval <- .Fortran("set_period_fortran", model_index = model_index,
                                start = as.integer(period$start),
-                              end = as.integer(period$end),  freq = as.integer(period$freq),
-                              ier = as.integer(1))
+                               end = as.integer(period$end),
+                               freq = as.integer(period$freq),
+                               ier = as.integer(1))
+
+            model_data_period <<- regperiod_range(
+                                         get_start_period(model_period) - maxlag,
+                                         get_end_period(model_period) + maxlead)
             return (invisible(NULL))
         },
         get_data = function() {
@@ -70,7 +92,7 @@ MacroModel <- setRefClass("MacroModel",
             "Sets the rms values"
             return (invisible(.Call(set_rms_c, model_index, rms_list)))
         },
-        solve = function(period) {
+        solve = function(period = model_period) {
             "Solves the model for the specified period"
             js <- get_period_indices(period, model_period)
             retval <- .Call("solve_c", model_index = model_index,
@@ -79,8 +101,8 @@ MacroModel <- setRefClass("MacroModel",
             class(retval) <- "solve_report"
             return (retval)
         },
-        fill_mdl_data = function(period) {
-            "Calculates missing model data from identities"
+        fill_mdl_data = function(period = model_data_period) {
+            "Calculates missing model data from identities."
             js <- get_period_indices(period, model_period)
             retval <- .Call("filmdt_c", model_index = model_index,
                             jtb = js$startp, jte = js$endp,

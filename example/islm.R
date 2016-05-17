@@ -14,7 +14,8 @@ data[, 'g'] <- 210
 data[, 'ms'] <- 200
 data[, 'x'] <- 2300
 islm_model$set_data(data)
-result <- islm_model$solve("2010Q3/2011Q4")
+#result <- islm_model$solve("2010Q3/2011Q4")
+result <- islm_model$solve()
 print(result)
 print(islm_model$get_data())
 
