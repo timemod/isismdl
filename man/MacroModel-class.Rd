@@ -21,7 +21,7 @@ the model will be solved.}
 \item{\code{model_data_period}}{the model data period, i.e. the model
 period extended wih the lag period and lead period. For example, suppose that the
 model has a maximum lag of 2 and a maximum lead of 1. If the model period is
-\code{"2015Q3/2016Q2"}, then the model data period is \code{"2015Q1/2016Q2"}.}
+\code{"2015Q3/2016Q2"}, then the model data period is \code{"2015Q1/2016Q3"}.}
 }}
 \section{Methods}{
 
