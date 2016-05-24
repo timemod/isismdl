@@ -368,46 +368,39 @@ end subroutine init_lags_leads_check
 !-----------------------------------------------------------------------
 
 subroutine reset_lags_leads(jf)
-integer, intent(in) :: jf
-
-! reset lags and leads for first period of a simulation
-! called in ratex mode after first ratex iteration
-! should NOT be used to initialize d-vector (use
-! init_lags_leads_check)
-
-integer ::  i, j, jlag, jlead
-
-do i =1, mdl%nrv
-
-   ! lags
-
-   do j = mdl%ibx1(i), mdl%ibx1(i + 1) - 1
-
-      jlag = jf - (1 + j - mdl%ibx1(i))
-      if (jlag <= 0) then
-          lags_leads(j) = mws%lags(i, j + mws%mdl%mxlag)
-      else
-          lags_leads(j) = mws%mdl_data(i, jlag)
-      endif
-
-   enddo
-
-   ! leads
-
-   do j = mdl%ibx2(i), mdl%ibx2(i + 1) - 1
-
-      jlead = jf + j - mdl%ibx2(i) + 1
-      if (jlead > mws%perlen) then
-         lags_leads(j) = mws%leads(i, jlead - mws%perlen)
-      else
-         lags_leads(j) = mws%mdl_data(i, jlead)
-      endif
-
-   enddo
-
-enddo
-
-return
+    integer, intent(in) :: jf
+    
+    ! reset lags and leads for first period of a simulation
+    ! called in ratex mode after first ratex iteration
+    ! should NOT be used to initialize d-vector (use
+    ! init_lags_leads_check)
+    
+    integer ::  i, j, jlag, jlead
+    
+    do i = 1, mdl%nrv
+    
+       ! lags
+       do j = mdl%ibx1(i), mdl%ibx1(i + 1) - 1
+           jlag = jf - (1 + j - mdl%ibx1(i))
+           if (jlag <= 0) then
+               lags_leads(j) = mws%lags(i, jlag + mws%mdl%mxlag)
+           else
+               lags_leads(j) = mws%mdl_data(i, jlag)
+           endif
+       enddo
+    
+       ! leads
+       do j = mdl%ibx2(i), mdl%ibx2(i + 1) - 1
+            jlead = jf + j - mdl%ibx2(i) + 1
+            if (jlead > mws%perlen) then
+                lags_leads(j) = mws%leads(i, jlead - mws%perlen)
+            else
+                lags_leads(j) = mws%mdl_data(i, jlead)
+            endif
+       enddo
+    enddo
+    
+    return
 end subroutine reset_lags_leads
 
 !-----------------------------------------------------------------------
