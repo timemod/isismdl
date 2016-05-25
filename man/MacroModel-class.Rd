@@ -28,11 +28,13 @@ model has a maximum lag of 2 and a maximum lead of 1. If the model period is
 \describe{
 \item{\code{fill_mdl_data(period = model_data_period)}}{Calculates missing model data from identities.}
 
+\item{\code{get_all_data()}}{Returns all model data}
+
 \item{\code{get_ca(names = get_ca_names(), period = model_period)}}{Returns the constant adjustments}
 
 \item{\code{get_ca_names()}}{Returns the names of the constant adjustments}
 
-\item{\code{get_data()}}{Returns the model data}
+\item{\code{get_data(names = get_variable_names(), period = model_data_period)}}{Returns the model data}
 
 \item{\code{get_variable_names()}}{Returns the names of the model variables}
 

@@ -20,17 +20,6 @@ function get_ca_count(model_index)
     get_ca_count = mws_array(model_index)%mdl%nca
 end function get_ca_count
 
-
-subroutine get_period_info(model_index, per_len, max_lag, max_lead)
-    use modelworkspaces
-    use iso_c_binding
-    integer(c_int), intent(in) :: model_index
-    integer(c_int), intent(out) :: per_len, max_lag, max_lead
-    per_len = mws_array(model_index)%perlen
-    max_lag = mws_array(model_index)%mdl%mxlag
-    max_lead = mws_array(model_index)%mdl%mxlead
-end subroutine get_period_info
-
 subroutine get_variable_name(model_index, i, nam, nlen, alphabet)
     use modelworkspaces
     use iso_c_binding

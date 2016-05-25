@@ -9,8 +9,9 @@
 
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
-extern void F77_NAME(get_data_all)(int *mws_index, int *nvar, int *ntime, int *jtb,
-                                   int *jte, double *data);
+extern void F77_NAME(get_data_fortran)(int *mws_index, int *nvar, int *ivar, 
+                                       int *ntime, int *jtb,
+                                       int *jte, double *data);
 extern void F77_NAME(get_ca_fortran)(int *mws_index, int *nca, int *ica, 
                                      int *ntime, int *jtb,
                                      int *jte, double *data);
@@ -83,13 +84,17 @@ SEXP get_ca_names_c(SEXP model_index_) {
     return names;
 }
 
-SEXP get_data_c(SEXP mws_index_) {
-    
+/* Returns a matrix with mdl data values. var_names is a character vector
+ * with the names of the variables. This vector should only contain names
+ * of existing model variables. Thus make sure to remove any name that
+ * is not present in the model data
+ * before calling this function */
+SEXP get_data_c(SEXP mws_index_, SEXP var_names, SEXP jtb_, SEXP jte_) {
     int mws_index = asInteger(mws_index_);
-    int per_len, max_lag, max_lead;
-    F77_CALL(get_period_info)(&mws_index, &per_len, &max_lag, &max_lead);
-    int ntime = per_len + max_lag + max_lead;
-    int nvar = F77_CALL(get_variable_count)(&mws_index);
+    int jtb = asInteger(jtb_);
+    int jte = asInteger(jte_);
+    int ntime = jte - jtb + 1;
+    int nvar = length(var_names);
     SEXP data = PROTECT(allocVector(REALSXP, ntime * nvar));
 
     /* convert into matrix */
@@ -98,17 +103,18 @@ SEXP get_data_c(SEXP mws_index_) {
     INTEGER(dim)[1] = nvar;
     setAttrib(data, R_DimSymbol, dim);
     
-    SEXP col_names = PROTECT(get_variable_names_c(mws_index_));
-    SEXP dim_names = PROTECT(allocVector(VECSXP, 2));
-    SET_VECTOR_ELT(dim_names, 1, col_names);
-    setAttrib(data, R_DimNamesSymbol, dim_names);
-
     // fill in model data
-    int jtb = -max_lag + 1;
-    int jte = per_len + max_lead;
-    F77_CALL(get_data_all)(&mws_index, &nvar, &ntime, &jtb, &jte, REAL(data));
+    int *ivar = (int *) R_alloc(nvar, sizeof(int));
+    for (int i = 0; i < nvar; i++) {
+        const char *name = CHAR(STRING_ELT(var_names, i));
+        int namelen = strlen(name);
+        ivar[i] = F77_CALL(get_var_index)(&mws_index, name, &namelen);
+    }
 
-    UNPROTECT(4);
+    F77_CALL(get_data_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb, &jte,
+                               REAL(data));
+
+    UNPROTECT(2);
     
     return data;
 }

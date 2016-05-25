@@ -15,17 +15,17 @@ subroutine set_period_fortran(model_index, start, end, freq, ier)
     call mws_setper(mws_array(model_index), start, end, freq, ier)
 end subroutine set_period_fortran
 
-subroutine get_data_all(mws_index, nvar, ntime, jtb, jte, mat)
-    ! store the values of all model variables for periods between jtb and 
-    ! jte in mat. the variables are stored in alphabetical order.
+subroutine get_data_fortran(mws_index, nvar, ivar, ntime, jtb, jte, mat)
+    ! store the values of model ivar for periods between jtb and 
+    ! jte in mat.
     use modelworkspaces
     use iso_c_binding
-    integer(c_int), intent(in) :: mws_index, nvar, ntime, jtb, jte
+    integer(c_int), intent(in) :: mws_index, nvar, ivar(nvar), ntime, jtb, jte
     real(c_double), dimension(ntime, nvar), intent(out) :: mat
 
-    call get_mdl_data(mws_array(mws_index), mws_array(mws_index)%mdl%nrv,  &
-                      mws_array(mws_index)%mdl%indexv, ntime, jtb, jte, mat)
-end subroutine get_data_all
+    call get_mdl_data(mws_array(mws_index), nvar, ivar, ntime, jtb, jte, mat)
+
+end subroutine get_data_fortran
 
 subroutine get_ca_fortran(mws_index, nca, ica, ntime, jtb, jte, mat)
     ! store the values of all model variables for periods between jtb and 
@@ -124,7 +124,6 @@ subroutine filmdt_fortran(mws_index, jtb, jte)
     call fill_mdl_data(jtb, jte, 2)
 
 end subroutine filmdt_fortran
-
 
 subroutine remove_mws_fortran(model_index)
     use modelworkspaces

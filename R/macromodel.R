@@ -73,10 +73,24 @@ MacroModel <- setRefClass("MacroModel",
                                          get_end_period(model_period) + maxlead)
             return (invisible(NULL))
         },
-        get_data = function() {
-            "Returns the model data"
-            data <- .Call(get_data_c, model_index)
+        get_all_data = function() {
+            "Returns all model data"
+            data <- .Call(get_all_data_c, model_index)
             return (regts(data, start = get_start_period(model_data_period)))
+        },
+        get_data = function(names = get_variable_names(), period = model_data_period) {
+            "Returns the model data"
+            if (!missing(names)) {
+                names <- intersect(names, get_variable_names())
+            }
+            if (length(names) > 0) {
+                js <- get_period_indices(period, model_period)
+                data <- .Call("get_data_c", model_index = model_index,
+                              names = names, jtb = js$startp, jte = js$endp)
+                return (regts(data, start = get_start_period(model_data_period), names = names))
+            } else {
+                return (NULL)
+            }
         },
         get_ca = function(names = get_ca_names(), period = model_period) {
             "Returns the constant adjustments"
