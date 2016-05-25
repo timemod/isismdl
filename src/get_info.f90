@@ -12,6 +12,15 @@ function get_variable_count(model_index)
     get_variable_count = mws_array(model_index)%mdl%nrv
 end function get_variable_count
 
+function get_ca_count(model_index)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: get_ca_count
+    integer(c_int), intent(in) :: model_index
+    get_ca_count = mws_array(model_index)%mdl%nca
+end function get_ca_count
+
+
 subroutine get_period_info(model_index, per_len, max_lag, max_lead)
     use modelworkspaces
     use iso_c_binding
@@ -30,6 +39,20 @@ subroutine get_variable_name(model_index, i, nam, nlen, alphabet)
     integer, dimension(*), intent(out) :: nam
     call get_var_name(mws_array(model_index)%mdl, i, alphabet /= 0, nam, nlen);
 end subroutine get_variable_name
+
+subroutine get_ca_name(model_index, i, nam, nlen)
+    ! returns the name of the i'th constant adjustment
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in)   :: model_index, i
+    integer(c_int), intent(out)  :: nlen
+    integer, dimension(*), intent(out) :: nam
+
+    integer :: ivar
+
+    ivar = mws_array(model_index)%mdl%ica(i)
+    call get_var_name(mws_array(model_index)%mdl, ivar, .false., nam, nlen);
+end subroutine get_ca_name
 
 integer(c_int) function get_var_index(model_index, name, namelen)
     use iso_c_binding

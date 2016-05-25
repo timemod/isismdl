@@ -5,6 +5,8 @@
 #include "get_info.h"
 #include "c_calls.h"
 
+#define MAX_NAME_LEN 32
+
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
 extern void F77_NAME(get_data_all)(int *mws_index, int *nvar, int *ntime, int *jtb,
@@ -48,8 +50,7 @@ SEXP read_mdl_c(SEXP filename) {
 
 SEXP get_variable_names_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
-    char variable_name[40];  // 1 extra character for terminating 0.
-                             // TODO: parameter for 32
+    char variable_name[MAX_NAME_LEN + 1];  // 1 extra character for terminating 0.
     int variable_count = F77_CALL(get_variable_count)(&model_index);
     int ivar, len;
     int alphabet = 1;
@@ -59,6 +60,21 @@ SEXP get_variable_names_c(SEXP model_index_) {
                  &alphabet);
         variable_name[len] = '\0';
         SET_STRING_ELT(names, ivar - 1, mkChar(variable_name));
+    }
+    UNPROTECT(1);
+    return names;
+}
+
+SEXP get_ca_names_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    char ca_name[MAX_NAME_LEN + 1];  // 1 extra character for terminating 0.
+    int ca_count = F77_CALL(get_ca_count)(&model_index);
+    int ica, len;
+    SEXP names = PROTECT(allocVector(STRSXP, ca_count));
+    for (ica = 1; ica <= ca_count; ica++) {
+        F77_CALL(get_ca_name)(&model_index, &ica, ca_name, &len);
+        ca_name[len] = '\0';
+        SET_STRING_ELT(names, ica - 1, mkChar(ca_name));
     }
     UNPROTECT(1);
     return names;
@@ -89,13 +105,39 @@ SEXP get_data_c(SEXP mws_index_) {
     int jte = per_len + max_lead;
     F77_CALL(get_data_all)(&mws_index, &nvar, &ntime, &jtb, &jte, REAL(data));
 
-    SEXP list = PROTECT(allocVector(VECSXP, 2));
-    SET_VECTOR_ELT(list, 0, data);
-    SET_VECTOR_ELT(list, 1, ScalarInteger(jtb));
-
-    UNPROTECT(5);
+    UNPROTECT(4);
     
-    return list;
+    return data;
+}
+
+SEXP get_ca_c(SEXP mws_index_) {
+    
+    int mws_index = asInteger(mws_index_);
+    int per_len, max_lag, max_lead;
+    F77_CALL(get_period_info)(&mws_index, &per_len, &max_lag, &max_lead);
+    int ntime = per_len;
+    int nvar = F77_CALL(get_variable_count)(&mws_index);
+    SEXP data = PROTECT(allocVector(REALSXP, ntime * nvar));
+
+    /* convert into matrix */
+    SEXP dim = PROTECT(allocVector(INTSXP, 2));
+    INTEGER(dim)[0] = ntime;
+    INTEGER(dim)[1] = nvar;
+    setAttrib(data, R_DimSymbol, dim);
+    
+    SEXP col_names = PROTECT(get_variable_names_c(mws_index_));
+    SEXP dim_names = PROTECT(allocVector(VECSXP, 2));
+    SET_VECTOR_ELT(dim_names, 1, col_names);
+    setAttrib(data, R_DimNamesSymbol, dim_names);
+
+    // fill in model data
+    int jtb = -max_lag + 1;
+    int jte = per_len + max_lead;
+    F77_CALL(get_data_all)(&mws_index, &nvar, &ntime, &jtb, &jte, REAL(data));
+
+    UNPROTECT(4);
+    
+    return data;
 }
 
 SEXP set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP shift_) {

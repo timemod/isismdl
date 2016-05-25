@@ -5,12 +5,13 @@
 setOldClass("regperiod_range")
 
 
-# TODO: maybe a R6 class is better suited? Check this out.
-
+# TODO: maybe a R6 class is better suited? The only problem with R6 is that
+# roxygen does not seem to work yet for R6 classes.
 
 #' A reference class representing a macroecomic model
 #'
 #' @useDynLib macromod get_variable_names_c
+#' @useDynLib macromod get_ca_names_c
 #' @useDynLib macromod set_period_fortran
 #' @useDynLib macromod get_data_c
 #' @useDynLib macromod set_c
@@ -43,6 +44,12 @@ MacroModel <- setRefClass("MacroModel",
             "Returns the names of the model variables"
             return (.Call(get_variable_names_c, as.integer(model_index)))
         },
+        get_ca_names = function() {
+            "Returns the names of the constant adjustments"
+            # note: the names returned  by get_ca_names are not sorted alphabetically,
+            # therefore sort explicitly
+            return (sort(.Call(get_ca_names_c, as.integer(model_index))))
+        },
         set_period = function(period) {
             "Sets the model period. This is the longest period for which
              the model will be solved. This method also allocates storage for
@@ -68,9 +75,7 @@ MacroModel <- setRefClass("MacroModel",
         get_data = function() {
             "Returns the model data"
             data <- .Call(get_data_c, model_index)
-            p1 <- get_start_period(model_period) + data[[2]] - 1
-            retval <- ts(data[[1]], start = p1$data, frequency = p1$freq)
-            return (as.regts(retval))
+            return(regts(data, start = get_start_period(model_data_period)))
         },
         set_data = function(ts_data) {
             "Sets the model data"

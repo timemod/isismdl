@@ -1,7 +1,7 @@
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)  $(FLIBS)
 PKG_CFLAGS = -DMCISIS
 #PKG_FCFLAGS = -fimplicit-none -DDEBUG_COMPILER -cpp
-PKG_FCFLAGS = -fimplicit-none -cpp 
+PKG_FCFLAGS = -fimplicit-none -cpp
 
 # options for lex and yacc
 LEX = flex

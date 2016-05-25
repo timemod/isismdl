@@ -237,7 +237,6 @@ module mws_type
                     call get_var_value(mws, ivar(i), jt, mat(j, i), error)
                 end do
             end do
-        
         end subroutine get_mdl_data
 
         subroutine set_data(mws, nvar, ivar, ntime, jtb, jte, mat, icol)
@@ -283,6 +282,23 @@ module mws_type
                 end do
             enddo
         end subroutine set_ca
+
+        subroutine get_ca(mws, nca, ica, ntime, jtb, jte, mat)
+            type(modelworkspace), intent(in) :: mws 
+            integer, intent(in) :: nca, ica(*), ntime, jtb, jte
+            real(kind = MWS_RKIND), dimension(ntime, nca), intent(out) :: mat
+
+            integer :: i, j, jt
+            logical :: error
+        
+            do i = 1, nca
+                do jt = jtb, jte
+                    j = jt - jtb + 1
+                    ! j is row index of mat
+                    mat(j, i) = mws%constant_adjustments(i, jt)
+                end do
+            end do
+        end subroutine get_ca
 
         subroutine set_fix_fit(mws, nvar, ivar, ntime, jtb, jte, mat, icol, &
                                fix)
