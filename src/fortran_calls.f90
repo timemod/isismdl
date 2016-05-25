@@ -27,6 +27,18 @@ subroutine get_data_all(mws_index, nvar, ntime, jtb, jte, mat)
                       mws_array(mws_index)%mdl%indexv, ntime, jtb, jte, mat)
 end subroutine get_data_all
 
+subroutine get_ca_fortran(mws_index, nca, ica, ntime, jtb, jte, mat)
+    ! store the values of all model variables for periods between jtb and 
+    ! jte in mat. the variables are stored in alphabetical order.
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in) :: mws_index, nca, ica(nca), ntime, jtb, jte
+    real(c_double), dimension(ntime, nca), intent(out) :: mat
+
+    call get_ca(mws_array(mws_index), nca, ica, ntime, jtb, jte, mat)
+
+end subroutine get_ca_fortran
+
 subroutine set_data_fortran(mws_index, nvar, ivar, ntime, jtb, jte, mat, icol)
     use modelworkspaces
     use iso_c_binding

@@ -285,17 +285,19 @@ module mws_type
 
         subroutine get_ca(mws, nca, ica, ntime, jtb, jte, mat)
             type(modelworkspace), intent(in) :: mws 
-            integer, intent(in) :: nca, ica(*), ntime, jtb, jte
+            integer, intent(in) :: nca, ica(nca), ntime, jtb, jte
             real(kind = MWS_RKIND), dimension(ntime, nca), intent(out) :: mat
 
             integer :: i, j, jt
             logical :: error
+
+            mat = NA
         
             do i = 1, nca
-                do jt = jtb, jte
+                do jt = max(jtb, 0), min(jte, mws%perlen)
                     j = jt - jtb + 1
                     ! j is row index of mat
-                    mat(j, i) = mws%constant_adjustments(i, jt)
+                    mat(j, i) = mws%constant_adjustments(ica(i), jt)
                 end do
             end do
         end subroutine get_ca

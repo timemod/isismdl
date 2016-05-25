@@ -14,6 +14,7 @@ setOldClass("regperiod_range")
 #' @useDynLib macromod get_ca_names_c
 #' @useDynLib macromod set_period_fortran
 #' @useDynLib macromod get_data_c
+#' @useDynLib macromod get_ca_c
 #' @useDynLib macromod set_c
 #' @useDynLib macromod set_rms_c
 #' @useDynLib macromod run_equations_fortran
@@ -75,7 +76,21 @@ MacroModel <- setRefClass("MacroModel",
         get_data = function() {
             "Returns the model data"
             data <- .Call(get_data_c, model_index)
-            return(regts(data, start = get_start_period(model_data_period)))
+            return (regts(data, start = get_start_period(model_data_period)))
+        },
+        get_ca = function(names = get_ca_names(), period = model_period) {
+            "Returns the constant adjustments"
+            if (!missing(names)) {
+                names <- intersect(names, get_ca_names())
+            }
+            if (length(names) > 0) {
+                js <- get_period_indices(period, model_period)
+                data <- .Call("get_ca_c", model_index = model_index,
+                              names = names, jtb = js$startp, jte = js$endp)
+                return (regts(data, start = get_start_period(model_period), names = names))
+            } else {
+                return (NULL)
+            }
         },
         set_data = function(ts_data) {
             "Sets the model data"
@@ -118,7 +133,7 @@ MacroModel <- setRefClass("MacroModel",
     )
 )
 
-get_period_indices <- function(period, model_period) {
+get_period_indices <- function(period, model_period, extended = TRUE) {
     period <- as.regperiod_range(period)
     mdl_period_start <- get_start_period(model_period)
     startp <- as.integer(get_start_period(period) - mdl_period_start + 1)

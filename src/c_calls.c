@@ -11,6 +11,9 @@ extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
 extern void F77_NAME(get_data_all)(int *mws_index, int *nvar, int *ntime, int *jtb,
                                    int *jte, double *data);
+extern void F77_NAME(get_ca_fortran)(int *mws_index, int *nca, int *ica, 
+                                     int *ntime, int *jtb,
+                                     int *jte, double *data);
 extern void F77_NAME(set_data_fortran)(int *mws_index, int *nvar, int *ivar, 
                                        int *ntime, int *jtb, int *jte, 
                                        double *data, int *icol);
@@ -110,32 +113,36 @@ SEXP get_data_c(SEXP mws_index_) {
     return data;
 }
 
-SEXP get_ca_c(SEXP mws_index_) {
-    
+/* Returns a matrix with CA values. ca_names is a character vector
+ * with the names of the CAs. This vector should only contain names
+ * of exsting CA CA alues! Thus make sure to remove any CA names that
+ * before calling this function */
+SEXP get_ca_c(SEXP mws_index_, SEXP ca_names, SEXP jtb_, SEXP jte_) {
     int mws_index = asInteger(mws_index_);
-    int per_len, max_lag, max_lead;
-    F77_CALL(get_period_info)(&mws_index, &per_len, &max_lag, &max_lead);
-    int ntime = per_len;
-    int nvar = F77_CALL(get_variable_count)(&mws_index);
-    SEXP data = PROTECT(allocVector(REALSXP, ntime * nvar));
+    int jtb = asInteger(jtb_);
+    int jte = asInteger(jte_);
+    int ntime = jte - jtb + 1;
+    int nca = length(ca_names);
+    SEXP data = PROTECT(allocVector(REALSXP, ntime * nca));
 
     /* convert into matrix */
     SEXP dim = PROTECT(allocVector(INTSXP, 2));
     INTEGER(dim)[0] = ntime;
-    INTEGER(dim)[1] = nvar;
+    INTEGER(dim)[1] = nca;
     setAttrib(data, R_DimSymbol, dim);
     
-    SEXP col_names = PROTECT(get_variable_names_c(mws_index_));
-    SEXP dim_names = PROTECT(allocVector(VECSXP, 2));
-    SET_VECTOR_ELT(dim_names, 1, col_names);
-    setAttrib(data, R_DimNamesSymbol, dim_names);
-
     // fill in model data
-    int jtb = -max_lag + 1;
-    int jte = per_len + max_lead;
-    F77_CALL(get_data_all)(&mws_index, &nvar, &ntime, &jtb, &jte, REAL(data));
+    int *ica = (int *) R_alloc(nca, sizeof(int));
+    for (int i = 0; i < nca; i++) {
+        const char *name = CHAR(STRING_ELT(ca_names, i));
+        int namelen = strlen(name);
+        ica[i] = F77_CALL(get_ca_index)(&mws_index, name, &namelen);
+    }
 
-    UNPROTECT(4);
+    F77_CALL(get_ca_fortran)(&mws_index, &nca, ica, &ntime, &jtb, &jte,
+                             REAL(data));
+
+    UNPROTECT(2);
     
     return data;
 }

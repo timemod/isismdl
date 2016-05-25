@@ -65,3 +65,22 @@ integer(c_int) function get_var_index(model_index, name, namelen)
     get_var_index = find_name(name, namelen, mdl%ivnames, mdl%indexv, &
 &                             mdl%vnames, mdl%nrv)
 end function get_var_index
+
+integer(c_int) function get_ca_index(model_index, name, namelen)
+    use iso_c_binding
+    use modelworkspaces
+    use mdl_name_utils
+    integer(c_int), intent(in) :: model_index, name(*), namelen
+
+    integer :: ivar
+    
+    type(model), pointer :: mdl
+    mdl => mws_array(model_index)%mdl
+    ivar = find_name(name, namelen, mdl%ivnames, mdl%indexv, mdl%vnames, &
+                     mdl%nrv) 
+    if (ivar >= 0) then
+        get_ca_index = mdl%aci(ivar)
+    else 
+        get_ca_index =  0
+    endif
+end function get_ca_index

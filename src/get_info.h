@@ -10,3 +10,4 @@ extern void F77_NAME(get_variable_name)(int *model_index, int *i,
 extern void F77_NAME(get_ca_name)(int *model_index, int *i, char *ca_name,
                                   int *len);
 extern int F77_NAME(get_var_index)(int *mws_index, const char *name, int*namelen);
+extern int F77_NAME(get_ca_index)(int *mws_index, const char *name, int*namelen);

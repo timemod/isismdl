@@ -22,3 +22,8 @@ result <- islm_model$solve("2010Q3/2011Q4")
 print(result)
 print(islm_model$get_data())
 print(islm_model$get_ca_names())
+print(islm_model$get_ca())
+print(islm_model$get_ca(period = "2010Q3/2010Q4"))
+print(islm_model$get_ca("c"))
+print(islm_model$get_ca("x"))
+
