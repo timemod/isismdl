@@ -6,6 +6,8 @@
 #include "c_calls.h"
 
 #define MAX_NAME_LEN 32
+#define DATA  1
+#define CA    2
 
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
@@ -52,12 +54,33 @@ SEXP read_mdl_c(SEXP filename) {
     }
 }
 
-/* general function for obtaining a character vector with special
- * model variables */
-SEXP get_names_c(int model_index, int nvar,
-                 void  (*get_name)(int *, int *, char *, int *)) {
-    char name[MAX_NAME_LEN + 1];  // 1 extra character for terminating 0.
+SEXP get_names_c(SEXP type_, SEXP model_index_) {
+    const char *type_str = CHAR(STRING_ELT(type_, 0));
+    int type;
+    if (strcmp(type_str, "ca") == 0) {
+        type = CA;
+    } else {
+        type = DATA;
+    }
+    int model_index = asInteger(model_index_);
+
+    int nvar;
+    if (type == CA) {
+        nvar = F77_CALL(get_ca_count)(&model_index);
+    } else {
+        nvar = F77_CALL(get_variable_count)(&model_index);
+    }
+
+    void (*get_name)(int *, int *, char *, int *);
+    if (type == CA) {
+        get_name = F77_CALL(get_ca_name);
+    } else {
+        get_name = F77_CALL(get_variable_name);
+    }
+    
+    /* get list of variables */
     int ivar, len;
+    char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, nvar));
     for (ivar = 1; ivar <= nvar; ivar++) {
         (*get_name)(&model_index, &ivar, name, &len);
@@ -68,45 +91,32 @@ SEXP get_names_c(int model_index, int nvar,
     return names;
 }
 
-/* return the name of ivar's model variable in alphabetical ordering */
-void get_variable_name_alpha(int *model_index, int *ivar, char *name, 
-                             int *len) {
-    int alphabet = 1;
-    F77_CALL(get_variable_name)(model_index, ivar, name, len, &alphabet);
-}
-
-SEXP get_variable_names_c(SEXP model_index_) {
-    int model_index = asInteger(model_index_);
-    int nvar = F77_CALL(get_variable_count)(&model_index);
-    return get_names_c(model_index, nvar, get_variable_name_alpha);
-}
-
-SEXP get_ca_names_c(SEXP model_index_) {
-    int model_index = asInteger(model_index_);
-    int nvar = F77_CALL(get_ca_count)(&model_index);
-    return get_names_c(model_index, nvar, F77_CALL(get_ca_name));
-}
-
 /* General function for getting model data or constant adjustments */
-SEXP get_data_or_ca(SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_,
-                      int (*get_index)(int *, const char *, int *),
-                      void (*get_mat)(int *, int *, int *, int *, int *, int *,
-                                      double *)) {
+SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
+
+    const char *type_str = CHAR(STRING_ELT(type_, 0));
+    int type;
+    if (strcmp(type_str, "ca") == 0) {
+         type = CA;
+    } else {
+        type = DATA;
+    }
 
     int mws_index = asInteger(mws_index_);
     int jtb = asInteger(jtb_);
     int jte = asInteger(jte_);
     int ntime = jte - jtb + 1;
     int nvar = length(names);
-    SEXP data = PROTECT(allocVector(REALSXP, ntime * nvar));
 
-    /* convert into matrix */
-    SEXP dim = PROTECT(allocVector(INTSXP, 2));
-    INTEGER(dim)[0] = ntime;
-    INTEGER(dim)[1] = nvar;
-    setAttrib(data, R_DimSymbol, dim);
+    /* set the function used to convert the names to an indeces */
+    int (*get_index)(int *, const char *, int *);
+    if (type == CA) {
+        get_index = F77_CALL(get_ca_index);
+    } else {
+        get_index = F77_CALL(get_var_index);
+    }
     
-    // fill in model data
+    /* get list of variables */
     int *ivar = (int *) R_alloc(nvar, sizeof(int));
     for (int i = 0; i < nvar; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
@@ -114,32 +124,29 @@ SEXP get_data_or_ca(SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_,
         ivar[i] = (*get_index)(&mws_index, name, &namelen);
     }
 
-    (*get_mat)(&mws_index, &nvar, ivar, &ntime, &jtb, &jte, REAL(data));
+    /* set the function used to get the data */
+    void (*get_dat)(int *, int *, int *, int *, int *, int *, double *);
+    if (type == CA) {
+        get_dat = F77_CALL(get_ca_fortran);
+    } else {
+        get_dat = F77_CALL(get_data_fortran);
+    }
+
+    /* get the data */
+    SEXP data = PROTECT(allocVector(REALSXP, ntime * nvar));
+    (*get_dat)(&mws_index, &nvar, ivar, &ntime, &jtb, &jte, REAL(data));
+    
+    /* set the dimension of the matrix */
+    SEXP dim = PROTECT(allocVector(INTSXP, 2));
+    INTEGER(dim)[0] = ntime;
+    INTEGER(dim)[1] = nvar;
+    setAttrib(data, R_DimSymbol, dim);
+
 
     UNPROTECT(2);
-    
     return data;
 }
 
-
-/* Returns a matrix with mdl data values. names is a character vector
- * with the names of the variables. This vector should only contain names
- * of existing model variables. Thus make sure to remove any name that
- * is not present in the model data
- * before calling this function */
-SEXP get_data_c(SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
-    return get_data_or_ca(mws_index_, names, jtb_, jte_, 
-                   F77_CALL(get_var_index), F77_CALL(get_data_fortran));
-}
-
-/* Returns a matrix with CA values. names is a character vector
- * with the names of the CAs. This vector should only contain names
- * of exsting CA CA alues! Thus make sure to remove any CA names that
- * before calling this function */
-SEXP get_ca_c(SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
-    return get_data_or_ca(mws_index_, names, jtb_, jte_, 
-                   F77_CALL(get_ca_index), F77_CALL(get_ca_fortran));
-}
 
 SEXP set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP shift_) {
     int set_type = asInteger(set_type_);

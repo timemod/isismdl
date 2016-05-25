@@ -10,11 +10,9 @@ setOldClass("regperiod_range")
 
 #' A reference class representing a macroecomic model
 #'
-#' @useDynLib macromod get_variable_names_c
-#' @useDynLib macromod get_ca_names_c
+#' @useDynLib macromod get_names_c
 #' @useDynLib macromod set_period_fortran
 #' @useDynLib macromod get_data_c
-#' @useDynLib macromod get_ca_c
 #' @useDynLib macromod set_c
 #' @useDynLib macromod set_rms_c
 #' @useDynLib macromod run_equations_fortran
@@ -43,13 +41,13 @@ MacroModel <- setRefClass("MacroModel",
         },
         get_variable_names = function() {
             "Returns the names of the model variables"
-            return (.Call(get_variable_names_c, as.integer(model_index)))
+            return (sort(.Call(get_names_c, "data", as.integer(model_index))))
         },
         get_ca_names = function() {
             "Returns the names of the constant adjustments"
             # note: the names returned  by get_ca_names are not sorted alphabetically,
             # therefore sort explicitly
-            return (sort(.Call(get_ca_names_c, as.integer(model_index))))
+            return (sort(.Call(get_names_c, "ca", as.integer(model_index))))
         },
         set_period = function(period) {
             "Sets the model period. This is the longest period for which
@@ -73,24 +71,19 @@ MacroModel <- setRefClass("MacroModel",
                                          get_end_period(model_period) + maxlead)
             return (invisible(NULL))
         },
-        get_all_data = function() {
-            "Returns all model data"
-            data <- .Call(get_all_data_c, model_index)
-            return (regts(data, start = get_start_period(model_data_period)))
-        },
         get_data = function(names = get_variable_names(), period = model_data_period) {
             "Returns the model data"
             if (!missing(names)) {
                 names <- intersect(names, get_variable_names())
             }
-            return (get_vars("get_data_c", names, period, model_index, model_period))
+            return (get_variables("data", names, period, model_index, model_period))
         },
         get_ca = function(names = get_ca_names(), period = model_period) {
             "Returns the constant adjustments"
             if (!missing(names)) {
                 names <- intersect(names, get_ca_names())
             }
-            return (get_vars("get_ca_c", names, period, model_index, model_period))
+            return (get_variables("ca", names, period, model_index, model_period))
         },
         set_data = function(ts_data) {
             "Sets the model data"
@@ -159,11 +152,11 @@ set_var <- function(set_type, model_index, ts_data, model_period) {
 }
 
 # general function used to get model data or constant adjustments
-get_vars <- function(func, names, period, model_index, model_period) {
+get_variables <- function(type, names, period, model_index, model_period) {
     period <- as.regperiod_range(period)
     if (length(names) > 0) {
         js <- get_period_indices(period, model_period)
-        data <- .Call(func, model_index = model_index,
+        data <- .Call("get_data_c", type = type, model_index = model_index,
                       names = names, jtb = js$startp, jte = js$endp)
         return (regts(data, start = get_start_period(period), names = names))
     } else {

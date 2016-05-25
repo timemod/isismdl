@@ -20,13 +20,13 @@ function get_ca_count(model_index)
     get_ca_count = mws_array(model_index)%mdl%nca
 end function get_ca_count
 
-subroutine get_variable_name(model_index, i, nam, nlen, alphabet)
+subroutine get_variable_name(model_index, i, nam, nlen)
     use modelworkspaces
     use iso_c_binding
-    integer(c_int), intent(in)   :: model_index, i, alphabet
+    integer(c_int), intent(in)   :: model_index, i
     integer(c_int), intent(out)  :: nlen
     integer, dimension(*), intent(out) :: nam
-    call get_var_name(mws_array(model_index)%mdl, i, alphabet /= 0, nam, nlen);
+    call get_var_name(mws_array(model_index)%mdl, i, .false., nam, nlen);
 end subroutine get_variable_name
 
 subroutine get_ca_name(model_index, i, nam, nlen)
