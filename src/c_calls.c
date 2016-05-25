@@ -138,7 +138,7 @@ SEXP get_data_c(SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
  * before calling this function */
 SEXP get_ca_c(SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
     return get_data_or_ca(mws_index_, names, jtb_, jte_, 
-                   F77_CALL(get_var_index), F77_CALL(get_data_fortran));
+                   F77_CALL(get_ca_index), F77_CALL(get_ca_fortran));
 }
 
 SEXP set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP shift_) {

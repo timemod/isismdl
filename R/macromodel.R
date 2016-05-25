@@ -160,6 +160,7 @@ set_var <- function(set_type, model_index, ts_data, model_period) {
 
 # general function used to get model data or constant adjustments
 get_vars <- function(func, names, period, model_index, model_period) {
+    period <- as.regperiod_range(period)
     if (length(names) > 0) {
         js <- get_period_indices(period, model_period)
         data <- .Call(func, model_index = model_index,
