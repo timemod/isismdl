@@ -83,28 +83,14 @@ MacroModel <- setRefClass("MacroModel",
             if (!missing(names)) {
                 names <- intersect(names, get_variable_names())
             }
-            if (length(names) > 0) {
-                js <- get_period_indices(period, model_period)
-                data <- .Call("get_data_c", model_index = model_index,
-                              names = names, jtb = js$startp, jte = js$endp)
-                return (regts(data, start = get_start_period(model_data_period), names = names))
-            } else {
-                return (NULL)
-            }
+            return (get_vars("get_data_c", names, period, model_index, model_period))
         },
         get_ca = function(names = get_ca_names(), period = model_period) {
             "Returns the constant adjustments"
             if (!missing(names)) {
                 names <- intersect(names, get_ca_names())
             }
-            if (length(names) > 0) {
-                js <- get_period_indices(period, model_period)
-                data <- .Call("get_ca_c", model_index = model_index,
-                              names = names, jtb = js$startp, jte = js$endp)
-                return (regts(data, start = get_start_period(model_period), names = names))
-            } else {
-                return (NULL)
-            }
+            return (get_vars("get_ca_c", names, period, model_index, model_period))
         },
         set_data = function(ts_data) {
             "Sets the model data"
@@ -172,3 +158,14 @@ set_var <- function(set_type, model_index, ts_data, model_period) {
     return (invisible(.Call(set_c, set_type, model_index, ts_data, shift)))
 }
 
+# general function used to get model data or constant adjustments
+get_vars <- function(func, names, period, model_index, model_period) {
+    if (length(names) > 0) {
+        js <- get_period_indices(period, model_period)
+        data <- .Call(func, model_index = model_index,
+                      names = names, jtb = js$startp, jte = js$endp)
+        return (regts(data, start = get_start_period(period), names = names))
+    } else {
+        return (NULL)
+    }
+}
