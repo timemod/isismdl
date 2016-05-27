@@ -143,7 +143,7 @@ MacroModel <- setRefClass("MacroModel",
 
             # remove columns /rows with only NA from data
             # todo: skip leading/trailing rows with only NA
-            data <- data[ , ! apply(data , 2 , function(x) all(is.na(data)))]
+            data <- data[ , ! apply(is.na(data) , 2 , all)]
 
             # remove columns with only 0 from ca
             # todo: skip leading/trailing columns with only NA
