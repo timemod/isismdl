@@ -34,6 +34,8 @@ model has a maximum lag of 2 and a maximum lead of 1. If the model period is
 
 \item{\code{get_data(names = get_variable_names(), period = model_data_period)}}{Returns the model data}
 
+\item{\code{get_mws()}}{Returns an mws object}
+
 \item{\code{get_variable_names()}}{Returns the names of the model variables}
 
 \item{\code{set_ca(ts_data)}}{Sets the constant adjustments}
@@ -43,6 +45,8 @@ model has a maximum lag of 2 and a maximum lead of 1. If the model period is
 \item{\code{set_fit(ts_data)}}{Sets the fit data}
 
 \item{\code{set_fix(ts_data)}}{Sets the fix data}
+
+\item{\code{set_mws(x)}}{Sets the model data}
 
 \item{\code{set_period(period)}}{Sets the model period. This is the longest period for which
 the model will be solved. This method also allocates storage for

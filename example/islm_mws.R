@@ -26,3 +26,9 @@ print(islm_model$get_ca())
 print(islm_model$get_ca(period = "2010Q3/2010Q4"))
 print(islm_model$get_ca("c"))
 print(islm_model$get_ca("x"))
+
+mws <- islm_model$get_mws()
+mws
+islm_model <- read_mdl("example/islm.mif")
+islm_model$set_mws(mws)
+print(islm_model$solve())

@@ -76,30 +76,30 @@ MacroModel <- setRefClass("MacroModel",
             if (!missing(names)) {
                 names <- intersect(names, get_variable_names())
             }
-            return (get_variables("data", names, period, model_index, model_period))
+            return (get_variables(.self, "data", names, period))
         },
         get_ca = function(names = get_ca_names(), period = model_period) {
             "Returns the constant adjustments"
             if (!missing(names)) {
                 names <- intersect(names, get_ca_names())
             }
-            return (get_variables("ca", names, period, model_index, model_period))
+            return (get_variables(.self, "ca", names, period))
         },
         set_data = function(ts_data) {
             "Sets the model data"
-            return (set_var(as.integer(1), model_index, ts_data, model_period))
+            return (set_var(.self, as.integer(1), ts_data))
         },
         set_ca = function(ts_data) {
             "Sets the constant adjustments"
-            return (set_var(as.integer(2), model_index, ts_data, model_period))
+            return (set_var(.self, as.integer(2), ts_data))
         },
         set_fix = function(ts_data) {
             "Sets the fix data"
-            return (set_var(as.integer(3), model_index, ts_data, model_period))
+            return (set_var(.self, as.integer(3), ts_data))
         },
         set_fit = function(ts_data) {
             "Sets the fit data"
-            return (set_var(as.integer(4), model_index, ts_data, model_period))
+            return (set_var(.self, as.integer(4), ts_data))
         },
         set_rms = function(rms_list) {
             "Sets the rms values"
@@ -107,6 +107,7 @@ MacroModel <- setRefClass("MacroModel",
         },
         solve = function(period = model_period) {
             "Solves the model for the specified period"
+            check_period_set(.self)
             js <- get_period_indices(period, model_period)
             retval <- .Call("solve_c", model_index = model_index,
                                jtb = js$startp, jte = js$endp,
@@ -116,12 +117,32 @@ MacroModel <- setRefClass("MacroModel",
         },
         fill_mdl_data = function(period = model_data_period) {
             "Calculates missing model data from identities."
+            check_period_set(.self)
             js <- get_period_indices(period, model_period)
             retval <- .Call("filmdt_c", model_index = model_index,
                             jtb = js$startp, jte = js$endp,
                             solve_period = as.character(period))
             class(retval) <- "filmdt_report"
             return (retval)
+        },
+        get_mws = function() {
+            "Returns an mws object"
+            check_period_set(.self)
+            return (structure(list(model_period = model_period, data = get_data(), ca = get_ca()),
+                              class="mws"))
+        },
+        set_mws = function(x) {
+            "Sets the model data"
+            if (!inherits(x, "mws")) {
+                stop("x is not an mws object")
+            }
+            if (!identical(colnames(x$data), get_variable_names()) |
+                !identical(colnames(x$ca), get_ca_names())) {
+                    stop("Mws x does not agree with the model definition")
+            }
+            x1 <- .self$set_period(x$model_period)
+            x2 <- .self$set_data(x$data)
+            x3<- .self$set_ca(x$ca)
         }
     )
 )
@@ -134,12 +155,22 @@ get_period_indices <- function(period, model_period, extended = TRUE) {
     return (list(startp = startp, endp = endp))
 }
 
+# Check if the model_period has been set
+check_period_set = function(x) {
+    # Check if the model_period has been set
+    if (is.null(x$model_period)) {
+        stop("The model period is not set. Set the model period with set_mdl_period()")
+    }
+    return (NULL)
+}
+
 # general function used to update model data, constant adjustments,
 # fix values or fit targets. Should not be used by user and should
 # therefore not be documented and exported.
-set_var <- function(set_type, model_index, ts_data, model_period) {
+set_var = function(x, set_type, ts_data) {
+    check_period_set(x)
     ts_data <- as.regts(ts_data)
-    shift <- get_period_indices(get_regperiod_range(ts_data), model_period)$startp
+    shift <- get_period_indices(get_regperiod_range(ts_data), x$model_period)$startp
     if (is.matrix(ts_data) && is.integer(ts_data)) {
         # make sure that data is a matrix of real values and no integers
         old_colnames <- colnames(ts_data)
@@ -148,18 +179,21 @@ set_var <- function(set_type, model_index, ts_data, model_period) {
     } else if (!is.matrix(ts_data)) {
         stop("macromodel cannot handle univariate timeseries yet")
     }
-    return (invisible(.Call(set_c, set_type, model_index, ts_data, shift)))
+    return (invisible(.Call(set_c, set_type, x$model_index, ts_data, shift)))
 }
 
 # general function used to get model data or constant adjustments
-get_variables <- function(type, names, period, model_index, model_period) {
+get_variables <- function(x, type, names, period) {
+    check_period_set(x)
     period <- as.regperiod_range(period)
     if (length(names) > 0) {
-        js <- get_period_indices(period, model_period)
-        data <- .Call("get_data_c", type = type, model_index = model_index,
+        js <- get_period_indices(period, x$model_period)
+        data <- .Call("get_data_c", type = type, model_index = x$model_index,
                       names = names, jtb = js$startp, jte = js$endp)
         return (regts(data, start = get_start_period(period), names = names))
     } else {
         return (NULL)
     }
 }
+
+
