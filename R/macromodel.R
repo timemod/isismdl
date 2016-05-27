@@ -209,7 +209,7 @@ get_variables <- function(x, type, names, period) {
 get_fix_fit <- function(mdl, type) {
     ret <- .Call("get_fix_fit_c", type = type, model_index = mdl$model_index)
     if (!is.null(ret)) {
-        ret <- regts(ret[[2]], start = get_start_period(mdl$model_period) + ret[[1]], names = ret[[3]])
+        ret <- regts(ret[[2]], start = get_start_period(mdl$model_period) + ret[[1]] - 1, names = ret[[3]])
         ret <- ret[, sort(colnames(ret))]
     }
     return (ret)
