@@ -34,6 +34,8 @@ model has a maximum lag of 2 and a maximum lead of 1. If the model period is
 
 \item{\code{get_data(names = get_variable_names(), period = model_data_period)}}{Returns the model data}
 
+\item{\code{get_fit()}}{Returns the fit targets}
+
 \item{\code{get_fix()}}{Returns the fix values}
 
 \item{\code{get_mws()}}{Returns an mws object}

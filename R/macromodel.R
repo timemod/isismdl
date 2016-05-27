@@ -88,12 +88,11 @@ MacroModel <- setRefClass("MacroModel",
         },
         get_fix = function() {
             "Returns the fix values"
-            x <- .Call("get_fix_fit_c", type = "fix", model_index = model_index)
-            if (!is.null(x)) {
-                x <- regts(x[[2]], start = get_start_period(model_period), names = x[[3]])
-                x <- x[, sort(colnames(x))]
-            }
-            return (x)
+            return (get_fix_fit(.self, type = "fix"))
+        },
+        get_fit = function() {
+            "Returns the fit targets"
+            return (get_fix_fit(.self, type = "fit"))
         },
         set_data = function(ts_data) {
             "Sets the model data"
@@ -204,6 +203,16 @@ get_variables <- function(x, type, names, period) {
     } else {
         return (NULL)
     }
+}
+
+# general function for getting fix or fit values
+get_fix_fit <- function(mdl, type) {
+    ret <- .Call("get_fix_fit_c", type = type, model_index = mdl$model_index)
+    if (!is.null(ret)) {
+        ret <- regts(ret[[2]], start = get_start_period(mdl$model_period) + ret[[1]], names = ret[[3]])
+        ret <- ret[, sort(colnames(ret))]
+    }
+    return (ret)
 }
 
 

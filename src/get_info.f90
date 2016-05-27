@@ -106,3 +106,35 @@ subroutine get_fix_info(model_index, nfix,  jtb, jte)
     endif
 end subroutine get_fix_info
 
+subroutine get_fit_info(model_index, nfit,  jtb, jte)
+    use iso_c_binding
+    use modelworkspaces
+    integer(c_int), intent(in)  :: model_index
+    integer(c_int), intent(out) :: nfit, jtb, jte
+    
+    integer :: jt
+    type(modelworkspace), pointer :: mws
+
+    mws => mws_array(model_index)
+
+    nfit = mws%fit_targets%var_count
+
+    jtb = -1
+    do jt = 1, mws%perlen
+        if (isfitp(mws, jt)) then
+            jtb = jt
+            exit
+        endif
+    end do
+    if (jtb > 0) then
+        do jt = mws%perlen, jtb, -1
+            if (isfitp(mws, jt)) then
+                jte = jt
+                exit
+            endif
+        end do
+    else 
+        nfit = 0
+    endif
+end subroutine get_fit_info
+

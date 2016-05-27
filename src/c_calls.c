@@ -210,7 +210,12 @@ SEXP get_fix_fit_c(SEXP type_, SEXP mws_index_) {
     int fix = strcmp(type_str, "fix") == 0 ? 1 : 0;
     int mws_index = asInteger(mws_index_);
     int nvar, jtb, jte;
-    F77_CALL(get_fix_info)(&mws_index, &nvar, &jtb, &jte);
+
+    if (fix) {
+        F77_CALL(get_fix_info)(&mws_index, &nvar, &jtb, &jte);
+    } else  {
+        F77_CALL(get_fit_info)(&mws_index, &nvar, &jtb, &jte);
+    }
 
     if (nvar == 0) {
         return R_NilValue;
