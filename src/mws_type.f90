@@ -99,6 +99,10 @@ module mws_type
             call mddata(mws, error)
             mws%lags = NA
             mws%leads = NA
+
+            call clear_mdl_variables(mws%fix_vars)
+            call clear_mdl_variables(mws%fit_targets)
+            if (allocated(mws%rmsu)) deallocate(mws%rmsu)
         end subroutine mws_setper
 
         !

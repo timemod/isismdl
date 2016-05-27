@@ -22,6 +22,7 @@ fix['2010Q3', 'r'] <- 800
 islm_model$set_fix(fix)
 print(islm_model$get_fix())
 
-# result <- islm_model$solve("2010Q3/2011Q4")
-# print(result)
-# print(islm_model$get_data())
+result <- islm_model$solve("2010Q3/2011Q4")
+print(result)
+print(islm_model$get_data())
+

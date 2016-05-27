@@ -16,7 +16,7 @@ data[, 'ms'] <- 200
 islm_model$set_data(data)
 
 fit <- regts(matrix(NA, ncol = 2), start = "2010Q3", end =  "2010Q4",
-             names = c("y", "y"))
+             names = c("y", "c"))
 fit[ , 'y'] <- 985
 fit[ , 'r'] <- 3.5
 islm_model$set_fit(fit)

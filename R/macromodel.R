@@ -137,7 +137,26 @@ MacroModel <- setRefClass("MacroModel",
         get_mws = function() {
             "Returns an mws object"
             check_period_set(.self)
-            return (structure(list(model_period = model_period, data = get_data(), ca = get_ca()),
+
+            data <- get_data()
+            ca   <- get_ca()
+
+            # remove columns /rows with only NA from data
+            # todo: skip leading/trailing rows with only NA
+            data <- data[ , ! apply(data , 2 , function(x) all(is.na(data)))]
+
+            # remove columns with only 0 from ca
+            # todo: skip leading/trailing columns with only NA
+            ca <- ca[, !apply(ca == 0, 2, all)]
+
+            # todo: rms values
+
+            return (structure(list(var_names = get_variable_names(),
+                                   ca_names = get_ca_names(),
+                                   model_period = model_period,
+                                   data = data, ca = ca,
+                                   fix = get_fix(),
+                                   fit = get_fit()),
                               class="mws"))
         },
         set_mws = function(x) {
@@ -145,13 +164,19 @@ MacroModel <- setRefClass("MacroModel",
             if (!inherits(x, "mws")) {
                 stop("x is not an mws object")
             }
-            if (!identical(colnames(x$data), get_variable_names()) |
-                !identical(colnames(x$ca), get_ca_names())) {
+            if (!identical(x$var_names, get_variable_names()) |
+                !identical(x$ca_names, get_ca_names())) {
                     stop("Mws x does not agree with the model definition")
             }
-            x1 <- .self$set_period(x$model_period)
-            x2 <- .self$set_data(x$data)
-            x3 <- .self$set_ca(x$ca)
+            set_period(x$model_period)
+            set_data(x$data)
+            set_ca(x$ca)
+            if (!is.null(x$fix)) {
+                set_fix(x$fix)
+            }
+            if (!is.null(x$fit)) {
+                set_fit(x$fit)
+            }
         }
     )
 )
