@@ -8,6 +8,8 @@
 #define MAX_NAME_LEN 32
 #define DATA  1
 #define CA    2
+#define FIX   3
+#define FIT   4
 
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
@@ -17,6 +19,9 @@ extern void F77_NAME(get_data_fortran)(int *mws_index, int *nvar, int *ivar,
 extern void F77_NAME(get_ca_fortran)(int *mws_index, int *nca, int *ica, 
                                      int *ntime, int *jtb,
                                      int *jte, double *data);
+extern void F77_NAME(get_fix_fit_fortran)(int *mws_index, int *nvar, int *ivar, 
+                                          int *ntime, int *jtb, int *jte, 
+                                          double *mat, int *fix_);
 extern void F77_NAME(set_data_fortran)(int *mws_index, int *nvar, int *ivar, 
                                        int *ntime, int *jtb, int *jte, 
                                        double *data, int *icol);
@@ -197,6 +202,49 @@ SEXP set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP shift_) {
             break;
     }
     return R_NilValue;
+}
+
+/* General function for getting fix value or fit values */
+SEXP get_fix_fit_c(SEXP type_, SEXP mws_index_) {
+    const char *type_str = CHAR(STRING_ELT(type_, 0));
+    int fix = strcmp(type_str, "fix") == 0 ? 1 : 0;
+    int mws_index = asInteger(mws_index_);
+    int nvar, jtb, jte;
+    F77_CALL(get_fix_info)(&mws_index, &nvar, &jtb, &jte);
+
+    if (nvar == 0) {
+        return R_NilValue;
+    }
+
+    int ntime = jte - jtb + 1;
+    SEXP mat = PROTECT(allocVector(REALSXP, ntime * nvar));
+    int *ivar = (int *) R_alloc(nvar, sizeof(int));
+    F77_CALL(get_fix_fit_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb, 
+                                  &jte, REAL(mat), &fix);
+
+    /* set the dimension of the matrix */
+    SEXP dim = PROTECT(allocVector(INTSXP, 2));
+    INTEGER(dim)[0] = ntime;
+    INTEGER(dim)[1] = nvar;
+    setAttrib(mat, R_DimSymbol, dim);
+
+    char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
+    SEXP names = PROTECT(allocVector(STRSXP, nvar));
+    int i, len;
+    for (i = 0; i < nvar; i++) {
+        F77_CALL(get_variable_name)(&mws_index, &ivar[i], name, &len);
+        name[len] = '\0';
+        SET_STRING_ELT(names, i, mkChar(name));
+    }
+
+    // create ouput list
+    SEXP list = PROTECT(allocVector(VECSXP, 3));
+    SET_VECTOR_ELT(list, 0, ScalarInteger(jtb));
+    SET_VECTOR_ELT(list, 1, mat);
+    SET_VECTOR_ELT(list, 2, names);
+
+    UNPROTECT(4);
+    return list;
 }
 
 SEXP set_rms_c(SEXP mws_index_, SEXP rms_list) {

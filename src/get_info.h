@@ -8,3 +8,5 @@ extern void F77_NAME(get_ca_name)(int *model_index, int *i, char *ca_name,
                                   int *len);
 extern int F77_NAME(get_var_index)(int *mws_index, const char *name, int*namelen);
 extern int F77_NAME(get_ca_index)(int *mws_index, const char *name, int*namelen);
+extern void F77_NAME(get_fix_info)(int *mws_index, int *nfix, int *jtb,
+                                   int *jte);

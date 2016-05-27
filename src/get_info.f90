@@ -73,3 +73,36 @@ integer(c_int) function get_ca_index(model_index, name, namelen)
         get_ca_index =  0
     endif
 end function get_ca_index
+
+subroutine get_fix_info(model_index, nfix,  jtb, jte)
+    use iso_c_binding
+    use modelworkspaces
+    integer(c_int), intent(in)  :: model_index
+    integer(c_int), intent(out) :: nfix, jtb, jte
+    
+    integer :: jt
+    type(modelworkspace), pointer :: mws
+
+    mws => mws_array(model_index)
+
+    nfix = mws%fix_vars%var_count
+
+    jtb = -1
+    do jt = 1, mws%perlen
+        if (isfixp(mws, jt)) then
+            jtb = jt
+            exit
+        endif
+    end do
+    if (jtb > 0) then
+        do jt = mws%perlen, jtb, -1
+            if (isfixp(mws, jt)) then
+                jte = jt
+                exit
+            endif
+        end do
+    else 
+        nfix = 0
+    endif
+end subroutine get_fix_info
+

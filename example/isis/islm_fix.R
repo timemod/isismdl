@@ -1,0 +1,18 @@
+readmdl("islm");
+setmdp(2010.3q..2011.4q);
+r = 3.35;
+y = 980;
+yd = 790;
+g = 210;
+ms = 200;
+setmva(ft = "*"; cvgcrit = 1e-6);
+c_rms = 5;
+i_rms = 21;
+md_rms = 2;
+t_rms = 2;
+getrms;
+y_fit[2010.3q..2010.4q] = 985;
+r_fit[2010.3q..2010.4q] = 3.4;
+getfit;
+solve(method = broyden);
+primdt;

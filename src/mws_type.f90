@@ -138,34 +138,6 @@ module mws_type
         
         end subroutine mddata
 
-        function get_dfile_index(mws, ivar, itime)
-            type(modelworkspace), intent(in) :: mws
-            integer :: get_dfile_index
-            integer, intent(in) :: ivar, itime
-            !
-            ! This function returns the index in array dfile
-            ! where the value of ivar at time itime is stored.
-            ! It returns 0 if itime is within the model
-            ! data period (in that case the value of the variable
-            ! is not stored in dfile but in data),
-            ! and if itime not a valid time index for
-            ! variable ivar.
-            !
-
-            integer :: idx
-
-            idx = 0
-            if (itime  < 1) then
-                idx = mws%mdl%ibx1(ivar) - itime
-                if (idx >= mws%mdl%ibx1(ivar + 1)) idx = 0
-            else if (itime > mws%perlen) then
-                idx = mws%mdl%ibx2(ivar) + itime - mws%perlen - 1
-                if (idx >= mws%mdl%ibx2(ivar + 1)) idx = 0
-            endif
-           get_dfile_index = idx
-
-        end function get_dfile_index
-
         function period_ok(mws, ivar, itime)
             type(modelworkspace), intent(in) :: mws
             logical :: period_ok
@@ -301,6 +273,38 @@ module mws_type
                 end do
             end do
         end subroutine get_ca
+
+        subroutine get_fix_fit(mws, nvar, ivar, ntime, jtb, jte, mat, fix)
+            ! get fix or fit values, depending on variable fix
+            type(modelworkspace), intent(inout), target :: mws 
+            integer, intent(in) :: nvar, ntime, jtb, jte
+            integer, intent(out) :: ivar(*)
+            real(kind = MWS_RKIND), dimension(ntime, *), intent(out) :: mat
+            logical, intent(in) :: fix
+
+            type(mdl_variables), pointer :: mdl_vars
+            type(mdl_variable), pointer  :: cur
+
+            integer :: i, jt
+
+            if (fix) then
+                mdl_vars => mws%fix_vars
+            else 
+                mdl_vars => mws%fit_targets
+            endif
+
+            i = 0
+            cur => mdl_vars%first
+            do
+                i = i + 1
+                ivar(i) = cur%var_index
+                do jt = jtb, jte
+                    mat(jt, i) = get_mdl_var_value(cur, jt)
+                end do
+                cur => cur%next
+                if (.not. associated(cur)) return
+            end do
+        end subroutine get_fix_fit
 
         subroutine set_fix_fit(mws, nvar, ivar, ntime, jtb, jte, mat, icol, &
                                fix)

@@ -13,6 +13,7 @@ setOldClass("regperiod_range")
 #' @useDynLib macromod get_names_c
 #' @useDynLib macromod set_period_fortran
 #' @useDynLib macromod get_data_c
+#' @useDynLib macromod get_fix_fit_c
 #' @useDynLib macromod set_c
 #' @useDynLib macromod set_rms_c
 #' @useDynLib macromod run_equations_fortran
@@ -85,6 +86,15 @@ MacroModel <- setRefClass("MacroModel",
             }
             return (get_variables(.self, "ca", names, period))
         },
+        get_fix = function() {
+            "Returns the fix values"
+            x <- .Call("get_fix_fit_c", type = "fix", model_index = model_index)
+            if (!is.null(x)) {
+                x <- regts(x[[2]], start = get_start_period(model_period), names = x[[3]])
+                x <- x[, sort(colnames(x))]
+            }
+            return (x)
+        },
         set_data = function(ts_data) {
             "Sets the model data"
             return (set_var(.self, as.integer(1), ts_data))
@@ -132,7 +142,7 @@ MacroModel <- setRefClass("MacroModel",
                               class="mws"))
         },
         set_mws = function(x) {
-            "Sets the model data"
+            "Sets the model workspace"
             if (!inherits(x, "mws")) {
                 stop("x is not an mws object")
             }
@@ -142,7 +152,7 @@ MacroModel <- setRefClass("MacroModel",
             }
             x1 <- .self$set_period(x$model_period)
             x2 <- .self$set_data(x$data)
-            x3<- .self$set_ca(x$ca)
+            x3 <- .self$set_ca(x$ca)
         }
     )
 )
