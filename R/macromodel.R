@@ -3,6 +3,7 @@
 #' @name regperiod_range-class
 #' @exportClass regperiod_range
 setOldClass("regperiod_range")
+aap
 
 
 # TODO: maybe a R6 class is better suited? The only problem with R6 is that
