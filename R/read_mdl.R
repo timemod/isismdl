@@ -6,7 +6,12 @@
 #' @param mif_name the name of the mif file
 #' @return a \link{MacroModel} object
 #' @examples
-#' islm_model <- read_mdl("mdl/islm.mif")
+#' copy_example_mdl("islm")
+#' compile_mdl("islm.mdl")
+#' islm_model <- read_mdl("islm.mif")
+#' \dontshow{
+#' unlink("islm.*")
+#' }
 #' @export
 read_mdl <- function(mif_name) {
 

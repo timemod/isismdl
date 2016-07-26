@@ -2,7 +2,7 @@ library(regts)
 library(macromod)
 
 for (i in 1:1000) {
-    islm_model <- read_mdl("example/islm.mif")
+    islm_model <- read_mdl("demo/islm.mif")
     islm_model
     islm_model$get_variable_names()
     islm_model$set_period("2010Q3/2011Q4")

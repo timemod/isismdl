@@ -16,6 +16,11 @@ a \link{MacroModel} object
 Read the model from a mif file
 }
 \examples{
-islm_model <- read_mdl("mdl/islm.mif")
+copy_example_mdl("islm")
+compile_mdl("islm.mdl")
+islm_model <- read_mdl("islm.mif")
+\dontshow{
+unlink("islm.*")
+}
 }
 
