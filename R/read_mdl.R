@@ -25,5 +25,5 @@ read_mdl <- function(mif_name) {
     model$maxlag <- ret$maxlag
     model$maxlead <- ret$maxlead
 
-        return (model)
+    return (model)
 }
