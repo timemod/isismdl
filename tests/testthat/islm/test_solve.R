@@ -11,8 +11,7 @@ result <- islm_model$solve()
 #print(result)
 #print(islm_model$get_data())
 
-isis_result <- as.regts(read.csv("isi/solve.csv"), index_column = 1,
-                        fun = zoo::as.yearqtr, format = "%Y.%qQ")
+isis_result <- as.regts(read.csv("isi/solve.csv"), time_column = 1)
 dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,
              fun = cvgdif)
 

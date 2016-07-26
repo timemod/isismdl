@@ -21,7 +21,7 @@ setOldClass("regperiod_range")
 #' @useDynLib macromod filmdt_c
 #' @useDynLib macromod remove_mws_fortran
 #' @import regts
-#' @import methods
+#' @importFrom "methods" "new"
 #' @field maxlag the maximum lag of the model
 #' @field maxlead the maximum lead of the model
 #' @field model_period the model period. This is the maximum period for which
@@ -62,14 +62,14 @@ MacroModel <- setRefClass("MacroModel",
             period <- as.regperiod_range(period)
             model_period <<- period
             retval <- .Fortran("set_period_fortran", model_index = model_index,
-                               start = as.integer(period$start),
-                               end = as.integer(period$end),
-                               freq = as.integer(period$freq),
+                               start = as.integer(period[1]),
+                               end   = as.integer(period[2]),
+                               freq  = as.integer(period[3]),
                                ier = as.integer(1))
 
             model_data_period <<- regperiod_range(
-                                         get_start_period(model_period) - maxlag,
-                                         get_end_period(model_period) + maxlead)
+                                         start_period(model_period) - maxlag,
+                                         end_period(model_period) + maxlead)
             return (invisible(NULL))
         },
         get_data = function(names = get_variable_names(), period = model_data_period) {
@@ -183,9 +183,9 @@ MacroModel <- setRefClass("MacroModel",
 
 get_period_indices <- function(period, model_period, extended = TRUE) {
     period <- as.regperiod_range(period)
-    mdl_period_start <- get_start_period(model_period)
-    startp <- as.integer(get_start_period(period) - mdl_period_start + 1)
-    endp <- as.integer(get_end_period(period) - mdl_period_start + 1)
+    mdl_period_start <- start_period(model_period)
+    startp <- as.integer(start_period(period) - mdl_period_start + 1)
+    endp <- as.integer(end_period(period) - mdl_period_start + 1)
     return (list(startp = startp, endp = endp))
 }
 
@@ -224,7 +224,7 @@ get_variables <- function(x, type, names, period) {
         js <- get_period_indices(period, x$model_period)
         data <- .Call("get_data_c", type = type, model_index = x$model_index,
                       names = names, jtb = js$startp, jte = js$endp)
-        return (regts(data, start = get_start_period(period), names = names))
+        return (regts(data, start = start_period(period), names = names))
     } else {
         return (NULL)
     }
@@ -234,7 +234,7 @@ get_variables <- function(x, type, names, period) {
 get_fix_fit <- function(mdl, type) {
     ret <- .Call("get_fix_fit_c", type = type, model_index = mdl$model_index)
     if (!is.null(ret)) {
-        ret <- regts(ret[[2]], start = get_start_period(mdl$model_period) + ret[[1]] - 1, names = ret[[3]])
+        ret <- regts(ret[[2]], start = start_period(mdl$model_period) + ret[[1]] - 1, names = ret[[3]])
         ret <- ret[, sort(colnames(ret))]
     }
     return (ret)

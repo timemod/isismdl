@@ -1,12 +1,14 @@
 Package: macromod
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Solve macroeconomic models
 Version: 0.1
 Date: 2016-02-18
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
+Author:  Rob van Harrevelt [aut, cre]
+Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
+Description: Solve macroeconomic models.
 License: What license is it under?
 LazyData: TRUE
 RoxygenNote: 5.0.1
+Imports: methods
+Depends: regts
 Suggests: testthat

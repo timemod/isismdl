@@ -1,6 +1,3 @@
-library(macromod)
-library(regts)
-
 context("ISLM model")
 
 source_test_helpers(path = "islm")

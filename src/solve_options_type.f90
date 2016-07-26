@@ -119,7 +119,7 @@ contains
         options%ratex%xtfac = 10.0_ISIS_RKIND
 
         ! fit options
-        options%fit%cvgabs = 1e-4_ISIS_RKIND
+        options%fit%cvgabs = 1e-7_ISIS_RKIND
         options%fit%mkdcrt =  0.5_ISIS_RKIND
         options%fit%scale_method = FIT_SCALE_ROW
         options%fit%accurate_jac = .false.

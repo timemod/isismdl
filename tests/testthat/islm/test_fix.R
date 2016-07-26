@@ -9,7 +9,7 @@ islm_model$set_data(input)
 
 i <- regts(200, start = '2015Q2')
 c <- regts(c(600, NA, 600), start = '2015Q2')
-fix <- regts.union(i, c)
+fix <- cbind(i, c)
 
 islm_model$set_fix(fix)
 
@@ -17,8 +17,7 @@ result <- islm_model$solve()
 #print(result)
 #print(islm_model$get_data())
 
-isis_result <- as.regts(read.csv("isi/fix.csv"), index_column = 1,
-                        fun = zoo::as.yearqtr, format = "%Y.%qQ")
+isis_result <- as.regts(read.csv("isi/fix.csv"), time_column = 1)
 dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,
              fun = cvgdif)
 #print(dif)
@@ -38,8 +37,7 @@ islm_model$set_fix(fix)
 islm_model$set_ca(ca)
 islm_model$solve()
 
-isis_result <- as.regts(read.csv("isi/solve.csv"), index_column = 1,
-                        fun = zoo::as.yearqtr, format = "%Y.%qQ")
+isis_result <- as.regts(read.csv("isi/solve.csv"), time_column = 1)
 dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,
              fun = cvgdif)
 #print(dif)
