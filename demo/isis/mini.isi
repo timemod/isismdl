@@ -1,0 +1,6 @@
+cmpmdl("mini");
+readmdl("mini");
+setmdp(2010.2Q);
+x = 1;
+solve(per = 2010.2q);
+primdt;
