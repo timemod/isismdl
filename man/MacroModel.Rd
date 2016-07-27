@@ -34,7 +34,7 @@ the model has a maximum lag of 2 and a maximum lead of 1. If the model period
 \describe{
 \item{\code{get_variable_names()}}{Returns the names of the model variables}
 \item{\code{get_ca_names()}}{Returns the names of the constant adjustments}
-\item{\code{set_mdl_period(period)}}{Sets the model period. \code{period}
+\item{\code{set_period(period)}}{Sets the model period. \code{period}
 is a \code{\link{regperiod_range}} object or an object that can be coerced
 to a \code{regperiod_range}. The model period is the longest period for which
 the model may be solved. This method also allocates storage for

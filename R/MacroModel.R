@@ -52,7 +52,7 @@ setOldClass("regperiod_range")
 #' \describe{
 #' \item{\code{get_variable_names()}}{Returns the names of the model variables}
 #' \item{\code{get_ca_names()}}{Returns the names of the constant adjustments}
-#' \item{\code{set_mdl_period(period)}}{Sets the model period. \code{period}
+#' \item{\code{set_period(period)}}{Sets the model period. \code{period}
 #' is a \code{\link{regperiod_range}} object or an object that can be coerced
 #' to a \code{regperiod_range}. The model period is the longest period for which
 #' the model may be solved. This method also allocates storage for
@@ -64,6 +64,7 @@ setOldClass("regperiod_range")
 #' adjusments with 0.}
 #' }
 MacroModel <- R6Class("MacroModel",
+    cloneable = FALSE,
     public = list(
         maxlag = "integer",
         maxlead = "integer",
@@ -76,8 +77,8 @@ MacroModel <- R6Class("MacroModel",
 
             # get maximum lag and lead
             ret <- .Fortran("get_max_lag_lead_fortran",
-                            model_index = private$model_index,
-                            maxlag = as.integer(1), maxlead = as.integer(1))
+                            model_index = private$model_index, maxlag = 1L,
+                            maxlead = 1L)
             self$maxlag <- ret$maxlag
             self$maxlead <- ret$maxlead
 
@@ -99,12 +100,14 @@ MacroModel <- R6Class("MacroModel",
         set_period = function(period) {
             period <- as.regperiod_range(period)
             self$model_period <- period
+            p1 <- start_period(period)
+            p2 <- end_period(period)
+            start <- as.integer(c(get_year(p1), get_subperiod(p1)))
+            end   <- as.integer(c(get_year(p2), get_subperiod(p2)))
             retval <- .Fortran("set_period_fortran",
                                model_index = private$model_index,
-                               start = as.integer(period[1]),
-                               end   = as.integer(period[2]),
-                               freq  = as.integer(period[3]),
-                               ier = as.integer(1))
+                               start = start, end = end,
+                               freq  = as.integer(period[3]), ier = 1L)
 
             self$model_data_period <- regperiod_range(
                                 start_period(self$model_period) - self$maxlag,
@@ -136,19 +139,19 @@ MacroModel <- R6Class("MacroModel",
         },
         set_data = function(ts_data) {
             "Sets the model data"
-            return (private$set_var(as.integer(1), ts_data))
+            return (private$set_var(1L, ts_data))
         },
         set_ca = function(ts_data) {
             "Sets the constant adjustments"
-            return (private$set_var(as.integer(2), ts_data))
+            return (private$set_var(2L, ts_data))
         },
         set_fix = function(ts_data) {
             "Sets the fix data"
-            return (private$set_var(as.integer(3), ts_data))
+            return (private$set_var(3L, ts_data))
         },
         set_fit = function(ts_data) {
             "Sets the fit data"
-            return (private$set_var(as.integer(4), ts_data))
+            return (private$set_var(4L, ts_data))
         },
         set_rms = function(rms_list) {
             "Sets the rms values"
@@ -157,7 +160,7 @@ MacroModel <- R6Class("MacroModel",
         solve = function(period = self$model_period) {
             "Solves the model for the specified period"
             private$check_period_set()
-            js <- get_period_indices(period, self$model_period)
+            js <- private$get_period_indices(period)
             retval <- .Call("solve_c", model_index = private$model_index,
                                jtb = js$startp, jte = js$endp,
                                solve_period = as.character(period))
@@ -167,7 +170,7 @@ MacroModel <- R6Class("MacroModel",
         fill_mdl_data = function(period = self$model_data_period) {
             "Calculates missing model data from identities."
             private$check_period_set()
-            js <- get_period_indices(period, self$model_period)
+            js <- private$get_period_indices(period)
             retval <- .Call("filmdt_c", model_index = private$model_index,
                             jtb = js$startp, jte = js$endp,
                             solve_period = as.character(period))
@@ -221,10 +224,18 @@ MacroModel <- R6Class("MacroModel",
     ),
     private = list(
         model_index = "integer",
+        get_period_indices = function(period, extended = TRUE) {
+            period <- as.regperiod_range(period)
+            mdl_period_start <- start_period(self$model_period)
+            startp <- as.integer(start_period(period) - mdl_period_start + 1)
+            endp   <- as.integer(end_period(period)   - mdl_period_start + 1)
+            return (list(startp = startp, endp = endp))
+        },
         check_period_set = function() {
             # Check if the model_period has been set
             if (is.null(self$model_period)) {
-                stop("The model period is not set. Set the model period with set_mdl_period()")
+                stop(paste("The model period is not set.",
+                            "Set the model period with set_period()"))
             }
             return (NULL)
         },
@@ -233,8 +244,8 @@ MacroModel <- R6Class("MacroModel",
             # fix values or fit targets.
             private$check_period_set()
             ts_data <- as.regts(ts_data)
-            shift <- get_period_indices(get_regperiod_range(ts_data),
-                                        self$model_period)$startp
+            shift <- private$get_period_indices(
+                               get_regperiod_range(ts_data))$startp
             if (is.matrix(ts_data) && is.integer(ts_data)) {
                 # make sure that data is a matrix of real values and no integers
                 old_colnames <- colnames(ts_data)
@@ -251,7 +262,7 @@ MacroModel <- R6Class("MacroModel",
             private$check_period_set()
             period <- as.regperiod_range(period)
             if (length(names) > 0) {
-                js <- get_period_indices(period, self$model_period)
+                js <- private$get_period_indices(period)
                 data <- .Call("get_data_c", type = type,
                               model_index = private$model_index,
                               names = names, jtb = js$startp, jte = js$endp)
@@ -274,10 +285,4 @@ MacroModel <- R6Class("MacroModel",
     )
 )
 
-get_period_indices <- function(period, model_period, extended = TRUE) {
-    period <- as.regperiod_range(period)
-    mdl_period_start <- start_period(model_period)
-    startp <- as.integer(start_period(period) - mdl_period_start + 1)
-    endp <- as.integer(end_period(period) - mdl_period_start + 1)
-    return (list(startp = startp, endp = endp))
-}
+
