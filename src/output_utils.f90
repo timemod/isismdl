@@ -10,17 +10,9 @@ module output_utils
 
     contains
 
-        subroutine macromod_report(string)
-            use iso_c_binding, only : C_NULL_CHAR
-            character(len = *), intent(in) :: string
-
-            call report_str(trim(string) // C_NULL_CHAR)
-
-        end subroutine macromod_report
-
         subroutine macromod_out(string)
             character(len = *), intent(in) :: string
-            call intpr(string, -1, 1, 0)
+            call intpr(string, len_trim(string), 1, 0)
         end subroutine macromod_out
 
         subroutine macromod_warn(string)

@@ -1,7 +1,6 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
 #include <string.h>
-#include "report.h"
 #include "get_info.h"
 #include "c_calls.h"
 
@@ -153,7 +152,7 @@ SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
 }
 
 
-SEXP set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP shift_) {
+void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP shift_) {
     int set_type = asInteger(set_type_);
     int mws_index = asInteger(mws_index_);
     int shift = asInteger(shift_);
@@ -201,7 +200,6 @@ SEXP set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP shift_) {
                                           &jte, REAL(mat), icol, &fix);
             break;
     }
-    return R_NilValue;
 }
 
 /* General function for getting fix value or fit values */
@@ -252,7 +250,7 @@ SEXP get_fix_fit_c(SEXP type_, SEXP mws_index_) {
     return list;
 }
 
-SEXP set_rms_c(SEXP mws_index_, SEXP rms_list) {
+void set_rms_c(SEXP mws_index_, SEXP rms_list) {
     int mws_index = asInteger(mws_index_);
     SEXP names = getAttrib(rms_list, R_NamesSymbol);
     int n_names = length(names);
@@ -267,57 +265,25 @@ SEXP set_rms_c(SEXP mws_index_, SEXP rms_list) {
         // or maybe it is easier to do this test in pure fortran
         F77_NAME(set_rms_fortran)(&mws_index, &iv, &value);
     }
-    return R_NilValue;
 }
 
-SEXP solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP period_string_) {
+void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_) {
 
     // process arguments
     int mws_index = asInteger(mws_index_);
     int startp = asInteger(startp_);
     int endp= asInteger(endp_);
-    const char *period_string = CHAR(STRING_ELT(period_string_, 0));
 
-    init_solve_report(period_string);
     int error;
     F77_CALL(solve_fortran)(&mws_index, &startp, &endp, &error);
-    char *report_text = close_report();
-    char *summary = get_summary();
-    if (error) {
-        warning(
-"\nSolve model issued error messages.\nThe solve may be unsuccesfull/incomplete or erroneous.\nSee the solve_report returned by solve for details.");
-    }
-
-    // create ouput: solve_report
-    SEXP list = PROTECT(allocVector(VECSXP, 3));
-    SET_VECTOR_ELT(list, 0, ScalarLogical(!error));
-    SET_VECTOR_ELT(list, 1, mkString(summary));
-    SET_VECTOR_ELT(list, 2, mkString(report_text));
-    SEXP names = PROTECT(allocVector(STRSXP, 3));
-    SET_STRING_ELT(names, 0, mkChar("success"));
-    SET_STRING_ELT(names, 1, mkChar("message"));
-    SET_STRING_ELT(names, 2, mkChar("full_report"));
-    setAttrib(list, R_NamesSymbol, names);
-    UNPROTECT(2);
-    return list;
 }
 
 
-SEXP filmdt_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP period_string_) {
-
-    // process arguments
+void filmdt_c(SEXP mws_index_, SEXP startp_, SEXP endp_) {
     int mws_index = asInteger(mws_index_);
     int startp = asInteger(startp_);
     int endp= asInteger(endp_);
-    const char *period_string = CHAR(STRING_ELT(period_string_, 0));
-
-    init_filmdt_report(period_string);
     F77_CALL(filmdt_fortran)(&mws_index, &startp, &endp);
-    char *report_text = close_report();
-
-    // create ouput: solve_report
-    SEXP ret = mkString(report_text);
-    return ret;
 }
 
 

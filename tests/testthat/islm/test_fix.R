@@ -13,8 +13,7 @@ fix <- cbind(i, c)
 
 islm_model$set_fix(fix)
 
-result <- islm_model$solve()
-#print(result)
+report <- capture_output(islm_model$solve())
 #print(islm_model$get_data())
 
 isis_result <- as.regts(read.csv("isi/fix.csv"), time_column = 1)
@@ -35,8 +34,7 @@ ca <- islm_model$get_data()[model_period, ]
 ca[] <- 0
 islm_model$set_fix(fix)
 islm_model$set_ca(ca)
-islm_model$solve()
-
+report <- capture_output(islm_model$solve())
 isis_result <- as.regts(read.csv("isi/solve.csv"), time_column = 1)
 dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,
              fun = cvgdif)

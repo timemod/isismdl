@@ -158,24 +158,20 @@ MacroModel <- R6Class("MacroModel",
             return (invisible(.Call(set_rms_c, private$model_index, rms_list)))
         },
         solve = function(period = self$model_period) {
-            "Solves the model for the specified period"
+            "Solve the model for the specified period"
             private$check_period_set()
             js <- private$get_period_indices(period)
-            retval <- .Call("solve_c", model_index = private$model_index,
-                               jtb = js$startp, jte = js$endp,
-                               solve_period = as.character(period))
-            class(retval) <- "solve_report"
-            return (retval)
+            .Call("solve_c", model_index = private$model_index,
+                             jtb = js$startp, jte = js$endp)
+            return (invisible(self))
         },
         fill_mdl_data = function(period = self$model_data_period) {
             "Calculates missing model data from identities."
             private$check_period_set()
             js <- private$get_period_indices(period)
-            retval <- .Call("filmdt_c", model_index = private$model_index,
-                            jtb = js$startp, jte = js$endp,
-                            solve_period = as.character(period))
-            class(retval) <- "filmdt_report"
-            return (retval)
+            .Call("filmdt_c", model_index = private$model_index,
+                            jtb = js$startp, jte = js$end)
+            return (invisible(self))
         },
         get_mws = function() {
             "Returns an mws object"
@@ -254,8 +250,8 @@ MacroModel <- R6Class("MacroModel",
             } else if (!is.matrix(ts_data)) {
                 stop("macromodel cannot handle univariate timeseries yet")
             }
-            return (invisible(.Call(set_c, set_type, private$model_index,
-                                    ts_data, shift)))
+            .Call(set_c, set_type, private$model_index, ts_data, shift)
+            return (invisible(self))
         },
         get_variables = function(type, names, period) {
             # general function used to get model data or constant adjustments

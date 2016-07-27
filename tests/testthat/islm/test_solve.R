@@ -1,3 +1,5 @@
+library(utils)
+
 mif_file <- "mdl/islm.mif"
 input_file <- "input/input.RData"
 
@@ -7,8 +9,7 @@ islm_model <- MacroModel$new(mif_file)
 islm_model$set_period(model_period)
 islm_model$set_data(input)
 
-result <- islm_model$solve()
-#print(result)
+report <- capture_output(islm_model$solve())
 #print(islm_model$get_data())
 
 isis_result <- as.regts(read.csv("isi/solve.csv"), time_column = 1)

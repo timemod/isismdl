@@ -54,16 +54,14 @@ call chkpar(quit)
 if (quit) then
     jc = jf
     simerr = 4
-    call report_solve_error(simerr)
-    return
+    goto 999
 endif
 
 call init_lags_leads_check(quit)
 if (quit) then
     jc = jf
     simerr = 3
-    call report_solve_error(simerr)
-    return
+    goto 999
 endif
 
 call cpu_time(told)
@@ -92,8 +90,7 @@ if (opts%mode /= 'R') then
     call init_fit_work(do_fit, fit_err)
     if (fit_err > 0) then
         simerr = 6
-        !call simotx(1)
-        return
+        goto 999
    endif
 else
     do_fit = .false.
@@ -126,6 +123,10 @@ call cpu_time(tnew)
 call simot3(tnew - told, itrtot, ndiver)
 
 change = .true.
+
+999 continue
+
+if (simerr /= 0) call report_solve_error(simerr)
 
 call clear_msfix
 
@@ -567,13 +568,34 @@ endif
 
 call reset_fix
 
-if (retcod /= 0) then
-    ! 1 ==> simulation not possible
-    ! 2 ==> simulation stopped
-    call report_solve_error(retcod)
-endif
-
 return
 end subroutine soljtc
+
+subroutine report_solve_error(error)
+    use output_utils
+    integer, intent(in) :: error
+
+    select case (error)
+    case (1)
+        call macromod_out("Simulation not possible")
+    case (2)
+        call macromod_out("Simulation stopped")
+    case (3)
+        call macromod_out("Initial lags/leads missing/invalid. Simulation not possible.")
+    case (4)
+        call macromod_out("Invalid parameter values detected. Simulation not possible")
+    case (5)
+        call macromod_out("Fair-Taylor has not converged")
+    case (6)
+        call macromod_out("Out of memory")
+    case default
+        call macromod_out("Unknown problem in solve")
+    end select
+
+    call macromod_warn("Solve model issued error messages." // &
+         NEW_LINE('A') // "The solve may be unsuccesfull/incomplete or erroneous.")
+
+end subroutine report_solve_error
+
 
 end module msimul
