@@ -59,7 +59,7 @@
 #' \dontshow{
 #' unlink("islm.*")
 #' }
-#' @seealso \code{\link{copy_example_mdl}}, \code{\link{read_mdl}} and
+#' @seealso \code{\link{copy_example_mdl}}, \code{\link{MacroModel}} and
 #' \code{\link{MacroModel}}
 #' @export
 compile_mdl <- function(modelname) {

@@ -3,7 +3,7 @@ input_file <- "input/input.RData"
 
 load(input_file)
 
-islm_model <- read_mdl(mif_file)
+islm_model <- MacroModel$new(mif_file)
 islm_model$set_period(model_period)
 islm_model$set_data(input)
 

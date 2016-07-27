@@ -1,7 +1,7 @@
 library(regts)
 library(macromod);
 
-model <- read_mdl("demo/mini.mif")
+model <- MacroModel$new("demo/mini.mif")
 model
 model$get_variable_names()
 model$set_period("2010Q2/2011Q4")

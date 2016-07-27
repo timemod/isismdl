@@ -1,7 +1,7 @@
 library(regts)
 library(macromod)
 
-islm_model <- read_mdl("demo/islm.mif")
+islm_model <- MacroModel$new("demo/islm.mif")
 islm_model
 islm_model$get_variable_names()
 islm_model$set_period("2010Q3/2011Q4")
