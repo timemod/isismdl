@@ -182,7 +182,7 @@ MacroModel <- R6Class("MacroModel",
         },
         get_mws = function() {
             "Returns an mws object"
-            private$check_period_set(.self)
+            private$check_period_set()
 
             data <- get_data()
             ca   <- get_ca()
