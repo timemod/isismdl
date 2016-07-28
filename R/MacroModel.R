@@ -123,10 +123,11 @@ MacroModel <- R6Class("MacroModel",
             }
             return (private$get_variables("data", names, period))
         },
-        get_ca = function(names = get_ca_names(), period = self$model_period) {
+        get_ca = function(names = self$get_ca_names(),
+                          period = self$model_period) {
             "Returns the constant adjustments"
             if (!missing(names)) {
-                names <- intersect(names, get_ca_names())
+                names <- intersect(names, self$get_ca_names())
             }
             return (private$get_variables("ca", names, period))
         },
@@ -184,8 +185,8 @@ MacroModel <- R6Class("MacroModel",
             "Returns an mws object"
             private$check_period_set()
 
-            data <- get_data()
-            ca   <- get_ca()
+            data <- self$get_data()
+            ca   <- self$get_ca()
 
             # remove columns /rows with only NA from data
             # todo: skip leading/trailing rows with only NA
@@ -197,12 +198,12 @@ MacroModel <- R6Class("MacroModel",
 
             # todo: rms values
 
-            return (structure(list(var_names = get_variable_names(),
-                                   ca_names = get_ca_names(),
-                                   model_period = model_period,
+            return (structure(list(var_names = self$get_variable_names(),
+                                   ca_names = self$get_ca_names(),
+                                   model_period = self$model_period,
                                    data = data, ca = ca,
-                                   fix = get_fix(),
-                                   fit = get_fit()),
+                                   fix = self$get_fix(),
+                                   fit = self$get_fit()),
                               class="mws"))
         },
         set_mws = function(x) {
@@ -210,18 +211,18 @@ MacroModel <- R6Class("MacroModel",
             if (!inherits(x, "mws")) {
                 stop("x is not an mws object")
             }
-            if (!identical(x$var_names, get_variable_names()) |
-                !identical(x$ca_names, get_ca_names())) {
+            if (!identical(x$var_names, self$get_variable_names()) |
+                !identical(x$ca_names, self$get_ca_names())) {
                     stop("Mws x does not agree with the model definition")
             }
-            set_period(x$model_period)
-            set_data(x$data)
-            set_ca(x$ca)
+            self$set_period(x$model_period)
+            self$set_data(x$data)
+            self$set_ca(x$ca)
             if (!is.null(x$fix)) {
-                set_fix(x$fix)
+                self$set_fix(x$fix)
             }
             if (!is.null(x$fit)) {
-                set_fit(x$fit)
+                self$set_fit(x$fit)
             }
         }
     ),
