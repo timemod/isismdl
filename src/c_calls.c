@@ -3,6 +3,7 @@
 #include <string.h>
 #include "get_info.h"
 #include "c_calls.h"
+#include "process_solve_options.h"
 
 #define MAX_NAME_LEN 32
 #define DATA  1
@@ -31,7 +32,7 @@ extern void F77_NAME(set_fix_fit_fortran)(int *mws_index, int *, int *ivar,
                                       int *ntime, int *jtb, int *jte, 
                                       double *data, int *icol, int *fix);
 extern void F77_NAME(solve_fortran)(int *mws_index, int *startp, int *endp,
-                                    int *error);
+                                    int *opts_present, int *error);
 extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp);
 extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index,
                                       double *value);
@@ -267,15 +268,19 @@ void set_rms_c(SEXP mws_index_, SEXP rms_list) {
     }
 }
 
-void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_) {
+void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options) {
 
     // process arguments
     int mws_index = asInteger(mws_index_);
     int startp = asInteger(startp_);
     int endp= asInteger(endp_);
 
+    int opts_present = length(options) > 0;
+    if (opts_present) {
+        process_solve_options(&mws_index, options);
+    }
     int error;
-    F77_CALL(solve_fortran)(&mws_index, &startp, &endp, &error);
+    F77_CALL(solve_fortran)(&mws_index, &startp, &endp, &opts_present, &error);
 }
 
 

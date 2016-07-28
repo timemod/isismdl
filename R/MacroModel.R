@@ -157,12 +157,12 @@ MacroModel <- R6Class("MacroModel",
             "Sets the rms values"
             return (invisible(.Call(set_rms_c, private$model_index, rms_list)))
         },
-        solve = function(period = self$model_period) {
+        solve = function(period = self$model_period, options = list()) {
             "Solve the model for the specified period"
             private$check_period_set()
             js <- private$get_period_indices(period)
             .Call("solve_c", model_index = private$model_index,
-                             jtb = js$startp, jte = js$endp)
+                             jtb = js$startp, jte = js$endp, options)
             return (invisible(self))
         },
         fill_mdl_data = function(period = self$model_data_period) {

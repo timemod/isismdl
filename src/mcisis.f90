@@ -12,7 +12,7 @@ interface
     function mcip(mfname, strict, gen_dep_file) bind(c)
         use iso_c_binding, only : c_int, c_char
         integer(c_int) :: mcip
-        character(kind = c_char), intent(in) :: mfname
+        character(kind = c_char), dimension(*), intent(in) :: mfname
         integer(c_int), intent(in) :: strict, gen_dep_file
     end function mcip
 end interface

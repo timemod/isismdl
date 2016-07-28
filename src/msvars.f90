@@ -38,7 +38,6 @@ module msvars
 
             mws => mws_in
             mdl => mws%mdl
-            opts => mws%solve_opts
 
             !
             ! make sure that all allocated arrays are deallocated
@@ -47,18 +46,20 @@ module msvars
 
         end subroutine msvarsinit
 
-        subroutine prepare_solve(mws_in, jf_in, jl_in, error)
-            type(modelworkspace), intent(inout) :: mws_in
-            integer, intent(in) :: jf_in, jl_in
+        subroutine prepare_solve(mws_in, opts_in, jf_in, jl_in, error)
+            type(modelworkspace), target, intent(inout) :: mws_in
+            type(solve_options), target, intent(in) :: opts_in
+            integer, intent(in)  :: jf_in, jl_in
             integer, intent(out) :: error
             ! error = 0 if ok
             !       = 1 if not enough memory available
 
             integer, external :: ms_get_lwork_nwto, ms_get_lwork_nwqr
             integer :: stat
-
+    
             jf = jf_in
             jl = jl_in
+            opts => opts_in
 
             call msvarsinit(mws_in)
 
@@ -74,7 +75,7 @@ module msvars
             endif
 
 
-            if (opts%mode == 'R' .or. opts%mode == 'G') return
+            if (opts%mode == 'R' .or. opts%method == 'G') return
 
             la_lwork = get_lwork()
 

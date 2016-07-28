@@ -370,9 +370,9 @@ end subroutine svlvfmt
            subper = mod(nsub, freq) + 1
            cfreq  = frqext(freq)
            if (freq < 10) then
-              write(datstr, '(I4,A1,A1,I1)') year, ' ', cfreq, subper
+              write(datstr, '(I4,A1,I1)') year,  cfreq, subper
            else
-              write(datstr, '(I4,A1,A1,I2)') year, ' ', cfreq, subper
+              write(datstr, '(I4,A1,I2)') year,  cfreq, subper
            endif
         endif
         
@@ -947,6 +947,7 @@ minNumWid = numWidV
 
 return
 end function minNumWid
+
 !-----------------------------------------------------------------------
 
 logical function useFfmt(x, intWid, nodec)
@@ -969,5 +970,61 @@ useFfmt =  (dabs(x) .lt. toobig .and. dabs(x) .ge. toosml) .or. &
 &           dabs(x) .eq. Rzero
 return
 end function useFfmt
+
+!-----------------------------------------------------------------------
+
+       subroutine print_solve_options
+            integer :: pos, tab_pos
+    
+            tab_pos = 27
+
+            str = ""
+            call strout(O_OUTB)
+            str = "Model Solve Options"
+            call strout(O_OUTB)
+
+            str = "Solution period"
+            call sjttmp(str(tab_pos:), jf)
+            pos = len_trim(str)
+            str((pos + 1):(pos + 1)) = "/"
+            pos = pos + 1
+            call sjttmp(str(pos + 1:), jl)
+            call strout(O_OUTB)
+    
+            call print_option_txt("Simulation mode", get_mode_desc(opts%mode), &
+                                  tab_pos)
+            call print_option_txt("Feedback starting values", &
+                              get_start_desc(opts%start), tab_pos)
+
+
+            str = " "
+            call strout(O_OUTB)
+
+            tab_pos = 58
+            call print_option_int("Maximum iterations per period", &
+                                  opts%maxit, tab_pos)
+
+            str = " "
+            call strout(O_OUTB)
+
+            contains
+                subroutine print_option_txt(option_txt, option_desc, tab_pos)
+                    character(len = *), intent(in):: option_txt, option_desc
+                    integer, intent(in):: tab_pos
+                    str = option_txt
+                    str(tab_pos:) = option_desc
+                    call strout(O_OUTB)
+                end subroutine print_option_txt
+
+                subroutine print_option_int(option_txt, ival, tab_pos)
+                    character(len = *), intent(in):: option_txt
+                    integer, intent(in):: ival, tab_pos
+                    str = option_txt
+                    write(str(tab_pos:), *) ival
+                    call strout(O_OUTB)
+                end subroutine print_option_int
+
+        end subroutine print_solve_options
+
 
 end module msimot

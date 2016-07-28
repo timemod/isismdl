@@ -1,5 +1,5 @@
-fortran_calls.o : modelworkspaces.o msfill.o msimul.o msslvq.o \
-                 msvars.o
+fortran_calls.o : modelworkspaces.o msfill.o msimot.o msimul.o \
+                 msslvq.o msvars.o set_solve_opts.o
 get_info.o : mdl_name_utils.o modelworkspaces.o
 init_modules.o : mcedef.o nuna.o
 invpol.o : model_params.o
@@ -69,4 +69,6 @@ nuv.o : kinds.o nucnst.o
 period_type.o : model_params.o
 read_model.o : modelworkspaces.o msvars.o
 scalemat.o : kinds.o nucnst.o nuna.o nuv.o
+set_solve_opts.o : kinds.o modelworkspaces.o mws_type.o \
+                  set_solve_opts.o solve_options_type.o
 solve_options_type.o : kinds.o model_type.o scalemat.o

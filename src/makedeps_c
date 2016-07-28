@@ -1,7 +1,7 @@
 bynext.o : macromodtypes.h
 byscmp.o : macromodtypes.h
 bysmov.o : macromodtypes.h
-c_calls.o : c_calls.h get_info.h
+c_calls.o : c_calls.h get_info.h process_solve_options.h
 dependencies.o : dependencies.h util.h
 ecode.o : dependencies.h ecode.h mchdr.h mcinit.h symbol.h util.h \
          xpcdef.h xpctab.h

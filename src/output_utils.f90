@@ -12,7 +12,13 @@ module output_utils
 
         subroutine macromod_out(string)
             character(len = *), intent(in) :: string
-            call intpr(string, len_trim(string), 1, 0)
+            integer :: n
+            n = len_trim(string)
+            if (n > 0) then
+                call intpr(string, n, 1, 0)
+            else 
+                call intpr(" ", -1, 1, 0)
+            endif
         end subroutine macromod_out
 
         subroutine macromod_warn(string)

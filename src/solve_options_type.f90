@@ -96,7 +96,6 @@ contains
         options%crelax = 2.0_ISIS_RKIND
         options%grelax = 1.0_ISIS_RKIND
         options%maxit  = 50
-        !options%maxit  = 2
         options%maxmat = 10
         options%arithmetic_crit = .false.
         options%rlxmin = 0.05_ISIS_RKIND
@@ -132,5 +131,52 @@ contains
         options%fit%repopt = 2
 
     end subroutine set_default_options
+
+    function get_mode_text(mode) 
+        character(len = 8) :: get_mode_text
+        character, intent(in) :: mode
+        select case (mode) 
+        case ('D')
+            get_mode_text = "dynamic"
+        case ('S')
+            get_mode_text = "static"
+        case ('R')
+            get_mode_text = "reschk"
+        case ('X')
+            get_mode_text = "ratex"
+        case ('B')
+            get_mode_text = "backward"
+        case default
+            get_mode_text = "???"
+        end select
+    end function get_mode_text
+
+    function get_mode_desc(mode) 
+        character(len = 21) :: get_mode_desc
+        character, intent(in) :: mode
+        select case (mode) 
+        case ('R')
+            get_mode_desc = "residual check"
+        case ('X')
+            get_mode_desc = "rational expectations"
+        case default
+            get_mode_desc = get_mode_text(mode)
+        end select
+    end function get_mode_desc
+
+    function get_start_desc(start) 
+        character(len = 24) :: get_start_desc
+        character, intent(in) :: start
+        select case (start) 
+        case ('P')
+            get_start_desc = "previous period"
+        case ('C')
+            get_start_desc = "current period"
+        case ('Q')
+            get_start_desc = "previous period if valid"
+        case ('D')
+            get_start_desc = "current period if valid"
+        end select
+    end function get_start_desc
 
 end module solve_options_type

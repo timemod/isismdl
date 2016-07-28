@@ -112,17 +112,29 @@ subroutine run_equations_fortran(mws_index, jtb, jte)
     end do
 end subroutine run_equations_fortran
 
-subroutine solve_fortran(mws_index, jtb, jte, error)
+subroutine solve_fortran(mws_index, jtb, jte, opts_present, error)
     use modelworkspaces
     use iso_c_binding
     use msvars
     use msimul
-    integer(c_int), intent(in) :: mws_index, jtb, jte
+    use set_solve_opts
+    use msimot
+    integer(c_int), intent(in) :: mws_index, jtb, jte, opts_present
     integer(c_int), intent(out) :: error
 
     integer :: i, errflg
+    type(solve_options), pointer :: opt
 
-    call prepare_solve(mws_array(mws_index), jtb, jte, errflg)
+    if (opts_present /= 0) then
+        ! Options specified by user in the call of solve.
+        ! The options are present in module set_solve_opts.
+        opt => options_set
+    else 
+        ! use options of the mws
+        opt => mws_array(mws_index)%solve_opts
+    endif
+    call prepare_solve(mws_array(mws_index), opt, jtb, jte, errflg)
+    call print_solve_options
     call simul
     error = simerr
     call msclear
