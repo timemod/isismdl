@@ -2,17 +2,18 @@
 #include <Rdefines.h>
 #include <string.h>
 #include <ctype.h>
+#include "process_solve_options.h"
 
-extern void F77_SUB(init_set_solve_opts)(int *mws_index);
+extern void F77_SUB(init_set_solve_opts)(int *mws_index, int *use_mws);
 extern void F77_SUB(set_maxit)(int *maxit);
 extern void F77_SUB(set_mode)(char *mode);
 void process_option(const char *name, SEXP value);
 
-void process_solve_options(int *mws_index, SEXP options) {
+void process_solve_options(int *mws_index, int *use_mws, SEXP options) {
 
     SEXP names = getAttrib(options, R_NamesSymbol);
 
-    F77_CALL(init_set_solve_opts)(mws_index);
+    F77_CALL(init_set_solve_opts)(mws_index, use_mws);
 
     int i;
     for (i = 0; i < length(options); i++) {

@@ -268,6 +268,17 @@ void set_rms_c(SEXP mws_index_, SEXP rms_list) {
     }
 }
 
+void set_solve_opts_c(SEXP mws_index_, SEXP options) {
+
+    // process arguments
+    int mws_index = asInteger(mws_index_);
+    int opts_present = length(options) > 0;
+    int use_mws = 1;
+    if (opts_present) {
+        process_solve_options(&mws_index, &use_mws, options);
+    }
+}
+
 void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options) {
 
     // process arguments
@@ -276,8 +287,9 @@ void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options) {
     int endp= asInteger(endp_);
 
     int opts_present = length(options) > 0;
+    int use_mws = 0;
     if (opts_present) {
-        process_solve_options(&mws_index, options);
+        process_solve_options(&mws_index, &use_mws, options);
     }
     int error;
     F77_CALL(solve_fortran)(&mws_index, &startp, &endp, &opts_present, &error);

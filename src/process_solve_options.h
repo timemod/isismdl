@@ -1,1 +1,1 @@
-void process_solve_options(int *mws_index, SEXP options);
+void process_solve_options(int *mws_index, int *use_mws, SEXP options);
