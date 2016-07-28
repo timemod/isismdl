@@ -975,8 +975,10 @@ end function useFfmt
 
        subroutine print_solve_options
             integer :: pos, tab_pos
+
+            character(len = 20) :: tmp_string
     
-            tab_pos = 27
+            tab_pos = 31
 
             str = ""
             call strout(O_OUTB)
@@ -995,14 +997,23 @@ end function useFfmt
                                   tab_pos)
             call print_option_txt("Feedback starting values", &
                               get_start_desc(opts%start), tab_pos)
-
-
-            str = " "
-            call strout(O_OUTB)
+            call print_option_int("Maximum iterations per period", opts%maxit, &
+                                 tab_pos)
+            call print_option_real("Relaxation minimum", opts%rlxmin, tab_pos)
+            call print_option_real("           maximum", opts%rlxmax, tab_pos)
+            call print_option_real("           shrinkage", opts%rlxspeed, &
+                                  tab_pos)
+            call print_option_real("Criteria stepback", opts%cstpbk, tab_pos)
+            call print_option_real("          matrix", opts%cnmtrx, tab_pos)
 
             tab_pos = 58
-            call print_option_int("Maximum iterations per period", &
-                                  opts%maxit, tab_pos)
+            call print_option_int("Maximum updates Newtom matrix per period", &
+                                  opts%maxmat, tab_pos)
+            call print_option_int(&
+                 "Maximum number of linesearches with old Jacobian", &
+                                  opts%bktmax, tab_pos)
+            call print_option_txt("Criterion for linesearch decisions etc.", &
+                  get_arith_text(opts%arith), tab_pos)
 
             str = " "
             call strout(O_OUTB)
@@ -1020,9 +1031,20 @@ end function useFfmt
                     character(len = *), intent(in):: option_txt
                     integer, intent(in):: ival, tab_pos
                     str = option_txt
-                    write(str(tab_pos:), *) ival
+                    write(tmp_string, *) ival
+                    str(tab_pos:) =  adjustl(tmp_string)
                     call strout(O_OUTB)
                 end subroutine print_option_int
+
+                subroutine print_option_real(option_txt, rval, tab_pos)
+                    character(len = *), intent(in):: option_txt
+                    real(kind = ISIS_RKIND), intent(in):: rval
+                    integer, intent(in):: tab_pos
+                    str = option_txt
+                    write(tmp_string, '(G10.3)') rval
+                    str(tab_pos:) =  adjustl(tmp_string)
+                    call strout(O_OUTB)
+                end subroutine print_option_real
 
         end subroutine print_solve_options
 

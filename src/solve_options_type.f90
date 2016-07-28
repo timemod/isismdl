@@ -34,14 +34,14 @@ module solve_options_type
         character(len = 1) :: method
         character(len = 1) :: start
         logical            :: uplead
-        real(kind = ISIS_RKIND) :: bktmax
+        integer(kind = ISIS_IKIND) :: bktmax
         real(kind = ISIS_RKIND) :: cstpbk
         real(kind = ISIS_RKIND) :: cnmtrx
         real(kind = ISIS_RKIND) :: crelax
         real(kind = ISIS_RKIND) :: grelax
         integer(kind = ISIS_IKIND) :: maxit
         integer(kind = ISIS_IKIND) :: maxmat
-        logical(kind = ISIS_IKIND) :: arithmetic_crit
+        logical(kind = ISIS_IKIND) :: arith
         real(kind = ISIS_RKIND) :: rlxmin
         real(kind = ISIS_RKIND) :: rlxmax
         real(kind = ISIS_RKIND) :: rlxspeed
@@ -93,7 +93,7 @@ contains
         options%grelax = 1.0_ISIS_RKIND
         options%maxit  = 50
         options%maxmat = 10
-        options%arithmetic_crit = .false.
+        options%arith = .false.
         options%rlxmin = 0.05_ISIS_RKIND
         options%rlxmax = 1.0_ISIS_RKIND
         options%rlxspeed = 0.5_ISIS_RKIND
@@ -174,5 +174,16 @@ contains
             get_start_desc = "current period if valid"
         end select
     end function get_start_desc
+
+    function get_arith_text(arith) 
+        character(len = 10) :: get_arith_text
+        logical, intent(in) :: arith
+        
+        if (arith) then
+            get_arith_text = "arithmetic"
+        else
+            get_arith_text = "geometric"
+        endif
+    end function get_arith_text
 
 end module solve_options_type

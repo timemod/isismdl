@@ -668,7 +668,7 @@ bcnt = 0
 !            test follows below
 
        Fquot = Fbmax / Fbmaxp
-       if (opts%arithmetic_crit) then
+       if (opts%arith) then
           Fcrit = (Fquot + Fquotp) / 2
        else
           Fcrit = sqrt(Fquot * Fquotp)

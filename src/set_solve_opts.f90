@@ -38,9 +38,72 @@ subroutine set_mode(mode)
     options_set%mode = mode
 end subroutine set_mode
 
+subroutine set_start(start)
+    use set_solve_opts
+    use iso_c_binding, only : c_char
+    character(c_char), intent(in) :: start
+    options_set%start = start
+end subroutine set_start
+
 subroutine set_maxit(maxit)
     use set_solve_opts
     use iso_c_binding, only : c_int
     integer(c_int), intent(in) :: maxit
     options_set%maxit = maxit
 end subroutine set_maxit
+
+subroutine set_maxmat(maxmat)
+    use set_solve_opts
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: maxmat
+    options_set%maxmat = maxmat
+end subroutine set_maxmat
+
+subroutine set_rlxspeed(rlxspeed)
+    use set_solve_opts
+    use iso_c_binding, only : c_double
+    real(c_double), intent(in) :: rlxspeed
+    options_set%rlxspeed = rlxspeed
+end subroutine set_rlxspeed
+
+subroutine set_rlxmin(rlxmin)
+    use set_solve_opts
+    use iso_c_binding, only : c_double
+    real(c_double), intent(in) :: rlxmin
+    options_set%rlxmin = rlxmin
+end subroutine set_rlxmin
+
+subroutine set_rlxmax(rlxmax)
+    use set_solve_opts
+    use iso_c_binding, only : c_double
+    real(c_double), intent(in) :: rlxmax
+    options_set%rlxmax = rlxmax
+end subroutine set_rlxmax
+
+subroutine set_cstpbk(cstpbk)
+    use set_solve_opts
+    use iso_c_binding, only : c_double
+    real(c_double), intent(in) :: cstpbk
+    options_set%cstpbk = cstpbk
+end subroutine set_cstpbk
+
+subroutine set_cnmtrx(cnmtrx)
+    use set_solve_opts
+    use iso_c_binding, only : c_double
+    real(c_double), intent(in) :: cnmtrx
+    options_set%rlxspeed = cnmtrx
+end subroutine set_cnmtrx
+
+subroutine set_xrelax(xrelax)
+    use set_solve_opts
+    use iso_c_binding, only : c_double
+    real(c_double), intent(in) :: xrelax
+    options_set%xrelax = xrelax
+end subroutine set_xrelax
+
+subroutine set_mratex(mratex)
+    use set_solve_opts
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: mratex
+    options_set%mratex = mratex
+end subroutine set_mratex
