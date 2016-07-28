@@ -19,6 +19,7 @@ module mws_type
         type(mdl_variables) :: fix_vars
         type(mdl_variables) :: fit_targets
         type(solve_options) :: solve_opts
+        logical :: dbgeqn
         real(kind = SOLVE_RKIND), dimension(:), allocatable :: rmsu
 
     end type modelworkspace
@@ -51,7 +52,7 @@ module mws_type
             mws%leads = NA
             mws%test = TSTDFL
             mws%ftrelax = NA
-        
+            mws%dbgeqn = .false.
             call set_default_options(mws%mdl, mws%solve_opts)
         
         end subroutine mwsinit

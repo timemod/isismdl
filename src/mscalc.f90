@@ -54,7 +54,7 @@ contains
 !     jtime is not used. If not model, then jtime is the date
 !     for which the equation has to be run.
 
-!     If opts%dbgeqn = .TRUE., then numerical problems are checked.
+!     If mws%dbgeqn = .TRUE., then numerical problems are checked.
 
 !     retcod
 !      1 indicates serious error (syntax)
@@ -185,7 +185,7 @@ contains
 
    do while (.not. pushvar_err)
 
-     if (opts%dbgeqn) then
+     if (mws%dbgeqn) then
          ! same topmost operands on stack (for error messages *)
          if (nstack > 0) rop1 = stack(nstack)
          if (nstack > 1) rop2 = stack(nstack -1)
@@ -325,7 +325,7 @@ contains
 
      case (E_NEG)
        stack(nstack) = - stack(nstack)
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -343,7 +343,7 @@ contains
            exit
        endif
        stack(nstack) = log(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -355,7 +355,7 @@ contains
           return
        endif
        stack(nstack) = exp(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -367,7 +367,7 @@ contains
            return
        endif
        stack(nstack) = abs(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -379,7 +379,7 @@ contains
            return
        endif
        stack(nstack) = sin(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -391,7 +391,7 @@ contains
            return
        endif
        stack(nstack) = cos(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -403,7 +403,7 @@ contains
            return
        endif
        stack(nstack) = atan(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -419,7 +419,7 @@ contains
            exit
        endif
        stack(nstack) = sqrt(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -431,7 +431,7 @@ contains
            return
        endif
        stack(nstack) = anint(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -447,7 +447,7 @@ contains
            exit
        endif
        stack(nstack) = log10(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -459,7 +459,7 @@ contains
            return
        endif
        stack(nstack) = tan(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -475,7 +475,7 @@ contains
            exit
        endif
        stack(nstack) = asin(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -491,7 +491,7 @@ contains
            exit
        endif
        stack(nstack) = acos(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -503,7 +503,7 @@ contains
            return
        endif
        stack(nstack) = sinh(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -515,7 +515,7 @@ contains
            return
        endif
        stack(nstack) = cosh(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -527,7 +527,7 @@ contains
            return
        endif
        stack(nstack) = tanh(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -565,7 +565,7 @@ contains
            return
        endif
        !stack(nstack) = sdcdnm(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -583,7 +583,7 @@ contains
             exit
        endif
        !stack(nstack) = sdivnm(stack(nstack))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -597,7 +597,7 @@ contains
      case (E_ADD)
        nstack = nstack - 1
        stack(nstack) = stack(nstack) + stack(nstack+1)
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 6
            exit
@@ -606,7 +606,7 @@ contains
      case (E_SUB)
        nstack = nstack - 1
        stack(nstack) = stack(nstack) - stack(nstack+1)
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 6
            exit
@@ -615,7 +615,7 @@ contains
      case (E_MUL)
        nstack = nstack - 1
        stack(nstack) = stack(nstack) * stack(nstack+1)
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 6
            exit
@@ -632,7 +632,7 @@ contains
            exit
        endif
        stack(nstack) = stack(nstack) / stack(nstack+1)
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 6
            exit
@@ -661,7 +661,7 @@ contains
      case (E_MAX)
        nstack = nstack - 1
        stack(nstack) = max(stack(nstack), stack(nstack+1))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 6
            exit
@@ -670,7 +670,7 @@ contains
      case (E_MIN)
        nstack = nstack - 1
        stack(nstack) = min(stack(nstack), stack(nstack+1))
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack) ) ) iskerr = 6
        if(nuifna( stack(nstack))) then
            iskerr = 6
@@ -688,7 +688,7 @@ contains
          if( nuifna(stack(nstack+1)) ) stack(nstack+1) = 0
          stack(nstack) = stack(nstack) + stack(nstack+1)
        endif
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 6
            exit
@@ -703,7 +703,7 @@ contains
           if( nuifna(stack(nstack+1)) ) stack(nstack+1) = 0
           stack(nstack) = stack(nstack) - stack(nstack+1)
        endif
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 6
            exit
@@ -716,7 +716,7 @@ contains
 !            if( nuifna(stack(nstack  )) ) stack(nstack  ) = 1
 !            if( nuifna(stack(nstack+1)) ) stack(nstack+1) = 1
        stack(nstack) = stack(nstack) * stack(nstack+1)
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 6
            exit
@@ -727,7 +727,7 @@ contains
 !            if( nuifna(stack(nstack  )) ) stack(nstack  ) = 0
 !            if( nuifna(stack(nstack+1)) ) stack(nstack+1) = 1
        stack(nstack) = stack(nstack) / stack(nstack+1)
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 6
            exit
@@ -920,7 +920,7 @@ contains
            return
        endif
        stack(nstack) = dnrm2(2, stack(nstack), 1)
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -934,7 +934,7 @@ contains
        endif
        tmp = stack(nstack) + stack(nstack+1)
        stack(nstack) = dnrm2(2, stack(nstack), 1) - tmp
-       if( .not. opts%dbgeqn ) cycle
+       if( .not. mws%dbgeqn ) cycle
        if(nuifna( stack(nstack))) then
            iskerr = 5
            exit
@@ -1116,7 +1116,7 @@ contains
    select case (iskerr)
    case(1:6)
        ! numerical problem
-       if (opts%dbgeqn)  then
+       if (mws%dbgeqn)  then
            call mdlerr(iskerr, ipcode, rop1, rop2)
            retcod = 2
        else
