@@ -528,7 +528,7 @@ call solot1
 call prepare_fix(jt)
 
 if (opts%mode == 'R') then
-    !call reschk(retcod)
+    call reschk(retcod)
     continue
 else
     ! if fit to be executed then
