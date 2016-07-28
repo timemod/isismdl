@@ -13,18 +13,6 @@ module solve_options_type
     integer, parameter :: FIT_SCALE_ROW   = 2
     integer, parameter :: FIT_SCALE_BOTH  = 3
 
-
-    ! options for the Fair-Taylor rational expectations algorithm
-    type ratex_options
-        integer(kind = ISIS_IKIND) :: njacpd
-        integer(kind = ISIS_IKIND) :: ratrep_type
-        integer(kind = ISIS_IKIND) :: ratrep
-        integer(kind = ISIS_IKIND) :: ratrepfull
-        real(kind = ISIS_RKIND)    :: xrelax
-        integer(kind = ISIS_IKIND) :: mratex
-        real(kind = ISIS_RKIND)    :: xtfac
-    end type ratex_options
-
     ! options for the fit procedfure
     type fit_options
         real(kind = ISIS_RKIND)    :: cvgabs
@@ -65,7 +53,15 @@ module solve_options_type
         integer(kind = ISIS_IKIND) :: iendsm
         logical(kind = ISIS_IKIND) :: suptst
 
-        type(ratex_options) :: ratex
+        ! ratex options
+        integer(kind = ISIS_IKIND) :: njacpd
+        integer(kind = ISIS_IKIND) :: ratrep_type
+        integer(kind = ISIS_IKIND) :: ratrep
+        integer(kind = ISIS_IKIND) :: ratrepfull
+        real(kind = ISIS_RKIND)    :: xrelax
+        integer(kind = ISIS_IKIND) :: mratex
+        real(kind = ISIS_RKIND)    :: xtfac
+
         type(fit_options) :: fit
     end type solve_options
 
@@ -101,6 +97,7 @@ contains
         options%rlxmin = 0.05_ISIS_RKIND
         options%rlxmax = 1.0_ISIS_RKIND
         options%rlxspeed = 0.5_ISIS_RKIND
+        options%njacpd = 0
         options%scalmd = NORMBAL
     
         ! output options
@@ -109,13 +106,12 @@ contains
         options%suptst = .true.
 
         ! ratex (Fair-Taylor) options
-        options%ratex%njacpd = 0
-        options%ratex%ratrep_type = RATREP_ITER
-        options%ratex%ratrep = 1
-        options%ratex%ratrepfull = -1
-        options%ratex%xrelax = 1.0_ISIS_RKIND
-        options%ratex%mratex = 10
-        options%ratex%xtfac = 10.0_ISIS_RKIND
+        options%ratrep_type = RATREP_ITER
+        options%ratrep = 1
+        options%ratrepfull = -1
+        options%xrelax = 1.0_ISIS_RKIND
+        options%mratex = 10
+        options%xtfac = 10.0_ISIS_RKIND
 
         ! fit options
         options%fit%cvgabs = 1e-7_ISIS_RKIND

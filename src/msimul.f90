@@ -44,10 +44,10 @@ real    ::  told, tnew
 simerr = 0
 chklead = .true.
 
-if (opts%ratex%ratrepfull == -1) then
-    ratrepfull_tmp = opts%ratex%ratrep
+if (opts%ratrepfull == -1) then
+    ratrepfull_tmp = opts%ratrep
 else
-    ratrepfull_tmp = opts%ratex%ratrepfull
+    ratrepfull_tmp = opts%ratrepfull
 endif
 
 call chkpar(quit)
@@ -163,7 +163,7 @@ else
     usedat = 0
 endif
 
-do iratex = 1, opts%ratex%mratex
+do iratex = 1, opts%mratex
     
    !if (prexen) then
    !    ! print expectation guesses
@@ -190,17 +190,17 @@ do iratex = 1, opts%ratex%mratex
         exit  ! convergence
    else
        ! no convergence; print a message if required
-       if (opts%ratex%ratrep_type /= RATOPT_MINIMAL .and. &
-          ((mod(iratex, opts%ratex%ratrep)   == 0)  .or. &
+       if (opts%ratrep_type /= RATOPT_MINIMAL .and. &
+          ((mod(iratex, opts%ratrep)   == 0)  .or. &
            (mod(iratex, ratrepfull_tmp) == 0)))  then
            call simox2(iratex, noncvg)
        endif
-       if ((opts%ratex%ratrep_type == RATOPT_FULLREP  &
-            .or. opts%ratex%ratrep_type == RATOPT_FULLREPSCRN) &
+       if ((opts%ratrep_type == RATOPT_FULLREP  &
+            .or. opts%ratrep_type == RATOPT_FULLREPSCRN) &
               .and. mod(iratex, ratrepfull_tmp) == 0) then
            call simox4(jmax, imax, xomax, xnmax, dismax)
        endif
-       if (iratex /= opts%ratex%mratex ) then
+       if (iratex /= opts%mratex ) then
          ! still iterating so prepare new values for leads
          call msftup
        endif
@@ -221,10 +221,10 @@ else
     call simox2(iratex, noncvg)
     !if (xsuptt) then
     !    ! largest discrepancy
-    !    call simox4(jmax,imax,xomax,xnmax,dismax,opts%ratex%xtfac)
+    !    call simox4(jmax,imax,xomax,xnmax,dismax,opts%xtfac)
     !else
     !    ! all remaining discrepancies
-    !   call simox5(jf,jl,opts%ratex%xtfac)
+    !   call simox5(jf,jl,opts%xtfac)
     !endif
 endif
 
@@ -240,7 +240,7 @@ use nucnst
 !     returns number of not converged leads in argument <noncvg>
 !     and some summary data about what has not converged in args after noncvg
 
-!     opts%ratex%xtfac is used to multiply test() for more less restrictive convergence test
+!     opts%xtfac is used to multiply test() for more less restrictive convergence test
 !     it must be >= 2.0
 
 integer ::  imax,jmax
@@ -277,7 +277,7 @@ do k = 1, mdl%nendex
 !                probably could do with some investigation
 !                but as user you can always make mws%test(i) smaller
 
-        pcvg = opts%ratex%xtfac * mws%test(i)
+        pcvg = opts%xtfac * mws%test(i)
 
         if (absdif .gt. pcvg) then
             noncvg = noncvg + 1
@@ -317,7 +317,7 @@ do k = 1, mdl%nendex
    !  constant within loop
 
    if (nuifna(mws%ftrelax(k))) then
-       xrlx =  opts%ratex%xrelax
+       xrlx =  opts%xrelax
    else
        xrlx = mws%ftrelax(k)
    endif
@@ -543,11 +543,11 @@ else
     endif
     if (dofit_now) then
         call prefit
-    elseif (opts%ratex%njacpd == 1 .and. opts%method /= 'G') then
+    elseif (opts%njacpd == 1 .and. opts%method /= 'G') then
         ! new jacobian at start of every period; set scale to 1.0
         matrix = .false.
         scale = Rone
-    elseif(opts%ratex%njacpd == 2 .and. opts%method /= 'G') then
+    elseif(opts%njacpd == 2 .and. opts%method /= 'G') then
         ! new jacobian at start of every period and keep old scaling
         matrix = .false.
     endif
