@@ -20,6 +20,7 @@ setOldClass("regperiod_range")
 #' @useDynLib macromod set_rms_c
 #' @useDynLib macromod run_equations_fortran
 #' @useDynLib macromod set_solve_opts_c
+#' @useDynLib macromod get_solve_opts_c
 #' @useDynLib macromod solve_c
 #' @useDynLib macromod filmdt_c
 #' @useDynLib macromod remove_mws_fortran
@@ -224,6 +225,11 @@ MacroModel <- R6Class("MacroModel",
             if (!is.null(x$fit)) {
                 self$set_fit(x$fit)
             }
+        },
+        get_solve_options = function() {
+            "Gets the default solve options"
+            return (.Call("get_solve_opts_c", 
+                          model_index = private$model_index))
         }
     ),
     private = list(

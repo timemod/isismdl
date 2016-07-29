@@ -1,6 +1,8 @@
 fortran_calls.o : modelworkspaces.o msfill.o msimot.o msimul.o \
                  msslvq.o msvars.o set_solve_opts.o
 get_info.o : mdl_name_utils.o modelworkspaces.o
+get_solve_opts.o : get_solve_opts.o kinds.o modelworkspaces.o \
+                  mws_type.o solve_options_type.o
 init_modules.o : mcedef.o nuna.o
 invpol.o : model_params.o
 liqrco.o : kinds.o
