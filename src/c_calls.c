@@ -152,8 +152,7 @@ SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
     return data;
 }
 
-
-void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP shift_) {
+void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_) {
     int set_type = asInteger(set_type_);
     int mws_index = asInteger(mws_index_);
     int shift = asInteger(shift_);
@@ -161,16 +160,14 @@ void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP shift_) {
     SEXP dim = getAttrib(mat, R_DimSymbol);
     int ntime = INTEGER(dim)[0];
 
-    SEXP dim_names = getAttrib(mat, R_DimNamesSymbol);
-    SEXP col_names = VECTOR_ELT(dim_names, 1);
-    int n_names = length(col_names);
+    int n_names = length(names);
 
     int *ivar = (int *) R_alloc(n_names, sizeof(int));
     int *icol = (int *) R_alloc(n_names, sizeof(int));
     int ic;
     int nvar = 0;
     for (ic = 0; ic < n_names; ic++) {
-        const char *name = CHAR(STRING_ELT(col_names, ic));
+        const char *name = CHAR(STRING_ELT(names, ic));
         int namelen = strlen(name);
         int iv = F77_CALL(get_var_index)(&mws_index, name, &namelen);
         if (iv > 0) {

@@ -141,19 +141,19 @@ MacroModel <- R6Class("MacroModel",
         },
         set_data = function(ts_data) {
             "Sets the model data"
-            return (private$set_var(1L, ts_data))
+            return (private$set_var(1L, ts_data, substitute(ts_data)))
         },
         set_ca = function(ts_data) {
             "Sets the constant adjustments"
-            return (private$set_var(2L, ts_data))
+            return (private$set_var(2L, ts_data, substitute(ts_data)))
         },
         set_fix = function(ts_data) {
             "Sets the fix data"
-            return (private$set_var(3L, ts_data))
+            return (private$set_var(3L, ts_data, substitute(ts_data)))
         },
         set_fit = function(ts_data) {
             "Sets the fit data"
-            return (private$set_var(4L, ts_data))
+            return (private$set_var(4L, ts_data, substitute(ts_data)))
         },
         set_rms = function(rms_list) {
             "Sets the rms values"
@@ -243,22 +243,34 @@ MacroModel <- R6Class("MacroModel",
             }
             return (NULL)
         },
-        set_var = function(set_type, ts_data) {
+        set_var = function(set_type, ts_data, ts_data_expr) {
             # general function used to update model data, constant adjustments,
             # fix values or fit targets.
+            ts_names <- colnames(ts_data)
+            if (is.null(ts_names)) {
+                if (!is.mts(ts_data)) {
+                    ts_names <- deparse(ts_data_expr)
+                } else {
+                    stop(paste0("in ", deparse(sys.call(-1)),
+                               "\n  Argument ts_data does not have colnames"),
+                         call. = FALSE)
+                }
+            }
             private$check_period_set()
             ts_data <- as.regts(ts_data)
             shift <- private$get_period_indices(
-                               get_regperiod_range(ts_data))$startp
-            if (is.matrix(ts_data) && is.integer(ts_data)) {
-                # make sure that data is a matrix of real values and no integers
-                old_colnames <- colnames(ts_data)
-                data <- matrix(as.double(ts_data), dim(ts_data))
-                colnames(ts_data) <- old_colnames
-            } else if (!is.matrix(ts_data)) {
-                stop("macromodel cannot handle univariate timeseries yet")
+                                 get_regperiod_range(ts_data))$startp
+            if (!is.matrix(ts_data)) {
+                dim(ts_data) <- c(length(ts_data), 1)
             }
-            .Call(set_c, set_type, private$model_index, ts_data, shift)
+            if (is.integer(ts_data)) {
+                # make sure that data is a matrix of real values and no integers
+                ts_data[] <- as.numeric(ts_data)
+            }
+            .Call(set_c, set_type, private$model_index, ts_data, ts_names,
+                  shift)
+
+            # todo: report number of timeseries that have not been set
             return (invisible(self))
         },
         get_variables = function(type, names, period) {
