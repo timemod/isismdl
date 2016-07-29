@@ -1,6 +1,7 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 #define N_OPTS 3
@@ -12,6 +13,10 @@ extern int  F77_SUB(get_maxit)(void);
 
 char *get_mode_text(char *buf);
 char *get_start_text(char *buf);
+static void add_option(const char *name, SEXP value);
+
+static SEXP ret, names;
+static int cnt;
 
 SEXP get_solve_opts_c(SEXP mws_index_) {
 
@@ -19,24 +24,25 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
 
     F77_CALL(init_get_solve_opts)(&mws_index);
 
-    SEXP ret  = PROTECT(allocVector(VECSXP, N_OPTS));
-    SEXP names = PROTECT(allocVector(STRSXP, N_OPTS));
+    ret  = PROTECT(allocVector(VECSXP, N_OPTS));
+    names = PROTECT(allocVector(STRSXP, N_OPTS));
 
+    cnt = 0;
     char buf[100];
 
-    SET_STRING_ELT(names, 0, mkChar("mode"));
-    SET_VECTOR_ELT(ret, 0, PROTECT(mkString(get_mode_text(buf))));
-
-    SET_STRING_ELT(names, 1, mkChar("fbstart"));
-    SET_VECTOR_ELT(ret, 1, PROTECT(mkString( get_start_text(buf))));
-
-    SET_STRING_ELT(names, 2, mkChar("maxiter"));
-    SET_VECTOR_ELT(ret, 2, PROTECT(ScalarInteger(F77_CALL(get_maxit)())));
+    add_option("mode", PROTECT(mkString(get_mode_text(buf))));
+    add_option("fbstart", PROTECT(mkString(get_start_text(buf))));
+    add_option("maxiter", PROTECT(ScalarInteger(F77_CALL(get_maxit)())));
 
     setAttrib(ret, R_NamesSymbol, names);
 
     UNPROTECT(2 + N_OPTS);
     return ret;
+}
+
+static void add_option(const char *name, SEXP value) {
+    SET_STRING_ELT(names, cnt, mkChar(name));
+    SET_VECTOR_ELT(ret, cnt++, value);
 }
 
 char *get_mode_text(char *buf) {
