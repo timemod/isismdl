@@ -162,8 +162,7 @@ MacroModel <- R6Class("MacroModel",
         },
         set_solve_options = function(options = list()) {
             "Set  the default solve options"
-            .Call("set_solve_opts_c", model_index = private$model_index,
-                  options)
+            .Call("set_solve_opts_c", private$model_index, options)
             return (invisible(self))
         },
         solve = function(period = self$model_period, options = list()) {

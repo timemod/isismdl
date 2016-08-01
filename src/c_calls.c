@@ -3,7 +3,7 @@
 #include <string.h>
 #include "get_info.h"
 #include "c_calls.h"
-#include "process_solve_options.h"
+#include "set_solve_options.h"
 
 #define MAX_NAME_LEN 32
 #define DATA  1
@@ -273,9 +273,9 @@ void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options) {
     int endp= asInteger(endp_);
 
     int opts_present = length(options) > 0;
-    int use_mws = 0;
     if (opts_present) {
-        process_solve_options(&mws_index, &use_mws, options);
+        int use_mws = 0;
+        set_solve_options(&mws_index, &use_mws, options);
     }
     int error;
     F77_CALL(solve_fortran)(&mws_index, &startp, &endp, &opts_present, &error);

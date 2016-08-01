@@ -30,18 +30,18 @@ subroutine init_set_solve_opts(mws_index, use_mws)
 
 end subroutine init_set_solve_opts
 
-subroutine set_mode(mode)
+subroutine set_mode(imode)
     use set_solve_opts
-    use iso_c_binding, only : c_char
-    character(c_char), intent(in) :: mode
-    options_set%mode = mode
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: imode
+    options_set%mode = MODES(imode)
 end subroutine set_mode
 
-subroutine set_start(start)
+subroutine set_start(istart)
     use set_solve_opts
-    use iso_c_binding, only : c_char
-    character(c_char), intent(in) :: start
-    options_set%start = start
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: istart
+    options_set%start = START_OPTIONS(istart)
 end subroutine set_start
 
 subroutine set_maxit(maxit)

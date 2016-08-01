@@ -13,6 +13,8 @@ module solve_options_type
     integer, parameter :: FIT_SCALE_ROW   = 2
     integer, parameter :: FIT_SCALE_BOTH  = 3
     
+    ! NOTE: the ordering of MODES and START_OPTIONS should agree with the
+    ! ordering of the options in solve_options.c!!!! */
     character(len = 1), dimension(5), parameter :: MODES = &
                              (/ 'D', 'X', 'R', 'B', 'S' /)
     character(len = 1), dimension(4), parameter :: START_OPTIONS = &
