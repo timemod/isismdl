@@ -42,12 +42,29 @@ subroutine init_get_solve_opts(mws_index)
     options => mws_array(mws_index)%solve_opts
 end subroutine init_get_solve_opts
 
-subroutine get_solve_options(imode, istart, maxit)
+subroutine get_solve_options(imode, istart, maxit, maxmat, rlxspeed, rlxmin, &
+           rlxmax, cstpbk, cnmtrx, xrelax, mratex, uplead)
+
     use get_solve_opts
-    use iso_c_binding, only : c_int
-    integer(c_int), intent(out):: imode, istart, maxit
+    use iso_c_binding, only : c_int, c_double
+    integer(c_int), intent(out):: imode, istart, maxit, maxmat, mratex, uplead
+    real(c_double), intent(out):: rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, &
+                                  xrelax
     
     imode = get_imode()
     istart = get_istart()
     maxit = options%maxit
+    maxmat = options%maxmat
+    rlxspeed = options%rlxspeed
+    rlxmin = options%rlxmin
+    rlxmax = options%rlxmax
+    cstpbk = options%cstpbk
+    cnmtrx = options%cnmtrx
+    xrelax = options%xrelax
+    mratex = options%mratex
+    if (options%uplead) then
+        uplead = 1
+    else 
+        uplead = 0
+    endif
 end subroutine get_solve_options

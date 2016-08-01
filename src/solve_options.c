@@ -7,6 +7,7 @@ static const char *MODES[] = {"dynamic", "ratex", "reschk", "backward",
                               "static"};
 static const char *START_OPTIONS[] = {"previous", "current", "curifok", 
                                       "previfok"};
+static const char *XUPDATE_OPTIONS[] = {"fixed", "lastval"};
 
 #define NO_ELM(x) (sizeof(x) / sizeof(char *))
 
@@ -40,11 +41,19 @@ const char *get_start_text(int istart) {
     return get_option_text(istart, START_OPTIONS, NO_ELM(START_OPTIONS));
 }
 
+const char *get_xupdate_text(int uplead) {
+    return XUPDATE_OPTIONS[uplead];
+}
+
 int get_imode(const char *mode_text) {
     return get_i_option(mode_text, MODES, NO_ELM(MODES));
 }
 
 int get_istart(const char *start_text) {
     return get_i_option(start_text, START_OPTIONS, NO_ELM(START_OPTIONS));
+}
+
+int get_uplead(const char *xupdate_text) {
+    return strcmp(xupdate_text, XUPDATE_OPTIONS[0]);
 }
 

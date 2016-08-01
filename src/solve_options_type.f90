@@ -41,7 +41,6 @@ module solve_options_type
         character(len = 1) :: mode
         character(len = 1) :: method
         character(len = 1) :: start
-        logical            :: uplead
         integer(kind = ISIS_IKIND) :: bktmax
         real(kind = ISIS_RKIND) :: cstpbk
         real(kind = ISIS_RKIND) :: cnmtrx
@@ -62,6 +61,7 @@ module solve_options_type
         logical(kind = ISIS_IKIND) :: suptst
 
         ! ratex options
+        logical(kind = ISIS_IKIND) :: uplead
         integer(kind = ISIS_IKIND) :: njacpd
         integer(kind = ISIS_IKIND) :: ratrep_type
         integer(kind = ISIS_IKIND) :: ratrep

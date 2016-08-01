@@ -86,6 +86,10 @@ static void set_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         i = asInteger(value);
         F77_CALL(set_mratex)(&i);
+    } else if (!strcmp(name, "xupdate")) {
+        CHECK_LENGTH(name, value);
+        i = get_uplead(CHAR(STRING_ELT(value, 0)));
+        F77_CALL(set_mratex)(&i);
     } else {
        error("Unknown solve option %s\n", name);
     }
