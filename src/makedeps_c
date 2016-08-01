@@ -20,6 +20,7 @@ process_solve_options.o : process_solve_options.h
 scan.o : ecode.h flags.h fname.h mchdr.h mcinit.h symbol.h util.h \
         xpcdef.h xpctab.h
 scan_params.o : ecode.h mchdr.h symbol.h util.h xpcdef.h xpctab.h
+set_solve_opts_c.o : process_solve_options.h
 symbol.o : symbol.h util.h xpcdef.h
 util.o : util.h
 xpctab.o : dependencies.h ecode.h macromodtypes.h mchdr.h mcinit.h \

@@ -993,10 +993,10 @@ end function useFfmt
             call sjttmp(str(pos + 1:), jl)
             call strout(O_OUTB)
     
-            call print_option_txt("Simulation mode", get_mode_desc(opts%mode), &
+            call print_option_txt("Simulation mode", get_mode_text(opts%mode), &
                                   tab_pos)
             call print_option_txt("Feedback starting values", &
-                              get_start_desc(opts%start), tab_pos)
+                              get_start_text(opts%start), tab_pos)
             call print_option_int("Maximum iterations per period", opts%maxit, &
                                  tab_pos)
             call print_option_real("Relaxation minimum", opts%rlxmin, tab_pos)
@@ -1019,11 +1019,11 @@ end function useFfmt
             call strout(O_OUTB)
 
             contains
-                subroutine print_option_txt(option_txt, option_desc, tab_pos)
-                    character(len = *), intent(in):: option_txt, option_desc
+                subroutine print_option_txt(option_txt, option_text, tab_pos)
+                    character(len = *), intent(in):: option_txt, option_text
                     integer, intent(in):: tab_pos
                     str = option_txt
-                    str(tab_pos:) = option_desc
+                    str(tab_pos:) = option_text
                     call strout(O_OUTB)
                 end subroutine print_option_txt
 

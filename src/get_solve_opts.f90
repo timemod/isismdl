@@ -3,6 +3,30 @@ module get_solve_opts
     use kinds
     use solve_options_type
     type(solve_options), pointer, save :: options
+    
+    contains
+        integer function get_imode()
+            integer :: i
+            do i = 1, size(MODES) 
+                if (options%mode == MODES(i)) then
+                    get_imode = i
+                    return
+                endif
+            end do
+            call rexit("Internal error: mode not found")
+        end function get_imode
+
+        integer function get_istart()
+            integer :: i
+            do i = 1, size(START_OPTIONS) 
+                if (options%start == START_OPTIONS(i)) then
+                    get_istart = i
+                    return
+                endif
+            end do
+            call rexit("Internal error: start option not found")
+        end function get_istart
+
 end module get_solve_opts
 
 !
@@ -18,23 +42,12 @@ subroutine init_get_solve_opts(mws_index)
     options => mws_array(mws_index)%solve_opts
 end subroutine init_get_solve_opts
 
-function get_mode()
-    use iso_c_binding, only : c_char
+subroutine get_solve_options(imode, istart, maxit)
     use get_solve_opts
-    character(c_char) :: get_mode
-    get_mode = options%mode 
-end function get_mode
-
-function get_start()
-    use iso_c_binding, only : c_char
-    use get_solve_opts
-    character(c_char) :: get_start
-    get_start = options%start
-end function get_start
-
-function get_maxit()
     use iso_c_binding, only : c_int
-    use get_solve_opts
-    integer(c_int) :: get_maxit
-    get_maxit = options%maxit
-end function get_maxit
+    integer(c_int), intent(out):: imode, istart, maxit
+    
+    imode = get_imode()
+    istart = get_istart()
+    maxit = options%maxit
+end subroutine get_solve_options

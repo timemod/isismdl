@@ -7,16 +7,15 @@
 #define N_OPTS 3
 
 extern void F77_SUB(init_get_solve_opts)(int *mws_index);
-extern char F77_SUB(get_mode)(void);
-extern char F77_SUB(get_start)(void);
-extern int  F77_SUB(get_maxit)(void);
+extern void F77_SUB(get_solve_options)(int *, int *, int *);
 
-char *get_mode_text(char *buf);
-char *get_start_text(char *buf);
+static char *get_mode_text(char *buf, int mode);
+static char *get_start_text(char *buf, int start);
 static void add_option(const char *name, SEXP value);
 
 static SEXP ret, names;
 static int cnt;
+static char buf[20];
 
 SEXP get_solve_opts_c(SEXP mws_index_) {
 
@@ -28,11 +27,13 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
     names = PROTECT(allocVector(STRSXP, N_OPTS));
 
     cnt = 0;
-    char buf[100];
 
-    add_option("mode", PROTECT(mkString(get_mode_text(buf))));
-    add_option("fbstart", PROTECT(mkString(get_start_text(buf))));
-    add_option("maxiter", PROTECT(ScalarInteger(F77_CALL(get_maxit)())));
+    int imode, istart, maxit;
+    F77_CALL(get_solve_options)(&imode, &istart, &maxit);
+
+    add_option("mode", PROTECT(mkString(get_mode_text(buf, imode))));
+    add_option("fbstart", PROTECT(mkString(get_start_text(buf, istart))));
+    add_option("maxiter", PROTECT(ScalarInteger(maxit)));
 
     setAttrib(ret, R_NamesSymbol, names);
 
@@ -45,18 +46,17 @@ static void add_option(const char *name, SEXP value) {
     SET_VECTOR_ELT(ret, cnt++, value);
 }
 
-char *get_mode_text(char *buf) {
-    char c = F77_CALL(get_mode)();
-    switch (c) {
-    case 'D': 
+static char *get_mode_text(char *buf, int imode) {
+    switch (imode) {
+    case 1: 
         strcpy(buf, "dynamic"); break;
-    case 'X': 
+    case 2: 
         strcpy(buf, "ratex"); break;
-    case 'R': 
+    case 3: 
         strcpy(buf, "reschk"); break;
-    case 'B': 
+    case 4: 
         strcpy(buf, "backward"); break;
-    case 'S': 
+    case 5: 
         strcpy(buf, "static"); break;
     default:
        strcpy(buf, "???");
@@ -64,16 +64,15 @@ char *get_mode_text(char *buf) {
     return buf;
 }
 
-char * get_start_text(char *buf) {
-    char c = F77_CALL(get_start)();
-    switch (c) {
-    case 'P': 
+static char * get_start_text(char *buf, int istart) {
+    switch (istart) {
+    case 1: 
         strcpy(buf, "previous"); break;
-    case 'C': 
+    case 2: 
         strcpy(buf, "current"); break;
-    case 'Q': 
+    case 3: 
         strcpy(buf, "curifok"); break;
-    case 'D': 
+    case 4: 
         strcpy(buf, "previfok"); break;
     default:
         strcpy(buf,"???");

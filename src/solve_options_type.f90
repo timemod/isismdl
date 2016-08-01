@@ -12,6 +12,12 @@ module solve_options_type
     integer, parameter :: FIT_SCALE_NONE  = 1
     integer, parameter :: FIT_SCALE_ROW   = 2
     integer, parameter :: FIT_SCALE_BOTH  = 3
+    
+    character(len = 1), dimension(5), parameter :: MODES = &
+                             (/ 'D', 'X', 'R', 'B', 'S' /)
+    character(len = 1), dimension(4), parameter :: START_OPTIONS = &
+                             (/ 'P', 'C', 'Q', 'D' /)
+
 
     ! options for the fit procedfure
     type fit_options
@@ -129,51 +135,36 @@ contains
     end subroutine set_default_options
 
     function get_mode_text(mode) 
-        character(len = 8) :: get_mode_text
+        character(len = 21) :: get_mode_text
         character, intent(in) :: mode
         select case (mode) 
         case ('D')
             get_mode_text = "dynamic"
-        case ('S')
-            get_mode_text = "static"
-        case ('R')
-            get_mode_text = "reschk"
         case ('X')
-            get_mode_text = "ratex"
+            get_mode_text = "rational expectations"
+        case ('R')
+            get_mode_text = "residual check"
         case ('B')
             get_mode_text = "backward"
-        case default
-            get_mode_text = "???"
+        case ('S')
+            get_mode_text = "static"
         end select
     end function get_mode_text
 
-    function get_mode_desc(mode) 
-        character(len = 21) :: get_mode_desc
-        character, intent(in) :: mode
-        select case (mode) 
-        case ('R')
-            get_mode_desc = "residual check"
-        case ('X')
-            get_mode_desc = "rational expectations"
-        case default
-            get_mode_desc = get_mode_text(mode)
-        end select
-    end function get_mode_desc
-
-    function get_start_desc(start) 
-        character(len = 24) :: get_start_desc
+    function get_start_text(start) 
+        character(len = 24) :: get_start_text
         character, intent(in) :: start
         select case (start) 
         case ('P')
-            get_start_desc = "previous period"
+            get_start_text = "previous period"
         case ('C')
-            get_start_desc = "current period"
+            get_start_text = "current period"
         case ('Q')
-            get_start_desc = "previous period if valid"
+            get_start_text = "previous period if valid"
         case ('D')
-            get_start_desc = "current period if valid"
+            get_start_text = "current period if valid"
         end select
-    end function get_start_desc
+    end function get_start_text
 
     function get_arith_text(arith) 
         character(len = 10) :: get_arith_text

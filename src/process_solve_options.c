@@ -1,13 +1,12 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
-#include <string.h>
-#include <ctype.h>
 #include "process_solve_options.h"
 
 #define CHECK_LENGTH(name, value) if (length(value) > 1) { \
     error("The value for option %s should have length 1.", name); \
 }
 
+void process_solve_options(int *mws_index, int *use_mws, SEXP options);
 extern void F77_SUB(init_set_solve_opts)(int *mws_index, int *use_mws);
 extern void F77_SUB(set_mode)(char *);
 extern void F77_SUB(set_start)(char *);
