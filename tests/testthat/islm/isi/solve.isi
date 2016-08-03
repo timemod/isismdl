@@ -7,10 +7,17 @@ data_per = 2015.1q..2016.3q;
 setmdp(mdl_per);
 r = 3.35;
 y = 980;
-yd = 789;
-g =  [210, 213, 216, 219, 222, 225];
-ms[mdl_per] = [200, 203, 206, 209, 212, 215];
-getmdt;
+yd = 790;
+
+g[2015.1q] = 210;
+ms[2015.1q] = 200;
+dynamic(2015.2q..2016.3q);
+g = g[-1] * 1.015;
+ms = ms[-1] * 1.015;
+enddyn;
+
+primdt;
+
 setmva(ft = "*"; cvgcrit = 1e-8);
 solve;
 primdt(dec = 6);

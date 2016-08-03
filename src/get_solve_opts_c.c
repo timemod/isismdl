@@ -44,7 +44,7 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
     add_option("cstpbk",    PROTECT(ScalarReal(cstpbk)));
     add_option("cnmtrx",    PROTECT(ScalarReal(cnmtrx)));
     add_option("xrelax",    PROTECT(ScalarReal(xrelax)));
-    add_option("xmatiter",  PROTECT(ScalarInteger(mratex)));
+    add_option("xmaxiter",  PROTECT(ScalarInteger(mratex)));
     add_option("xupdate",   PROTECT(mkString(get_xupdate_text(uplead))));
 
     setAttrib(ret, R_NamesSymbol, names);

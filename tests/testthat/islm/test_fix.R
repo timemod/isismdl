@@ -1,11 +1,12 @@
+context("fix for ISLM model")
+
 mif_file <- "mdl/islm.mif"
-input_file <- "input/input.RData"
+input_file <- "input/input_mws.RData"
 
 load(input_file)
 
 islm_model <- MacroModel$new(mif_file)
-islm_model$set_period(model_period)
-islm_model$set_data(input)
+islm_model$set_mws(input_mws)
 
 i <- regts(200, start = '2015Q2')
 c <- regts(c(600, NA, 600), start = '2015Q2')
@@ -28,9 +29,9 @@ test_that("Comparing solve with fix variables for the ISLM model", {
 })
 
 #  now unfix the variables and solve again
-fix <- islm_model$get_data()[model_period, ]
+fix <- islm_model$get_data()[islm_model$model_period, ]
 fix[] <- NA
-ca <- islm_model$get_data()[model_period, ]
+ca <- islm_model$get_data()[islm_model$model_period, ]
 ca[] <- 0
 islm_model$set_fix(fix)
 islm_model$set_ca(ca)

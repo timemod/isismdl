@@ -1,16 +1,13 @@
-input_file <- "input/input.RData"
-model_period <- regperiod_range("2015Q2", "2016Q3")
+input_file <- "input/input_mws.RData"
+mif_file <- "mdl/islm.mif"
 
-# create input timeseries. input contains an additional timeseries x that
-# is no model timeseries. This is done on purpose, set_mdl_data should ignore
-# this extra variable.
-input <- regts(matrix(NA, ncol = 6), start = "2015Q1", end = "2016Q3",
-               names = c("r", "y", "x", "yd", "g", "ms"))
+islm_model <- MacroModel$new(mif_file)
 
-input[, 'r'] <- 3.35
-input[, 'y'] <- 980
-input[, 'yd'] <- 789
-input[model_period, 'g']  <- c(210, 213, 216, 219, 222, 225)
-input[model_period, 'ms'] <- c(200, 203, 206, 209, 212, 215)
+p1 <- start_period(islm_input) + islm_model$maxlag
+p2 <- end_period(islm_input)
+islm_model$set_period(regperiod_range(p1, p2))
+islm_model$set_data(islm_input)
 
-save(file = input_file, list = c("model_period", "input"))
+input_mws <- islm_model$get_mws()
+
+save(file = input_file, input_mws)

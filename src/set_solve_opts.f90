@@ -90,7 +90,7 @@ subroutine set_cnmtrx(cnmtrx)
     use set_solve_opts
     use iso_c_binding, only : c_double
     real(c_double), intent(in) :: cnmtrx
-    options_set%rlxspeed = cnmtrx
+    options_set%cnmtrx = cnmtrx
 end subroutine set_cnmtrx
 
 subroutine set_xrelax(xrelax)
@@ -106,3 +106,10 @@ subroutine set_mratex(mratex)
     integer(c_int), intent(in) :: mratex
     options_set%mratex = mratex
 end subroutine set_mratex
+
+subroutine set_uplead(uplead)
+    use set_solve_opts
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: uplead
+    options_set%uplead = uplead /= 0
+end subroutine set_uplead

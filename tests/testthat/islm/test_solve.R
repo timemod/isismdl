@@ -1,13 +1,14 @@
+context("solve ISLM model")
+
 library(utils)
 
 mif_file <- "mdl/islm.mif"
-input_file <- "input/input.RData"
+input_file <- "input/input_mws.RData"
 
 load(input_file)
 
 islm_model <- MacroModel$new(mif_file)
-islm_model$set_period(model_period)
-islm_model$set_data(input)
+islm_model$set_mws(input_mws)
 
 report <- capture_output(islm_model$solve())
 #print(islm_model$get_data())

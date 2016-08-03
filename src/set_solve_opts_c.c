@@ -20,6 +20,7 @@ extern void F77_SUB(set_cstpbk)(double *);
 extern void F77_SUB(set_cnmtrx)(double *);
 extern void F77_SUB(set_xrelax)(double *);
 extern void F77_SUB(set_mratex)(int *);
+extern void F77_SUB(set_uplead)(int *);
 
 static void set_option(const char *name, SEXP value);
 
@@ -78,6 +79,10 @@ static void set_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         x = asReal(value);
         F77_CALL(set_cstpbk)(&x);
+    } else if (!strcmp(name, "cnmtrx")) {
+        CHECK_LENGTH(name, value);
+        x = asReal(value);
+        F77_CALL(set_cnmtrx)(&x);
     } else if (!strcmp(name, "xrelax")) {
         CHECK_LENGTH(name, value);
         x = asReal(value);
@@ -89,7 +94,7 @@ static void set_option(const char *name, SEXP value) {
     } else if (!strcmp(name, "xupdate")) {
         CHECK_LENGTH(name, value);
         i = get_uplead(CHAR(STRING_ELT(value, 0)));
-        F77_CALL(set_mratex)(&i);
+        F77_CALL(set_uplead)(&i);
     } else {
        error("Unknown solve option %s\n", name);
     }
