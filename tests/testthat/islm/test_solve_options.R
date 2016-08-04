@@ -3,9 +3,6 @@ context("solve options for ISLM model")
 library(utils)
 
 mif_file <- "mdl/islm.mif"
-input_file <- "input/input_mws.RData"
-
-load(input_file)
 
 islm_model <- MacroModel$new(mif_file)
 
@@ -20,6 +17,7 @@ test_that("get_solve_options / set_solve_options", {
     expect_identical(islm_model$get_solve_options(), opts)
 
     islm_model$set_solve_options(list(dbgopt = c("priscal", "prifb")))
+
     expect_identical(islm_model$get_solve_options()[["dbgopt"]],
                      c("prifb", "noprild", "noprijac", "noprinoconv",
                        "noprinotconvl", "priscal"))

@@ -1,12 +1,9 @@
 context("fix for ISLM model")
 
 mif_file <- "mdl/islm.mif"
-input_file <- "input/input_mws.RData"
-
-load(input_file)
 
 islm_model <- MacroModel$new(mif_file)
-islm_model$set_mws(input_mws)
+islm_model$set_mws(islm_input_mws)
 
 i <- regts(200, start = '2015Q2')
 c <- regts(c(600, NA, 600), start = '2015Q2')

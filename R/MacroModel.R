@@ -35,9 +35,11 @@ setOldClass("regperiod_range")
 #' copy_example_mdl("islm")
 #' compile_mdl("islm.mdl")
 #'
+#' # create the ISLM model based on the mif file
 #' islm_model <- MacroModel$new("islm.mif")
-#' islm_model$set_period("2010Q3/2011Q4")
-#' islm_model$set_data(islm_input)
+#'
+#' #  set modelworkspace using example mws islm_input_mws
+#' islm_model$set_mws(islm_input_mws)
 #' islm_model$solve()
 #' \dontshow{
 #' unlink("islm.*")
@@ -190,17 +192,18 @@ MacroModel <- R6Class("MacroModel",
 
             # remove columns /rows with only NA from data
             # todo: skip leading/trailing rows with only NA
-            data <- data[ , ! apply(is.na(data) , 2 , all)]
+            data <- data[ , ! apply(is.na(data) , 2 , all), drop = FALSE]
 
             # remove columns with only 0 from ca
-            # todo: skip leading/trailing columns with only NA
-            ca <- ca[, !apply(ca == 0, 2, all)]
+            # todo: skip leading/trailing columns with only 0
+            ca <- ca[, !apply(ca == 0, 2, all), drop = FALSE]
 
             # todo: rms values
 
             return (structure(list(var_names = self$get_variable_names(),
                                    ca_names = self$get_ca_names(),
                                    model_period = self$model_period,
+                                   solve_options = self$get_solve_options(),
                                    data = data, ca = ca,
                                    fix = self$get_fix(),
                                    fit = self$get_fit()),
@@ -216,6 +219,7 @@ MacroModel <- R6Class("MacroModel",
                     stop("Mws x does not agree with the model definition")
             }
             self$set_period(x$model_period)
+            self$set_solve_options(x$solve_options)
             self$set_data(x$data)
             self$set_ca(x$ca)
             if (!is.null(x$fix)) {
@@ -224,10 +228,11 @@ MacroModel <- R6Class("MacroModel",
             if (!is.null(x$fit)) {
                 self$set_fit(x$fit)
             }
+            return (invisible(self))
         },
         get_solve_options = function() {
             "Gets the default solve options"
-            return (.Call("get_solve_opts_c", 
+            return (.Call("get_solve_opts_c",
                           model_index = private$model_index))
         }
     ),
