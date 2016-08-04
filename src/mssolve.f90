@@ -115,9 +115,9 @@ yp = curvars
 
 itr = 0
 
-!if (priter) then
-!    call solot7(itr)
-!endif
+if (opts%priter) then
+    call solot7(itr)
+endif
 
 ! call simultaneous block
 call msloop(xcod)
@@ -439,9 +439,9 @@ endif
         
         do itr = 0, opts%maxit
         
-            !if (priter) then
-            !    call solot7(itr)
-            !endif
+            if (opts%priter) then
+                call solot7(itr)
+            endif
         
             ! call simultaneous block
         

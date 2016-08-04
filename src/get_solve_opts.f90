@@ -27,6 +27,15 @@ module get_solve_opts
             call rexit("Internal error: start option not found")
         end function get_istart
 
+        integer function logical2int(lvalue)
+            logical, intent(in) :: lvalue
+            if (lvalue) then
+                logical2int = 1
+            else 
+                logical2int = 0
+            endif
+        end function logical2int
+
 end module get_solve_opts
 
 !
@@ -62,9 +71,18 @@ subroutine get_solve_options(imode, istart, maxit, maxmat, rlxspeed, rlxmin, &
     cnmtrx = options%cnmtrx
     xrelax = options%xrelax
     mratex = options%mratex
-    if (options%uplead) then
-        uplead = 1
-    else 
-        uplead = 0
-    endif
+    uplead = logical2int(options%uplead)
 end subroutine get_solve_options
+
+subroutine get_solve_dbgopts(priter, prexen, jacprt, suptst, xsuptt, prscal)
+    use get_solve_opts
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(out):: priter, prexen, jacprt, suptst, xsuptt, &
+                                  prscal
+    priter = logical2int(options%priter)
+    prexen = logical2int(options%prexen)
+    jacprt = logical2int(options%jacprt)
+    suptst = logical2int(options%suptst)
+    xsuptt = logical2int(options%xsuptt)
+    prscal = logical2int(options%prscal)
+end subroutine get_solve_dbgopts

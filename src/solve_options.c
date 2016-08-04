@@ -8,6 +8,15 @@ static const char *MODES[] = {"dynamic", "ratex", "reschk", "backward",
 static const char *START_OPTIONS[] = {"previous", "current", "curifok", 
                                       "previfok"};
 static const char *XUPDATE_OPTIONS[] = {"fixed", "lastval"};
+const char *DBG_ALL  = "allinfo";
+const char *DBG_NONE = "noinfo";
+
+const char *DBG_PRITER_OPTS[] = {"noprifb",       "prifb"};
+const char *DBG_PREXEN_OPTS[] = {"noprild",       "prild"};
+const char *DBG_JACPRT_OPTS[] = {"noprijac",      "prijac"};
+const char *DBG_SUPTST_OPTS[] = {"noprinoconv",   "prinoconv"};
+const char *DBG_XSUPTT_OPTS[] = {"noprinotconvl", "prinotconvl"};
+const char *DBG_PRSCAL_OPTS[] = {"nopriscal",     "priscal"};
 
 #define NO_ELM(x) (sizeof(x) / sizeof(char *))
 

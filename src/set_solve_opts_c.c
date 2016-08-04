@@ -9,6 +9,7 @@
 }
 
 extern void F77_SUB(init_set_solve_opts)(int *mws_index, int *use_mws);
+extern void F77_SUB(init_get_solve_opts)(int *mws_index);
 extern void F77_SUB(set_mode)(int *);
 extern void F77_SUB(set_start)(int *);
 extern void F77_SUB(set_maxit)(int *);
@@ -21,8 +22,11 @@ extern void F77_SUB(set_cnmtrx)(double *);
 extern void F77_SUB(set_xrelax)(double *);
 extern void F77_SUB(set_mratex)(int *);
 extern void F77_SUB(set_uplead)(int *);
+extern void F77_SUB(get_solve_dbgopts)(int *, int *, int *, int *, int *, int *);
+extern void F77_SUB(set_solve_dbgopts)(int *, int *, int *, int *, int *, int *);
 
 static void set_option(const char *name, SEXP value);
+static void set_debug_opts(SEXP option);
 
 void set_solve_opts_c(SEXP mws_index_, SEXP options) {
     int mws_index = asInteger(mws_index_);
@@ -36,6 +40,10 @@ void set_solve_opts_c(SEXP mws_index_, SEXP options) {
 void set_solve_options(int *mws_index, int *use_mws, SEXP options) {
 
     F77_CALL(init_set_solve_opts)(mws_index, use_mws);
+
+    /* call init_get_solve_opts, we need this because 
+     * of the call of get_solve_dbgopts */
+    F77_CALL(init_get_solve_opts)(mws_index);
 
     SEXP names = getAttrib(options, R_NamesSymbol);
     int i;
@@ -95,7 +103,39 @@ static void set_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         i = get_uplead(CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_uplead)(&i);
+    } else if (!strcmp(name, "dbgopt")) {
+        set_debug_opts(value);
     } else {
        error("Unknown solve option %s\n", name);
     }
+}
+
+
+static void set_debug_opts(SEXP option) {
+    int priter, prexen, jacprt, suptst, xsuptt, prscal;
+
+    F77_CALL(get_solve_dbgopts)(&priter, &prexen, &jacprt, &suptst, &xsuptt, 
+                                &prscal);
+
+    int i;
+    for (i = 0; i < length(option); i++) {
+        const char *opt = CHAR(STRING_ELT(option, i));
+        int positive = strncmp(opt, "no", 2);
+        const char *s = positive ? opt : opt + 2;
+        if (!strcmp(s, DBG_PRITER_OPTS[1])) {
+            priter = positive;
+        } else if (!strcmp(s, DBG_PREXEN_OPTS[1])) {
+            prexen = positive;
+        } else if (!strcmp(s, DBG_JACPRT_OPTS[1])) {
+            jacprt = positive;
+        } else if (!strcmp(s, DBG_SUPTST_OPTS[1])) {
+            suptst = positive;
+        } else if (!strcmp(s, DBG_XSUPTT_OPTS[1])) {
+            xsuptt = positive;
+        } else if (!strcmp(s, DBG_PRSCAL_OPTS[1])) {
+            prscal = positive;
+        }
+    }
+    F77_CALL(set_solve_dbgopts)(&priter, &prexen, &jacprt, &suptst, &xsuptt, 
+                                &prscal);
 }

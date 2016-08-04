@@ -116,7 +116,7 @@ do jb = 1, mdl%nfb, maxcol
 
    je   = min(mdl%nfb, jb + maxcol - 1)
 
-!        insert variable names right justified within column width
+   ! insert variable names right justified within column width
 
    call strini( ' ', 1)
    call snmfmt(mdl%vnames, mdl%ivnames, mdl%numfb, jb, je, colwid)
@@ -148,7 +148,7 @@ call strout(O_ERRQ)
 str = 'Further iterations are useless'
 call strout(O_ERRF)
 
-if (.not. opts%dbgeqn) then
+if (.not. mws%dbgeqn) then
   str = '** Suggestion: use set_solve_debugmode(dbgon);'
   call strout(O_ERRF)
   str = '    before the current solve command in your Isis job'

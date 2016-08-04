@@ -275,7 +275,7 @@ integer, intent(in) :: fiter
 write(str, '(a,i4)') 'The fit jacobian contains invalid values at iteration', &
 & fiter
 call strout(O_ERRQ)
-if (.not. opts%dbgeqn) then
+if (.not. mws%dbgeqn) then
   str = '** Suggestion: use set_solve_debugmode(dbgon);'
   call strout(O_ERRF)
 endif

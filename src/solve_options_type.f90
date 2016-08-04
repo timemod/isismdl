@@ -37,7 +37,6 @@ module solve_options_type
     end type fit_options
 
     type solve_options
-        logical :: dbgeqn
         character(len = 1) :: mode
         character(len = 1) :: method
         character(len = 1) :: start
@@ -54,11 +53,18 @@ module solve_options_type
         real(kind = ISIS_RKIND) :: rlxspeed
         integer(kind = ISIS_IKIND) :: scalmd
         real(kind = ISIS_RKIND) :: svdtest_tol
+
+        ! debug options
+        logical(kind = ISIS_IKIND) :: priter
+        logical(kind = ISIS_IKIND) :: prexen
+        logical(kind = ISIS_IKIND) :: jacprt
+        logical(kind = ISIS_IKIND) :: suptst
+        logical(kind = ISIS_IKIND) :: xsuptt
+        logical(kind = ISIS_IKIND) :: prscal
         
         ! output options
         integer(kind = ISIS_IKIND) :: ioutsm
         integer(kind = ISIS_IKIND) :: iendsm
-        logical(kind = ISIS_IKIND) :: suptst
 
         ! ratex options
         logical(kind = ISIS_IKIND) :: uplead
@@ -80,8 +86,6 @@ contains
         use scalemat
         type(model), intent(in) :: mdl
         type(solve_options), intent(out) :: options
-
-        options%dbgeqn = .false.
         if (has_endo_lead(mdl)) then
             options%mode = "X"
         else 
@@ -107,11 +111,17 @@ contains
         options%rlxspeed = 0.5_ISIS_RKIND
         options%njacpd = 0
         options%scalmd = NORMBAL
+
+        ! debug options
+        options%priter = .false.
+        options%prexen = .false.
+        options%suptst = .false.
+        options%xsuptt = .false.
+        options%prscal = .false.
     
         ! output options
         options%ioutsm = 2
         options%iendsm = 1
-        options%suptst = .true.
 
         ! ratex (Fair-Taylor) options
         options%ratrep_type = RATREP_ITER

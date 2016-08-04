@@ -165,10 +165,10 @@ endif
 
 do iratex = 1, opts%mratex
     
-   !if (prexen) then
-   !    ! print expectation guesses
-   !    call simox1(iratex, jf, jl)
-   !endif
+   if (opts%prexen) then
+       ! print expectation guesses
+       call simox1(iratex)
+   endif
 
    if (iratex > 1) then
        ! after first ratex iteration always use current period
@@ -219,13 +219,13 @@ else
     ! Fair Taylor has not converged
     retcod = 5
     call simox2(iratex, noncvg)
-    !if (xsuptt) then
-    !    ! largest discrepancy
-    !    call simox4(jmax,imax,xomax,xnmax,dismax,opts%xtfac)
-    !else
-    !    ! all remaining discrepancies
-    !   call simox5(jf,jl,opts%xtfac)
-    !endif
+    if (opts%xsuptt) then
+        ! largest discrepancy
+        call simox4(jmax, imax, xomax, xnmax, dismax)
+    else
+        ! all remaining discrepancies
+        call simox5
+    endif
 endif
 
 return

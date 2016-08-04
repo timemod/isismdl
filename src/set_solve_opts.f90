@@ -113,3 +113,17 @@ subroutine set_uplead(uplead)
     integer(c_int), intent(in) :: uplead
     options_set%uplead = uplead /= 0
 end subroutine set_uplead
+
+subroutine set_solve_dbgopts(priter, prexen, jacprt, suptst, xsuptt, prscal)
+    use set_solve_opts
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: priter, prexen, jacprt, suptst, xsuptt, prscal
+
+    options_set%priter = priter /= 0
+    options_set%prexen = prexen /= 0
+    options_set%jacprt = jacprt /= 0
+    options_set%suptst = suptst /= 0
+    options_set%xsuptt = xsuptt /= 0
+    options_set%prscal = prscal /= 0
+
+end subroutine set_solve_dbgopts

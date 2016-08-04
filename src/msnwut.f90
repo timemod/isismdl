@@ -7,7 +7,7 @@ contains
 
 subroutine msjac(retcod, itr, matitr)
 use msvars
-!use msjcot
+use msjcot
 use scalemat
 integer, intent(out) :: retcod, matitr
 integer, intent(in)  :: itr
@@ -39,9 +39,9 @@ njcmat = njcmat + 1
 
 call msczjc(ier)
 
-!if(jacprt) then
-!   call jacot3(itr)
-!endif
+if (opts%jacprt) then
+   call jacot3(itr)
+endif
 
 if( ier .eq. 1 ) then
    retcod = 1
@@ -53,9 +53,9 @@ if (opts%scalmd /= NO_SCALING) then
     call scale_matrix(jacob, jacdim, mdl%nfb, scale, opts%scalmd, ier)
 endif
 
-!if (priscl .and. opts%scalmd .ge. 0) then
-!    call soloti(opts%scalmd)
-!endif
+if (opts%prscal .and. opts%scalmd >= 0) then
+    call soloti
+endif
 
 return
 end subroutine msjac
@@ -276,102 +276,98 @@ end subroutine msjacf
 
 !-----------------------------------------------------------------------
 
-!subroutine soloti(opts%scalmd)
-!use msvars
-!use msimot
-!use mcnmut
-!
-!!     print feedback scale factors
-!
-!integer ::        opts%scalmd
-!
-!*CALL MP$MPSDAT$VF9
-!
-!integer ::  xnumwid
-!parameter(XNUMWID=2*NUMWID)
-!integer ::        maxfbn
-!
-!!     maxfbn  length of longest feedback name
-!
-!integer ::       clen, rpos, strind
-!character*20 chdr(3)
-!integer ::       chln(3), cwid(3), xwid(3)
-!integer ::       i,k
-!
-!save chdr, chln, cwid
-!
-!!     chdr      column header text
-!!     chln      length of same
-!!     cwid      minimum column width (0 determined later on)
-!
-!data chdr / 'Feedback variable' ,'Scaling factor','Current value'/
-!data chln /    17               ,   14           ,   13          /
-!data cwid /    0                , XNUMWID         , NUMWID       /
-!
-!
-!!     indent of each line
-!
-!strind = 6
-!
-!call strini(' ', 1)
-!call strout(O_OUTN)
-!spos = strind
-!if( opts%scalmd .eq. 0 ) then
-!   str(spos:) = 'Scaling factors of feedback variables (Normbal)'
-!elseif( opts%scalmd .eq. 1 ) then
-!   str(spos:) = 'Scaling factors of feedback variables (Limbal)'
-!else
-!   str(spos:) = 'Scaling factors of feedback variables (Simpc)'
-!endif
-!call strout(O_OUTN)
-!
-!call strini(' ', 1)
-!call strout(O_OUTN)
-!
-!!     calculate length of longest feedback name
-!
-!maxfbn  = maxnli(mdl%ivnames, mdl%numfb, 1_MC_IKIND, mdl%nfb)
-!xwid(1) = max(maxfbn,chln(1))
-!
-!call strini(' ', strind)
-!str(spos:spos+chln(1)-1) = chdr(1)
-!spos = spos + xwid(1) + ICSPAC
-!
-!do k = 2, 3
-!   clen = chln(k)
-!   rpos = spos + max(cwid(k) - clen, 0)
-!   str(rpos : rpos + clen - 1) = chdr(k)(:clen)
-!   xwid(k) = max(cwid(k),clen)
-!   spos = spos + xwid(k) + ICSPAC
-!end do
-!
-!call strout(O_OUTN)
-!
-!
-!!     <Name> <feedback value>  <scale value>
-!
-!do i = 1, mdl%nfb
-!
-!    call strini(' ', strind)
-!    call mcf7ex(name, nlen, mdl%ivnames(mdl%numfb(i)), mdl%vnames)
-!    str(spos : spos + nlen - 1) = name(:nlen)
-!    spos = spos + xwid(1) + ICSPAC
-!
-!    call xvlfmt(scale(i) , str(spos : spos + XNUMWID - 1))
-!    spos = spos + xwid(2) + ICSPAC
-!
-!    call evlfmt(fbval(i) , str(spos : spos + NUMWID - 1))
-!    spos = spos + xwid(3) + ICSPAC
-!
-!    call strout(O_OUTN)
-!
-!end do
-!
-!call strini(' ', 1)
-!call strout(O_OUTN)
-!
-!return
-!end subroutine soloti
+subroutine soloti()
+use msvars
+use msimot
+use mdl_name_utils
+
+! print feedback scale factors
+
+integer ::  xnumwid
+parameter(XNUMWID=2*NUMWID)
+integer :: maxfbn
+
+!  maxfbn  length of longest feedback name
+
+integer ::       clen, rpos, strind
+character*20 chdr(3)
+integer ::       chln(3), cwid(3), xwid(3)
+integer ::       i,k
+
+save chdr, chln, cwid
+
+! chdr      column header text
+! chln      length of same
+! cwid      minimum column width (0 determined later on)
+
+data chdr / 'Feedback variable' ,'Scaling factor','Current value'/
+data chln /    17               ,   14           ,   13          /
+data cwid /    0                , XNUMWID         , NUMWID       /
+
+
+! indent of each line
+
+strind = 6
+
+call strini(' ', 1)
+call strout(O_OUTN)
+spos = strind
+if( opts%scalmd .eq. 0 ) then
+   str(spos:) = 'Scaling factors of feedback variables (Normbal)'
+elseif( opts%scalmd .eq. 1 ) then
+   str(spos:) = 'Scaling factors of feedback variables (Limbal)'
+else
+   str(spos:) = 'Scaling factors of feedback variables (Simpc)'
+endif
+call strout(O_OUTN)
+
+call strini(' ', 1)
+call strout(O_OUTN)
+
+! calculate length of longest feedback name
+
+maxfbn  = maxnli(mdl%ivnames, mdl%numfb, 1_MC_IKIND, mdl%nfb)
+xwid(1) = max(maxfbn,chln(1))
+
+call strini(' ', strind)
+str(spos:spos+chln(1)-1) = chdr(1)
+spos = spos + xwid(1) + ICSPAC
+
+do k = 2, 3
+   clen = chln(k)
+   rpos = spos + max(cwid(k) - clen, 0)
+   str(rpos : rpos + clen - 1) = chdr(k)(:clen)
+   xwid(k) = max(cwid(k),clen)
+   spos = spos + xwid(k) + ICSPAC
+end do
+
+call strout(O_OUTN)
+
+
+!     <Name> <feedback value>  <scale value>
+
+do i = 1, mdl%nfb
+
+    call strini(' ', strind)
+    call mcf7ex(name, nlen, mdl%ivnames(mdl%numfb(i)), mdl%vnames)
+    str(spos : spos + nlen - 1) = name(:nlen)
+    spos = spos + xwid(1) + ICSPAC
+
+    call xvlfmt(scale(i) , str(spos : spos + XNUMWID - 1))
+    spos = spos + xwid(2) + ICSPAC
+
+    call evlfmt(fbval(i) , str(spos : spos + NUMWID - 1))
+    spos = spos + xwid(3) + ICSPAC
+
+    call strout(O_OUTN)
+
+end do
+
+call strini(' ', 1)
+call strout(O_OUTN)
+
+return
+end subroutine soloti
 
 !-----------------------------------------------------------------------
 
@@ -610,7 +606,7 @@ use msvars
 use msutil
 use msfbvl
 use nuna
-!use msolot
+use msolot
 
 !     evaluate simultaneous block of model
 !     backtrack while result feedback variables are invalid
@@ -633,16 +629,16 @@ integer ::  imax,i, nfbk
 rcod = 0
 bcnt = 0
 
-!     do
+! do
 !          ....
-!     while( rcod .eq. 0)
+! while( rcod .eq. 0)
 10 continue
 
-!   if (priter) then
-!       call solot7(itr)
-!   endif
+   if (opts%priter) then
+       call solot7(itr)
+   endif
 
-!        call simultaneous block
+   ! call simultaneous block
 
    call msloop(retcod)
    if (retcod .ne. 0 ) return

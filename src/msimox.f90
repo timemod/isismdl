@@ -43,12 +43,12 @@ do kh = 1, mdl%nendex, kstep
 
    call strini( ' ', 11 )
 
-!        insert names right justified
+   ! insert names right justified
 
    call snmfmt(mdl%vnames, mdl%ivnames, kendex, 1, k, colwid)
    call strout(O_OUTB)
 
-!        write numbers right justified
+   ! write numbers right justified
 
    do jt = jf + 1, jl
 
@@ -240,7 +240,7 @@ use mdl_name_utils
 use msratop
 
 !     print a report on the largest discrepancy during a rational expectations
-!     simulation (the verbosity depends on xsuptt)
+!     simulation (the verbosity depends on opts%xsuptt)
 !     all calculations must have been done by calling routine
 
 integer, intent(in) ::   jmax, imax
