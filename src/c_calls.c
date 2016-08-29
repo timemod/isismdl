@@ -24,7 +24,7 @@ extern void F77_NAME(get_fix_fit_fortran)(int *mws_index, int *nvar, int *ivar,
                                           double *mat, int *fix_);
 extern void F77_NAME(get_param_fortran)(int *mws_index, int *ip, double *value,
                                         int *par_len);
-extern void F77_NAME(set_param_fortran)(int *mws_index, int *ipar, double *data,
+extern int F77_NAME(set_param_fortran)(int *mws_index, int *ipar, double *data,
                                         int *len);
 extern void F77_NAME(set_data_fortran)(int *mws_index, int *nvar, int *ivar, 
                                        int *ntime, int *jtb, int *jte, 
@@ -211,7 +211,11 @@ SEXP set_param_c(SEXP mws_index_, SEXP param_list) {
             cnt++;
             SEXP value = VECTOR_ELT(param_list, i);
             int len = length(value);
-            F77_CALL(set_param_fortran)(&mws_index, &ip, REAL(value), &len);
+            int ret = F77_CALL(set_param_fortran)(&mws_index, &ip, REAL(value), 
+                               &len);
+            if (ret == 1) {
+                error("Value for parameter %s has an incorrect length. Required length: %d. Actual length: %d", name, F77_CALL(get_param_length)(&mws_index, &ip), len);
+            }
         }
     }
     return ScalarInteger(cnt);

@@ -62,14 +62,16 @@ subroutine get_param_fortran(mws_index, ipar, value, length)
     call get_par(mws_array(mws_index), ipar, value, length)
 end subroutine get_param_fortran
 
-subroutine set_param_fortran(mws_index, ipar, value, length)
+function set_param_fortran(mws_index, ipar, value, length)
+    ! set a model parameter. Returns 0 on success, and 1 if length
+    ! does not agree with the actual length of the parameter.
     use modelworkspaces
     use iso_c_binding
+    integer(c_int) :: set_param_fortran
     integer(c_int), intent(in) :: mws_index, ipar, length
     real(c_double), dimension(length), intent(in) :: value
-    call set_par(mws_array(mws_index), ipar, value, length)
-end subroutine set_param_fortran
-
+    set_param_fortran = set_par(mws_array(mws_index), ipar, value, length)
+end function set_param_fortran
 
 subroutine set_data_fortran(mws_index, nvar, ivar, ntime, jtb, jte, mat, icol)
     use modelworkspaces

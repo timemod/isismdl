@@ -167,7 +167,7 @@ IsisMdl <- R6Class("IsisMdl",
                 stop("Argument p is not a list")
             }
             if (is.null(names(p))) {
-                stop("p is not a named list")
+                stop("Argument p has no names")
             }
 
             # check if the list contains any non-numeric elements
@@ -182,8 +182,7 @@ IsisMdl <- R6Class("IsisMdl",
             nset <- .Call("set_param_c", model_index = private$model_index, p)
             if (nset < length(p)) {
                 no_params <- setdiff(names(p), self$get_param_names())
-                warning(concat_names(no_params), " not model parameters.",
-                        " These list elements are ignored.")
+                warning(concat_names(no_params), " no model parameter(s)")
             }
             return (invisible(self))
         },

@@ -76,25 +76,24 @@ module mws_type
         end subroutine clear_mws
 
         ! 
-        ! set a model parameter
+        ! Sets a model parameter. Returns 0 on succes and 1 if argument
+        ! length does not agree with the actual length of the parameter.
         ! 
-        subroutine set_par(mws, i, value, length)
+        integer function set_par(mws, i, value, length)
             type(modelworkspace), intent(inout) :: mws
             integer, intent(in) :: i, length
             real(kind = MWS_RKIND), dimension(length), intent(in) :: value
 
             integer :: strt
 
-            ! TODO
-            ! if length /= mws%mdl%nvalp(i) then
-            !    error
-            ! endif
-            !
+            if (length /= mws%mdl%nvalp(i)) then
+                set_par = 1
+                return
+            endif
             strt = mws%mdl%cfptr(i)
-
             mws%mdl%coef(strt : strt + length - 1) = value(1 : length)
-
-        end subroutine set_par
+            set_par = 0
+        end function set_par
 
         ! 
         ! get a model parameter
