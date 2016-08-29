@@ -167,3 +167,10 @@ subroutine get_fit_info(model_index, nfit,  jtb, jte)
     endif
 end subroutine get_fit_info
 
+function get_param_length(model_index, i)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: get_param_length
+    integer(c_int), intent(in) :: model_index, i
+    get_param_length = mws_array(model_index)%mdl%nvalp(i)
+end function get_param_length

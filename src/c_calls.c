@@ -22,6 +22,8 @@ extern void F77_NAME(get_ca_fortran)(int *mws_index, int *nca, int *ica,
 extern void F77_NAME(get_fix_fit_fortran)(int *mws_index, int *nvar, int *ivar, 
                                           int *ntime, int *jtb, int *jte, 
                                           double *mat, int *fix_);
+extern void F77_NAME(get_param_fortran)(int *mws_index, int *ip, double *value,
+                                        int *par_len);
 extern void F77_NAME(set_param_fortran)(int *mws_index, int *ipar, double *data,
                                         int *len);
 extern void F77_NAME(set_data_fortran)(int *mws_index, int *nvar, int *ivar, 
@@ -117,6 +119,26 @@ SEXP get_names_c(SEXP type_, SEXP model_index_) {
     UNPROTECT(1);
     return names;
 }
+
+/* Get the model parameters */
+SEXP get_param_c(SEXP mws_index_, SEXP names) {
+    int mws_index = asInteger(mws_index_);
+    int npar = length(names);
+    SEXP retval = PROTECT(allocVector(VECSXP, npar));
+    for (int i = 0; i < npar; i++) {
+        const char *name = CHAR(STRING_ELT(names, i));
+        int namelen = strlen(name);
+        int ip = F77_CALL(get_par_index)(&mws_index, name, &namelen);
+        int par_len = F77_CALL(get_param_length)(&mws_index, &ip);
+        SEXP value = PROTECT(allocVector(REALSXP,  par_len));
+        F77_CALL(get_param_fortran)(&mws_index, &ip, REAL(value), &par_len);
+        SET_VECTOR_ELT(retval,  i, value);
+    }
+    setAttrib(retval, R_NamesSymbol, names);
+    UNPROTECT(npar + 1);
+    return retval;
+}
+
 
 /* General function for getting model data or constant adjustments */
 SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
@@ -331,5 +353,3 @@ void filmdt_c(SEXP mws_index_, SEXP startp_, SEXP endp_) {
     int endp= asInteger(endp_);
     F77_CALL(filmdt_fortran)(&mws_index, &startp, &endp);
 }
-
-

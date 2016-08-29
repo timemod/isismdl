@@ -15,6 +15,7 @@ setOldClass("regperiod_range")
 #' @useDynLib isismdl get_names_c
 #' @useDynLib isismdl get_param_names_c
 #' @useDynLib isismdl set_period_fortran
+#' @useDynLib isismdl get_param_c
 #' @useDynLib isismdl get_data_c
 #' @useDynLib isismdl get_fix_fit_c
 #' @useDynLib isismdl set_param_c
@@ -123,6 +124,18 @@ IsisMdl <- R6Class("IsisMdl",
                                 start_period(self$model_period) - self$maxlag,
                                 end_period(self$model_period) + self$maxlead)
             return (invisible(self))
+        },
+        get_param = function(names = self$get_param_names()) {
+            # Return the parameters vaLues
+            if (!missing(names)) {
+                names <- intersect(names, self$get_param_names())
+            }
+            if (length(names) > 0) {
+                return (.Call("get_param_c", model_index = private$model_index,
+                              names = names))
+            } else {
+                return (NULL)
+            }
         },
         get_data = function(names = self$get_variable_names(),
                             period = self$model_data_period) {
@@ -236,6 +249,7 @@ IsisMdl <- R6Class("IsisMdl",
                                    ca_names = self$get_ca_names(),
                                    model_period = self$model_period,
                                    solve_options = self$get_solve_options(),
+                                   param = self$get_param(),
                                    data = data, ca = ca,
                                    fix = self$get_fix(),
                                    fit = self$get_fit()),
@@ -247,11 +261,14 @@ IsisMdl <- R6Class("IsisMdl",
                 stop("x is not an mws object")
             }
             if (!identical(x$var_names, self$get_variable_names()) |
-                !identical(x$ca_names, self$get_ca_names())) {
+                !identical(x$ca_names, self$get_ca_names()) |
+                !identical(names(x$param), self$get_param_names())) {
+                     # todo: check parameter length, this should be the same
                     stop("Mws x does not agree with the model definition")
             }
             self$set_period(x$model_period)
             self$set_solve_options(x$solve_options)
+            self$set_param(x$param)
             self$set_data(x$data)
             self$set_ca(x$ca)
             if (!is.null(x$fix)) {

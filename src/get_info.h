@@ -16,3 +16,4 @@ extern void F77_NAME(get_fix_info)(int *mws_index, int *nfix, int *jtb,
                                    int *jte);
 extern void F77_NAME(get_fit_info)(int *mws_index, int *nfit, int *jtb,
                                    int *jte);
+extern int F77_NAME(get_param_length)(int *model_index, int *i);

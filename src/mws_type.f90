@@ -85,7 +85,7 @@ module mws_type
 
             integer :: strt
 
-            !
+            ! TODO
             ! if length /= mws%mdl%nvalp(i) then
             !    error
             ! endif
@@ -95,6 +95,21 @@ module mws_type
             mws%mdl%coef(strt : strt + length - 1) = value(1 : length)
 
         end subroutine set_par
+
+        ! 
+        ! get a model parameter
+        ! 
+        subroutine get_par(mws, i, value, length)
+            type(modelworkspace), intent(inout) :: mws
+            integer, intent(in) :: i, length
+            real(kind = MWS_RKIND), dimension(length), intent(out) :: value
+
+            integer :: n, strt
+
+            strt  = mws%mdl%cfptr(i)
+            value = mws%mdl%coef(strt : strt + length - 1)
+
+        end subroutine get_par
 
         !
         ! set the model period and initialise the mws
