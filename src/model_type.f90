@@ -202,6 +202,34 @@ contains
         call mcgetnam(nam, nlen, mdl%ivnames(iv), mdl%vnames)
 
     end subroutine get_var_name
+
+    ! This subroutine is used to extract the name of model
+    ! parameter i. The name is put as a byte string in nam,
+    ! and nlen is set to its length. If a name does not
+    ! exist is nlen is set to -1.
+    subroutine get_par_name(mdl, i, alphabetical, nam, nlen)
+        use mdl_name_utils
+        type(model), intent(in) :: mdl
+        integer, intent(in) :: i
+        logical, intent(in) :: alphabetical
+        integer, intent(out) :: nlen  ! length of name
+        integer, dimension(*), intent(out) :: nam ! name (ascii char.)
+
+        integer :: ip
+
+        if (i <= 0 .or. i > mdl%nrp) then
+            nlen = -1
+            return
+        endif
+
+        if (alphabetical) then
+            ip = mdl%indexp(i)
+        else
+            ip = i
+        endif
+        call mcgetnam(nam, nlen, mdl%ipnames(ip), mdl%pnames)
+
+    end subroutine get_par_name
    
     logical function is_frml(mdl, iv) 
         ! returns true if variable iv is a frml equation

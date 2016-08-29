@@ -3,6 +3,13 @@
 ! to extract information about the models that are in common blocks.
 ! These fortran functions and subroutines can be called directly in C.
 !
+function get_param_count(model_index)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: get_param_count
+    integer(c_int), intent(in) :: model_index
+    get_param_count = mws_array(model_index)%mdl%nrp
+end function get_param_count
 
 function get_variable_count(model_index)
     use modelworkspaces
@@ -19,6 +26,15 @@ function get_ca_count(model_index)
     integer(c_int), intent(in) :: model_index
     get_ca_count = mws_array(model_index)%mdl%nca
 end function get_ca_count
+
+subroutine get_param_name(model_index, i, nam, nlen)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in)   :: model_index, i
+    integer(c_int), intent(out)  :: nlen
+    integer, dimension(*), intent(out) :: nam
+    call get_par_name(mws_array(model_index)%mdl, i, .true., nam, nlen);
+end subroutine get_param_name
 
 subroutine get_variable_name(model_index, i, nam, nlen)
     use modelworkspaces
@@ -42,6 +58,19 @@ subroutine get_ca_name(model_index, i, nam, nlen)
     ivar = mws_array(model_index)%mdl%ica(i)
     call get_var_name(mws_array(model_index)%mdl, ivar, .false., nam, nlen);
 end subroutine get_ca_name
+
+integer(c_int) function get_par_index(model_index, name, namelen)
+    use iso_c_binding
+    use modelworkspaces
+    use mdl_name_utils
+    integer(c_int), intent(in) :: model_index, name(*), namelen
+    
+    type(model), pointer :: mdl
+    mdl => mws_array(model_index)%mdl
+    get_par_index = find_name(name, namelen, mdl%ipnames, mdl%indexp, &
+&                             mdl%pnames, mdl%nrp)
+end function get_par_index
+
 
 integer(c_int) function get_var_index(model_index, name, namelen)
     use iso_c_binding

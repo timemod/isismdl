@@ -13,9 +13,11 @@ setOldClass("regperiod_range")
 #' @useDynLib isismdl read_mdl_c
 #' @useDynLib isismdl get_max_lag_lead_fortran
 #' @useDynLib isismdl get_names_c
+#' @useDynLib isismdl get_param_names_c
 #' @useDynLib isismdl set_period_fortran
 #' @useDynLib isismdl get_data_c
 #' @useDynLib isismdl get_fix_fit_c
+#' @useDynLib isismdl set_param_c
 #' @useDynLib isismdl set_c
 #' @useDynLib isismdl set_rms_c
 #' @useDynLib isismdl run_equations_fortran
@@ -95,6 +97,10 @@ IsisMdl <- R6Class("IsisMdl",
             return (sort(.Call(get_names_c, "data",
                                as.integer(private$model_index))))
         },
+        get_param_names = function() {
+            return (sort(.Call(get_param_names_c,
+                               as.integer(private$model_index))))
+        },
         get_ca_names = function() {
             # note: the names returned  by get_ca_names are not sorted
             # alphabetically, therefore sort explicitly
@@ -141,6 +147,32 @@ IsisMdl <- R6Class("IsisMdl",
         get_fit = function() {
             "Returns the fit targets"
             return (private$get_fix_fit(self, type = "fit"))
+        },
+        set_param = function(p) {
+            "Sets the model parameters"
+            if (!is.list(p)) {
+                stop("Argument p is not a list")
+            }
+            if (is.null(names(p))) {
+                stop("p is not a named list")
+            }
+
+            # check if the list contains any non-numeric elements
+            is_num <- unlist(lapply(p, FUN = function(x) !is.numeric(x)))
+            if (any(is_num)) {
+                no_numeric <- names(p)[is_num]
+                stop(concat_names(no_numeric), " not numeric")
+            }
+
+            # convert integer list elements to numeric
+            p <- lapply(p, as.numeric)
+            nset <- .Call("set_param_c", model_index = private$model_index, p)
+            if (nset < length(p)) {
+                no_params <- setdiff(names(p), self$get_param_names())
+                warning(concat_names(no_params), " not model parameters.",
+                        " These list elements are ignored.")
+            }
+            return (invisible(self))
         },
         set_data = function(ts_data) {
             "Sets the model data"
@@ -310,5 +342,17 @@ IsisMdl <- R6Class("IsisMdl",
         }
     )
 )
+
+# utility function for error / warning messages: concate a number of names,
+# separating the first n - 1 names with "," and the last with "and".
+# Finally, "is" or "are" are added depending on the number of names.
+concat_names <- function(names) {
+    n <- length(names)
+    if (n == 1) {
+        return (paste(names, "is"))
+    } else {
+        return (paste(paste(names[-n], collapse = ", "), "and", names[n], "are"))
+    }
+}
 
 

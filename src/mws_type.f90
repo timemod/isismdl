@@ -75,6 +75,27 @@ module mws_type
             call deallocate_model(mws%mdl)
         end subroutine clear_mws
 
+        ! 
+        ! set a model parameter
+        ! 
+        subroutine set_par(mws, i, value, length)
+            type(modelworkspace), intent(inout) :: mws
+            integer, intent(in) :: i, length
+            real(kind = MWS_RKIND), dimension(length), intent(in) :: value
+
+            integer :: strt
+
+            !
+            ! if length /= mws%mdl%nvalp(i) then
+            !    error
+            ! endif
+            !
+            strt = mws%mdl%cfptr(i)
+
+            mws%mdl%coef(strt : strt + length - 1) = value(1 : length)
+
+        end subroutine set_par
+
         !
         ! set the model period and initialise the mws
         ! 

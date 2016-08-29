@@ -54,6 +54,15 @@ subroutine get_fix_fit_fortran(mws_index, nvar, ivar, ntime, jtb, jte, mat, &
                      fix)
 end subroutine get_fix_fit_fortran
 
+subroutine set_param_fortran(mws_index, ipar, value, length)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in) :: mws_index, ipar, length
+    real(c_double), dimension(length), intent(in) :: value
+    call set_par(mws_array(mws_index), ipar, value, length)
+end subroutine set_param_fortran
+
+
 subroutine set_data_fortran(mws_index, nvar, ivar, ntime, jtb, jte, mat, icol)
     use modelworkspaces
     use iso_c_binding

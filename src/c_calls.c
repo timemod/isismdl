@@ -22,6 +22,8 @@ extern void F77_NAME(get_ca_fortran)(int *mws_index, int *nca, int *ica,
 extern void F77_NAME(get_fix_fit_fortran)(int *mws_index, int *nvar, int *ivar, 
                                           int *ntime, int *jtb, int *jte, 
                                           double *mat, int *fix_);
+extern void F77_NAME(set_param_fortran)(int *mws_index, int *ipar, double *data,
+                                        int *len);
 extern void F77_NAME(set_data_fortran)(int *mws_index, int *nvar, int *ivar, 
                                        int *ntime, int *jtb, int *jte, 
                                        double *data, int *icol);
@@ -58,6 +60,26 @@ SEXP read_mdl_c(SEXP filename) {
         return ScalarInteger(-1);
     }
 }
+
+/* Returns the names of the model parameters */
+SEXP get_param_names_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    int npar = F77_CALL(get_param_count)(&model_index);
+
+    /* get list of parameters */
+    int ipar, len;
+    char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
+    SEXP names = PROTECT(allocVector(STRSXP, npar));
+    for (ipar = 1; ipar <= npar; ipar++) {
+        F77_CALL(get_param_name)(&model_index, &ipar, name, &len);
+        name[len] = '\0';
+        SET_STRING_ELT(names, ipar - 1, mkChar(name));
+    }
+    UNPROTECT(1);
+    return names;
+}
+
+/* General function for getting model data or constant adjustments */
 
 SEXP get_names_c(SEXP type_, SEXP model_index_) {
     const char *type_str = CHAR(STRING_ELT(type_, 0));
@@ -150,6 +172,27 @@ SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
 
     UNPROTECT(2);
     return data;
+}
+
+/* Sets the model parameters. Returns the number of parameters actually set */
+SEXP set_param_c(SEXP mws_index_, SEXP param_list) {
+    int mws_index = asInteger(mws_index_);
+    SEXP names = getAttrib(param_list, R_NamesSymbol);
+    int n_names = length(names);
+    int i;
+    int cnt = 0;
+    for (i = 0; i < n_names; i++) {
+        const char *name = CHAR(STRING_ELT(names, i));
+        int namelen = strlen(name);
+        int ip = F77_CALL(get_par_index)(&mws_index, name, &namelen);
+        if (ip > 0) {   
+            cnt++;
+            SEXP value = VECTOR_ELT(param_list, i);
+            int len = length(value);
+            F77_CALL(set_param_fortran)(&mws_index, &ip, REAL(value), &len);
+        }
+    }
+    return ScalarInteger(cnt);
 }
 
 void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_) {
