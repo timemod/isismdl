@@ -1,7 +1,7 @@
 library(regts)
-library(macromod);
+library(isismdl);
 
-model <- MacroModel$new("demo/mini.mif")
+model <- IsisMdl$new("demo/mini.mif")
 model
 model$get_variable_names()
 model$set_period("2010Q2/2011Q4")

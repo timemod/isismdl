@@ -1,7 +1,7 @@
 library(regts)
-library(macromod)
+library(isismdl)
 
-islm_model <- MacroModel$new("demo/islm.mif")
+islm_model <- IsisMdl$new("demo/islm.mif")
 islm_model$set_mws(islm_input_mws)
 
 y <-regts(c(1000, 1001), start = "2015Q2", end =  "2016Q3")

@@ -1,8 +1,8 @@
 library(regts)
-library(macromod)
+library(isismdl)
 
 for (i in 1:1000) {
-    islm_model <- MacroModel$new("demo/islm.mif")
+    islm_model <- IsisModel$new("demo/islm.mif")
     islm_model
     islm_model$get_variable_names()
     islm_model$set_period("2010Q3/2011Q4")

@@ -1,7 +1,7 @@
 library(regts)
-library(macromod)
+library(isismdl)
 
-islm_model <- MacroModel$new("demo/islm.mif")
+islm_model <- IsisMdl$new("demo/islm.mif")
 islm_model$set_mws(islm_input_mws)
 ca_data <- regts(matrix(2, ncol = 2), start = "2015Q2", end =  "2015Q4",
               names = c("c", "x"))
@@ -16,7 +16,7 @@ print(islm_model$get_ca("x"))
 
 mws <- islm_model$get_mws()
 print(mws)
-islm_model <- MacroModel$new("demo/islm.mif")
+islm_model <- IsisMdl$new("demo/islm.mif")
 islm_model$set_mws(mws)
 islm_model$solve()
 print(islm_model$get_ca())
