@@ -1,6 +1,6 @@
 #' Create a copy of an example model file
 #'
-#' The package \code{macromod} includes a number of example model files
+#' The package \code{isismdl} includes a number of example model files
 #' that can be used to get started with this package. These files are
 #' located in the directory \code{models} of the package directory. This
 #' function can be used to copy the model file from this directory to
@@ -20,7 +20,7 @@
 #' unlink("islm.*")
 #' unlink("mdl", recursive = TRUE)
 #' }
-#' @seealso \code{\link{compile_mdl}} and \code{\link{MacroModel}}
+#' @seealso \code{\link{compile_mdl}} and \code{\link{IsisMdl}}
 #' @export
 copy_example_mdl <- function(model_name,
                              filename = paste(model_name, "mdl", sep = ".")) {
@@ -28,6 +28,6 @@ copy_example_mdl <- function(model_name,
         stop(paste("Model", model_name, "is not an example model file"))
     }
     mdl_file <- system.file("models", paste(model_name, "mdl", sep = "."),
-                            package = "macromod")
+                            package = "isismdl")
     file.copy(mdl_file, filename, overwrite = TRUE)
 }

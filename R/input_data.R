@@ -8,10 +8,10 @@
 #' @format A \code{mws} with data for the period
 #' \code{2015Q2/2016Q3}
 "islm_input_mws"
-# library(macromod)
+# library(isismdl)
 # copy_example_mdl("islm")
 # ret <- compile_mdl("islm.mdl")
-# mdl <- MacroModel$new("islm.mif")
+# mdl <- IsisMdl$new("islm.mif")
 # r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
 # y  <- regts(980,  start = "2015Q1", end = "2016Q3", labels = "income")
 # yd <- regts(790, start = "2015Q1", labels = "disposable income")

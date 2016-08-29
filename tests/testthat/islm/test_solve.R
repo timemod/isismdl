@@ -4,7 +4,7 @@ library(utils)
 
 mif_file <- "mdl/islm.mif"
 
-islm_model <- MacroModel$new(mif_file)
+islm_model <- IsisMdl$new(mif_file)
 islm_model$set_mws(islm_input_mws)
 
 report <- capture_output(islm_model$solve())

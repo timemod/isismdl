@@ -52,15 +52,15 @@
 #' An extension \code{mdl} is appended to the specified name if the filename
 #' does not already have an extension.
 #' @return \code{TRUE} if the compilation was succesful.
-#' @useDynLib macromod compile_mdl_c
+#' @useDynLib isismdl compile_mdl_c
 #' @examples
 #' copy_example_mdl("islm")
 #' compile_mdl("islm.mdl")
 #' \dontshow{
 #' unlink("islm.*")
 #' }
-#' @seealso \code{\link{copy_example_mdl}}, \code{\link{MacroModel}} and
-#' \code{\link{MacroModel}}
+#' @seealso \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
+#' \code{\link{IsisMdl}}
 #' @export
 compile_mdl <- function(modelname) {
     retval <- .Call(compile_mdl_c, modelname)

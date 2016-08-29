@@ -69,7 +69,7 @@ unlink("islm.*")
 }
 }
 \seealso{
-\code{\link{copy_example_mdl}}, \code{\link{MacroModel}} and
-\code{\link{MacroModel}}
+\code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
+\code{\link{IsisMdl}}
 }
 

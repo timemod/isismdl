@@ -10,20 +10,20 @@ setOldClass("regperiod_range")
 #'
 #' @docType class
 #' @importFrom R6 R6Class
-#' @useDynLib macromod read_mdl_c
-#' @useDynLib macromod get_max_lag_lead_fortran
-#' @useDynLib macromod get_names_c
-#' @useDynLib macromod set_period_fortran
-#' @useDynLib macromod get_data_c
-#' @useDynLib macromod get_fix_fit_c
-#' @useDynLib macromod set_c
-#' @useDynLib macromod set_rms_c
-#' @useDynLib macromod run_equations_fortran
-#' @useDynLib macromod set_solve_opts_c
-#' @useDynLib macromod get_solve_opts_c
-#' @useDynLib macromod solve_c
-#' @useDynLib macromod filmdt_c
-#' @useDynLib macromod remove_mws_fortran
+#' @useDynLib isismdl read_mdl_c
+#' @useDynLib isismdl get_max_lag_lead_fortran
+#' @useDynLib isismdl get_names_c
+#' @useDynLib isismdl set_period_fortran
+#' @useDynLib isismdl get_data_c
+#' @useDynLib isismdl get_fix_fit_c
+#' @useDynLib isismdl set_c
+#' @useDynLib isismdl set_rms_c
+#' @useDynLib isismdl run_equations_fortran
+#' @useDynLib isismdl set_solve_opts_c
+#' @useDynLib isismdl get_solve_opts_c
+#' @useDynLib isismdl solve_c
+#' @useDynLib isismdl filmdt_c
+#' @useDynLib isismdl remove_mws_fortran
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -36,7 +36,7 @@ setOldClass("regperiod_range")
 #' compile_mdl("islm.mdl")
 #'
 #' # create the ISLM model based on the mif file
-#' islm_model <- MacroModel$new("islm.mif")
+#' islm_model <- IsisMdl$new("islm.mif")
 #'
 #' #  set modelworkspace using example mws islm_input_mws
 #' islm_model$set_mws(islm_input_mws)
@@ -67,7 +67,7 @@ setOldClass("regperiod_range")
 #' also initialises all model timeseries with \code{NA} and all constant
 #' adjusments with 0.}
 #' }
-MacroModel <- R6Class("MacroModel",
+IsisMdl <- R6Class("IsisMdl",
     cloneable = FALSE,
     public = list(
         maxlag = "integer",

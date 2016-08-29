@@ -4,7 +4,7 @@ library(utils)
 
 mif_file <- "mdl/islm.mif"
 
-islm_model <- MacroModel$new(mif_file)
+islm_model <- IsisMdl$new(mif_file)
 
 test_that("get_solve_options / set_solve_options", {
     default_opts <- islm_model$get_solve_options()
