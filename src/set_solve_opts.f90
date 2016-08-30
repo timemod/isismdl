@@ -127,3 +127,10 @@ subroutine set_solve_dbgopts(priter, prexen, jacprt, suptst, xsuptt, prscal)
     options_set%prscal = prscal /= 0
 
 end subroutine set_solve_dbgopts
+
+subroutine set_erropt(erropt)
+    use set_solve_opts
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: erropt
+    options_set%erropt = erropt
+end subroutine set_erropt

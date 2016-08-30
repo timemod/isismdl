@@ -5,13 +5,13 @@
 #include <ctype.h>
 #include "solve_options.h"
 
-#define N_OPTS 13
+#define N_OPTS 14
 
 extern void F77_SUB(init_get_solve_opts)(int *mws_index);
 extern void F77_CALL(get_solve_options)(int *imode, int *istart, int *maxit, 
               int *maxmat, double *rlxspeed, double *rlxmin, double *rlxmax, 
               double *cstpbk, double *cnmtrx, double *xrelax, int *mratex,
-              int *uplead);
+              int *uplead, int *erropt);
 extern void F77_CALL(get_solve_dbgops)(int *, int *, int *,  int *, int *, 
                                       int *);
 static void add_option(const char *name, SEXP value);
@@ -31,11 +31,11 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
 
     cnt = 0;
 
-    int imode, istart, maxit, maxmat, mratex, uplead;
+    int imode, istart, maxit, maxmat, mratex, uplead, erropt;
     double rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, xrelax;
     F77_CALL(get_solve_options)(&imode, &istart, &maxit, &maxmat, &rlxspeed,
                                 &rlxmin, &rlxmax, &cstpbk, &cnmtrx, &xrelax,
-                                &mratex, &uplead);
+                                &mratex, &uplead, &erropt);
 
 
     add_option("mode",      PROTECT(mkString(get_mode_text(imode))));
@@ -50,6 +50,7 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
     add_option("xrelax",    PROTECT(ScalarReal(xrelax)));
     add_option("xmaxiter",  PROTECT(ScalarInteger(mratex)));
     add_option("xupdate",   PROTECT(mkString(get_xupdate_text(uplead))));
+    add_option("erropt",    PROTECT(mkString(get_erropt_text(erropt))));
 
     add_debug_option();
 

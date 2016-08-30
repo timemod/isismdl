@@ -10,6 +10,7 @@ static const char *START_OPTIONS[] = {"previous", "current", "curifok",
 static const char *XUPDATE_OPTIONS[] = {"fixed", "lastval"};
 const char *DBG_ALL  = "allinfo";
 const char *DBG_NONE = "noinfo";
+static const char *ERROPT_OPTIONS[] = {"stop", "cont"};
 
 const char *DBG_PRITER_OPTS[] = {"noprifb",       "prifb"};
 const char *DBG_PREXEN_OPTS[] = {"noprild",       "prild"};
@@ -54,6 +55,10 @@ const char *get_xupdate_text(int uplead) {
     return XUPDATE_OPTIONS[uplead];
 }
 
+const char *get_erropt_text(int erropt) {
+    return get_option_text(erropt, ERROPT_OPTIONS, NO_ELM(ERROPT_OPTIONS));
+}
+
 int get_imode(const char *mode_text) {
     return get_i_option(mode_text, MODES, NO_ELM(MODES));
 }
@@ -66,3 +71,6 @@ int get_uplead(const char *xupdate_text) {
     return strcmp(xupdate_text, XUPDATE_OPTIONS[0]);
 }
 
+int get_erropt(const char *erropt_text) {
+    return get_i_option(erropt_text, ERROPT_OPTIONS, NO_ELM(ERROPT_OPTIONS));
+}

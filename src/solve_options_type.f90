@@ -1,6 +1,11 @@
 module solve_options_type
     use kinds
 
+    ! erropt (these values should agree with the ordering of
+    ! the ERROPT_OPTIONS in solve_options.c!
+    integer, parameter :: ERROPT_STOP  = 1
+    integer, parameter :: ERROPT_CONT  = 2
+
     ! type of ratex report
     integer, parameter :: RATREP_MINIMAL      = 1
     integer, parameter :: RATREP_ITER         = 2
@@ -61,6 +66,9 @@ module solve_options_type
         logical(kind = ISIS_IKIND) :: suptst
         logical(kind = ISIS_IKIND) :: xsuptt
         logical(kind = ISIS_IKIND) :: prscal
+
+        ! error options
+        integer(kind = ISIS_IKIND) :: erropt
         
         ! output options
         integer(kind = ISIS_IKIND) :: ioutsm
@@ -118,6 +126,9 @@ contains
         options%suptst = .false.
         options%xsuptt = .false.
         options%prscal = .false.
+
+        ! error options
+        options%erropt = ERROPT_STOP
     
         ! output options
         options%ioutsm = 2

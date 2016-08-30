@@ -111,7 +111,7 @@ contains
 
         if (nonval > 0) then
             call solot4(nonval)
-            quit = .true.
+            quit = opts%erropt == ERROPT_STOP
         else 
             quit = .false.
         endif
@@ -127,17 +127,15 @@ contains
 
        ! check exogenous variables and CAs for validity for period jc
        ! check feedback values for validity
-       ! quit = .true.  on invalid/missing or quit simulation
+       ! quit = .true. on invalid/missing or quit simulation
 
        integer :: nonval
 
        call chkxa(quit)
-       if (quit) return
 
        ! test for invalid numbers in feedback variables
-       nonval = 0
        call chkvfb(nonval)
-       if (nonval >  0) then
+       if (nonval > 0) then
            call solot6(nonval)
            quit = .true.
        endif
@@ -198,11 +196,13 @@ contains
 
     subroutine chkvfb(nonval)
         use msolot
-        integer, intent(inout) :: nonval
+        integer, intent(out) :: nonval
 
         ! check feedback variables for valid values
 
         integer :: i
+    
+        nonval = 0
 
         do i = 1, mdl%nfb
             if (nuifna(curvars(mdl%numfb(i)))) then
@@ -216,28 +216,26 @@ contains
 !-----------------------------------------------------------------------
 
 subroutine chkpar(quit)
-!use msimod
- 
-!     check parameters  for validity and/or missing
-!     quit set to .true. if simulation to be stopped
-
-logical ::   quit
-
-integer ::  i,p,nonval,csptr
-
-nonval = 0
-
-do p = 1, mdl%nrp
-    csptr = mdl%cfptr(p)
-    do i = 1, mdl%nvalp(p)
-        if (.not. nuifna(mdl%coef(csptr+i-1))) cycle
-        ! call simod4(p, i, quit)
-        nonval = nonval + 1
-        if (quit) return
+    use msimod
+    logical, intent(out) ::   quit
+     
+    ! check parameters  for validity and/or missing
+    ! quit set to .true. if simulation to be stopped
+    
+    integer ::  i,p,nonval,csptr
+    
+    nonval = 0
+    
+    do p = 1, mdl%nrp
+        csptr = mdl%cfptr(p)
+        do i = 1, mdl%nvalp(p)
+            if (.not. nuifna(mdl%coef(csptr+i-1))) cycle
+            call simod4(p, i)
+            nonval = nonval + 1
+        end do
     end do
-end do
-
-quit = nonval .ne. 0
+    
+    quit = nonval .ne. 0
 
 end subroutine chkpar
 
@@ -315,7 +313,6 @@ do i = 1, mdl%nrv
        if (nuifna(lags_leads(j)) ) then
            call simod2(i, 1 + j - mdl%ibx2(i))
            nonval = nonval + 1
-           if (quit) return
        endif
    enddo
 
@@ -323,8 +320,7 @@ enddo
 
 if (nonval > 0) then
     call simod3(nonval)
-    quit = .true.
-    return
+    quit = opts%erropt == ERROPT_STOP
 endif
 
 if (opts%mode == "X" .and. allocated(endo_leads)) then
@@ -435,7 +431,7 @@ end subroutine getnlg
 !-----------------------------------------------------------------------
 
 subroutine get_next_lag_forwards(ivar, jt, chk, is_na)
-    !use msimob
+    use msimob
     integer, intent(in) :: ivar, jt
     logical, intent(in) :: chk
     logical, intent(out) :: is_na
@@ -453,7 +449,7 @@ subroutine get_next_lag_forwards(ivar, jt, chk, is_na)
 
     if (chk) then
         is_na = nuifna(lags_leads(mdl%ibx1(ivar)))
-        !if (is_na) call simob1(ivar, 1)
+        if (is_na) call simob1(ivar, 1)
     endif
 
 end subroutine get_next_lag_forwards
@@ -461,7 +457,7 @@ end subroutine get_next_lag_forwards
 !-----------------------------------------------------------------------
 
 subroutine get_next_lag_backwards(ivar, jt, chk, is_na)
-    !use msimob
+    use msimob
     integer, intent(in) :: ivar, jt
     logical, intent(in) :: chk
     logical, intent(out) :: is_na
@@ -483,7 +479,7 @@ subroutine get_next_lag_backwards(ivar, jt, chk, is_na)
 
     if (chk) then
         is_na = nuifna(lags_leads(mdl%ibx1(ivar + 1) - 1))
-        !if (is_na) call simob1(ivar, maxlag)
+        if (is_na) call simob1(ivar, maxlag)
     endif
 
 end subroutine get_next_lag_backwards
@@ -521,7 +517,7 @@ end subroutine getnld
 !-----------------------------------------------------------------------
 
 subroutine get_next_lead_forwards(ivar, jt, chk, is_na)
-    !use msimob
+    use msimob
     integer, intent(in) :: ivar, jt
     logical, intent(in) :: chk
     logical, intent(out) :: is_na
@@ -543,7 +539,7 @@ subroutine get_next_lead_forwards(ivar, jt, chk, is_na)
 
     if (chk) then
         is_na = nuifna(lags_leads(mdl%ibx2(ivar + 1) - 1))
-        !if (is_na) call simob3(ivar, maxlead)
+        if (is_na) call simob3(ivar, maxlead)
     endif
 
 end subroutine get_next_lead_forwards
@@ -551,7 +547,7 @@ end subroutine get_next_lead_forwards
 !-----------------------------------------------------------------------
 
 subroutine get_next_lead_backwards(ivar, jt, chk, is_na)
-    !use msimob
+    use msimob
     integer, intent(in) :: ivar, jt
     logical, intent(in) :: chk
     logical, intent(out) :: is_na
@@ -569,7 +565,7 @@ subroutine get_next_lead_backwards(ivar, jt, chk, is_na)
 
     if (chk) then
         is_na = nuifna(lags_leads(mdl%ibx2(ivar)))
-        !if (is_na) call simob3(ivar, 1)
+        if (is_na) call simob3(ivar, 1)
     endif
 
 end subroutine get_next_lead_backwards

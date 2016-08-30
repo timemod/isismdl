@@ -913,9 +913,7 @@ contains
     
     !     fiterr <> 0 implies NO Fit
     
-    !     alternate return 1 for quit/stop
-    !     alternate return 2 for write errors
-    
+    !     quit is set to true if the simulation should be stopped
     
     integer :: nonval, i, nu_prev
     
@@ -978,7 +976,7 @@ contains
     
     if (nonval > 0) then
        call fitot2(nonval)
-       quit = .true.
+       quit = opts%erropt == ERROPT_STOP
        fiterr = 1
     else if( nw .eq. 0 ) then
        fiterr = 2

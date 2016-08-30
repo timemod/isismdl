@@ -1,23 +1,8 @@
 library(regts)
 library(isismdl)
-
-for (i in 1:1000) {
-    islm_model <- IsisModel$new("demo/islm.mif")
-    islm_model
-    islm_model$get_variable_names()
-    islm_model$set_period("2010Q3/2011Q4")
-    data <-
-        regts(
-            matrix(NA, ncol = 6), start = "2010Q2", end =  "2011Q4",
-            names = c("r", "y", "yd", "x", "g", "ms")
-        )
-    data[, 'r'] <- 3.35
-    data[, 'y'] <- 980
-    data[, 'yd'] <- 790
-    data[, 'g'] <- 210
-    data[, 'ms'] <- 200
-    data[, 'x'] <- 2300
-    islm_model$set_data(data)
-    result <- islm_model$solve("2010Q3/2011Q4")
-}
-
+islm_model <- IsisMdl$new("demo/islm.mif")
+print(islm_model$get_solve_options())
+islm_model$set_solve_options(list(erropt = "cont"))
+print(islm_model$get_solve_options())
+islm_model$set_period("2010Q2/2011Q3")
+islm_model$solve()

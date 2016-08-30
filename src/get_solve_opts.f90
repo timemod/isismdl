@@ -52,11 +52,12 @@ subroutine init_get_solve_opts(mws_index)
 end subroutine init_get_solve_opts
 
 subroutine get_solve_options(imode, istart, maxit, maxmat, rlxspeed, rlxmin, &
-           rlxmax, cstpbk, cnmtrx, xrelax, mratex, uplead)
+           rlxmax, cstpbk, cnmtrx, xrelax, mratex, uplead, erropt)
 
     use get_solve_opts
     use iso_c_binding, only : c_int, c_double
-    integer(c_int), intent(out):: imode, istart, maxit, maxmat, mratex, uplead
+    integer(c_int), intent(out):: imode, istart, maxit, maxmat, mratex, &
+                                  uplead,  erropt
     real(c_double), intent(out):: rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, &
                                   xrelax
     
@@ -72,6 +73,7 @@ subroutine get_solve_options(imode, istart, maxit, maxmat, rlxspeed, rlxmin, &
     xrelax = options%xrelax
     mratex = options%mratex
     uplead = logical2int(options%uplead)
+    erropt = options%erropt
 end subroutine get_solve_options
 
 subroutine get_solve_dbgopts(priter, prexen, jacprt, suptst, xsuptt, prscal)

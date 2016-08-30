@@ -457,7 +457,7 @@ end subroutine store_solution
 
 subroutine store_solution_prepare_next(jt, quit)
     use msutil
-    !use msimob
+    use msimob
     integer, intent(in) :: jt
     logical, intent(out) :: quit
 
@@ -489,12 +489,9 @@ subroutine store_solution_prepare_next(jt, quit)
     ! the leads are used
     call getnld(jt, forwards, chklead, nonval_lead)
 
-    if (nonval_lag > 0) then
-        !call simob2(nonval_lag, quit)
-        if (quit) return
-    endif
-
-    !if (nonval_lead > 0) call simob4(nonval_lead, quit)
+    if (nonval_lag  > 0) call simob2(nonval_lag)
+    if (nonval_lead > 0) call simob4(nonval_lead)
+    if (nonval_lag > 0 .or. nonval_lead > 0) quit = opts%erropt == ERROPT_STOP
 
 end subroutine store_solution_prepare_next
 

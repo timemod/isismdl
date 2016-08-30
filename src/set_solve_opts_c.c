@@ -24,6 +24,7 @@ extern void F77_SUB(set_mratex)(int *);
 extern void F77_SUB(set_uplead)(int *);
 extern void F77_SUB(get_solve_dbgopts)(int *, int *, int *, int *, int *, int *);
 extern void F77_SUB(set_solve_dbgopts)(int *, int *, int *, int *, int *, int *);
+extern void F77_SUB(set_erropt)(int *);
 
 static void set_option(const char *name, SEXP value);
 static void set_debug_opts(SEXP option);
@@ -105,6 +106,10 @@ static void set_option(const char *name, SEXP value) {
         F77_CALL(set_uplead)(&i);
     } else if (!strcmp(name, "dbgopt")) {
         set_debug_opts(value);
+    } else if (!strcmp(name, "erropt")) {
+        CHECK_LENGTH(name, value);
+        i = get_erropt(CHAR(STRING_ELT(value, 0)));
+        F77_CALL(set_erropt)(&i);
     } else {
        error("Unknown solve option %s\n", name);
     }

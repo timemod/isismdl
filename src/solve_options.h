@@ -4,6 +4,8 @@ const char *get_xupdate_text(int uplead);
 int get_imode(const char *mode_text);
 int get_istart(const char *stary_text);
 int get_uplead(const char *xupdate_text);
+int get_erropt(const char *erropt_text);
+const char *get_erropt_text(int erropt);
 
 extern const char *DBG_ALL;
 extern const char *DBG_NONE;

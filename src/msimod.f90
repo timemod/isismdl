@@ -53,7 +53,6 @@ end subroutine simod2
 subroutine simod3(nonval)
 
 !     print total of invalid/missing lags/leads
-!     alternate return 1 for quit simulation
 
 integer ::  nonval
 
