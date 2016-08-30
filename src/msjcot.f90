@@ -33,13 +33,13 @@ end subroutine jacot1
 
 subroutine jacot2(matitr,itr,rcond)
 
-!     print message for calculating newton matrix
-!     if output options require it
+! print message for calculating newton matrix
+! if output options require it
 
 integer ::  matitr, itr
 real*8 rcond
 
-if(opts%ioutsm .gt. 1) then
+if (opts%repopt >= REP_PERIOD) then
    write(str, 901, round = 'compatible') matitr, itr, rcond
    call strout(O_OUTN)
 endif

@@ -171,7 +171,7 @@ subroutine solot9(itr)
 
 integer ::  itr
 
-if (opts%ioutsm .eq. 3) then
+if (opts%repopt == REP_FULLREP) then
    write(str,'(a,i4)') 'Stepback: new Newton matrix at iteration', itr
    call strout(O_OUTN)
 endif
@@ -190,7 +190,7 @@ subroutine solota(itr, relax)
 integer ::  itr
 real*8  relax
 
-if (opts%ioutsm .eq. 3) then
+if (opts%repopt == REP_FULLREP) then
    write(str,'(a,f5.3,a,i4)', round = 'compatible') &
 &   'Linesearch: setting relaxation factor to ',relax, ' at iteration ',itr
    call strout(O_OUTN)
@@ -203,17 +203,17 @@ end subroutine solota
 
 subroutine solotb(matlst)
 
-!     print message for newton method can't continue
+! print message for newton method can't continue
 
 logical ::   matlst
 
-if(opts%ioutsm .ne. 1) then
-   if(.not. matlst) then
-     str = 'Max. number of Newton matrix updates for this period exhausted'
-     call strout(O_OUTN)
-   endif
-   str =  'Cannot find a better point ...'
-   call strout(O_OUTN)
+if (opts%repopt >= REP_PERIOD) then
+    if(.not. matlst) then
+        str = 'Max. number of Newton matrix updates for this period exhausted'
+        call strout(O_OUTN)
+    endif
+    str =  'Cannot find a better point ...'
+    call strout(O_OUTN)
 endif
 
 return
@@ -229,7 +229,7 @@ subroutine solotc(itr, relax)
 integer ::  itr
 real*8  relax
 
-if(opts%ioutsm .eq. 3) then
+if (opts%repopt == REP_FULLREP) then
    write(str,'(a,f5.3,a,i4)', round = 'compatible') &
 &       'Set relaxation factor to ', relax, ' at iteration ',itr
    call strout(O_OUTN)
@@ -345,7 +345,7 @@ subroutine solotd(itr)
 use mdl_name_utils
 use nuna
 
-!     print overview of not converged variables if requested
+! print overview of not converged variables if requested
 
 integer ::  itr
 character*3   dtyp, armax
@@ -356,7 +356,7 @@ real*8        Qone
 parameter    (Qone = 1.0d0)
 integer ::  i, imax, mxlen
 
-if (opts%iendsm .eq. 3 .and. opts%ioutsm .eq. 1) return
+if (opts%iendsm .eq. 3 .and. opts%repopt <= REP_MINIMAL) return
 
 write(str,901) perstr,itr
 call strout(O_OUTN)
@@ -437,7 +437,7 @@ end subroutine solotd
         ! print happy message about convergence in itr iterations
         integer, intent(in) ::  itr
 
-        if (opts%ioutsm > 1) then
+        if (opts%repopt > REP_MINIMAL) then
            write(str,905) trim(perstr), itr
            call strout(O_OUTN)
         endif

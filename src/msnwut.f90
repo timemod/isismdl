@@ -395,78 +395,78 @@ end subroutine soloti
 
 !-----------------------------------------------------------------------
 
-!subroutine solotg(itr, Fbmax, Fquot, Fcrit, imax)
-!use msvars
-!use msimot
-!use mcnmut
-!
-!integer ::        itr, imax
-!real*8        Fbmax, Fquot, Fcrit
-!
-!integer ::       clen, hdrlen, rpos
-!character*6  chdr(6)
-!integer ::       chln(6), cwid(6)
-!integer ::       k
-!
-!save chdr, chln, cwid, hdrlen
-!
-!data chdr / 'iter' , 'Fquot', 'Fcrit', 'Fbmax', 'scale', 'Fbname'/
-!data chln /    4   ,    5   ,    5   ,   5    ,    5   ,   6     /
-!data cwid /    6   , NUMWID , NUMWID , NUMWID, NUMWID ,   0      /
-!
-!if( ioutsm .ne. 3 ) return
-!
-!if( itr .eq. 0 ) then
-!   call strini(' ', 1)
-!   do k = 1, 6
-!       clen = chln(k)
-!       rpos = spos + max(cwid(k) - clen, 0)
-!       str(rpos : rpos + clen - 1) = chdr(k)(:clen)
-!       if( cwid(k) .ne. 0 ) then
-!           spos = spos + cwid(k) + ICSPAC
-!       endif
-!   end do
-!   hdrlen = spos
-!   call strout(O_OUTN)
-!endif
-!
-!call strini(' ', 1 )
-!write(str, '(i6)' ) itr
-!spos = 1 + cwid(1) + ICSPAC
-!
-!if (imax .ne. 0) then
-!    call nvlfmt(Fquot , str(spos : spos + NUMWID - 1))
-!    spos = spos + NUMWID + ICSPAC
-!
-!    call nvlfmt(Fcrit , str(spos : spos + NUMWID - 1))
-!    spos = spos + NUMWID + ICSPAC
-!
-!    call evlfmt(Fbmax , str(spos : spos + NUMWID - 1))
-!    spos = spos + NUMWID + ICSPAC
-!    call nvlfmt(scale(imax) , str(spos : spos + NUMWID - 1))
-!    spos = spos + NUMWID + ICSPAC
-!    call mcf7ex(name, nlen, mdl%ivnames(mdl%numfb(imax)), mdl%vnames)
-!    if( hdrlen + nlen .gt. lwidth ) then
-!        call strout(O_OUTN)
-!        call strini( ' ', lwidth - nlen - 1)
-!    endif
-!    str(spos : spos + nlen - 1) = name(:nlen)
-!else
-!!         invalid feedback value(s)
-!!         Invalid printed right justified
-!
-!    str(spos : spos + NUMWID -1) = '      -'
-!    spos = spos + NUMWID + ICSPAC
-!    str(spos : spos + NUMWID -1) = '      -'
-!    spos = spos + NUMWID + ICSPAC
-!    rpos = spos + max(NUMWID - 7,0)
-!    str(rpos : rpos + 7 - 1) = 'Invalid'
-!endif
-!
-!call strout(O_OUTN)
-!
-!return
-!end subroutine solotg
+subroutine solotg(itr, Fbmax, Fquot, Fcrit, imax)
+use msvars
+use msimot
+use mdl_name_utils
+
+integer ::        itr, imax
+real*8        Fbmax, Fquot, Fcrit
+
+integer ::       clen, hdrlen, rpos
+character*6  chdr(6)
+integer ::       chln(6), cwid(6)
+integer ::       k
+
+save chdr, chln, cwid, hdrlen
+
+data chdr / 'iter' , 'Fquot', 'Fcrit', 'Fbmax', 'scale', 'Fbname'/
+data chln /    4   ,    5   ,    5   ,   5    ,    5   ,   6     /
+data cwid /    6   , NUMWID , NUMWID , NUMWID, NUMWID ,   0      /
+
+if (opts%repopt /= REP_FULLREP) return
+
+if( itr .eq. 0 ) then
+   call strini(' ', 1)
+   do k = 1, 6
+       clen = chln(k)
+       rpos = spos + max(cwid(k) - clen, 0)
+       str(rpos : rpos + clen - 1) = chdr(k)(:clen)
+       if (cwid(k) /= 0 ) then
+           spos = spos + cwid(k) + ICSPAC
+       endif
+   end do
+   hdrlen = spos
+   call strout(O_OUTN)
+endif
+
+call strini(' ', 1 )
+write(str, '(i6)' ) itr
+spos = 1 + cwid(1) + ICSPAC
+
+if (imax .ne. 0) then
+    call nvlfmt(Fquot , str(spos : spos + NUMWID - 1))
+    spos = spos + NUMWID + ICSPAC
+
+    call nvlfmt(Fcrit , str(spos : spos + NUMWID - 1))
+    spos = spos + NUMWID + ICSPAC
+
+    call evlfmt(Fbmax , str(spos : spos + NUMWID - 1))
+    spos = spos + NUMWID + ICSPAC
+    call nvlfmt(scale(imax) , str(spos : spos + NUMWID - 1))
+    spos = spos + NUMWID + ICSPAC
+    call mcf7ex(name, nlen, mdl%ivnames(mdl%numfb(imax)), mdl%vnames)
+    if( hdrlen + nlen .gt. lwidth ) then
+        call strout(O_OUTN)
+        call strini( ' ', lwidth - nlen - 1)
+    endif
+    str(spos : spos + nlen - 1) = name(:nlen)
+else
+    ! invalid feedback value(s)
+    ! Invalid printed right justified
+
+    str(spos : spos + NUMWID -1) = '      -'
+    spos = spos + NUMWID + ICSPAC
+    str(spos : spos + NUMWID -1) = '      -'
+    spos = spos + NUMWID + ICSPAC
+    rpos = spos + max(NUMWID - 7,0)
+    str(rpos : rpos + 7 - 1) = 'Invalid'
+endif
+
+call strout(O_OUTN)
+
+return
+end subroutine solotg
 
 !-----------------------------------------------------------------------
 
@@ -671,7 +671,7 @@ bcnt = 0
        endif
    endif
 
-   !call solotg(itr, Fbmax, Fquot, Fcrit, imax)
+   call solotg(itr, Fbmax, Fquot, Fcrit, imax)
 
    if (nuifna(Fcrit)) then
 

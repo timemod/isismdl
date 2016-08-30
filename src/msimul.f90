@@ -190,13 +190,13 @@ do iratex = 1, opts%mratex
         exit  ! convergence
    else
        ! no convergence; print a message if required
-       if (opts%ratrep_type /= RATOPT_MINIMAL .and. &
+       if (opts%ratrepopt /= RATOPT_MINIMAL .and. &
           ((mod(iratex, opts%ratrep)   == 0)  .or. &
            (mod(iratex, ratrepfull_tmp) == 0)))  then
            call simox2(iratex, noncvg)
        endif
-       if ((opts%ratrep_type == RATOPT_FULLREP  &
-            .or. opts%ratrep_type == RATOPT_FULLREPSCRN) &
+       if ((opts%ratrepopt == RATOPT_FULLREP  &
+            .or. opts%ratrepopt == RATOPT_FULLREPSCRN) &
               .and. mod(iratex, ratrepfull_tmp) == 0) then
            call simox4(jmax, imax, xomax, xnmax, dismax)
        endif

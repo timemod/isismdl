@@ -6,6 +6,8 @@ int get_istart(const char *stary_text);
 int get_uplead(const char *xupdate_text);
 int get_erropt(const char *erropt_text);
 const char *get_erropt_text(int erropt);
+const char *get_repopt_text(int repopt);
+const char *get_ratrepopt_text(int ratrepopt);
 
 extern const char *DBG_ALL;
 extern const char *DBG_NONE;

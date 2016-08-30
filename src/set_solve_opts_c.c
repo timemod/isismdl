@@ -25,6 +25,12 @@ extern void F77_SUB(set_uplead)(int *);
 extern void F77_SUB(get_solve_dbgopts)(int *, int *, int *, int *, int *, int *);
 extern void F77_SUB(set_solve_dbgopts)(int *, int *, int *, int *, int *, int *);
 extern void F77_SUB(set_erropt)(int *);
+extern void F77_SUB(set_repopt)(int *);
+extern void F77_SUB(set_ratrepopt)(int *);
+//extern void F77_SUB(set_ratrep)(int *);
+//extern void F77_SUB(set_ratrepfull)(int *);
+extern void F77_SUB(set_bktmaxt)(int *);
+extern void F77_SUB(set_xtfac)(double *);
 
 static void set_option(const char *name, SEXP value);
 static void set_debug_opts(SEXP option);
@@ -110,6 +116,22 @@ static void set_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         i = get_erropt(CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_erropt)(&i);
+    } else if (!strcmp(name, "report")) {
+        CHECK_LENGTH(name, value);
+        i = get_repopt(CHAR(STRING_ELT(value, 0)));
+        F77_CALL(set_repopt)(&i);
+    } else if (!strcmp(name, "ratreport")) {
+        CHECK_LENGTH(name, value);
+        i = get_ratrepopt(CHAR(STRING_ELT(value, 0)));
+        F77_CALL(set_ratrepopt)(&i);
+    } else if (!strcmp(name, "bktmax")) {
+        CHECK_LENGTH(name, value);
+        i = asInteger(value);
+        F77_CALL(set_bktmax)(&i);
+    } else if (!strcmp(name, "xtfac")) {
+        CHECK_LENGTH(name, value);
+        x = asReal(value);
+        F77_CALL(set_xtfac)(&x);
     } else {
        error("Unknown solve option %s\n", name);
     }

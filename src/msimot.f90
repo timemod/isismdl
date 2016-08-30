@@ -418,7 +418,9 @@ end subroutine svlvfmt
 
 subroutine simot2
 
-!     a harmless warning only for unavailable initial feedback values
+! a harmless warning only for unavailable initial feedback values
+
+if (opts%repopt == REP_NONE) return
 
 str = 'Warning - previous period initial feedback values'
 call strout(O_WMSG)
@@ -438,6 +440,8 @@ subroutine simot3(tuse, itrtot, ndiver)
 
 real    ::  tuse
 integer ::  itrtot, ndiver
+
+if (opts%repopt == REP_NONE) return
 
 if( itrtot .le. 9999 ) then
     write(str,'(A,I4)' ) 'Total number of iterations ',itrtot
@@ -977,6 +981,8 @@ end function useFfmt
             integer :: pos, tab_pos
 
             character(len = 20) :: tmp_string
+
+            if (opts%repopt == REP_NONE) return
     
             tab_pos = 31
 

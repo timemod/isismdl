@@ -5,13 +5,14 @@
 #include <ctype.h>
 #include "solve_options.h"
 
-#define N_OPTS 14
+#define N_OPTS 18
 
 extern void F77_SUB(init_get_solve_opts)(int *mws_index);
 extern void F77_CALL(get_solve_options)(int *imode, int *istart, int *maxit, 
               int *maxmat, double *rlxspeed, double *rlxmin, double *rlxmax, 
               double *cstpbk, double *cnmtrx, double *xrelax, int *mratex,
-              int *uplead, int *erropt);
+              int *uplead, int *erropt, int *repopt, int *ratrepopt, 
+              int *bktmax, double *xtfac);
 extern void F77_CALL(get_solve_dbgops)(int *, int *, int *,  int *, int *, 
                                       int *);
 static void add_option(const char *name, SEXP value);
@@ -31,12 +32,13 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
 
     cnt = 0;
 
-    int imode, istart, maxit, maxmat, mratex, uplead, erropt;
-    double rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, xrelax;
+    int imode, istart, maxit, maxmat, mratex, uplead, erropt, repopt, 
+        ratrepopt, bktmax;
+    double rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, xrelax, xtfac;
     F77_CALL(get_solve_options)(&imode, &istart, &maxit, &maxmat, &rlxspeed,
                                 &rlxmin, &rlxmax, &cstpbk, &cnmtrx, &xrelax,
-                                &mratex, &uplead, &erropt);
-
+                                &mratex, &uplead, &erropt, &repopt, &ratrepopt,
+                                &bktmax, &xtfac);
 
     add_option("mode",      PROTECT(mkString(get_mode_text(imode))));
     add_option("fbstart",   PROTECT(mkString(get_start_text(istart))));
@@ -47,10 +49,14 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
     add_option("rlxmax",    PROTECT(ScalarReal(rlxmax)));
     add_option("cstpbk",    PROTECT(ScalarReal(cstpbk)));
     add_option("cnmtrx",    PROTECT(ScalarReal(cnmtrx)));
+    add_option("bktmax",    PROTECT(ScalarReal(bktmax)));
     add_option("xrelax",    PROTECT(ScalarReal(xrelax)));
     add_option("xmaxiter",  PROTECT(ScalarInteger(mratex)));
     add_option("xupdate",   PROTECT(mkString(get_xupdate_text(uplead))));
+    add_option("xtfac",     PROTECT(ScalarReal(xtfac)));
     add_option("erropt",    PROTECT(mkString(get_erropt_text(erropt))));
+    add_option("report",    PROTECT(mkString(get_repopt_text(repopt))));
+    add_option("ratreport", PROTECT(mkString(get_ratrepopt_text(ratrepopt))));
 
     add_debug_option();
 

@@ -11,6 +11,9 @@ static const char *XUPDATE_OPTIONS[] = {"fixed", "lastval"};
 const char *DBG_ALL  = "allinfo";
 const char *DBG_NONE = "noinfo";
 static const char *ERROPT_OPTIONS[] = {"stop", "cont"};
+static const char *REP_OPTIONS[] = {"none", "minimal", "period", "fullrep"};
+static const char *RATREP_OPTIONS[] = {"minimal", "iter", "iterscrn",
+                                       "fullrep", "fullrepscrn"};
 
 const char *DBG_PRITER_OPTS[] = {"noprifb",       "prifb"};
 const char *DBG_PREXEN_OPTS[] = {"noprild",       "prild"};
@@ -59,6 +62,14 @@ const char *get_erropt_text(int erropt) {
     return get_option_text(erropt, ERROPT_OPTIONS, NO_ELM(ERROPT_OPTIONS));
 }
 
+const char *get_repopt_text(int repopt) {
+    return get_option_text(repopt, REP_OPTIONS, NO_ELM(REP_OPTIONS));
+}
+
+const char *get_ratrepopt_text(int ratrepopt) {
+    return get_option_text(ratrepopt, RATREP_OPTIONS, NO_ELM(RATREP_OPTIONS));
+}
+
 int get_imode(const char *mode_text) {
     return get_i_option(mode_text, MODES, NO_ELM(MODES));
 }
@@ -73,4 +84,12 @@ int get_uplead(const char *xupdate_text) {
 
 int get_erropt(const char *erropt_text) {
     return get_i_option(erropt_text, ERROPT_OPTIONS, NO_ELM(ERROPT_OPTIONS));
+}
+
+int get_repopt(const char *repopt_text) {
+    return get_i_option(repopt_text, REP_OPTIONS, NO_ELM(REP_OPTIONS));
+}
+
+int get_ratrepopt(const char *ratrepopt_text) {
+    return get_i_option(ratrepopt_text, RATREP_OPTIONS, NO_ELM(RATREP_OPTIONS));
 }

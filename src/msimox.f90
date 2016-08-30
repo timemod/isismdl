@@ -201,8 +201,8 @@ integer ::  noncvg, iratex
 write(str,901) noncvg,iratex
 call strout(O_OUTN)
 
-if (opts%ratrep_type == RATOPT_ITERSCRN .or. &
-    opts%ratrep_type == RATOPT_FULLREPSCRN) then
+if (opts%ratrepopt == RATOPT_ITERSCRN .or. &
+    opts%ratrepopt == RATOPT_FULLREPSCRN) then
    print *, str(:len_trim(str))
 endif
 
@@ -269,13 +269,13 @@ endif
 !     header line
 
 call rtxhdr(split, nlen, len(target), &
-            opts%ratrep_type == RATOPT_FULLREPSCRN)
+            opts%ratrepopt == RATOPT_FULLREPSCRN)
 
 !     next line with variable name or single line with variable name
 cvgtst = opts%xtfac * mws%test(imax)
 call rtxdln(split, nlen, name, nlen, target, xomax, xnmax, &
 &           dismax * cvgtst, cdum, cvgtst, .true., &
-            opts%ratrep_type == RATOPT_FULLREPSCRN)
+            opts%ratrepopt == RATOPT_FULLREPSCRN)
 
 500 continue
 

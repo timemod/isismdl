@@ -2,9 +2,15 @@ module solve_options_type
     use kinds
 
     ! erropt (these values should agree with the ordering of
-    ! the ERROPT_OPTIONS in solve_options.c!
+    ! the ERROPT_OPTIONS in solve_options.c (first option should be 1)!
     integer, parameter :: ERROPT_STOP  = 1
     integer, parameter :: ERROPT_CONT  = 2
+
+    ! reopt option
+    integer, parameter :: REP_NONE    = 1    ! no report at all 
+    integer, parameter :: REP_MINIMAL = 2
+    integer, parameter :: REP_PERIOD  = 3
+    integer, parameter :: REP_FULLREP = 4
 
     ! type of ratex report
     integer, parameter :: RATREP_MINIMAL      = 1
@@ -71,13 +77,13 @@ module solve_options_type
         integer(kind = ISIS_IKIND) :: erropt
         
         ! output options
-        integer(kind = ISIS_IKIND) :: ioutsm
+        integer(kind = ISIS_IKIND) :: repopt
         integer(kind = ISIS_IKIND) :: iendsm
 
         ! ratex options
         logical(kind = ISIS_IKIND) :: uplead
         integer(kind = ISIS_IKIND) :: njacpd
-        integer(kind = ISIS_IKIND) :: ratrep_type
+        integer(kind = ISIS_IKIND) :: ratrepopt
         integer(kind = ISIS_IKIND) :: ratrep
         integer(kind = ISIS_IKIND) :: ratrepfull
         real(kind = ISIS_RKIND)    :: xrelax
@@ -131,11 +137,11 @@ contains
         options%erropt = ERROPT_STOP
     
         ! output options
-        options%ioutsm = 2
+        options%repopt = REP_PERIOD
         options%iendsm = 1
 
         ! ratex (Fair-Taylor) options
-        options%ratrep_type = RATREP_ITER
+        options%ratrepopt = RATREP_ITER
         options%ratrep = 1
         options%ratrepfull = -1
         options%xrelax = 1.0_ISIS_RKIND

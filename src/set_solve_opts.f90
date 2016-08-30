@@ -114,6 +114,34 @@ subroutine set_uplead(uplead)
     options_set%uplead = uplead /= 0
 end subroutine set_uplead
 
+subroutine set_repopt(repopt)
+    use set_solve_opts
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: repopt
+    options_set%repopt = repopt
+end subroutine set_repopt
+
+subroutine set_ratrepopt(ratrepopt)
+    use set_solve_opts
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: ratrepopt
+    options_set%ratrepopt = ratrepopt
+end subroutine set_ratrepopt
+
+subroutine set_bktmax(bktmax)
+    use set_solve_opts
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: bktmax
+    options_set%bktmax = bktmax
+end subroutine set_bktmax
+
+subroutine set_xtfac(xtfac)
+    use set_solve_opts
+    use iso_c_binding, only : c_double
+    real(c_double), intent(in) ::xtfac
+    options_set%xtfac = xtfac
+end subroutine set_xtfac
+
 subroutine set_solve_dbgopts(priter, prexen, jacprt, suptst, xsuptt, prscal)
     use set_solve_opts
     use iso_c_binding, only : c_int

@@ -168,7 +168,7 @@ else
     yp = curvars
 endif
 
-!call solotg(itr, Fbmax, Fquot, Fcrit, imax)
+call solotg(itr, Fbmax, Fquot, Fcrit, imax)
 
 ! Here no invalid fbvalues and not converged
 ! Start Newton
@@ -228,7 +228,7 @@ if (xsptyp == 1) then
     ! if calculated a new matrix then print synopsis again
     ! since scale may have changed
 
-    !call solotg(itr, Fbmax, Fquot, Fcrit, imax)
+    call solotg(itr, Fbmax, Fquot, Fcrit, imax)
 
 endif
 
