@@ -163,7 +163,7 @@ subroutine filmdt_fortran(mws_index, jtb, jte)
     use modelworkspaces
     use msvars
     use msfill
-    use iso_c_binding
+    use iso_c_binding, only : c_int
     integer(c_int), intent(in) :: mws_index, jtb, jte
 
     call msvarsinit(mws_array(mws_index))
@@ -173,8 +173,26 @@ end subroutine filmdt_fortran
 
 subroutine remove_mws_fortran(model_index)
     use modelworkspaces
-    integer, intent(in) :: model_index
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: model_index
     call clear_mws(mws_array(model_index))
     call remove_mws(model_index)
 end subroutine remove_mws_fortran
 
+subroutine set_test(mws_index, ivar, value)
+    ! set convergence test value
+    use modelworkspaces
+    use iso_c_binding, only : c_int, c_double
+    integer(c_int), intent(in) :: mws_index, ivar
+    real(c_double), intent(in) :: value
+    mws_array(mws_index)%test(ivar) = value
+end subroutine set_test
+
+function get_test(mws_index, ivar)
+    ! set convergence test value for variable ivar in alphabetical order
+    use modelworkspaces
+    use iso_c_binding, only : c_int, c_double
+    real(c_double) :: get_test
+    integer(c_int), intent(in) :: mws_index, ivar
+    get_test = mws_array(mws_index)%test(mws_array(mws_index)%mdl%indexv(ivar))
+end function get_test

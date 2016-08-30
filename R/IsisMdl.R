@@ -27,6 +27,8 @@ setOldClass("regperiod_range")
 #' @useDynLib isismdl solve_c
 #' @useDynLib isismdl filmdt_c
 #' @useDynLib isismdl remove_mws_fortran
+#' @useDynLib isismdl set_cvgcrit_c
+#' @useDynLib isismdl get_cvgcrit_c
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -94,9 +96,14 @@ IsisMdl <- R6Class("IsisMdl",
                                      model_index = private$model_index)},
                 onexit = TRUE)
         },
-        get_variable_names = function() {
-            return (sort(.Call(get_names_c, "data",
-                               as.integer(private$model_index))))
+        get_variable_names = function(pattern = ".*") {
+            names <- .Call(get_names_c, "data",
+                           as.integer(private$model_index))
+            if (!missing(pattern)) {
+                sel <- grep(pattern, names)
+                names <- names[sel]
+            }
+            return (sort(names))
         },
         get_param_names = function() {
             return (sort(.Call(get_param_names_c,
@@ -248,6 +255,7 @@ IsisMdl <- R6Class("IsisMdl",
                                    ca_names = self$get_ca_names(),
                                    model_period = self$model_period,
                                    solve_options = self$get_solve_options(),
+                                   cvgcrit = self$get_cvgcrit(),
                                    param = self$get_param(),
                                    data = data, ca = ca,
                                    fix = self$get_fix(),
@@ -267,6 +275,7 @@ IsisMdl <- R6Class("IsisMdl",
             }
             self$set_period(x$model_period)
             self$set_solve_options(x$solve_options)
+            .Call("set_cvgcrit_c", private$model_index, x$cvgcrit)
             self$set_param(x$param)
             self$set_data(x$data)
             self$set_ca(x$ca)
@@ -282,6 +291,35 @@ IsisMdl <- R6Class("IsisMdl",
             "Gets the default solve options"
             return (.Call("get_solve_opts_c",
                           model_index = private$model_index))
+        },
+        get_cvgcrit = function() {
+            values <- .Call("get_cvgcrit_c", private$model_index)
+            names(values) <- self$get_variable_names()
+            return (values)
+        },
+        set_cvgcrit = function(value, pattern, vars) {
+            "Sets the convergence criterion for same variables"
+
+            # TODO: if vars specified, then check if it contains names that are
+            # no model variables
+
+            if (missing(pattern) && missing(vars)) {
+                vars <- self$get_variable_names()
+            } else if (!missing(pattern)) {
+                pvars <- self$get_variable_names(pattern)
+                if (!missing(vars)) {
+                    vars <- union(pvars, vars)
+                } else {
+                    vars <- pvars
+                }
+            }
+            if (!is.numeric(value) || length(value) != 1) {
+                stop("value should be a single numerical value")
+            }
+            values <- rep(as.numeric(value), length(vars))
+            names(values) <- vars
+            .Call("set_cvgcrit_c", private$model_index, values)
+            return  (invisible(self))
         }
     ),
     private = list(

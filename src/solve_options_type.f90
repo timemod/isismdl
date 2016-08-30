@@ -98,6 +98,7 @@ contains
     subroutine set_default_options(mdl, options)
         use model_type
         use scalemat
+        use nucnst, only : Rmeps
         type(model), intent(in) :: mdl
         type(solve_options), intent(out) :: options
         if (has_endo_lead(mdl)) then
@@ -149,7 +150,7 @@ contains
         options%xtfac = 10.0_ISIS_RKIND
 
         ! fit options
-        options%fit%cvgabs = 1e-7_ISIS_RKIND
+        options%fit%cvgabs = 100 * sqrt(Rmeps)
         options%fit%mkdcrt =  0.5_ISIS_RKIND
         options%fit%scale_method = FIT_SCALE_ROW
         options%fit%accurate_jac = .false.

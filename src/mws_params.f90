@@ -1,6 +1,5 @@
 module mws_params
     integer, parameter :: MWS_RKIND = 8
-    real(kind = MWS_RKIND) :: TSTDFL = 1.0e-6
 
     !
     ! constant for several update modes.

@@ -2,6 +2,6 @@ library(regts)
 library(isismdl)
 islm_model <- IsisMdl$new("demo/islm.mif")
 print(islm_model$get_variable_names())
-islm_model$set_mws(islm_input_mws):e 
+islm_model$set_mws(islm_input_mws)
 islm_model$solve()
 

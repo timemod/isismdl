@@ -40,6 +40,8 @@ extern void F77_NAME(solve_fortran)(int *mws_index, int *startp, int *endp,
 extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp);
 extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index,
                                       double *value);
+extern void F77_NAME(set_test)(int *mws_index, int *var_index, double *value);
+extern double F77_NAME(get_test)(int *mws_index, int *var_index);
 
 SEXP read_mdl_c(SEXP filename) {
 
@@ -81,8 +83,8 @@ SEXP get_param_names_c(SEXP model_index_) {
     return names;
 }
 
-/* General function for getting model data or constant adjustments */
-
+/* General function for getting model data or constant adjustments,
+ * in the natural ordering of the model variables (not sorted) */
 SEXP get_names_c(SEXP type_, SEXP model_index_) {
     const char *type_str = CHAR(STRING_ELT(type_, 0));
     int type;
@@ -356,4 +358,38 @@ void filmdt_c(SEXP mws_index_, SEXP startp_, SEXP endp_) {
     int startp = asInteger(startp_);
     int endp= asInteger(endp_);
     F77_CALL(filmdt_fortran)(&mws_index, &startp, &endp);
+}
+
+/* Sets convergence criteria. values is a named numerical vector with
+ * the convergence criteria for each model variable */
+SEXP set_cvgcrit_c(SEXP mws_index_, SEXP values) {
+    int mws_index = asInteger(mws_index_);
+    SEXP names = getAttrib(values, R_NamesSymbol);
+    int n_names = length(names);
+    int i;
+    int cnt = 0;
+    for (i = 0; i < n_names; i++) {
+        const char *name = CHAR(STRING_ELT(names, i));
+        int namelen = strlen(name);
+        int iv = F77_CALL(get_var_index)(&mws_index, name, &namelen);
+        if (iv > 0) {   
+            cnt++;
+            double val = REAL(values)[i];
+            F77_CALL(set_test)(&mws_index, &iv, &val);
+        }
+    }
+    return ScalarInteger(cnt);
+}
+
+/* Gets convergence criteria for all model variables in alphabetical order */
+SEXP get_cvgcrit_c(SEXP mws_index_) {
+    int mws_index = asInteger(mws_index_);
+    int nvar = F77_CALL(get_variable_count)(&mws_index);
+    SEXP ret = PROTECT(allocVector(REALSXP, nvar));
+    int iv;
+    for (iv = 1; iv <= nvar; iv++) {
+        REAL(ret)[iv - 1] = F77_CALL(get_test)(&mws_index, &iv);
+    }
+    UNPROTECT(1);
+    return ret;
 }

@@ -75,4 +75,4 @@ read_model.o : modelworkspaces.o msvars.o
 scalemat.o : kinds.o nucnst.o nuna.o nuv.o
 set_solve_opts.o : kinds.o modelworkspaces.o mws_type.o \
                   set_solve_opts.o solve_options_type.o
-solve_options_type.o : kinds.o model_type.o scalemat.o
+solve_options_type.o : kinds.o model_type.o nucnst.o scalemat.o

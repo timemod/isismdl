@@ -31,6 +31,7 @@ module mws_type
             ! initialise mws after reading a model
             !
             use output_utils, only : macromod_error
+            use nucnst, only : Rmeps
             type(modelworkspace), intent(inout) :: mws
             integer, intent(out) :: error
         
@@ -50,7 +51,7 @@ module mws_type
             endif
             mws%lags = NA
             mws%leads = NA
-            mws%test = TSTDFL
+            mws%test = sqrt(Rmeps)
             mws%ftrelax = NA
             mws%dbgeqn = .false.
             call set_default_options(mws%mdl, mws%solve_opts)
