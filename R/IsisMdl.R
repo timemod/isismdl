@@ -96,23 +96,19 @@ IsisMdl <- R6Class("IsisMdl",
                                      model_index = private$model_index)},
                 onexit = TRUE)
         },
-        get_variable_names = function(pattern = ".*") {
-            names <- .Call(get_names_c, "data",
-                           as.integer(private$model_index))
+        get_variable_names = function(pattern = ".*", vtype = "all") {
+            names <- .Call(get_names_c, vtype, as.integer(private$model_index))
             if (!missing(pattern)) {
                 sel <- grep(pattern, names)
                 names <- names[sel]
             }
-            return (sort(names))
+            if (vtype == "allfrml") {
+                names <- sort(names)
+            }
+            return (names)
         },
         get_param_names = function() {
             return (sort(.Call(get_param_names_c,
-                               as.integer(private$model_index))))
-        },
-        get_ca_names = function() {
-            # note: the names returned  by get_ca_names are not sorted
-            # alphabetically, therefore sort explicitly
-            return (sort(.Call(get_names_c, "ca",
                                as.integer(private$model_index))))
         },
         set_period = function(period) {
@@ -152,11 +148,12 @@ IsisMdl <- R6Class("IsisMdl",
             }
             return (private$get_variables("data", names, period))
         },
-        get_ca = function(names = self$get_ca_names(),
+        get_ca = function(names = self$get_variable_names(vtype = "allfrml"),
                           period = self$model_period) {
             "Returns the constant adjustments"
             if (!missing(names)) {
-                names <- intersect(names, self$get_ca_names())
+                names <- intersect(names,
+                                   self$get_variable_names(vtype = "allfrml"))
             }
             return (private$get_variables("ca", names, period))
         },
@@ -252,7 +249,7 @@ IsisMdl <- R6Class("IsisMdl",
             # todo: rms values
 
             return (structure(list(var_names = self$get_variable_names(),
-                                   ca_names = self$get_ca_names(),
+                                   ca_names = self$get_variable_names(vtype = "allfrml"),
                                    model_period = self$model_period,
                                    solve_options = self$get_solve_options(),
                                    cvgcrit = self$get_cvgcrit(),
@@ -268,7 +265,7 @@ IsisMdl <- R6Class("IsisMdl",
                 stop("x is not an mws object")
             }
             if (!identical(x$var_names, self$get_variable_names()) |
-                !identical(x$ca_names, self$get_ca_names()) |
+                !identical(x$ca_names, self$get_variable_names(vtype = "allfrml")) |
                 !identical(names(x$param), self$get_param_names())) {
                      # todo: check parameter length, this should be the same
                     stop("Mws x does not agree with the model definition")

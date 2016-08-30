@@ -19,7 +19,8 @@ dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,
 test_that("Comparing results of ordinary solve after changing parameters", {
     expect_identical(islm_model$model_data_period, regperiod_range("2015Q1", "2016Q3"))
     expect_identical(islm_model$get_variable_names(), colnames(isis_result))
-    expect_identical(islm_model$get_ca_names(), c("c", "i", "md", "t"))
+    expect_identical(islm_model$get_variable_names(vtype = "allfrml"),
+                     c("c", "i", "md", "t"))
     expect_identical(dif$missing_names1, character(0))
     expect_identical(dif$missing_names2, character(0))
     expect_identical(dif$difnames, character(0))

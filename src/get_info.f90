@@ -36,17 +36,19 @@ subroutine get_param_name(model_index, i, nam, nlen)
     call get_par_name(mws_array(model_index)%mdl, i, .true., nam, nlen);
 end subroutine get_param_name
 
-subroutine get_variable_name(model_index, i, nam, nlen)
+subroutine get_variable_name(model_index, ivar, nam, nlen)
+    ! return the variable name for variable ivar in alphabetical order
     use modelworkspaces
     use iso_c_binding
-    integer(c_int), intent(in)   :: model_index, i
+    integer(c_int), intent(in)   :: model_index, ivar
     integer(c_int), intent(out)  :: nlen
     integer, dimension(*), intent(out) :: nam
-    call get_var_name(mws_array(model_index)%mdl, i, .false., nam, nlen);
+    call get_var_name(mws_array(model_index)%mdl, ivar, .true., nam, nlen);
 end subroutine get_variable_name
 
 subroutine get_ca_name(model_index, i, nam, nlen)
     ! returns the name of the i'th constant adjustment
+    ! (NOT in alphabetical order!)
     use modelworkspaces
     use iso_c_binding
     integer(c_int), intent(in)   :: model_index, i

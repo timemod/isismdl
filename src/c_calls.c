@@ -6,8 +6,10 @@
 #include "set_solve_options.h"
 
 #define MAX_NAME_LEN 32
-#define DATA  1
-#define CA    2
+#define ALL     1
+#define ALLFRML 2
+#define DATA    1
+#define CA     2
 #define FIX   3
 #define FIT   4
 
@@ -88,22 +90,22 @@ SEXP get_param_names_c(SEXP model_index_) {
 SEXP get_names_c(SEXP type_, SEXP model_index_) {
     const char *type_str = CHAR(STRING_ELT(type_, 0));
     int type;
-    if (strcmp(type_str, "ca") == 0) {
-        type = CA;
+    if (strcmp(type_str, "allfrml") == 0) {
+        type = ALLFRML;
     } else {
-        type = DATA;
+        type = ALL;
     }
     int model_index = asInteger(model_index_);
 
     int nvar;
-    if (type == CA) {
+    if (type == ALLFRML) {
         nvar = F77_CALL(get_ca_count)(&model_index);
     } else {
         nvar = F77_CALL(get_variable_count)(&model_index);
     }
 
     void (*get_name)(int *, int *, char *, int *);
-    if (type == CA) {
+    if (type == ALLFRML) {
         get_name = F77_CALL(get_ca_name);
     } else {
         get_name = F77_CALL(get_variable_name);
