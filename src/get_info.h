@@ -5,9 +5,9 @@ extern int F77_NAME(get_variable_count)(int *model_index);
 extern int F77_NAME(get_ca_count)(int *model_index);
 extern int F77_NAME(get_eq_count)(int *model_index);
 extern void F77_NAME(get_param_name)(int *model_index, int *i,
-                                        char *param_name, int *len);
+                                        char *param_name, int *len, int *alpha);
 extern void F77_NAME(get_variable_name)(int *model_index, int *i,
-                                        char *variable_name, int *len);
+                                        char *variable_name, int *len, int *alpha);
 extern void F77_NAME(get_ca_name)(int *model_index, int *i, char *ca_name,
                                   int *len);
 extern void F77_NAME(get_equation_name)(int *model_index, int *i, char *name,

@@ -35,28 +35,28 @@ function get_eq_count(model_index)
     get_eq_count = mws_array(model_index)%mdl%neq
 end function get_eq_count
 
-subroutine get_param_name(model_index, i, nam, nlen)
+subroutine get_param_name(model_index, i, nam, nlen, alpha)
     use modelworkspaces
     use iso_c_binding
-    integer(c_int), intent(in)   :: model_index, i
+    integer(c_int), intent(in)   :: model_index, i, alpha
     integer(c_int), intent(out)  :: nlen
     integer, dimension(*), intent(out) :: nam
-    call get_par_name(mws_array(model_index)%mdl, i, .true., nam, nlen);
+    call get_par_name(mws_array(model_index)%mdl, i, alpha /= 0, nam, nlen);
 end subroutine get_param_name
 
-subroutine get_variable_name(model_index, ivar, nam, nlen)
-    ! return the variable name for variable ivar in alphabetical order
+subroutine get_variable_name(model_index, ivar, nam, nlen, alpha)
+    ! return the variable name for variable ivar 
     use modelworkspaces
     use iso_c_binding
-    integer(c_int), intent(in)   :: model_index, ivar
+    integer(c_int), intent(in)   :: model_index, ivar, alpha
     integer(c_int), intent(out)  :: nlen
     integer, dimension(*), intent(out) :: nam
-    call get_var_name(mws_array(model_index)%mdl, ivar, .true., nam, nlen);
+    call get_var_name(mws_array(model_index)%mdl, ivar, alpha /= 0, nam, nlen);
 end subroutine get_variable_name
 
 subroutine get_ca_name(model_index, i, nam, nlen)
-    ! returns the name of the i'th constant adjustment
-    ! (NOT in alphabetical order!)
+    ! returns the name of the i'th constant adjustment 
+    ! (NOT in alphabetical order!!!)
     use modelworkspaces
     use iso_c_binding
     integer(c_int), intent(in)   :: model_index, i

@@ -78,11 +78,11 @@ SEXP get_param_names_c(SEXP model_index_) {
     int npar = F77_CALL(get_param_count)(&model_index);
 
     /* get list of parameters */
-    int ipar, len;
+    int ipar, len, alpha = 1;
     char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, npar));
     for (ipar = 1; ipar <= npar; ipar++) {
-        F77_CALL(get_param_name)(&model_index, &ipar, name, &len);
+        F77_CALL(get_param_name)(&model_index, &ipar, name, &len, &alpha);
         name[len] = '\0';
         SET_STRING_ELT(names, ipar - 1, mkChar(name));
     }
@@ -101,27 +101,21 @@ SEXP get_variable_names_c(SEXP type_, SEXP model_index_) {
         type = ALL;
     }
     int model_index = asInteger(model_index_);
+    int alpha = 1;
 
-    int nvar;
-    if (type == ALLFRML) {
-        nvar = F77_CALL(get_ca_count)(&model_index);
-    } else {
-        nvar = F77_CALL(get_variable_count)(&model_index);
-    }
+    int nvar = type == ALLFRML ? F77_CALL(get_ca_count)(&model_index) :
+                                 F77_CALL(get_variable_count)(&model_index);
 
-    void (*get_name)(int *, int *, char *, int *);
-    if (type == ALLFRML) {
-        get_name = F77_CALL(get_ca_name);
-    } else {
-        get_name = F77_CALL(get_variable_name);
-    }
-    
     /* get list of variables */
     int ivar, len;
     char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, nvar));
     for (ivar = 1; ivar <= nvar; ivar++) {
-        (*get_name)(&model_index, &ivar, name, &len);
+        if (type == ALLFRML) {
+            F77_CALL(get_ca_name)(&model_index, &ivar, name, &len);
+        } else {
+            F77_CALL(get_variable_name)(&model_index, &ivar, name, &len, &alpha);
+        }
         name[len] = '\0';
         SET_STRING_ELT(names, ivar - 1, mkChar(name));
     }
@@ -354,9 +348,9 @@ SEXP get_fix_fit_c(SEXP type_, SEXP mws_index_) {
 
     char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, nvar));
-    int i, len;
+    int i, len, alpha = 0;
     for (i = 0; i < nvar; i++) {
-        F77_CALL(get_variable_name)(&mws_index, &ivar[i], name, &len);
+        F77_CALL(get_variable_name)(&mws_index, &ivar[i], name, &len, &alpha);
         name[len] = '\0';
         SET_STRING_ELT(names, i, mkChar(name));
     }
