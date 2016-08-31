@@ -196,3 +196,17 @@ function get_test(mws_index, ivar)
     integer(c_int), intent(in) :: mws_index, ivar
     get_test = mws_array(mws_index)%test(mws_array(mws_index)%mdl%indexv(ivar))
 end function get_test
+
+subroutine activate_equation(mws_index, eqnum)
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: mws_index, eqnum
+    call activate_eq(mws_array(mws_index)%mdl,  eqnum)
+end subroutine activate_equation
+
+subroutine deactivate_equation(mws_index, eqnum)
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: mws_index, eqnum
+    call deactivate_eq(mws_array(mws_index)%mdl,  eqnum)
+end subroutine deactivate_equation

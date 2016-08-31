@@ -44,6 +44,10 @@ module model_type
     ! allocate all model variables
     integer, save :: mdl_alloc_stat
 
+    integer, parameter, private :: ACTIVATE = 1
+    integer, parameter, private :: DEACTIVATE = 2
+
+    private :: idxlzuk, activate_deactivate_eq
 
 contains
 
@@ -230,6 +234,37 @@ contains
         call mcgetnam(nam, nlen, mdl%ipnames(ip), mdl%pnames)
 
     end subroutine get_par_name
+
+    ! This subroutine is used to extract the name of model
+    ! variable i. The name is put as a byte string in nam,
+    ! and nlen is set to its length. If a name does not
+    ! exist is nlen is set to -1.
+    subroutine get_eq_name(mdl, i, alphabetical, nam, nlen)
+        use mdl_name_utils
+        type(model), intent(in) :: mdl
+        integer, intent(in) :: i
+        logical, intent(in) :: alphabetical
+        integer, intent(out) :: nlen  ! length of name
+        integer, dimension(*), intent(out) :: nam ! name (ascii char.)
+
+        integer :: ieq
+
+        if (i <= 0 .or. i > mdl%neq) then
+            nlen = -1
+            return
+        endif
+
+        if (alphabetical) then
+            ieq = mdl%indexe(i)
+        else
+            ieq = i
+        endif
+        call mcgetnam(nam, nlen, mdl%ienames(ieq), mdl%enames)
+
+    end subroutine get_eq_name
+
+    ! This subroutine is used to extract the name of model
+    ! parameter i. The name is put as a byte string in nam,
    
     logical function is_frml(mdl, iv) 
         ! returns true if variable iv is a frml equation
@@ -237,5 +272,103 @@ contains
         integer, intent(in) :: iv
         is_frml = mdl%aci(iv) > 0
     end function is_frml
+
+    logical function is_active(mdl, eqnum, alphabetical)
+        ! returns true if equation eqnum is active
+        type(model), intent(in) :: mdl
+        integer, intent(in) :: eqnum
+        logical, intent(in) :: alphabetical
+
+        integer :: ieq, eqtyp
+        integer, external :: bysget
+
+        if (alphabetical) then
+            ieq = mdl%indexe(eqnum)
+        else
+            ieq = eqnum
+        endif
+
+        eqtyp = bysget(mdl%etype, ieq)
+        ! eqtyp is lowercase for active eqaution and uppercase for an 
+        ! inactive equaiton
+        is_active = eqtyp <= 96
+    end function is_active
+
+    subroutine activate_eq(mdl, eqnum)
+        type(model), intent(inout) :: mdl
+        integer, intent(in) :: eqnum
+        call activate_deactivate_eq(mdl, eqnum, ACTIVATE)
+    end subroutine activate_eq
+
+    subroutine deactivate_eq(mdl, eqnum)
+        type(model), intent(inout) :: mdl
+        integer, intent(in) :: eqnum
+        call activate_deactivate_eq(mdl, eqnum, DEACTIVATE)
+    end subroutine deactivate_eq
+
+    subroutine activate_deactivate_eq(mdl, eqnum, action)
+        type(model), intent(inout) :: mdl
+        integer, intent(in) :: eqnum, action
+
+        integer :: eqtyp, lhsvar, jen, canum, lhsvar_new
+        logical :: is_act
+        integer, external :: bysget
+
+        is_act = is_active(mdl, eqnum, .false.)
+
+        if ((action == ACTIVATE .and. is_act) .or. &
+            (action == DEACTIVATE  .and. .not. is_act)) return
+
+        eqtyp  = bysget(mdl%etype, eqnum)
+        lhsvar = mdl%lhsnum(eqnum)
+
+        ! CA number (if <> 0 index into ica() corresponding to lhs variable)
+        canum = mdl%aci(lhsvar)
+
+        if (mdl%ibx2(lhsvar+1) > mdl%ibx2(lhsvar)) then
+            ! have leads: lookup index in iendex (to make exogenous)
+            jen = idxlzuk(mdl%iendex, mdl%nendex, lhsvar)
+            if (jen == 0 ) then
+                call rexit("Internal error in mcadeq: iendex array error")
+            endif
+        else 
+            jen = 0
+        endif
+    
+        ! eqtyp is lowercase for active eqaution and uppercase for an 
+        ! inactive equaiton
+        if (action == ACTIVATE) then
+            call bysset(mdl%etype, eqnum, eqtyp - 32)
+            lhsvar_new = lhsvar
+        else 
+            call bysset(mdl%etype, eqnum, eqtyp + 32)
+            lhsvar_new = -lhsvar
+        endif
+        if (jen   > 0) mdl%iendex(jen) = lhsvar_new
+        if (canum > 0) mdl%ica(canum)  = lhsvar_new
+        mdl%lik(lhsvar) = action == ACTIVATE
+    end subroutine activate_deactivate_eq
+
+    integer function idxlzuk(a, n, kxar)
+        ! linear lookup in array a(1..n) for element .eq. kxar
+        ! return 0 if not found
+        ! return index of element
+
+        use model_params
+        integer(kind = MC_IKIND), intent(in) :: a(*)
+        integer(kind = MC_IKIND), intent(in) :: n
+        integer, intent(in) :: kxar
+
+        integer ::  j
+
+        idxlzuk = 0
+        do j = 1, n
+            if (a(j) == kxar) then
+                idxlzuk = j
+                exit
+            endif
+        enddo
+        return
+     end function idxlzuk
 
 end module model_type

@@ -1,6 +1,6 @@
 !
 ! This file contains several fortran functions and subroutines
-! to extract information about the models that are in common blocks.
+! to extract information about the models 
 ! These fortran functions and subroutines can be called directly in C.
 !
 function get_param_count(model_index)
@@ -26,6 +26,14 @@ function get_ca_count(model_index)
     integer(c_int), intent(in) :: model_index
     get_ca_count = mws_array(model_index)%mdl%nca
 end function get_ca_count
+
+function get_eq_count(model_index)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: get_eq_count
+    integer(c_int), intent(in) :: model_index
+    get_eq_count = mws_array(model_index)%mdl%neq
+end function get_eq_count
 
 subroutine get_param_name(model_index, i, nam, nlen)
     use modelworkspaces
@@ -60,6 +68,17 @@ subroutine get_ca_name(model_index, i, nam, nlen)
     ivar = mws_array(model_index)%mdl%ica(i)
     call get_var_name(mws_array(model_index)%mdl, ivar, .false., nam, nlen);
 end subroutine get_ca_name
+
+subroutine get_equation_name(model_index, ieq, nam, nlen, alpha)
+    ! returns the name of the i'th equation
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in)   :: model_index, ieq, alpha
+    integer(c_int), intent(out)  :: nlen
+    integer, dimension(*), intent(out) :: nam
+
+    call get_eq_name(mws_array(model_index)%mdl, ieq, alpha /= 0, nam, nlen)
+end subroutine get_equation_name
 
 integer(c_int) function get_par_index(model_index, name, namelen)
     use iso_c_binding
@@ -104,6 +123,19 @@ integer(c_int) function get_ca_index(model_index, name, namelen)
         get_ca_index =  0
     endif
 end function get_ca_index
+
+integer(c_int) function get_eq_index(model_index, name, namelen)
+    ! return the equation index of an equation
+    use iso_c_binding
+    use modelworkspaces
+    use mdl_name_utils
+    integer(c_int), intent(in) :: model_index, name(*), namelen
+    
+    type(model), pointer :: mdl
+    mdl => mws_array(model_index)%mdl
+    get_eq_index = find_name(name, namelen, mdl%ienames, mdl%indexe, &
+&                             mdl%enames, mdl%neq)
+end function get_eq_index
 
 subroutine get_fix_info(model_index, nfix,  jtb, jte)
     use iso_c_binding
@@ -176,3 +208,16 @@ function get_param_length(model_index, i)
     integer(c_int), intent(in) :: model_index, i
     get_param_length = mws_array(model_index)%mdl%nvalp(i)
 end function get_param_length
+
+function equation_is_active(model_index, ieq, alpha)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: equation_is_active
+    integer(c_int), intent(in) :: model_index, ieq, alpha
+
+    if (is_active(mws_array(model_index)%mdl, ieq, alpha /= 0)) then
+        equation_is_active = 1
+    else 
+        equation_is_active = 0
+    endif
+end function equation_is_active

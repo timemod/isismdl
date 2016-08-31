@@ -13,6 +13,9 @@
 #define FIX   3
 #define FIT   4
 
+#define ALL_EQ      1
+#define INACTIVE_EQ 2
+
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
 extern void F77_NAME(get_data_fortran)(int *mws_index, int *nvar, int *ivar, 
@@ -44,6 +47,8 @@ extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index,
                                       double *value);
 extern void F77_NAME(set_test)(int *mws_index, int *var_index, double *value);
 extern double F77_NAME(get_test)(int *mws_index, int *var_index);
+extern void F77_NAME(activate_equation)(int *mws_index, int *var_index);
+extern void F77_NAME(deactivate_equation)(int *mws_index, int *var_index);
 
 SEXP read_mdl_c(SEXP filename) {
 
@@ -87,8 +92,8 @@ SEXP get_param_names_c(SEXP model_index_) {
 
 /* General function for getting model data or constant adjustments,
  * in the natural ordering of the model variables (not sorted) */
-SEXP get_names_c(SEXP type_, SEXP model_index_) {
-    const char *type_str = CHAR(STRING_ELT(type_, 0));
+SEXP get_variable_names_c(SEXP type_, SEXP model_index_) {
+    const char *type_str = CHAR(asChar(type_));
     int type;
     if (strcmp(type_str, "allfrml") == 0) {
         type = ALLFRML;
@@ -119,6 +124,51 @@ SEXP get_names_c(SEXP type_, SEXP model_index_) {
         (*get_name)(&model_index, &ivar, name, &len);
         name[len] = '\0';
         SET_STRING_ELT(names, ivar - 1, mkChar(name));
+    }
+    UNPROTECT(1);
+    return names;
+}
+
+/* get equation names sorted alphabetically */
+SEXP get_equation_names_c(SEXP type_, SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    const char *type_str = CHAR(asChar(type_));
+    int type;
+    if (strcmp(type_str, "all") == 0) {
+        type = ALL_EQ;
+    } else if (strcmp(type_str, "inactive") == 0) {
+        type = INACTIVE_EQ;
+    } else {
+        error("Illegal equation type %s specified\n", type_str);
+    }
+
+    int neq  = F77_CALL(get_eq_count)(&model_index);
+    int alphabet = 1;
+
+    /* get list of equation indices */
+    int *ieq = (int *) R_alloc(neq, sizeof(int));
+    int cnt = 0;
+    int i, ok;
+    for (i = 1; i <= neq; i++) {
+        if (type == INACTIVE_EQ) {
+            ok = ! F77_CALL(equation_is_active)(&model_index, &i, &alphabet);
+        } else {
+            ok = 1;
+        }
+        if (ok) {
+            ieq[cnt++] = i;
+        }
+    }
+
+    /* now create chacracter vector with the selected equation names */
+    int len;
+    char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
+    SEXP names = PROTECT(allocVector(STRSXP, cnt));
+    for (i = 0; i < cnt; i++) {
+        F77_CALL(get_equation_name)(&model_index, ieq + i, name, &len,
+                                    &alphabet);
+        name[len] = '\0';
+        SET_STRING_ELT(names, i, mkChar(name));
     }
     UNPROTECT(1);
     return names;
@@ -394,4 +444,37 @@ SEXP get_cvgcrit_c(SEXP mws_index_) {
     }
     UNPROTECT(1);
     return ret;
+}
+
+/* Activate/deactive equation */
+void set_eq_status_c(SEXP mws_index_, SEXP names, SEXP status) {
+    int mws_index = asInteger(mws_index_);
+    const char *status_str = CHAR(asChar(status));
+    
+    int activate;
+    if (strcmp(status_str, "active") == 0) {
+        activate = 1;
+    } else if (strcmp(status_str, "inactive") == 0) {
+        activate = 0;
+    } else {
+        error("Illegal option %s for argument status\n", status_str);
+    }
+
+    void (*fun)(int *, int *);
+    if (activate) {
+        fun = F77_CALL(activate_equation);
+    } else {
+        fun = F77_CALL(deactivate_equation);
+    }
+
+    int n_names = length(names);
+    int i;
+    for (i = 0; i < n_names; i++) {
+        const char *name = CHAR(STRING_ELT(names, i));
+        int namelen = strlen(name);
+        int ieq = F77_CALL(get_eq_index)(&mws_index, name, &namelen);
+        if (ieq > 0) {
+            fun(&mws_index, &ieq);
+        }
+    }
 }

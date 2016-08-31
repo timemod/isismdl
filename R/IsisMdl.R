@@ -12,7 +12,8 @@ setOldClass("regperiod_range")
 #' @importFrom R6 R6Class
 #' @useDynLib isismdl read_mdl_c
 #' @useDynLib isismdl get_max_lag_lead_fortran
-#' @useDynLib isismdl get_names_c
+#' @useDynLib isismdl get_variable_names_c
+#' @useDynLib isismdl get_equation_names_c
 #' @useDynLib isismdl get_param_names_c
 #' @useDynLib isismdl set_period_fortran
 #' @useDynLib isismdl get_param_c
@@ -29,6 +30,7 @@ setOldClass("regperiod_range")
 #' @useDynLib isismdl remove_mws_fortran
 #' @useDynLib isismdl set_cvgcrit_c
 #' @useDynLib isismdl get_cvgcrit_c
+#' @useDynLib isismdl set_eq_status_c
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -97,7 +99,7 @@ IsisMdl <- R6Class("IsisMdl",
                 onexit = TRUE)
         },
         get_variable_names = function(pattern = ".*", vtype = "all") {
-            names <- .Call(get_names_c, vtype, as.integer(private$model_index))
+            names <- .Call(get_variable_names_c, vtype, private$model_index)
             if (!missing(pattern)) {
                 sel <- grep(pattern, names)
                 names <- names[sel]
@@ -110,6 +112,10 @@ IsisMdl <- R6Class("IsisMdl",
         get_param_names = function() {
             return (sort(.Call(get_param_names_c,
                                as.integer(private$model_index))))
+        },
+        get_equation_names = function(type = "all") {
+            names <- .Call("get_equation_names_c", type, private$model_index)
+            return (names)
         },
         set_period = function(period) {
             period <- as.regperiod_range(period)
@@ -159,11 +165,11 @@ IsisMdl <- R6Class("IsisMdl",
         },
         get_fix = function() {
             "Returns the fix values"
-            return (private$get_fix_fit(self, type = "fix"))
+            return (private$get_fix_fit(type = "fix"))
         },
         get_fit = function() {
             "Returns the fit targets"
-            return (private$get_fix_fit(self, type = "fit"))
+            return (private$get_fix_fit(type = "fit"))
         },
         set_param = function(p) {
             "Sets the model parameters"
@@ -256,7 +262,8 @@ IsisMdl <- R6Class("IsisMdl",
                                    param = self$get_param(),
                                    data = data, ca = ca,
                                    fix = self$get_fix(),
-                                   fit = self$get_fit()),
+                                   fit = self$get_fit(),
+                                   inactive_eqs = self$get_equation_names(type = "inactive")),
                               class="mws"))
         },
         set_mws = function(x) {
@@ -281,6 +288,12 @@ IsisMdl <- R6Class("IsisMdl",
             }
             if (!is.null(x$fit)) {
                 self$set_fit(x$fit)
+            }
+
+            # make all equations active execpt for the inactive equations
+            self$set_eq_status("active")
+            if (length(self$inactive_eqs) > 0) {
+                self$set_eq_statys("inactive", vars = self$inactive_eqs)
             }
             return (invisible(self))
         },
@@ -316,6 +329,28 @@ IsisMdl <- R6Class("IsisMdl",
             values <- rep(as.numeric(value), length(vars))
             names(values) <- vars
             .Call("set_cvgcrit_c", private$model_index, values)
+            return  (invisible(self))
+        },
+        set_eq_status = function(stat, pattern, vars) {
+            "Activate or deactivate equations"
+
+            # TODO: if vars specified, then check if it contains names that are
+            # no model variables
+
+            if (missing(pattern) && missing(vars)) {
+                vars <- self$get_equation_names()
+            } else if (!missing(pattern)) {
+                pvars <- self$get_equation_names(pattern)
+                if (!missing(vars)) {
+                    vars <- union(pvars, vars)
+                } else {
+                    vars <- pvars
+                }
+            }
+            if (!is.character(stat) || length(stat) != 1) {
+                stop("value should be a single character value")
+            }
+            .Call("set_eq_status_c", private$model_index, vars, stat);
             return  (invisible(self))
         }
     ),
@@ -380,7 +415,7 @@ IsisMdl <- R6Class("IsisMdl",
                 return (NULL)
             }
         },
-        get_fix_fit = function(mdl, type) {
+        get_fix_fit = function(type) {
             # general function for getting fix or fit values
             ret <- .Call("get_fix_fit_c", type = type,
                          model_index = private$model_index)
