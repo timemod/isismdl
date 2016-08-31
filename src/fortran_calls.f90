@@ -188,13 +188,21 @@ subroutine set_test(mws_index, ivar, value)
     mws_array(mws_index)%test(ivar) = value
 end subroutine set_test
 
-function get_test(mws_index, ivar)
-    ! set convergence test value for variable ivar in alphabetical order
+function get_test(mws_index, ivar, alphabet)
+    ! get convergence test value for variable ivar with or without
+    ! alphabetical order
     use modelworkspaces
     use iso_c_binding, only : c_int, c_double
     real(c_double) :: get_test
-    integer(c_int), intent(in) :: mws_index, ivar
-    get_test = mws_array(mws_index)%test(mws_array(mws_index)%mdl%indexv(ivar))
+    integer(c_int), intent(in) :: mws_index, ivar, alphabet
+
+    integer iv
+    if (alphabet == 0) then
+        iv = ivar
+    else 
+        iv = mws_array(mws_index)%mdl%indexv(ivar)
+    endif
+    get_test = mws_array(mws_index)%test(iv)
 end function get_test
 
 subroutine activate_equation(mws_index, eqnum)

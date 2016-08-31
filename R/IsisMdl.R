@@ -29,6 +29,7 @@ setOldClass("regperiod_range")
 #' @useDynLib isismdl filmdt_c
 #' @useDynLib isismdl remove_mws_fortran
 #' @useDynLib isismdl set_cvgcrit_c
+#' @useDynLib isismdl set_cvgcrit_set_mws
 #' @useDynLib isismdl get_cvgcrit_c
 #' @useDynLib isismdl set_eq_status_c
 #' @import regts
@@ -110,8 +111,7 @@ IsisMdl <- R6Class("IsisMdl",
             return (names)
         },
         get_param_names = function() {
-            return (sort(.Call(get_param_names_c,
-                               as.integer(private$model_index))))
+            return (.Call(get_param_names_c, private$model_index))
         },
         get_equation_names = function(type = "all") {
             names <- .Call("get_equation_names_c", type, private$model_index)
@@ -258,7 +258,8 @@ IsisMdl <- R6Class("IsisMdl",
                                    ca_names = self$get_variable_names(vtype = "allfrml"),
                                    model_period = self$model_period,
                                    solve_options = self$get_solve_options(),
-                                   cvgcrit = self$get_cvgcrit(),
+                                   cvgcrit = .Call("get_cvgcrit_c",
+                                                   private$model_index, 0L),
                                    param = self$get_param(),
                                    data = data, ca = ca,
                                    fix = self$get_fix(),
@@ -279,7 +280,7 @@ IsisMdl <- R6Class("IsisMdl",
             }
             self$set_period(x$model_period)
             self$set_solve_options(x$solve_options)
-            .Call("set_cvgcrit_c", private$model_index, x$cvgcrit)
+            .Call("set_cvgcrit_set_mws", private$model_index, x$cvgcrit)
             self$set_param(x$param)
             self$set_data(x$data)
             self$set_ca(x$ca)
@@ -303,12 +304,12 @@ IsisMdl <- R6Class("IsisMdl",
                           model_index = private$model_index))
         },
         get_cvgcrit = function() {
-            values <- .Call("get_cvgcrit_c", private$model_index)
+            values <- .Call("get_cvgcrit_c", private$model_index, 1L)
             names(values) <- self$get_variable_names()
             return (values)
         },
         set_cvgcrit = function(value, pattern, vars) {
-            "Sets the convergence criterion for same variables"
+            "Sets the convergence criterion for some variables"
 
             # TODO: if vars specified, then check if it contains names that are
             # no model variables
@@ -326,9 +327,7 @@ IsisMdl <- R6Class("IsisMdl",
             if (!is.numeric(value) || length(value) != 1) {
                 stop("value should be a single numerical value")
             }
-            values <- rep(as.numeric(value), length(vars))
-            names(values) <- vars
-            .Call("set_cvgcrit_c", private$model_index, values)
+            .Call("set_cvgcrit_c", private$model_index, vars, as.numeric(value))
             return  (invisible(self))
         },
         set_eq_status = function(stat, pattern, vars) {

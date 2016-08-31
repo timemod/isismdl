@@ -46,7 +46,7 @@ extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp);
 extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index,
                                       double *value);
 extern void F77_NAME(set_test)(int *mws_index, int *var_index, double *value);
-extern double F77_NAME(get_test)(int *mws_index, int *var_index);
+extern double F77_NAME(get_test)(int *mws_index, int *var_index, int *alphabet);
 extern void F77_NAME(activate_equation)(int *mws_index, int *var_index);
 extern void F77_NAME(deactivate_equation)(int *mws_index, int *var_index);
 
@@ -406,35 +406,43 @@ void filmdt_c(SEXP mws_index_, SEXP startp_, SEXP endp_) {
     F77_CALL(filmdt_fortran)(&mws_index, &startp, &endp);
 }
 
-/* Sets convergence criteria. values is a named numerical vector with
- * the convergence criteria for each model variable */
-SEXP set_cvgcrit_c(SEXP mws_index_, SEXP values) {
+/* Sets convergence criterium for some model variables */
+void set_cvgcrit_c(SEXP mws_index_, SEXP names, SEXP value_) {
     int mws_index = asInteger(mws_index_);
-    SEXP names = getAttrib(values, R_NamesSymbol);
-    int n_names = length(names);
-    int i;
-    int cnt = 0;
-    for (i = 0; i < n_names; i++) {
+    double value = asReal(value_);
+    int i, cnt = 0;
+    for (i = 0; i < length(names); i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
         int iv = F77_CALL(get_var_index)(&mws_index, name, &namelen);
         if (iv > 0) {   
             cnt++;
-            double val = REAL(values)[i];
-            F77_CALL(set_test)(&mws_index, &iv, &val);
+            F77_CALL(set_test)(&mws_index, &iv, &value);
         }
     }
-    return ScalarInteger(cnt);
 }
 
-/* Gets convergence criteria for all model variables in alphabetical order */
-SEXP get_cvgcrit_c(SEXP mws_index_) {
+/* Sets convergence criterium for all model variables, used in set_mws.
+ * values is a vector with convergence criteria for the model variables
+ * in natural (i.e. non-alphabetical) order */
+void set_cvgcrit_set_mws(SEXP mws_index_, SEXP values) {
     int mws_index = asInteger(mws_index_);
+    int i;
+    for (i = 1; i <- F77_CALL(get_variable_count)(&mws_index); i++) {
+        double value = REAL(values)[i - 1];
+        F77_CALL(set_test)(&mws_index, &i, &value);
+    }
+}
+
+/* Returns the convergence criteria for all model variables */
+SEXP get_cvgcrit_c(SEXP mws_index_, SEXP alphabet_) {
+    int mws_index = asInteger(mws_index_);
+    int alphabet = asInteger(alphabet_);
     int nvar = F77_CALL(get_variable_count)(&mws_index);
     SEXP ret = PROTECT(allocVector(REALSXP, nvar));
     int iv;
     for (iv = 1; iv <= nvar; iv++) {
-        REAL(ret)[iv - 1] = F77_CALL(get_test)(&mws_index, &iv);
+        REAL(ret)[iv - 1] = F77_CALL(get_test)(&mws_index, &iv, &alphabet);
     }
     UNPROTECT(1);
     return ret;
