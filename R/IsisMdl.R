@@ -113,8 +113,12 @@ IsisMdl <- R6Class("IsisMdl",
         get_param_names = function() {
             return (.Call(get_param_names_c, private$model_index))
         },
-        get_equation_names = function(type = "all") {
+        get_equation_names = function(pattern = ".*", type = "all") {
             names <- .Call("get_equation_names_c", type, private$model_index)
+            if (!missing(pattern)) {
+                sel <- grep(pattern, names)
+                names <- names[sel]
+            }
             return (names)
         },
         set_period = function(period) {
@@ -216,9 +220,9 @@ IsisMdl <- R6Class("IsisMdl",
             "Sets the rms values"
             return (invisible(.Call(set_rms_c, private$model_index, rms_list)))
         },
-        set_solve_options = function(options = list()) {
+        set_solve_options = function(...) {
             "Set  the default solve options"
-            .Call("set_solve_opts_c", private$model_index, options)
+            .Call("set_solve_opts_c", private$model_index, list(...))
             return (invisible(self))
         },
         solve = function(period = self$model_period, options = list()) {
@@ -279,7 +283,7 @@ IsisMdl <- R6Class("IsisMdl",
                     stop("Mws x does not agree with the model definition")
             }
             self$set_period(x$model_period)
-            self$set_solve_options(x$solve_options)
+            do.call(self$set_solve_options, x$solve_options)
             .Call("set_cvgcrit_set_mws", private$model_index, x$cvgcrit)
             self$set_param(x$param)
             self$set_data(x$data)
@@ -293,8 +297,8 @@ IsisMdl <- R6Class("IsisMdl",
 
             # make all equations active execpt for the inactive equations
             self$set_eq_status("active")
-            if (length(self$inactive_eqs) > 0) {
-                self$set_eq_statys("inactive", vars = self$inactive_eqs)
+            if (length(x$inactive_eqs) > 0) {
+                self$set_eq_status("inactive", vars = x$inactive_eqs)
             }
             return (invisible(self))
         },
