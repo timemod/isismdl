@@ -1,0 +1,28 @@
+copy_file("../mdl/islm.mdl"; "islm.mdl");
+cmpmdl("islm");
+read_mdl("islm");
+
+mdl_per = 2015.2q..2016.3q;
+data_per = 2015.1q..2016.3q;
+setmdp(mdl_per);
+r = 3.35;
+y = 980;
+yd = 790;
+
+g[2015.1q] = 210;
+ms[2015.1q] = 200;
+dynamic(2015.2q..2016.3q);
+g = g[-1] * 1.015;
+ms = ms[-1] * 1.015;
+enddyn;
+
+primdt;
+
+setmva(ft = "*"; cvgcrit = 1e-8);
+solve;
+primdt(dec = 6);
+write_ts_csv("solve.csv"; per = mdl_per; input_from = mws;
+             options = transpose; lowercase = true);
+
+?putca(nl = [y, m]);
+putmdt(nl= [x, pp]);

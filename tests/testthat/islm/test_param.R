@@ -18,8 +18,8 @@ dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,
 
 test_that("Comparing results of ordinary solve after changing parameters", {
     expect_identical(islm_model$model_data_period, regperiod_range("2015Q1", "2016Q3"))
-    expect_identical(islm_model$get_variable_names(), colnames(isis_result))
-    expect_identical(islm_model$get_variable_names(vtype = "allfrml"),
+    expect_identical(islm_model$get_var_names(), colnames(isis_result))
+    expect_identical(islm_model$get_var_names(vtype = "allfrml"),
                      c("c", "i", "md", "t"))
     expect_identical(dif$missing_names1, character(0))
     expect_identical(dif$missing_names2, character(0))
@@ -28,11 +28,10 @@ test_that("Comparing results of ordinary solve after changing parameters", {
 
 
 test_that("get_param", {
-    expect_null(islm_model$get_param(names = "x"))
-    expect_null(islm_model$get_param(names = "C0"))
-    expect_identical(islm_model$get_param("c0"), list(c0 = 120))
-    expect_identical(islm_model$get_param("t1"), list(t1 = 0.25))
-    expect_identical(islm_model$get_param(c("c0", "x")), list(c0 = 120))
+    expect_identical(islm_model$get_param(names = "c0"), list(c0 = 120))
+    expect_identical(islm_model$get_param(names = "t1"), list(t1 = 0.25))
+    expect_identical(islm_model$get_param(pattern = "^c."),
+                     list(c0 = 120, c1 = 0.7, c2 = 20, c3 = 0.5))
 })
 
 test_that("warnings and errors for set_param", {

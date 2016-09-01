@@ -12,9 +12,9 @@ setOldClass("regperiod_range")
 #' @importFrom R6 R6Class
 #' @useDynLib isismdl read_mdl_c
 #' @useDynLib isismdl get_max_lag_lead_fortran
-#' @useDynLib isismdl get_variable_names_c
-#' @useDynLib isismdl get_equation_names_c
-#' @useDynLib isismdl get_param_names_c
+#' @useDynLib isismdl get_var_names_c
+#' @useDynLib isismdl get_eq_names_c
+#' @useDynLib isismdl get_par_names_c
 #' @useDynLib isismdl set_period_fortran
 #' @useDynLib isismdl get_param_c
 #' @useDynLib isismdl get_data_c
@@ -78,10 +78,10 @@ setOldClass("regperiod_range")
 IsisMdl <- R6Class("IsisMdl",
     cloneable = FALSE,
     public = list(
-        maxlag = "integer",
-        maxlead = "integer",
-        model_period = "regperiod_range",
-        model_data_period = "regperiod_range",
+        maxlag = NA_integer_,
+        maxlead = NA_integer_,
+        model_period = NULL,
+        model_data_period = NULL,
 
         initialize = function(mif_name) {
 
@@ -99,8 +99,8 @@ IsisMdl <- R6Class("IsisMdl",
                                      model_index = private$model_index)},
                 onexit = TRUE)
         },
-        get_variable_names = function(pattern = ".*", vtype = "all") {
-            names <- .Call(get_variable_names_c, vtype, private$model_index)
+        get_var_names = function(pattern = ".*", vtype = "all") {
+            names <- .Call(get_var_names_c, vtype, private$model_index)
             if (!missing(pattern)) {
                 sel <- grep(pattern, names)
                 names <- names[sel]
@@ -110,11 +110,16 @@ IsisMdl <- R6Class("IsisMdl",
             }
             return (names)
         },
-        get_param_names = function() {
-            return (.Call(get_param_names_c, private$model_index))
+        get_par_names = function(pattern = ".*") {
+            names <- .Call(get_par_names_c, private$model_index)
+            if (!missing(pattern)) {
+                sel <- grep(pattern, names)
+                names <- names[sel]
+            }
+            return (names)
         },
-        get_equation_names = function(pattern = ".*", type = "all") {
-            names <- .Call("get_equation_names_c", type, private$model_index)
+        get_eq_names = function(pattern = ".*", type = "all") {
+            names <- .Call("get_eq_names_c", type, private$model_index)
             if (!missing(pattern)) {
                 sel <- grep(pattern, names)
                 names <- names[sel]
@@ -138,34 +143,52 @@ IsisMdl <- R6Class("IsisMdl",
                                 end_period(self$model_period) + self$maxlead)
             return (invisible(self))
         },
-        get_param = function(names = self$get_param_names()) {
+        get_param = function(pattern, names) {
             # Return the parameters vaLues
-            if (!missing(names)) {
-                names <- intersect(names, self$get_param_names())
+            if (missing(pattern) && missing(names)) {
+                names <- self$get_par_names()
+            } else if (missing(names)) {
+                names <- self$get_par_names(pattern)
+            } else if (!missing(pattern)) {
+                names <- union(names, self$get_par_names(pattern))
             }
-            if (length(names) > 0) {
-                return (.Call("get_param_c", model_index = private$model_index,
-                              names = names))
-            } else {
-                return (NULL)
-            }
+            return (.Call("get_param_c", model_index = private$model_index,
+                          names = names))
         },
-        get_data = function(names = self$get_variable_names(),
-                            period = self$model_data_period) {
+        get_data = function(pattern, names, period = self$model_data_period) {
             "Returns the model data"
-            if (!missing(names)) {
-                names <- intersect(names, self$get_variable_names())
+            if (is.null(self$model_period)) stop(private$period_error_msg)
+            period <- as.regperiod_range(period)
+            if (missing(pattern) && missing(names)) {
+                names <- self$get_var_names()
+            } else if (missing(names)) {
+                names <- self$get_var_names(pattern)
+            } else if (!missing(pattern)) {
+                names <- union(names, self$get_var_names(pattern))
             }
-            return (private$get_variables("data", names, period))
+            js <- private$get_period_indices(period)
+            data <- .Call("get_data_c", type = "data",
+                           model_index = private$model_index,
+                           names = names, jtb = js$startp, jte = js$endp)
+            return (regts(data, start = start_period(period), names = names))
         },
-        get_ca = function(names = self$get_variable_names(vtype = "allfrml"),
-                          period = self$model_period) {
+        get_ca = function(pattern, names, period = self$model_period) {
             "Returns the constant adjustments"
-            if (!missing(names)) {
-                names <- intersect(names,
-                                   self$get_variable_names(vtype = "allfrml"))
+            if (is.null(self$model_period)) stop(private$period_error_msg)
+            period <- as.regperiod_range(period)
+            if (missing(pattern) && missing(names)) {
+                names <- self$get_var_names(type = "allfrml")
+            } else if (missing(names)) {
+                names <- self$get_var_names(pattern, type = "allfrml")
+            } else if (!missing(pattern)) {
+                names <- union(names, 
+                               self$get_var_names(pattern, type = "allfrml"))
             }
-            return (private$get_variables("ca", names, period))
+            js <- private$get_period_indices(period)
+            data <- .Call("get_data_c", type = "ca",
+                           model_index = private$model_index,
+                           names = names, jtb = js$startp, jte = js$endp)
+            return (regts(data, start = start_period(period), names = names))
         },
         get_fix = function() {
             "Returns the fix values"
@@ -195,7 +218,7 @@ IsisMdl <- R6Class("IsisMdl",
             p <- lapply(p, as.numeric)
             nset <- .Call("set_param_c", model_index = private$model_index, p)
             if (nset < length(p)) {
-                no_params <- setdiff(names(p), self$get_param_names())
+                no_params <- setdiff(names(p), self$get_par_names())
                 warning(concat_names(no_params), " no model parameter(s)")
             }
             return (invisible(self))
@@ -227,7 +250,7 @@ IsisMdl <- R6Class("IsisMdl",
         },
         solve = function(period = self$model_period, options = list()) {
             "Solve the model for the specified period"
-            private$check_period_set()
+            if (is.null(self$model_period)) stop(private$period_error_msg)
             js <- private$get_period_indices(period)
             .Call("solve_c", model_index = private$model_index,
                              jtb = js$startp, jte = js$endp, options)
@@ -235,7 +258,7 @@ IsisMdl <- R6Class("IsisMdl",
         },
         fill_mdl_data = function(period = self$model_data_period) {
             "Calculates missing model data from identities."
-            private$check_period_set()
+            if (is.null(self$model_period)) stop(private$period_error_msg)
             js <- private$get_period_indices(period)
             .Call("filmdt_c", model_index = private$model_index,
                             jtb = js$startp, jte = js$end)
@@ -243,7 +266,7 @@ IsisMdl <- R6Class("IsisMdl",
         },
         get_mws = function() {
             "Returns an mws object"
-            private$check_period_set()
+            if (is.null(self$model_period)) stop(private$period_error_msg)
 
             data <- self$get_data()
             ca   <- self$get_ca()
@@ -258,8 +281,8 @@ IsisMdl <- R6Class("IsisMdl",
 
             # todo: rms values
 
-            return (structure(list(var_names = self$get_variable_names(),
-                                   ca_names = self$get_variable_names(vtype = "allfrml"),
+            return (structure(list(var_names = self$get_var_names(),
+                                   ca_names = self$get_var_names(vtype = "allfrml"),
                                    model_period = self$model_period,
                                    solve_options = self$get_solve_options(),
                                    cvgcrit = .Call("get_cvgcrit_c",
@@ -268,7 +291,7 @@ IsisMdl <- R6Class("IsisMdl",
                                    data = data, ca = ca,
                                    fix = self$get_fix(),
                                    fit = self$get_fit(),
-                                   inactive_eqs = self$get_equation_names(type = "inactive")),
+                                   inactive_eqs = self$get_eq_names(type = "inactive")),
                               class="mws"))
         },
         set_mws = function(x) {
@@ -276,9 +299,9 @@ IsisMdl <- R6Class("IsisMdl",
             if (!inherits(x, "mws")) {
                 stop("x is not an mws object")
             }
-            if (!identical(x$var_names, self$get_variable_names()) |
-                !identical(x$ca_names, self$get_variable_names(vtype = "allfrml")) |
-                !identical(names(x$param), self$get_param_names())) {
+            if (!identical(x$var_names, self$get_var_names()) |
+                !identical(x$ca_names, self$get_var_names(vtype = "allfrml")) |
+                !identical(names(x$param), self$get_par_names())) {
                      # todo: check parameter length, this should be the same
                     stop("Mws x does not agree with the model definition")
             }
@@ -309,19 +332,15 @@ IsisMdl <- R6Class("IsisMdl",
         },
         get_cvgcrit = function() {
             values <- .Call("get_cvgcrit_c", private$model_index, 1L)
-            names(values) <- self$get_variable_names()
+            names(values) <- self$get_var_names()
             return (values)
         },
-        set_cvgcrit = function(value, pattern, vars) {
+        set_cvgcrit = function(value, pattern, names) {
             "Sets the convergence criterion for some variables"
-
-            # TODO: if vars specified, then check if it contains names that are
-            # no model variables
-
             if (missing(pattern) && missing(vars)) {
-                vars <- self$get_variable_names()
+                vars <- self$get_var_names()
             } else if (!missing(pattern)) {
-                pvars <- self$get_variable_names(pattern)
+                pvars <- self$get_var_names(pattern)
                 if (!missing(vars)) {
                     vars <- union(pvars, vars)
                 } else {
@@ -341,9 +360,9 @@ IsisMdl <- R6Class("IsisMdl",
             # no model variables
 
             if (missing(pattern) && missing(vars)) {
-                vars <- self$get_equation_names()
+                vars <- self$get_eq_names()
             } else if (!missing(pattern)) {
-                pvars <- self$get_equation_names(pattern)
+                pvars <- self$get_eq_names(pattern)
                 if (!missing(vars)) {
                     vars <- union(pvars, vars)
                 } else {
@@ -358,21 +377,15 @@ IsisMdl <- R6Class("IsisMdl",
         }
     ),
     private = list(
-        model_index = "integer",
+        model_index = NA_integer_,
+        period_error_msg = paste("The model period is not set.",
+                            "Set the model period with set_period()."),
         get_period_indices = function(period, extended = TRUE) {
             period <- as.regperiod_range(period)
             mdl_period_start <- start_period(self$model_period)
             startp <- as.integer(start_period(period) - mdl_period_start + 1)
             endp   <- as.integer(end_period(period)   - mdl_period_start + 1)
             return (list(startp = startp, endp = endp))
-        },
-        check_period_set = function() {
-            # Check if the model_period has been set
-            if (is.null(self$model_period)) {
-                stop(paste("The model period is not set.",
-                            "Set the model period with set_period()"))
-            }
-            return (NULL)
         },
         set_var = function(set_type, ts_data, ts_data_expr) {
             # general function used to update model data, constant adjustments,
@@ -387,7 +400,7 @@ IsisMdl <- R6Class("IsisMdl",
                          call. = FALSE)
                 }
             }
-            private$check_period_set()
+            if (is.null(self$model_period)) stop(private$period_error_msg)
             ts_data <- as.regts(ts_data)
             shift <- private$get_period_indices(
                                  get_regperiod_range(ts_data))$startp
@@ -406,7 +419,7 @@ IsisMdl <- R6Class("IsisMdl",
         },
         get_variables = function(type, names, period) {
             # general function used to get model data or constant adjustments
-            private$check_period_set()
+            if (is.null(self$model_period)) stop(private$period_error_msg)
             period <- as.regperiod_range(period)
             if (length(names) > 0) {
                 js <- private$get_period_indices(period)

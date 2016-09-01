@@ -73,7 +73,7 @@ SEXP read_mdl_c(SEXP filename) {
 }
 
 /* Returns the names of the model parameters */
-SEXP get_param_names_c(SEXP model_index_) {
+SEXP get_par_names_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     int npar = F77_CALL(get_param_count)(&model_index);
 
@@ -90,9 +90,8 @@ SEXP get_param_names_c(SEXP model_index_) {
     return names;
 }
 
-/* General function for getting model data or constant adjustments,
- * in the natural ordering of the model variables (not sorted) */
-SEXP get_variable_names_c(SEXP type_, SEXP model_index_) {
+/* Returns variable names */
+SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
     const char *type_str = CHAR(asChar(type_));
     int type;
     if (strcmp(type_str, "allfrml") == 0) {
@@ -124,7 +123,7 @@ SEXP get_variable_names_c(SEXP type_, SEXP model_index_) {
 }
 
 /* get equation names sorted alphabetically */
-SEXP get_equation_names_c(SEXP type_, SEXP model_index_) {
+SEXP get_eq_names_c(SEXP type_, SEXP model_index_) {
     int model_index = asInteger(model_index_);
     const char *type_str = CHAR(asChar(type_));
     int type;
@@ -172,16 +171,30 @@ SEXP get_equation_names_c(SEXP type_, SEXP model_index_) {
 SEXP get_param_c(SEXP mws_index_, SEXP names) {
     int mws_index = asInteger(mws_index_);
     int npar = length(names);
-    SEXP retval = PROTECT(allocVector(VECSXP, npar));
+    int *ipar = (int *) R_alloc(npar, sizeof(int));
+    int cnt = 0;
     for (int i = 0; i < npar; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
         int ip = F77_CALL(get_par_index)(&mws_index, name, &namelen);
-        int par_len = F77_CALL(get_param_length)(&mws_index, &ip);
+        if (ip > 0) {
+            ipar[cnt++] = ip;
+        } else {
+           warning("\"%s\" is not a parameter\n", name);
+        }
+    }
+    if (cnt < npar) {
+        error("%d incorrect parameter name(s) encountered. See warning(s).\n", 
+              npar - cnt);
+    }
+    SEXP retval = PROTECT(allocVector(VECSXP, cnt));
+    for (int i = 0; i < cnt; i++) {
+        int par_len = F77_CALL(get_param_length)(&mws_index, ipar + i);
         SEXP value = PROTECT(allocVector(REALSXP,  par_len));
-        F77_CALL(get_param_fortran)(&mws_index, &ip, REAL(value), &par_len);
+        F77_CALL(get_param_fortran)(&mws_index, ipar + i, REAL(value), &par_len);
         SET_VECTOR_ELT(retval,  i, value);
     }
+
     setAttrib(retval, R_NamesSymbol, names);
     UNPROTECT(npar + 1);
     return retval;
@@ -205,20 +218,34 @@ SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
     int ntime = jte - jtb + 1;
     int nvar = length(names);
 
-    /* set the function used to convert the names to an indeces */
+    /* set the function used to convert the names to a indices */
     int (*get_index)(int *, const char *, int *);
+    const char *desc;
     if (type == CA) {
         get_index = F77_CALL(get_ca_index);
+        desc = "constant adjustment";
     } else {
         get_index = F77_CALL(get_var_index);
+        desc = "model variable";
     }
     
     /* get list of variables */
+    int cnt = 0;
     int *ivar = (int *) R_alloc(nvar, sizeof(int));
     for (int i = 0; i < nvar; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
-        ivar[i] = (*get_index)(&mws_index, name, &namelen);
+        int idx = (*get_index)(&mws_index, name, &namelen);
+        if (idx > 0) {
+            ivar[cnt++] = (*get_index)(&mws_index, name, &namelen);
+        } else {
+            warning("\"%s\" is not a %s\n", name, desc);
+        }
+    }
+
+    if (cnt < nvar) {
+        error("%d incorrect variable name(s) encountered. See warning(s).\n", 
+              nvar - cnt);
     }
 
     /* set the function used to get the data */
@@ -230,13 +257,13 @@ SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
     }
 
     /* get the data */
-    SEXP data = PROTECT(allocVector(REALSXP, ntime * nvar));
-    (*get_dat)(&mws_index, &nvar, ivar, &ntime, &jtb, &jte, REAL(data));
+    SEXP data = PROTECT(allocVector(REALSXP, ntime * cnt));
+    (*get_dat)(&mws_index, &cnt, ivar, &ntime, &jtb, &jte, REAL(data));
     
     /* set the dimension of the matrix */
     SEXP dim = PROTECT(allocVector(INTSXP, 2));
     INTEGER(dim)[0] = ntime;
-    INTEGER(dim)[1] = nvar;
+    INTEGER(dim)[1] = cnt;
     setAttrib(data, R_DimSymbol, dim);
 
 
@@ -411,14 +438,22 @@ void set_cvgcrit_c(SEXP mws_index_, SEXP names, SEXP value_) {
     int mws_index = asInteger(mws_index_);
     double value = asReal(value_);
     int i, cnt = 0;
-    for (i = 0; i < length(names); i++) {
+    int n_names =  length(names);
+    for (i = 0; i < n_names; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
         int iv = F77_CALL(get_var_index)(&mws_index, name, &namelen);
         if (iv > 0) {   
             cnt++;
             F77_CALL(set_test)(&mws_index, &iv, &value);
+        } else {
+           warning("\"%s\" is not a model variable\n", name);
         }
+    }
+
+    if (cnt < n_names) {
+        error("%d incorrect variable name(s) encountered. See warning(s).\n", 
+              n_names - cnt);
     }
 }
 
