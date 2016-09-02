@@ -24,7 +24,7 @@
 #' @export
 copy_example_mdl <- function(model_name,
                              filename = paste(model_name, "mdl", sep = ".")) {
-    if (!model_name %in% "islm") {
+    if (!model_name %in% c("islm", "ifn")) {
         stop(paste("Model", model_name, "is not an example model file"))
     }
     mdl_file <- system.file("models", paste(model_name, "mdl", sep = "."),

@@ -3,7 +3,7 @@
 \docType{data}
 \name{islm_input_mws}
 \alias{islm_input_mws}
-\title{Example input mws  or the ISLM model}
+\title{Example input mws for the ISLM model}
 \format{A \code{mws} with data for the period
 \code{2015Q2/2016Q3}}
 \usage{
