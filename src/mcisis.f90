@@ -1202,13 +1202,9 @@ subroutine check_variables
           endif
       endif
 
-      if (mxlead(k) .gt. 0) then
+      if (mxlead(k) > 0 .and. mdl%lik(k)) then
           mdl%nendex = mdl%nendex + 1
-          if(mdl%lik(k)) then
-              mdl%iendex(mdl%nendex) = k
-          else
-              mdl%iendex(mdl%nendex) = 0
-          endif
+          mdl%iendex(mdl%nendex) = k
       endif
 
   end do

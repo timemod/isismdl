@@ -27,6 +27,14 @@ function get_ca_count(model_index)
     get_ca_count = mws_array(model_index)%mdl%nca
 end function get_ca_count
 
+function get_endex_count(model_index)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: get_endex_count
+    integer(c_int), intent(in) :: model_index
+    get_endex_count = mws_array(model_index)%mdl%nendex
+end function get_endex_count
+
 function get_eq_count(model_index)
     use modelworkspaces
     use iso_c_binding
@@ -68,6 +76,22 @@ subroutine get_ca_name(model_index, i, nam, nlen)
     ivar = mws_array(model_index)%mdl%ica(i)
     call get_var_name(mws_array(model_index)%mdl, ivar, .false., nam, nlen);
 end subroutine get_ca_name
+
+subroutine get_endex_name(model_index, i, nam, nlen)
+    ! returns the name of the i'th endogenous lead (active and inactive) 
+    ! (NOT in alphabetical order!!!)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in)   :: model_index, i
+    integer(c_int), intent(out)  :: nlen
+    integer, dimension(*), intent(out) :: nam
+
+    integer :: ivar
+
+    ! iendex(i) is negative for the lhs of inactive equations
+    ivar = abs(mws_array(model_index)%mdl%iendex(i))
+    call get_var_name(mws_array(model_index)%mdl, ivar, .false., nam, nlen);
+end subroutine get_endex_name
 
 subroutine get_equation_name(model_index, ieq, nam, nlen, alpha)
     ! returns the name of the i'th equation
@@ -123,6 +147,30 @@ integer(c_int) function get_ca_index(model_index, name, namelen)
         get_ca_index =  0
     endif
 end function get_ca_index
+
+integer(c_int) function get_iendex(model_index, name, namelen)
+    ! returns the index of an endogenous lead (both active
+    ! and inactive)
+    use iso_c_binding
+    use modelworkspaces
+    use mdl_name_utils
+    use utils, only : idxlzuk
+    integer(c_int), intent(in) :: model_index, name(*), namelen
+
+    integer :: ivar
+    
+    type(model), pointer :: mdl
+    mdl => mws_array(model_index)%mdl
+    ivar = find_name(name, namelen, mdl%ivnames, mdl%indexv, mdl%vnames, &
+                     mdl%nrv) 
+    if (ivar >= 0) then
+        get_iendex = idxlzuk(mdl%iendex, mdl%nendex, ivar)
+        !mdl%iendex is negative if  the equation is deactivated
+        if (get_iendex == 0) get_iendex = idxlzuk(mdl%iendex, mdl%nendex, -ivar)
+    else 
+        get_iendex =  0
+    endif
+end function get_iendex
 
 integer(c_int) function get_eq_index(model_index, name, namelen)
     ! return the equation index of an equation

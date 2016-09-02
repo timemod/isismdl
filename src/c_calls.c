@@ -8,6 +8,8 @@
 #define MAX_NAME_LEN 32
 #define ALL     1
 #define ALLFRML 2
+#define ALL_ENDOLEAD 3
+
 #define DATA    1
 #define CA     2
 #define FIX   3
@@ -49,6 +51,8 @@ extern void F77_NAME(set_test)(int *mws_index, int *var_index, double *value);
 extern double F77_NAME(get_test)(int *mws_index, int *var_index, int *alphabet);
 extern void F77_NAME(activate_equation)(int *mws_index, int *var_index);
 extern void F77_NAME(deactivate_equation)(int *mws_index, int *var_index);
+extern void F77_NAME(set_ftrelax)(int *mws_index, int *var_index, double *value);
+extern double F77_NAME(get_ftrelax)(int *mws_index, int *var_index);
 
 SEXP read_mdl_c(SEXP filename) {
 
@@ -94,26 +98,41 @@ SEXP get_par_names_c(SEXP model_index_) {
 SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
     const char *type_str = CHAR(asChar(type_));
     int type;
-    if (strcmp(type_str, "allfrml") == 0) {
-        type = ALLFRML;
-    } else {
+    if (strcmp(type_str, "all") == 0) {
         type = ALL;
-    }
+    } else if (strcmp(type_str, "allfrml") == 0) {
+        type = ALLFRML;
+    } else  if (strcmp(type_str, "all_endolead") == 0) {
+        type = ALL_ENDOLEAD;
+    } else {
+        error("Illegal parameter vtype %s\n", type_str);
+    } 
     int model_index = asInteger(model_index_);
     int alpha = 1;
 
-    int nvar = type == ALLFRML ? F77_CALL(get_ca_count)(&model_index) :
-                                 F77_CALL(get_variable_count)(&model_index);
+    int nvar;
+    void (*get_name)(int *, int *, char *, int *);
+    switch (type) {
+    case ALL:          nvar = F77_CALL(get_variable_count)(&model_index);
+                       break;
+    case ALLFRML:      nvar = F77_CALL(get_ca_count)(&model_index); 
+                       get_name = F77_CALL(get_ca_name);
+                       break;
+    case ALL_ENDOLEAD: nvar = F77_CALL(get_endex_count)(&model_index); 
+                       get_name = F77_CALL(get_endex_name);
+                       break;
+    }
 
     /* get list of variables */
     int ivar, len;
     char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, nvar));
     for (ivar = 1; ivar <= nvar; ivar++) {
-        if (type == ALLFRML) {
-            F77_CALL(get_ca_name)(&model_index, &ivar, name, &len);
+        if (type == ALL) {
+            F77_CALL(get_variable_name)(&model_index, &ivar, name, &len,
+                                        &alpha);
         } else {
-            F77_CALL(get_variable_name)(&model_index, &ivar, name, &len, &alpha);
+            (*get_name)(&model_index, &ivar, name, &len);
         }
         name[len] = '\0';
         SET_STRING_ELT(names, ivar - 1, mkChar(name));
@@ -463,7 +482,7 @@ void set_cvgcrit_c(SEXP mws_index_, SEXP names, SEXP value_) {
 void set_cvgcrit_set_mws(SEXP mws_index_, SEXP values) {
     int mws_index = asInteger(mws_index_);
     int i;
-    for (i = 1; i <- F77_CALL(get_variable_count)(&mws_index); i++) {
+    for (i = 1; i <- length(values); i++) {
         double value = REAL(values)[i - 1];
         F77_CALL(set_test)(&mws_index, &i, &value);
     }
@@ -482,6 +501,58 @@ SEXP get_cvgcrit_c(SEXP mws_index_, SEXP alphabet_) {
     UNPROTECT(1);
     return ret;
 }
+
+/* Sets Fair-Taylor relaxtion factors */
+void set_ftrelax_c(SEXP mws_index_, SEXP names, SEXP value_) {
+    int mws_index = asInteger(mws_index_);
+    double value = asReal(value_);
+    int i, cnt = 0;
+    int n_names =  length(names);
+    for (i = 0; i < n_names; i++) {
+        const char *name = CHAR(STRING_ELT(names, i));
+        int namelen = strlen(name);
+        int iendex = F77_CALL(get_iendex)(&mws_index, name, &namelen);
+        if (iendex > 0) {   
+            cnt++;
+            F77_CALL(set_ftrelax)(&mws_index, &iendex, &value);
+        } else {
+           warning("\"%s\" is not an endogenous lead.\n", name);
+        }
+    }
+
+    if (cnt < n_names) {
+        error("%d incorrect variable name(s) encountered. See warning(s).\n", 
+              n_names - cnt);
+    }
+}
+
+/* Sets Fair-Taylor relaxation factors for all endogenous leads.
+ * in natural (i.e. non-alphabetical) order */
+void set_ftrelax_set_mws(SEXP mws_index_, SEXP values) {
+    int mws_index = asInteger(mws_index_);
+    int i;
+    for (i = 1; i <= length(values); i++) {
+        double value = REAL(values)[i - 1];
+        F77_CALL(set_ftrelax)(&mws_index, &i, &value);
+    }
+}
+
+/* Returns the convergence criteria for all model variables */
+
+/* Returns the Fair-Taylor relaxation factors for all endogenous
+ * leads (not in alphabetical order). */
+SEXP get_ftrelax_c(SEXP mws_index_) {
+    int mws_index = asInteger(mws_index_);
+    int nendex = F77_CALL(get_endex_count)(&mws_index);
+    SEXP ret = PROTECT(allocVector(REALSXP, nendex));
+    int iendex;
+    for (iendex = 1; iendex <= nendex; iendex++) {
+        REAL(ret)[iendex - 1] = F77_CALL(get_ftrelax)(&mws_index, &iendex);
+    }
+    UNPROTECT(1);
+    return ret;
+}
+
 
 /* Activate/deactive equation */
 void set_eq_status_c(SEXP mws_index_, SEXP names, SEXP status) {

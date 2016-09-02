@@ -47,7 +47,7 @@ module model_type
     integer, parameter, private :: ACTIVATE = 1
     integer, parameter, private :: DEACTIVATE = 2
 
-    private :: idxlzuk, activate_deactivate_eq
+    private :: activate_deactivate_eq
 
 contains
 
@@ -307,6 +307,7 @@ contains
     end subroutine deactivate_eq
 
     subroutine activate_deactivate_eq(mdl, eqnum, action)
+        use utils, only : idxlzuk
         type(model), intent(inout) :: mdl
         integer, intent(in) :: eqnum, action
 
@@ -348,27 +349,5 @@ contains
         if (canum > 0) mdl%ica(canum)  = lhsvar_new
         mdl%lik(lhsvar) = action == ACTIVATE
     end subroutine activate_deactivate_eq
-
-    integer function idxlzuk(a, n, kxar)
-        ! linear lookup in array a(1..n) for element .eq. kxar
-        ! return 0 if not found
-        ! return index of element
-
-        use model_params
-        integer(kind = MC_IKIND), intent(in) :: a(*)
-        integer(kind = MC_IKIND), intent(in) :: n
-        integer, intent(in) :: kxar
-
-        integer ::  j
-
-        idxlzuk = 0
-        do j = 1, n
-            if (a(j) == kxar) then
-                idxlzuk = j
-                exit
-            endif
-        enddo
-        return
-     end function idxlzuk
 
 end module model_type

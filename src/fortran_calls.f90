@@ -205,6 +205,16 @@ function get_test(mws_index, ivar, alphabet)
     get_test = mws_array(mws_index)%test(iv)
 end function get_test
 
+function get_ftrelax(mws_index, iendex)
+    ! get Fair-Taylor relaxtion factor for endogenous leads iendex
+    ! (not in alphabetical order).
+    use modelworkspaces
+    use iso_c_binding, only : c_int, c_double
+    real(c_double) :: get_ftrelax
+    integer(c_int), intent(in) :: mws_index, iendex
+    get_ftrelax = mws_array(mws_index)%ftrelax(iendex)
+end function get_ftrelax
+
 subroutine activate_equation(mws_index, eqnum)
     use modelworkspaces
     use iso_c_binding, only : c_int
@@ -218,3 +228,12 @@ subroutine deactivate_equation(mws_index, eqnum)
     integer(c_int), intent(in) :: mws_index, eqnum
     call deactivate_eq(mws_array(mws_index)%mdl,  eqnum)
 end subroutine deactivate_equation
+
+subroutine set_ftrelax(mws_index, ivar, value)
+    ! set Fair-Taylor relaxation factor
+    use modelworkspaces
+    use iso_c_binding, only : c_int, c_double
+    integer(c_int), intent(in) :: mws_index, ivar
+    real(c_double), intent(in) :: value
+    mws_array(mws_index)%ftrelax(ivar) = value
+end subroutine set_ftrelax

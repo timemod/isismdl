@@ -31,6 +31,9 @@ setOldClass("regperiod_range")
 #' @useDynLib isismdl set_cvgcrit_c
 #' @useDynLib isismdl set_cvgcrit_set_mws
 #' @useDynLib isismdl get_cvgcrit_c
+#' @useDynLib isismdl set_ftrelax_c
+#' @useDynLib isismdl set_ftrelax_set_mws
+#' @useDynLib isismdl get_ftrelax_c
 #' @useDynLib isismdl set_eq_status_c
 #' @import regts
 #' @importFrom "methods" "new"
@@ -62,7 +65,7 @@ setOldClass("regperiod_range")
 #'  is \code{"2015Q3/2016Q2"}, then the model data period is \code{"2015Q1/2016Q3"}.
 #' @section Methods:
 #' \describe{
-#' \item{\code{get_variable_names()}}{Returns the names of the model variables}
+#' \item{\code{get_var_names()}}{Returns the names of the model variables}
 #' \item{\code{get_ca_names()}}{Returns the names of the constant adjustments}
 #' \item{\code{set_period(period)}}{Sets the model period. \code{period}
 #' is a \code{\link{regperiod_range}} object or an object that can be coerced
@@ -105,7 +108,7 @@ IsisMdl <- R6Class("IsisMdl",
                 sel <- grep(pattern, names)
                 names <- names[sel]
             }
-            if (vtype == "allfrml") {
+            if (vtype == "allfrml" || vtype == "all_endolead") {
                 names <- sort(names)
             }
             return (names)
@@ -177,12 +180,12 @@ IsisMdl <- R6Class("IsisMdl",
             if (is.null(self$model_period)) stop(private$period_error_msg)
             period <- as.regperiod_range(period)
             if (missing(pattern) && missing(names)) {
-                names <- self$get_var_names(type = "allfrml")
+                names <- self$get_var_names(vtype = "allfrml")
             } else if (missing(names)) {
-                names <- self$get_var_names(pattern, type = "allfrml")
+                names <- self$get_var_names(pattern, vtype = "allfrml")
             } else if (!missing(pattern)) {
                 names <- union(names, 
-                               self$get_var_names(pattern, type = "allfrml"))
+                               self$get_var_names(pattern, vtype = "allfrml"))
             }
             js <- private$get_period_indices(period)
             data <- .Call("get_data_c", type = "ca",
@@ -287,6 +290,7 @@ IsisMdl <- R6Class("IsisMdl",
                                    solve_options = self$get_solve_options(),
                                    cvgcrit = .Call("get_cvgcrit_c",
                                                    private$model_index, 0L),
+                                   ftrelax = .Call("get_ftrelax_c", private$model_index),
                                    param = self$get_param(),
                                    data = data, ca = ca,
                                    fix = self$get_fix(),
@@ -305,9 +309,11 @@ IsisMdl <- R6Class("IsisMdl",
                      # todo: check parameter length, this should be the same
                     stop("Mws x does not agree with the model definition")
             }
+            #todo: check endogenous leads etc.
             self$set_period(x$model_period)
             do.call(self$set_solve_options, x$solve_options)
             .Call("set_cvgcrit_set_mws", private$model_index, x$cvgcrit)
+            .Call("set_ftrelax_set_mws", private$model_index, x$set_mws)
             self$set_param(x$param)
             self$set_data(x$data)
             self$set_ca(x$ca)
@@ -337,42 +343,68 @@ IsisMdl <- R6Class("IsisMdl",
         },
         set_cvgcrit = function(value, pattern, names) {
             "Sets the convergence criterion for some variables"
-            if (missing(pattern) && missing(vars)) {
-                vars <- self$get_var_names()
+            if (missing(pattern) && missing(names)) {
+                names <- self$get_var_names()
             } else if (!missing(pattern)) {
                 pvars <- self$get_var_names(pattern)
-                if (!missing(vars)) {
-                    vars <- union(pvars, vars)
+                if (!missing(names)) {
+                    names <- union(pvars, names)
                 } else {
-                    vars <- pvars
+                    names <- pvars
                 }
             }
             if (!is.numeric(value) || length(value) != 1) {
                 stop("value should be a single numerical value")
             }
-            .Call("set_cvgcrit_c", private$model_index, vars, as.numeric(value))
+            .Call("set_cvgcrit_c", private$model_index, names, as.numeric(value))
             return  (invisible(self))
         },
-        set_eq_status = function(stat, pattern, vars) {
+        set_ftrelax = function(value, pattern, names) {
+            "Sets the Fair-Taylor relaxation criterion."
+            if (missing(pattern) && missing(names)) {
+                names <- self$get_var_names(vtype = "all_endolead")
+            } else if (!missing(pattern)) {
+                pvars <- self$get_var_names(pattern, vtype = "all_endolead")
+                if (!missing(names)) {
+                    names <- union(pvars, names)
+                } else {
+                    names <- pvars
+                }
+            }
+            if (!is.numeric(value) || length(value) != 1) {
+                stop("value should be a single numerical value")
+            }
+            .Call("set_ftrelax_c", private$model_index, names, as.numeric(value))
+            return  (invisible(self))
+        },
+        get_ftrelax = function() {
+            "Returns the Fair-Taylor relaxtion factors"
+            values <- .Call("get_ftrelax_c", private$model_index)
+            names(values) <- .Call(get_var_names_c, "all_endolead", 
+                                   private$model_index)
+            sorted_names <- sort(names(values))
+            return (values[sorted_names])
+        },
+        set_eq_status = function(stat, pattern, names) {
             "Activate or deactivate equations"
 
             # TODO: if vars specified, then check if it contains names that are
             # no model variables
 
-            if (missing(pattern) && missing(vars)) {
-                vars <- self$get_eq_names()
+            if (missing(pattern) && missing(names)) {
+                names <- self$get_eq_names()
             } else if (!missing(pattern)) {
                 pvars <- self$get_eq_names(pattern)
-                if (!missing(vars)) {
-                    vars <- union(pvars, vars)
+                if (!missing(names)) {
+                    names <- union(pvars, names)
                 } else {
-                    vars <- pvars
+                    names <- pvars
                 }
             }
             if (!is.character(stat) || length(stat) != 1) {
                 stop("value should be a single character value")
             }
-            .Call("set_eq_status_c", private$model_index, vars, stat);
+            .Call("set_eq_status_c", private$model_index, names, stat);
             return  (invisible(self))
         }
     ),
