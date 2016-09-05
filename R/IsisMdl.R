@@ -25,6 +25,7 @@ setOldClass("regperiod_range")
 #' @useDynLib isismdl run_equations_fortran
 #' @useDynLib isismdl set_solve_opts_c
 #' @useDynLib isismdl get_solve_opts_c
+#' @useDynLib isismdl set_fit_opts_c
 #' @useDynLib isismdl solve_c
 #' @useDynLib isismdl filmdt_c
 #' @useDynLib isismdl remove_mws_fortran
@@ -251,12 +252,19 @@ IsisMdl <- R6Class("IsisMdl",
             .Call("set_solve_opts_c", private$model_index, list(...))
             return (invisible(self))
         },
-        solve = function(period = self$model_period, options = list()) {
+        set_fit_options = function(...) {
+            "Set  the default solve options"
+            .Call("set_fit_opts_c", private$model_index, list(...))
+            return (invisible(self))
+        },
+        solve = function(period = self$model_period, options = list(),
+                         fit_options = list()) {
             "Solve the model for the specified period"
             if (is.null(self$model_period)) stop(private$period_error_msg)
             js <- private$get_period_indices(period)
             .Call("solve_c", model_index = private$model_index,
-                             jtb = js$startp, jte = js$endp, options)
+                             jtb = js$startp, jte = js$endp, options,
+                             fit_options)
             return (invisible(self))
         },
         fill_mdl_data = function(period = self$model_data_period) {

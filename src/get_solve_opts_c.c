@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "solve_options.h"
+#include "init_set_get_options.h"
 
 #define N_OPTS 19
 
-extern void F77_SUB(init_get_solve_opts)(int *mws_index);
 extern void F77_CALL(get_solve_options)(int *imode, int *istart, int *maxit, 
               int *maxmat, double *rlxspeed, double *rlxmin, double *rlxmax, 
               double *cstpbk, double *cnmtrx, double *xrelax, int *mratex,
@@ -26,7 +26,7 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
 
     int mws_index = asInteger(mws_index_);
 
-    F77_CALL(init_get_solve_opts)(&mws_index);
+    F77_CALL(init_get_options)(&mws_index);
 
     ret  = PROTECT(allocVector(VECSXP, N_OPTS));
     names = PROTECT(allocVector(STRSXP, N_OPTS));

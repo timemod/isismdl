@@ -136,7 +136,7 @@ subroutine solve_fortran(mws_index, jtb, jte, opts_present, error)
     use iso_c_binding
     use msvars
     use msimul
-    use set_solve_opts
+    use set_options
     use msimot
     integer(c_int), intent(in) :: mws_index, jtb, jte, opts_present
     integer(c_int), intent(out) :: error

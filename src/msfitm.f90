@@ -684,10 +684,9 @@ contains
         itrtot = itrtot - matitr
     endif
     
-    !     output the transpose of the dj matrix
+    ! output the transpose of the dj matrix
     if (opts%fit%prijac) then
-        !call fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
-        continue
+        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
     endif
     
     ! scale the matrix

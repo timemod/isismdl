@@ -4,6 +4,7 @@
 #include "get_info.h"
 #include "c_calls.h"
 #include "set_solve_options.h"
+#include "set_fit_options.h"
 
 #define MAX_NAME_LEN 32
 #define ALL     1
@@ -428,7 +429,8 @@ void set_rms_c(SEXP mws_index_, SEXP rms_list) {
     }
 }
 
-void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options) {
+void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,
+             SEXP fit_options) {
 
     // process arguments
     int mws_index = asInteger(mws_index_);
@@ -439,6 +441,12 @@ void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options) {
     if (opts_present) {
         int use_mws = 0;
         set_solve_options(&mws_index, &use_mws, options);
+    }
+    int fit_opts_present = length(fit_options) > 0;
+    if (fit_opts_present) {
+        int use_mws = 0;
+        set_fit_options(&mws_index, &use_mws, fit_options);
+        opts_present = 1;
     }
     int error;
     F77_CALL(solve_fortran)(&mws_index, &startp, &endp, &opts_present, &error);
