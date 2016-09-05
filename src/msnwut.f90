@@ -414,7 +414,7 @@ data chdr / 'iter' , 'Fquot', 'Fcrit', 'Fbmax', 'scale', 'Fbname'/
 data chln /    4   ,    5   ,    5   ,   5    ,    5   ,   6     /
 data cwid /    6   , NUMWID , NUMWID , NUMWID, NUMWID ,   0      /
 
-if (opts%repopt /= REP_FULLREP) return
+if (repopt /= REP_FULLREP) return
 
 if( itr .eq. 0 ) then
    call strini(' ', 1)

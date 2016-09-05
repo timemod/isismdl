@@ -23,7 +23,6 @@ module msvars
     integer, save :: itrtot, njcmat
     logical, save :: change  ! ??
     real(kind = MWS_RKIND) :: relax
-    logical, save :: in_fit = .false.
 
     type(modelworkspace), pointer :: mws
     type(model), pointer :: mdl

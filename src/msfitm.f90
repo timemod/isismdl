@@ -206,9 +206,9 @@ contains
                 retcod = 2
             endif
         elseif (.not. quit ) then
-            in_fit = .true.
+            call fitot0(1)
             call fitone(retcod, ndiver)
-            in_fit = .false.
+            call fitot0(2)
         endif
         
         900 return
@@ -273,7 +273,7 @@ contains
         fiscod = 0
         fiter  = 0
         fcvgd  = .false.
-        !prihdr = prica .or. (.not. supsot)
+        prihdr = opts%fit%prica .or. (.not. opts%fit%supsot)
         djcnt  = 0
         
         if (allocated(dj_copy)) deallocate(dj_copy)
@@ -386,9 +386,9 @@ contains
                 end do
             endif
         
-            !if (prica) then
-            !   call fitoca(delu,numu,nu,fiter)
-            !endif
+            if (opts%fit%prica) then
+                call fitoca(delu,numu,nu,fiter)
+            endif
         
             ! new solution and new discrepancies.
         
@@ -422,14 +422,14 @@ contains
                 delw(:nw) = dddelw(:nw)
         
                 delwmx = dlwmxp
-                if (deval .or. fiter >= opts%fit%fitrmx) then
+                if (deval .or. fiter >= opts%fit%maxiter) then
                     ! cannot locate a better point
                    fiscod = 3
                 else 
                    ! try with fresh jacobian
                    deval = .true.
                 endif
-            elseif (fiter .ge. opts%fit%fitrmx) then
+            elseif (fiter >= opts%fit%maxiter) then
                 !  too many iterations : no convergence
                 fiscod = 2
             else 
@@ -451,7 +451,7 @@ contains
         if (opts%fit%warnca) then
             call msfuck(ca)
         endif
-        call fitot9(fiter,fcvgd,djcnt,opts%fit%fitrmx)
+        call fitot9(fiter,fcvgd,djcnt,opts%fit%maxiter)
         if (.not. fcvgd) then
             retcod = 2
             goto 9999

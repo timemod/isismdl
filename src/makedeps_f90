@@ -43,8 +43,7 @@ msfill.o : msimot.o mssneq.o msvars.o
 msfitm.o : kinds.o liqrco.o liqrmn.o mdlvars.o msbrdn.o msfbvl.o \
           msfito.o msnwut.o mssolve.o msutil.o msvars.o nucnst.o nuna.o nuv.o \
           scalemat.o
-msfito.o : kinds.o mdl_name_utils.o model_params.o msimot.o msvars.o \
-          nucnst.o
+msfito.o : kinds.o mdl_name_utils.o msimot.o nucnst.o
 msfix.o : kinds.o msvars.o nuna.o
 msimob.o : mdl_name_utils.o msimot.o msvars.o
 msimod.o : mdl_name_utils.o msimot.o msvars.o

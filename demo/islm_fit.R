@@ -2,17 +2,15 @@ library(regts)
 library(isismdl)
 
 islm_model <- IsisMdl$new("demo/islm.mif")
-islm_model$get_variable_names()
 islm_model$set_mws(islm_input_mws)
-fit <- regts(matrix(NA, ncol = 2), start = "2010Q3", end =  "2010Q4",
-             names = c("y", "c"))
-fit[ , 'y'] <- 985
-fit[ , 'r'] <- 3.5
-
+y <- regts(985, start = "2015Q2")
+r <- regts(c(3.5, 3.6), start = "2015Q2")
+fit <- cbind(y, r) 
 islm_model$set_fit(fit)
-
+print(islm_model$get_fit())
 rms_values <- list(c = 5, i = 21, md = 2, t = 2)
 islm_model$set_rms(rms_values)
-result <- islm_model$solve("2010Q3/2011Q4")
+islm_model$set_solve_options(report = "fullrep")
+islm_model$solve()
 print(islm_model$get_data())
-print(islm_model$get_fit())
+print(islm_model$get_ca())

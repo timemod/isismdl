@@ -39,7 +39,7 @@ subroutine jacot2(matitr,itr,rcond)
 integer ::  matitr, itr
 real*8 rcond
 
-if (opts%repopt >= REP_PERIOD) then
+if (repopt >= REP_PERIOD) then
    write(str, 901, round = 'compatible') matitr, itr, rcond
    call strout(O_OUTN)
 endif

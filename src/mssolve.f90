@@ -349,7 +349,7 @@ if (tcod > 1) then
 else
     ! CONVERGENCE
     convgd = .true.
-    if (.not. in_fit) call solotf(itr)
+    call solotf(itr)
 endif
 
 ! recover feedback variables (no implicit GS step at end)

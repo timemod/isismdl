@@ -1,10 +1,10 @@
 module msfill
 
 contains
-subroutine fill_mdl_data(jt1, jt2, repopt)
+subroutine fill_mdl_data(jt1, jt2, report_type)
     use msvars
     use msimot
-    integer, intent(in) :: jt1, jt2, repopt
+    integer, intent(in) :: jt1, jt2, report_type
 
     ! fills missing values by running identities for period jt1 .. jt2
     ! skips inactive and behavioural equations
@@ -26,7 +26,7 @@ subroutine fill_mdl_data(jt1, jt2, repopt)
           itnum = itnum + 1
           ngain = 0
           call msfilp(jtime, ngain, didfb)
-          if (repopt == 2) call filot1(ngain, jtime, itnum)
+          if (report_type == 2) call filot1(ngain, jtime, itnum)
           tgain = tgain + ngain
           if (ngain == 0 .or. mdl%nfb == 0 .or. .not. didfb) exit
         end do

@@ -29,20 +29,21 @@ module solve_options_type
     character(len = 1), dimension(4), parameter :: START_OPTIONS = &
                              (/ 'P', 'C', 'Q', 'D'/)
 
-
     ! options for the fit procedfure
     type fit_options
+        integer(kind = ISIS_IKIND) :: maxiter
         real(kind = ISIS_RKIND)    :: cvgabs
         real(kind = ISIS_RKIND)    :: mkdcrt
-        integer(kind = ISIS_IKIND) :: fitrmx
-        integer(kind = ISIS_IKIND) :: repopt
         integer(kind = ISIS_IKIND) :: scale_method
+        logical(kind = ISIS_IKIND) :: prica
+        logical(kind = ISIS_IKIND) :: prijac
         logical(kind = ISIS_IKIND) :: zeroca
         logical(kind = ISIS_IKIND) :: warnca
-        logical(kind = ISIS_IKIND) :: accurate_jac
         logical(kind = ISIS_IKIND) :: newjac
-        logical(kind = ISIS_IKIND) :: prijac
+        logical(kind = ISIS_IKIND) :: supsot
         logical(kind = ISIS_IKIND) :: nochkjac
+        logical(kind = ISIS_IKIND) :: accurate_jac
+        integer(kind = ISIS_IKIND) :: repopt
     end type fit_options
 
     type solve_options
@@ -140,16 +141,18 @@ contains
         options%xtfac = 10.0_ISIS_RKIND
 
         ! fit options
-        options%fit%fitrmx = 10
+        options%fit%maxiter = 10
         options%fit%cvgabs = 100 * sqrt(Rmeps)
         options%fit%mkdcrt =  0.5_ISIS_RKIND
         options%fit%scale_method = FIT_SCALE_ROW
         options%fit%accurate_jac = .false.
+        options%fit%prica  = .false.
         options%fit%prijac = .false.
-        options%fit%nochkjac = .false.
-        options%fit%newjac = .true.
         options%fit%zeroca = .false.
         options%fit%warnca = .true.
+        options%fit%newjac = .true.
+        options%fit%supsot = .true.
+        options%fit%nochkjac = .false.
         options%fit%repopt = 2
 
     end subroutine set_default_options
