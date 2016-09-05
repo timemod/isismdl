@@ -3,13 +3,12 @@
 #include "set_solve_opts.h"
 #include "solve_options.h"
 #include "set_solve_options.h"
+#include "init_set_get_options.h"
 
 #define CHECK_LENGTH(name, value) if (length(value) > 1) { \
     error("The value for option %s should have length 1.", name); \
 }
 
-extern void F77_SUB(init_set_solve_opts)(int *mws_index, int *use_mws);
-extern void F77_SUB(init_get_solve_opts)(int *mws_index);
 extern void F77_SUB(set_mode)(int *);
 extern void F77_SUB(set_start)(int *);
 extern void F77_SUB(set_maxit)(int *);
@@ -46,11 +45,11 @@ void set_solve_opts_c(SEXP mws_index_, SEXP options) {
 
 void set_solve_options(int *mws_index, int *use_mws, SEXP options) {
 
-    F77_CALL(init_set_solve_opts)(mws_index, use_mws);
+    F77_CALL(init_set_options)(mws_index, use_mws);
 
     /* call init_get_solve_opts, we need this because 
      * of the call of get_solve_dbgopts */
-    F77_CALL(init_get_solve_opts)(mws_index);
+    F77_CALL(init_get_options)(mws_index);
 
     SEXP names = getAttrib(options, R_NamesSymbol);
     int i;
