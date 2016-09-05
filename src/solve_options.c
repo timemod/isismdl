@@ -4,7 +4,7 @@
 /* NOTE: the ordering of MODES and START_OPTIONS should agree with the
  * ordering of the options in solve_options_type.f90 */
 static const char *MODES[] = {"dynamic", "ratex", "reschk", "backward", 
-                              "static"};
+                              "static", "auto"};
 static const char *START_OPTIONS[] = {"previous", "current", "curifok", 
                                       "previfok"};
 static const char *XUPDATE_OPTIONS[] = {"fixed", "lastval"};

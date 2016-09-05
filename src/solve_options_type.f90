@@ -7,7 +7,7 @@ module solve_options_type
     integer, parameter :: ERROPT_CONT  = 2
 
     ! reopt option
-    integer, parameter :: REP_NONE    = 1    ! no report at all 
+    integer, parameter :: REP_NONE    = 1    ! no report at all
     integer, parameter :: REP_MINIMAL = 2
     integer, parameter :: REP_PERIOD  = 3
     integer, parameter :: REP_FULLREP = 4
@@ -23,13 +23,13 @@ module solve_options_type
     integer, parameter :: FIT_SCALE_NONE  = 1
     integer, parameter :: FIT_SCALE_ROW   = 2
     integer, parameter :: FIT_SCALE_BOTH  = 3
-    
+
     ! NOTE: the ordering of MODES and START_OPTIONS should agree with the
     ! ordering of the options in solve_options.c!!!! */
-    character(len = 1), dimension(5), parameter :: MODES = &
-                             (/ 'D', 'X', 'R', 'B', 'S' /)
+    character(len = 1), dimension(6), parameter :: MODES = &
+                             (/ 'D', 'X', 'R', 'B', 'S', '?' /)
     character(len = 1), dimension(4), parameter :: START_OPTIONS = &
-                             (/ 'P', 'C', 'Q', 'D' /)
+                             (/ 'P', 'C', 'Q', 'D'/)
 
 
     ! options for the fit procedfure
@@ -75,7 +75,7 @@ module solve_options_type
 
         ! error options
         integer(kind = ISIS_IKIND) :: erropt
-        
+
         ! output options
         integer(kind = ISIS_IKIND) :: repopt
         integer(kind = ISIS_IKIND) :: iendsm
@@ -94,23 +94,15 @@ module solve_options_type
     end type solve_options
 
 contains
-        
+
     subroutine set_default_options(mdl, options)
         use model_type
         use scalemat
         use nucnst, only : Rmeps
         type(model), intent(in) :: mdl
         type(solve_options), intent(out) :: options
-        if (has_endo_lead(mdl)) then
-            options%mode = "X"
-        else 
-            options%mode = "D"
-        endif
-        if (mdl%nfb == 0) then
-            options%method = 'G' ! Seidel
-        else
-            options%method = 'B' ! Broyden
-        endif
+        options%mode = "?"
+        options%method = "?"
         options%start = 'C'
         options%uplead = .false.
         options%bktmax = 5
@@ -136,7 +128,7 @@ contains
 
         ! error options
         options%erropt = ERROPT_STOP
-    
+
         ! output options
         options%repopt = REP_PERIOD
         options%iendsm = 1
@@ -164,10 +156,10 @@ contains
 
     end subroutine set_default_options
 
-    function get_mode_text(mode) 
+    function get_mode_text(mode)
         character(len = 21) :: get_mode_text
         character, intent(in) :: mode
-        select case (mode) 
+        select case (mode)
         case ('D')
             get_mode_text = "dynamic"
         case ('X')
@@ -178,13 +170,15 @@ contains
             get_mode_text = "backward"
         case ('S')
             get_mode_text = "static"
+        case ('?')
+            get_mode_text = "model dependent"
         end select
     end function get_mode_text
 
-    function get_start_text(start) 
+    function get_start_text(start)
         character(len = 24) :: get_start_text
         character, intent(in) :: start
-        select case (start) 
+        select case (start)
         case ('P')
             get_start_text = "previous period"
         case ('C')
@@ -196,10 +190,10 @@ contains
         end select
     end function get_start_text
 
-    function get_arith_text(arith) 
+    function get_arith_text(arith)
         character(len = 10) :: get_arith_text
         logical, intent(in) :: arith
-        
+
         if (arith) then
             get_arith_text = "arithmetic"
         else

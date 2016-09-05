@@ -13,7 +13,7 @@ extern void F77_CALL(get_solve_options)(int *imode, int *istart, int *maxit,
               double *cstpbk, double *cnmtrx, double *xrelax, int *mratex,
               int *uplead, int *erropt, int *repopt, int *ratrepopt, 
               int *bktmax, double *xtfac);
-extern void F77_CALL(get_solve_dbgops)(int *, int *, int *,  int *, int *, 
+extern void F77_CALL(get_solve_dbgopts)(int *, int *, int *,  int *, int *, 
                                       int *);
 static void add_option(const char *name, SEXP value);
 static void add_debug_option(void);

@@ -22,14 +22,15 @@ extern void F77_SUB(set_cnmtrx)(double *);
 extern void F77_SUB(set_xrelax)(double *);
 extern void F77_SUB(set_mratex)(int *);
 extern void F77_SUB(set_uplead)(int *);
-extern void F77_SUB(get_solve_dbgopts)(int *, int *, int *, int *, int *, int *);
+extern void F77_CALL(get_solve_dbgopts)(int *, int *, int *,  int *, int *, 
+                                      int *);
 extern void F77_SUB(set_solve_dbgopts)(int *, int *, int *, int *, int *, int *);
 extern void F77_SUB(set_erropt)(int *);
 extern void F77_SUB(set_repopt)(int *);
 extern void F77_SUB(set_ratrepopt)(int *);
 //extern void F77_SUB(set_ratrep)(int *);
 //extern void F77_SUB(set_ratrepfull)(int *);
-extern void F77_SUB(set_bktmaxt)(int *);
+extern void F77_SUB(set_bktmax)(int *);
 extern void F77_SUB(set_xtfac)(double *);
 
 static void set_option(const char *name, SEXP value);

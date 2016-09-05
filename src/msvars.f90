@@ -63,6 +63,30 @@ module msvars
 
             call msvarsinit(mws_in)
 
+            if (opts%mode == "?") then
+                if (has_endo_lead(mdl)) then
+                    opts%mode = "X"
+                else 
+                    opts%mode = "D"
+                endif
+            else if (opts%mode == 'X' .and. .not. has_endo_lead(mdl)) then
+                opts%mode = 'D'
+                call rwarn("Model has no leads ==> using dynamic mode")
+            endif
+
+            if (opts%method == '?') then
+                if (mdl%nfb == 0) then
+                    opts%method = 'G' ! seidel
+                else
+                    opts%method = 'B' ! broyden
+                endif
+            else if (opts%method /= 'G' .and. mdl%nfb == 0) then
+                opts%method = 'G'
+                call rwarn("Cannot apply Newton or Broyden method to " // &
+                    "model with no feedback variables. Using the Seidel method.")
+            endif
+
+
             error = 0
 
             allocate(yp(mdl%nrv), stat = stat)
@@ -73,7 +97,6 @@ module msvars
                 error = 1
                 return
             endif
-
 
             if (opts%mode == 'R' .or. opts%method == 'G') return
 
