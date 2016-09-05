@@ -16,8 +16,6 @@ module solve_options_type
     integer, parameter :: RATREP_MINIMAL      = 1
     integer, parameter :: RATREP_ITER         = 2
     integer, parameter :: RATREP_FULLREP      = 3
-    integer, parameter :: RATREP_ITERSCRN     = 4
-    integer, parameter :: RATREP_FULLREPSCRN  = 5
 
     ! scale method for the fit procedures
     integer, parameter :: FIT_SCALE_NONE  = 1
@@ -122,8 +120,8 @@ contains
         ! debug options
         options%priter = .false.
         options%prexen = .false.
-        options%suptst = .false.
-        options%xsuptt = .false.
+        options%suptst = .true.
+        options%xsuptt = .true.
         options%prscal = .false.
 
         ! error options

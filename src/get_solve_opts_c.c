@@ -79,17 +79,17 @@ static void add_debug_option(void) {
     F77_CALL(get_solve_dbgopts)(&priter, &prexen, &jacprt, &suptst, &xsuptt, 
                                 &prscal);
 
-    if (!priter && !prexen && !jacprt && !suptst && !xsuptt && !prscal) {
+    if (!priter && !prexen && !jacprt && suptst && xsuptt && !prscal) {
         SET_VECTOR_ELT(ret, cnt++, PROTECT(mkString(DBG_NONE)));
-    } else if (priter && prexen && jacprt && suptst && xsuptt && prscal) {
+    } else if (priter && prexen && jacprt && !suptst && !xsuptt && prscal) {
         SET_VECTOR_ELT(ret, cnt++, PROTECT(mkString(DBG_ALL)));
     } else {
         SEXP value = PROTECT(allocVector(STRSXP, 6));
         SET_STRING_ELT(value, 0, mkChar(DBG_PRITER_OPTS[priter]));
         SET_STRING_ELT(value, 1, mkChar(DBG_PREXEN_OPTS[prexen]));
         SET_STRING_ELT(value, 2, mkChar(DBG_JACPRT_OPTS[jacprt]));
-        SET_STRING_ELT(value, 3, mkChar(DBG_SUPTST_OPTS[suptst]));
-        SET_STRING_ELT(value, 4, mkChar(DBG_XSUPTT_OPTS[xsuptt]));
+        SET_STRING_ELT(value, 3, mkChar(DBG_SUPTST_OPTS[!suptst]));
+        SET_STRING_ELT(value, 4, mkChar(DBG_XSUPTT_OPTS[!xsuptt]));
         SET_STRING_ELT(value, 5, mkChar(DBG_PRSCAL_OPTS[prscal]));
         SET_VECTOR_ELT(ret, cnt++, value);
     }

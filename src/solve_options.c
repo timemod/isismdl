@@ -12,8 +12,7 @@ const char *DBG_ALL  = "allinfo";
 const char *DBG_NONE = "noinfo";
 static const char *ERROPT_OPTIONS[] = {"stop", "cont"};
 static const char *REP_OPTIONS[] = {"none", "minimal", "period", "fullrep"};
-static const char *RATREP_OPTIONS[] = {"minimal", "iter", "iterscrn",
-                                       "fullrep", "fullrepscrn"};
+static const char *RATREP_OPTIONS[] = {"minimal", "iter", "fullrep"};
 
 const char *DBG_PRITER_OPTS[] = {"noprifb",       "prifb"};
 const char *DBG_PREXEN_OPTS[] = {"noprild",       "prild"};

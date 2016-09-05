@@ -157,9 +157,9 @@ static void set_debug_opts(SEXP option) {
         } else if (!strcmp(s, DBG_JACPRT_OPTS[1])) {
             jacprt = positive;
         } else if (!strcmp(s, DBG_SUPTST_OPTS[1])) {
-            suptst = positive;
+            suptst = ! positive;
         } else if (!strcmp(s, DBG_XSUPTT_OPTS[1])) {
-            xsuptt = positive;
+            xsuptt = ! positive;
         } else if (!strcmp(s, DBG_PRSCAL_OPTS[1])) {
             prscal = positive;
         }
