@@ -280,7 +280,7 @@ contains
         
         ! compute discrepancies delw, and largest delw
         call mkdelw(delwmx, curvars, wmxidx, wmxtyp)
-        if (opts%fit%repopt > 1) then
+        if (opts%fit%repopt == FITREP_FULLREP) then
             call fitot4(fiter,.false.,Qzero,delwmx,Qzero,wmxidx, wmxtyp,.true.)
         endif
         
@@ -399,10 +399,9 @@ contains
             dddelw(:nw) = delw(:nw)
         
             call mkdelw(delwmx, curvars, wmxidx, wmxtyp)
-            if (opts%fit%repopt > 1) then
-               call fitot4(fiter,deval,dcond,delwmx,dlwmxp,wmxidx, &
-                         wmxtyp, prihdr .or. (deval .and. opts%fit%prijac))
-                continue
+            if (opts%fit%repopt == FITREP_FULLREP) then
+                call fitot4(fiter,deval,dcond,delwmx,dlwmxp,wmxidx, &
+                            wmxtyp, prihdr .or. (deval .and. opts%fit%prijac))
             endif
         
             if (delwmx <= opts%fit%cvgabs) then

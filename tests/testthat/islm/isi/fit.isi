@@ -31,7 +31,7 @@ getrms;
 
 setmva(ft = "*"; cvgcrit = 1e-8);
 setfopt(cvgabs=1e-6);
-setsopt(repopt = fullrep);
+setfopt(repopt = minimal);
 solve;
 primdt(dec = 3);
 prica(dec = 3);

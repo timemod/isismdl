@@ -145,7 +145,6 @@ static void set_option(const char *name, SEXP value) {
     }
 }
 
-
 static void set_debug_opts(SEXP option) {
     int priter, prexen, jacprt, suptst, xsuptt, prscal;
 
@@ -155,20 +154,30 @@ static void set_debug_opts(SEXP option) {
     int i;
     for (i = 0; i < length(option); i++) {
         const char *opt = CHAR(STRING_ELT(option, i));
-        int positive = strncmp(opt, "no", 2);
-        const char *s = positive ? opt : opt + 2;
-        if (!strcmp(s, DBG_PRITER_OPTS[1])) {
-            priter = positive;
-        } else if (!strcmp(s, DBG_PREXEN_OPTS[1])) {
-            prexen = positive;
-        } else if (!strcmp(s, DBG_JACPRT_OPTS[1])) {
-            jacprt = positive;
-        } else if (!strcmp(s, DBG_SUPTST_OPTS[1])) {
-            suptst = ! positive;
-        } else if (!strcmp(s, DBG_XSUPTT_OPTS[1])) {
-            xsuptt = ! positive;
-        } else if (!strcmp(s, DBG_PRSCAL_OPTS[1])) {
-            prscal = positive;
+        if (!strcmp(opt, DBG_NONE)) {
+            priter = 0; prexen = 0; jacprt = 0; suptst = 1; xsuptt = 1;
+            prscal = 0;
+        } else if (!strcmp(opt, DBG_ALL)) {
+            priter = 1; prexen = 1; jacprt = 1; suptst = 0; xsuptt = 0;
+            prscal = 1;
+        } else {
+            int positive = strncmp(opt, "no", 2);
+            const char *s = positive ? opt : opt + 2;
+            if (!strcmp(s, DBG_PRITER_OPTS[1])) {
+                priter = positive;
+            } else if (!strcmp(s, DBG_PREXEN_OPTS[1])) {
+                prexen = positive;
+            } else if (!strcmp(s, DBG_JACPRT_OPTS[1])) {
+                jacprt = positive;
+            } else if (!strcmp(s, DBG_SUPTST_OPTS[1])) {
+                suptst = !positive;
+            } else if (!strcmp(s, DBG_XSUPTT_OPTS[1])) {
+                xsuptt = !positive;
+            } else if (!strcmp(s, DBG_PRSCAL_OPTS[1])) {
+                prscal = positive;
+            } else {
+                error("Unknown solve debug option %s\n", opt);
+            }
         }
     }
     F77_CALL(set_solve_dbgopts)(&priter, &prexen, &jacprt, &suptst, &xsuptt, 

@@ -4,7 +4,7 @@
 
 /* NOTE: the ordering of REPORT_OPTIONS should agree with the
  * ordering of the fit%repopt in solve_options_type.f90 */
-static const char *FITREP_OPTIONS[] = {"none", "minimal", "fullrep"};
+static const char *FITREP_OPTIONS[] = {"minimal", "fullrep"};
 const char *FIT_PRICA_OPTS[] =  {"noprica",     "prica"};
 const char *FIT_PRIJAC_OPTS[] = {"noprijac",    "prijac"};
 const char *FIT_SUPSOT_OPTS[] = {"nosupsot",    "supsot"};

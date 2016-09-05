@@ -77,6 +77,7 @@ static void set_fit_debug_opts(SEXP option) {
     int i;
     for (i = 0; i < length(option); i++) {
         const char *opt = CHAR(STRING_ELT(option, i));
+        Rprintf("opt = %s\n", opt);
         int positive = strncmp(opt, "no", 2);
         const char *s = positive ? opt : opt + 2;
         if (!strcmp(s, FIT_PRICA_OPTS[1])) {
@@ -85,6 +86,9 @@ static void set_fit_debug_opts(SEXP option) {
             prijac = positive;
         } else if (!strcmp(s, FIT_SUPSOT_OPTS[1])) {
             supsot = !positive;
+        } else {
+            error("Unknown debug option for the fit procedure %s\n",
+                    opt);
         }
     }
     F77_CALL(set_fit_dbgopts)(&prica, &prijac, &supsot);

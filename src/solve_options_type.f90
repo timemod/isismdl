@@ -12,6 +12,10 @@ module solve_options_type
     integer, parameter :: REP_PERIOD  = 3
     integer, parameter :: REP_FULLREP = 4
 
+    ! type of fit report
+    integer, parameter :: FITREP_MINIMAL   = 1
+    integer, parameter :: FITREP_FULLREP   = 2
+
     ! type of ratex report
     integer, parameter :: RATREP_MINIMAL      = 1
     integer, parameter :: RATREP_ITER         = 2
@@ -153,7 +157,7 @@ contains
         options%fit%newjac = .true.
         options%fit%supsot = .true.
         options%fit%nochkjac = .false.
-        options%fit%repopt = 2
+        options%fit%repopt = FITREP_FULLREP
 
     end subroutine set_default_options
 
