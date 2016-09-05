@@ -128,6 +128,14 @@ subroutine set_ratrepopt(ratrepopt)
     options_set%ratrepopt = ratrepopt
 end subroutine set_ratrepopt
 
+subroutine set_ratreport_rep(rep, repfull)
+    use set_solve_opts
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: rep, repfull
+    options_set%ratreport_rep     = rep
+    options_set%ratfullreport_rep = repfull
+end subroutine set_ratreport_rep
+
 subroutine set_bktmax(bktmax)
     use set_solve_opts
     use iso_c_binding, only : c_int

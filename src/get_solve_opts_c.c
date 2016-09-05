@@ -5,14 +5,15 @@
 #include <ctype.h>
 #include "solve_options.h"
 
-#define N_OPTS 18
+#define N_OPTS 19
 
 extern void F77_SUB(init_get_solve_opts)(int *mws_index);
 extern void F77_CALL(get_solve_options)(int *imode, int *istart, int *maxit, 
               int *maxmat, double *rlxspeed, double *rlxmin, double *rlxmax, 
               double *cstpbk, double *cnmtrx, double *xrelax, int *mratex,
               int *uplead, int *erropt, int *repopt, int *ratrepopt, 
-              int *bktmax, double *xtfac);
+              int *ratreport_rep, int *ratfullreport_rep, int *bktmax, 
+              double *xtfac);
 extern void F77_CALL(get_solve_dbgopts)(int *, int *, int *,  int *, int *, 
                                       int *);
 static void add_option(const char *name, SEXP value);
@@ -33,12 +34,13 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
     cnt = 0;
 
     int imode, istart, maxit, maxmat, mratex, uplead, erropt, repopt, 
-        ratrepopt, bktmax;
+        ratrepopt, ratreport_rep, ratfullreport_rep, bktmax;
     double rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, xrelax, xtfac;
     F77_CALL(get_solve_options)(&imode, &istart, &maxit, &maxmat, &rlxspeed,
                                 &rlxmin, &rlxmax, &cstpbk, &cnmtrx, &xrelax,
                                 &mratex, &uplead, &erropt, &repopt, &ratrepopt,
-                                &bktmax, &xtfac);
+                                &ratreport_rep, &ratfullreport_rep, &bktmax, 
+                                &xtfac);
 
     add_option("mode",      PROTECT(mkString(get_mode_text(imode))));
     add_option("fbstart",   PROTECT(mkString(get_start_text(istart))));
@@ -57,6 +59,12 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
     add_option("erropt",    PROTECT(mkString(get_erropt_text(erropt))));
     add_option("report",    PROTECT(mkString(get_repopt_text(repopt))));
     add_option("ratreport", PROTECT(mkString(get_ratrepopt_text(ratrepopt))));
+    
+    /* ratreport_rep */
+    SEXP ratrep = PROTECT(allocVector(REALSXP, 2));
+    REAL(ratrep)[0] = ratreport_rep;
+    REAL(ratrep)[1] = ratfullreport_rep;
+    add_option("ratreport_rep", ratrep);
 
     add_debug_option();
 

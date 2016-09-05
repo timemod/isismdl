@@ -5,7 +5,6 @@ module msimul
 &              store_solution, store_solution_prepare_next
 
     logical, private, save :: forwards, update_lags, chklead
-    integer, private, save :: ratrepfull_tmp
     integer, save :: simerr
     logical, private :: do_fit
 
@@ -43,12 +42,6 @@ real    ::  told, tnew
 
 simerr = 0
 chklead = .true.
-
-if (opts%ratrepfull == -1) then
-    ratrepfull_tmp = opts%ratrep
-else
-    ratrepfull_tmp = opts%ratrepfull
-endif
 
 call chkpar(quit)
 if (quit) then
@@ -191,13 +184,13 @@ do iratex = 1, opts%mratex
    else
        ! no convergence; print a message if required
        if (opts%ratrepopt /= RATOPT_MINIMAL .and. &
-          ((mod(iratex, opts%ratrep)   == 0)  .or. &
-           (mod(iratex, ratrepfull_tmp) == 0)))  then
+          ((mod(iratex, opts%ratreport_rep)   == 0)  .or. &
+           (mod(iratex, opts%ratfullreport_rep) == 0)))  then
            call simox2(iratex, noncvg)
        endif
        if ((opts%ratrepopt == RATOPT_FULLREP  &
             .or. opts%ratrepopt == RATOPT_FULLREPSCRN) &
-              .and. mod(iratex, ratrepfull_tmp) == 0) then
+              .and. mod(iratex, opts%ratfullreport_rep) == 0) then
            call simox4(jmax, imax, xomax, xnmax, dismax)
        endif
        if (iratex /= opts%mratex ) then

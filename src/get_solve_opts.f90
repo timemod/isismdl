@@ -53,12 +53,13 @@ end subroutine init_get_solve_opts
 
 subroutine get_solve_options(imode, istart, maxit, maxmat, rlxspeed, rlxmin, &
            rlxmax, cstpbk, cnmtrx, xrelax, mratex, uplead, erropt, &
-           repopt, ratrepopt, bktmax, xtfac)
+           repopt, ratrepopt, ratreport_rep, ratfullreport_rep, bktmax, xtfac)
 
     use get_solve_opts
     use iso_c_binding, only : c_int, c_double
     integer(c_int), intent(out):: imode, istart, maxit, maxmat, mratex, &
-                                  uplead,  erropt, repopt, ratrepopt, bktmax
+                                  uplead,  erropt, repopt, ratrepopt, &
+                                  ratreport_rep, ratfullreport_rep, bktmax
     real(c_double), intent(out):: rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, &
                                   xrelax, xtfac
     
@@ -77,6 +78,8 @@ subroutine get_solve_options(imode, istart, maxit, maxmat, rlxspeed, rlxmin, &
     erropt = options%erropt
     repopt = options%repopt
     ratrepopt = options%ratrepopt
+    ratreport_rep = options%ratreport_rep
+    ratfullreport_rep = options%ratfullreport_rep
     bktmax = options%bktmax
     xtfac = options%xtfac
 end subroutine get_solve_options

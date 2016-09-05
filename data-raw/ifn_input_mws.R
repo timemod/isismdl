@@ -15,7 +15,8 @@ ifn <- IsisMdl$new("ifn.mif")
 ifn$set_period("2/100")
 ifn$set_data(input_data)
 ifn$set_ftrelax(0.5, names = "lambda")
-ifn$set_solve_options(xmaxiter = 1500, ratreport = "minimal")
+ifn$set_solve_options(xmaxiter = 1500, ratreport = "iter",
+                      report = "minimal", ratreport_rep =c(10, 50))
 
 # get the input mws and copy to data
 ifn_input_mws <- ifn$get_mws()

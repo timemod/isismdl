@@ -82,8 +82,8 @@ module solve_options_type
         logical(kind = ISIS_IKIND) :: uplead
         integer(kind = ISIS_IKIND) :: njacpd
         integer(kind = ISIS_IKIND) :: ratrepopt
-        integer(kind = ISIS_IKIND) :: ratrep
-        integer(kind = ISIS_IKIND) :: ratrepfull
+        integer(kind = ISIS_IKIND) :: ratreport_rep
+        integer(kind = ISIS_IKIND) :: ratfullreport_rep
         real(kind = ISIS_RKIND)    :: xrelax
         integer(kind = ISIS_IKIND) :: mratex
         real(kind = ISIS_RKIND)    :: xtfac
@@ -133,13 +133,14 @@ contains
 
         ! ratex (Fair-Taylor) options
         options%ratrepopt = RATREP_ITER
-        options%ratrep = 1
-        options%ratrepfull = -1
+        options%ratreport_rep = 1
+        options%ratfullreport_rep = 1
         options%xrelax = 1.0_ISIS_RKIND
         options%mratex = 10
         options%xtfac = 10.0_ISIS_RKIND
 
         ! fit options
+        options%fit%fitrmx = 10
         options%fit%cvgabs = 100 * sqrt(Rmeps)
         options%fit%mkdcrt =  0.5_ISIS_RKIND
         options%fit%scale_method = FIT_SCALE_ROW
@@ -149,7 +150,6 @@ contains
         options%fit%newjac = .true.
         options%fit%zeroca = .false.
         options%fit%warnca = .true.
-        options%fit%fitrmx = 10
         options%fit%repopt = 2
 
     end subroutine set_default_options

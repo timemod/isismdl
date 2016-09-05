@@ -28,8 +28,7 @@ extern void F77_SUB(set_solve_dbgopts)(int *, int *, int *, int *, int *, int *)
 extern void F77_SUB(set_erropt)(int *);
 extern void F77_SUB(set_repopt)(int *);
 extern void F77_SUB(set_ratrepopt)(int *);
-//extern void F77_SUB(set_ratrep)(int *);
-//extern void F77_SUB(set_ratrepfull)(int *);
+extern void F77_SUB(set_ratreport_rep)(int *, int *);
 extern void F77_SUB(set_bktmax)(int *);
 extern void F77_SUB(set_xtfac)(double *);
 
@@ -125,6 +124,15 @@ static void set_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         i = get_ratrepopt(CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_ratrepopt)(&i);
+    } else if (!strcmp(name, "ratreport_rep")) {
+        if (!(length(value) == 1 || length(value) == 2)) {
+            error("The value for option %s should have length 1 or 2", name); \
+        }
+        SEXP ival = PROTECT(coerceVector(value, INTSXP));
+        int rep = INTEGER(ival)[0];
+        int repfull = (length(value) == 2) ? INTEGER(ival)[1] : rep;
+        F77_CALL(set_ratreport_rep)(&rep, &repfull);
+        UNPROTECT(1);
     } else if (!strcmp(name, "bktmax")) {
         CHECK_LENGTH(name, value);
         i = asInteger(value);
