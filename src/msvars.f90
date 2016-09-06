@@ -85,7 +85,6 @@ module msvars
                     "model with no feedback variables. Using the Seidel method.")
             endif
 
-
             error = 0
 
             allocate(yp(mdl%nrv), stat = stat)
@@ -132,7 +131,6 @@ module msvars
             endif
 
             itrtot = 0
-
         end subroutine prepare_solve
 
         subroutine msclear

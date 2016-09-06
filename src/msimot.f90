@@ -415,7 +415,6 @@ end subroutine svlvfmt
     subroutine simot1
         !initialize output controlling variables
         errcnt = 0
-        repopt = opts%repopt
         return
     end subroutine simot1
 

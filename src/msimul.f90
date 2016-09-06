@@ -43,6 +43,10 @@ real    ::  told, tnew
 simerr = 0
 chklead = .true.
 
+! set report option and print solve option
+repopt = opts%repopt
+call print_solve_options
+
 call chkpar(quit)
 if (quit) then
     jc = jf
@@ -512,7 +516,6 @@ integer ::  ndiverp
 
 logical ::  dofit_now
 
-! initialize output
 call solot1
 
 call prepare_fix(jt)

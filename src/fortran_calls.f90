@@ -153,7 +153,6 @@ subroutine solve_fortran(mws_index, jtb, jte, opts_present, error)
         opt => mws_array(mws_index)%solve_opts
     endif
     call prepare_solve(mws_array(mws_index), opt, jtb, jte, errflg)
-    call print_solve_options
     call simul
     error = simerr
     call msclear
