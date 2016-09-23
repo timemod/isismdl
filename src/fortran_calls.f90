@@ -115,21 +115,25 @@ subroutine set_rms_fortran(mws_index, var_index, value)
     call set_rms(mws_array(mws_index), var_index, value, error)
 end subroutine set_rms_fortran
 
-subroutine run_equations_fortran(mws_index, jtb, jte)
+! run all equations in the model starting a each time
+subroutine mdlpas_fortran(mws_index, jtb, jte)
     use modelworkspaces
     use iso_c_binding
     use msvars
     use msslvq
     integer(c_int), intent(in) :: mws_index, jtb, jte
 
-    integer :: i, errflg
+    integer :: i, j, errflg, ieq
 
     call msvarsinit(mws_array(mws_index))
-    
-    do i = 1, mws_array(mws_index)%mdl%neq 
-        call solve_equation(i, .false., jtb, jte, errflg)
+        
+    do j = jtb, jte
+        do i = 1, mws_array(mws_index)%mdl%neq 
+            ieq  = mws_array(mws_index)%mdl%order(i)
+            if (ieq > 0) call solve_equation(ieq, .false., j, j, errflg)
+        enddo
     end do
-end subroutine run_equations_fortran
+end subroutine mdlpas_fortran
 
 subroutine solve_fortran(mws_index, jtb, jte, opts_present, error)
     use modelworkspaces

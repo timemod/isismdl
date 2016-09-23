@@ -22,7 +22,6 @@ setOldClass("regperiod_range")
 #' @useDynLib isismdl set_param_c
 #' @useDynLib isismdl set_c
 #' @useDynLib isismdl set_rms_c
-#' @useDynLib isismdl run_equations_fortran
 #' @useDynLib isismdl set_solve_opts_c
 #' @useDynLib isismdl get_solve_opts_c
 #' @useDynLib isismdl set_fit_opts_c
@@ -36,6 +35,7 @@ setOldClass("regperiod_range")
 #' @useDynLib isismdl set_ftrelax_set_mws
 #' @useDynLib isismdl get_ftrelax_c
 #' @useDynLib isismdl set_eq_status_c
+#' @useDynLib isismdl mdlpas_fortran
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -185,7 +185,7 @@ IsisMdl <- R6Class("IsisMdl",
             } else if (missing(names)) {
                 names <- self$get_var_names(pattern, vtype = "allfrml")
             } else if (!missing(pattern)) {
-                names <- union(names, 
+                names <- union(names,
                                self$get_var_names(pattern, vtype = "allfrml"))
             }
             js <- private$get_period_indices(period)
@@ -388,7 +388,7 @@ IsisMdl <- R6Class("IsisMdl",
         get_ftrelax = function() {
             "Returns the Fair-Taylor relaxtion factors"
             values <- .Call("get_ftrelax_c", private$model_index)
-            names(values) <- .Call(get_var_names_c, "all_endolead", 
+            names(values) <- .Call(get_var_names_c, "all_endolead",
                                    private$model_index)
             sorted_names <- sort(names(values))
             return (values[sorted_names])
@@ -414,6 +414,15 @@ IsisMdl <- R6Class("IsisMdl",
             }
             .Call("set_eq_status_c", private$model_index, names, stat);
             return  (invisible(self))
+        },
+        mdlpas = function(period = self$model_period) {
+            "Run all equations of the model in solution order forwards in time"
+            if (is.null(self$model_period)) stop(private$period_error_msg)
+            js <- private$get_period_indices(period)
+            ret <- .Fortran("mdlpas_fortran",
+                            model_index = private$model_index,
+                            jtb = js$startp, jte = js$end)
+            return (invisible(self))
         }
     ),
     private = list(
