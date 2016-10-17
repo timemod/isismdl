@@ -14,7 +14,7 @@
  * use Standard C library routime memcmp
  */
 
-#include "macromodtypes.h"
+#include "isismdl_types.h"
 
 #include <string.h>
 #include <stdio.h>

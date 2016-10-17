@@ -1,11 +1,11 @@
-bynext.o : macromodtypes.h
-byscmp.o : macromodtypes.h
-bysmov.o : macromodtypes.h
+bynext.o : isismdl_types.h
+byscmp.o : isismdl_types.h
+bysmov.o : isismdl_types.h
 c_calls.o : c_calls.h get_info.h set_fit_options.h set_solve_options.h
 dependencies.o : dependencies.h util.h
 ecode.o : dependencies.h ecode.h mchdr.h mcinit.h symbol.h util.h \
          xpcdef.h xpctab.h
-expsymtab.o : macromodtypes.h mcinit.h symbol.h xpcdef.h
+expsymtab.o : isismdl_types.h mcinit.h symbol.h xpcdef.h
 fit_options.o : option_utils.h solve_options.h
 fname.o : fname.h
 futils.o : futils.h
@@ -17,7 +17,7 @@ mcinit.o : ecode.h mcinit.h symbol.h util.h xpcdef.h xpctab.h
 mcip.o : flags.h mchdr.h util.h
 mcopt_init.o : mcopt.h
 option_utils.o : option_utils.h
-outipcode.o : ecode.h ipcode.h isismdl.h macromodtypes.h mchdr.h \
+outipcode.o : ecode.h ipcode.h isismdl.h isismdl_types.h mchdr.h \
              mcinit.h outmdl.h symbol.h util.h xpcdef.h
 scan.o : ecode.h flags.h fname.h mchdr.h mcinit.h symbol.h util.h \
         xpcdef.h xpctab.h
@@ -30,5 +30,5 @@ set_solve_opts_c.o : init_set_get_options.h set_solve_options.h \
 solve_options.o : option_utils.h solve_options.h
 symbol.o : isismdl.h symbol.h util.h xpcdef.h
 util.o : isismdl.h util.h
-xpctab.o : dependencies.h ecode.h macromodtypes.h mchdr.h mcinit.h \
+xpctab.o : dependencies.h ecode.h isismdl_types.h mchdr.h mcinit.h \
           outmdl.h symbol.h util.h xpcdef.h

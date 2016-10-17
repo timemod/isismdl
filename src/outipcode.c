@@ -17,7 +17,7 @@
 #include "outmdl.h"
 #include "isismdl.h"
 
-#include "macromodtypes.h"
+#include "isismdl_types.h"
 
 #define POL_STEP 100  /* the step to increase the size of array polish */
 

@@ -1,3 +1,3 @@
 library(testthat)
 
-test_check("macromod")
+test_check("isismdl")

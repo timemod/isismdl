@@ -69,9 +69,9 @@ g3
 ((lp37
 S'dependencies.h'
 p38
-aS'macromodtypes.h'
-p39
 aS'outmdl.h'
+p39
+aS'isismdl_types.h'
 p40
 aS'mcinit.h'
 p41
@@ -141,7 +141,7 @@ g3
 ((lp75
 S'mcinit.h'
 p76
-aS'macromodtypes.h'
+aS'isismdl_types.h'
 p77
 aS'xpcdef.h'
 p78
@@ -159,7 +159,7 @@ sS'bynext.c'
 p85
 g3
 ((lp86
-S'macromodtypes.h'
+S'isismdl_types.h'
 p87
 atRp88
 sS'symbol.c'
@@ -206,7 +206,7 @@ sS'byscmp.c'
 p111
 g3
 ((lp112
-S'macromodtypes.h'
+S'isismdl_types.h'
 p113
 atRp114
 sS'get_solve_opts_c.c'
@@ -258,13 +258,13 @@ S'isismdl.h'
 p139
 aS'outmdl.h'
 p140
-aS'xpcdef.h'
+aS'isismdl_types.h'
 p141
-aS'mcinit.h'
+aS'xpcdef.h'
 p142
-aS'ipcode.h'
+aS'mcinit.h'
 p143
-aS'macromodtypes.h'
+aS'ipcode.h'
 p144
 aS'util.h'
 p145
@@ -327,7 +327,7 @@ sS'bysmov.c'
 p176
 g3
 ((lp177
-S'macromodtypes.h'
+S'isismdl_types.h'
 p178
 atRp179
 sS'fit_options.c'

@@ -3,6 +3,7 @@
 export(IsisMdl)
 export(compile_mdl)
 export(copy_example_mdl)
+export(read_mdl)
 exportClasses(regperiod_range)
 import(regts)
 importFrom("methods","new")

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "macromodtypes.h"
+#include "isismdl_types.h"
 #include "symbol.h"
 #include "xpcdef.h"
 #include "mcinit.h"

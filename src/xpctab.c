@@ -87,7 +87,7 @@
 #include "util.h"
 #include "ecode.h"
 #include "outmdl.h"
-#include "macromodtypes.h"
+#include "isismdl_types.h"
 #include "dependencies.h"
 
 

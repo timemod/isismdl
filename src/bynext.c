@@ -19,7 +19,7 @@
 
 #include <stdio.h>
 
-#include "macromodtypes.h"
+#include "isismdl_types.h"
 
 #define max_depth 6
 #define stack_size max_depth

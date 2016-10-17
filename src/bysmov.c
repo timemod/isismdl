@@ -6,7 +6,7 @@
  *  takes care of overlapping memory and should be fast
  */
 
-#include "macromodtypes.h"
+#include "isismdl_types.h"
 
 #include <string.h>
 
