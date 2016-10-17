@@ -15,6 +15,7 @@
 #include "symbol.h"
 #include "util.h"
 #include "xpcdef.h"
+#include "isismdl.h"
 
 #define Namecmp strlcmp
 
@@ -205,20 +206,17 @@ void    sym_walk( SymTab *stab, int (*walkfn)(Symbol *) , Symbol **spsave )
 }
 
 
-static int print_symbol(Symbol *sp) 
-{
-    printf("Name and type = %s %d\n", sp->name, sp->xpctype);
+static int print_symbol(Symbol *sp) {
+    PRINTF("Name and type = %s %d\n", sp->name, sp->xpctype);
     return NXTSYM;
 }
 
-void sym_dump(SymTab *stab) 
-{
-    printf("Dump of the symbol table\n");
+void sym_dump(SymTab *stab) {
+    PRINTF("Dump of the symbol table\n");
     sym_walk(stab, print_symbol,  NULL);
 }
 
-void    sym_stat( SymTab *stab, FILE *fp )
-{
+void sym_stat( SymTab *stab, FILE *fp ) {
     Symbol  *sp;
     size_t  i, cnt, zcnt, cntmax, totcnt;
 

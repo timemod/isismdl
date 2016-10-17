@@ -27,6 +27,7 @@
 #include "futils.h"
 
 #include "dependencies.h"
+#include "isismdl.h"
 
 #define CPUSECS(t0,t1) (((double)(t1)-(double)(t0))/(double)(CLOCKS_PER_SEC))
 
@@ -74,7 +75,7 @@ static void do_zrf(FILE *);               /* for zrf output   */
  * warnings and errors
  */
 
-static  void    vmessage(const char *fmt , va_list args);
+static  void vmessage(const char *fmt , va_list args);
 
 char    msgname[FILENAME_MAX + 1];      /* warning message filename     */
 static  FILE *ferr = NULL;              /* warning output stream        */
@@ -324,26 +325,25 @@ char    *mkfname( char *fname, char *path, char *base, char *ext)
     char    *fn;
 
     fn = fnjoin( fname, path, base, ext);
-    if( fn == NULL )
-            fatal( "Bad filename\n");
+    if (fn == NULL) {
+        ERROR( "Bad filename\n");
+    }
     return fn;
 }
 
-static  void    vmessage(const char *fmt , va_list args)
-{
+static void vmessage(const char *fmt , va_list args) {
 
-    if( ferr == NULL )
-    {
+    if (ferr == NULL) {
         ferr = fopen( msgname, "w" );
-        if( ferr == NULL )
-            ferr = stderr;
+        if (ferr == NULL) {
+            ERROR("Unable to open the error file\n");
+        }
     }
 
     vfprintf(ferr, fmt, args);
 }
 
-void mcerrmessage(const char *fmt , va_list args)
-{
+void mcerrmessage(const char *fmt , va_list args) {
         ++errcnt;
 
         vmessage(fmt, args);
@@ -353,8 +353,7 @@ void mcerrmessage(const char *fmt , va_list args)
 }
 
 
-int mcerror(const char *fmt , ... )
-{
+int mcerror(const char *fmt , ... ) {
     /*
      * called by mcparse and mclex
      */
@@ -362,20 +361,18 @@ int mcerror(const char *fmt , ... )
     va_list args;
 
     va_start(args, fmt);
-        mcerrmessage(fmt, args);
+    mcerrmessage(fmt, args);
     va_end(args);
 
     return 0;
-
 }
 
-void    warning(const char *fmt , ... )
-{
+void mcwarn(const char *fmt , ... ) {
     va_list args;
 
     ++warncnt;
     va_start(args, fmt);
-        vmessage(fmt, args);
+    vmessage(fmt, args);
     va_end(args);
 }
 

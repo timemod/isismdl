@@ -12,7 +12,6 @@ void    *ecalloc ( size_t , size_t );
 void    efree( void *p );
 char    *estrdup( char *s );
 
-void    fatal( char *fmt, ... );
 FILE    *efopen( const char *fname, char *amode);
 
 int strlcmp(const char *s1, const char *s2);

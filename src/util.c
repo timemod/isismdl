@@ -8,36 +8,37 @@
 #include <string.h>
 #include <ctype.h>
 #include <sys/stat.h>
+#include <Rinternals.h>
 
 #include "util.h"
+#include "isismdl.h"
 
-void    *emalloc( size_t n )
-{
+void *emalloc(size_t n ) {
         void    *p = malloc( n );
 
-        if( p == NULL )
-                fatal( "Out of memory");
-
+        if (p == NULL ) {
+            ERROR( "Out of memory");
+        }
         return p;
 }
 
-void    *erealloc( void *src, size_t n )
-{
+void  *erealloc( void *src, size_t n) {
         void    *p = realloc( src, n );
 
-        if( p == NULL )
-                fatal( "Out of memory");
+        if (p == NULL) {
+            ERROR("Out of memory");
+        }
 
         return p;
 }
 
-void    efree( void *p )
-{
-        if( p )
-                free(p);
+void efree(void *p) {
+        if (p) {
+            free(p);
+        }
 }
 
-char    *estrdup( char *s )
+char *estrdup( char *s )
 {
         char    *p;
 
@@ -50,30 +51,12 @@ char    *estrdup( char *s )
         return p;
 }
 
-void    fatal( char *fmt, ... )
-{
-        va_list args;
-
-    /* TODO: the implementation of fatal is fine for program xpc,
-     * but not correct when the model compiler is run by isis.
-     * In that case an error should appear in the isis log file.
-     * Alternatively, an error could be written to the .err file.
-     */
-
-    va_start(args, fmt);
-        vfprintf(stderr, fmt, args);
-    va_end(args);
-
-        exit(1);
-}
-
-FILE    *efopen( const char *fname, char *amode)
-{
+FILE *efopen( const char *fname, char *amode) {
         FILE    *fp;
 
-        if( (fp = fopen(fname, amode)) == NULL )
-                fatal("can't open %s\n", fname);
-
+        if( (fp = fopen(fname, amode)) == NULL) {
+            ERROR("can't open %s\n", fname);
+        }
         return fp;
 }
 

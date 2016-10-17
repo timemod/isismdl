@@ -1,19 +1,19 @@
-/* A Bison parser, made by GNU Bison 2.5.  */
+/* A Bison parser, made by GNU Bison 3.0.2.  */
 
 /* Bison interface for Yacc-like parsers in C
-   
-      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
-   
+
+   Copyright (C) 1984, 1989-1990, 2000-2013 Free Software Foundation, Inc.
+
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-   
+
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-   
+
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
@@ -26,49 +26,57 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-   
+
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
+#ifndef YY_MC_XPCTAB_H_INCLUDED
+# define YY_MC_XPCTAB_H_INCLUDED
+/* Debug traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 0
+#endif
+#if YYDEBUG
+extern int mcdebug;
+#endif
 
-/* Tokens.  */
+/* Token type.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
-   /* Put the tokens into the symbol table, so that GDB and other debuggers
-      know about them.  */
-   enum yytokentype {
-     T_END = 258,
-     T_FUNCTION = 259,
-     T_UL_FUNCTION = 260,
-     T_FRML = 261,
-     T_IDENT = 262,
-     T_PARAM = 263,
-     T_NAME = 264,
-     T_UFUNC = 265,
-     T_ULFUNC = 266,
-     T_IF = 267,
-     T_THEN = 268,
-     T_ELSE = 269,
-     T_ELSEIF = 270,
-     T_ENDIF = 271,
-     T_SUM = 272,
-     T_DEL = 273,
-     T_BUILTIN = 274,
-     T_NUMBER = 275,
-     T_INTNUM = 276,
-     T_GE = 277,
-     T_GT = 278,
-     T_LT = 279,
-     T_LE = 280,
-     T_EQ = 281,
-     NE = 282,
-     T_NOT = 283,
-     T_AND = 284,
-     T_OR = 285,
-     T_NE = 286,
-     UNARYMINUS = 287,
-     T_POW = 288
-   };
+  enum yytokentype
+  {
+    T_END = 258,
+    T_FUNCTION = 259,
+    T_UL_FUNCTION = 260,
+    T_FRML = 261,
+    T_IDENT = 262,
+    T_PARAM = 263,
+    T_NAME = 264,
+    T_UFUNC = 265,
+    T_ULFUNC = 266,
+    T_IF = 267,
+    T_THEN = 268,
+    T_ELSE = 269,
+    T_ELSEIF = 270,
+    T_ENDIF = 271,
+    T_SUM = 272,
+    T_DEL = 273,
+    T_BUILTIN = 274,
+    T_NUMBER = 275,
+    T_INTNUM = 276,
+    T_GE = 277,
+    T_GT = 278,
+    T_LT = 279,
+    T_LE = 280,
+    T_EQ = 281,
+    NE = 282,
+    T_NOT = 283,
+    T_AND = 284,
+    T_OR = 285,
+    T_NE = 286,
+    UNARYMINUS = 287,
+    T_POW = 288
+  };
 #endif
 /* Tokens.  */
 #define T_END 258
@@ -103,31 +111,27 @@
 #define UNARYMINUS 287
 #define T_POW 288
 
-
-
-
+/* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef union YYSTYPE
+typedef union YYSTYPE YYSTYPE;
+union YYSTYPE
 {
-
-/* Line 2068 of yacc.c  */
-#line 65 "xpctab.y"
+#line 65 "lex_yacc/xpctab.y" /* yacc.c:1909  */
 
         int     ival;
         real    dval;
         Symbol  *sp;
         Enodep  ep;
 
-
-
-/* Line 2068 of yacc.c  */
-#line 125 "xpctab.h"
-} YYSTYPE;
+#line 127 "xpctab.h" /* yacc.c:1909  */
+};
 # define YYSTYPE_IS_TRIVIAL 1
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+
 extern YYSTYPE mclval;
 
+int mcparse (void);
 
+#endif /* !YY_MC_XPCTAB_H_INCLUDED  */

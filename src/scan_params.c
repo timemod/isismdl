@@ -23,6 +23,7 @@
 #include "util.h"
 #include "xpcdef.h"
 #include "xpctab.h"
+#include "isismdl.h"
 
 static void make_param(Symbol *sp, int count);
 static void scan_param_statement(void);
@@ -56,7 +57,7 @@ static void scan_param_statement(void)
              * compilation (next stage). move to next token
              */
             token = mclex();
-            printf("Error scanning parameters.\n");
+            WARN("Error scanning parameters.\n");
         }
 
     }

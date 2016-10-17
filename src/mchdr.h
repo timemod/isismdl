@@ -34,7 +34,7 @@ extern  char    *get_includefilename(char *includename);
 extern  void    init_include_dirs(void);
 
 extern  int     mcerror(const char *fmt, ... );
-extern  void    warning(const char *fmt, ... );
+extern  void    mcwarn(const char *fmt, ... );
 
 extern  void    mcerrmessage(const char *, va_list);
 extern  void    xpcerrmsg(char *, ... );

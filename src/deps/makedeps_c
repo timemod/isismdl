@@ -11,23 +11,24 @@ fname.o : fname.h
 futils.o : futils.h
 get_solve_opts_c.o : init_set_get_options.h solve_options.h
 include_paths.o : futils.h mchdr.h util.h
-mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h mchdr.h \
-          mcinit.h outecode.h outmdl.h symbol.h util.h xpcdef.h
+mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h isismdl.h \
+          mchdr.h mcinit.h outecode.h outmdl.h symbol.h util.h xpcdef.h
 mcinit.o : ecode.h mcinit.h symbol.h util.h xpcdef.h xpctab.h
 mcip.o : flags.h mchdr.h util.h
 mcopt_init.o : mcopt.h
 option_utils.o : option_utils.h
-outipcode.o : ecode.h ipcode.h macromodtypes.h mchdr.h mcinit.h \
-             outmdl.h symbol.h util.h xpcdef.h
+outipcode.o : ecode.h ipcode.h isismdl.h macromodtypes.h mchdr.h \
+             mcinit.h outmdl.h symbol.h util.h xpcdef.h
 scan.o : ecode.h flags.h fname.h mchdr.h mcinit.h symbol.h util.h \
         xpcdef.h xpctab.h
-scan_params.o : ecode.h mchdr.h symbol.h util.h xpcdef.h xpctab.h
+scan_params.o : ecode.h isismdl.h mchdr.h symbol.h util.h xpcdef.h \
+               xpctab.h
 set_fit_opts_c.o : fit_options.h init_set_get_options.h \
                   set_fit_options.h
 set_solve_opts_c.o : init_set_get_options.h set_solve_options.h \
                     set_solve_opts.h solve_options.h
 solve_options.o : option_utils.h solve_options.h
-symbol.o : symbol.h util.h xpcdef.h
-util.o : util.h
+symbol.o : isismdl.h symbol.h util.h xpcdef.h
+util.o : isismdl.h util.h
 xpctab.o : dependencies.h ecode.h macromodtypes.h mchdr.h mcinit.h \
           outmdl.h symbol.h util.h xpcdef.h

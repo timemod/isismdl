@@ -15,6 +15,7 @@
 #include "xpcdef.h"
 #include "mchdr.h"
 #include "outmdl.h"
+#include "isismdl.h"
 
 #include "macromodtypes.h"
 
@@ -353,11 +354,10 @@ static  void out_enode( Enode *ebase, Enodep estart )
         case E_GOTO   :
         case E_STOP   :
         case E_START  : break;
-        case E_BAD    : fprintf(stderr, "EBAD opcode");
+        case E_BAD    : WARN("EBAD opcode\n");
                         break;
 
-        default       : fprintf(stderr, "Invalid opcode %d",
-                                ep->operator);
+        default       : WARN("Invalid opcode %d", ep->operator);
                         break;
     }
 }

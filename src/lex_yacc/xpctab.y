@@ -502,7 +502,7 @@ int  ufunc_prologue(Symbol *sp, int is_ulfunc) {
     Curfunc  = sp->name;
 
     if( strlen(Curfunc) > MAX_UFNNLEN )
-        warning("Function name <%s> too long (max %d chars)\n",
+        mcwarn("Function name <%s> too long (max %d chars)\n",
                 Curfunc, MAX_UFNNLEN );
 	
     if (is_ulfunc) {
@@ -934,7 +934,7 @@ static  void new_var( Symbol *sp , int xpctype, int vtype )
     Variable *vp;
 
     if( strlen(sp->name) > MAX_VARNLEN )
-        warning("Variable name <%s> too long (max %d chars)\n",
+        mcwarn("Variable name <%s> too long (max %d chars)\n",
                     sp->name , MAX_VARNLEN );
 
     sp->u.varp  = vp = emalloc( sizeof(Variable) );
