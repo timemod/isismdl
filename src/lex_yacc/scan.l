@@ -63,6 +63,8 @@ static size_t if_nest_cnt; /* number of nested #if constructs within a #if */
 
 #define YY_NEVER_INTERACTIVE 1
 
+#define YY_FATAL_ERROR(msg) Rf_error(msg)
+
 /*
  * Flex needs this
  * MKS Lex doesn't and just ignores this
