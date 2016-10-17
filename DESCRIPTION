@@ -6,9 +6,13 @@ Date: 2016-02-18
 Author:  Rob van Harrevelt [aut, cre]
 Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
 Description: Solve macroeconomic models.
+Depends: R (>= 2.10.0)
+SystemRequirements: GNU make
 License:  GPL-3
 LazyData: TRUE
 RoxygenNote: 5.0.1
 Imports: methods
 Depends: regts, R6
 Suggests: testthat
+
+

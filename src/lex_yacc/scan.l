@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <Rinternals.h>
 
 #include "symbol.h"
 #include "ecode.h"
@@ -63,7 +64,7 @@ static size_t if_nest_cnt; /* number of nested #if constructs within a #if */
 
 #define YY_NEVER_INTERACTIVE 1
 
-#define YY_FATAL_ERROR(msg) Rf_error(msg)
+#define YY_FATAL_ERROR(msg) error(msg)
 
 /*
  * Flex needs this

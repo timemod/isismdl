@@ -37,9 +37,9 @@ model_type.o : mdl_name_utils.o model_params.o utils.o
 modelworkspaces.o : mws_type.o output_utils.o
 msbrdn.o : kinds.o liqrco.o liqrup.o msjcot.o msnwut.o msvars.o \
           nucnst.o nuv.o
-mscalc.o : kinds.o mcedef.o mcstak.o model_params.o msimot.o \
-          mspushf.inc mspushv.inc msshift.inc msufstack.o msvars.o mws_type.o \
-          nuna.o nuv.o
+mscalc.o : include/mspushf.inc include/mspushv.inc include/msshift.inc \
+          kinds.o mcedef.o mcstak.o model_params.o msimot.o msufstack.o msvars.o \
+          mws_type.o nuna.o nuv.o
 msfbvl.o : kinds.o mscalc.o msvars.o nuna.o
 msfill.o : msimot.o mssneq.o msvars.o
 msfitm.o : kinds.o liqrco.o liqrmn.o mdlvars.o msbrdn.o msfbvl.o \

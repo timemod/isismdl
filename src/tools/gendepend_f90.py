@@ -63,10 +63,11 @@ def read_depend(srcfile) :
         if m != None:
             # syntax is "include "mymodule""
             include_name = m.group(1)
-            depend.add(include_name)
+            depend.add(os.path.join(include_dir, include_name))
     return depend
 
 # main program
 if __name__ == "__main__":
     dict_filename = sys.argv[1]
+    include_dir = sys.argv[2]
     gendepend(dict_filename)

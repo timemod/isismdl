@@ -6,6 +6,7 @@
 import glob
 import os
 import cPickle
+import sys
 
 import gendepend_f90
 import gendepend_c 
@@ -56,6 +57,13 @@ def dictionary_is_obsolete(dict_filename, src_names):
         if not get_name(src_file) in src_names:
             return True
     return False
+
+
+dep_dir = sys.argv[1]
+f90_pkl = os.path.join(dep_dir, f90_pkl)
+c_pkl = os.path.join(dep_dir, c_pkl)
+f90_dep = os.path.join(dep_dir, f90_dep)
+c_dep = os.path.join(dep_dir, c_dep)
 
 # main script
 f90_names = [get_name(src_file) for src_file in glob.glob("*.f90")]
