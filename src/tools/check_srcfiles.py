@@ -50,6 +50,8 @@ no longer exists.
 '''
 def dictionary_is_obsolete(dict_filename, src_names):
     dict_file = open(dict_filename, 'rb')
+    if not os.path.exists(dict_filename):
+        return False
     dep_dict = cPickle.load(dict_file)
     dict_file.close()
     src_files = list(dep_dict.keys())
