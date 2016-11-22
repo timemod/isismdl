@@ -14,26 +14,20 @@ Object of \code{\link{R6Class}} representing a macroeconomic model.
 \description{
 An R6 class class representing a macroecomic model
 }
-\section{Fields}{
-
-\describe{
-\item{\code{maxlag}}{the maximum lag of the model}
-
-\item{\code{maxlead}}{the maximum lead of the model}
-
-\item{\code{model_period}}{the model period. This is the maximum period for which
-the model will be solved.}
-
-\item{\code{model_data_period}}{the model data period, i.e. the model
-period extended wih the lag period and lead period. For example, suppose that
-the model has a maximum lag of 2 and a maximum lead of 1. If the model period
- is \code{"2015Q3/2016Q2"}, then the model data period is \code{"2015Q1/2016Q3"}.}
-}}
 \section{Methods}{
 
 \describe{
-\item{\code{get_var_names()}}{Returns the names of the model variables}
-\item{\code{get_ca_names()}}{Returns the names of the constant adjustments}
+
+\item{\code{get_var_names(pattern = ".*", vtype = c("all", "allfrml",
+"all_endolead"))}}{Returns the names of the model variables. \code{pattern} is
+a regular expression, \code{vtype} the variable type.}
+
+\item{\code{get_par_names(pattern = ".*")}}{Returns
+the names of the model parameters \code{pattern} is a regular expression.}
+
+\item{\code{get_eq_names(pattern = ".*", vtype = c("all", "inactive"))}}{Returns
+the names of the equations. \code{pattern} is a regular expression}
+
 \item{\code{set_period(period)}}{Sets the model period. \code{period}
 is a \code{\link{regperiod_range}} object or an object that can be coerced
 to a \code{regperiod_range}. The model period is the longest period for which
@@ -41,9 +35,20 @@ the model may be solved. This method also allocates storage for
 all model timeseries and constant adjustments. Model timeseries are
 available for the so called 'model data period', which is
 the model period extended with a lag and lead period. Constant
-adjustments are only available for the model period. This method
+adjustments are only availabcdle for the model period. This method
 also initialises all model timeseries with \code{NA} and all constant
 adjusments with 0.}
+
+\item{\code{get_period()}}{Returns the model period}
+
+\item{\code{get_data_period()}}{Returns the model data period}
+
+\item{\code{set_param(p)}}{Sets the model parameter. \code{p} is a named
+list.}
+
+\item{\code{get_param(pattern, names)}}{Returns the model parameter.
+\code{pattern} is a regular expression, \code{names} is a vector with parameter
+names.}
 }
 }
 \examples{
@@ -52,7 +57,7 @@ copy_example_mdl("islm")
 compile_mdl("islm.mdl")
 
 # create the ISLM model based on the mif file
-islm_model <- IsisMdl$new("islm.mif")
+islm_model <- read_mdl("islm.mif")
 
 #  set modelworkspace using example mws islm_input_mws
 islm_model$set_mws(islm_input_mws)
@@ -60,6 +65,7 @@ islm_model$solve()
 \dontshow{
 unlink("islm.*")
 }
+
 }
 \keyword{data}
 

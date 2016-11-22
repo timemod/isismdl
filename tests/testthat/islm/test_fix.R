@@ -26,9 +26,9 @@ test_that("Comparing solve with fix variables for the ISLM model", {
 })
 
 #  now unfix the variables and solve again
-fix <- islm_model$get_data()[islm_model$model_period, ]
+fix <- islm_model$get_data()[islm_model$get_period(), ]
 fix[] <- NA
-ca <- islm_model$get_data()[islm_model$model_period, ]
+ca <- islm_model$get_data()[islm_model$get_period(), ]
 ca[] <- 0
 islm_model$set_fix(fix)
 islm_model$set_ca(ca)
