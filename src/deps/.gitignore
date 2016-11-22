@@ -1,1 +1,3 @@
 *.pkl
+makedeps_f90
+makedeps_c
