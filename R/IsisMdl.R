@@ -92,12 +92,10 @@ setOldClass("regperiod_range")
 IsisMdl <- R6Class("IsisMdl",
     cloneable = FALSE,
     public = list(
-
         initialize = function(mif_name) {
-
             private$model_index <- .Call(read_mdl_c, mif_name)
 
-            # get maximum lag and lead
+                        # get maximum lag and lead
             ret <- .Fortran("get_max_lag_lead_fortran",
                             model_index = private$model_index, maxlag = 1L,
                             maxlead = 1L)
@@ -108,6 +106,21 @@ IsisMdl <- R6Class("IsisMdl",
                function(e) {.Fortran("remove_mws_fortran",
                                      model_index = private$model_index)},
                 onexit = TRUE)
+        },
+        print = function(...) {
+            cat("IsisModel object\n")
+            cat(sprintf("%-60s%d\n", "Model index:",
+                        private$model_index))
+            cat(sprintf("%-60s%d\n", "Number of variables:",
+                        length(self$get_var_names())))
+            cat(sprintf("%-60s%d\n", "Maximum lag:", private$maxlag))
+            cat(sprintf("%-60s%d\n", "Maximum lead:", private$maxlead))
+            if (!is.null(private$model_period)) {
+                cat(sprintf("%-60s%s\n", "Model period:",
+                            as.character(private$model_period)))
+                cat(sprintf("%-60s%s\n", "Model data period:",
+                            as.character(private$model_data_period)))
+            }
         },
         get_var_names = function(pattern = ".*", vtype = "all") {
             names <- .Call(get_var_names_c, vtype, private$model_index)

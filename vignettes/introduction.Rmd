@@ -1,0 +1,194 @@
+---
+title: "Introduction to package `isismdl`"
+author: "Rob van Harrevelt"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+linkcolor: blue    
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  
+---
+
+# Introduction
+
+This introductiomn shows how package `isismdl` can be
+used to solve a simple example mode, 
+a dynamical version of the ISLM model.
+
+[Here follows a description of the ISLM model]
+
+<!--   
+PREPARATIONS
+-->
+```{r echo = FALSE, message = FALSE}
+
+library(isismdl)
+
+# input/output chunks are separated
+# R inputlines start with >, outputlines with nothing
+knitr::opts_chunk$set(collapse = FALSE, comment = "", prompt = TRUE)
+```
+
+## The model file
+
+The model file should be defined on an external ASCII file. A detailed
+discussion about the syntax of this file is provided in the Reference
+Manual of Isis.
+
+For the example ISLM-model, the model files has the following contents
+
+```{r echo = FALSE, comment=''}
+cat(readLines('islm.mdl'), sep = '\n')
+```
+
+## Compiling the model
+
+The function `compile_mdl` compiles the model and 
+generates internal equation code that is used to evaluate the
+model equations:
+```{r}
+compile_mdl("islm.mdl")
+```
+
+Two files are generated:
+
+* `islm.mif` The model information file (mif-file). This is a binary file
+contains the interal code for the evaluation of the model
+equations.
+* `islm.mrf` The model reference file (mrf file), a text file with information about
+the structure of the model.
+
+If the the compiler detects an error in the model file, an additional
+file `islm.err` is created. This file contains a list of errors.
+
+The mrf file for our ISLM looks like this:
+
+```{r echo = FALSE}
+cat(readLines('islm.mrf'), sep = '\n')
+```
+
+## `IsisMdl` objects
+
+The function `read_mdl` reads the mif files and creates
+a `Isismdl` object.
+
+```{r}
+mdl <- read_mdl("islm.mif")
+mdl
+```
+
+An `IsisMdl` object is an R6 class object. R6 
+classes behave quite differently than the more familiar S3 and S4 classes. 
+For example, for R6 classes methods are part of the object itself and not of 
+generic functions. R6 classes behave simular to classes in
+object oriented languages such as Java, C++ or Python. 
+
+For example, the method `get_params()` can be used to
+obtain the values of the model parameters. 
+For example, to obtains the values of parameters `m0` and `c1`, use
+```{r}
+mdl$get_param(names = c("m0", "c1"))
+```
+
+Methods starting with `get_`, are ofter called a "getter" methods.
+There are also corresponding "setter" methods. For example
+```{r}
+mdl$set_param(list(m0 = 100))
+mdl$get_param("m0")
+```
+Input for function `set_params()` is a named list.
+
+<!-- The `IsisMdl` is a simply wrapper class around  -->
+<!-- the Fortran objects. -->
+<!-- Information about the model, such as model equations, -->
+<!-- variables, paramters etc., are stored in Fortran code. The Fortran  -->
+<!-- code is organized in object oriented approach. Each `isismdl` object -->
+<!-- corresponds to one Fortran object. The model index, displayed when you -->
+<!-- print the mdl (see the output above) is the index of the Fortran  -->
+<!-- object that corresponds to the current `IsisMdl` object.  -->
+<!-- This means that `IsisMdl` objects cannot be saved and stored on -->
+<!-- Rdata files.  However, it is possible to extract all model data, -->
+<!-- parameters and solve objects in a so called `mws` object (an S4 object) -->
+<!-- and store this data around the file. This is explained in section ... -->
+
+## Cloning `IsisMdl` objects
+
+Consider the following assignment:
+```{r}
+mdl2 <- mdl
+```
+Now variables `mdl2` and `mdl` refer to the same object. If you modify
+`mdl2`, then also `mdl` is modified.
+```{r}
+mdl2$set_param(list(m0 = 75))
+mdl$get_param("m0")
+```
+The usual copy-on-modify semantics that it used for convential
+R objects such as S3 or S4 classes does not apply to R6 classes.
+
+If you want to create a copy of the model, use the `clone()` method.
+(TODO: the clone method does currently not work yet. It is easy to implement cloning)
+```{r, eval = FALSE}
+mdl2 <- mdl$clone()
+mdl2$set_params(c(m0 = -9999))
+mdl$get_params("m0")
+```
+
+## Solving the model
+
+Suppose that we want to solve the model for the period from 2016 to
+2021. Then we need the values of the exogenous variables for that period.
+For the feedback variables `y` and `r` we also need initial
+starting values for the solution period.
+Since `r`, `y` and `y_d` have a lag 1, we also need values for these
+variables in 2015. 
+
+To supply the required data to the model, we first a `regts` 
+timeseries object. For the exogenous variables `g` and `ms` we
+assume an annual growth of 1.5% after 2016.
+```{r}
+# exogenous variables:
+g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2016")
+ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2016")
+# feedback variables (with lag):
+r <- regts(3.4, period = "2015/2021")
+y <- regts(980, period = "2015/2021")
+# lagged variable
+yd <- regts(790, start = "2015")
+data <- cbind(g, ms, r, y, yd)
+data
+```
+
+To transfer these variables to the model, we first
+have to define the model period. For this we use the
+metbhod `set_period()`:
+```{r}
+mdl$set_period(regperiod_range("2016", "2021"))
+mdl
+```
+The data period is the model period extended with the lag and lead period.
+You can also retrieve the model period and model data period 
+with the methods `get_period()` and `get_data_period`.
+
+Now can transfer the values in `regts` object data the model
+with function `set_data()`:
+```{r}
+mdl$set_data(data)
+```
+
+We are now ready to solve the model:
+```{r}
+mdl$solve()
+```
+
+The method  `get_data()` can be used to retrieve the solution.
+This can for example be used to plot the computed interest rate.
+```{r}
+plot(mdl$get_data(names = "r"))
+```

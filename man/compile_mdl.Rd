@@ -11,9 +11,6 @@ compile_mdl(modelname)
 An extension \code{mdl} is appended to the specified name if the filename
 does not already have an extension.}
 }
-\value{
-\code{TRUE} if the compilation was succesful.
-}
 \description{
 This function compiles a model file.
 A model as defined on an external ASCII file is analysed and

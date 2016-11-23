@@ -51,7 +51,6 @@
 #' @param modelname The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
 #' does not already have an extension.
-#' @return \code{TRUE} if the compilation was succesful.
 #' @useDynLib isismdl compile_mdl_c
 #' @examples
 #' copy_example_mdl("islm")
@@ -64,5 +63,8 @@
 #' @export
 compile_mdl <- function(modelname) {
     retval <- .Call(compile_mdl_c, modelname)
-    return (retval)
+    if (!retval) {
+        stop("Compilation was not succesfull")
+    }
+    return (invisible(NULL))
 }
