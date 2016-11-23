@@ -33,6 +33,7 @@ setOldClass("regperiod_range")
 #' @useDynLib isismdl get_ftrelax_c
 #' @useDynLib isismdl set_eq_status_c
 #' @useDynLib isismdl mdlpas_fortran
+#' @useDynLib isismdl clone_mws_fortran
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -90,7 +91,6 @@ setOldClass("regperiod_range")
 #' names.}
 #' }
 IsisMdl <- R6Class("IsisMdl",
-    cloneable = FALSE,
     public = list(
         initialize = function(mif_name) {
             private$model_index <- .Call(read_mdl_c, mif_name)
@@ -458,6 +458,15 @@ IsisMdl <- R6Class("IsisMdl",
         model_index = NA_integer_,
         period_error_msg = paste("The model period is not set.",
                             "Set the model period with set_period()."),
+        deep_clone = function(name, value) {
+            if (name == "model_index") {
+                retval <- .Fortran("clone_mws_fortran", model_index = value,
+                                model_index_clone = 1L)
+                return (retval$model_index_clone)
+            } else {
+               return (value)
+            }
+        },
         get_period_indices = function(period, extended = TRUE) {
             period <- as.regperiod_range(period)
             mdl_period_start <- start_period(private$model_period)

@@ -240,3 +240,18 @@ subroutine set_ftrelax(mws_index, ivar, value)
     real(c_double), intent(in) :: value
     mws_array(mws_index)%ftrelax(ivar) = value
 end subroutine set_ftrelax
+
+subroutine clone_mws_fortran(model_index, model_index_clone)
+    ! 
+    ! read the model from the file
+    !
+    use modelworkspaces
+    integer, intent(in)               :: model_index
+    integer, intent(out)              :: model_index_clone
+
+    model_index_clone = create_mws()
+    if (model_index_clone < 0) return
+
+    mws_array(model_index_clone) = mws_array(model_index)
+    
+end subroutine clone_mws_fortran

@@ -132,12 +132,12 @@ mdl$get_param("m0")
 The usual copy-on-modify semantics that it used for convential
 R objects such as S3 or S4 classes does not apply to R6 classes.
 
-If you want to create a copy of the model, use the `clone()` method.
-(TODO: the clone method does currently not work yet. It is easy to implement cloning)
-```{r, eval = FALSE}
-mdl2 <- mdl$clone()
-mdl2$set_params(c(m0 = -9999))
-mdl$get_params("m0")
+If you want to create a copy of the model, use the `clone()` method with
+argument `deep = TRUE` :
+```{r}
+mdl2 <- mdl$clone(deep = TRUE)
+mdl2$set_param(list(m0 = -9999))
+mdl$get_param("m0")
 ```
 
 ## Solving the model
