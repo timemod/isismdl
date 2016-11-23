@@ -570,22 +570,22 @@ subroutine report_solve_error(error)
 
     select case (error)
     case (1)
-        call macromod_out("Simulation not possible")
+        call isismdl_out("Simulation not possible")
     case (2)
-        call macromod_out("Simulation stopped")
+        call isismdl_out("Simulation stopped")
     case (3)
-        call macromod_out("Initial lags/leads missing/invalid. Simulation not possible.")
+        call isismdl_out("Initial lags/leads missing/invalid. Simulation not possible.")
     case (4)
-        call macromod_out("Invalid parameter values detected. Simulation not possible")
+        call isismdl_out("Invalid parameter values detected. Simulation not possible")
     case (5)
-        call macromod_out("Fair-Taylor has not converged")
+        call isismdl_out("Fair-Taylor has not converged")
     case (6)
-        call macromod_out("Out of memory")
+        call isismdl_out("Out of memory")
     case default
-        call macromod_out("Unknown problem in solve")
+        call isismdl_out("Unknown problem in solve")
     end select
 
-    call macromod_warn("Solve model issued error messages." // &
+    call isismdl_warn("Solve model issued error messages." // &
          NEW_LINE('A') // "The solve may be unsuccesfull/incomplete or erroneous.")
 
 end subroutine report_solve_error

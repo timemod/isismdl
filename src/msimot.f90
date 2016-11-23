@@ -82,7 +82,7 @@ contains
         ! carcon is used for FTN carriage control
 
 
-        call macromod_out(str)
+        call isismdl_out(str)
     
         select case (otype)
         case (O_ERRM, O_ERRF, O_ERRQ)

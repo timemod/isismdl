@@ -10,7 +10,7 @@ module output_utils
 
     contains
 
-        subroutine macromod_out(string)
+        subroutine isismdl_out(string)
             character(len = *), intent(in) :: string
             integer :: n
             n = len_trim(string)
@@ -19,16 +19,16 @@ module output_utils
             else 
                 call intpr(" ", -1, 1, 0)
             endif
-        end subroutine macromod_out
+        end subroutine isismdl_out
 
-        subroutine macromod_warn(string)
+        subroutine isismdl_warn(string)
             character(len = *), intent(in) :: string
             call rwarn(string)
-        end subroutine macromod_warn
+        end subroutine isismdl_warn
 
-        subroutine macromod_error(string)
+        subroutine isismdl_error(string)
             character(len = *), intent(in) :: string
             call rexit(string)
-        end subroutine macromod_error
+        end subroutine isismdl_error
 
 end module output_utils

@@ -15,7 +15,7 @@ module modelworkspaces
 
     contains
         integer function create_mws()
-            use output_utils, only : macromod_error
+            use output_utils, only : isismdl_error
     
             integer :: i
 
@@ -29,7 +29,7 @@ module modelworkspaces
             end do
 
             ! no free mws found: error
-            call macromod_error("Maximum number of models in memory reached")
+            call isismdl_error("Maximum number of models in memory reached")
             create_mws = -1
             return
         end function create_mws

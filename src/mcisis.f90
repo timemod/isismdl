@@ -636,7 +636,7 @@ subroutine mcgerr( errcod)
         errmsg = 'Unknown error in mcisis'
     end select
     
-    call macromod_error(errmsg)
+    call isismdl_error(errmsg)
 
     return
 end subroutine mcgerr
@@ -699,7 +699,7 @@ else
 
 endif
 
-call macromod_warn(errmsg)
+call isismdl_warn(errmsg)
 
 return
 end
@@ -715,7 +715,7 @@ use output_utils
     ! write is now written to the Isis log file and to the .err file
     ! errtyp == 1 implies a continuation message
 
-    call macromod_warn(errstr)
+    call isismdl_warn(errstr)
 
     return
 end subroutine mcxerr
@@ -815,7 +815,7 @@ goto 100
 
 100 continue
 
-call macromod_out(str)
+call isismdl_out(str)
 
 200 return
 end subroutine mcimsg
