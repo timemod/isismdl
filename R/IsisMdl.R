@@ -89,13 +89,36 @@ setOldClass("regperiod_range")
 #' \item{\code{get_param(pattern, names)}}{Returns the model parameter.
 #' \code{pattern} is a regular expression, \code{names} is a vector with parameter
 #' names.}
+#'
+#' \item{\code{set_[data|ca|fix|fit], names = colnames(data))}}{
+#' The methods \code{set_data}, \code{set_ca}, \code{set_fix} and
+#' \code{set_fit} can be used set the values of the model data,
+#' constant adjustments, fix values, and fit targets, respectively.
+#' \code{data} is a \code{regts} or \code{ts} object. With argument \code{names}
+#' the names of the timeseries in \code{data} can be specified. This argument
+#' is mandatary if \code{data} does not have column names.}
+#'
+#'  \item{\code{get_data(pattern, names, period = self$get_data_period())}} {
+#'  Returns the model data. \code{pattern} is
+#'  a regular expression, \code{names} a list of variables
+#'  and \code{period} an \code{\link[regts]{regperiod_range}} object
+#'  or an object that can be coerced to \code{regperiod_range}.}
+#'
+#'  \item{\code{get_ca(pattern, names, period = self$get_period())}} {
+#'  Returns the constant adustments. \code{pattern} is
+#'  a regular expression, \code{names} a list of variables
+#'  and \code{period} an \code{\link[regts]{regperiod_range}} object
+#'  or an object that can be coerced to \code{regperiod_range}.}
+#'
+#'  \item{\code{get_[fix|fit]()}} {\code{get_fix} and \code{get_fit} return
+#'  the fix values and fit targets, respecively.}
 #' }
 IsisMdl <- R6Class("IsisMdl",
     public = list(
         initialize = function(mif_name) {
             private$model_index <- .Call(read_mdl_c, mif_name)
 
-                        # get maximum lag and lead
+            # get maximum lag and lead
             ret <- .Fortran("get_max_lag_lead_fortran",
                             model_index = private$model_index, maxlag = 1L,
                             maxlead = 1L)
@@ -209,6 +232,22 @@ IsisMdl <- R6Class("IsisMdl",
             return (.Call("get_param_c", model_index = private$model_index,
                           names = names))
         },
+        set_data = function(data, names = colnames(data)) {
+            "Sets the model data"
+            return (private$set_var(1L, data, names, missing(names)))
+        },
+        set_ca = function(data, names = colnames(data)) {
+            "Sets the constant adjustments"
+            return (private$set_var(2L, data, names, missing(names)))
+        },
+        set_fix = function(data, names = colnames(data)) {
+            "Sets the fix data"
+            return (private$set_var(3L, data, names, missing(names)))
+        },
+        set_fit = function(data, names = colnames(data)) {
+            "Sets the fit data"
+            return (private$set_var(4L, data, names, missing(names)))
+        },
         get_data = function(pattern, names, period = private$model_data_period) {
             "Returns the model data"
             if (is.null(private$model_period)) stop(private$period_error_msg)
@@ -252,22 +291,7 @@ IsisMdl <- R6Class("IsisMdl",
             "Returns the fit targets"
             return (private$get_fix_fit(type = "fit"))
         },
-        set_data = function(ts_data) {
-            "Sets the model data"
-            return (private$set_var(1L, ts_data, substitute(ts_data)))
-        },
-        set_ca = function(ts_data) {
-            "Sets the constant adjustments"
-            return (private$set_var(2L, ts_data, substitute(ts_data)))
-        },
-        set_fix = function(ts_data) {
-            "Sets the fix data"
-            return (private$set_var(3L, ts_data, substitute(ts_data)))
-        },
-        set_fit = function(ts_data) {
-            "Sets the fit data"
-            return (private$set_var(4L, ts_data, substitute(ts_data)))
-        },
+
         set_rms = function(rms_list) {
             "Sets the rms values"
             return (invisible(.Call(set_rms_c, private$model_index, rms_list)))
@@ -474,34 +498,39 @@ IsisMdl <- R6Class("IsisMdl",
             endp   <- as.integer(end_period(period)   - mdl_period_start + 1)
             return (list(startp = startp, endp = endp))
         },
-        set_var = function(set_type, ts_data, ts_data_expr) {
-            # general function used to update model data, constant adjustments,
+        set_var = function(set_type, data, names, names_missing) {
+            # General function used to update model data, constant adjustments,
             # fix values or fit targets.
-            ts_names <- colnames(ts_data)
-            if (is.null(ts_names)) {
-                if (!is.mts(ts_data)) {
-                    ts_names <- deparse(ts_data_expr)
+            if (NCOL(data) == 0) {
+                # TODO: warning?
+                return (invisible(NULL))
+            }
+            if (is.null(names)) {
+                if (names_missing) {
+                    stop(paste("Argument data has no colnames.",
+                                "In that case, argument names should be specified"))
                 } else {
-                    stop(paste0("in ", deparse(sys.call(-1)),
-                               "\n  Argument ts_data does not have colnames"),
-                         call. = FALSE)
+                    stop("names is null")
+                }
+            }  else {
+                if (length(names) < NCOL(data)) {
+                    stop("The length of arument names is less than the number of columns of data")
                 }
             }
             if (is.null(private$model_period)) stop(private$period_error_msg)
-            ts_data <- as.regts(ts_data)
+            data <- as.regts(data)
             shift <- private$get_period_indices(
-                                 get_regperiod_range(ts_data))$startp
-            if (!is.matrix(ts_data)) {
-                dim(ts_data) <- c(length(ts_data), 1)
+                                 get_regperiod_range(data))$startp
+            if (!is.matrix(data)) {
+                dim(data) <- c(length(data), 1)
             }
-            if (is.integer(ts_data)) {
-                # make sure that data is a matrix of real values and no integers
-                ts_data[] <- as.numeric(ts_data)
+            if (is.integer(data) || !is.numeric(data)) {
+                # make sure that data is a matrix of numeric values
+                data <- apply(data, MARGIN = c(1,2), FUN = as.numeric)
             }
-            .Call(set_c, set_type, private$model_index, ts_data, ts_names,
-                  shift)
+            .Call(set_c, set_type, private$model_index, data, names, shift)
 
-            # todo: report number of timeseries that have not been set
+            # TODO: report number of timeseries that have not been set
             return (invisible(self))
         },
         get_variables = function(type, names, period) {

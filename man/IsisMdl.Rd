@@ -49,6 +49,29 @@ list.}
 \item{\code{get_param(pattern, names)}}{Returns the model parameter.
 \code{pattern} is a regular expression, \code{names} is a vector with parameter
 names.}
+
+\item{\code{set_[data|ca|fix|fit], names = colnames(data))}}{
+The methods \code{set_data}, \code{set_ca}, \code{set_fix} and
+\code{set_fit} can be used set the values of the model data,
+constant adjustments, fix values, and fit targets, respectively.
+\code{data} is a \code{regts} or \code{ts} object. With argument \code{names}
+the names of the timeseries in \code{data} can be specified. This argument
+is mandatary if \code{data} does not have column names.}
+
+ \item{\code{get_data(pattern, names, period = self$get_data_period())}} {
+ Returns the model data. \code{pattern} is
+ a regular expression, \code{names} a list of variables
+ and \code{period} an \code{\link[regts]{regperiod_range}} object
+ or an object that can be coerced to \code{regperiod_range}.}
+
+ \item{\code{get_ca(pattern, names, period = self$get_period())}} {
+ Returns the constant adustments. \code{pattern} is
+ a regular expression, \code{names} a list of variables
+ and \code{period} an \code{\link[regts]{regperiod_range}} object
+ or an object that can be coerced to \code{regperiod_range}.}
+
+ \item{\code{get_[fix|fit]()}} {\code{get_fix} and \code{get_fit} return
+ the fix values and fit targets, respecively.}
 }
 }
 \examples{

@@ -73,6 +73,11 @@ The mrf file for our ISLM looks like this:
 cat(readLines('islm.mrf'), sep = '\n')
 ```
 
+The mrf file contains tehnical information about the model. For example,
+it shows the feedbackvariables of the model. It is important to know
+the feedback variables of the model, because for these variables initial values
+should be provided when solving the model.
+
 ## `IsisMdl` objects
 
 The function `read_mdl` reads the mif files and creates
@@ -102,20 +107,7 @@ There are also corresponding "setter" methods. For example
 mdl$set_param(list(m0 = 100))
 mdl$get_param("m0")
 ```
-Input for function `set_params()` is a named list.
-
-<!-- The `IsisMdl` is a simply wrapper class around  -->
-<!-- the Fortran objects. -->
-<!-- Information about the model, such as model equations, -->
-<!-- variables, paramters etc., are stored in Fortran code. The Fortran  -->
-<!-- code is organized in object oriented approach. Each `isismdl` object -->
-<!-- corresponds to one Fortran object. The model index, displayed when you -->
-<!-- print the mdl (see the output above) is the index of the Fortran  -->
-<!-- object that corresponds to the current `IsisMdl` object.  -->
-<!-- This means that `IsisMdl` objects cannot be saved and stored on -->
-<!-- Rdata files.  However, it is possible to extract all model data, -->
-<!-- parameters and solve objects in a so called `mws` object (an S4 object) -->
-<!-- and store this data around the file. This is explained in section ... -->
+Input for method `set_params()` is a named list.
 
 ## Cloning `IsisMdl` objects
 
@@ -140,7 +132,7 @@ mdl2$set_param(list(m0 = -9999))
 mdl$get_param("m0")
 ```
 
-## Solving the model
+## Solving the model \label{sec:solving}
 
 Suppose that we want to solve the model for the period from 2016 to
 2021. Then we need the values of the exogenous variables for that period.
@@ -177,10 +169,18 @@ You can also retrieve the model period and model data period
 with the methods `get_period()` and `get_data_period`.
 
 Now can transfer the values in `regts` object data the model
-with function `set_data()`:
+with method `set_data()`:
 ```{r}
 mdl$set_data(data)
 ```
+
+Method `set_data()` is described in more detail in section \ref{sec:data}.
+To check the model data, we use
+```{r}
+mdl$get_data()
+```
+Model variables that we have not explicitly set all have value `NA`. 
+Values for these variables will be computed when solving the model.
 
 We are now ready to solve the model:
 ```{r}
@@ -188,7 +188,48 @@ mdl$solve()
 ```
 
 The method  `get_data()` can be used to retrieve the solution.
-This can for example be used to plot the computed interest rate.
 ```{r}
-plot(mdl$get_data(names = "r"))
+mdl$get_data()
 ```
+
+## Transferring data to the model \label{sec:data}
+
+In section \ref{sec:solve}, we used method `set_data` to initialize
+the model variables. This section gives a a more detailed  description of this 
+method.
+
+The method compares the column names of the input and 
+updates the corresponding model variable. However, sometimes
+the input does not have column names or not the column names 
+that you need. Univariate timeseries typically have no column
+names (see the vignette "Introduction to package regts" for
+more information about this issue). In that case, we use argument
+`names` to supply the timeseries namnes.
+
+The methods `set_ca`, `set_fix`, and `set_fit` can be used
+to set constant adjustments, fix values and fit targets. 
+They work similar to `set_data`. 
+For example, suppose that we have new information about exogenous 
+variable `g` for periods 2016 and 2017:
+```{r}
+g <- regts(c(213, 218),  period = "2016/2017")
+```
+Since `g` does not have a column name, we have to specify the `names`
+argument:
+```{r}
+mdl$set_data(g, names = "g")
+mdl$get_data("g")
+```
+
+This example also shows that the model variables are only
+modified for the intersection of the period range of the
+input timeseries and the model data period.
+
+## Fixing variables
+
+There are to type of equations in Isis models:
+the so called `frml` (formula) equations, also
+called behavioural equations, and identities.  The frml equations
+
+
+Endogenous variables that occur in the left hand side of frml equations

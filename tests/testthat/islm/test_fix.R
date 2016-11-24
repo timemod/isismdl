@@ -1,7 +1,6 @@
 context("fix for ISLM model")
 
 mif_file <- "mdl/islm.mif"
-
 islm_model <- IsisMdl$new(mif_file)
 islm_model$set_mws(islm_input_mws)
 
@@ -43,4 +42,3 @@ test_that("Comparing solve after unfixing variables for the ISLM model", {
     expect_identical(dif$missing_names2, character(0))
     expect_identical(dif$difnames, character(0))
 })
-
