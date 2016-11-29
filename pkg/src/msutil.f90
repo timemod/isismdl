@@ -522,7 +522,7 @@ subroutine get_next_lead_forwards(ivar, jt, chk, is_na)
     logical, intent(in) :: chk
     logical, intent(out) :: is_na
 
-    integer :: i, j, maxlead, itime
+    integer :: j, maxlead, itime
     logical :: error
 
     !shift leads (do nothing if only 1 lead)

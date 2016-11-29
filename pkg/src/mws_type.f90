@@ -54,7 +54,7 @@ module mws_type
             mws%test = sqrt(Rmeps)
             mws%ftrelax = NA
             mws%dbgeqn = .false.
-            call set_default_options(mws%mdl, mws%solve_opts)
+            call set_default_options(mws%solve_opts)
         
         end subroutine mwsinit
 
@@ -104,7 +104,7 @@ module mws_type
             integer, intent(in) :: i, length
             real(kind = MWS_RKIND), dimension(length), intent(out) :: value
 
-            integer :: n, strt
+            integer :: strt
 
             strt  = mws%mdl%cfptr(i)
             value = mws%mdl%coef(strt : strt + length - 1)
@@ -179,10 +179,10 @@ module mws_type
         
         end subroutine mddata
 
-        function period_ok(mws, ivar, itime)
+        function period_ok(mws, itime)
             type(modelworkspace), intent(in) :: mws
             logical :: period_ok
-            integer, intent(in) :: ivar, itime
+            integer, intent(in) :: itime
             !
             ! This function returns .true. if itime is
             ! a valid time index for variable ivar
@@ -197,7 +197,7 @@ module mws_type
             real(kind = MWS_RKIND), intent(out) :: value
             logical, intent(out) :: error
 
-            if (.not. period_ok(mws, ivar, itime)) then
+            if (.not. period_ok(mws, itime)) then
                 error = .true.
                 value = NA
                 return
@@ -221,7 +221,7 @@ module mws_type
 
             error = .false.
 
-            if (.not. period_ok(mws, ivar, itime)) then
+            if (.not. period_ok(mws, itime)) then
                 error = .true.
                 return
             endif
@@ -302,7 +302,6 @@ module mws_type
             real(kind = MWS_RKIND), dimension(ntime, nca), intent(out) :: mat
 
             integer :: i, j, jt
-            logical :: error
 
             mat = NA
         
@@ -319,7 +318,7 @@ module mws_type
             ! get fix or fit values, depending on variable fix
             type(modelworkspace), intent(inout), target :: mws 
             integer, intent(in) :: nvar, ntime, jtb, jte
-            integer, intent(out) :: ivar(*)
+            integer, intent(out) :: ivar(nvar)
             real(kind = MWS_RKIND), dimension(ntime, *), intent(out) :: mat
             logical, intent(in) :: fix
 
@@ -355,7 +354,7 @@ module mws_type
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
             logical, intent(in) :: fix
 
-            integer :: i, j, jt, jstart, jend, vcnt, ierr, iv, im
+            integer :: i, j, jstart, jend, vcnt, ierr, iv, im
             integer, intrinsic :: min, max
             real(kind = MWS_RKIND) :: fix_value
 

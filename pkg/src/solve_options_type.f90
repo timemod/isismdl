@@ -98,11 +98,10 @@ module solve_options_type
 
 contains
 
-    subroutine set_default_options(mdl, options)
+    subroutine set_default_options(options)
         use model_type
         use scalemat
         use nucnst, only : Rmeps
-        type(model), intent(in) :: mdl
         type(solve_options), intent(out) :: options
         options%mode = "?"
         options%method = "?"

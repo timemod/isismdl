@@ -133,7 +133,7 @@ int mcexec(char *mfname, Mcopt options_in) {
     /* if argument outputname has been specified, then determine the
      * path and base of the outputname and use these variables 
      * to generate the output filenames */
-    if (options.outputname > 0) {
+    if (options.outputname != NULL) {
         fnsplit(options.outputname, path, base, ext);
     }
 

@@ -48,7 +48,7 @@ endif
 
 do jtime = jt1, jt2
 
-   if (.not. period_ok(mws, lhs, jtime)) cycle
+   if (.not. period_ok(mws, jtime)) cycle
 
    if (fix_var%var_index == lhs) then
        old_lik = mdl%lik(lhs)

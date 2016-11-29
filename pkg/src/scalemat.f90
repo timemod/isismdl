@@ -12,8 +12,8 @@ integer, parameter :: LIMBAL     =  1
 contains
 
   subroutine scale_matrix(a, lda, n, scale, method, ier)
-      real(kind = SOLVE_RKIND), intent(inout) :: a(lda, *)
       integer(kind = SOLVE_IKIND), intent(in) :: lda, n
+      real(kind = SOLVE_RKIND), intent(inout) :: a(lda, *)
       real(kind = SOLVE_RKIND), intent(out) :: scale(*)
       integer, intent(in) :: method
       integer, intent(out) :: ier
@@ -47,8 +47,8 @@ contains
       ! ier =  0   all went ok
       ! ier = -1   10 iterations not enough to update scale factors
 
-      real(kind = SOLVE_RKIND), intent(inout) :: a(lda,*)
       integer(kind = SOLVE_IKIND), intent(in) :: n, lda
+      real(kind = SOLVE_RKIND), intent(inout) :: a(lda,*)
       real(kind = SOLVE_RKIND), intent(out) :: scale(*)
       integer, intent(out) :: ier
 

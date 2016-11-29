@@ -103,8 +103,6 @@ Symbol  *sym_install(SymTab *stab, char *s, int t )
 
 Symbol *sym_create(SymTab *stab, char *s , int t) {
         Symbol  *sp;
-        char *p = s;
-
         sp = sym_lookup( stab, s );
         if( sp == NULL )
                 sp = sym_install( stab, s, t );
