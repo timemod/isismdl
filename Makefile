@@ -1,10 +1,16 @@
-# This is a gnu makefile.
-# On Windows, be sure to use a general GnuWin make and not the make
-# of Rtools
+# This is a gnu makefile. The makefile contains some commands that makes
+# it easy to build and install the package, but is it NOT used to build
+# the package itself (for that purpose R CMD INSTALL in used).
+# On Windows, the Rtools directories (e.g. c:\Rtools\bin and 
+# c:\Rtools\gcc-4.6.3\bin) should be in the path, but you should not use
+# the make of c:\Rtools\bin to run this file. Instead use the standard 
+# gnuwin32 make command (at the ontwikkelomgeving at the CPB, use 
+# command gwmake instead of make).
 PKGDIR=pkg
 VIEWER=gvim
 OSNAME := $(shell uname | tr A-Z a-z)
 INSTALL_FLAGS=--no-multiarch --with-keep.source 
+RCHECKARG=--no-multiarch
 
 # Package name, Version and date from DESCIPTION
 PKG=$(shell grep 'Package:' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)

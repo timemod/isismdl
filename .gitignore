@@ -6,7 +6,7 @@ pkg/src/*.so
 pkg/src/*.dll
 pkg/src/mod/*.mod
 pkg/inst/doc
-data
+./data
 pkg.log
 pkg.pdf
 isismdl.Rcheck
