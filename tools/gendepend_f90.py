@@ -20,7 +20,8 @@ def gendepend(dict_filename):
         # no dictionaries present
         dep_dict = {}
         print("Analyzing dependencies on Fortran modules\n")
-        src_files = glob.glob('*.f90')
+        src_files = glob.glob(os.path.join(src_dir, '*.f90'))
+        src_files = [os.path.basename(file) for file in src_files]
     else:
         # dictionaries present.
         print("Updating dependencies on Fortran modules")
@@ -48,7 +49,7 @@ def update_dep_dict(src_files, dep_dict):
 def read_depend(srcfile) :
     # read dependencies of file srcfile on modules
     depend = set()
-    for line in open(srcfile) :
+    for line in open(os.path.join(src_dir, srcfile)):
         line = line.strip() # remove trailing blancs
         line = line.lower()
         m = re.search(use_pattern, line)
@@ -62,12 +63,22 @@ def read_depend(srcfile) :
         m = re.search(include_pattern, line)
         if m != None:
             # syntax is "include "mymodule""
+            # TODO: in principle, an included file can include another file.
+            # In that case read_depend should be called recursively
+            # (see the version for gendepend_c.py).
+            # This is currently not needed here, because included files
+            # do not include other files. Note that this is never needed
+            # for the mod files, because the mod files are also related to
+            # object files and therefore all dependencies are automatically
+            # dealt with.
             include_name = m.group(1)
-            depend.add(os.path.join(include_dir, include_name))
+            depend.add(include_dir + "/" + include_name)
     return depend
 
 # main program
 if __name__ == "__main__":
-    dict_filename = sys.argv[1]
-    include_dir = sys.argv[2]
+    src_dir = sys.argv[1]
+    dict_filename = sys.argv[2]
+    include_dir = sys.argv[3]
+    new_files = sys.argv[4:]  # all files that are never then the dictionary
     gendepend(dict_filename)

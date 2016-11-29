@@ -67,6 +67,7 @@ test_covr:
 
 check: cleanx syntax
 	@echo " *** Running R CMD check ***"
+	$(MAKE) -f Makedeps
 	R CMD build $(PKGDIR)
 	R CMD check $(RCHECKARG) $(PKGTAR)
 	@rm -f  $(PKGTAR)
@@ -98,21 +99,27 @@ mkpkg: cleanx syntax
 	@echo ""
 
 bin:
+	$(MAKE) -f Makedeps
+	-@rm -rf tmp
 	mkdir tmp
 	R CMD INSTALL -l ./tmp --build $(PKGDIR)
 
 document:
+	$(MAKE) -f Makedeps
 	-@rm -f $(PKGDIR).pdf
 	R -e "roxygen2::update_collate('"$(PKGDIR)"'); devtools::document('"$(PKGDIR)"')"
 	R CMD Rd2pdf --batch $(PKGDIR) 2>$(PKGDIR).log
 
 install:
+	$(MAKE) -f Makedeps
+	-@rm -rf tmp
 	R CMD INSTALL $(INSTALL_FLAGS) $(PKGDIR)
 
 uninstall:
 	R CMD REMOVE $(PKG)
 
 clean:
+	$(MAKE) -f Makedeps clean
 	rm -fr $(PKGDIR).Rcheck
 	rm -fr tmp
 	rm -f $(PKGTAR)

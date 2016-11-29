@@ -1,0 +1,38 @@
+# this is  a Gnu makefile used tp check dependencies of Fortran- and C-files.
+
+TOOLDIR = tools
+SRC_DIR = pkg/src
+SRCF90 = $(wildcard $(SRC_DIR)/*.f90)
+SRCC = $(wildcard $(SRC_DIR)/*.c)
+INCC = $(wildcard $(SRC_DIR)/*.h)
+DEP_DIR = deps
+DEP_F90 = makedeps_f90
+DEP_C = makedeps_c
+DEP_F90_PKL = dep_f90.pkl
+DEP_C_PKL = dep_c.pkl
+SRC_DEP_DIR = $(SRC_DIR)/deps
+
+INCLUDE_DIR = include
+
+all: check $(SRC_DEP_DIR)/$(DEP_F90) $(SRC_DEP_DIR)/$(DEP_C)
+
+check:
+	@echo checking source files does not work yet
+#	@python $(TOOLDIR)/check_srcfiles.py $(SRC_DIR) $(DEP_DIR)
+
+$(DEP_DIR)/$(DEP_F90_PKL) : $(SRCF90)
+	@python $(TOOLDIR)/gendepend_f90.py $(SRC_DIR)  $@ $(INCLUDE_DIR) $(notdir $(?F))
+
+$(DEP_DIR)/$(DEP_C_PKL) : $(SRCC) $(INCC)
+	@python $(TOOLDIR)/gendepend_c.py $(SRC_DIR) $@ $(notdir $(?F))
+
+$(SRC_DEP_DIR)/$(DEP_F90) : $(DEP_DIR)/$(DEP_F90_PKL)
+	@python $(TOOLDIR)/write_makedeps.py $< $@
+
+$(SRC_DEP_DIR)/$(DEP_C) : $(DEP_DIR)/$(DEP_C_PKL)
+	@python $(TOOLDIR)/write_makedeps.py $< $@
+
+clean:
+	@rm -f deps/*pkl
+
+

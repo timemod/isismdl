@@ -1,7 +1,6 @@
 #
-# This python script checks if source files (files in src/xp, src/libsl or
-# src/libf90) have been deleted. If so, the object files, library files and
-# dependency dictionary files are deleted.
+# This python script checks if source files in pkg/src have been deleted. If so, 
+# the object files, library files and dependency dictionary files are deleted.
 #
 import glob
 import os
@@ -61,15 +60,18 @@ def dictionary_is_obsolete(dict_filename, src_names):
     return False
 
 
-dep_dir = sys.argv[1]
+src_dir = sys.argv[1]
+dep_dir = sys.argv[2]
 f90_pkl = os.path.join(dep_dir, f90_pkl)
 c_pkl = os.path.join(dep_dir, c_pkl)
 f90_dep = os.path.join(dep_dir, f90_dep)
 c_dep = os.path.join(dep_dir, c_dep)
 
 # main script
-f90_names = [get_name(src_file) for src_file in glob.glob("*.f90")]
-c_names   = [get_name(src_file) for src_file in glob.glob("*.c")]
+f90_names = [get_name(src_file) 
+             for src_file in glob.glob(os.path.join(src_dir, "*.f90"))]
+c_names   = [get_name(src_file) 
+             for src_file in glob.glob(os.path(src_dir, "*.c"))]
 src_names = f90_names + c_names
 
 # module files

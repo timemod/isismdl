@@ -18,7 +18,8 @@ def gendepend(dict_filename):
         # no dictionaries present
         dep_dict = {}
         print("Analyzing dependencies of c files on header files\n")
-        src_files = glob.glob('*.c')
+        src_files = glob.glob(os.path.join(src_dir, '*.c'))
+        src_files = [os.path.basename(file) for file in src_files]
     else:
         # dictionaries present.
         print("Updating dependencies of C files on header files")
@@ -41,24 +42,27 @@ def update_dep_dict(src_files, dep_dict):
     # loop over sourcefiles
     for srcfile in src_files :
         # get list of dependencies for scrfile
-        depend = read_depend(srcfile)
+        depend = set()
+        read_depend(srcfile, srcfile, depend)
         if len(depend) > 0:
             dep_dict[srcfile] = depend
 
-def read_depend(srcfile) :
+def read_depend(srcfile, filenm, depend) :
     # read dependencies of file srcfile on modules
-    depend = set()
-    for line in open(srcfile) :
+    for line in open(os.path.join(src_dir, filenm)):
         line = line.strip() # remove trailing blancs
         line = line.lower()
         m = re.search(include_pattern, line)
         if m != None:
-            # syntax is "include "mymodule""
+            # syntax is "#include "file.h""
             include_name = m.group(1)
             depend.add(include_name)
-    return depend
+            # call read_depend recursively
+            read_depend(srcfile, include_name, depend)
 
 # main program
 if __name__ == "__main__":
-    dict_filename = sys.argv[1]
+    src_dir = sys.argv[1]
+    dict_filename = sys.argv[2]
+    new_files = sys.argv[3:]  # all files that are never then the dictionary
     gendepend(dict_filename)

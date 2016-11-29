@@ -1,6 +1,5 @@
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)  $(FLIBS)
 PKG_CFLAGS = -DMCISIS
-#PKG_FCFLAGS = -fimplicit-none -DDEBUG_COMPILER -cpp
 PKG_FCFLAGS = -fimplicit-none -cpp -J mod -I include
 
 # options for lex and yacc
@@ -9,24 +8,7 @@ YACC = bison
 LYPREFIX = mc
 LEX_YACC_DIR = lex_yacc
 
-TOOLDIR = tools
-SRCF90 = $(wildcard *.f90)
-SRCC = $(wildcard *.c)
-INCC = $(wildcard *.h)
-DEP_DIR = deps
-DEP_F90 = makedeps_f90
-DEP_C = makedeps_c
-DEP_F90_PKL = dep_f90.pkl
-DEP_C_PKL = dep_c.pkl
-
-
-# directory with include files for Fortran:
-INCLUDE_DIR = include
-
-all: check $(SHLIB)
-
-check:
-	@python $(TOOLDIR)/check_srcfiles.py $(DEP_DIR)
+all: $(SHLIB)
 
 # rules for lex and yacc
 scan.c : $(LEX_YACC_DIR)/scan.l
@@ -35,20 +17,8 @@ scan.c : $(LEX_YACC_DIR)/scan.l
 xpctab.c : $(LEX_YACC_DIR)/xpctab.y 
 	$(YACC) -d -p $(LYPREFIX) -o $@ $<
 
-$(DEP_DIR)/$(DEP_F90_PKL) : $(SRCF90)
-	@python $(TOOLDIR)/gendepend_f90.py  $@ $(INCLUDE_DIR)
-
-$(DEP_DIR)/$(DEP_C_PKL) : $(SRCC) $(INCC)
-	@python $(TOOLDIR)/gendepend_c.py  $@
-
-$(DEP_DIR)/$(DEP_F90) : $(DEP_DIR)/$(DEP_F90_PKL)
-	@python $(TOOLDIR)/write_makedeps.py $< $@
-
-$(DEP_DIR)/$(DEP_C) : $(DEP_DIR)/$(DEP_C_PKL)
-	@python $(TOOLDIR)/write_makedeps.py $< $@
-
 # dependencies C files
-include $(DEP_DIR)/$(DEP_C)
+include deps/makedeps_c
 
 # dependencies Fortran files
-include $(DEP_DIR)/$(DEP_F90)
+include deps/makedeps_f90
