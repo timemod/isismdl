@@ -58,19 +58,19 @@ constant adjustments, fix values, and fit targets, respectively.
 the names of the timeseries in \code{data} can be specified. This argument
 is mandatary if \code{data} does not have column names.}
 
- \item{\code{get_data(pattern, names, period = self$get_data_period())}} {
+ \item{\code{get_data(pattern, names, period = self$get_data_period())}}{
  Returns the model data. \code{pattern} is
  a regular expression, \code{names} a list of variables
  and \code{period} an \code{\link[regts]{regperiod_range}} object
  or an object that can be coerced to \code{regperiod_range}.}
 
- \item{\code{get_ca(pattern, names, period = self$get_period())}} {
+ \item{\code{get_ca(pattern, names, period = self$get_period())}}{
  Returns the constant adustments. \code{pattern} is
  a regular expression, \code{names} a list of variables
  and \code{period} an \code{\link[regts]{regperiod_range}} object
  or an object that can be coerced to \code{regperiod_range}.}
 
- \item{\code{get_[fix|fit]()}} {\code{get_fix} and \code{get_fit} return
+ \item{\code{get_[fix|fit]()}}{\code{get_fix} and \code{get_fit} return
  the fix values and fit targets, respecively.}
 }
 }
