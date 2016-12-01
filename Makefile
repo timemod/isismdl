@@ -1,11 +1,7 @@
-# This is a gnu makefile. The makefile contains some commands that makes
-# it easy to build and install the package, but is it NOT used to build
-# the package itself (for that purpose R CMD INSTALL in used).
-# On Windows, the Rtools directories (e.g. c:\Rtools\bin and 
-# c:\Rtools\gcc-4.6.3\bin) should be in the path, but you should not use
-# the make of c:\Rtools\bin to run this file. Instead use the standard 
-# gnuwin32 make command (at the ontwikkelomgeving at the CPB, use 
-# command gwmake instead of make).
+# This is a gnu makefile with several commands to build, document and test
+# the package.  The actual building and installation of the package is achieved
+# with the standard R commands R CMD BUOLD and R CMD INSTALL.
+
 PKGDIR=pkg
 VIEWER=gvim
 OSNAME := $(shell uname | tr A-Z a-z)
@@ -20,8 +16,6 @@ TODAY=$(shell date "+%Y-%m-%d")
 
 PKG_FFLAGS=-fimplicit-none -cpp -J $(PKGDIR)/src/mod -I $(PKGDIR)/src/include
 PKG_CFLAGS=-DMCISIS
-
-.PHONY: clean cleanx check install uninstall mkpkg bin pdf
 
 help:
 	@echo
