@@ -3,10 +3,10 @@
 # with the standard R commands R CMD BUOLD and R CMD INSTALL.
 
 PKGDIR=pkg
-VIEWER=gvim
-OSNAME := $(shell uname | tr A-Z a-z)
 INSTALL_FLAGS=--no-multiarch --with-keep.source 
 RCHECKARG=--no-multiarch
+PKG_FFLAGS=-fimplicit-none -cpp -J $(PKGDIR)/src/mod -I $(PKGDIR)/src/include
+PKG_CFLAGS=-DMCISIS
 
 # Package name, Version and date from DESCIPTION
 PKG=$(shell grep 'Package:' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
@@ -14,8 +14,13 @@ PKGTAR=$(PKG)_$(shell grep 'Version' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2).t
 PKGDATE=$(shell grep 'Date' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
 TODAY=$(shell date "+%Y-%m-%d")
 
-PKG_FFLAGS=-fimplicit-none -cpp -J $(PKGDIR)/src/mod -I $(PKGDIR)/src/include
-PKG_CFLAGS=-DMCISIS
+OSNAME := $(shell uname | tr A-Z a-z)
+ifeq ($(findstring windows, $(OSNAME)), windows) 
+    OSTYPE = windows
+else
+    # Linux or MAC OSX
+    OSTYPE = unix
+endif
 
 help:
 	@echo
@@ -82,7 +87,9 @@ syntax:
 
 cleanx:
 # Apple Finder rubbish
+ifneq ($(findstring windows, $(OSNAME)), windows) 
 	@find . -name '.DS_Store' -delete
+endif
 	@rm -f $(PKGTAR)
 	@rm -fr $(PKG).Rcheck
 
