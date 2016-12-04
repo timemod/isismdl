@@ -412,21 +412,19 @@ SEXP get_fix_fit_c(SEXP type_, SEXP mws_index_) {
     return list;
 }
 
-void set_rms_c(SEXP mws_index_, SEXP rms_list) {
+void set_rms_c(SEXP mws_index_, SEXP values) {
     int mws_index = asInteger(mws_index_);
-    SEXP names = getAttrib(rms_list, R_NamesSymbol);
-    int n_names = length(names);
+    SEXP names = getAttrib(values, R_NamesSymbol);
+    int n_names = length(values);
     int i;
     for (i = 0; i < n_names; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
         int iv = F77_CALL(get_var_index)(&mws_index, name, &namelen);
-        SEXP d = VECTOR_ELT(rms_list, i);
-        double value = asReal(d);
-        // todo: error if value if not a numerical vector.
-        // or maybe it is easier to do this test in pure fortran
+        double value = REAL(values)[i];
         F77_NAME(set_rms_fortran)(&mws_index, &iv, &value);
     }
+    return R_NilValue;
 }
 
 void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,

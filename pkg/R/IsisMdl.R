@@ -292,9 +292,15 @@ IsisMdl <- R6Class("IsisMdl",
             return (private$get_fix_fit(type = "fit"))
         },
 
-        set_rms = function(rms_list) {
+        set_rms = function(values) {
             "Sets the rms values"
-            return (invisible(.Call(set_rms_c, private$model_index, rms_list)))
+            # TODO: error if values is not numeric or integer
+            names <- names(values)
+            values <- as.numeric(values)
+            # as.numeric does not preserve the names
+            names(values) <- names
+            .Call(set_rms_c, private$model_index, values)
+            return (invisible(self))
         },
         set_solve_options = function(...) {
             "Set  the default solve options"
