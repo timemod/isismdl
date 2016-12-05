@@ -10,3 +10,4 @@ pkg/inst/doc
 pkg.log
 pkg.pdf
 isismdl.Rcheck
+isismdl_*.tar.gz

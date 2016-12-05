@@ -424,7 +424,6 @@ void set_rms_c(SEXP mws_index_, SEXP values) {
         double value = REAL(values)[i];
         F77_NAME(set_rms_fortran)(&mws_index, &iv, &value);
     }
-    return R_NilValue;
 }
 
 void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,

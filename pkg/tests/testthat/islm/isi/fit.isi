@@ -17,23 +17,20 @@ g = g[-1] * 1.015;
 ms = ms[-1] * 1.015;
 enddyn;
 
-y_fit[2015.2q] = 985;
-r_fit[2015.2q..2015.3q] <- [3.5, 3.6];
+i_fit[2015.2q] = 200;
+y_fit[2015.2q..2015.4q] <- [990, NA, 1010];
+getmdt;
+getfit;
 
 c_rms = 5;
 i_rms = 21;
 md_rms = 2;
 t_rms = 2;
-
-getmdt;
-getfit;
 getrms;
 
-setmva(ft = "*"; cvgcrit = 1e-8);
-setfopt(cvgabs=1e-6);
-setfopt(repopt = minimal);
+setmva(ft = "*"; cvgcrit = sqrt(NU_EPS));
+setfopt(cvgabs = 100 * sqrt(NU_EPS));
 solve;
-primdt(dec = 3);
-prica(dec = 3);
+primdt(dec = 6);
 write_ts_csv("fit.csv"; per = mdl_per; input_from = mws;
              options = transpose; lowercase = true);
