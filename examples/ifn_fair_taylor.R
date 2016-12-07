@@ -1,7 +1,7 @@
 library(isismdl)
 
-ret <- compile_mdl("demo/ifn.mdl")
-ifn <- IsisMdl$new("demo/ifn.mif")
+ret <- compile_mdl("ifn.mdl")
+ifn <- read_mdl("ifn.mif")
 ifn$set_mws(ifn_input_mws)
 ifn$set_solve_options(report = "minimal", ratreport = "fullrep",
                       ratreport_rep = c(10, 50))

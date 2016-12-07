@@ -1,8 +1,11 @@
 library(regts)
 library(isismdl)
 
-islm_model <- IsisMdl$new("demo/islm.mif")
-islm_model$get_variable_names()
-islm_model$set_mws(islm_input_mws)$fill_mdl_data()
-print(islm_model$get_data())
+mdl <- read_mdl("islm.mif")
+load("basis_mws.RData")
+mdl$set_mws(basis_mws)
+mdl$set_data(regts(NA, period = mdl$get_period()), names = "y")
+print(mdl$get_data())
+mdl$fill_mdl_data()
+print(mdl$get_data())
 
