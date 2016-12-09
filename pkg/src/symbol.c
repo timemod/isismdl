@@ -218,28 +218,27 @@ void sym_stat( SymTab *stab, FILE *fp ) {
     Symbol  *sp;
     size_t  i, cnt, zcnt, cntmax, totcnt;
 
-        zcnt = cntmax = totcnt = 0;
+    zcnt = cntmax = totcnt = 0;
 
-    for( i = 0; i < HASHSIZE; i++ )
-    {
-                cnt = 0;
-
-        for( sp = stab->tab[i]; sp != NULL ; sp = sp->next )
-                ++cnt;
-
-                if( cnt == 0 )
-                        zcnt++;
-                else if( cnt > cntmax )
-                        cntmax = cnt;
-
-                if( cnt )
-                        totcnt += cnt;
+    for (i = 0; i < HASHSIZE; i++ ) {
+        cnt = 0;
+        for (sp = stab->tab[i]; sp != NULL ; sp = sp->next) {
+            ++cnt;
+        }
+        if (cnt == 0) {
+             zcnt++;
+        } else if (cnt > cntmax) {
+             cntmax = cnt;
+        }
+        if (cnt) {
+             totcnt += cnt;
+        }
     }
 
-        fprintf(fp, "%lu zero length chains, ", (unsigned long int) zcnt );
-        fprintf(fp, "longest chain %lu, ", (unsigned long int) cntmax );
-        fprintf(fp, "average non zero chain length %lu\n",
-                        (unsigned long int) (totcnt / (HASHSIZE - zcnt)));
+    fprintf(fp, "%lu zero length chains, ", (unsigned long int) zcnt );
+    fprintf(fp, "longest chain %lu, ", (unsigned long int) cntmax );
+    fprintf(fp, "average non zero chain length %lu\n",
+            (unsigned long int) (totcnt / (HASHSIZE - zcnt)));
 }
 
 static int delete_symbol(Symbol *sp)

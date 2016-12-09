@@ -19,5 +19,5 @@ int get_i_option(const char *option_text, const char *options[],
             return i + 1;
         }
     }
-    return NO_ELM(options);  /* ERROR: option = ??? */
+    return option_count;
 }
