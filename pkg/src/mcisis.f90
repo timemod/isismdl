@@ -844,31 +844,19 @@ end subroutine mcszer
 !  generate an alphabetical ordering of names
 
 subroutine sort_names
-  use mcvars
-  use mdl_name_utils
+    use mcvars
+    use mdl_name_utils
 
-  integer(kind = MC_IKIND) ::  i
+   ! equations
+   call hsortmvn(mdl%indexe, mdl%neq, mdl%ienames, mdl%enames)
 
-!          equations
-  do i = 1, mdl%neq
-      mdl%indexe(i) = i
-  end do
-  call hsortmvn(mdl%indexe, mdl%neq, mdl%ienames, mdl%enames)
+   ! equations
+   call hsortmvn(mdl%indexv, mdl%nrv, mdl%ivnames, mdl%vnames)
 
-!          variables
-  do i = 1, mdl%nrv
-      mdl%indexv(i) = i
-  end do
-  call hsortmvn(mdl%indexv, mdl%nrv, mdl%ivnames, mdl%vnames)
-
-!          parameters
-  do i = 1, mdl%nrp
-      mdl%indexp(i) = i
-  end do
-  call hsortmvn(mdl%indexp, mdl%nrp, mdl%ipnames, mdl%pnames)
+   ! parameters
+   call hsortmvn(mdl%indexp, mdl%nrp, mdl%ipnames, mdl%pnames)
 
 end subroutine sort_names
-
 
 !--------------------------------------------------------------------------
 

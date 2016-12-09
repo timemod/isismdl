@@ -322,25 +322,30 @@ end function mvncmp
 
 subroutine hsortmvn(ivar, nvar, nameptrs, names)
 
-! Sort model variable names lexicographically using heapsort.
-! See A. Aho, B.W. Kernighan, and P.J.Weinberger, The AWK programming
-! language.
-! ivar(i) (i=1, nvar) is a list of indices for the variable names
-! to be ordered.
-! nameptrs(ivar(i)) points to the position in names where the name
-! of the corresponding variable name is stored.
-   implicit none
-   integer(kind = MC_IKIND), intent(in)   :: ivar(*), nvar, nameptrs(*), names(*)
+    ! Sort model variable names lexicographically using heapsort.
+    ! See A. Aho, B.W. Kernighan, and P.J.Weinberger, The AWK programming
+    ! language.
+    ! ivar(i) (i=1, nvar) is a list of indices for the variable names
+    ! to be ordered.
+    ! nameptrs(ivar(i)) points to the position in names where the name
+    ! of the corresponding variable name is stored.
+    implicit none
+    integer(kind = MC_IKIND), intent(out) :: ivar(nvar)
+    integer(kind = MC_IKIND), intent(in)  :: nvar, nameptrs(*), names(*)
 
-   integer(kind = MC_IKIND)  :: i
+    integer(kind = MC_IKIND)  :: i
 
-   do i = nvar / 2, 1, -1
-       call heapifymvn(ivar, i, nvar, nameptrs, names)
-   end do
+    do i = 1, nvar
+        ivar(i) = i
+    end do
+
+    do i = nvar / 2, 1, -1
+        call heapifymvn(ivar, i, nvar, nameptrs, names)
+    end do
 
     do i = nvar, 2, -1
-       call mcswap(ivar,1_MC_IKIND, i) ! swap is defined in hsort.rf7
-       call heapifymvn(ivar, 1_MC_IKIND, i - 1_MC_IKIND, nameptrs, names)
+        call mcswap(ivar,1_MC_IKIND, i) 
+        call heapifymvn(ivar, 1_MC_IKIND, i - 1_MC_IKIND, nameptrs, names)
     end do
 
     return
@@ -350,38 +355,41 @@ subroutine hsortmvn(ivar, nvar, nameptrs, names)
 
  subroutine heapifymvn(ivar, l, r, nameptrs, names)
 
-!      routine for heapsort algorithm for model variables names
-!      see hsortmvn
+     ! routine for heapsort algorithm for model variables names
+     ! see hsortmvn
 
- implicit none
- integer(kind = MC_IKIND), intent(in) :: l, r, ivar(*), nameptrs(*), names(*)
- integer(kind = MC_IKIND) :: p, c
+     implicit none
+     integer(kind = MC_IKIND), intent(inout) :: ivar(*)
+     integer(kind = MC_IKIND), intent(in) :: l, r, nameptrs(*), names(*)
+     integer(kind = MC_IKIND) :: p, c
 
- p = l
- c = 2*p
- do while (c <= r)
-    if (c < r .and. mvncmp(ivar(c+1), ivar(c), nameptrs, names) .eq. 1) then
-        c = c + 1
-    endif
-    if (mvncmp(ivar(p), ivar(c), nameptrs, names) .eq. -1)  then
-        call mcswap(ivar, c, p)
-    endif
-    p = c
-    c = 2*p
- end do
- return
+     p = l
+     c = 2*p
+     do while (c <= r)
+        if (c < r .and. mvncmp(ivar(c+1), ivar(c), nameptrs, names) .eq. 1) then
+            c = c + 1
+        endif
+        if (mvncmp(ivar(p), ivar(c), nameptrs, names) .eq. -1)  then
+            call mcswap(ivar, c, p)
+        endif
+        p = c
+        c = 2*p
+     end do
+     return
  end subroutine heapifymvn
 
 ! -----------------------------------------------------------------------------
 
- subroutine mcswap(X, i, j)
- integer(kind = MC_IKIND) ::  X(*)
- integer(kind = MC_IKIND) ::  i,j,hulp
+ subroutine mcswap(x, i, j)
+     integer(kind = MC_IKIND), intent(inout) ::  x(*)
+     integer(kind = MC_IKIND), intent(in) ::  i, j
+
+     integer(kind = MC_IKIND) ::  tmp
  
- hulp = x(i)
- x(i) = x(j)
- x(j) = hulp
- return
+     tmp = x(i)
+     x(i) = x(j)
+     x(j) = tmp
+     return
  end subroutine mcswap
 
 ! -----------------------------------------------------------------------------
@@ -413,7 +421,6 @@ subroutine hsortmvn(ivar, nvar, nameptrs, names)
       end do
   
   end function find_name
-
 
 end module mdl_name_utils
 
