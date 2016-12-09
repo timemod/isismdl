@@ -1,9 +1,11 @@
 library(isismdl)
 
 period <- regperiod_range("2015Q2", "2016Q3")
+mif_file <- "islm.mif"
+mws_file <- "basis_mws.RData"
 
 compile_mdl("islm")
-mdl <- read_mdl("islm.mif")
+mdl <- read_mdl(mif_file)
 mdl$set_period(period)
 
 # prepare data
@@ -20,4 +22,4 @@ mdl$set_data(islm_input)
 mdl$solve()
 
 basis_mws <- mdl$get_mws()
-save(basis_mws, file = "basis_mws.RData")
+save(basis_mws, file = mws_file)

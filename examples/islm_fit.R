@@ -1,8 +1,15 @@
 library(regts)
 library(isismdl)
 
-mdl <- read_mdl("islm.mif")
-load("basis_mws.RData")
+mif_file <- "islm.mif"
+mws_file <- "basis_mws.RData"
+
+if (!file.exists(mif_file)) {	
+    stop("No mif and mws file available. Run job islm_basis.R first")
+}
+
+mdl <- read_mdl(mif_file)
+load(mws_file)
 mdl$set_mws(basis_mws)
 
 y <- regts(985, start = "2015Q2")

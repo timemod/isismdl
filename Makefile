@@ -7,6 +7,7 @@ INSTALL_FLAGS=--no-multiarch --with-keep.source
 RCHECKARG=--no-multiarch
 PKG_FFLAGS=-fimplicit-none -cpp -J $(PKGDIR)/src/mod -I $(PKGDIR)/src/include
 PKG_CFLAGS=-DMCISIS
+R_HOME=$(shell R RHOME)
 
 # Package name, Version and date from DESCIPTION
 PKG=$(shell grep 'Package:' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
@@ -22,6 +23,9 @@ else
     OSTYPE = unix
 endif
 
+DATA_SCRIPTS = $(wildcard $(PKGDIR)/data-raw/*.R)
+DATA_RDAS = $(addsuffix .rda, $(basename $(notdir $(DATA_SCRIPTS))))
+
 help:
 	@echo
 	@echo "The following targets are available:"
@@ -31,6 +35,7 @@ help:
 	@echo "   check     - Run R CMD check $(PKGDIR)"
 	@echo "   syntax    - check syntax .f and .c files"
 	@echo "   document  - run roxygen to generate Rd files and make pdf Reference manual"
+	@echo "   data      - generate data"
 	@echo "   mkpkg     - builds source package and checks with --as-cran"
 	@echo "   bin       - builds binary package in ./tmp"
 	@echo "   install   - install package in .libPaths()[1]"
@@ -49,12 +54,14 @@ CPP=$(shell R CMD config CXX)
 CPP_FLAGS=$(shell R CMD config --cppflags)
 
 flags:
+	@echo "R_HOME=$(R_HOME)"
 	@echo "SHELL=$(SHELL)"
 	@echo "CPP_FLAGS=$(CPP_FLAGS)"
 	@echo "PKGDIR=$(PKGDIR)"
 	@echo "PKG=$(PKG)"
 	@echo "PKGTAR=$(PKGTAR)"
 	@echo "PKGDATE=$(PKGDATE)"
+	@echo "DATA_SCRIPTS=$(DATA_SCRIPTS)"
 	@echo "R .libPaths()"
 	@echo "FC=$(FC)"
 	@echo "F77=$(F77)"
@@ -63,12 +70,11 @@ flags:
 	@echo "CPP_FLAGS=$(CPP_FLAGS)"
 	@R --no-save --quiet --slave -e '.libPaths()'
 
-
 test:
-	Rscript test.R
+	R --slave -f test.R
 
 test_covr:
-	Rscript test_covr.R
+	R --slave -f  test_covr.R
 
 check: cleanx syntax
 	@echo " *** Running R CMD check ***"
@@ -81,7 +87,9 @@ check: cleanx syntax
 # 	@Rscript -e 'cat("Installed version date          :",packageDescription("nleqslv", fields="Date"))'
 	@echo ""
 
-syntax:
+syntax: bin
+	# To make sure that all Fortran module files (.mod) files are present,
+	# we have to run the bin target before we can check the syntax.
 	$(FC) $(PKG_FFLAGS) -c -fsyntax-only -Wall -pedantic $(PKGDIR)/src/*.f90
 	$(CC) $(CPP_FLAGS) $(PKG_CFLAGS) -std=gnu99 -c -fsyntax-only -Wall -pedantic $(PKGDIR)/src/*.c
 
@@ -122,6 +130,15 @@ install:
 	-@rm -rf tmp
 	R CMD INSTALL $(INSTALL_FLAGS) $(PKGDIR)
 
+data: clean_data data_
+
+clean_data:
+	rm -f $(PKGDIR)/data/*rda
+
+data_: $(addprefix $(PKGDIR)/data/, $(DATA_RDAS))
+$(PKGDIR)/data/%.rda : $(PKGDIR)/data-raw/%.R
+	cd $(PKGDIR)/data-raw; R --slave -f $(*F).R
+
 uninstall:
 	R CMD REMOVE $(PKG)
 
@@ -132,3 +149,15 @@ clean:
 	rm -f $(PKGTAR)
 	rm -f $(PKGDIR).pdf
 	rm -f $(PKGDIR).log
+	rm -f $(PKGDIR)/src/*.o
+	rm -f $(PKGDIR)/src/*.so
+	rm -f $(PKGDIR)/src/*.dll
+	rm -f $(PKGDIR)/src/mod/*.mod
+	rm -f $(PKGDIR)/deps/*.pkl
+	rm -f $(PKGDIR)/tests/testthat/islm/mdl/*.mif
+	rm -f $(PKGDIR)/tests/testthat/islm/mdl/*.mrf
+	rm -f $(PKGDIR)/data-raw/*.mif
+	rm -f $(PKGDIR)/data-raw/*.mrf
+	rm -f examples/*.mrf
+	rm -f examples/*.mif
+	rm -f examples/*.err
