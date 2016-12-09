@@ -59,7 +59,8 @@ def read_depend(srcfile) :
             if module_name != "iso_c_binding":
                 # add filename to array
                 # skip the intrinsic module "iso_c_binding"
-                depend.add(module_name + ".o")
+                if os.path.splitext(srcfile)[0] != module_name:
+                    depend.add(module_name + ".o")
         m = re.search(include_pattern, line)
         if m != None:
             # syntax is "include "mymodule""
