@@ -3,7 +3,7 @@
 # with the standard R commands R CMD BUOLD and R CMD INSTALL.
 
 PKGDIR=pkg
-INSTALL_FLAGS=--no-multiarch --with-keep.source 
+INSTALL_FLAGS=--no-multiarch --with-keep.source
 RCHECKARG=--no-multiarch
 PKG_FFLAGS=-fimplicit-none -cpp -J $(PKGDIR)/src/mod -I $(PKGDIR)/src/include
 PKG_CFLAGS=-DMCISIS
@@ -16,7 +16,7 @@ PKGDATE=$(shell grep 'Date' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
 TODAY=$(shell date "+%Y-%m-%d")
 
 OSNAME := $(shell uname | tr A-Z a-z)
-ifeq ($(findstring windows, $(OSNAME)), windows) 
+ifeq ($(findstring windows, $(OSNAME)), windows)
     OSTYPE = windows
 else
     # Linux or MAC OSX
@@ -55,7 +55,7 @@ CPP_FLAGS=$(shell R CMD config --cppflags)
 
 flags:
 	@echo "R_HOME=$(R_HOME)"
-	@echo "SHELL=$(SHELL)"
+	@echo "SHELL=$(SHELL) "
 	@echo "CPP_FLAGS=$(CPP_FLAGS)"
 	@echo "PKGDIR=$(PKGDIR)"
 	@echo "PKG=$(PKG)"
@@ -95,7 +95,7 @@ syntax: bin
 
 cleanx:
 # Apple Finder rubbish
-ifneq ($(findstring windows, $(OSNAME)), windows) 
+ifneq ($(findstring windows, $(OSNAME)), windows)
 	@find . -name '.DS_Store' -delete
 endif
 	@rm -f $(PKGTAR)
@@ -117,7 +117,7 @@ bin:
 	$(MAKE) -f Makedeps
 	-@rm -rf tmp
 	mkdir tmp
-	R CMD INSTALL -l ./tmp --build $(PKGDIR)
+	R CMD INSTALL $(INSTALL_FLAGS) -l ./tmp --build $(PKGDIR)
 
 document:
 	$(MAKE) -f Makedeps

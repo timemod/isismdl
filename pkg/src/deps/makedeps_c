@@ -1,6 +1,4 @@
-bynext.o : isismdl_types.h
-byscmp.o : isismdl_types.h
-bysmov.o : isismdl_types.h
+by.o : isismdl_types.h
 c_calls.o : c_calls.h get_info.h set_fit_options.h set_solve_options.h
 dependencies.o : dependencies.h util.h
 ecode.o : dependencies.h ecode.h ipcode.h mchdr.h mcinit.h mcopt.h \
