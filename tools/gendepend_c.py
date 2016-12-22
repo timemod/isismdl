@@ -5,7 +5,7 @@ import os
 import cPickle
 import re
 
-include_pattern = "^#include\s+\"(.+)\""
+include_pattern = "^#include\s+[\"|<](.+)[\">]"
 
 def gendepend(dict_filename):
 
@@ -56,9 +56,10 @@ def read_depend(srcfile, filenm, depend) :
         if m != None:
             # syntax is "#include "file.h""
             include_name = m.group(1)
-            depend.add(include_name)
-            # call read_depend recursively
-            read_depend(srcfile, include_name, depend)
+            if os.path.isfile(os.path.join(src_dir, include_name)):
+                depend.add(include_name)
+                # call read_depend recursively
+                read_depend(srcfile, include_name, depend)
 
 # main program
 if __name__ == "__main__":
