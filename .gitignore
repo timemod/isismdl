@@ -11,4 +11,5 @@ pkg.log
 pkg.pdf
 isismdl.Rcheck
 isismdl_*.tar.gz
-tmp
+tmp/
+isismdl_0.1.zip
