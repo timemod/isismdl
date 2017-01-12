@@ -28,8 +28,8 @@ extern void F77_NAME(get_ca_fortran)(int *mws_index, int *nca, int *ica,
                                      int *ntime, int *jtb,
                                      int *jte, double *data);
 extern void F77_NAME(get_fix_fit_fortran)(int *mws_index, int *nvar, int *ivar, 
-                                          int *ntime, int *jtb, int *jte, 
-                                          double *mat, int *fix_);
+                                          int *ntime, int *jtb, double *mat,
+                                          int *fix_);
 extern void F77_NAME(get_param_fortran)(int *mws_index, int *ip, double *value,
                                         int *par_len);
 extern int F77_NAME(set_param_fortran)(int *mws_index, int *ipar, double *data,
@@ -385,7 +385,7 @@ SEXP get_fix_fit_c(SEXP type_, SEXP mws_index_) {
     SEXP mat = PROTECT(allocVector(REALSXP, ntime * nvar));
     int *ivar = (int *) R_alloc(nvar, sizeof(int));
     F77_CALL(get_fix_fit_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb, 
-                                  &jte, REAL(mat), &fix);
+                                  REAL(mat), &fix);
 
     /* set the dimension of the matrix */
     SEXP dim = PROTECT(allocVector(INTSXP, 2));

@@ -75,7 +75,7 @@ setOldClass("regperiod_range")
 #' all model timeseries and constant adjustments. Model timeseries are
 #' available for the so called 'model data period', which is
 #' the model period extended with a lag and lead period. Constant
-#' adjustments are only availabcdle for the model period. This method
+#' adjustments are only available for the model period. This method
 #' also initialises all model timeseries with \code{NA} and all constant
 #' adjusments with 0.}
 #'
@@ -92,11 +92,11 @@ setOldClass("regperiod_range")
 #'
 #' \item{\code{set_[data|ca|fix|fit], names = colnames(data))}}{
 #' The methods \code{set_data}, \code{set_ca}, \code{set_fix} and
-#' \code{set_fit} can be used set the values of the model data,
+#' \code{set_fit} can be used to set the values of the model data,
 #' constant adjustments, fix values, and fit targets, respectively.
 #' \code{data} is a \code{regts} or \code{ts} object. With argument \code{names}
 #' the names of the timeseries in \code{data} can be specified. This argument
-#' is mandatary if \code{data} does not have column names.}
+#' is mandatory if \code{data} does not have column names.}
 #'
 #'  \item{\code{get_data(pattern, names, period = self$get_data_period())}}{
 #'  Returns the model data. \code{pattern} is

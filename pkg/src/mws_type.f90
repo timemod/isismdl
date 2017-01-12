@@ -314,10 +314,10 @@ module mws_type
             end do
         end subroutine get_ca
 
-        subroutine get_fix_fit(mws, nvar, ivar, ntime, jtb, jte, mat, fix)
+        subroutine get_fix_fit(mws, nvar, ivar, ntime, jtb, mat, fix)
             ! get fix or fit values, depending on variable fix
             type(modelworkspace), intent(inout), target :: mws 
-            integer, intent(in) :: nvar, ntime, jtb, jte
+            integer, intent(in) :: nvar, ntime, jtb
             integer, intent(out) :: ivar(nvar)
             real(kind = MWS_RKIND), dimension(ntime, *), intent(out) :: mat
             logical, intent(in) :: fix
@@ -325,7 +325,7 @@ module mws_type
             type(mdl_variables), pointer :: mdl_vars
             type(mdl_variable), pointer  :: cur
 
-            integer :: i, jt
+            integer :: i, it
 
             if (fix) then
                 mdl_vars => mws%fix_vars
@@ -338,8 +338,8 @@ module mws_type
             do
                 i = i + 1
                 ivar(i) = cur%var_index
-                do jt = jtb, jte
-                    mat(jt, i) = get_mdl_var_value(cur, jt)
+                do it = 1, ntime
+                    mat(it, i) = get_mdl_var_value(cur, it + jtb - 1)
                 end do
                 cur => cur%next
                 if (.not. associated(cur)) return

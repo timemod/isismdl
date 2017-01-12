@@ -39,18 +39,18 @@ subroutine get_ca_fortran(mws_index, nca, ica, ntime, jtb, jte, mat)
 
 end subroutine get_ca_fortran
 
-subroutine get_fix_fit_fortran(mws_index, nvar, ivar, ntime, jtb, jte, mat, &
+subroutine get_fix_fit_fortran(mws_index, nvar, ivar, ntime, jtb, mat, &
                                fix_)
     use modelworkspaces
     use iso_c_binding
-    integer(c_int), intent(in) :: mws_index, nvar,  ntime, jtb, jte
+    integer(c_int), intent(in) :: mws_index, nvar,  ntime, jtb
     integer(c_int), intent(out) :: ivar(*)
     real(c_double), dimension(ntime, nvar), intent(out) :: mat
     integer(c_int), intent(in) :: fix_
         
     logical :: fix
     fix = fix_ /= 0
-    call get_fix_fit(mws_array(mws_index), nvar, ivar, ntime, jtb, jte, mat, &
+    call get_fix_fit(mws_array(mws_index), nvar, ivar, ntime, jtb, mat, &
                      fix)
 end subroutine get_fix_fit_fortran
 

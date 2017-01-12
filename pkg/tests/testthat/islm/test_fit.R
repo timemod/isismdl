@@ -1,4 +1,4 @@
-context("fix for ISLM model")
+context("fit for ISLM model")
 
 mif_file <- "mdl/islm.mif"
 islm_model <- IsisMdl$new(mif_file)
