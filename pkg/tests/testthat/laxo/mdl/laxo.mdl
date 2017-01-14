@@ -1,0 +1,2352 @@
+??FUNCTION  CUMNOR G PF MIN MAX SIGN;
+? NOTE: THE FUNCTIONS VINTSOM AND ARBSOM SHOULD BE REPLACED BY
+
+
+? Must be here; compiler use oonly a single pass??
+
+?
+param omega
+   1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000
+   1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000
+   1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000
+    .9978     .9962     .9942     .9918     .9891     .9864     .9836     .9809
+    .9782     .9758     .9738     .9723     .9708     .9680     .9636     .9576
+    .9503     .9432     .9364     .9301     .9241     .9181     .9120     .9058
+    .8995     .8932     .8868     .8805     .8742     .8679     .8619     .8560
+    .8501     .8438     .8368     .8292     .8212     .8134     .8061     .7993
+    .7926     .7850     .7762     .7662     .7553     .7447     .7347     .7253
+    .7161     .7061     .6950     .6827     .6695     .6563     .6434     .6308
+    .6181     .6039     .5879     .5701     .5510     .5327     .5159     .5004
+    .4861     .4720     .4580     .4439     .4298     .4163     .4032     .3907
+    .3785     .3663     .3539     .3412     .3285     .3159     .3037     .2919
+    .2804     .2696     .2596     .2504     .2419     .2337     .2259     .2185
+    .2112     .2039     .1963     .1886     .1808     .1733     .1663     .1596
+    .1533     .1475     .1421     .1371     .1324     .1276     .1226     .1173
+    .1119     .1069     .1025     .0986     .0952     .0918     .0883     .0847
+    .0809     .0770     .0731     .0690     .0649     .0612     .0582     .0557
+    .0536     .0514     .0489     .0461     .0432     .0407     .0388     .0374
+    .0365     .0356     .0345     .0333     .0320     .0306     .0293     .0281
+    .0269     .0256     .0244     .0231     .0219     .0206     .0194     .0181
+    .0169     .0156     .0144     .0131     .0119     .0106     .0094     .0081
+    .0069     .0056     .0044     .0031
+;
+
+function pf(teller,noemer) = if(t__jn-nint(t__jn+.1).lt..1) then 1 else
+         if (sum(j=-4,-1:noemer(j)) .ne. 0.0) then
+             sum(j=-4,-1:teller(j)) / sum(j=-4,-1:noemer(j))
+         else 1 ;
+?
+function sign(x1,x2) = if(x2.ge.0)then abs(x1) else -abs(x1);
+?
+ident effinv effinv = (.5*e_cexan +.5*e_cexan(-1))/4.;
+ident t__jn t__jn = t__jn(-1) + .25;
+function vinsom(ti,h,t0) = sum(j=-179,0: if(4*ti+j.lt.0) then 0 else
+         min(4*ti+j,1) * ( if(.25*j+t__jn-t0-.01.gt.0) then 1 else 1-h) *
+         omega(j) * effinv(j) );
+?
+ident arbinv arbinv = effinv/mu_exin;
+function arbsom(ti,h,t0) = sum(j=-179,0: if(4*ti+j.lt.0) then 0 else
+         min(4*ti+j,1) * ( if(.25*j+t__jn-t0-.01.gt.0) then 1 else 1-h) *
+         omega(j) * arbinv(j) );
+?
+function oldmu(tia1) = if(t__jn(-1)-tia1.le.1949) then mu_exrn/4. else
+                       if(t__jn(-1)-tia1.ge.1949.25) then mu_exrn else
+    (t__jn(-1)-tia1-1949)*4*mu_exrn/4. - (t__jn(-1)-tia1-1949.25)*4*mu_exrn;
+param
+wg1     .330 .340 .330
+wg2     .090 .090 .090 .090 .080 .080 .080 .080 .080 .080 .080 .080
+wg3     .200 .200 .200 .200 .200
+wg4     .250 .200 .200 .150 .050 .050 .050 .050
+wg5     .100 .200 .300 .200 .100 .100
+wg6     .300 .300 .200 .200
+wg7     .600 .400
+wg8     .500 .330 .170
+wg9     .125 .375 .375 .125
+wg10    .400 .300 .200 .100
+wg11    .030 .060 .090 .120 .140 .140 .120 .100 .080 .060 .040 .020
+wg12    .230 .200 .170 .140 .110 .080 .050 .020
+wg13    .250 .250 .250 .250
+wg14    .250 .500 .200 .050
+wg15    .500 .500
+wg16    .600 .300 .100
+wg17    .750 .250
+wg18    .050 .200 .200 .200 .150 .100 .050 .050
+wg19    .050 .100 .150 .200 .200 .150 .100 .050
+wg20    .250 .375 .250 .125
+wg21    .062 .125 .188 .250 .188 .125 .062
+wg22    .150 .130 .110 .100 .090 .080 .080 .070 .070 .060 .040 .020
+wg23    .150 .200 .200 .150 .150 .100 .050
+wg24    .060 .060 .060 .060 .060 .060 .070 .070 .070 .070 .060 .060
+        .060 .060 .060 .060
+wg26    .1   .12  .12  .12  .12  .12  .10  .10  .05  .05
+wg27    1.4  -.3  -.2  -.1  .1   .1
+wg28    6.3  -1.8 -1.7 -1.8
+wg29    2.0  -.34 -.33 -.33
+wg30    1.15 -.05 -.05 -.05 ;
+?
+function g1(x) = sum(j=-2,0:wg1(j)*x(j)) ;
+function g2(x) = sum(j=-11,0:wg2(j)*x(j));
+function g3(x) = sum(j=-4,0:wg3(j)*x(j)) ;
+function g4(x) = sum(j=-7,0:wg4(j)*x(j)) ;
+function g5(x) = sum(j=-5,0:wg5(j)*x(j)) ;
+function g6(x) = sum(j=-3,0:wg6(j)*x(j)) ;
+function g7(x) = sum(j=-1,0:wg7(j)*x(j)) ;
+function g8(x) = sum(j=-2,0:wg8(j)*x(j)) ;
+function g9(x) = sum(j=-3,0:wg9(j)*x(j)) ;
+function g10(x) = sum(j=-3,0:wg10(j)*x(j)) ;
+function g11(x) = sum(j=-11,0:wg11(j)*x(j));
+function g12(x) = sum(j=-7,0:wg12(j)*x(j)) ;
+function g13(x) = sum(j=-3,0:wg13(j)*x(j)) ;
+function g14(x) = sum(j=-3,0:wg14(j)*x(j)) ;
+function g15(x) = sum(j=-1,0:wg15(j)*x(j)) ;
+function g16(x) = sum(j=-2,0:wg16(j)*x(j)) ;
+function g17(x) = sum(j=-1,0:wg17(j)*x(j)) ;
+function g18(x) = sum(j=-7,0:wg18(j)*x(j)) ;
+function g19(x) = sum(j=-7,0:wg19(j)*x(j)) ;
+function g20(x) = sum(j=-3,0:wg20(j)*x(j)) ;
+function g21(x) = sum(j=-6,0:wg21(j)*x(j)) ;
+function g22(x) = sum(j=-11,0:wg22(j)*x(j)) ;
+function g23(x) = sum(j=-6,0:wg23(j)*x(j)) ;
+function g24(x) = sum(j=-15,0:wg24(j)*x(j)) ;
+function g25(x) = x ;
+function g26(x) = sum(j=-9,0:wg26(j)*x(j)) ;
+function g27(x) = sum(j=-5,0:wg27(j)*x(j)) ;
+function g28(x) = sum(j=-3,0:wg28(j)*x(j)) ;
+function g29(x) = sum(j=-3,0:wg29(j)*x(j)) ;
+function g30(x) = sum(j=-3,0:wg30(j)*x(j)) ;
+?
+?             VERSIE CEP94    BASIS MODELVERSIE  LEG
+?             ======================================
+?
+?             BESCHIKBARE INKOMENS
+?
+?                   LOONINKOMEN
+?
+ident ldlwn ldlwn=lb___wn+lo_wn+akpwn-(pb_wn+po_wn+tllwn);
+ident ldzwn ldzwn=lz_wn-pz_wn-tzlwnk;
+ident ldawn ldawn=ldlwn+ldzwn-akpwn;
+ident ldapi ldapi=1+ca_pr;
+ident ldavd ldavd=ldawn/ldapi-ldawn(-1);
+ident ldavdk ldavdk=ldavd+(1-tutqn)*tlkwdk/ldapi;
+?
+?                UITKERINGSINKOMEN
+?
+ident oldwn oldwn=u_bwn+umewn+ol_wn+of_wn-(pu_wn+tluwn);
+ident olbwn olbwn=oldwn-umewn;
+ident olbpi olbpi=1+ca_pr;
+ident olbvd olbvd=olbwn/olbpi-olbwn(-1);
+ident olbvdk olbvdk=olbvd+tutqn*tlkwdk/olbpi;
+frml  of_wn of_wn=bsgwn-msgwn+of_wna+of_wnv;
+?
+?            TOTALEN LONEN EN UITKERINGEN
+?
+ident ld_wn ld_wn=ldlwn+oldwn;
+ident ldtwn ldtwn=ldlwn+oldwn+ldzwn;
+?
+?                  OVERIG INKOMEN
+?
+ident lz_wd lz_wd=lz_wn-lz_wn(-1);
+ident chnwd chnwd=chnwn-chnwn(-1);
+ident z_pwn z_pwn=z____wn+sprwn+rctwn-(ewtwn+revwn+rewwn+rpfwn);
+ident zapwn zapwn=z_pwn-vpbwn;
+ident zapwd zapwd=zapwn-zapwn(-1);
+frml  shgwd shgwd=.37*zapwd+.63*(lz_wd+chnwd)+shgwda+shgwdv;
+ident shgwn shgwn=shgwd+shgwn(-1);
+ident z_gwn z_gwn=shgwn;
+ident zdpwn zdpwn=z_pwn-lz_wn-tzrwnk-vpbwn;
+ident zdgwn zdgwn=z_gwn-lz_wn-tzrwnk;
+ident zdawn zdawn=zdgwn-chtwn;
+ident zdapi zdapi=1+ca_pr;
+ident zdavd zdavd=zdawn/zdapi-zdawn(-1);
+ident zdavdk zdavdk=zdavd-tlkwdk/zdapi;
+ident chnwn chnwn=chtwn-rwewn-dbewn;
+?
+?           TRANSAKTIEPOSTEN TEN BEHOEVE VAN SHG
+?
+frml  eatwd eatwd=eagwd+eatwda+eatwdv;
+ident eatwn eatwn=eatwn(-1)+eatwd;
+ident eo_wd eo_wd=eo_wn-eo_wn(-1);
+frml  ertwd ertwd=eo_wd+ertwda+ertwdv;
+ident ertwn ertwn=ertwn(-1)+ertwd;
+ident ewtwn ewtwn=eatwn+ertwn;
+?
+?
+?            RENTELASTEN OP EIGEN-WONINGBEZIT
+?
+?
+ident rwewn rwewn=g13(hypwz(-1))*g13(rlhrn(-1))/100;
+ident rlhrn rlhrn=g24(rl_rn)+1.;
+?
+?       INVESTERINGEN EIGEN WONING-BEZITSECTOR (TBV PART.CONSUMPTIE)
+?
+frml  iwewn iwewn=.55*.97*iwo__wn+iwewna+iwewnv;
+?
+?
+?                  GEZINSVERMOGENS
+?
+?                FINANCIEEL VERMOGEN
+?
+ident wfiwn wfiwn=ldtwn+zdgwn-(c____wn+iwewn-dbewn);
+ident wfiwz wfiwz=wfiwz(-1)+wfiwn/4;
+?
+?           WONINGVOORRAAD EN -HYPOTHEKEN
+?
+frml  whuwn whuwn=iwewn-dbewn+hehwn+whuwna+whuwnv;
+ident whuwz whuwz=whuwz(-1)+whuwn/4;
+frml  hypwn hypwn=iwewn+.16*g11(hehwn(-1))-.06*g1(hypwz(-3))+hypwna+hypwnv;
+ident hypwz hypwz=hypwz(-1)+hypwn/4;
+ident hehwn hehwn=4*huipr*whuwz(-1);
+frml  huipr huipr=iwo__pr+huipra+huiprv;
+?
+?        TOTALEN FINANCIEEL VERMOGEN EN WONINGVOORRAAD
+?
+ident wt_wz wt_wz=wfiwz+whuwz;
+ident wt_wn wt_wn=wfiwn+whuwn;
+ident wtzwn wtzwn=wt_wn-4*ca_pr*wt_wz(-1);
+ident wtzvn wtzvn=wtzwn/(1+ca_pr);
+?
+?            HERWAARDERING VAN HET VERMOGEN
+?
+ident herwn herwn=-4*(ca_pr*wfiwz(-1)+(ca_pr-huipr)*whuwz(-1));
+ident herpi herpi=1+ca_pr;
+ident hervd hervd=herwn/herpi-herwn(-1);
+?
+?
+?               PARTICULIERE CONSUMPTIE
+?
+?
+frml  c____vr c____vr=c____vrg+c____vrh+c____vri+c____vrj+c____vrk+c____vrl
+              +c____vrm+c____vrr+c____vra+c____vru;
+ident c____vrg c____vrg=.72*g14(ldavdk)/ca_wn(-1)*((ca_vk(-1)*pf(ca_wn,ca_vk))
+              /(c____vk(-1)*pf(c____wn,c____vk)));
+ident c____vrh c____vrh=.95*g14(olbvdk)/ca_wn(-1)*((ca_vk(-1)*pf(ca_wn,ca_vk))
+              /(c____vk(-1)*pf(c____wn,c____vk)));
+ident c____vri c____vri=.40*g9(zdavdk)/ca_wn(-1)*((ca_vk(-1)*pf(ca_wn,ca_vk))
+              /(c____vk(-1)*pf(c____wn,c____vk)));
+ident c____vrj c____vrj=-.002*g5(rcard(-1))*((ca_vk(-1)*pf(ca_wn,ca_vk))
+              /(c____vk(-1)*pf(c____wn,c____vk)));
+ident c____vrk c____vrk=.021*g11(wtzvn(-1))/ca_wn(-1)*((ca_vk(-1)*pf(ca_wn
+              ,ca_vk))/(c____vk(-1)*pf(c____wn,c____vk)));
+ident c____vrl c____vrl=.06*g9(hervd)/ca_wn(-1)*((ca_vk(-1)*pf(ca_wn,ca_vk))
+              /(c____vk(-1)*pf(c____wn,c____vk)));
+ident c____vrm c____vrm=(umevr*(umevk(-1)*pf(umewn,umevk))+chtvr*(chtvk(-1)
+              *pf(chtwn,chtvk))+akpvr*(akpvk(-1)*pf(akpwn,akpvk)))/(c____vk(-1)
+              *pf(c____wn,c____vk));
+ident c____vrr c____vrr=((ca_vk(-1)*pf(ca_wn,ca_vk))+(umevk(-1)*pf(umewn,umevk)
+              )+(chtvk(-1)*pf(chtwn,chtvk))+(akpvk(-1)*pf(akpwn,akpvk)))
+              /(c____vk(-1)*pf(c____wn,c____vk))-1;
+ident c____vrn c____vrn=c____vr-c____vrg-c____vrh-c____vri-c____vrj-c____vrk
+              -c____vrl-c____vrm-c____vrr;
+ident c____wn c____wn=cre__wn+cwo__wn+ckt__wn;
+ident c____vk c____vk=(c____vk(-1)*pf(c____wn,c____vk))*(1+c____vr);
+ident c____vn c____vn=c____wn(-1)*(1+c____vr);
+ident rcarn rcarn=.50*rkorn+.50*rl_rn-400*g12(ca_pr(-1));
+ident rcard rcard=rcarn-rcarn(-1);
+?
+?           ONDERDELEN VAN DE PARTICULIERE CONSUMPTIE
+?
+ident ca_wn ca_wn=c____wn-umewn-chtwn-akpwn;
+ident ca_vk ca_vk=c____vk-umevk-chtvk-akpvk;
+ident cmewn cmewn=cmewn(-1)*(1+cmevr)*(1+cmepr);
+ident cmevk cmevk=(cmevk(-1)*pf(cmewn,cmevk))*(1+cmevr);
+ident cwo__wn cwo__wn=cwo__wn(-1)*(1+cwo__vr)*(1+cwo__pr);
+ident cwo__vk cwo__vk=(cwo__vk(-1)*pf(cwo__wn,cwo__vk))*(1+cwo__vr);
+ident cwo__vn cwo__vn=cwo__wn(-1)*(1+cwo__vr);
+ident cwobhvk cwobhvk=(cwobhvk(-1)*pf(cwobhwn,cwobhvk))*(1+cwobhvr);
+ident cwobhvn cwobhvn=cwobhwn(-1)*cwobhvk/(cwobhvk(-1)*pf(cwobhwn,cwobhvk));
+ident ckt__vk ckt__vk=cmevk+ckwvk;
+ident ckt__vn ckt__vn=ckt__wn/(1+ckt__pr);
+ident ckt__vr ckt__vr=ckt__wn/ckt__wn(-1)/(1+ckt__pr)-1;
+ident cktbhvk cktbhvk=(cktbhvk(-1)*pf(cktbhwn,cktbhvk))*(1+cktbhvr);
+ident cktbhvn cktbhvn=cktbhwn(-1)*cktbhvk/(cktbhvk(-1)*pf(cktbhwn,cktbhvk));
+ident cre__vr cre__vr=cre__vk/(cre__vk(-1)*pf(cre__wn,cre__vk))-1;
+ident cre__vn cre__vn=cre__wn(-1)*(1+cre__vr);
+ident cre__wn cre__wn=cre_twn*(1+cretkqn)+mdcgpwn;
+ident cre_bwn cre_bwn=crebhwn+mc_gpwn+mdcgpwn;
+ident cre_bvk cre_bvk=crebhvk+mc_gpvk+mdcgpvk;
+ident cag__wn cag__wn=cag__wn(-1)*(1+cag__vr)*(1+cag__pr);
+ident cag__vn cag__vn=cag__wn(-1)*(1+cag__vr);
+frml  chewr chewr=cwo__wn/cwo__wn(-1)-1+chewra+chewrv;
+ident chewn chewn=chewn(-1)*(1+chewr);
+ident chtwn chtwn=chewn-tkhwn;
+frml  tkhwn tkhwn=.18*chewn+tkhwna+tkhwnv;
+ident chtvk chtvk=(chtvk(-1)*pf(chtwn,chtvk))*(1+chtvr);
+ident chtvr chtvr=chtwn/(chtwn(-1)*(1+cwo__pr))-1;
+ident ckwwn ckwwn=ckwwn(-1)*(1+ckwvr)*(1+ckwpr);
+ident ckwvk ckwvk=(ckwvk(-1)*pf(ckwwn,ckwvk))*(1+ckwvr);
+?
+?
+?     PARTICULIERE INVESTERINGEN BEDRIJFSGEBOUWEN (EXCL. WEG/WATERBOUW)
+?
+?
+frml  ibb__vr ibb__vr=ibb__vrg+ibb__vrh+ibb__vri+ibb__vra+ibb__vru;
+ident ibb__vrg ibb__vrg=.70*.36*ibc__vr*(ibc__vk(-1)*pf(ibc__wn,ibc__vk))
+              /(ibb__vk(-1)*pf(ibb__wn,ibb__vk));
+ident ibb__vrh ibb__vrh=.45*g22(c3bqd);
+ident ibb__vri ibb__vri=-.025*g3(rrgrd);
+ident ibb__vk ibb__vk=(ibb__vk(-1)*pf(ibb__wn,ibb__vk))*(1+ibb__vr);
+ident ibb__wn ibb__wn=ibb__wn(-1)*(1+ibb__vr)*(1+ibb__pr);
+ident c3bqn c3bqn=c3bbn*c____vk/bggvk+(1-c3bbn)*c3bqn(-1)*(1+c____vr)/(1+bggvr)
+              ;
+ident c3bqd c3bqd=c3bqn-c3bqn(-1);
+ident rrgrn rrgrn=(1-uvpqn)*rl_rn-400*g5(ibb__pr);
+ident rrgrd rrgrd=rrgrn-rrgrn(-1);
+?
+?
+?      INVESTERINGEN IN OUTILLAGE EN TRANSPORTMIDDELEN VAN
+?
+?         A) DE INTERNATIONALE SECTOR
+?         B) DE RESTSECTOR EN
+?         C) OVERIGE VARIABELEN OUTILLAGE EN TPM. VAN BEDRIJVEN
+?
+?                  A) DE INTERNATIONALE SECTOR
+?
+ident e1cexqn e1cexqn=.00281*g11(renexrn(-1))*(1-renexbn(-1)*max(min(5.*(0.797
+              -g3(qy_exqn(-1))),1),0))+4*0.173*g24(ybfexvr(-1))+0.166
+              *(g6(qy_exqn)-0.797)+0.010*g18(krwexqn(-1))-0.095*g11(solexqn)
+              +0.063;
+frml  e_cexvr e_cexvr=isvvr*(isvvk(-1)*pf(isvwn,isvvk))/(e_cexvk(-1)*pf(e_cexwn
+              ,e_cexvk))+(e1cexqn/e1cexqn(-1)*g22(k__exan)/g22(k__exan(-1))-1
+              -g15(isvan(-1))/g22(k__exan(-1))+g2(isvan(-1))/g22(k__exan(-1)))
+              *(e1cexvk(-1)*pf(e1cexwn,e1cexvk))/(e_cexvk(-1)*pf(e_cexwn
+              ,e_cexvk))+e_cexvra+e_cexvru;
+ident e_cexvrg e_cexvrg=.00281*g11(renexrd(-1))*g22(k__exan)/e1cexan(-1)*(1
+              -renexbn(-1)*max(min(5.*(0.797-g3(qy_exqn(-1))),1),0))
+              *(e1cexvk(-1)*pf(e1cexwn,e1cexvk))/(e_cexvk(-1)*pf(e_cexwn
+              ,e_cexvk));
+ident e_cexvrh e_cexvrh=4*0.173*(g24(ybfexvr(-1))-g24(ybfexvr(-2)))
+              *g22(k__exan)/e1cexan(-1)*(e1cexvk(-1)*pf(e1cexwn,e1cexvk))
+              /(e_cexvk(-1)*pf(e_cexwn,e_cexvk));
+ident e_cexvri e_cexvri=0.166*g6(qy_exqd)*g22(k__exan)/e1cexan(-1)*(e1cexvk(-1)
+              *pf(e1cexwn,e1cexvk))/(e_cexvk(-1)*pf(e_cexwn,e_cexvk));
+ident e_cexvrj e_cexvrj=0.010*g18(krwexqd(-1))*g22(k__exan)/e1cexan(-1)
+              *(e1cexvk(-1)*pf(e1cexwn,e1cexvk))/(e_cexvk(-1)*pf(e_cexwn
+              ,e_cexvk));
+ident e_cexvrk e_cexvrk=-0.095*g11(solexqd)*g22(k__exan)/e1cexan(-1)
+              *(e1cexvk(-1)*pf(e1cexwn,e1cexvk))/(e_cexvk(-1)*pf(e_cexwn
+              ,e_cexvk));
+ident e_cexvrl e_cexvrl=isvvr*(isvvk(-1)*pf(isvwn,isvvk))/(e_cexvk(-1)
+              *pf(e_cexwn,e_cexvk));
+ident e_cexvrm e_cexvrm=(g22(k__exad)-g15(isvan(-1))+g2(isvan(-1)))
+              /g22(k__exan(-1))*(e1cexvk(-1)*pf(e1cexwn,e1cexvk))/(e_cexvk(-1)
+              *pf(e_cexwn,e_cexvk));
+ident e_cexvrn e_cexvrn=e_cexvr-e_cexvrg-e_cexvrh-e_cexvri-e_cexvrj-e_cexvrk
+              -e_cexvrl-e_cexvrm-e_cexvra;
+ident rnjexrn rnjexrn=100/kp0exqn*h11exin*(ybfexpn-rmuexin*59.138*lb_expn
+              /(phiexan*mu_exin*ha1exin))/(ko_qn*e1cexpn+0.46*kgbqn*ibb__pn);
+ident rmuexin rmuexin=(1+1.68/100)**10;
+ident renexrn renexrn=0.797*rnjexrn-(1-uvpqn)*rl_rn-1.50;
+ident renexrd renexrd=renexrn-renexrn(-1);
+ident renexbn renexbn=sign(0.50,renexrn)+0.50;
+ident lb_expn lb_expn=lb_expn(-1)*(1+lb_expr);
+ident e1cexan e1cexan=e1cexan(-1)*(1+e1cexvr);
+ident e1cexvr e1cexvr=e_cexvr*(e_cexvk(-1)*pf(e_cexwn,e_cexvk))/(e1cexvk(-1)
+              *pf(e1cexwn,e1cexvk))-isvvr*(isvvk(-1)*pf(isvwn,isvvk))
+              /(e1cexvk(-1)*pf(e1cexwn,e1cexvk));
+ident e1cexwn e1cexwn=ibr__wn-isvwn-e_cdewn-e_cdbwn-ivo__wn;
+ident e1cexvk e1cexvk=(e1cexvk(-1)*pf(e1cexwn,e1cexvk))*(1+e1cexvr);
+ident e_cexwn e_cexwn=e1cexwn+isvwn;
+ident e_cexvk e_cexvk=e1cexvk+isvvk;
+ident e_cexan e_cexan=e_cexan(-1)*(1+e_cexvr);
+ident kr_exqn kr_exqn=kr_exqng/kr_exqnh;
+ident kr_exqng kr_exqng=(1-uvpqn)*(ybfexwn-lztexwn-db_exwn)+db_exwn;
+ident kr_exqnh kr_exqnh=schexqn*k__exan*(e_cexpn+0.46*ibb__pn)*(1/10+(1-uvpqn)
+              *(rl_rn+1)*0.01);
+ident lztexwn lztexwn=lyfexqn*ybfexwn;
+ident krwexqn krwexqn=min(kr_exqn-1,0);
+ident krwexqd krwexqd=krwexqn-krwexqn(-1);
+ident isvan isvan=isvan(-1)*(1+isvvr);
+frml  db_exwn db_exwn=g3(k__exan(-2))*(0.0474*e_cexpn+0.46*0.0167*ibb__pn)
+              +db_exwna+db_exwnu;
+frml  schexqd schexqd=0.877*(-(((1-g25(uvpqn(-2)))*(g25(ybfexwn(-2))
+              -g25(lztexwn(-2))-g25(db_exwn(-2)))+g25(db_exwn(-2)))
+              /(g25(k__exan(-2))*(g25(e_cexpn(-2))+0.46*g25(ibb__pn(-2)))))+(1
+              -g25(uvpqn(-2)))*(g25(rl_rn(-2))+1)*0.01*g25(schexqn(-2))+(1
+              -g25(bouqn(-2)))*g25(e_cexan(-2))/g25(k__exan(-2)))+0.882
+              *g25(schexqn(-4))+0.022-schexqn(-1)+schexqda+schexqdv;
+ident schexqn schexqn=schexqn(-1)+schexqd;
+ident solexqn solexqn=max(schexqn-0.375,0);
+ident solexqd solexqd=solexqn-solexqn(-1);
+?
+?               B) DE RESTSECTOR (SHELTERED, BOUW EN KWARTAIR)
+?
+ident e_cdbqn e_cdbqn=.00176*g1(rendbrn)*(1-rendbbn(-1)*max(min(5.00*(0.85
+              -g3(qy_dbqn(-1))),1),0))+4*0.562*kp1dbqn/kp1dbqn(-1)
+              *g22(ybfdbvr(-1))+0.159*kp1dbqn/kp1dbqn(-1)*(g6(qy_dbqn)-0.85)
+              +.016*g13(krwdbqn)-0.116*g18(soldbqn(-1))+0.138;
+frml  e_cdbvr e_cdbvr=e_cdbqn/e_cdbqn(-1)*g22(k__dban)/g22(k__dban(-1))-1
+              +e_cdbvra+e_cdbvru;
+ident e_cdbvrg e_cdbvrg=.00176*g1(rendbrd)*g22(k__dban)/e_cdban(-1)*(1
+              -rendbbn(-1)*max(min(5.00*(0.85-g3(qy_dbqn(-1))),1),0));
+ident e_cdbvrh e_cdbvrh=4*0.562*kp1dbqn/kp1dbqn(-1)*(g22(ybfdbvr(-1))
+              -g22(ybfdbvr(-2)))*g22(k__dban)/e_cdban(-1);
+ident e_cdbvri e_cdbvri=0.159*g6(qy_dbqd)*g22(k__dban)/e_cdban(-1)*kp1dbqn
+              /kp1dbqn(-1);
+ident e_cdbvrj e_cdbvrj=0.016*g13(krwdbqd)*g22(k__dban)/e_cdban(-1);
+ident e_cdbvrk e_cdbvrk=-0.116*g18(soldbqd(-1))*g22(k__dban)/e_cdban(-1);
+ident e_cdbvrl e_cdbvrl=g22(k__dbad)/g22(k__dban(-1));
+ident e_cdbvrm e_cdbvrm=e_cdbvr-e_cdbvrg-e_cdbvrh-e_cdbvri-e_cdbvrj-e_cdbvrk
+              -e_cdbvrl-e_cdbvra;
+ident rbidbrn rbidbrn=100/kp1dbqn*ha1dbin*(ybfdbpn-50.597*lb_dbpn/(69.567
+              *ha1dbin*epsdbin))/(ko_qn*e_cdbpn+2.66*kgbqn*ibb__pn);
+ident rendbrn rendbrn=0.85*rbidbrn-(1-uvpqn)*rl_rn-3.40;
+ident rendbrd rendbrd=rendbrn-rendbrn(-1);
+ident rendbbn rendbbn=sign(0.50,rendbrn)+0.50;
+ident ybfdbwn ybfdbwn=ybfshwn+ybfbown+ybfktwn;
+ident ybfdbvk ybfdbvk=ybfshvk+ybfbovk+ybfktvk;
+ident ybfdbvr ybfdbvr=ybfdbvk/(ybfdbvk(-1)*pf(ybfdbwn,ybfdbvk))-1;
+ident qy_dbqn qy_dbqn=0.15*qy_boqn+0.65*qy_shqn+0.20*0.85;
+ident qy_dbqd qy_dbqd=qy_dbqn-qy_dbqn(-1);
+ident ybfdbpr ybfdbpr=ybfdbwn/ybfdbwn(-1)/(1+ybfdbvr)-1;
+ident ybfdbpn ybfdbpn=ybfdbpn(-1)*(1+ybfdbpr);
+ident ha1dbin ha1dbin=0.15*ha1boin+0.85*h11__in**0.40;
+ident kp1dbqn kp1dbqn=0.305*(1+0.022)**(tydjn/4);
+ident lb_dbpn lb_dbpn=lb_dbpn(-1)*(1+lb_dbpr);
+ident lb_dbpr lb_dbpr=0.15*lb_bopr+0.60*lb_shpr+0.25*lb_ktpr;
+ident epsshrn epsshrn=400*(g24(ybfshvr)-g24(ab_shmr));
+ident epsborn epsborn=400*(g24(ybfbovr)-g24(ab_bomr));
+ident epsdbrn epsdbrn=0.15*epsborn+0.65*epsshrn;
+ident epsdbin epsdbin=epsdbin(-1)*(1+epsdbrn/100)**(1/4);
+ident k__dban k__dban=k__dbang+k__dbanh+k__dbani+k__dban(-1)*k__dbvra;
+ident k__dbad k__dbad=k__dban-k__dban(-1);
+ident k__dbang k__dbang=k__dban(-1);
+ident k__dbanh k__dbanh=-k__dban(-1)*0.0966/4;
+ident k__dbani k__dbani=g15(e_cdban)/4;
+ident e_cdban e_cdban=e_cdban(-1)*(1+e_cdbvr);
+ident e_cdbwn e_cdbwn=e_cdbwn(-1)*(1+e_cdbvr)*(1+e_cdbpr);
+ident kr_dbqn kr_dbqn=kr_dbqng/kr_dbqnh;
+ident kr_dbqng kr_dbqng=(1-uvpqn)*(ybfdbwn-lztdbwn-db_dbwn)+db_dbwn;
+ident kr_dbqnh kr_dbqnh=schdbqn*k__dban*(e_cdbpn+2.66*ibb__pn)*(1/10+(1-uvpqn)
+              *(rl_rn+1)*0.01);
+ident lztdbwn lztdbwn=lyfboqn*ybfbown+lyfshqn*ybfshwn+lyfktqn*ybfktwn;
+ident krwdbqn krwdbqn=min(kr_dbqn-1.50,0);
+ident krwdbqd krwdbqd=krwdbqn-krwdbqn(-1);
+frml  db_dbwn db_dbwn=g3(k__dban(-2))*(0.10*e_cdbpn+2.66*0.02*ibb__pn)+db_dbwna
+              +db_dbwnv;
+frml  schdbqd schdbqd=0.623*(-(((1-g25(uvpqn(-2)))*(g25(ybfdbwn(-2))
+              -g25(lztdbwn(-2))-g25(db_dbwn(-2)))+g25(db_dbwn(-2)))
+              /(g25(k__dban(-2))*(g25(e_cdbpn(-2))+2.66*g25(ibb__pn(-2)))))+(1
+              -g25(uvpqn(-2)))*(g25(rl_rn(-2))+1)*0.01*g25(schdbqn(-2))+(1
+              -g25(bouqn(-2)))*g25(e_cdban(-2))/g25(k__dban(-2)))+0.817
+              *g25(schdbqn(-4))+0.059-schdbqn(-1)+schdbqda+schdbqdv;
+ident schdbqn schdbqn=schdbqn(-1)+schdbqd;
+ident soldbqn soldbqn=max(schdbqn-0.4875,0);
+ident soldbqd soldbqd=soldbqn-soldbqn(-1);
+?
+?             C) OVERIGE VARIABELEN OUTILLAGE EN TPM. VAN BEDRIJVEN
+?
+ident e_cdewn e_cdewn=e_cdewn(-1)*(1+e_cdevr)*(1+e_cdepr);
+ident e_cdevk e_cdevk=(e_cdevk(-1)*pf(e_cdewn,e_cdevk))*(1+e_cdevr);
+ident e_cdbvk e_cdbvk=(e_cdbvk(-1)*pf(e_cdbwn,e_cdbvk))*(1+e_cdbvr);
+ident ibr__wn ibr__wn=(1+ibrtkqn)*ibr_twn;
+ident ibr__vk ibr__vk=e_cexvk+e_cdevk+e_cdbvk+ivo__vk;
+ident ibr__vr ibr__vr=ibr__vk/(ibr__vk(-1)*pf(ibr__wn,ibr__vk))-1;
+ident ibr_twn ibr_twn=ibrbhwn+mi_wn;
+ident ibrbhvk ibrbhvk=ibr_tvk-mi_vk;
+ident ibr_tvk ibr_tvk=(ibr_tvk(-1)*pf(ibr_twn,ibr_tvk))*(1+ibr__vr)/(1+ibrtkqn)
+              *(1+ibrtkqn(-1)*(1+tkbfn));
+ident ibrbhwn ibrbhwn=ibrbhwn(-1)*(1+ibrbhpr)*ibrbhvk/(ibrbhvk(-1)*pf(ibrbhwn
+              ,ibrbhvk));
+ident i_b__pr i_b__pr=i_b__wn/i_b__wn(-1)/(1+i_b__vr)-1;
+ident ibc__wn ibc__wn=e_cexwn+e_cdewn+e_cdbwn;
+ident ibc__vk ibc__vk=e_cexvk+e_cdevk+e_cdbvk;
+ident ibc__vr ibc__vr=ibc__vk/(ibc__vk(-1)*pf(ibc__wn,ibc__vk))-1;
+ident ibc__pr ibc__pr=ibc__wn/ibc__wn(-1)/(1+ibc__vr)-1;
+ident ibc__qn ibc__qn=ibc__wn/(1+ibc__pr)/(k__exan(-1)*e_cexpn(-1)+k__dban(-1)
+              *e_cdbpn(-1));
+?
+?             OVERIGE PARTICULIERE INVESTERINGEN
+?
+?     NB: IWO$$VR IN CENTRALE PADEN ALTIJD PRIKKEN !!!!!!
+?
+frml  iwo__vr iwo__vr=iwo__vrg+iwo__vrh+iwo__vra+iwo__vrv;
+ident iwo__vrg iwo__vrg=-.05*g4(rl_rd(-2));
+ident iwo__vrh iwo__vrh=1.30*g24(ldrhr(-2));
+ident i_wvk i_wvk=ibr__vk+ibb__vk;
+ident i_wwn i_wwn=ibr__wn+ibb__wn;
+ident ib_vk ib_vk=i_wvk+iwo__vk;
+ident ib_wn ib_wn=i_wwn+iwo__wn;
+ident i__exqn i__exqn=iqubn*i__exwn/ybfexwn+(1-iqubn)*i__exqn(-1)*(1+i__exvr)
+              /(1+ybfexvr);
+?
+?     DE BEREKENING VAN I**EXVR IS NIET GEHEEL CORRECT (WEGEN MOET EIGEN*
+?     MET VK1 I.P.V. WN1). DEZE VARIABELE NIET ELDERS GEBRUIKEN!!
+?
+ident i__exvr i__exvr=(e_cexwn(-1)*e_cexvr+ibbexwn(-1)*ibb__vr)/(e_cexwn(-1)
+              +ibbexwn(-1));
+ident i__exwn i__exwn=e_cexwn+ibbexwn+ivoexwn;
+frml  ibbexwn ibbexwn=ibbexwn(-1)*(1+ibb__wr)+ibbexwna+ibbexwnv;
+ident ibb__wr ibb__wr=(ibb__wn/ibb__wn(-1))-1;
+frml  ivoexwn ivoexwn=0.01*(e_cexwn+ibbexwn)+ivoexwna+ivoexwnv;
+?
+?            REKENKUNDIGE DEFINITIES
+?
+ident isvwn isvwn=isvwn(-1)*(1+isvvr)*(1+isvpr);
+ident isvvk isvvk=(isvvk(-1)*pf(isvwn,isvvk))*(1+isvvr);
+ident ivo__vk ivo__vk=(ivo__vk(-1)*pf(ivo__wn,ivo__vk))*(1+ivo__vr);
+ident ivo__wn ivo__wn=ivo__wn(-1)*(1+ivo__vr)*(1+ivo__pr);
+ident iwo__vk iwo__vk=(iwo__vk(-1)*pf(iwo__wn,iwo__vk))*(1+iwo__vr);
+ident iwo__wn iwo__wn=iwo__wn(-1)*(1+iwo__vr)*(1+iwo__pr);
+ident ib_vr ib_vr=ib_vk/(ib_vk(-1)*pf(ib_wn,ib_vk))-1;
+?
+?
+?            OVERHEIDSINVESTERINGEN
+?
+?
+ident j_b__wn j_b__wn=j_b__wn(-1)*(1+j_b__vr)*(1+j_b__pr);
+ident j_r__wn j_r__wn=j_r__wn(-1)*(1+j_r__vr)*(1+j_r__pr);
+ident j_b__vk j_b__vk=(j_b__vk(-1)*pf(j_b__wn,j_b__vk))*(1+j_b__vr);
+ident j_r__vk j_r__vk=(j_r__vk(-1)*pf(j_r__wn,j_r__vk))*(1+j_r__vr);
+ident j____wn j____wn=j_b__wn+j_r__wn;
+ident j____vk j____vk=j_b__vk+j_r__vk;
+ident j____vr j____vr=j____vk/(j____vk(-1)*pf(j____wn,j____vk))-1;
+ident j____pr j____pr=j____wn/j____wn(-1)/(1+j____vr)-1;
+ident j__bhwn j__bhwn=j_bbhwn+j_rbhwn;
+ident j__bhvk j__bhvk=j_bbhvk+j_rbhvk;
+ident j__bhvr j__bhvr=j__bhvk/(j__bhvk(-1)*pf(j__bhwn,j__bhvk))-1;
+frml  js_vr js_vr=j____vr+js_vra+js_vrv;
+frml  js_pr js_pr=j____pr+js_pra+js_prv;
+ident js_wn js_wn=js_wn(-1)*(1+js_vr)*(1+js_pr);
+?
+?
+?        INVESTERINGEN VAN BEDRIJVEN EN OVERHEID
+?
+?
+ident i_b__wn i_b__wn=ibb__wn+iwo__wn+j_b__wn;
+ident i_b__vk i_b__vk=ibb__vk+iwo__vk+j_b__vk;
+ident i_b__vr i_b__vr=i_b__vk/(i_b__vk(-1)*pf(i_b__wn,i_b__vk))-1;
+ident i_r__wn i_r__wn=ibr__wn+j_r__wn;
+ident i_r__vk i_r__vk=ibr__vk+j_r__vk;
+ident i_r__vr i_r__vr=i_r__vk/(i_r__vk(-1)*pf(i_r__wn,i_r__vk))-1;
+?
+?
+?                  VOORRAADVORMING
+?
+?
+ident nbfvd nbfvd=nbfqn*vc_bhwn(-1);
+frml  nbfqn nbfqn=nbfqng+nbfqnh+nbfqni+nbfqna+nbfqnv;
+ident nbfqng nbfqng=.20*g3(vc_bhvd(-1))/vc_bhwn(-1);
+ident nbfqnh nbfqnh=-1*.05*vc_bhvr;
+ident nbfqni nbfqni=-1/100*.01125*g9(rcvrd);
+ident nbfwn nbfwn=(nbfwn(-1)+nbfvd)*(1+nbfpr);
+ident nbfvk nbfvk=(nbfvk(-1)*pf(nbfwn,nbfvk))*(1+nbfvd/nbfwn(-1));
+ident n_fwn n_fwn=4*nbfvd*(1+nbfpr);
+ident n_fvk n_fvk=4*nbfvd*(nbfvk(-1)*pf(nbfwn,nbfvk))/nbfwn(-1);
+ident nbovd nbovd=n_own/(1+nbopr)/4;
+ident nbown nbown=(nbown(-1)+nbovd)*(1+nbopr);
+ident nbovk nbovk=(nbovk(-1)*pf(nbown,nbovk))*(1+nbovd/nbown(-1));
+ident n_ovk n_ovk=4*nbovd*(nbovk(-1)*pf(nbown,nbovk))/nbown(-1);
+ident n__wn n__wn=n_fwn+n_own;
+ident n__vk n__vk=n_fvk+n_ovk;
+ident rcvrn rcvrn=.75*rl_rn+.25*rkorn-400*(.50*g12(mgr__pr(-1))+.50
+              *g12(vc_bhpr(-1)));
+ident rcvrd rcvrd=rcvrn-rcvrn(-1);
+?
+?
+?                 AFSCHRIJVINGEN
+?
+?
+frml  db___vr db___vr=.0088*(ib_wn(-1)/db___wn(-1)-1)+db___vra+db___vrv;
+ident dg_vk dg_vk=(dg_vk(-1)*pf(dg_wn,dg_vk))*(1+dg_vr);
+ident dg_wn dg_wn=dg_wn(-1)*(1+dg_vr)*(1+dg_pr);
+frml  dgsvr dgsvr=dg_vr+dgsvra+dgsvrv;
+frml  dgspr dgspr=dg_pr+dgspra+dgsprv;
+ident dgswn dgswn=dgswn(-1)*(1+dgsvr)*(1+dgspr);
+ident dgsvk dgsvk=(dgsvk(-1)*pf(dgswn,dgsvk))*(1+dgsvr);
+ident db___vk db___vk=(db___vk(-1)*pf(db___wn,db___vk))*(1+db___vr);
+ident db___wn db___wn=db___wn(-1)*(1+db___vr)*(1+db___pr);
+frml  dbewn dbewn=.23*chewn+dbewna+dbewnv;
+?
+?
+?                  UITVOER
+?
+?
+frml  bf___vr bf___vr=bf___vrg+bf___vrh+bf___vri+bf___vra+bf___vru;
+ident bf___vrg bf___vrg=1.00*mwfhr;
+ident bf___vrh bf___vrh=-2.00*(g22(bf___pr)-g22(bfcpr));
+ident bf___vri bf___vri=.30/4*(g25(i__exqn(-4))-g25(ibuexqn(-4)))-0.0125/4;
+?
+frml  bd___vr bd___vr=.60*g8(bggvr)+bd___vra+bd___vru;
+ident bggvk bggvk=bf___vk+b3_vk;
+ident bggwn bggwn=bf___wn+b3_wn;
+ident b3_vk b3_vk=bo___vk+bag__vk;
+ident b3_wn b3_wn=bo___wn+bag__wn;
+ident bgdvk bgdvk=bggvk+bd___vk;
+ident bgdwn bgdwn=bggwn+bd___wn;
+frml  bprpr bprpr=bgdwn*(bgdvk(-1)*pf(bgdwn,bgdvk))/(bgdwn(-1)*bgdvk)-1+bprpra
+              +bprprv;
+ident bprwn bprwn=sprwn+bprwnb;
+ident b__vk b__vk=bgdvk+bprvk;
+ident b__wn b__wn=bgdwn+bprwn;
+ident bsiwn bsiwn=bsown+bsgwn;
+frml  bsgwn bsgwn=bsgwn(-1)*bbpwn/bbpwn(-1)+bsgwda+bsgwnv;
+?
+?            REKENKUNDIGE DEFINITIES
+?
+ident bf___vk bf___vk=(bf___vk(-1)*pf(bf___wn,bf___vk))*(1+bf___vr);
+ident bf___wn bf___wn=bf___wn(-1)*(1+bf___vr)*(1+bf___pr);
+ident bggvr bggvr=bggvk/(bggvk(-1)*pf(bggwn,bggvk))-1;
+ident bo___vk bo___vk=(bo___vk(-1)*pf(bo___wn,bo___vk))*(1+bo___vr);
+ident bo___wn bo___wn=bo___wn(-1)*(1+bo___vr)*(1+bo___pr);
+ident bag__vk bag__vk=(bag__vk(-1)*pf(bag__wn,bag__vk))*(1+bag__vr);
+ident bag__wn bag__wn=bag__wn(-1)*(1+bag__vr)*(1+bag__pr);
+ident bd___vk bd___vk=(bd___vk(-1)*pf(bd___wn,bd___vk))*(1+bd___vr);
+ident bd___wn bd___wn=bd___wn(-1)*(1+bd___vr)*(1+bd___pr);
+ident bprvk bprvk=(bprvk(-1)*pf(bprwn,bprvk))*bprwn/(bprwn(-1)*(1+bprpr));
+ident b__pi b__pi=b__wn*(b__vk(-1)*pf(b__wn,b__vk))/(b__wn(-1)*b__vk);
+ident bnf__wn bnf__wn=bf___wn+n_fwn;
+ident bnf__vk bnf__vk=bf___vk+n_fvk;
+ident bnf__vr bnf__vr=bnf__vk/(bnf__vk(-1)*pf(bnf__wn,bnf__vk))-1;
+?
+?
+?         DEFINITIES AFZET AFKOMSTIG UIT HET BINNENLAND
+?
+?
+ident c__bhvk c__bhvk=crebhvk+cwobhvk+cktbhvk;
+ident crebhvn crebhvn=crebhwn/(1+crebhpr);
+ident crebhvr crebhvr=crebhvn/crebhwn(-1)-1;
+ident cagbhwn cagbhwn=cag__wn/(1+kagqn);
+ident cagbhvn cagbhvn=cag__vn/(1+kagqn(-1));
+ident vc_bhwn vc_bhwn=c__bhwn+cg_bhwn+ibrbhwn+ibbbhwn+j__bhwn+iwobhwn+bf_bhwn
+              +bd_bhwn;
+ident vc_bhvk vc_bhvk=c__bhvk+cg_bhvk+ibrbhvk+ibbbhvk+j__bhvk+iwobhvk+bf_bhvk
+              +bd_bhvk;
+?
+?             REKENKUNDIGE DEFINITIES
+?
+ident c__bhwn c__bhwn=crebhwn+cwobhwn+cktbhwn;
+ident c__bhvn c__bhvn=c__bhvk*c__bhwn(-1)/(c__bhvk(-1)*pf(c__bhwn,c__bhvk));
+ident cr_bhwn cr_bhwn=crebhwn-cagbhwn;
+ident cr_bhvk cr_bhvk=crebhvk-cagbhvk;
+ident cr_bhpr cr_bhpr=cr_bhwn/cr_bhwn(-1)/cr_bhvk*(cr_bhvk(-1)*pf(cr_bhwn
+              ,cr_bhvk))-1;
+ident cr_bhvn cr_bhvn=cr_bhwn/(1+cr_bhpr);
+ident cagbhvk cagbhvk=cagbhvn*(cagbhvk(-1)*pf(cagbhwn,cagbhvk))/cagbhwn(-1);
+ident bf_bhvr bf_bhvr=bf_bhvn/bf_bhwn(-1)-1;
+ident bf_bhvk bf_bhvk=(bf_bhvk(-1)*pf(bf_bhwn,bf_bhvk))*(1+bf_bhvr);
+ident vc_bhvn vc_bhvn=vc_bhwn(-1)*vc_bhvk/(vc_bhvk(-1)*pf(vc_bhwn,vc_bhvk));
+ident vc_bhvd vc_bhvd=vc_bhvn-vc_bhwn(-1);
+ident vc_bhvr vc_bhvr=vc_bhvn/vc_bhwn(-1)-1;
+?
+?
+?                 FINALE INVOER
+?
+?
+frml  mc___vr mc___vr=mc___vrg+mc___vrh+mc___vri+mc___vra+mc___vru;
+ident mc___vrg mc___vrg=1.54*cre__vr;
+ident mc___vrh mc___vrh=-.62*(g5(mc___pr(-1))-g5(crebhpr(-1)));
+ident mc___vri mc___vri=.005/4;
+frml  mi_vr mi_vr=mi_vrg+mi_vrh+mi_vri+mi_vrj+mi_vra+mi_vru;
+ident mi_vrg mi_vrg=1.05*ibc__vr;
+ident mi_vrh mi_vrh=-.50*(g5(mi_pr(-1))-g5(ibrbhpr(-1)));
+ident mi_vri mi_vri=.50*g6(qy_ioqd(-1));
+ident mi_vrj mi_vrj=.015/4;
+frml  mdc__vr mdc__vr=mdc__vrg+mdc__vrh+mdc__vra+mdc__vru;
+ident mdc__vrg mdc__vrg=1.75*cre__vr;
+ident mdc__vrh mdc__vrh=-.75*(g5(mdc__pr(-2))-g5(c____pr(-2)));
+?
+?                 INTERMEDIAIRE INVOER
+?
+frml  mgrgpvr mgrgpvr=mgrgpvrg+mgrgpvrh+mgrgpvri+mgrgpvra+mgrgpvru;
+ident mgrgpvrg mgrgpvrg=1.10*(bnfmgwn(-1)/totmgwn(-1)*bf_bhvr+cremgwn(-1)
+              /totmgwn(-1)*crebhvr+cg_mgwn(-1)/totmgwn(-1)*cg_bhvr+i_bmgwn(-1)
+              /totmgwn(-1)*i_bbhvr+i_rmgwn(-1)/totmgwn(-1)*i_rbhvr)+1.00
+              *bd_mgwn(-1)/totmgwn(-1)*bd_rpvr;
+ident mgrgpvrh mgrgpvrh=-.30*(1-bd_mgwn(-1)/totmgwn(-1))*(g3(mgrgppr)
+              -g3(intexpr));
+ident mgrgpvri mgrgpvri=.70*(4*nbfvd-n_fwn(-1))/mgrgpwn(-1);
+frml  mdbgpvr mdbgpvr=mdbgpvrg+mdbgpvrh+mdbgpvra+mdbgpvru;
+ident mdbgpvrg mdbgpvrg=1.00*(bnfmdwn(-1)/totmdwn(-1)*g1(bf_bhvr)+bd_mdwn(-1)
+              /totmdwn(-1)*g1(bd___vr)+cremdwn(-1)/totmdwn(-1)*g1(cre__vr)
+              +cg_mdwn(-1)/totmdwn(-1)*g1(cg_bhvr)+i_bmdwn(-1)/totmdwn(-1)
+              *i_brpvr+i_rmdwn(-1)/totmdwn(-1)*i_rrpvr);
+ident mdbgpvrh mdbgpvrh=-.30*(1-(i_bmdwn(-1)+i_rmdwn(-1))/totmdwn(-1))
+              *g3(mdbgppr)+.30*(bnfmdwn(-1)/totmdwn(-1)*g3(bnfbepr)+bd_mdwn(-1)
+              /totmdwn(-1)*g3(bd_bepr)+cremdwn(-1)/totmdwn(-1)*g3(crebepr)
+              +cg_mdwn(-1)/totmdwn(-1)*g3(cg_bepr));
+frml  m3_vr m3_vr=m3_vrg+m3_vrh+m3_vri+m3_vra+m3_vru;
+ident m3_vrg m3_vrg=1.00*(bnfm3wn(-1)/totm3wn(-1)*bf_bhvr+bd_m3wn(-1)
+              /totm3wn(-1)*bd_rpvr+crem3wn(-1)/totm3wn(-1)*crebhvr+cg_m3wn(-1)
+              /totm3wn(-1)*cg_bhvr+i_bm3wn(-1)/totm3wn(-1)*i_brpvr+bnom3wn(-1)
+              /totm3wn(-1)*bo___vr);
+ident m3_vrh m3_vrh=-.30*(bnfm3wn(-1)+crem3wn(-1))/totm3wn(-1)*g24(m3_pr)+.30
+              *(bnfm3wn(-1)/totm3wn(-1)*g24(bnf_dpr)+crem3wn(-1)/totm3wn(-1)
+              *g24(cre_dpr));
+ident m3_vri m3_vri=.70*(4*nbovd-n_own(-1))/m3_wn(-1);
+frml  mrovr mrovr=m3_vr+mrovra+mrovrv;
+?
+?             UPDATE RIJGEWICHTEN INTERMEDIAIRE INVOER
+?
+ident bnfmgwn bnfmgwn=bnfmgwn(-1)*(1+1.10*bf_bhvr)*(1+mgrgppr);
+ident bd_mgwn bd_mgwn=bd_mgwn(-1)*(1+1.00*bd_rpvr)*(1+mgrgppr);
+ident cremgwn cremgwn=cremgwn(-1)*(1+1.10*crebhvr)*(1+mgrgppr);
+ident cg_mgwn cg_mgwn=cg_mgwn(-1)*(1+1.10*cg_bhvr)*(1+mgrgppr);
+ident i_bmgwn i_bmgwn=i_bmgwn(-1)*(1+1.10*i_bbhvr)*(1+mgrgppr);
+ident i_rmgwn i_rmgwn=i_rmgwn(-1)*(1+1.10*i_rbhvr)*(1+mgrgppr);
+ident totmgwn totmgwn=bnfmgwn+bd_mgwn+cremgwn+cg_mgwn+i_bmgwn+i_rmgwn;
+ident bnfmdwn bnfmdwn=bnfmdwn(-1)*(1+1.00*g1(bf_bhvr))*(1+mdbgppr);
+ident bd_mdwn bd_mdwn=bd_mdwn(-1)*(1+1.00*g1(bd___vr))*(1+mdbgppr);
+ident cremdwn cremdwn=cremdwn(-1)*(1+1.00*g1(cre__vr))*(1+mdbgppr);
+ident cg_mdwn cg_mdwn=cg_mdwn(-1)*(1+1.00*g1(cg_bhvr))*(1+mdbgppr);
+ident i_bmdwn i_bmdwn=i_bmdwn(-1)*(1+1.00*i_brpvr)*(1+mdbgppr);
+ident i_rmdwn i_rmdwn=i_rmdwn(-1)*(1+1.00*i_rrpvr)*(1+mdbgppr);
+ident totmdwn totmdwn=bnfmdwn+bd_mdwn+cremdwn+cg_mdwn+i_bmdwn+i_rmdwn;
+ident bnfm3wn bnfm3wn=bnfm3wn(-1)*(1+1.00*bf_bhvr)*(1+m3_pr);
+ident bnom3wn bnom3wn=bnom3wn(-1)*(1+1.00*bo___vr)*(1+m3_pr);
+ident bd_m3wn bd_m3wn=bd_m3wn(-1)*(1+1.00*bd_rpvr)*(1+m3_pr);
+ident crem3wn crem3wn=crem3wn(-1)*(1+1.00*crebhvr)*(1+m3_pr);
+ident cg_m3wn cg_m3wn=cg_m3wn(-1)*(1+1.00*cg_bhvr)*(1+m3_pr);
+ident i_bm3wn i_bm3wn=i_bm3wn(-1)*(1+1.00*i_brpvr)*(1+m3_pr);
+ident totm3wn totm3wn=bnfm3wn+bnom3wn+bd_m3wn+crem3wn+cg_m3wn+i_bm3wn;
+?
+?
+?                 INVOER: DEFINITIES
+?
+?
+ident mggvk mggvk=mc___vk+mi_vk+mgr__vk+m3_vk;
+ident mggwn mggwn=mc___wn+mi_wn+mgr__wn+m3_wn;
+ident mg1vk mg1vk=mggvk-mrovk;
+ident mg1wn mg1wn=mggwn-mrown;
+ident mghvk mghvk=mgr__vk+m3_vk;
+ident mghwn mghwn=mgr__wn+m3_wn;
+ident md_vk md_vk=mdc__vk+mdb__vk;
+ident md_wn md_wn=mdc__wn+mdb__wn;
+frml  mdbgppr mdbgppr=mg1wn*(mg1vk(-1)*pf(mg1wn,mg1vk))/(mg1wn(-1)*mg1vk)-1
+              +mdbgppra+mdbgpprv;
+ident mgdvk mgdvk=mggvk+md_vk;
+ident mgdwn mgdwn=mggwn+md_wn;
+frml  mprpr mprpr=mgdwn*(mgdvk(-1)*pf(mgdwn,mgdvk))/(mgdwn(-1)*mgdvk)-1+mprpra
+              +mprprv;
+ident mprwn mprwn=bprwnb;
+ident m__vk m__vk=mgdvk+mprvk;
+ident m__wn m__wn=mgdwn+mprwn;
+ident mghpr mghpr=mghwn*(mghvk(-1)*pf(mghwn,mghvk))/(mghwn(-1)*mghvk)-1;
+ident mggvr mggvr=mggvk/(mggvk(-1)*pf(mggwn,mggvk))-1;
+ident mc___vk mc___vk=(mc___vk(-1)*pf(mc___wn,mc___vk))*(1+mc___vr);
+ident mc___wn mc___wn=mc___wn(-1)*(1+mc___vr)*(1+mc___pr);
+ident mc_gpvn mc_gpvn=mc_gpwn(-1)*(1+mc_gpvr);
+ident mdbgpvk mdbgpvk=(mdbgpvk(-1)*pf(mdbgpwn,mdbgpvk))*(1+mdbgpvr);
+ident mdbgpwn mdbgpwn=mdbgpwn(-1)*(1+mdbgpvr)*(1+mdbgppr);
+ident mdc__vk mdc__vk=(mdc__vk(-1)*pf(mdc__wn,mdc__vk))*(1+mdc__vr);
+ident mdc__wn mdc__wn=mdc__wn(-1)*(1+mdc__vr)*(1+mdc__pr);
+ident mdcgpvn mdcgpvn=mdcgpwn(-1)*(1+mdcgpvr);
+ident mgrgpvk mgrgpvk=(mgrgpvk(-1)*pf(mgrgpwn,mgrgpvk))*(1+mgrgpvr);
+ident mgrgpwn mgrgpwn=mgrgpwn(-1)*(1+mgrgpvr)*(1+mgrgppr);
+ident mi_vk mi_vk=(mi_vk(-1)*pf(mi_wn,mi_vk))*(1+mi_vr);
+ident mi_wn mi_wn=mi_wn(-1)*(1+mi_vr)*(1+mi_pr);
+ident msiwn msiwn=msown+msgwn+msiwnc;
+frml  msgwn msgwn=msgwn(-1)*bbpwn/bbpwn(-1)+msgwda+msgwnv;
+ident mprvk mprvk=(mprvk(-1)*pf(mprwn,mprvk))*mprwn/(mprwn(-1)*(1+mprpr));
+ident m__pi m__pi=m__wn*(m__vk(-1)*pf(m__wn,m__vk))/(m__wn(-1)*m__vk);
+ident m3_vk m3_vk=(m3_vk(-1)*pf(m3_wn,m3_vk))*(1+m3_vr);
+ident m3_wn m3_wn=m3_wn(-1)*(1+m3_vr)*(1+m3_pr);
+ident mrovk mrovk=(mrovk(-1)*pf(mrown,mrovk))*(1+mrovr);
+ident mrown mrown=mrown(-1)*(1+mrovr)*(1+mropr);
+?
+?
+?             BETALINGSBALANS-DEFINITIES
+?
+?
+ident sbbwn sbbwn=sbmwn+sprwn+siswn;
+ident sbmwn sbmwn=bgdwn-mgdwn;
+ident sbmvk sbmvk=bgdvk-mgdvk;
+ident siswn siswn=bsiwn-msiwn;
+ident sbbqn sbbqn=sbbwn/bbpwn;
+ident sggwn sggwn=bggwn-mggwn;
+ident s3_wn s3_wn=b3_wn-m3_wn;
+ident sd_wn sd_wn=bd___wn-md_wn;
+frml  sprwd sprwd=.02/4*g13(sbbwn(-1))+sprwda+sprwdv;
+ident sprwn sprwn=sprwn(-1)+sprwd;
+ident sprvk sprvk=bprvk-mprvk;
+ident sb_wn sb_wn=sbmwn+bsiwn+bprwn;
+ident ruiwd ruiwd=b__wn*(1/m__pi-1/b__pi);
+ident rucwn rucwn=sbmwn-sbmvk;
+?
+?
+?     PRODUKTIECAPACITEIT EN ARBEIDSPLAATSEN INTERNATIONALE SECTOR
+?
+?
+?                  CAPACITEIT
+?
+ident h11exin h11exin=h11__in**.15;
+ident h11__in h11__in=h11__in(-1)*(1+hu1ur)*(1+hd1dr);
+ident kp0exqn kp0exqn=3.134*(.797/.961);
+ident kp_exqn kp_exqn=h11exin*k__exan/capexan;
+ident capexan capexan=0.00+h11exin*k__exan/kp0exqn;
+ident capexvr capexvr=capexan/capexan(-1)-1;
+ident k__exwn k__exwn=k__exan*e_cexpn;
+??IDENT K##EXAN K##EXAN=VINSOM(G15(E#CEXAN),TI#EXJN,0.00,1974.0)+K##EXAN(-1)
+??              *K##EXVRA;
+ident k__exadg k__exadg=g15(e_cexan)/4;
+ident k__exadh k__exadh=-sk_exan/4;
+ident k__exadi k__exadi=k__exvra(-1)*g25(k__exan(-2))-k__exvra*k__exan(-1);
+ident k__exadj k__exadj=k__exad-k__exadg-k__exadh-k__exadi;
+ident k__exad k__exad=k__exan-k__exan(-1);
+??IDENT K#SEXAN K#SEXAN=VINSOM(G15(E#CEXAN),TISEXJN,0.00,1974.0)+K#SEXAN(-1)
+??              *K#SEXVRA;
+?
+?                ARBEIDSPLAATSEN
+?
+ident ha1exin ha1exin=h11__in**.80;
+ident ha1exir ha1exir=ha1exin/ha1exin(-1)-1;
+??IDENT K11EXAN K11EXAN=ARBSOM(G15(E#CEXAN)/MU#EXIN,TI#EXJN,0.00,1974.0)
+??              +K11EXAN(-1)*K11EXVRA;
+??IDENT K1SEXAN K1SEXAN=ARBSOM(G15(E#CEXAN)/MU#EXIN,TISEXJN,0.00,1974.0)
+??              +K1SEXAN(-1)*K1SEXVRA;
+ident mu_exin mu_exin=mu_exin(-1)*(1+mu_exrn/100)**(1/4);
+ident abcexmn abcexmn=(.797/1.00)*h11exin/ha1exin*k11exan/(kp_exqn*phiexan)
+              +abcexmnt;
+ident abcexmr abcexmr=abcexmn/abcexmn(-1)-1;
+ident abcexmnt abcexmnt=abcexmnt(-1)+abcexmda;
+ident phiexan phiexan=117.644*epsexin;
+ident epsexin epsexin=epsexin(-1)*(1+epsexrn/100)**(1/4);
+ident abcexmd abcexmd=abcexmn-abcexmn(-1);
+ident abcexmdg abcexmdg=(k1sexan-k11exan(-1))/k11exan(-1)*abcexmn(-1)-abcexmdi;
+ident abcexmdh abcexmdh=(k11exan-k1sexan)/k11exan(-1)*abcexmn(-1);
+ident abcexmdi abcexmdi=k__exadg/mu_exin*abcexmn(-1)/k11exan(-1);
+ident abcexmdj abcexmdj=abcexmd-abcexmdg-abcexmdh-abcexmdi;
+ident abcexmdk abcexmdk=-(kp_exqn/kp_exqn(-1)-1)*abcexmn(-1);
+ident abcexmdl abcexmdl=-(phiexan/phiexan(-1)-1)*abcexmn(-1);
+ident abcexmdm abcexmdm=(h11exin*ha1exin(-1)/(ha1exin*h11exin(-1))-1)
+              *abcexmn(-1);
+ident abcexmdn abcexmdn=-epsexrng/400*abcexmn(-1);
+ident abcexmdo abcexmdo=-epsexrnh/400*abcexmn(-1);
+ident abcexmdp abcexmdp=-epsexrni/400*abcexmn(-1);
+?
+?                 AFSTOOT
+?
+ident sk_exan sk_exan=sk_exang+sk_exanh;
+ident sk_exang sk_exang=4*(k__exan(-1)+k__exadg-k_sexan);
+ident sk_exanh sk_exanh=4*(k_sexan-k__exan);
+ident sktexqn sktexqn=sk_exang/k__exan(-1);
+ident skeexqn skeexqn=sk_exanh/k__exan(-1);
+ident sk_exqn sk_exqn=sk_exan/k__exan(-1);
+ident sk_exqd sk_exqd=sk_exqn-sk_exqn(-1);
+?
+?           LEEFTIJD  OUDSTE  VINTAGE
+?
+ident tisexjn tisexjn=min(ti_exjn(-1)+1/4,44.25);
+ident ti_exjn ti_exjn=min(tiaexjn,tisexjn);
+ident tiaexjn tiaexjn=tiaexjn(-1)+tiaexjd;
+ident tiaexjd tiaexjd=tiaexjdg+tiaexjdh+tiaexjdi;
+ident tiaexjdg tiaexjdg=-g2(lbyexpr(-1))/mulexrn*100;
+ident tiaexjdh tiaexjdh=g2(ha1exir(-1))/mulexrn*100;
+ident tiaexjdi tiaexjdi=(1/4)*(1+epsexrn/mulexrn);
+ident lbyexpr lbyexpr=(1+lb_expr)/(1+ybfexpr)-1;
+ident lbzexpr lbzexpr=(1+lbyexpr)/(1+ha1exir)-1;
+ident epsexrn epsexrn=epsexrng+epsexrnh+epsexrni+epsexrna;
+ident epsexrng epsexrng=400*.30*g24(ybfexvr(-1));
+ident epsexrnh epsexrnh=400*.412*g2(lbzexpr(-1));
+ident epsexrni epsexrni=100*.00331;
+ident mulexrn mulexrn=oldmu(tiaexjn(-1));
+?
+?
+?       CAPACITEIT VAN SHELTERED EN BOUWNIJVERHEID
+?
+?
+frml  capshvr capshvr=capshvrg+capshvrh+capshvra+capshvrv;
+ident capshvrg capshvrg=ab_shmr;
+ident capshvrh capshvrh=g22(h__shhr);
+frml  capbovr capbovr=0.50*ybfbovr+(1-0.50)*g25(capbovr(-4))+capbovra+capbovrv;
+?
+?               BEZETTINGSGRAAD PER SECTOR
+?
+ident qycexqn qycexqn=ybfexan/capexan;
+ident ybfexan ybfexan=ybfexwn/ybfexpn;
+frml  qy_exqd qy_exqd=qycexqn-qycexqn(-1)+qy_exqda+qy_exqdu;
+ident qy_exqn qy_exqn=qy_exqn(-1)+qy_exqd;
+ident qy_exqr qy_exqr=qy_exqd/qy_exqn(-1);
+ident qadexqn qadexqn=1-.90*(.797-qycexqn)/.797;
+ident qa_exqd qa_exqd=.35/4*(qadexqn-qa_exqn(-1));
+ident qa_exqn qa_exqn=qa_exqn(-1)+qa_exqd;
+ident qa_exqr qa_exqr=qa_exqd/qa_exqn(-1);
+frml  qy_shqr qy_shqr=(1+ybfshvr)/(1+capshvr)-1+qy_shqra+qy_shqrv;
+ident qy_shqn qy_shqn=qy_shqn(-1)*(1+qy_shqr);
+ident qy_shqd qy_shqd=qy_shqn-qy_shqn(-1);
+frml  qy_boqr qy_boqr=(1+ybfbovr)/(1+capbovr)-1+qy_boqra+qy_boqrv;
+ident qy_boqn qy_boqn=qy_boqn(-1)*(1+qy_boqr);
+?
+?
+?        WERKGELEGENHEID PER SECTOR EN TOTAAL
+?
+?
+?               EXPOSED SECTOR
+?
+ident ab_exmr ab_exmr=ab_exmd/ab_exmn(-1);
+frml  ab_exmd ab_exmd=ab_exmdg+ab_exmdh+ab_exmda+ab_exmdu;
+ident ab_exmdg ab_exmdg=abcexmr*ab_exmn(-1);
+ident ab_exmdh ab_exmdh=qa_exqr*ab_exmn(-1);
+ident ab_exmn ab_exmn=ab_exmn(-1)+ab_exmd;
+?
+?              SHELTERED SECTOR
+?
+frml  ab_shmd ab_shmd=ab_shmdg+ab_shmdh+ab_shmdi+ab_shmdj+ab_shmdk+ab_shmdl
+              +ab_shmdm+ab_shmda+ab_shmdu;
+ident ab_shmdg ab_shmdg=+0.8335*g22(ybfshvr)*ab_shmn(-1);
+ident ab_shmdh ab_shmdh=-0.5265*g13(lbzshpr)*ab_shmn(-1);
+ident ab_shmdi ab_shmdi=+0.7408/100*g11(rgnshrd)*ab_shmn(-1);
+ident ab_shmdj ab_shmdj=+0.6092*g11(qy_shqd(-4))*ab_shmn(-1);
+ident ab_shmdk ab_shmdk=-g24(ha1shir)*ab_shmn(-1);
+ident ab_shmdl ab_shmdl=-0.1241*.7*(g11(lmipr(-4))-g11(lb2pr(-4)))*ab_shmn(-1);
+ident ab_shmdm ab_shmdm=-0.0022*ab_shmn(-1);
+ident ab_shmn ab_shmn=ab_shmn(-1)+ab_shmd;
+ident ab_shmr ab_shmr=ab_shmd/ab_shmn(-1);
+ident rgnshrd rgnshrd=rgnshrn-rgnshrn(-1);
+ident rgnshrn rgnshrn=100*0.30*z__shwn/ybfshwn-rl_rn-2.00;
+ident ha1shir ha1shir=(h11__in/h11__in(-1))**0.40-1;
+ident lbzshpr lbzshpr=(1+lbyshpr)/(1+ha1shir)-1;
+ident lbyshpr lbyshpr=(1+lb_shpr)/(1+ybfshpr)-1;
+ident z__shwn z__shwn=0.95*ybfshwn-0.81*lyfshqn*ybfshwn;
+ident lyfshqn lyfshqn=lyfshqn(-1)*(1+lb_shpr)*(1+ab_shmr)/(1+ybfshvr)/(1
+              +ybfshpr);
+?
+?               BOUWNIJVERHEID
+?
+frml  ab_bomd ab_bomd=ab_bomdg+ab_bomdh+ab_bomdi+ab_bomdj+ab_bomda+ab_bomdu;
+ident ab_bomdg ab_bomdg=(0.693*g7(ybfbovr(-1))+0.142*g5(ybfbovr(-4)))*ab_bomn;
+ident ab_bomdh ab_bomdh=-(0.538*g25(lbzbopr(-1))+0.034*g1(lbzbopr(-4)))
+              *ab_bomn(-1);
+ident ab_bomdi ab_bomdi=-g13(ha1boir)*ab_bomn(-1);
+ident ab_bomdj ab_bomdj=-0.003*ab_bomn(-1);
+ident ab_bomr ab_bomr=ab_bomd/ab_bomn(-1);
+ident ab_bomn ab_bomn=ab_bomn(-1)+ab_bomd;
+ident ha1boir ha1boir=ha1boin/ha1boin(-1)-1;
+ident lbybopr lbybopr=(1+lb_bopr)/(1+ybfbopr)-1;
+ident lbzbopr lbzbopr=(1+lbybopr)/(1+ha1boir)-1;
+?
+?           OVERIGE SECTOREN EN MACRO
+?
+ident ab_ktmn ab_ktmn=ab_ktmn(-1)+ab_ktmd;
+ident ab_ktmr ab_ktmr=ab_ktmd/ab_ktmn(-1);
+ident abrmd abrmd=ab_exmd+ab_shmd+ab_bomd+ab_demd+ab_womd+abrmda;
+ident abrmn abrmn=abrmn(-1)+abrmd;
+ident abrmr abrmr=abrmn/abrmn(-1)-1;
+ident ab___mn ab___mn=abrmn+ab_ktmn;
+ident ab___mr ab___mr=ab___mn/ab___mn(-1)-1;
+ident ab___md ab___md=ab___mn-ab___mn(-1);
+ident al___mn al___mn=ab___mn-az___mn;
+ident al___mr al___mr=al___mn/al___mn(-1)-1;
+ident az___mn az___mn=az___mn(-1)+az___md;
+ident a__mn a__mn=ab___mn+ao_mn;
+ident ao_mn ao_mn=ao_mn(-1)+ao_md;
+ident ao_mr ao_mr=ao_mn/ao_mn(-1)-1;
+ident ab___on ab___on=abrmn*parqn+ab_ktmn*pakqn;
+frml  parqn parqn=(paxqn*ab_exmn+pahqn*ab_shmn+paoqn*ab_bomn)/(ab_exmn+ab_shmn
+              +ab_bomn)+parqna+parqnv;
+ident ao_on ao_on=ao_mn*pagqn;
+ident a__on a__on=ab___on+ao_on;
+ident a__od a__od=a__on-a__on(-1);
+ident az___on az___on=az___mn*pazqn;
+ident al___on al___on=ab___on-az___on;
+ident al___or al___or=al___on/al___on(-1)-1;
+ident abron abron=abrmn*parqn;
+ident ab_kton ab_kton=ab_ktmn*pakqn;
+ident lby_rpr lby_rpr=(1+lbrpr)/(1+yfrpr)-1;
+?
+?
+?            AANBOD EN OVERSCHOT VAN ARBEID
+?
+?
+?     NB: PS*OD IN CENTRALE PADEN ALTIJD PRIKKEN !!!!!!
+?
+frml  ps_od ps_od=pstod+pscod+ps_oda+ps_odv;
+frml  pscod pscod=pscodg+pscodh+pscoda+pscodv;
+ident pscodg pscodg=.10*(g24(lb1pr(-1))-g24(c____pr(-1))-g24(stlqr(-1)))*pston;
+ident pscodh pscodh=.20*(g10(a__od(-1))-g10(pstod(-1)));
+ident ps_on ps_on=ps_on(-1)+ps_od;
+ident pston pston=pston(-1)+pstod;
+ident pstmd pstmd=pston/patqn-pston(-1)/patqn(-1);
+ident ps_md ps_md=pstmd+(ps_od-pstod)/pacqn;
+ident ps_mn ps_mn=ps_mn(-1)+ps_md;
+ident psbmn psbmn=ps_mn-ao_mn-wswmn;
+ident w__mn w__mn=psbmn-ab___mn;
+ident w__md w__md=w__mn-w__mn(-1);
+ident w__od w__od=ps_od-a__od-(wswon-wswon(-1));
+ident w__on w__on=w__on(-1)+w__od;
+ident w__qn w__qn=w__on/ps_on;
+ident w__qd w__qd=w__qn-w__qn(-1);
+ident wswmn wswmn=wswon/1.039;
+?
+?
+?
+?
+?            ARBEIDSMARKT : LONEN
+?
+?
+?
+?
+?     CONTRACTLOON
+?
+?
+frml  lcopr lcopr=lcoprg+lcoprh+lcopri+lcoprj+lcoprk+lcoprl+lcoprm+lcoprn
+              +lcopro+lcopra+lcopru;
+ident lcoprg lcoprg=1.00*c____pr;
+ident lcoprh lcoprh=0.47*(yfrpr-c____pr);
+ident lcopri lcopri=0.78*g11(h_rhr);
+ident lcoprj lcoprj=0.30*stlqr;
+ident lcoprk lcoprk=-0.20*slwqd/(1+slwqn(-1));
+ident lcoprl lcoprl=-0.10/4*g3(w__qn(-2));
+ident lcoprm lcoprm=-0.79*g3(w__qd(-2));
+ident lcoprn lcoprn=0.16*g3(rppqr(-2));
+ident lcopro lcopro=-0.006/4;
+?
+?
+?     INCIDENTEEL LOON
+?
+?
+frml  linpr linpr=linprg+linprh+linpri+linpra+linprv;
+ident linprg linprg=0.22*h_rhr;
+ident linprh linprh=-0.28*g3(w__qd(-2));
+ident linpri linpri=0.007/4;
+?
+?
+?     BRUTO LOON (EXCL. RESP. INCL. AMBTENAREN + TRENDVOLGERS)
+?
+?
+ident lb2pr lb2pr=lcopr+linpr+lb2pra;
+ident lb1pr lb1pr=lb___pr-lbrprm;
+?
+?
+?     LOONVOET BEDRIJVEN (EXCL. RESP. INCL. AMBTENAREN + TRENDVOLGERS)
+?
+?
+ident lbrpr lbrpr=lb2pr+lbrprm+lbrpra;
+frml  lb___pr lb___pr=lbrpr+lb___prn+lb___pra+lb___prv;
+ident lb___prn lb___prn=0.14*(lbtpr-lbrpr)+0.03*(lo_pr-lbrpr);
+ident lb___pro lb___pro=lb2pra+lbrpra+lb___pra;
+?
+?
+?     DEFINITIES
+?
+?
+ident stlqr stlqr=(sllqd+ttlqd)/(1-sllqn(-1)-ttlqn(-1));
+ident lbrprm lbrprm=slwqd/(1+slwqn(-1));
+ident lb1wn lb1wn=lb___wn/(1+slwqn);
+ident lb___vk lb___vk=(lb___vk(-1)*pf(lb___wn,lb___vk))*(1+al___mr);
+ident lb___wn lb___wn=lb___wn(-1)*(1+al___mr)*(1+lb___pr);
+frml  lbtpr lbtpr=ltcpr+ltipr+lbrprm+lbtpra+lbtprv;
+frml  ltcpr ltcpr=dtlbn*lcopr+ltcpra+ltcprv;
+ident ldrhr ldrhr=ldtwn/ldtwn(-1)-c____pr-1;
+ident h_rhr h_rhr=yfrvr-abrmr;
+frml  wkapr wkapr=.70*lcopr+.19*locpr+.11*ltcpr+wkapra+wkaprv;
+?
+?            REPLACEMENT RATE EN MINIMUMLOON
+?
+frml  rppqr rppqr=.70*(lmipr-lb2pr)+rppqra+rppqrv;
+frml  lmipr lmipr=dm1bn*wkapr+dm2bn*c_lpr+lmipra+lmiprv;
+?
+?            SECTORALE LONEN
+?
+frml  lb_expr lb_expr=.926*lbrpr+.032*lo_pr+.042*lbtpr+lb_expra+lb_exprv;
+frml  lb_shpr lb_shpr=lbrpr+lb_shpra+lb_shprv;
+frml  lb_bopr lb_bopr=lbrpr+.30*atpqr+lb_bopra+lb_boprv;
+frml  lb_ktpr lb_ktpr=.74*lbtpr+.16*lbrpr+.10*lo_pr+lb_ktpra+lb_ktprv;
+?
+?             PRIJZEN EN KOSTEN:
+?
+?
+?             KAPITAALKOSTEN EN GASKOSTEN
+?
+?
+ident ko_qn ko_qn=(1-bouqn-uvpqn*ko_qnh)/(1-uvpqn);
+ident ko_qnh ko_qnh=aouqn*(1+dcfqn)+.1*(1-dcfqn**10.)/(1-dcfqn);
+ident ko_rn ko_rn=8.00+(1-uvpqn)*g2(rl_rn(-1));
+ident ko_pr ko_pr=ibc__pr+ko_qn/ko_qn(-1)+ko_rn/ko_rn(-1)-hc1in/hc1in(-1)-1;
+ident kgbqn kgbqn=(1-bgbqn-uvpqn*kgbqnh)/(1-uvpqn);
+ident kgbqnh kgbqnh=(agbqn+vgbqn)*(1+dcfqn)+(1-2.00*vgbqn)*.033*(1-dcfqn**30.)
+              /(1-dcfqn);
+ident kgbrn kgbrn=8.00+(1-uvpqn)*g2(rl_rn(-1));
+ident kgbpr kgbpr=ibb__pr+kgbqn/kgbqn(-1)+kgbrn/kgbrn(-1)-hc1in/hc1in(-1)-1;
+ident dcfqn dcfqn=1/(1.05+(1-uvpqn)*g2(rl_rn(-1))/100);
+frml  gagpr gagpr=.60*g15(mropr(-1))+gagpra+gagprv;
+ident kagpr kagpr=dagbn*.50*g15(mropr(-2))+(1-dagbn)*kagprb;
+ident hc1in hc1in=(hu1un/8.60)**.58*(hd1dn/239.8)**.72+hc1ina;
+ident hd1dn hd1dn=hd1dn(-1)*(1+hd1dr);
+ident hu1un hu1un=hu1un(-1)*(1+hu1ur);
+?
+?             KOSTENRELATIES PER SECTOR
+?
+ident kossrpr kossrpr=lyfsrqn(-1)*lepsrpr+(1-lyfsrqn(-1))*(g3(kepsrpr(-1)))
+              +kossrpra;
+ident kosbopr kosbopr=lyfboqn(-1)*lepbopr+(1-lyfboqn(-1))*(g3(kepbopr(-1)))
+              +kosbopra;
+ident kosktpr kosktpr=lyfktqn(-1)*lepktpr+(1-lyfktqn(-1))*(g3(kepktpr(-1)))
+              +kosktpra;
+ident kosexpr kosexpr=lyfexqn(-1)*lepexpr+(1-lyfexqn(-1))*(g3(kepexpr(-1)))
+              +kosexpra;
+ident lyfsrqn lyfsrqn=lyfsrqn(-1)*(1+lb_shpr)*(1+ab_shmr)/(1+ybfsrvr)/(1
+              +ybfsrpr);
+ident lyfboqn lyfboqn=lyfboqn(-1)*(1+lb_bopr)*(1+ab_bomr)/(1+ybfbovr)/(1
+              +ybfbopr);
+ident lyfktqn lyfktqn=lyfktqn(-1)*(1+lb_ktpr)*(1+ab_ktmr)/(1+ybfktvr)/(1
+              +ybfktpr);
+ident lyfexqn lyfexqn=lyfexqn(-1)*(1+lb_expr)*(1+ab_exmr)/(1+ybfexvr)/(1
+              +ybfexpr);
+ident lepsrpr lepsrpr=(1+g1(lb_shpr))*(1+g2(ab_shmr(-1)))/(1+g2(ybfsrvr(-1)))-1
+              ;
+ident lepbopr lepbopr=(1+g1(lb_bopr))*(1+g2(ab_bomr(-1)))/(1+g2(ybfbovr(-1)))-1
+              ;
+ident lepktpr lepktpr=(1+g1(lb_ktpr))*(1+g2(ab_ktmr(-1)))/(1+g2(ybfktvr(-1)))-1
+              ;
+ident lepexpr lepexpr=(1+g1(lb_expr))*(1+g2(ab_exmr(-1)))/(1+g2(ybfexvr(-1)))-1
+              ;
+ident kepsrpr kepsrpr=0.30*ko_pr+0.70*kgbpr;
+ident kepbopr kepbopr=0.70*ko_pr+0.30*kgbpr;
+ident kepktpr kepktpr=0.20*ko_pr+0.80*kgbpr;
+ident kepexpr kepexpr=0.65*ko_pr+0.35*kgbpr;
+?
+?       SECTORAAL GEWOGEN KOSTENRELATIES PER AFZETCAT.
+?
+ident lepc_pr lepc_pr=.45*lyfexqn(-1)*lepexpr+.55*lyfsrqn(-1)*lepsrpr;
+ident lepiopr lepiopr=.50*lyfexqn(-1)*lepexpr+.40*lyfsrqn(-1)*lepsrpr+.10
+              *lyfboqn(-1)*lepbopr;
+ident lepibpr lepibpr=.18*lyfexqn(-1)*lepexpr+.22*lyfsrqn(-1)*lepsrpr+.60
+              *lyfboqn(-1)*lepbopr;
+ident lepbfpr lepbfpr=.75*lyfexqn(-1)*lepexpr+.25*lyfsrqn(-1)*lepsrpr;
+ident lepbdpr lepbdpr=.60*lyfexqn(-1)*lepexpr+.30*lyfsrqn(-1)*lepsrpr+.05
+              *lyfboqn(-1)*lepbopr+.05*lyfktqn(-1)*lepktpr;
+ident lepb3pr lepb3pr=.90*lyfexqn(-1)*lepexpr+.10*lyfsrqn(-1)*lepsrpr;
+ident lepmkpr lepmkpr=.05*lyfexqn(-1)*lepexpr+.05*lyfsrqn(-1)*lepsrpr+.90
+              *lyfktqn(-1)*lepktpr;
+ident kepc_pr kepc_pr=.45*(1-lyfexqn(-1))*g3(kepexpr(-1))+.55*(1-lyfsrqn(-1))
+              *g3(kepsrpr(-1));
+ident kepiopr kepiopr=.50*(1-lyfexqn(-1))*g3(kepexpr(-1))+.40*(1-lyfsrqn(-1))
+              *g3(kepsrpr(-1))+.10*(1-lyfboqn(-1))*g3(kepbopr(-1));
+ident kepibpr kepibpr=.18*(1-lyfexqn(-1))*g3(kepexpr(-1))+.22*(1-lyfsrqn(-1))
+              *g3(kepsrpr(-1))+.60*(1-lyfboqn(-1))*g3(kepbopr(-1));
+ident kepbfpr kepbfpr=.75*(1-lyfexqn(-1))*g3(kepexpr(-1))+.25*(1-lyfsrqn(-1))
+              *g3(kepsrpr(-1));
+ident kepbdpr kepbdpr=.60*(1-lyfexqn(-1))*g3(kepexpr(-1))+.30*(1-lyfsrqn(-1))
+              *g3(kepsrpr(-1))+.05*(1-lyfboqn(-1))*g3(kepbopr(-1))+.05*(1
+              -lyfktqn(-1))*g3(kepktpr(-1));
+ident kepb3pr kepb3pr=.90*(1-lyfexqn(-1))*g3(kepexpr(-1))+.10*(1-lyfsrqn(-1))
+              *g3(kepsrpr(-1));
+ident kepmkpr kepmkpr=.05*(1-lyfexqn(-1))*g3(kepexpr(-1))+.05*(1-lyfsrqn(-1))
+              *g3(kepsrpr(-1))+.90*(1-lyfktqn(-1))*g3(kepktpr(-1));
+?
+?
+?        PRIJZEN: KOSTENVERGELIJKINGEN
+?
+?
+ident cr_bkpr cr_bkpr=cr_bkprg+cr_bkprh+cr_bkpri+cr_bkprj+cr_bkprk+cr_bkpra;
+ident cr_bkprg cr_bkprg=.14*g23(mgr__pr)+.04*g23(mdb__pr);
+ident cr_bkprh cr_bkprh=.03*g23(m3_pr);
+ident cr_bkpri cr_bkpri=.78*lepc_pr;
+ident cr_bkprj cr_bkprj=.01*vagpr;
+ident cr_bkprk cr_bkprk=.78*kepc_pr;
+ident ibrbkpr ibrbkpr=ibrbkprg+ibrbkprh+ibrbkpri+ibrbkprj+ibrbkprk+ibrbkpra;
+ident ibrbkprg ibrbkprg=.25*g23(mgr__pr)+.05*g23(mdb__pr);
+ident ibrbkprh ibrbkprh=.02*g23(m3_pr);
+ident ibrbkpri ibrbkpri=.66*lepiopr;
+ident ibrbkprj ibrbkprj=.02*vagpr;
+ident ibrbkprk ibrbkprk=.66*kepiopr;
+ident ibbbkpr ibbbkpr=ibbbkprg+ibbbkprh+ibbbkpri+ibbbkprj+ibbbkprk+ibbbkpra;
+ident ibbbkprg ibbbkprg=.20*g8(mgr__pr)+.02*g8(mdb__pr);
+ident ibbbkprh ibbbkprh=.01*g8(m3_pr);
+ident ibbbkpri ibbbkpri=.76*lepibpr;
+ident ibbbkprj ibbbkprj=.01*vagpr;
+ident ibbbkprk ibbbkprk=.76*kepibpr;
+ident bf_bkpr bf_bkpr=bf_bkprg+bf_bkprh+bf_bkpri+bf_bkprj+bf_bkprk+bf_bkpra;
+ident bf_bkprg bf_bkprg=.41*g8(mgr__pr)+.02*g8(mdb__pr);
+ident bf_bkprh bf_bkprh=.03*g8(m3_pr);
+ident bf_bkpri bf_bkpri=.52*lepbfpr;
+ident bf_bkprj bf_bkprj=.02*vagpr;
+ident bf_bkprk bf_bkprk=.52*kepbfpr;
+ident bd_bkpr bd_bkpr=bd_bkprg+bd_bkprh+bd_bkpri+bd_bkprj+bd_bkprk+bd_bkpra;
+ident bd_bkprg bd_bkprg=.11*g8(mgr__pr)+.12*g8(mdb__pr);
+ident bd_bkprh bd_bkprh=.03*g8(m3_pr);
+ident bd_bkpri bd_bkpri=.74*lepbdpr;
+ident bd_bkprj bd_bkprj=.01*vagpr;
+ident bd_bkprk bd_bkprk=.74*kepbdpr;
+ident bo_bkpr bo_bkpr=.82*g17(mropr)+.03*g8(mgr__pr)+.15*(kepb3pr+lepb3pr)
+              +bo_bkpra;
+?
+?
+?       SECTORSPECIFIEKE BEZETTINGSGRADEN PER AFZETCATEGORIE
+?
+?
+ident qy_ioqn qy_ioqn=0.50*qy_exqn+0.40*qy_shqn+0.10*qy_boqn;
+ident qy_c_qn qy_c_qn=0.45*qy_exqn+0.55*qy_shqn;
+ident qy_ibqn qy_ibqn=0.15*qy_exqn+0.30*qy_shqn+0.55*qy_boqn;
+ident qy_iwqn qy_iwqn=0.15*qy_exqn+0.20*qy_shqn+0.65*qy_boqn;
+ident qy_bfqn qy_bfqn=0.75*qy_exqn+0.25*qy_shqn;
+ident qy_ioqd qy_ioqd=qy_ioqn-qy_ioqn(-1);
+ident qy_c_qd qy_c_qd=qy_c_qn-qy_c_qn(-1);
+ident qy_ibqd qy_ibqd=qy_ibqn-qy_ibqn(-1);
+ident qy_iwqd qy_iwqd=qy_iwqn-qy_iwqn(-1);
+ident qy_bfqd qy_bfqd=qy_bfqn-qy_bfqn(-1);
+?
+?
+?         PRIJZEN AFZET UIT HET BINNENLAND
+?
+?
+frml  c__bhpr c__bhpr=c__bhprg+c__bhprh+c__bhpri+c__bhprj+c__bhprk+c__bhprl
+              +c__bhprm+c__bhprr+c__bhpra+c__bhpru;
+ident c__bhprg c__bhprg=(cr_bhvn/c__bhvn)*.40*g18(mc___pr);
+ident c__bhprh c__bhprh=(cr_bhvn/c__bhvn)*.60*(cr_bkpr);
+ident c__bhpri c__bhpri=(cr_bhvn/c__bhvn)*.25*g14(qy_c_qd);
+ident c__bhprj c__bhprj=(cr_bhvn/c__bhvn)*.025*max(g13(qy_c_qn)-.826,-.05);
+ident c__bhprk c__bhprk=cagbhvn/c__bhvn*cagbhpr;
+ident c__bhprl c__bhprl=(cwobhvn/c__bhvn)*cwobhpr;
+ident c__bhprm c__bhprm=(cktbhvn/c__bhvn)*cktbhpr;
+ident c__bhprr c__bhprr=(cr_bhvn+cagbhvn+cwobhvn+cktbhvn)/c__bhvn-1;
+ident cagbhpr cagbhpr=cagbhwn/cagbhvn-1;
+ident crebhpr crebhpr=(c__bhpr-c__bhprl-c__bhprm-c__bhprr)*c__bhvn/crebhvn;
+frml  cg_bhpr cg_bhpr=1.17*cre_bpr-.17*cg_plpr+cg_bhpra+cg_bhprv;
+ident cre_bpr cre_bpr=cre_bwn/cre_bwn(-1)/(cre_bvk/(cre_bvk(-1)*pf(cre_bwn
+              ,cre_bvk)))-1;
+frml  ibrbhpr ibrbhpr=ibrbhprg+ibrbhprh+ibrbhpri+ibrbhprj+ibrbhpra+ibrbhpru;
+ident ibrbhprg ibrbhprg=.40*g18(mi_pr);
+ident ibrbhprh ibrbhprh=.60*ibrbkpr;
+ident ibrbhpri ibrbhpri=.25*g10(qy_ioqd(-1));
+ident ibrbhprj ibrbhprj=.025*max(g13(qy_ioqn)-.824,-.05);
+frml  ibbbhpr ibbbhpr=g12(ibbbkpr)+.20*g14(qy_ibqd)+.025*max(g13(qy_ibqn)-.842,
+              -.05)+ibbbhpra+ibbbhpru;
+frml  j_bbhpr j_bbhpr=ibbbhpr+j_bbhpra+j_bbhprv;
+frml  j_rbhpr j_rbhpr=ibrbhpr+j_rbhpra+j_rbhprv;
+frml  iwobhpr iwobhpr=g12(ibbbkpr)+.20*g14(qy_iwqd)+.025*max(g13(qy_iwqn)-.842,
+              -.05)+iwobhpra+iwobhpru;
+frml  bf_bhpr bf_bhpr=bf_bhprg+bf_bhprh+bf_bhpri+bf_bhprj+bf_bhpra+bf_bhpru;
+ident bf_bhprg bf_bhprg=.60*g7(bfcpr);
+ident bf_bhprh bf_bhprh=.40*bf_bkpr;
+ident bf_bhpri bf_bhpri=.25*g10(qy_bfqd(-1));
+ident bf_bhprj bf_bhprj=.025*max(g13(qy_bfqn)-.810,-.05);
+frml  bd_bhpr bd_bhpr=bd_bhprg+bd_bhprh+bd_bhpra+bd_bhpru;
+ident bd_bhprg bd_bhprg=.50*g7(bfcpr);
+ident bd_bhprh bd_bhprh=.50*bd_bkpr;
+ident vc_bhpr vc_bhpr=vc_bhwn/vc_bhvn-1;
+?
+?
+?        PRIJZEN AFZETCATEGORIEEN (MARKTPRIJZEN,INCL.INVOER)
+?
+?
+ident c____pr c____pr=c____wn/c____vn-1;
+ident cre__pr cre__pr=cre__wn/cre__vn-1;
+ident cg___pr cg___pr=-1+(1+cg_bhpr)*(1+cg_tkqn(-1)*(1+tkbfn))/(1+cg_tkqn(-1));
+ident ca_pr ca_pr=ca_wn*(ca_vk(-1)*pf(ca_wn,ca_vk))/(ca_wn(-1)*ca_vk)-1;
+frml  ckwpr ckwpr=(1+.04*g23(mgr__pr)+.02*g23(m3_pr)+.01*g23(mdb__pr)+.93
+              *(lepmkpr+kepmkpr))*(1+tkbfn*ckttkqn(-1)/(1+ckttkqn(-1)))-1+ckwpra
+              +ckwprv;
+frml  cmepr cmepr=(1+.06*g23(mgr__pr)+.01*g23(m3_pr)+.01*g23(mdb__pr)+.92
+              *(lepmkpr+kepmkpr))*(1+tkbfn*ckttkqn(-1)/(1+ckttkqn(-1)))-1+cmepra
+              +cmeprv;
+ident ckt__pr ckt__pr=ckt__wn*(ckt__vk(-1)*pf(ckt__wn,ckt__vk))/(ckt__wn(-1)
+              *ckt__vk)-1;
+frml  cag__pr cag__pr=kagpr+cag__pra+cag__prv;
+frml  vagpr vagpr=.78*gagpr+.22*kagpr+vagpra+vagprv;
+frml  c_lpr c_lpr=c____pr-c____pro-.50*umevn/(c____vn-umevn)*(umepr-c____pr)
+              +c_lpra+c_lprv;
+ident bf___pr bf___pr=(1+bf_bhpr)*(1+bf_tkqn(-1)*(1+.20*tkbfn))/(1+bf_tkqn(-1))
+              -1;
+ident bnf__pr bnf__pr=bnf__wn/bnf__wn(-1)/(1+bnf__vr)-1;
+frml  ivo__pr ivo__pr=ibr__pr+ivo__pra+ivo__prv;
+frml  isvpr isvpr=ibr__pr+isvpra+isvprv;
+ident i_wpr i_wpr=i_wwn*(i_wvk(-1)*pf(i_wwn,i_wvk))/(i_wwn(-1)*i_wvk)-1;
+ident ib_pr ib_pr=ib_wn*(ib_vk(-1)*pf(ib_wn,ib_vk))/(ib_wn(-1)*ib_vk)-1;
+ident iwo__pr iwo__pr=(1+iwobhpr)*(1+tkbfn*iwotkqn(-1)/(1+iwotkqn(-1)))-1;
+ident ibr__pr ibr__pr=ibr__wn/ibr__wn(-1)/(1+ibr__vr)-1;
+ident ibb__pn ibb__pn=ibb__pn(-1)*(1+ibb__pr);
+ident ibb__pr ibb__pr=(1+ibbbhpr)*(1+tkbfn*ibbtkqn(-1)/(1+ibbtkqn(-1)))-1;
+ident j_b__pr j_b__pr=(1+j_bbhpr)*(1+tkbfn*j_btkqn(-1)/(1+j_btkqn(-1)))-1;
+ident j_r__pr j_r__pr=(1+j_rbhpr)*(1+tkbfn*j_rtkqn(-1)/(1+j_rtkqn(-1)))-1;
+ident i_r__pr i_r__pr=i_r__wn/i_r__wn(-1)/(1+i_r__vr)-1;
+frml  e_cdepr e_cdepr=ibr__pr+e_cdepra+e_cdeprv;
+frml  e_cdbpr e_cdbpr=ibr__pr+e_cdbpra+e_cdbprv;
+ident e1cexpr e1cexpr=e1cexwn/e1cexwn(-1)/(1+e1cexvr)-1;
+ident e_cexpr e_cexpr=e_cexwn/e_cexwn(-1)/(1+e_cexvr)-1;
+ident e_cexpn e_cexpn=e_cexpn(-1)*(1+e_cexpr);
+ident e1cexpn e1cexpn=e1cexwn/e1cexan;
+ident e_cdbpn e_cdbpn=e_cdbwn/e_cdban;
+ident ybfexpn ybfexpn=ybfexpn(-1)*(1+ybfexpr);
+frml  bo___pr bo___pr=bo_bkpr+bo___pra+bo___prv;
+frml  bag__pr bag__pr=.80*g25(mropr(-2))+bag__pra+bag__prv;
+ident bd___pr bd___pr=(1+bd_bhpr)*(1+tkbfn*bd_tkqn(-1)/(1+bd_tkqn(-1)))-1;
+frml  nbfpr nbfpr=.50*vc_bhpr+.50*mgr__pr+nbfpra+nbfprv;
+frml  nbopr nbopr=mropr+nbopra+nboprv;
+frml  db___pr db___pr=.15*ibb__pr+.70*ibc__pr+.15*iwo__pr+db___pra+db___prv;
+frml  dg_pr dg_pr=.75*ibb__pr+.25*ibc__pr+dg_pra+dg_prv;
+ident b3_pr b3_pr=b3_wn*(b3_vk(-1)*pf(b3_wn,b3_vk))/(b3_wn(-1)*b3_vk)-1;
+ident bggpr bggpr=bggwn*(bggvk(-1)*pf(bggwn,bggvk))/(bggwn(-1)*bggvk)-1;
+?
+?
+?        ALTERNATIEVE ONDERBOUWINGEN CONSUMPTIEPRIJS
+?
+?
+ident c____prg c____prg=cr_bhqn*cr_bkprg;
+ident c____prh c____prh=cr_bhqn*cr_bkprh;
+ident c____pri c____pri=mc_gpvn*cre_rvn/cre_tvn/c____vn*mc_gppr+mdcgpvn/c____vn
+              *mdcgppr;
+ident c____prj c____prj=c____prg+c____prh+c____pri;
+ident c____prk c____prk=cr_bhqn*cr_bkprk;
+ident c____prl c____prl=cr_bhqn*cr_bkpri;
+ident c____prm c____prm=cr_bhqn/cr_bhvn*cagbhvn*cagbhpr+cr_bhqn*cr_bkprj;
+ident c____prn c____prn=cwo__vn/c____vn*cwo__pr;
+ident c____pro c____pro=cre_rvn/c____vn*(1+cre_tpr)*cretkqdt/(1+cretkqn(-1))
+              +ckt__vn/c____vn*(1+cktbhpr)*tkbfn*ckttkqn(-1)/(1+ckttkqn(-1));
+ident c____prp c____prp=ckt__vn/c____vn*cktbhpr;
+ident c____prq c____prq=cr_bhqn*(cr_bhpr-cr_bkpr);
+ident c____prr c____prr=(((cr_bhvn+cagbhvn)*(1+cres_qn)+mc_gpvn)*(1+cretkqn
+              -cretkqdt)+mdcgpvn)/c____vn+cwo__vn/c____vn+ckt__vn/c____vn-1;
+ident c____prs c____prs=c____prq+c____prr;
+ident c____prt c____prt=cr_bhqn*cr_bkpra;
+ident c_oprg c_oprg=cr_bhqn*(.14*mgr__pr+.04*mdb__pr);
+ident c_oprh c_oprh=cr_bhqn*.03*m3_pr;
+ident c_oprj c_oprj=c_oprg+c_oprh+c____pri;
+ident c_oprl c_oprl=cr_bhqn*.78*(.45*lyfexqn(-1)*(lb_expr+ab_exmr-ybfexvr)+.55
+              *lyfsrqn(-1)*(lb_shpr+ab_shmr-ybfsrvr));
+ident c_oprq c_oprq=c_opr-c_oprj-c____prk-c_oprl-c____prm-c____prn-c____pro
+              -c____prp-c____prt;
+ident c_opr c_opr=c____pr;
+ident cr_bhqn cr_bhqn=cr_bhvn*(1+cres_qn)*cre_rvn/cre_tvn/c____vn;
+ident cre_rvn cre_rvn=cre_rwn(-1)*cre_rvk/(cre_rvk(-1)*pf(cre_rwn,cre_rvk));
+ident cre_tvn cre_tvn=cre_twn(-1)*cre_tvk/(cre_tvk(-1)*pf(cre_twn,cre_tvk));
+ident cre_tpr cre_tpr=cre_twn/cre_tvn-1;
+?
+?
+?        ONDERBOUWINGEN CONSUMPTIEPRIJS CONFORM MEV/CEP
+?
+?
+ident cilqn cilqn=cr_bhqn*(.14+.04+.03+.01)+mc_gpvn*cre_rvn/cre_tvn/c____vn
+              +mdcgpvn/c____vn+cr_bhqn*(1-.14-.04-.03-.01)*(.45*lyfexqn(-1)+.55
+              *lyfsrqn(-1));
+ident ckaqn ckaqn=cr_bhqn*(1-.14-.04-.03-.01)*(.45*(1-lyfexqn(-1))+.55*(1
+              -lyfsrqn(-1)));
+ident c_tpr c_tpr=c____pr;
+ident c_tprg c_tprg=((cilqn+ckaqn)/cilqn)*c_oprg;
+ident c_tprh c_tprh=((cilqn+ckaqn)/cilqn)*c_oprh;
+ident c_tpri c_tpri=((cilqn+ckaqn)/cilqn)*c____pri;
+ident c_tprl c_tprl=((cilqn+ckaqn)/cilqn)*c_oprl;
+ident c_tprq c_tprq=c____prk+c_oprq-(ckaqn/cilqn)*(c_oprg+c_oprh+c____pri
+              +c_oprl);
+?
+?     KOSTPRIJS UITVOER FABRIKATEN MET ONVERTRAAGDE DOORWERKINGEN VAN
+?                  PRIJZEN KOSTENBESTANDDELEN
+?
+ident bfopr bfopr=bfoprg+bfoprh+bfopri+bfoprj+bfoprk+bf_bkpra;
+ident bfoprg bfoprg=.41*mgr__pr+.02*mdb__pr;
+ident bfoprh bfoprh=.03*m3_pr;
+ident bfopri bfopri=.52*(.75*lyfexqn(-1)*(lb_expr+ab_exmr-ybfexvr)+.25
+              *lyfsrqn(-1)*(lb_shpr+ab_shmr-ybfsrvr));
+ident bfoprj bfoprj=.02*vagpr;
+ident bfoprk bfoprk=.52*(.75*(1-lyfexqn(-1))*kepexpr+.25*(1-lyfsrqn(-1))
+              *kepsrpr);
+?
+?
+?        ONDERBOUWINGEN UITVOERPRIJS CONFORM MEV/CEP
+?
+?
+ident bilqn bilqn=1.-bkaqn;
+ident bkaqn bkaqn=(1.-.41-.02-.03-.02)*(.75*(1.-lyfexqn(-1))+.25*(1.
+              -lyfsrqn(-1)));
+ident b_tpr b_tpr=bf___pr;
+ident b_tprg b_tprg=((bilqn+bkaqn)/bilqn)*bfoprg;
+ident b_tprh b_tprh=((bilqn+bkaqn)/bilqn)*bfoprh;
+ident b_tpri b_tpri=((bilqn+bkaqn)/bilqn)*bfopri;
+ident b_tprj b_tprj=((bilqn+bkaqn)/bilqn)*bfoprj;
+ident b_tprq b_tprq=bfoprk+bfwpr-(bkaqn/bilqn)*(bfopr-bfoprk);
+?
+?
+?                       BELASTINGEN
+?
+?
+?                GRONDSLAGEN BELASTINGHEFFING
+?
+frml  l_pwn l_pwn=lb___wn-pb_wn+lo_wn-po_wn+dorbn*(pdvwn+pavwn)+.77*pzfwn
+              +l_pwna+l_pwnv;
+?
+?************************************************************************
+?                  KORREKTIES L-PPR EN U-PPR                           **
+?                                                                      **
+?     VOOR HET OVERGANGSKWARTAAL 1990-1 (INVOERING OORT) WORDEN IN     **
+?     DE L-PPR EN DE U-PPR KORREKTIES AANGEBRACHT, RESP. -24,8 EN      **
+?     -15,2 PROCENT. DEZE KORREKTIES ZIJN BEREKEND DOOR HET MODEL      **
+?     MET EN ZONDER OORT DOOR TE DRAAIEN EN HET VERSCHIL TE BEPALEN.   **
+?************************************************************************
+?
+ident l_pvr l_pvr=(al___mn+ao_mn)/(al___mn(-1)+ao_mn(-1))-1;
+ident l_ppr l_ppr=l_pwn/(l_pwn(-1)*(1+l_pvr))-1-(dorbn-dorbn(-1))*.248;
+frml  pzfwn pzfwn=pzfqn*uzfwn+pzfwna+pzfwnv;
+ident uxpwn uxpwn=uoiwn-pu_wn+dorbn*pgvwn+.23*pzfwn;
+ident uxpvr uxpvr=uoivr;
+ident uxppr uxppr=uxpwn/(uxpwn(-1)*(1+uxpvr))-1-(dorbn-dorbn(-1))*.14;
+?
+?                 LOONBELASTING
+?
+?                TRANSAKTIEBASIS
+?
+ident tltwn tltwn=tltwn(-1)+tltwd;
+frml  tltwd tltwd=tltwdg+tltwdh+tltwdi+tltwdj+tltwda+tltwdv;
+ident tltwdg tltwdg=((1+l_pvr)*(1+1.90*l_ppr)-1)*ttlwn(-1)+(1-tutqn)*tltwdb;
+ident tltwdh tltwdh=-.90*dicqn*g11(c_lpr(-2))*(1+l_pvr)*ttlwn(-1);
+ident tltwdi tltwdi=((1+uxpvr)*(1+1.40*uxppr)-1)*ttuwn(-1)+tutqn*tltwdb;
+ident tltwdj tltwdj=-.40*dicqn*g11(c_lpr(-2))*(1+uxpvr)*ttuwn(-1);
+frml  ttuwd ttuwd=tltwdi+tltwdj+ttuwda+ttuwdv;
+ident ttlwd ttlwd=tltwd-ttuwd;
+ident ttlwn ttlwn=ttlwn(-1)+ttlwd;
+ident ttuwn ttuwn=ttuwn(-1)+ttuwd;
+ident tutqn tutqn=ttuwn/tltwn;
+ident ttlqn ttlqn=ttlwn/(lb1wn+lo1wn);
+ident ttlqd ttlqd=ttlqn-ttlqn(-1);
+?
+?                  KASBASIS
+?
+ident tlkwn tlkwn=tlkwn(-1)+tlkwd;
+frml  tlkwd tlkwd=tllwdg+tluwdg+tlkwda+tlkwdu;
+ident tllwd tllwd=tlkwd-tluwd;
+ident tllwdg tllwdg=g8(ttlwd);
+frml  tluwd tluwd=tluwdg+tluwda+tluwdv;
+ident tluwdg tluwdg=g8(ttuwd);
+ident tllwn tllwn=tllwn(-1)+tllwd;
+ident tluwn tluwn=tluwn(-1)+tluwd;
+?
+?            KAS/TRANS-VERSCHIL  TL
+?
+ident tlkwdk tlkwdk=tlkwd-tltwd;
+?
+?          BELASTING OP OVERIG INKOMEN
+?
+ident tzkwn tzkwn=vbkwn+vgkwn+tzgwnk;
+ident vpbwn vpbwn=vbkwn+vgkwn;
+?
+?                VPB BEDRIJVEN
+?
+frml  vbkwn vbkwn=g26(vbtwn(-3))+vbkwna+vbkwnv;
+ident vbtwn vbtwn=vbtwn(-1)*(1+vbtwr);
+frml  vbtwr vbtwr=vbtwrg+vbtwrh+vbtwri+vbtwra+vbtwrv;
+ident vbtwrg vbtwrg=zcrwr;
+ident vbtwrh vbtwrh=-0.50*ziqqr+0.50*g22(ziqqr(-1));
+ident vbtwri vbtwri=vbtwdb/vbtwn(-1);
+?
+?                  GRONDSLAG
+?
+frml  zcrwn zcrwn=.77*g13(zviwn)-.58*lz_wn-rvbwn+zcrwna+zcrwnv;
+ident zcrwr zcrwr=zcrwn/zcrwn(-1)-1;
+ident ziqqr ziqqr=ziqqn/ziqqn(-1)-1;
+ident ziqqn ziqqn=zcrwn/(.82*yfrwn-1.40*lz_wn);
+ident zviwn zviwn=z____wn-zagwn-.92*.75*ybfwown-.18*.23*ybfktwn-4.20+zdbwn;
+ident db1wr db1wr=.14/4*((ib_wn(-1)-iwo__wn(-1))/db1wn(-1)-1);
+frml  db1wn db1wn=db1wn(-1)*(1+db1wr)+db1wna+db1wnv;
+ident zdbwn zdbwn=.73*db___wn-db1wn;
+ident zibwn zibwn=.23*g13(zviwn)+.58*lz_wn;
+ident ribwn ribwn=.47*1.50*g13(zibwn)*(.80*g22(rl_rn)+.20*rkorn+2.00)/100;
+ident rvbwn rvbwn=ybfsrwn-ybfshwn+2.78*schvbqn*g24(ynfvbwn)*(.80*g22(rl_rn)+.20
+              *rkorn+2.00)/100-.64*g24(ynfvbwn)*(.20*g22(rl_rn)+.80*rkorn+2.00)
+              /100;
+ident schvbqn schvbqn=.91*(.72*schexqn+.28*schdbqn)+.091;
+ident ynfvbwn ynfvbwn=ybfbewn-db___wn-1.50*zibwn-.88*ybfdewn-.92*.77*ybfwown
+              -.74*.90*ybfktwn-7.00;
+?
+?                   VPB GAS
+?
+ident vgkwn vgkwn=vgkwn(-1)+vgkwd;
+frml  vgkwd vgkwd=.85*.25*g21(zagwd(-1))+(.25*g21(zagwd(-1))-.85*.25
+              *g21(zagwd(-5)))+vgkwda+vgkwdv;
+?
+?         INKOMSTENBELASTING OP OVERIG INKOMEN
+?
+ident tzgwnk tzgwnk=tzrwnk+tzlwnk;
+frml  tzrwnk tzrwnk=g13(tzrwnt(-7))+tzrwna+tzrwnv;
+ident tzrwnt tzrwnt=tzrwnt(-1)+tzrwdt;
+ident tzrwdt tzrwdt=tzrwdg+tzrwdh+tzrwdi;
+ident tzrwdg tzrwdg=.40*zczwd;
+ident tzrwdh tzrwdh=-.10*dicqn*g19(c_lpr(-2))*tzrwnt(-1);
+ident tzrwdi tzrwdi=tzrwdb;
+ident zczwd zczwd=zczwn-zczwn(-1);
+ident zczwn zczwn=zczwng+zczwnh+zczwni;
+ident zczwng zczwng=.25*(g22(zcrwn)-g22(vbtwn));
+ident zczwnh zczwnh=zibwn-ribwn-lz_wn;
+ident zczwni zczwni=.15*rcdwn+.001*g22(rl_rn)*nnpwn-rwewn;
+ident tzlwnk tzlwnk=g8(tzlwnt);
+frml  tzlwnt tzlwnt=(ttlwn/l_pwn)*(lz_wn-pzpwn-(1-dorbn)*pzvwn)+tzlwna+tzlwnv;
+?
+?
+?           KOSTPRIJSVERHOGENDE BELASTINGEN
+?
+?
+ident tk_wn tk_wn=tk_wn(-1)*(1+tk_wr);
+frml  tk_wr tk_wr=g15(tktwn)/tk_wn(-1)-1+tk_wra+tk_wru;
+frml  tktwn tktwn=tktwng+tktwna+tktwnu;
+ident tktwng tktwng=bf_tkqng*(1+bf_s_qn)*bf_bhwn+bd_tkqng*bd_bhwn+cretkqng
+              *cre_twn+ckttkqng*cktbhwn+cwotkqn*(1+cwos_qn)*cwobhwn+cg_tkqng*(1
+              +cg_s_qn)*cg_bhwn+ibbtkqng*ibbbhwn+j_btkqng*j_bbhwn+iwotkqng
+              *iwobhwn+ibrtkqng*ibr_twn+j_rtkqng*j_rbhwn;
+?
+?         UPDATING INDIREKTE BELASTINGQUOTEN
+?
+ident tkbfn tkbfn=(tk_wdb-tk_wdc)/(tktwn(-1)-cwotkqn(-1)*(1+cwos_qn(-1))
+              *cwobhwn(-1)-(1-.20)*bf_tkqn(-1)*(1+bf_s_qn(-1))*bf_bhwn(-1));
+ident bf_tkqng bf_tkqng=(1+.20*tkbfn)*bf_tkqn(-1);
+ident bd_tkqng bd_tkqng=(1+tkbfn)*bd_tkqn(-1);
+ident cretkqng cretkqng=cretkqn(-1)+cretkqdt+cretkqdb;
+ident ckttkqng ckttkqng=(1+tkbfn)*ckttkqn(-1);
+ident cwotkwn cwotkwn=cwotkqn*(1+cwos_qn)*cwobhwn;
+ident cg_tkqng cg_tkqng=(1+tkbfn)*cg_tkqn(-1);
+ident ibbtkqng ibbtkqng=(1+tkbfn)*ibbtkqn(-1);
+ident j_btkqng j_btkqng=(1+tkbfn)*j_btkqn(-1);
+ident iwotkqng iwotkqng=(1+tkbfn)*iwotkqn(-1);
+ident ibrtkqng ibrtkqng=(1+tkbfn)*ibrtkqn(-1);
+ident j_rtkqng j_rtkqng=(1+tkbfn)*j_rtkqn(-1);
+ident cretkqdt cretkqdt=tk_wdc/cre_twn(-1)+tkbfn*cretkqn(-1);
+ident tk2fn tk2fn=(tktwn-cwotkwn)/(tktwng-cwotkwn);
+ident bf_tkqn bf_tkqn=tk2fn*bf_tkqng;
+ident bd_tkqn bd_tkqn=tk2fn*bd_tkqng;
+ident cretkqn cretkqn=tk2fn*cretkqng;
+ident ckttkqn ckttkqn=tk2fn*ckttkqng;
+frml  cwotkqn cwotkqn=cwotkqn(-1)+cwotkqna+cwotkqnv;
+ident cg_tkqn cg_tkqn=tk2fn*cg_tkqng;
+ident ibbtkqn ibbtkqn=tk2fn*ibbtkqng;
+ident j_btkqn j_btkqn=tk2fn*j_btkqng;
+ident iwotkqn iwotkqn=tk2fn*iwotkqng;
+ident ibrtkqn ibrtkqn=tk2fn*ibrtkqng;
+ident j_rtkqn j_rtkqn=tk2fn*j_rtkqng;
+?
+?
+?             NIET-BELASTING MIDDELEN
+?
+?
+ident ewcwn ewcwn=eagwn+eo_wn;
+ident eagwn eagwn=eagwn(-1)+eagwd;
+frml  eagwd eagwd=.52*g15(zagwd(-1))+eagwda+eagwdv;
+?
+?
+?        BELASTINGEN: TOTALEN, DIVERSEN, QUOTEN
+?
+?
+ident tzzwn tzzwn=tlkwn+tzkwn+tktwn;
+ident t__wn t__wn=tlkwn+tzkwn+tk_wn;
+frml  tkgwn tkgwn=.0090*tktwn+tkgwna+tkgwnv;
+frml  tkgvi tkgvi=tkgwn/(tkgwn(-1)*(1+c____pr))+tkgvia+tkgviv;
+ident tkgvk tkgvk=(tkgvk(-1)*pf(tkgwn,tkgvk))*tkgvi;
+ident tkswn tkswn=tktwn-subwn;
+ident tzzqn tzzqn=tzzwn/bbpwn;
+ident t__qn t__qn=t__wn/bbpwn;
+ident tlkqn tlkqn=tlkwn/bbpwn;
+ident tktqn tktqn=tktwn/bbpwn;
+ident tk_qn tk_qn=tk_wn/bbpwn;
+ident tzkqn tzkqn=tzkwn/bbpwn;
+ident vbkqn vbkqn=vbkwn/bbpwn;
+ident tzgqn tzgqn=tzgwnk/bbpwn;
+ident tp_qn tp_qn=t__qn+pryqn;
+?
+?
+?               OVERHEIDSUITGAVEN
+?
+?
+?                 LOONKOSTEN
+?
+ident lo1wn lo1wn=lo_wn/(1-sliqn+slmqn);
+ident lgswn lgswn=lgswn(-1)*(1+lgsvr)*(1+lgspr);
+ident lgsvk lgsvk=(lgsvk(-1)*pf(lgswn,lgsvk))*(1+lgsvr);
+ident lgsvr lgsvr=-1+(1+ag_mr)*(1+hg_hr);
+ident lgspr lgspr=-1+(1+lg_pr)/(1+hg_hr);
+frml  ag_md ag_md=ao_md+ag_mda+ag_mdv;
+ident ag_mn ag_mn=ag_mn(-1)+ag_md;
+ident ag_mr ag_mr=ag_mn/ag_mn(-1)-1;
+frml  lg_pr lg_pr=lo_pr+lg_pra+lg_prv;
+frml  hg_hr hg_hr=ho_hr+hg_hra+hg_hrv;
+frml  lo_pr lo_pr=locpr+loipr+lo_prh+lo_pri+lo_pra+lo_prv;
+ident lo_prh lo_prh=slmqd/(1+slmqn(-1)-sliqn(-1));
+ident lo_pri lo_pri=-sliqd/(1+slmqn(-1)-sliqn(-1));
+frml  locpr locpr=dtlbn*lcopr+locpra+locprv;
+?
+?        INKOMENSOVERDRACHTEN AAN GEZINNEN
+?
+ident ol_wn ol_wn=ol1wn+ol2vown+ol2gown+ol3wn;
+ident ol1wn ol1wn=ol1wn(-1)*(ol1mn/ol1mn(-1))*(1+ol1pr);
+ident ol1vk ol1vk=(ol1vk(-1)*pf(ol1wn,ol1vk))*ol1mn/ol1mn(-1);
+frml  ol1md ol1md=.90*w__od-uwwmd+ol1mda+ol1mdv;
+ident ol1mn ol1mn=ol1mn(-1)+ol1md;
+frml  ol1pr ol1pr=dtubn*.92*lmipr-.55*pdwqd+.42*pfwqd-.85*pdvqd+.092*(dorbn
+              -dorbn(-1))+1.05*dorbn(-1)*povqd+ol1pra+ol1prv;
+ident ol2vown ol2vown=ol2vown(-1)*(1+ol2vovr)*(1+ol2vopr);
+ident ol2vovk ol2vovk=(ol2vovk(-1)*pf(ol2vown,ol2vovk))*(1+ol2vovr);
+frml  ol2vopr ol2vopr=.5*c____pr+.5*(dtubn*.94*lmipr-.4*pdwqd+.85*pfwqd-.6
+              *pdvqd+.092*(dorbn-dorbn(-1))+1.02*dorbn(-1)*povqd)+ol2vopra
+              +ol2voprv;
+ident ol2gown ol2gown=ol2gown(-1)*(1+ol2govr)*(1+ol2gopr);
+frml  ol2gopr ol2gopr=.4*lo_pr+.6*lbtpr+ol2gopra+ol2goprv;
+ident ol3pr ol3pr=ukbpr;
+ident ol3wn ol3wn=ol3wn(-1)*(1+ol3pr)*(1+ol3vr);
+?
+?          OVERIGE OVERHEIDSUITGAVEN
+?
+ident cgnwn cgnwn=cg___wn+lgswn-dgswn;
+ident cgnvk cgnvk=cg___vk+lgsvk-dgsvk;
+ident cgnpi cgnpi=cgnwn*(cgnvk(-1)*pf(cgnwn,cgnvk))/(cgnwn(-1)*cgnvk);
+ident cg___wn cg___wn=cg___wn(-1)*(1+cg___vr)*(1+cg___pr);
+ident cg___vk cg___vk=(cg___vk(-1)*pf(cg___wn,cg___vk))*(1+cg___vr);
+ident xr1wn xr1wn=xr3qn*(nnpwn-tkswn)+xr1wnb;
+?
+?
+?         UPDATING VAN SUBSIDIE-QUOTES
+?
+?
+ident subwng subwng=bf_s_qn(-1)*bf_bhwn+cres_qn(-1)*crebhwn+cwos_qn(-1)*cwobhwn
+              +cg_s_qn(-1)*cg_bhwn;
+ident su2fn su2fn=-subwn/subwng;
+frml  bf_s_qn bf_s_qn=su2fn*bf_s_qn(-1)+bf_s_qna+bf_s_qnv;
+frml  cres_qn cres_qn=su2fn*cres_qn(-1)+cres_qna+cres_qnv;
+frml  cwos_qn cwos_qn=su2fn*cwos_qn(-1)+cwos_qna+cwos_qnv;
+frml  cg_s_qn cg_s_qn=su2fn*cg_s_qn(-1)+cg_s_qna+cg_s_qnv;
+?
+?    FINANCIERINGSSALDO (KASBASIS) EN RENTEBETALINGEN VAN DE OVERHEID
+?
+ident xbuwn xbuwn=xr1wn-(msown-bsown);
+frml  xktwn xktwn=xr7wn+(rcdwn-rctwn)-(ewcwn-ewtwn)-(tk_wn-tktwn)+xktwna+xktwnv
+              ;
+ident xr8wn xr8wn=xrwwn+xrvwn;
+ident xzzwn xzzwn=cg___wn+lgswn-akswn+js_wn-dgswn+subwn+ol_wn+opfwn+rctwn+xr1wn
+              +xbewn+xr8wn+xswwn+xgewn;
+ident x__wn x__wn=xzzwn+xkrwn+xovwn+xktwn;
+ident vtown vtown=xzzwn-tzzwn-ewtwn-sgrwn;
+ident x_twn x_twn=vtown+xkrwn+xovwn+xktwn;
+ident x_twng x_twng=.40*x_twn+.30*x_twn(-1)-.20*g25(x_twn(-2))+.50
+              *g25(x_twn(-3));
+ident x_tqn x_tqn=x_twn/bbpwn;
+frml  slown slown=+x_twng+slowna+slownv;
+ident rctwn rctwn=rctwn(-1)+rctwd;
+frml  rctwd rctwd=rctwdg+rctwdh+rctwda+rctwdv;
+ident rctwdg rctwdg=g15(rl_rn)/400*g15(slown);
+ident rctwdh rctwdh=(g15(rl_rn)-g15(rlarn))/400*g15(afown);
+frml  rcdwd rcdwd=g25(rctwd(-2))+rcdwda+rcdwdv;
+ident rcdwn rcdwn=rcdwn(-1)+rcdwd;
+?
+?
+?            EXPLOITATIEREKENING  SV
+?
+?
+?                 UITKERINGEN
+?
+ident uowwn uowwn=uowwn(-1)*(1+uowvr)*(1+uowpr);
+ident ukbwn ukbwn=ukbwn(-1)*(1+ukbvr)*(1+ukbpr);
+ident uwzwn uwzwn=uwzwn(-1)*(1+uwzvr)*(1+uwzpr);
+ident uawwn uawwn=uawwn(-1)*(1+uawvr)*(1+uawpr);
+ident uzfwn uzfwn=uzfwn(-1)*(1+uzfvr)*(1+uzfpr);
+ident ubzwn ubzwn=ubzwn(-1)*(1+ubzvr)*(1+ubzpr);
+ident umewn umewn=uzfwn+ubzwn;
+ident uwwwn uwwwn=uwwwn(-1)*(1+uwwvr)*(1+uwwpr);
+ident u_wwn u_wwn=uwzwn+uzfwn+uwwwn;
+ident u_vwn u_vwn=uowwn+uawwn+ubzwn;
+ident u_swn u_swn=u_wwn+u_vwn+ukbwn;
+frml  uzfvr uzfvr=cmevr+uzfvra+uzfvrv;
+frml  ubzvr ubzvr=cmevr+ubzvra+ubzvrv;
+ident umevr umevr=umevk/(umevk(-1)*pf(umewn,umevk))-1;
+ident umevn umevn=umewn(-1)*(1+umevr);
+frml  uwwmn uwwmn=uwwmng+uwwmnh+uwwmna+uwwmnv;
+?***       NB: UWWMNA MOET ALS ECHTE NIVEAU-AUTONOOM WORDEN BEHANDELD
+?***           LEES UWWMNG1+UWWMNH1 ALS UWWMN1-UWWMNA1-UWWMNV1
+ident uwwmng uwwmng=exp(1.767+0.332*log(w__qn))/(1+exp(1.767+0.332*log(w__qn)))
+              *(uwwmng(-1)+uwwmnh(-1));
+ident uwwmnh uwwmnh=exp(-2.97+0.473*log(w__qn)-40.50*al___or)/(1+exp(-2.97
+              +0.473*log(w__qn)-40.50*al___or))*al___on(-1);
+ident uwnqn uwnqn=uwwmnh/uwwmn;
+ident uwwvr uwwvr=uwwmn/uwwmn(-1)-1;
+ident uwwmd uwwmd=uwwmn-uwwmn(-1);
+ident uowvk uowvk=(uowvk(-1)*pf(uowwn,uowvk))*(1+uowvr);
+ident ukbvk ukbvk=(ukbvk(-1)*pf(ukbwn,ukbvk))*(1+ukbvr);
+ident uwzvk uwzvk=(uwzvk(-1)*pf(uwzwn,uwzvk))*(1+uwzvr);
+ident uawvk uawvk=(uawvk(-1)*pf(uawwn,uawvk))*(1+uawvr);
+ident uzfvk uzfvk=(uzfvk(-1)*pf(uzfwn,uzfvk))*(1+uzfvr);
+ident ubzvk ubzvk=(ubzvk(-1)*pf(ubzwn,ubzvk))*(1+ubzvr);
+ident umevk umevk=uzfvk+ubzvk;
+ident uwwvk uwwvk=(uwwvk(-1)*pf(uwwwn,uwwvk))*(1+uwwvr);
+ident u_svk u_svk=uowvk+ukbvk+uwzvk+uawvk+umevk+uwwvk;
+ident u_svr u_svr=u_svk/(u_svk(-1)*pf(u_swn,u_svk))-1;
+frml  uowpr uowpr=dtubn*.78*lmipr-.9*pdwqd-.8*pdvqd+.131*(dorbn-dorbn(-1))+.96
+              *dorbn(-1)*povqd+uowpra+uowprv;
+frml  ukbpr ukbpr=dtkbn*g9(c_lpr(-1))+ukbpra+ukbprv;
+frml  uwzpr uwzpr=.65*lb2pr+.35*dtubn*lmipr+.092*(dorbn-dorbn(-1))+1.0
+              *dorbn(-1)*povqd+uwzpra+uwzprv;
+frml  uawpr uawpr=dtubn*lmipr+.092*(dorbn-dorbn(-1))+1.0*dorbn(-1)*povqd+uawpra
+              +uawprv;
+frml  uzfpr uzfpr=.3*lbtpr+.2*lo_pr+.4*lb2pr+.1*c____pr+uzfpra+uzfprv;
+frml  ubzpr ubzpr=.6*lbtpr+.1*lo_pr+.3*c____pr+ubzpra+ubzprv;
+ident umepr umepr=umewn*(umevk(-1)*pf(umewn,umevk))/(umevk*umewn(-1))-1;
+frml  uwwpr uwwpr=uwnqn*g17(lb2pr)+(1-uwnqn)*dtubn*lmipr+g22(uwwprs(-1))+1.02
+              *dorbn(-1)*povqd+.092*(dorbn-dorbn(-1))+uwwpra+uwwprv;
+ident uwwprs uwwprs=(.90-uwnqn)*(g17(lb2pr)-dtubn*lmipr);
+?
+?
+?
+?         ADMINISTRATIEKOSTEN TOTAAL SOCIALE VERZEKERING
+?         ----------------------------------------------
+?
+?
+?
+frml  akswr akswr=.20*c____pr+.40*lbtpr+.40*lb2pr+akswra+akswrv;
+ident akswn akswn=akswn(-1)*(1+akswr);
+?
+?
+?
+?         WERKNEMERSVERZEKERINGEN EN ZIEKENFONDS
+?
+?
+?         --------------------------------------
+?
+?
+?
+?         ADMINISTRATIEKOSTEN
+?
+frml  akwwn akwwn=.65*akswn+akwwna+akwwnv;
+?
+?         PREMIEOPBRENGSTEN
+?
+ident pwwwn pwwwn=pwwqn*lb1wn;
+ident pdwwn pdwwn=pdwqn*lb1wn;
+ident pmwwn pmwwn=pmwqn*lo1wn;
+ident pawwn pawwn=pawqn*lo1wn;
+ident pfwwn pfwwn=pfwqn*(ol1wn+.6*ol2vown);
+ident pgwwn pgwwn=pgwqn*uoiwn;
+ident p_wwn p_wwn=pwwwn+pdwwn+pmwwn+pawwn+pfwwn+pgwwn;
+?
+?        INKOMENSSALDO VERMOGEN EN PREMIESTELLING
+?
+ident p1wwn p1wwn=u_wwn+akwwn-xrwwn-rewwn-xswwn+kgwwn;
+ident itwwn itwwn=p_wwn-p1wwn;
+frml  o_wwz o_wwz=o_wwz(-1)+itwwn/4+o_wwza+o_wwzv;
+ident p1wfn p1wfn=(p1wwn+p1wwna)/g_wwn-(pwwqna*lb1wn+pdwqna*lb1wn+pmwqna*lo1wn
+              +pawqna*lo1wn+pfwqna*(ol1wn+.6*ol2vown)+pgwqna*uoiwn)/g_wwn;
+ident g_wwn g_wwn=pwwqn(-1)*lb1wn+pdwqn(-1)*lb1wn+pmwqn(-1)*lo1wn+pawqn(-1)
+              *lo1wn+pfwqn(-1)*(ol1wn+.6*ol2vown)+pgwqn(-1)*uoiwn;
+?
+?             UPDATE PREMIEQUOTES
+?
+frml  pwwqn pwwqn=pwwqn(-1)*p1wfn+pwwqna+pwwqnv;
+frml  pdwqn pdwqn=pdwqn(-1)*p1wfn+pdwqna+pdwqnv;
+frml  pmwqn pmwqn=pmwqn(-1)*p1wfn+pmwqna+pmwqnv;
+frml  pawqn pawqn=pawqn(-1)*p1wfn+pawqna+pawqnv;
+frml  pfwqn pfwqn=pfwqn(-1)*p1wfn+pfwqna+pfwqnv;
+frml  pgwqn pgwqn=pgwqn(-1)*p1wfn+pgwqna+pgwqnv;
+ident pdwqd pdwqd=pdwqn-pdwqn(-1);
+ident pfwqd pfwqd=pfwqn-pfwqn(-1);
+ident pgwqd pgwqd=pgwqn-pgwqn(-1);
+?
+?
+?
+?         VOLKSVERZEKERINGEN
+?
+?
+?
+?
+?         ADMINISTRATIEKOSTEN
+?
+?
+ident akvwn akvwn=akswn-akwwn;
+?
+?
+?         PREMIE-OPBRENGSTEN
+?
+?
+ident pdvwn pdvwn=pdvqn*lb1wn;
+ident pavwn pavwn=pavqn*lo1wn;
+ident pzvwn pzvwn=pzvqn*lz1wn;
+ident pgvwn pgvwn=pgvqn*uoiwn;
+ident p_vwn p_vwn=pdvwn+pavwn+pzvwn+pgvwn;
+?
+?
+?         INKOMENSSALDO, VERMOGEN EN PREMIESTELLING
+?
+?
+ident p1vwn p1vwn=u_vwn+akvwn-xrvwn-revwn;
+ident i_vwn i_vwn=p_vwn-p1vwn;
+frml  o_vwz o_vwz=o_vwz(-1)+i_vwn/4.+o_vwza+o_vwzv;
+ident p1vfn p1vfn=(p1vwn+p1vwna)/g_vwn-(pdvqna*lb1wn+pavqna*lo1wn+pzvqna*lz1wn
+              +pgvqna*uoiwn)/g_vwn;
+ident g_vwn g_vwn=pdvqn(-1)*lb1wn+pavqn(-1)*lo1wn+pzvqn(-1)*lz1wn+pgvqn(-1)
+              *uoiwn;
+?
+?
+?         UPDATE PREMIEQUOTES
+?
+?
+frml  pdvqn pdvqn=pdvqn(-1)*p1vfn+pdvqna+pdvqnv;
+frml  pavqn pavqn=pavqn(-1)*p1vfn+pavqna+pavqnv;
+frml  pzvqn pzvqn=pzvqn(-1)*p1vfn+pzvqna+pzvqnv;
+frml  pgvqn pgvqn=pgvqn(-1)*p1vfn+pgvqna+pgvqnv;
+ident pdvqd pdvqd=pdvqn-pdvqn(-1);
+ident pgvqd pgvqd=pgvqn-pgvqn(-1);
+?
+?
+?         PENSIOEN EN LEVENSVERZEKERINGEN
+?
+?
+?                UITKERINGEN
+?
+ident u_pwn u_pwn=u_pwn(-1)*(1+u_pvr)*(1+u_ppr);
+ident u_pvk u_pvk=(u_pvk(-1)*pf(u_pwn,u_pvk))*(1+u_pvr);
+frml  u_ppr u_ppr=.31*lcopr+.55*(1.5*locpr-.50*uowpr)+u_ppra+u_pprv;
+?
+?            ADMINISTRATIEKOSTEN
+?
+frml  akpwr akpwr=lb___pr+akpwra+akpwrv;
+ident akpwn akpwn=akpwn(-1)*(1+akpwr);
+ident akpvk akpvk=(akpvk(-1)*pf(akpwn,akpvk))*(1+akpvr);
+ident akpvr akpvr=akpwn/akpwn(-1)/(1+lb___pr)-1;
+?
+?   BELEGGINGSOPBRENGSTEN EN FINANCIERINGSOVERSCHOT
+?
+ident rpfwn rpfwn=rpfwn(-1)+rpfwd;
+frml  rpfwd rpfwd=rpfwdg+rpfwdh+rpfwdi+rpfwda+rpfwdv;
+ident rpfwdg rpfwdg=.07/400*(.5*g15(rlgrn)+.5*g15(rlurn))*g15(ispwn);
+ident rpfwdh rpfwdh=.93/400*(g15(rl_rn)+.34)*g15(ispwn);
+ident rpfwdi rpfwdi=(g15(rl_rn)+.34-g15(rlprn))/400*g15(afpwn);
+ident ispwn ispwn=p_pwn+rpfwn+opfwn-u_pwn-akpwn;
+?
+?           PREMIEVERDELING EN OPBRENGST
+?
+ident pwpwn pwpwn=pwpqn*lb1wn;
+ident pdpwn pdpwn=pdpqn*lb1wn;
+ident pmpwn pmpwn=pmpqn*lo1wn;
+ident papwn papwn=papqn*lo1wn;
+ident pzpwn pzpwn=pzpqn*lz1wn;
+ident p_pwn p_pwn=pwpwn+pdpwn+pmpwn+papwn+pzpwn;
+?
+?
+?   TOTALEN SOCIALE VERZEKERING EN PENSIOEN- EN LEVENSVERZEKERING
+?
+?
+ident u_bwn u_bwn=uowwn+uwzwn+uawwn+uwwwn+u_pwn+ukbwn;
+ident ul_wn ul_wn=u_bwn+umewn;
+ident uoiwn uoiwn=uowwn+uwzwn+uawwn+uwwwn+u_pwn+ol1wn+.6*ol2vown;
+ident uoivk uoivk=uowvk+uwzvk+uawvk+uwwvk+u_pvk+ol1vk+.6*ol2vovk;
+ident uoivr uoivr=uoivk/(uoivk(-1)*pf(uoiwn,uoivk))-1;
+ident pa_qn pa_qn=pawqn+pavqn+papqn;
+ident pd_qn pd_qn=pdwqn+pdvqn+pdpqn;
+ident pm_qn pm_qn=pmwqn+pmpqn;
+ident pw_qn pw_qn=pwwqn+pwpqn;
+ident pryqn pryqn=p_swn/bbpwn;
+ident pd_qd pd_qd=pd_qn-pd_qn(-1);
+ident pa_qd pa_qd=pa_qn-pa_qn(-1);
+ident p_swn p_swn=p_wwn+p_vwn;
+ident pb_wn pb_wn=pwwwn+pdwwn+pdvwn+pwpwn+pdpwn;
+ident po_wn po_wn=pmwwn+pawwn+pavwn+pmpwn+papwn;
+ident pz_wn pz_wn=pzvwn+pzpwn;
+ident pu_wn pu_wn=pfwwn+pgwwn+pgvwn;
+ident pl_wn pl_wn=pb_wn+po_wn+pu_wn;
+?
+?
+?            OVERHEVELINGSVERGOEDING
+?
+?
+frml  povwn povwn=.5*ubzwn+.575*uawwn+povwna+povwnv;
+frml  povqd povqd=povwn/lb1wn-povwn(-1)/lb1wn(-1)+povqda+povqdv;
+ident povqn povqn=povqn(-1)+povqd;
+?
+?
+?       SOCIALE LASTEN BEDRIJVEN EN OVERHEID
+?
+?
+frml  sliqd sliqd=pdwqn-pdwqn(-1)+sliqda+sliqdv;
+frml  slwqd slwqd=pw_qn-pw_qn(-1)+dorbn*povqd+slwqda+slwqdv;
+frml  slmqd slmqd=pm_qn-pm_qn(-1)+dorbn*povqd+slmqda+slmqdv;
+frml  sllqd sllqd=pd_qn-pd_qn(-1)-dorbn*povqd+sllqda+sllqdv;
+ident sliqn sliqn=sliqn(-1)+sliqd;
+ident slwqn slwqn=slwqn(-1)+slwqd;
+ident slmqn slmqn=slmqn(-1)+slmqd;
+ident sllqn sllqn=sllqn(-1)+sllqd;
+?
+?
+?          PRODUKTIE EN OVERIG INKOMEN
+?
+?
+ident yb_wn yb_wn=bbpwn-lomwn-dg_wn-tkgwn;
+ident yb_vk yb_vk=bbpvk-lomvk-dg_vk-tkgvk;
+ident yfrwn yfrwn=ybfbewn-ybfwown-ybfktwn-ybfdewn;
+ident yfrvk yfrvk=ybfbevk-ybfwovk-ybfktvk-ybfdevk;
+ident nfkwn nfkwn=lb___wn+z____wn+lo_wn+sprwn;
+ident nnpwn nnpwn=yb_wn+lomwn+tkgwn+sprwn-db___wn;
+ident nnpvk nnpvk=yb_vk+lomvk+tkgvk+sprvk-db___vk;
+ident bnpwn bnpwn=nnpwn+db___wn+dg_wn;
+ident bnpvk bnpvk=nnpvk+db___vk+dg_vk;
+ident nnpvr nnpvr=nnpvk/(nnpvk(-1)*pf(nnpwn,nnpvk))-1;
+ident nnihr nnihr=nnpvr+ruiwd/nnpwn(-1);
+ident bbpwn bbpwn=c____wn+cglwn+ib_wn+n__wn+j____wn+bgdwn-mgdwn;
+ident bbpvk bbpvk=c____vk+cglvk+ib_vk+n__vk+j____vk+bgdvk-mgdvk;
+ident bbpvr bbpvr=bbpvk/(bbpvk(-1)*pf(bbpwn,bbpvk))-1;
+ident nbpwn nbpwn=bbpwn-dg_wn-db___wn;
+ident nbpvk nbpvk=bbpvk-dg_vk-db___vk;
+ident nfbwn nfbwn=nbpwn-tkswn;
+ident z____wn z____wn=yb_wn-db___wn-tkswn+tkgwn-lb___wn;
+ident lz_wn lz_wn=lb___wn*az___mn/al___mn;
+ident lz1wn lz1wn=lb1wn*az___mn/al___mn;
+frml  zagwd zagwd=.92*(ybfdewn-ybfdewn(-1))-.0165*(db___wn-db___wn(-1))-.002
+              *(lb___wn-lb___wn(-1))+zagwda+zagwdv;
+ident sbewn sbewn=zapwn-shgwn+db___wn;
+ident sbeqn sbeqn=sbewn/bbpwn;
+ident spywn spywn=ib_wn+j____wn+n__wn-db___wn-dg_wn+sbbwn;
+ident spyqn spyqn=spywn/bbpwn;
+ident sovwn sovwn=spywn+db___wn+dg_wn-sbewn-s__wn;
+ident sovqn sovqn=sovwn/bbpwn;
+ident aiq__qn aiq__qn=(ab___mn/al___mn)*lb___wn/(lb___wn+z____wn);
+ident agqqn agqqn=(ab___mn/al___mn)*lb___wn/(lb___wn+z____wn-zagwn);
+?
+?            REKENKUNDIGE DEFINITIES
+?
+ident yb_vr yb_vr=yb_vk/(yb_vk(-1)*pf(yb_wn,yb_vk))-1;
+ident yfrvr yfrvr=yfrvk/(yfrvk(-1)*pf(yfrwn,yfrvk))-1;
+ident zagwn zagwn=zagwn(-1)+zagwd;
+ident yfrpi yfrpi=yfrwn/(yfrwn(-1)*(1+yfrvr));
+ident yfrpn yfrpn=yfrpn(-1)*yfrpi;
+ident yfrpr yfrpr=yfrpi-1;
+?
+?
+?             DEFINITIES BESTEDINGEN
+?
+?
+ident cd_wn cd_wn=c____wn+cg___wn+lgswn;
+ident cd_vk cd_vk=c____vk+cg___vk+lgsvk;
+ident id_wn id_wn=ib_wn+n__wn+j____wn;
+ident id_vk id_vk=ib_vk+n__vk+j____vk;
+ident ed_wn ed_wn=cd_wn+id_wn;
+ident ed_vk ed_vk=cd_vk+id_vk;
+ident e__wn e__wn=ed_wn+bgdwn;
+ident e__vk e__vk=ed_vk+bgdvk;
+?
+?
+?       VERGELIJKINGEN TEN BEHOEVE VAN TABELLEN
+?
+?
+ident lgwwn lgwwn=lgswn-.59*akswn;
+ident cgwwn cgwwn=cg___wn-.41*akswn;
+ident lgwqn lgwqn=lgwwn/bbpwn;
+ident cgwqn cgwqn=cgwwn/bbpwn;
+ident jsnwn jsnwn=js_wn-dgswn;
+ident jsnqn jsnqn=jsnwn/bbpwn;
+ident js_qn js_qn=js_wn/bbpwn;
+ident lo_wn lo_wn=lo_wn(-1)*(1+lo_vr)*(1+lo_pr);
+ident lo_vr lo_vr=ao_mr;
+ident ol_qn ol_qn=ol_wn/bbpwn;
+ident ol1qn ol1qn=ol1wn/bbpwn;
+ident rctqn rctqn=rctwn/bbpwn;
+ident rcdqn rcdqn=rcdwn/bbpwn;
+ident opfqn opfqn=opfwn/bbpwn;
+ident xbeqn xbeqn=xbewn/bbpwn;
+ident xr1qn xr1qn=xr1wn/bbpwn;
+ident xr8qn xr8qn=xr8wn/bbpwn;
+ident subqn subqn=subwn/bbpwn;
+ident xzzqn xzzqn=xzzwn/bbpwn;
+ident xkrqn xkrqn=xkrwn/bbpwn;
+ident xovqn xovqn=xovwn/bbpwn;
+ident xktqn xktqn=xktwn/bbpwn;
+ident x_oqn x_oqn=x__qn-lgwqn-cgwqn-js_qn-ol_qn-rctqn-xbeqn-xr8qn-subqn;
+ident x__qn x__qn=x__wn/bbpwn;
+ident vtoqn vtoqn=vtown/bbpwn;
+ident vtcwn vtcwn=vtown-i_vwn-itwwn;
+ident vtcqn vtcqn=vtcwn/bbpwn;
+ident ewcqn ewcqn=ewcwn/bbpwn;
+ident ewtqn ewtqn=ewtwn/bbpwn;
+ident sgrqn sgrqn=sgrwn/bbpwn;
+ident tztwn tztwn=tzzwn+ewtwn+sgrwn;
+ident tztqn tztqn=tztwn/bbpwn;
+ident t_twn t_twn=t__wn+ewcwn+sgrwn;
+ident t_tqn t_tqn=t_twn/bbpwn;
+ident xag__qn xag__qn=(vgkwn+eagwn)/bbpwn;
+ident bfwpr bfwpr=bf___pr-bfopr;
+ident bfvpr bfvpr=bfcpr-bf___pr;
+ident vgkqn vgkqn=vgkwn/bbpwn;
+ident b1_wn b1_wn=bf___wn+bd___wn;
+ident b1_vr b1_vr=b1_vk/(b1_vk(-1)*pf(b1_wn,b1_vk))-1;
+ident b1_vk b1_vk=bf___vk+bd___vk;
+ident vb_vk vb_vk=crebhvk-cagbhvk+cg_bhvk+j__bhvk+ibrbhvk+iwobhvk+ibbbhvk;
+ident vb_wn vb_wn=crebhwn-cagbhwn+cg_bhwn+j__bhwn+ibrbhwn+iwobhwn+ibbbhwn;
+ident vb_pr vb_pr=vb_wn/(vb_wn(-1)*(1+vb_vr))-1;
+ident vb_vr vb_vr=vb_vk/(vb_vk(-1)*pf(vb_wn,vb_vk))-1;
+?
+?       TABELLEN TBV VAN INTERNATIONALE ORGANISATIES
+?
+ident cglwn cglwn=cg___wn+lgswn;
+ident cglvk cglvk=cg___vk+lgsvk;
+ident ic1wn ic1wn=j____wn+ibb__wn+iwo__wn;
+ident ic1vk ic1vk=j____vk+ibb__vk+iwo__vk;
+ident ie1wn ie1wn=ib_wn-ic1wn+j____wn;
+ident ie1vk ie1vk=ib_vk-ic1vk+j____vk;
+ident vf_wn vf_wn=c____wn+cglwn+i____wn+n__wn;
+ident vf_vk vf_vk=c____vk+cglvk+i____vk+n__vk;
+ident vf1wn vf1wn=vf_wn-n__wn;
+ident vf1vk vf1vk=vf_vk-n__vk;
+ident lbupr lbupr=lbrpr-hd1dr-hu1ur;
+ident zdlwn zdlwn=ldtwn+zdpwn;
+ident vfbvr vfbvr=(vf1vk/(vf1vk(-1)*pf(vf1wn,vf1vk))-1)*vf1wn(-1)/bnpwn(-1);
+ident n_bvr n_bvr=(4*nbfvd-n_fwn(-1)+4*nbovd-n_own(-1))/bnpwn(-1);
+ident bnpvr bnpvr=bnpvk/(bnpvk(-1)*pf(bnpwn,bnpvk))-1;
+ident b_bvr b_bvr=bnpvr-vfbvr-n_bvr;
+ident savqn savqn=(1-c____wn/zdlwn);
+ident i____wn i____wn=ib_wn+j____wn;
+ident i____vk i____vk=ib_vk+j____vk;
+?
+?     VERGELIJKINGEN TBV DE TABEL GEZINSBESPARINGEN
+?
+ident l__wn l__wn=lb___wn+lo_wn;
+ident ovkwn ovkwn=u_pwn-p_pwn+akpwn;
+ident yp_wn yp_wn=l__wn+shgwn+ol_wn+u_swn+of_wn+ovkwn;
+ident td_wn td_wn=tlkwn+tzgwnk;
+ident ypdwn ypdwn=yp_wn-td_wn-p_swn;
+ident sncwn sncwn=ypdwn-c____wn;
+ident sncqn sncqn=sncwn/ypdwn;
+ident s_cwn s_cwn=rpfwn-ovkwn;
+ident s__wn s__wn=s_cwn+sncwn;
+ident s__qn s__qn=s__wn/(ypdwn+s_cwn);
+ident z__wn z__wn=z____wn+sprwn+rctwn;
+?
+?        VERGELIJKINGEN TBV SECTORTABELLEN
+?
+ident h____hr h____hr=ybfbevr-ab___mr;
+ident h__exhr h__exhr=ybfexvr-ab_exmr;
+ident h__shhr h__shhr=ybfshvr-ab_shmr;
+ident h__bohr h__bohr=ybfbovr-ab_bomr;
+ident ab_exon ab_exon=ab_exmn*paxqn;
+ident ab_shon ab_shon=ab_shmn*pahqn;
+ident ab_boon ab_boon=ab_bomn*paoqn;
+ident aiqexqn aiqexqn=lyfexqn/(1-db_exwn/ybfexwn);
+ident aiqshqn aiqshqn=lyfshqn/0.95;
+ident aiqboqn aiqboqn=lyfboqn/0.95;
+ident aiq_rqn aiq_rqn=(lyfexqn*ybfexwn+lyfboqn*ybfbown+lyfshqn*ybfshwn)/(yfrwn
+              -db_exwn-.05*(ybfbown+ybfshwn));
+ident aiq_rfn aiq_rfn=aiq_rqn*100.;
+?
+?
+?                     LANGE RENTE
+?
+?
+frml  rl_rd rl_rd=rlgrd+rl_rda+rl_rdv;
+ident rl_rn rl_rn=rl_rn(-1)+rl_rd;
+ident rlgrd rlgrd=rlgrn-rlgrn(-1);
+?
+?
+?
+?               G P S - M A T R I X
+?
+?
+?                  DE KOLOM TOT
+?
+frml  ybfexvr ybfexvr=ybgexvr+ybfbevrs+ybfexvra+ybfexvrv;
+frml  ybfdevr ybfdevr=ybgdevr+ybfdevra+ybfdevrv;
+frml  ybfbovr ybfbovr=ybgbovr+ybfbevrs+ybfbovra+ybfbovrv;
+frml  ybfwovr ybfwovr=ybgwovr+ybfwovra+ybfwovrv;
+frml  ybfsrvr ybfsrvr=ybgsrvr+ybfbevrs+ybfsrvra+ybfsrvrv;
+frml  ybfktvr ybfktvr=ybgktvr+ybfktvra+ybfktvrv;
+ident ybfbevrs ybfbevrs=ybfbevrs+(ybfbevk-ybfexvk-ybfdevk-ybfbovk-ybfwovk
+              -ybfsrvk-ybfktvk)/ybfbevk(-1);
+ident ybfshvr ybfshvr=(1+(-.171))*ybfsrvr-(-.171)*ybfrmvr;
+frml  ybfexpr ybfexpr=ybgexpr+ybfbeprs+ybfexpra+ybfexprv;
+frml  ybfdepr ybfdepr=ybgdepr+ybfdepra+ybfdeprv;
+frml  ybfbopr ybfbopr=ybgbopr+ybfbeprs+ybfbopra+ybfboprv;
+frml  ybfwopr ybfwopr=ybgwopr+ybfwopra+ybfwoprv;
+frml  ybfsrpr ybfsrpr=ybgsrpr+ybfbeprs+ybfsrpra+ybfsrprv;
+frml  ybfktpr ybfktpr=ybgktpr+ybfktpra+ybfktprv;
+ident ybfexvk ybfexvk=(ybfexvk(-1)*pf(ybfexwn,ybfexvk))*(1+ybfexvr);
+ident ybfsrvk ybfsrvk=(ybfsrvk(-1)*pf(ybfsrwn,ybfsrvk))*(1+ybfsrvr);
+ident ybfbovk ybfbovk=(ybfbovk(-1)*pf(ybfbown,ybfbovk))*(1+ybfbovr);
+ident ybfdevk ybfdevk=(ybfdevk(-1)*pf(ybfdewn,ybfdevk))*(1+ybfdevr);
+ident ybfktvk ybfktvk=(ybfktvk(-1)*pf(ybfktwn,ybfktvk))*(1+ybfktvr);
+ident ybfwovk ybfwovk=(ybfwovk(-1)*pf(ybfwown,ybfwovk))*(1+ybfwovr);
+ident ybfshvk ybfshvk=(ybfshvk(-1)*pf(ybfshwn,ybfshvk))*(1+ybfshvr);
+ident ybfexwn ybfexwn=ybfexwn(-1)*(1+ybfexvr)*(1+ybfexpr);
+ident ybfsrwn ybfsrwn=ybfsrwn(-1)*(1+ybfsrvr)*(1+ybfsrpr);
+ident ybfbown ybfbown=ybfbown(-1)*(1+ybfbovr)*(1+ybfbopr);
+ident ybfdewn ybfdewn=ybfdewn(-1)*(1+ybfdevr)*(1+ybfdepr);
+ident ybfktwn ybfktwn=ybfktwn(-1)*(1+ybfktvr)*(1+ybfktpr);
+ident ybfwown ybfwown=ybfwown(-1)*(1+ybfwovr)*(1+ybfwopr);
+ident ybfshwn ybfshwn=ybfshwn(-1)*(1+ybfshvr)*(1+ybfshpr);
+ident ybfbeprs ybfbeprs=ybfbeprs+(ybfbewn-ybfexwn-ybfdewn-ybfbown-ybfwown
+              -ybfsrwn-ybfktwn)/ybfbewn(-1);
+ident ybfshpr ybfshpr=(1+(-.171))*ybfsrpr-(-.171)*ybfrmpr;
+frml  ybgexvr ybgexvr=(0.494)*bnfrpvr+(0.001)*bag__vr+(0.0101)*bno__vr+(0.1072)
+              *bd_rpvr+(0.2437)*crerpvr+(0.0181)*cktbhvr+(0.0045)*cwobhvr
+              +(0.0301)*cg_rpvr+(0.0377)*i_brpvr+(0.0535)*i_rrpvr+ybgexvra
+              +ybgexvrv;
+frml  ybgexpr ybgexpr=((0.4940)+(0.001))*bnfexpr+(0.0101)*bnoexpr+(0.1072)
+              *bd_expr+((0.2437)+(0.0045))*creexpr+(0.0181)*cktexpr+(0.0301)
+              *cg_expr+(0.0377)*i_bexpr+(0.0535)*i_rexpr+ybgexpra+ybgexprv;
+frml  ybgdevr ybgdevr=(0.2396)*bnfdevr+((0.3154)+(0.0272))*bag__vr+(0.0377)
+              *bno__vr+((0.2713)+(0.0219)+(0.0031)+(0.0281)+(0.0297))*credevr
+              +(0.026)*cg_devr+ybgdevra+ybgdevrv;
+frml  ybgdepr ybgdepr=(0.3154)*bagdepr+(1-(0.3154))*xagdepr+ybgdepra+ybgdeprv;
+frml  ybgbovr ybgbovr=(0.0326)*bnfrpvr+(0.0339)*bd_rpvr+(0.0689)*crerpvr
+              +(0.0383)*cwobhvr+(0.0600)*cg_rpvr+(0.0638)*i_rrpvr+((0.6899)
+              +(0.0005)+(0.0009)+(0.0110))*i_brpvr-0.004/4+ybgbovra+ybgbovrv;
+frml  ybgbopr ybgbopr=(0.0326)*koqbopr+(0.0339)*koqbopr+(0.0689)*koqbopr
+              +(0.0383)*koqbopr+(0.06)*koqbopr+(0.0638)*koqbopr+((0.6899)
+              +(0.0005)+(0.0009)+(0.011))*i_bbopr+ybgbopra+ybgboprv;
+frml  ybgwovr ybgwovr=(0.0356)*bnfrpvr+(0.0001)*bag__vr+(0.0014)*bno__vr
+              +(0.0137)*bd_rpvr+(0.0532)*crerpvr+(0.0183)*cktbhvr+(0.831)
+              *cwobhvr+(0.025)*cg_rpvr+(0.0128)*i_brpvr+(0.0088)*i_rrpvr
+              +ybgwovra+ybgwovrv;
+frml  ybgwopr ybgwopr=(0.831)*cwowopr+(1-(0.831))*kgbpr+ybgwopra+ybgwoprv;
+frml  ybgsrvr ybgsrvr=(0.2274)*bnfsrvr+(0.0011)*bag__vr+(0.0041)*bno__vr
+              +(0.0964)*bd_rpvr+(0.4458)*cresrvr+(0.0316)*cktbhvr+(0.0098)
+              *cwobhvr+(0.0502)*cg_rpvr+(0.0678)*i_brpvr+(0.0657)*i_rrpvr
+              +ybgsrvra+ybgsrvrv;
+frml  ybgsrpr ybgsrpr=.66*kossrpr+.12*bnfbhpr+.22*cre_bpr+.31*(g3(qy_shqr))
+              +.025*max(g13(qy_shqn)-.85,-.05)+ybgsrpra+ybgsrprv;
+frml  ybgktvr ybgktvr=(0.0268)*bd_rpvr+(0.0626)*cg_rpvr+(1-(0.0268)-(0.0626))
+              *cktbhvr+ybgktvra+ybgktvrv;
+frml  ybgktpr ybgktpr=(0.0268)*kosktpr+(0.0626)*kosktpr+(1-(0.0268)-(0.0626))
+              *cktktpr+ybgktpra+ybgktprv;
+?
+?                     BNF
+?
+ident bnfsrvr bnfsrvr=(0.517)*bnfbhvr+(-.171)*ybfrmvr+(0.654)*(bnfbhvr-0.40
+              *(g22(ybgsrpr)-g22(bnfexpr))+.013/4);
+ident bnfmdvr bnfmdvr=1.00*(g1(bnfbhvr))-0.30*(g3(mdbgppr)-g3(bnfbepr));
+ident bnfdevr bnfdevr=bnfbhvr-0.30*(g24(xagdepr)-g24(bnf_dpr));
+ident bnfm3vr bnfm3vr=bnfbhvr-0.30*(g24(m3_pr)-g24(bnf_dpr));
+ident bnfmgvr bnfmgvr=1.10*bnfbhvr-0.30*(g3(mgrgppr)-g3(intexpr));
+ident bnfrpvr bnfrpvr=((1.0031)/(0.3691))*bnfbhvr-((0.0150)/(0.3691))*bnfdevr
+              -((0.1235)/(0.3691))*bnfsrvr-((0.4336)/(0.3691))*bnfmgvr-((0.0225)
+              /(0.3691))*bnfm3vr-((0.0359)/(0.3691))*bnfmdvr-((0.0035)/(0.3691))
+              *ybfplvr;
+ident bnfexpr bnfexpr=((1.0031)/(0.3579))*bnfbhpr-((0.0150)/(0.3579))*xagdepr
+              -((0.0040)/(0.3579))*koqbopr-((0.1235)/(0.3579))*ybgsrpr-((0.4336)
+              /(0.3579))*mgrgppr-((0.0225)/(0.3579))*m3_pr-((0.0359)/(0.3579))
+              *mdbgppr-((0.0071)/(0.3579))*kgbpr-((0.0035)/(0.3579))*ybfplpr;
+ident bnf_dpr bnf_dpr=((0.3528)*bnfexpr+(0.004)*koqbopr+(0.1235)*ybgsrpr
+              +(0.0071)*kgbpr)/((0.3528)+(0.004)+(0.1235)+(0.0071));
+ident bnfbepr bnfbepr=((0.3528)*bnfexpr+(0.015)*xagdepr+(0.004)*koqbopr
+              +(0.1235)*ybgsrpr+(0.0071)*kgbpr)/((0.3528)+(0.015)+(0.004)
+              +(0.1235)+(0.0071));
+?
+?                      BAG
+?
+ident bagdepr bagdepr=(1/(0.8343))*bag__pr-((1-(0.8343))/(0.8343))*kiapr;
+ident xagdepr xagdepr=(0.6/(0.8343))*(g3(mropr))-((1-(0.8343))/(0.8343))*kiapr;
+?
+?                      BNO
+?
+ident bnoexpr bnoexpr=(1/(0.1966))*bno__pr-((0.0342)/(0.1966))*xagdepr
+              -((0.7692)/(0.1966))*m3_pr;
+?
+?                      BD*
+?
+ident bd_mdvr bd_mdvr=1.00*(g1(bd___vr))-0.30*(g3(mdbgppr)-g3(bd_bepr));
+ident bd_rpvr bd_rpvr=((0.9775)/(0.8335))*bd_bhvr-((0.1330)/(0.8335))*bd_mdvr
+              -((0.0110)/(0.8335))*ybfplvr;
+ident bd_expr bd_expr=((0.9775)/(0.3923))*bd_bhpr-((0.0208)/(0.3923))*koqbopr
+              -((0.2625)/(0.3923))*ybgsrpr-((0.0282)/(0.3923))*kosktpr-((0.0924)
+              /(0.3923))*mgrgppr-((0.0234)/(0.3923))*m3_pr-((0.1330)/(0.3923))
+              *mdbgppr-((0.0138)/(0.3923))*kgbpr-((0.0110)/(0.3923))*ybfplpr;
+ident bd_bepr bd_bepr=((0.3838)*bd_expr+(0.0208)*koqbopr+(0.2625)*ybgsrpr
+              +(0.0282)*kosktpr+(0.0138)*kgbpr)/((0.3838)+(0.0208)+(0.2625)
+              +(0.0282)+(0.0138));
+?
+?                      CRE
+?
+ident cremgvr cremgvr=1.10*crebhvr-0.30*(g3(mgrgppr)-g3(intexpr));
+ident cremdvr cremdvr=1.00*(g1(cre__vr))-0.30*(g3(mdbgppr)-g3(crebepr));
+ident cresrvr cresrvr=(0.517)*(0.88*crhvr+0.12*mc_gpvr)+(-.171)*ybfrmvr+(0.654)
+              *(1.00*cre__vr-0.90*(g22(ybgsrpr)-g22(cre_bpr)));
+ident credevr credevr=cre__vr-0.30*(g24(xagdepr)-g24(crebhpr));
+ident crem3vr crem3vr=crebhvr-0.30*(g24(m3_pr)-g24(cre_dpr));
+ident crerpvr crerpvr=((0.6442)/(0.2126))*crebhvr-((0.0183)/(0.2126))*credevr
+              -((0.2611)/(0.2126))*cresrvr-((0.0953)/(0.2126))*cremgvr-((0.0167)
+              /(0.2126))*crem3vr-((0.0310)/(0.2126))*cremdvr-((0.0092)/(0.2126))
+              *ybfplvr;
+ident crhvr crhvr=(1/(1-(0.0543)))*cre__vr-((0.0543)/(1-(0.0543)))*mdcgpvr;
+ident creexpr creexpr=((0.6442)/(0.1920))*crebhpr-((0.0183)/(0.1920))*xagdepr
+              -((0.0091)/(0.1920))*koqbopr-((0.2611)/(0.1920))*ybgsrpr-((0.0953)
+              /(0.1920))*mgrgppr-((0.0167)/(0.1920))*m3_pr-((0.0310)/(0.1920))
+              *mdbgppr-((0.0115)/(0.1920))*kgbpr-((0.0092)/(0.1920))*ybfplpr;
+ident cre_dpr cre_dpr=((0.1878)*creexpr+(0.0091)*koqbopr+(0.2611)*ybgsrpr
+              +(0.0115)*kgbpr)/((0.1878)+(0.0091)+(0.2611)+(0.0115));
+ident crebepr crebepr=((0.1878)*creexpr+(0.0183)*xagdepr+(0.0091)*koqbopr
+              +(0.2611)*ybgsrpr+(0.0115)*kgbpr)/((0.1878)+(0.0183)+(0.0091)
+              +(0.2611)+(0.0115));
+?
+?                      CKT
+?
+ident cktexpr cktexpr=0.50*creexpr+0.50*bnfexpr;
+ident cktktpr cktktpr=((0.9620)/(0.7529))*cktbhpr-((0.0527)/(0.7529))*cktexpr
+              -((0.0698)/(0.7529))*ybgsrpr-((0.0635)/(0.7529))*mgrgppr-((0.0082)
+              /(0.7529))*ybfplpr-((0.0150)/(0.7529))*kgbpr;
+?
+?                      CWO
+?
+ident cwowopr cwowopr=((1.0757)/(1.0486))*cwobhpr-((0.0271)/(1.0486))*koqbopr;
+?
+?                      CG*
+?
+ident cg_mgvr cg_mgvr=1.10*cg_bhvr-0.30*(g3(mgrgppr)-g3(intexpr));
+ident cg_mdvr cg_mdvr=1.00*(g1(cg_bhvr))-0.30*(g3(mdbgppr)-g3(cg_bepr));
+ident cg_devr cg_devr=cg_bhvr;
+ident cg_m3vr cg_m3vr=cg_bhvr;
+ident cg_rpvr cg_rpvr=((0.8362)/(0.6660))*cg_bhvr-((0.0146)/(0.6660))*cg_devr
+              -((0.2378)/(0.6660))*cg_mgvr-((0.0232)/(0.6660))*cg_m3vr-((0.0379)
+              /(0.6660))*cg_mdvr-((-.1434)/(0.6660))*cg_plvr;
+ident cg_expr cg_expr=((0.8362)/(0.1926))*cg_bhpr-((0.0146)/(0.1926))*xagdepr
+              -((0.0660)/(0.1926))*koqbopr-((0.2444)/(0.1926))*ybgsrpr-((0.1179)
+              /(0.1926))*kosktpr-((0.2378)/(0.1926))*mgrgppr-((0.0232)/(0.1926))
+              *m3_pr-((0.0379)/(0.1926))*mdbgppr-((0.0451)/(0.1926))*kgbpr
+              -((-.1434)/(0.1926))*cg_plpr;
+ident cg_bepr cg_bepr=(((0.1926))*cg_expr+((0.0146))*xagdepr+((0.0660))*koqbopr
+              +((0.2444))*ybgsrpr+((0.1179))*kosktpr+((0.0451))*kgbpr)/((0.1926)
+              +(0.0146)+(0.0660)+(0.2444)+(0.1179)+(0.0451));
+?
+?                      I*B
+?
+ident i_bmgvr i_bmgvr=1.10*i_bbhvr-0.30*(g3(mgrgppr)-g3(intexpr))+i_bmgvra;
+ident i_brpvr i_brpvr=((0.8684)/(0.6773))*i_bbhvr-((0.1781)/(0.6773))*i_bmgvr
+              -((0.0129)/(0.6773))*ybfplvr;
+ident i_bexpr i_bexpr=0.50*creexpr+0.50*bnfexpr;
+ident i_bbopr i_bbopr=((0.8684)/(0.3653))*i_bbhpr-((0.1124)/(0.3653))*i_bexpr
+              -((0.1539)/(0.3653))*ybgsrpr-((0.1781)/(0.3653))*mgrgppr-((0.0127)
+              /(0.3653))*m3_pr-((0.0222)/(0.3653))*mdbgppr-((0.0107)/(0.3653))
+              *kgbpr-((0.0129)/(0.3653))*ybfplpr;
+?
+?                      I*R
+?
+ident i_rmgvr i_rmgvr=1.10*i_rbhvr-0.30*(g3(mgrgppr)-g3(intexpr));
+ident i_rrpvr i_rrpvr=((0.4196)/(0.3713))*i_rbhvr-((0.0445)/(0.3713))*i_rmgvr
+              -((0.0037)/(0.3713))*ybfplvr;
+ident i_rexpr i_rexpr=((0.4196)/(0.1536))*i_rbhpr-((0.0073)/(0.1536))*xagdepr
+              -((0.0309)/(0.1536))*koqbopr-((0.1410)/(0.1536))*ybgsrpr-((0.0445)
+              /(0.1536))*mgrgppr-((0.0051)/(0.1536))*m3_pr-((0.0263)/(0.1536))
+              *mdbgppr-((0.0070)/(0.1536))*kgbpr-((0.0037)/(0.1536))*ybfplpr;
+?
+?           HULPVARIABELEN GPS-MATRIX
+?
+ident intexpr intexpr=0.33*kosexpr+0.25*(g14(qy_exqr))+0.50*mgrgppr+0.09*m3_pr
+              +0.04*ybgsrpr+0.02*mdbgppr+intexpra;
+ident kiapr kiapr=0.13*intexpr+0.06*kossrpr+0.19*mgrgppr+0.31*m3_pr+0.31
+              *mdbgppr+kiapra;
+ident koqbopr koqbopr=kosbopr+0.30*(g14(qy_boqr))+.025*max(g13(qy_boqn)-.85,
+              -.05)+koqbopra;
+ident cg_plwn cg_plwn=.9081*(lomwn+dg_wn)-lgswn;
+ident cg_plvk cg_plvk=.9081*(lomvk+dg_vk)-lgsvk;
+ident cg_plvr cg_plvr=-1+cg_plvk/(cg_plvk(-1)*pf(cg_plwn,cg_plvk));
+ident cg_plpr cg_plpr=-1+cg_plwn/cg_plwn(-1)/(1+cg_plvr);
+ident ybfplvr ybfplvr=-1+ybfplvk/(ybfplvk(-1)*pf(ybfplwn,ybfplvk));
+ident ybfplpr ybfplpr=-1+ybfplwn/ybfplwn(-1)/(1+ybfplvr);
+?
+?  K O P P E L I N G S B L O K   G P S / M A C R O
+?
+?
+?                     BNF
+?
+ident bf_bhwn bf_bhwn=bf___wn/(1+bf_tkqn)/(1+bf_s_qn);
+ident bf_bhvn bf_bhvn=bf_bhwn/(1+bf_bhpr);
+ident bnfbhwn bnfbhwn=bf_bhwn+n_fwn;
+ident bnfbhvk bnfbhvk=bf_bhvk+n_fvk;
+ident bnfbhvr bnfbhvr=bnfbhvk/(bnfbhvk(-1)*pf(bnfbhwn,bnfbhvk))-1;
+ident bnfbhpr bnfbhpr=bnfbhwn/bnfbhwn(-1)/(1+bnfbhvr)-1;
+?
+?                     BNO
+?
+ident bno__vk bno__vk=bo___vk+n_ovk;
+ident bno__wn bno__wn=bo___wn+n_own;
+ident bno__vr bno__vr=bno__vk/(bno__vk(-1)*pf(bno__wn,bno__vk))-1;
+ident bno__pr bno__pr=bno__wn/bno__wn(-1)/(1+bno__vr)-1;
+?
+?                     BD*
+?
+ident bd_bhwn bd_bhwn=bd___wn/(1+bd_tkqn);
+ident bd_bhvr bd_bhvr=bd_bhwn/bd_bhwn(-1)/(1+bd_bhpr)-1;
+ident bd_bhvk bd_bhvk=(bd_bhvk(-1)*pf(bd_bhwn,bd_bhvk))*(1+bd_bhvr);
+?
+?                     CRE
+?
+ident cre__vk cre__vk=c____vk-cwo__vk-ckt__vk;
+ident cre_rvk cre_rvk=cre__vk-mdcgpvk;
+ident cre_tvk cre_tvk=(cre_tvk(-1)*pf(cre_twn,cre_tvk))*cre_rvk/(cre_rvk(-1)
+              *pf(cre_rwn,cre_rvk))*(1+cretkqn(-1)+cretkqdt)/(1+cretkqn);
+ident crebsvk crebsvk=cre_tvk-mc_gpvk;
+ident crebhvk crebhvk=(crebhvk(-1)*pf(crebhwn,crebhvk))*crebsvk/(crebsvk(-1)
+              *pf(crebswn,crebsvk))*(1+cres_qn(-1))/(1+cres_qn);
+ident crebhwn crebhwn=crebhwn(-1)*crebhvk/(crebhvk(-1)*pf(crebhwn,crebhvk))*(1
+              +crebhpr);
+ident crebswn crebswn=crebhwn*(1+cres_qn);
+ident cre_twn cre_twn=crebswn+mc_gpwn;
+ident cre_rwn cre_rwn=cre__wn-mdcgpwn;
+?
+?                     CWO
+?
+ident cwobhwn cwobhwn=cwo__wn/(1+cwotkqn)/(1+cwos_qn);
+frml  cwobhpr cwobhpr=cwo__pr+cwobhpra+cwobhprv;
+ident cwobhvr cwobhvr=cwobhwn/cwobhwn(-1)/(1+cwobhpr)-1;
+?
+?                     CKT
+?
+ident ckt__wn ckt__wn=cmewn+ckwwn;
+ident cktbhwn cktbhwn=ckt__wn/(1+ckttkqn);
+ident cktbhpr cktbhpr=(1+ckt__pr)/(1+tkbfn*ckttkqn(-1)/(1+ckttkqn(-1)))-1;
+ident cktbhvr cktbhvr=cktbhwn/cktbhwn(-1)/(1+cktbhpr)-1;
+?
+?                      CG*
+?
+ident cg_bhwn cg_bhwn=cg___wn/(1+cg_s_qn)/(1+cg_tkqn);
+ident cg_bhvr cg_bhvr=-1+cg_bhwn/cg_bhwn(-1)/(1+cg_bhpr);
+ident cg_bhvk cg_bhvk=(cg_bhvk(-1)*pf(cg_bhwn,cg_bhvk))*(1+cg_bhvr);
+?
+?                      I*B
+?
+ident ibbbhwn ibbbhwn=ibb__wn/(1+ibbtkqn);
+ident ibbbhvr ibbbhvr=ibbbhwn/ibbbhwn(-1)/(1+ibbbhpr)-1;
+ident ibbbhvk ibbbhvk=(ibbbhvk(-1)*pf(ibbbhwn,ibbbhvk))*(1+ibbbhvr);
+?
+ident iwobhwn iwobhwn=iwo__wn/(1+iwotkqn);
+ident iwobhvr iwobhvr=iwobhwn/iwobhwn(-1)/(1+iwobhpr)-1;
+ident iwobhvk iwobhvk=(iwobhvk(-1)*pf(iwobhwn,iwobhvk))*(1+iwobhvr);
+?
+ident j_bbhwn j_bbhwn=j_b__wn/(1+j_btkqn);
+ident j_bbhvr j_bbhvr=j_bbhwn/j_bbhwn(-1)/(1+j_bbhpr)-1;
+ident j_bbhvk j_bbhvk=(j_bbhvk(-1)*pf(j_bbhwn,j_bbhvk))*(1+j_bbhvr);
+?
+ident i_bbhwn i_bbhwn=ibbbhwn+iwobhwn+j_bbhwn;
+ident i_bbhvk i_bbhvk=ibbbhvk+iwobhvk+j_bbhvk;
+ident i_bbhvr i_bbhvr=i_bbhvk/(i_bbhvk(-1)*pf(i_bbhwn,i_bbhvk))-1;
+ident i_bbhpr i_bbhpr=i_bbhwn/i_bbhwn(-1)/(1+i_bbhvr)-1;
+?
+?                     I*R
+?
+ident ibrbhvr ibrbhvr=ibrbhwn/ibrbhwn(-1)/(1+ibrbhpr)-1;
+?
+ident j_rbhwn j_rbhwn=j_r__wn/(1+j_rtkqn);
+ident j_rbhvr j_rbhvr=j_rbhwn/j_rbhwn(-1)/(1+j_rbhpr)-1;
+ident j_rbhvk j_rbhvk=(j_rbhvk(-1)*pf(j_rbhwn,j_rbhvk))*(1+j_rbhvr);
+?
+ident i_rbhwn i_rbhwn=ibrbhwn+j_rbhwn;
+ident i_rbhvk i_rbhvk=ibrbhvk+j_rbhvk;
+ident i_rbhvr i_rbhvr=i_rbhvk/(i_rbhvk(-1)*pf(i_rbhwn,i_rbhvk))-1;
+ident i_rbhpr i_rbhpr=i_rbhwn/i_rbhwn(-1)/(1+i_rbhvr)-1;
+?
+?       DEFINITIEVERSCHILLEN BIJ INVOER
+?
+ident mc_gpvk mc_gpvk=(mc_gpvk(-1)*pf(mc_gpwn,mc_gpvk))*(1+mc_gpvr);
+frml  mc_gpwn mc_gpwn=mc_gpwn(-1)*(1+mc_gpvr)*(1+mc___pr)+mc_gpwna+mc_gpwnv;
+frml  mc_gpvr mc_gpvr=mc___vr+mc_gpvra+mc_gpvrv;
+ident mc_gppr mc_gppr=mc_gpwn/mc_gpwn(-1)/(1+mc_gpvr)-1;
+ident mgr__vk mgr__vk=mgrgpvk-mc___vk+mc_gpvk;
+ident mgr__wn mgr__wn=mgrgpwn-mc___wn+mc_gpwn;
+ident mgr__pr mgr__pr=mgr__wn*(mgr__vk(-1)*pf(mgr__wn,mgr__vk))/(mgr__wn(-1)
+              *mgr__vk)-1;
+ident mgr__vr mgr__vr=mgr__vk/(mgr__vk(-1)*pf(mgr__wn,mgr__vk))-1;
+ident mdcgpvk mdcgpvk=(mdcgpvk(-1)*pf(mdcgpwn,mdcgpvk))*(1+mdcgpvr);
+frml  mdcgpwn mdcgpwn=mdcgpwn(-1)*(1+mdcgpvr)*(1+mdc__pr)+mdcgpwna+mdcgpwnv;
+frml  mdcgpvr mdcgpvr=mdc__vr+mdcgpvra+mdcgpvrv;
+ident mdcgppr mdcgppr=mdcgpwn/mdcgpwn(-1)/(1+mdcgpvr)-1;
+ident mdb__vk mdb__vk=mdbgpvk-mdc__vk+mdcgpvk;
+ident mdb__wn mdb__wn=mdbgpwn-mdc__wn+mdcgpwn;
+ident mdb__pr mdb__pr=mdb__wn*(mdb__vk(-1)*pf(mdb__wn,mdb__vk))/(mdb__wn(-1)
+              *mdb__vk)-1;
+ident mdb__vr mdb__vr=mdb__vk/(mdb__vk(-1)*pf(mdb__wn,mdb__vk))-1;
+?
+?       OVERIGE RELATIES IVM KOPPELING GPS-MATRIX AAN FK'90
+?
+ident ybfbewn ybfbewn=bnfbhwn+bag__wn+bno__wn+bd_bhwn+crebhwn+cwobhwn+cktbhwn
+              +cg_bhwn+i_bbhwn+i_rbhwn-mgrgpwn-m3_wn-mdbgpwn+lgswn-lomwn-dg_wn;
+ident ybfbevk ybfbevk=bnfbhvk+bag__vk+bno__vk+bd_bhvk+crebhvk+cwobhvk+cktbhvk
+              +cg_bhvk+i_bbhvk+i_rbhvk-mgrgpvk-m3_vk-mdbgpvk+lgsvk-lomvk-dg_vk
+              +ybfbevka;
+ident ybfbevr ybfbevr=ybfbevk/(ybfbevk(-1)*pf(ybfbewn,ybfbevk))-1;
+ident ybfbepr ybfbepr=ybfbewn/ybfbewn(-1)/(1+ybfbevr)-1;
+ident ybfplwn ybfplwn=lomwn+dg_wn;
+ident ybfplvk ybfplvk=lomvk+dg_vk;
+ident lomwn lomwn=lo_wn;
+ident lomvk lomvk=(lomvk(-1)*pf(lomwn,lomvk))*(1+ao_mr)*(1+ho_hr);
+frml  ybfrmpr ybfrmpr=ybfsrpr+ybfrmpra+ybfrmprv;
+frml  ybfrmvr ybfrmvr=1.5*ybfbevr+ybfrmvra+ybfrmvrv;
+ident totbhvk totbhvk=bnfbhvk+bag__vk+bno__vk+c__bhvk+cg_bhvk+lgsvk+bd_bhvk
+              +i_bbhvk+i_rbhvk;
+ident nulybwn nulybwn=yb_wn-ybfbewn-(tktwn-tkgwn)+subwn;
+ident nulybvk nulybvk=yb_vk-ybfbevk+tkgvk-bbpvk-mgdvk+mdcgpvk+mi_vk+mc_gpvk
+              +totbhvk;
+end;

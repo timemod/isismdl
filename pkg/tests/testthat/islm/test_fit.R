@@ -6,7 +6,9 @@ islm_model$set_mws(islm_input_mws)
 
 i <- regts(200, start = '2015Q2')
 y <- regts(c(990, NA, 1010), start = '2015Q2')
-islm_model$set_fit(cbind(i, y))
+fit_targets <- cbind(y, i)
+
+islm_model$set_fit(fit_targets)
 islm_model$set_rms(c(c = 5.0, i = 21, md = 2, t = 2))
 
 report <- capture_output(islm_model$solve())
@@ -15,7 +17,12 @@ report <- capture_output(islm_model$solve())
 isis_result <- as.regts(read.csv("isi/fit.csv"), time_column = 1)
 dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,
              fun = cvgdif)
-test_that("Comparing solve with fix variables for the ISLM model", {
+
+test_that("Testing get_fit", {
+    expect_identical(islm_model$get_fit(), fit_targets[, c("i", "y")])
+}) 
+
+test_that("Comparing the results of solve", {
     expect_identical(dif$missing_names1, character(0))
     expect_identical(dif$missing_names2, character(0))
     expect_identical(dif$difnames, character(0))

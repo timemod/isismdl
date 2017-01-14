@@ -17,6 +17,9 @@ isis_result <- as.regts(read.csv("isi/fix.csv"), time_column = 1)
 dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,
              fun = cvgdif)
 #print(dif)
+test_that("Testing get_fix", {
+    expect_identical(islm_model$get_fix(), fix[ , c("c", "i")])
+}) 
 
 test_that("Comparing solve with fix variables for the ISLM model", {
     expect_identical(dif$missing_names1, character(0))

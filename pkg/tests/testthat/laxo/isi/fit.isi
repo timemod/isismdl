@@ -1,0 +1,50 @@
+mdl_org = "../mdl/laxo.mdl";
+mdl= "laxo.mdl";
+mif= "laxo.mif";
+rms_csv = "../data/rms_values.csv";
+fit_target_csv = "../data/fit_targets.csv";
+input_csv = "../data/input.csv";
+
+mdl_period = 1993.1q..1993.4q;
+
+copy_file(mdl_org; mdl);
+cmpmdl(mdl);
+readmdl(mif);
+setmdp(mdl_period);
+read_ts_csv(input_csv; dest = mws);
+
+read_ts_csv(fit_target_csv);
+getfit;
+
+setfit(u = ybfexvk; per = 1993.2q; val = 177.84782);
+setfit(nl = [c____pr]; per = 1993.2q; val = 0.00489);
+
+prifit;
+
+
+open_csv(a; filename = rms_csv);
+rms_names = read_csv_col(a; sc = a1; options = txtval);
+rms_values = read_csv_col(a; sc = b1; options = numval);
+close_csv(a);
+rms_names = rms_names // "_rms";
+
+for name = rms_names; val = rms_values do
+    ~name = val;
+endfor;
+getrms;
+prirms;
+
+setmva(ft = "*"; cvgcrit = sqrt(NU_EPS));
+setfopt(cvgabs = 100 * sqrt(NU_EPS));
+solve;
+
+write_ts_csv("fit.csv"; per = mdl_period; input_from = mws;
+             options = transpose; lowercase = true);
+
+? write CAs
+delv(ft = "*"; svtype = ul_ts);
+putca;
+write_ts_csv("fit_ca.csv"; per = mdl_period; options = transpose; 
+             lowercase = true);
+
+
