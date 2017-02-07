@@ -25,8 +25,8 @@ isis_ca_result <- as.regts(read.csv(isis_result_ca_csv), time_column = 1)
 colnames(isis_ca_result) <- gsub("_ca", "", colnames(isis_ca_result))
 
 report <- capture_output(compile_mdl("mdl/laxo.mdl"))
+capture_output(mdl <- read_mdl(mif_file))
 
-mdl <- read_mdl(mif_file)
 mdl$set_period(mdl_period)
 mdl$set_data(input)
 mdl$set_fit(fit_targets)

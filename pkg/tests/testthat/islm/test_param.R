@@ -4,7 +4,7 @@ library(utils)
 
 mif_file <- "mdl/islm.mif"
 
-islm_model <- IsisMdl$new(mif_file)
+capture_output(islm_model <- read_mdl(mif_file))
 islm_model$set_mws(islm_input_mws)
 islm_model$set_param(list(c0 = 120, t1 = 0.25))
 

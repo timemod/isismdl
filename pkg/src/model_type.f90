@@ -350,4 +350,9 @@ contains
         mdl%lik(lhsvar) = action == ACTIVATE
     end subroutine activate_deactivate_eq
 
+    logical function has_fb_order(mdl)
+        type(model), intent(inout) :: mdl
+        has_fb_order = mdl%fboflg > 0 .and. mdl%fbomem > 0
+    end function has_fb_order
+
 end module model_type

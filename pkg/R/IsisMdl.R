@@ -116,6 +116,8 @@ setOldClass("regperiod_range")
 IsisMdl <- R6Class("IsisMdl",
     public = list(
         initialize = function(mif_name) {
+
+            cat(paste("Reading mif file", mif_name, "...\n"))
             private$model_index <- .Call(read_mdl_c, mif_name)
 
             # get maximum lag and lead
