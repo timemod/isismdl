@@ -113,22 +113,25 @@ mkpkg: cleanx syntax
 # 	@Rscript -e 'cat("Installed version date          :",packageDescription("nleqslv", fields="Date"))'
 	@echo ""
 
-bin:
+bin: install_deps
 	$(MAKE) -f Makedeps
 	-@rm -rf tmp
 	mkdir tmp
 	R CMD INSTALL $(INSTALL_FLAGS) -l ./tmp --build $(PKGDIR)
 
-document:
+document: install_deps
 	$(MAKE) -f Makedeps
 	-@rm -f $(PKGDIR).pdf
 	R -e "roxygen2::update_collate('"$(PKGDIR)"'); devtools::document('"$(PKGDIR)"')"
 	R CMD Rd2pdf --batch $(PKGDIR) 2>$(PKGDIR).log
 
-install:
+install: install_deps
 	$(MAKE) -f Makedeps
 	-@rm -rf tmp
 	R CMD INSTALL $(INSTALL_FLAGS) $(PKGDIR)
+
+install_deps:
+	R --slave -f install_deps.R
 
 data: clean_data data_
 

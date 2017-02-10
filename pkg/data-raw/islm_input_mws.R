@@ -13,6 +13,10 @@ ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2015Q2",
 islm_input <- cbind(r, y, yd, g, ms)
 mdl$set_period("2015Q2/2016Q3")
 mdl$set_data(islm_input)
+
+mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
+                 t = "tax"))
+
 islm_input_mws <- mdl$get_mws()
 
 devtools:::use_data(islm_input_mws, overwrite = TRUE)

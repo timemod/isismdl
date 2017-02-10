@@ -83,6 +83,11 @@ setOldClass("regperiod_range")
 #'
 #' \item{\code{get_data_period()}}{Returns the model data period}
 #'
+#' \item{\code{set_labels(labels)}}{Set labels for the model variables. \code{labels}
+#'  is a named character vector. The names are the names of the model variables.}
+#'
+#' \item{\code{get_labels()}}{Returns the labels of the model variables.}
+#'
 #' \item{\code{set_param(p)}}{Sets the model parameter. \code{p} is a named
 #' list.}
 #'
@@ -96,7 +101,9 @@ setOldClass("regperiod_range")
 #' constant adjustments, fix values, and fit targets, respectively.
 #' \code{data} is a \code{regts} or \code{ts} object. With argument \code{names}
 #' the names of the timeseries in \code{data} can be specified. This argument
-#' is mandatory if \code{data} does not have column names.}
+#' is mandatory if \code{data} does not have column names. If \code{data} has
+#' labels, then method \code{set_data} will update the labels of the
+#' corresponding model variables}
 #'
 #'  \item{\code{get_data(pattern, names, period = self$get_data_period())}}{
 #'  Returns the model data. \code{pattern} is
@@ -126,7 +133,11 @@ IsisMdl <- R6Class("IsisMdl",
                             maxlead = 1L)
             private$maxlag <- ret$maxlag
             private$maxlead <- ret$maxlead
-
+            private$var_names <- .Call(get_var_names_c, "all",
+                                       private$model_index)
+            private$var_count <- length(private$var_names)
+            private$labels    <- character(0)
+            names(private$labels) <- character(0)
             reg.finalizer(self,
                function(e) {.Fortran("remove_mws_fortran",
                                      model_index = private$model_index)},
@@ -134,10 +145,8 @@ IsisMdl <- R6Class("IsisMdl",
         },
         print = function(...) {
             cat("IsisModel object\n")
-            cat(sprintf("%-60s%d\n", "Model index:",
-                        private$model_index))
-            cat(sprintf("%-60s%d\n", "Number of variables:",
-                        length(self$get_var_names())))
+            cat(sprintf("%-60s%d\n", "Model index:", private$model_index))
+            cat(sprintf("%-60s%d\n", "Number of variables:", private$var_count))
             cat(sprintf("%-60s%d\n", "Maximum lag:", private$maxlag))
             cat(sprintf("%-60s%d\n", "Maximum lead:", private$maxlead))
             if (!is.null(private$model_period)) {
@@ -148,7 +157,11 @@ IsisMdl <- R6Class("IsisMdl",
             }
         },
         get_var_names = function(pattern = ".*", vtype = "all") {
-            names <- .Call(get_var_names_c, vtype, private$model_index)
+            if  (vtype != "all") {
+                names <- .Call(get_var_names_c, vtype, private$model_index)
+            } else {
+                names <- private$var_names
+            }
             if (!missing(pattern)) {
                 sel <- grep(pattern, names)
                 names <- names[sel]
@@ -157,6 +170,12 @@ IsisMdl <- R6Class("IsisMdl",
                 names <- sort(names)
             }
             return (names)
+        },
+        set_labels = function(labels) {
+            private$update_labels(labels)
+        },
+        get_labels = function() {
+            return(private$labels)
         },
         get_par_names = function(pattern = ".*") {
             names <- .Call(get_par_names_c, private$model_index)
@@ -255,7 +274,7 @@ IsisMdl <- R6Class("IsisMdl",
             if (is.null(private$model_period)) stop(private$period_error_msg)
             period <- as.regperiod_range(period)
             if (missing(pattern) && missing(names)) {
-                names <- self$get_var_names()
+                names <- private$var_names
             } else if (missing(names)) {
                 names <- self$get_var_names(pattern)
             } else if (!missing(pattern)) {
@@ -265,7 +284,11 @@ IsisMdl <- R6Class("IsisMdl",
             data <- .Call("get_data_c", type = "data",
                            model_index = private$model_index,
                            names = names, jtb = js$startp, jte = js$endp)
-            return (regts(data, start = start_period(period), names = names))
+            ret <- regts(data, start = start_period(period), names = names)
+            if (length(private$labels) > 0) {
+                ret <- update_ts_labels(ret, private$labels)
+            }
+            return(ret)
         },
         get_ca = function(pattern, names, period = private$model_period) {
             "Returns the constant adjustments"
@@ -349,8 +372,9 @@ IsisMdl <- R6Class("IsisMdl",
 
             # todo: rms values
 
-            return (structure(list(var_names = self$get_var_names(),
+            return (structure(list(var_names = private$var_names,
                                    ca_names = self$get_var_names(vtype = "allfrml"),
+                                   labels = private$labels,
                                    model_period = private$model_period,
                                    solve_options = self$get_solve_options(),
                                    cvgcrit = .Call("get_cvgcrit_c",
@@ -375,6 +399,7 @@ IsisMdl <- R6Class("IsisMdl",
                     stop("Mws x does not agree with the model definition")
             }
             #todo: check endogenous leads etc.
+            private$labels <- x$labels
             self$set_period(x$model_period)
             do.call(self$set_solve_options, x$solve_options)
             .Call("set_cvgcrit_set_mws", private$model_index, x$cvgcrit)
@@ -488,6 +513,9 @@ IsisMdl <- R6Class("IsisMdl",
         model_period = NULL,
         model_data_period = NULL,
         model_index = NA_integer_,
+        var_names = NULL,
+        var_count = NA_integer_,
+        labels = NULL,
         period_error_msg = paste("The model period is not set.",
                             "Set the model period with set_period()."),
         deep_clone = function(name, value) {
@@ -536,6 +564,13 @@ IsisMdl <- R6Class("IsisMdl",
                 # make sure that data is a matrix of numeric values
                 data <- apply(data, MARGIN = c(1,2), FUN = as.numeric)
             }
+
+            if (set_type == 1) {
+                lbls <- ts_labels(data)
+                if (!is.null(lbls)) {
+                    private$update_labels(lbls)
+                }
+            }
             .Call(set_c, set_type, private$model_index, data, names, shift)
 
             # TODO: report number of timeseries that have not been set
@@ -564,7 +599,12 @@ IsisMdl <- R6Class("IsisMdl",
                              + ret[[1]] - 1, names = ret[[3]])
                 ret <- ret[, sort(colnames(ret))]
             }
-            return (ret)
+            return(ret)
+        },
+        update_labels = function(labels) {
+            names <- intersect(names(labels), private$var_names)
+            private$labels[names] <- labels[names]
+            return(invisible(NULL))
         }
     )
 )

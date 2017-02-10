@@ -43,6 +43,11 @@ adjusments with 0.}
 
 \item{\code{get_data_period()}}{Returns the model data period}
 
+\item{\code{set_labels(labels)}}{Set labels for the model variables. \code{labels}
+ is a named character vector. The names are the names of the model variables.}
+
+\item{\code{get_labels()}}{Returns the labels of the model variables.}
+
 \item{\code{set_param(p)}}{Sets the model parameter. \code{p} is a named
 list.}
 
@@ -56,7 +61,9 @@ The methods \code{set_data}, \code{set_ca}, \code{set_fix} and
 constant adjustments, fix values, and fit targets, respectively.
 \code{data} is a \code{regts} or \code{ts} object. With argument \code{names}
 the names of the timeseries in \code{data} can be specified. This argument
-is mandatory if \code{data} does not have column names.}
+is mandatory if \code{data} does not have column names. If \code{data} has
+labels, then method \code{set_data} will update the labels of the
+corresponding model variables}
 
  \item{\code{get_data(pattern, names, period = self$get_data_period())}}{
  Returns the model data. \code{pattern} is
