@@ -95,7 +95,7 @@ setOldClass("regperiod_range")
 #' \code{pattern} is a regular expression, \code{names} is a vector with parameter
 #' names.}
 #'
-#' \item{\code{set_[data|ca|fix|fit], names = colnames(data))}}{
+#' \item{\code{set_[data|ca|fix|fit](data, names = colnames(data))}}{
 #' The methods \code{set_data}, \code{set_ca}, \code{set_fix} and
 #' \code{set_fit} can be used to set the values of the model data,
 #' constant adjustments, fix values, and fit targets, respectively.
@@ -104,6 +104,30 @@ setOldClass("regperiod_range")
 #' is mandatory if \code{data} does not have column names. If \code{data} has
 #' labels, then method \code{set_data} will update the labels of the
 #' corresponding model variables}
+#'
+#' \item{\code{set_values(value, names, pattern, period = self$get_data_period())}}{
+#' This method provides an another way to set model variables.
+#' \code{value} is a numeric vector of length 1 or with the same length
+#' as the length of the range of \code{period}.
+#' \code{pattern} is a regular expression, \code{names} a list of variables
+#'  and \code{period} an \code{\link[regts]{regperiod_range}} object
+#' or an object that can be coerced to \code{regperiod_range}. The variables
+#' with the specified names of with names that match the regular expression
+#' are set to the specified value for the period.}
+#'
+#' \item{\code{set_[ca_values|fix_values|fit_values](value, names, pattern,
+#' period = self$get_period())}}{The methods \code{set_values},
+#' \code{set_ca_values}, \code{set_fix_values} and \code{set_fit_values} can be
+#' used to set constant adjustments, fix values and fit targets, respectively.
+#' These methods work similarly as method \code{set_values}.}
+#'
+#' \item{\code{change_data(fun, names, pattern, period = self$get_data_period())}}{
+#' This method can be used to change model data by applying a function
+#' \code{fun} for the specified model variables for the specified period.}
+#'
+#' \item{\code{change_ca(fun, names, pattern, period = self$get_data_period())}}{
+#' This method can be used to change constant adjustments by applying a function
+#' \code{fun} for the specified model variables for the specified period.}
 #'
 #'  \item{\code{get_data(pattern, names, period = self$get_data_period())}}{
 #'  Returns the model data. \code{pattern} is
@@ -119,6 +143,16 @@ setOldClass("regperiod_range")
 #'
 #'  \item{\code{get_[fix|fit]()}}{\code{get_fix} and \code{get_fit} return
 #'  the fix values and fit targets, respecively.}
+#'
+#' \item{\code{set_mws(x)}}{Initialises the model workspace. \code{x} is
+#' an \code{\link{mws}} objects that contains all information about the model
+#' that the user can modify: the model period, the model data,
+#' constant adjustments, fit targets and fix values, parameters and solve options}
+#'
+#' \item{\code{get_mws()}}{Returns an \code{\link{mws}} objects that contains all
+#' information about the modelthat the user can modify: the model period,
+#' the model data,  constant adjustments, fit targets and fix values, parameters
+#' and solve options}
 #' }
 IsisMdl <- R6Class("IsisMdl",
     public = list(
@@ -316,7 +350,30 @@ IsisMdl <- R6Class("IsisMdl",
             "Returns the fit targets"
             return (private$get_fix_fit(type = "fit"))
         },
-
+        set_values = function(value, names = NULL, pattern = NULL,
+                              period = private$model_data_period) {
+            return (private$set_values_(1L, value, names, pattern, period))
+        },
+        set_ca_values = function(value, names = NULL, pattern = NULL,
+                              period = private$model_period) {
+            return (private$set_values_(2L, value, names, pattern, period))
+        },
+        set_fix_values = function(value, names = NULL, pattern = NULL,
+                                 period = private$model_period) {
+            return (private$set_values_(3L, value, names, pattern, period))
+        },
+        set_fit_values = function(value, names = NULL, pattern = NULL,
+                                  period = private$model_period) {
+            return (private$set_values_(4L, value, names, pattern, period))
+        },
+        change_data = function(fun, names = NULL, pattern = NULL,
+                               period = private$model_data_period, ...) {
+            return(private$change_var_(1L, fun, names, pattern, period, ...))
+        },
+        change_ca = function(fun, names = NULL, pattern = NULL,
+                               period = private$model_data_period, ...) {
+            return(private$change_var_(2L, fun, names, pattern, period, ...))
+        },
         set_rms = function(values) {
             "Sets the rms values"
             # TODO: error if values is not numeric or integer
@@ -568,6 +625,7 @@ IsisMdl <- R6Class("IsisMdl",
             if (set_type == 1) {
                 lbls <- ts_labels(data)
                 if (!is.null(lbls)) {
+                    names(lbls) <- names
                     private$update_labels(lbls)
                 }
             }
@@ -575,6 +633,47 @@ IsisMdl <- R6Class("IsisMdl",
 
             # TODO: report number of timeseries that have not been set
             return (invisible(self))
+        },
+        set_values_ = function(set_type, value, names, pattern, period) {
+            if (!is.numeric(value)) {
+                stop("argument value should be a numeric vector")
+            }
+            period <- as.regperiod_range(period)
+            nper <- length_range(period)
+            vlen <- length(value)
+            if (vlen != 1 && vlen != nper) {
+                stop(paste("Argument value should have length 1 or the same",
+                           "length  as the number of periods"))
+            }
+            if (is.null(pattern) && is.null(names)) {
+                names <- private$var_names
+            } else if (is.null(names)) {
+                names <- self$get_var_names(pattern)
+            } else if (!is.null(pattern)) {
+                names <- union(names, self$get_var_names(pattern))
+            }
+            nvar <- length(names)
+            data <- regts(matrix(value, nrow = nper, ncol = nvar),
+                          period = period, names = names)
+            private$set_var(set_type, data, names, FALSE)
+        },
+        change_var_ = function(set_type, fun, names, pattern, period, ...) {
+            period <- as.regperiod_range(period)
+            nper <- length_range(period)
+            if (is.null(pattern) && is.null(names)) {
+                names <- private$var_names
+            } else if (is.null(names)) {
+                names <- self$get_var_names(pattern)
+            } else if (!is.null(pattern)) {
+                names <- union(names, self$get_var_names(pattern))
+            }
+            if (set_type == 1) {
+                data <- self$get_data(names = names, period = period)
+            } else if (set_type == 2) {
+                data <- self$get_ca(names = names, period = period)
+            }
+            data <- fun(data, ...)
+            private$set_var(set_type, data, names, FALSE)
         },
         get_variables = function(type, names, period) {
             # general function used to get model data or constant adjustments

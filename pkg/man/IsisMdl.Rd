@@ -55,7 +55,7 @@ list.}
 \code{pattern} is a regular expression, \code{names} is a vector with parameter
 names.}
 
-\item{\code{set_[data|ca|fix|fit], names = colnames(data))}}{
+\item{\code{set_[data|ca|fix|fit](data, names = colnames(data))}}{
 The methods \code{set_data}, \code{set_ca}, \code{set_fix} and
 \code{set_fit} can be used to set the values of the model data,
 constant adjustments, fix values, and fit targets, respectively.
@@ -64,6 +64,30 @@ the names of the timeseries in \code{data} can be specified. This argument
 is mandatory if \code{data} does not have column names. If \code{data} has
 labels, then method \code{set_data} will update the labels of the
 corresponding model variables}
+
+\item{\code{set_values(value, names, pattern, period = self$get_data_period())}}{
+This method provides an another way to set model variables.
+\code{value} is a numeric vector of length 1 or with the same length
+as the length of the range of \code{period}.
+\code{pattern} is a regular expression, \code{names} a list of variables
+ and \code{period} an \code{\link[regts]{regperiod_range}} object
+or an object that can be coerced to \code{regperiod_range}. The variables
+with the specified names of with names that match the regular expression
+are set to the specified value for the period.}
+
+\item{\code{set_[ca_values|fix_values|fit_values](value, names, pattern,
+period = self$get_period())}}{The methods \code{set_values},
+\code{set_ca_values}, \code{set_fix_values} and \code{set_fit_values} can be
+used to set constant adjustments, fix values and fit targets, respectively.
+These methods work similarly as method \code{set_values}.}
+
+\item{\code{change_data(fun, names, pattern, period = self$get_data_period())}}{
+This method can be used to change model data by applying a function
+\code{fun} for the specified model variables for the specified period.}
+
+\item{\code{change_ca(fun, names, pattern, period = self$get_data_period())}}{
+This method can be used to change constant adjustments by applying a function
+\code{fun} for the specified model variables for the specified period.}
 
  \item{\code{get_data(pattern, names, period = self$get_data_period())}}{
  Returns the model data. \code{pattern} is
@@ -79,6 +103,16 @@ corresponding model variables}
 
  \item{\code{get_[fix|fit]()}}{\code{get_fix} and \code{get_fit} return
  the fix values and fit targets, respecively.}
+
+\item{\code{set_mws(x)}}{Initialises the model workspace. \code{x} is
+an \code{\link{mws}} objects that contains all information about the model
+that the user can modify: the model period, the model data,
+constant adjustments, fit targets and fix values, parameters and solve options}
+
+\item{\code{get_mws()}}{Returns an \code{\link{mws}} objects that contains all
+information about the modelthat the user can modify: the model period,
+the model data,  constant adjustments, fit targets and fix values, parameters
+and solve options}
 }
 }
 \examples{
