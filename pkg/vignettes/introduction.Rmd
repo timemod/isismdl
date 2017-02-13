@@ -18,7 +18,7 @@ vignette: >
 # Introduction
 
 This introductiomn shows how package `isismdl` can be
-used to solve a simple example mode, 
+used to solve a simple example model, 
 a dynamical version of the ISLM model.
 
 [Here follows a description of the ISLM model]
@@ -58,13 +58,12 @@ compile_mdl("islm.mdl")
 
 Two files are generated:
 
-* `islm.mif` The model information file (mif-file). This is a binary file
-contains the interal code for the evaluation of the model
-equations.
+* `islm.mif` The model information file (mif file). This  is a binary file. It
+contains the internal code for the evaluation of the model equations.
 * `islm.mrf` The model reference file (mrf file), a text file with information about
 the structure of the model.
 
-If the the compiler detects an error in the model file, an additional
+If the compiler detects an error in the model file, an additional
 file `islm.err` is created. This file contains a list of errors.
 
 The mrf file for our ISLM looks like this:
@@ -73,8 +72,8 @@ The mrf file for our ISLM looks like this:
 cat(readLines('islm.mrf'), sep = '\n')
 ```
 
-The mrf file contains tehnical information about the model. For example,
-it shows the feedbackvariables of the model. It is important to know
+The mrf file contains technical information about the model. For example,
+it shows the feedback variables of the model. It is important to know
 the feedback variables of the model, because for these variables initial values
 should be provided when solving the model.
 
@@ -101,7 +100,7 @@ For example, to obtains the values of parameters `m0` and `c1`, use
 mdl$get_param(names = c("m0", "c1"))
 ```
 
-Methods starting with `get_`, are ofter called a "getter" methods.
+Methods starting with `get_`, are often called "getter" methods.
 There are also corresponding "setter" methods. For example
 ```{r}
 mdl$set_param(list(m0 = 100))
@@ -132,7 +131,7 @@ mdl2$set_param(list(m0 = -9999))
 mdl$get_param("m0")
 ```
 
-## Solving the model \label{sec:solving}
+## Solving the model \label{sec:solve}
 
 Suppose that we want to solve the model for the period from 2016 to
 2021. Then we need the values of the exogenous variables for that period.
@@ -141,8 +140,8 @@ starting values for the solution period.
 Since `r`, `y` and `y_d` have a lag 1, we also need values for these
 variables in 2015. 
 
-To supply the required data to the model, we first a `regts` 
-timeseries object. For the exogenous variables `g` and `ms` we
+To supply the required data to the model, we first define `regts` 
+timeseries objects. For the exogenous variables `g` and `ms` we
 assume an annual growth of 1.5% after 2016.
 ```{r}
 # exogenous variables:
@@ -159,7 +158,7 @@ data
 
 To transfer these variables to the model, we first
 have to define the model period. For this we use the
-metbhod `set_period()`:
+method `set_period()`:
 ```{r}
 mdl$set_period(regperiod_range("2016", "2021"))
 mdl
@@ -168,7 +167,7 @@ The data period is the model period extended with the lag and lead period.
 You can also retrieve the model period and model data period 
 with the methods `get_period()` and `get_data_period`.
 
-Now can transfer the values in `regts` object data the model
+Now we can transfer the values in `regts` object data to the model
 with method `set_data()`:
 ```{r}
 mdl$set_data(data)
@@ -204,7 +203,7 @@ the input does not have column names or not the column names
 that you need. Univariate timeseries typically have no column
 names (see the vignette "Introduction to package regts" for
 more information about this issue). In that case, we use argument
-`names` to supply the timeseries namnes.
+`names` to supply the timeseries names.
 
 The methods `set_ca`, `set_fix`, and `set_fit` can be used
 to set constant adjustments, fix values and fit targets. 
@@ -212,7 +211,7 @@ They work similar to `set_data`.
 For example, suppose that we have new information about exogenous 
 variable `g` for periods 2016 and 2017:
 ```{r}
-g <- regts(c(213, 218),  period = "2016/2017")
+g <- regts(c(213, 218), period = "2016/2017")
 ```
 Since `g` does not have a column name, we have to specify the `names`
 argument:
@@ -227,7 +226,7 @@ input timeseries and the model data period.
 
 ## Fixing variables
 
-There are to type of equations in Isis models:
+There are two types of equations in Isis models:
 the so called `frml` (formula) equations, also
 called behavioural equations, and identities.  The frml equations
 
