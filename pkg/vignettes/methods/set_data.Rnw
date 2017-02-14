@@ -1,5 +1,4 @@
 \ProcStart
-%\Function{set\_data \hspace{3em} set\_ca \hspace{3em} set\_fix \hspace{3em}set\_fit}{setUdata}{}
 \Function{set\_[data|ca|fix|fit]}{setUdata}{}
 %
 \index{set\_data@\Procname{set\_data}}
@@ -15,25 +14,21 @@ or fit targets with a timeseries object.
 
 \begin{usage}
 set_data(x, names = colnames(x))
-set_ca(x,   names = colnames(x))
-set_fix(x,  names = colnames(x))
-set_fit(x,  names = colnames(x))
+set_ca(x, names = colnames(x))
+set_fix(x, names = colnames(x))
+set_fit(x, names = colnames(x))
 \end{usage}
+
 \Arguments
-
-\begin{Argdescription}
-%
-\Parg{x}{mandatory}{single}{in}{untyped}
-%
-A \texttt{ts} or \texttt{regts} object
-
-\Parg{names}{optional}{single}{in}{untyped}
-The names of the model variables whose values, constant adjustments,
-fix values or fit targets will be updated.
-Defaults to the column names of \argname{x}. If \texttt{x} does not have column
-names, then argument \argname{names} is mandatory.
-
+\begin{Argdescription}{names}
+\item[\Argitem{x}]     A \texttt{ts} or \texttt{regts} object
+\item[\Argitem{names}] The names of the model variables whose values,
+                       constant adjustments, fix values or fit targets will be
+                       updated. Defaults to the column names of \argname{x}.
+                       If \texttt{x} does not have column
+                       names, then argument \argname{names} is mandatory.
 \end{Argdescription}
+
 
 \Value
 The modified \texttt{IsisMdl} object
@@ -60,8 +55,10 @@ g  <- regts(210 * cumprod(rep(1.015, 4)), start = "2016Q4",
 islm_input <- cbind(r, y, yd, g)
 @
 
-The following example assumes that the model period is \texttt{2016Q4/2018Q4}.
-Suppose that we have the following timeseries \texttt{input}
+The following example assumes that the model period has been set by
+procedure \hyperlink{HUsetUperiod}{\Procname{set\_period}}
+for the period \texttt{2016Q4/2018Q4}. Suppose that we have the following
+timeseries \texttt{input}
 <<! set_data_print_input >>=
 print(islm_input)
 @

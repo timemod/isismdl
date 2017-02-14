@@ -4,7 +4,15 @@
 \usepackage{hyperref}
 \makeindex
 
+\title{Isismdl methods}
+\author{Rob van Harrevelt}
+\date{\today}
+
 \begin{document}
+
+\maketitle
+\tableofcontents
+
 
 <<-preparations, echo = FALSE, results = "hide", message= FALSE>>=
 
@@ -32,7 +40,7 @@ compile_mdl("islm.mdl")
 mdl <- read_mdl("islm.mif")
 @
 
-We initiliase the model workspace with the folloiwing period:
+We initiliase the model workspace with the following period:
 <<- init_mws, results = "hide" >>=
 mdl$set_period("2016Q4/2017Q3")
 @
@@ -40,16 +48,16 @@ mdl$set_period("2016Q4/2017Q3")
 
 \section{Isismdl methods}
 
-<<test, child='get_data_period.Rnw'>>=
+<<test, child='methods/get_data_period.Rnw'>>=
 @
 
-<<test, child='get_period.Rnw'>>=
+<<test, child='methods/get_period.Rnw'>>=
 @
 
-<<test, child='set_data.Rnw'>>=
+<<test, child='methods/set_data.Rnw'>>=
 @
 
-<<test, child='set_period.Rnw'>>=
+<<test, child='methods/set_period.Rnw'>>=
 @
 
 \printindex

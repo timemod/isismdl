@@ -14,14 +14,10 @@ mdl$set_period(period)
 
 \Arguments
 
-\begin{Argdescription}
-%
-\Parg{period}{mandatory}{single}{in}{untyped}
-%
-A \texttt{regperiod\_range} object (see the documentation of package
-\texttt{regts}) or an object that can be coerced
-to a \texttt{regperiod\_range}.
-%
+\begin{Argdescription}{period}
+\item[\Argitem{period}] A \texttt{regperiod\_range} object (see the
+                        documentation of package \texttt{regts}) or an object
+                        that can be coerced to a \texttt{regperiod\_range}.
 \end{Argdescription}
 
 \Details

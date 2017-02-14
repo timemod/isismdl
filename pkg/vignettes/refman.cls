@@ -65,7 +65,8 @@
 %
 \usepackage{makeidx}
 \usepackage{needspace}
-\RequirePackage[dutch,english]{babel}
+\usepackage{enumitem}
+\RequirePackage[english]{babel}
 \RequirePackage{fancyhdr}
 \RequirePackage{needspace}
 %\nofiles
@@ -109,7 +110,7 @@
 %
 \DeclareOption{paper}{%
 \@paperdest
-\PassOptionsToPackage{pdftex,hypertexnames=false,hidelinks,hyperindex=false,colorlinks=false,pdfstartview={FitH 1000}}{hyperref}%
+\PassOptionsToPackage{pdftex,hypertexnames=false,hidelinks,hyperindex=true,colorlinks=false,pdfstartview={FitH 1000}}{hyperref}%
 }
 \DeclareOption{screen}{%
 \@screendest
@@ -230,7 +231,6 @@
 \if@topaper
 \Needspace*{3.0cm}%
 \else
-\newpage
 \fi
 \hypertarget{HU#2}{\relax}
 \phantomsection{}
@@ -356,14 +356,13 @@
 
 %
 % Description for arguments
-% blank line between arguments
 %
-\newenvironment{Argdescription}%
-               {\list{}{\labelwidth\z@ \itemindent-\leftmargin
-                        \let\makelabel\descriptionlabel
-                        \itemsep\baselineskip
-                        }}%
-               {\endlist}%
+% Argument 1 is the longest argument name
+%
+\newenvironment{Argdescription}[1]%
+              {\begin{description}[leftmargin=!,
+                      labelwidth=\widthof{\argname{#1}} + 2em]}
+              {\end{description}}%
 %
 \renewcommand{\labelitemi}{\textbullet}
 \renewcommand{\labelitemii}{\textbullet}
@@ -377,22 +376,12 @@
 %
 \newlength{\Procnamelen}
 \newlength{\Procboxnlen}
-\newcommand{\Parg}[5]{%
-\settowidth{\Procnamelen}{\Argitem{#1}}\setlength{\Procboxnlen}{.5\linewidth}%
-\addtolength{\Procboxnlen}{-\Procnamelen}%
-%
-% at least two lines + 1 for the \itemsep
-%
-\Needspace{3\baselineskip}\relax%
-\item[{\Argitem{#1}\hspace{\Procboxnlen}{\Argtype{#2 #3 #4 : #5}}}]\mbox{}\\}
-\newcommand{\Optarg}[1]{\Parg{#1}{optional}}
-\newcommand{\Reqarg}[1]{\Parg{#1}{}}
 %
 % to supress small indent of first column
 %
 \newlength{\neglen}
 \setlength{\neglen}{-\tabcolsep}
-\newcolumntype{z}{@{\extracolsep{\the\neglen}}}
+%\newcolumntype{z}{@{\extracolsep{\the\neglen}}}
 %
 %
 \newcommand{\argname}[1]{\textsl{\textcolor{argcolor}{#1}}}

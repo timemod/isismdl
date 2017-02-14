@@ -1,0 +1,8 @@
+\select@language {english}
+\contentsline {section}{\numberline {0.1}Introduction}{1}{section.2}
+\contentsline {section}{\numberline {0.2}Isismdl methods}{1}{section.3}
+\contentsline {section}{\hbox to\@tempdima {\hfil }\Procname {get\_data\_period}}{1}{section*.4}
+\contentsline {section}{\hbox to\@tempdima {\hfil }\Procname {get\_period}}{2}{section*.12}
+\contentsline {section}{\hbox to\@tempdima {\hfil }\Procname {set\_[data|ca|fix|fit]}}{2}{section*.19}
+\contentsline {section}{\hbox to\@tempdima {\hfil }\Procname {set\_period}}{3}{section*.27}
+\contentsline {chapter}{Index}{5}{section*.36}
