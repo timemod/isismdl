@@ -1,0 +1,113 @@
+%%
+%% This is file `xfleqn.clo',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xclass.dtx  (with options: `fleqn')
+%%
+%%  This system is distributed in the hope that it will be useful,
+%%  but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+%%
+%%
+%% IMPORTANT NOTICE:
+%%
+%% For error reports in case of UNCHANGED versions see bugs.txt.
+%%
+%% Please do not request updates from us directly.  Distribution is
+%% done through Mail-Servers and TeX organizations.
+%%
+%% You are not allowed to change this file.
+%%
+%% You are allowed to distribute this file under the condition that
+%% it is distributed together with all files mentioned in manifest.txt.
+%%
+%% If you receive only some of these files from someone, complain!
+%%
+%% You are NOT ALLOWED to distribute this file alone.  You are NOT
+%% ALLOWED to take money for the distribution or use of either this
+%% file or a changed version, except for a nominal charge for copying
+%% etc.
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+\ProvidesFile{xfleqn.clo}
+              [2001/09/12 v1.0a
+               LaTeX option (flush left equations)]
+\setlength\partopsep{0\p@}
+\newdimen\mathindent
+\AtEndOfClass{\mathindent\leftmargini}
+\renewcommand{\[}{\relax
+  \ifmmode\@badmath\else
+  \ifvmode
+    \nointerlineskip \makebox[.6\linewidth]\fi
+    $$\hbox to\linewidth\bgroup $\m@th\displaystyle %$
+      \hskip\mathindent\bgroup
+\fi}
+\renewcommand{\]}{\relax
+  \ifmmode
+     \egroup $\hfil% $
+     \egroup
+     $$
+     \else \@badmath
+\fi\ignorespaces}
+\renewenvironment{equation}%
+    {\refstepcounter{equation}%
+     $$\hbox to\linewidth\bgroup $\m@th% $
+     \displaystyle
+     \hskip\mathindent}%
+    {$\hfil % $
+      \displaywidth\linewidth\hbox{\@eqnnum}%
+      \egroup$$\global\@ignoretrue
+    }
+%  We first redefine the eqnarray environment so that we can exercise more
+%  control over the layout.
+%  We define a new length variable |\eqnarraycolsep| for the column separation
+%  in an eqnarray environment and set it  smaller than the standard |\arraycolsep|.
+%  This will make equations set in the environment look
+%  more like equations set separately.
+%  We also need a new rubber length |\@eqnarrayleftcolskip| which is inserted
+%  to the left of the first column regulating how the left column will be aligned.
+%  The default standard value is what \LaTeX{} defines it to be.
+%    \begin{macrocode}
+\newlength{\eqnarraycolsep}
+\setlength{\eqnarraycolsep}{0.5\arraycolsep}
+\renewenvironment{eqnarray}{%
+    \stepcounter{equation}%
+    \def\@currentlabel{\p@equation\theequation}%
+    \global\@eqnswtrue\m@th
+    \global\@eqcnt\z@
+    \tabskip\mathindent
+    \let\\=\@eqncr
+    $$\everycr{}\halign to\linewidth% $$
+    \bgroup
+      \hskip\@centering
+      $\displaystyle\tabskip\z@skip{##}$\@eqnsel&%
+      \global\@eqcnt\@ne \hskip \eqnarraycolsep \hfil${##}$\hfil&%
+      \global\@eqcnt\tw@ \hskip \eqnarraycolsep
+        $\displaystyle{##}$\hfil \tabskip\@centering&%
+      \global\@eqcnt\thr@@
+        \hbox to \z@\bgroup\hss##\egroup\tabskip\z@skip\cr}%
+      {\@@eqncr
+    \egroup
+    \global\advance\c@equation\m@ne$$% $$
+    \global\@ignoretrue
+    }
+%    \end{macrocode}
+%
+\endinput
+%%
+%% End of file `xfleqn.clo'.

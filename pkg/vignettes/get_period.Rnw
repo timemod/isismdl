@@ -1,0 +1,24 @@
+\ProcStart
+\Function{get\_period}{getUperiod}{}
+%
+\index{get\_period@\Procname{get\_period}}%
+
+\Description
+Returns the model period
+
+\Usage
+
+\begin{usage}
+mdl$get_data_period()
+\end{usage}
+
+\Value
+
+A \texttt{regperiod\_range} object
+
+\Examples
+See the examples for \hyperlink{HUsetUperiod}{\Procname{set\_period}}
+
+\Seealso
+\hyperlink{HUgetUdataUperiod}{\Procname{get\_data\_period}}\\
+\hyperlink{HUsetUperiod}{\Procname{set\_period}}

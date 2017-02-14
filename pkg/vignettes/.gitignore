@@ -1,3 +1,10 @@
 islm.mif
 islm.mrf
 *.pdf
+*.idx
+*.ind
+*.ilg
+*.log
+*.synctex.gz
+*.tex
+

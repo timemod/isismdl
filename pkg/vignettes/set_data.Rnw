@@ -1,0 +1,86 @@
+\ProcStart
+%\Function{set\_data \hspace{3em} set\_ca \hspace{3em} set\_fix \hspace{3em}set\_fit}{setUdata}{}
+\Function{set\_[data|ca|fix|fit]}{setUdata}{}
+%
+\index{set\_data@\Procname{set\_data}}
+\index{set\_ca@\Procname{set\_ca}}
+\index{set\_fix@\Procname{set\_fix}}
+\index{set\_fit@\Procname{set\_fit}}
+
+\Description
+Update the model data, constant adjustments, fix values,
+or fit targets with a timeseries object.
+
+\Usage
+
+\begin{usage}
+set_data(x, names = colnames(x))
+set_ca(x,   names = colnames(x))
+set_fix(x,  names = colnames(x))
+set_fit(x,  names = colnames(x))
+\end{usage}
+\Arguments
+
+\begin{Argdescription}
+%
+\Parg{x}{mandatory}{single}{in}{untyped}
+%
+A \texttt{ts} or \texttt{regts} object
+
+\Parg{names}{optional}{single}{in}{untyped}
+The names of the model variables whose values, constant adjustments,
+fix values or fit targets will be updated.
+Defaults to the column names of \argname{x}. If \texttt{x} does not have column
+names, then argument \argname{names} is mandatory.
+
+\end{Argdescription}
+
+\Value
+The modified \texttt{IsisMdl} object
+
+\Details
+
+The method compares the column names of the \argname{x} and
+updates the corresponding model variable.
+
+TODO: MORE DETAILS
+
+Method \Procname{set\_data} will update the model labels if argument \texttt{x}
+has labels.
+
+\Examples
+
+<<! set_data_create_ts, echo = FALSE, results = "hide" >>=
+r  <- regts(3.35, start = "2016Q3", end = "2017Q3", labels = "interest rate")
+y  <- regts(980,  start = "2016Q3", end = "2017Q3", labels = "income")
+yd <- regts(790, start = "2016Q3", labels = "disposable income")
+g  <- regts(210 * cumprod(rep(1.015, 4)), start = "2016Q4",
+            labels = "government spending")
+
+islm_input <- cbind(r, y, yd, g)
+@
+
+The following example assumes that the model period is \texttt{2016Q4/2018Q4}.
+Suppose that we have the following timeseries \texttt{input}
+<<! set_data_print_input >>=
+print(islm_input)
+@
+
+<<!set_data_set<_data_1 >>=
+mdl$set_data(islm_input)
+print(mdl$get_data())
+@
+
+If the input timeseries does not have column names, then we have to specify
+argument \texttt{names}. Univariate timeseries typically do not have column names.
+For example,
+<<! set_data_ms >>=
+ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2016Q4",
+            labels = "money supply")
+mdl$set_data(ms, names = "ms")
+print(mdl$get_data(names = "ms"))
+@
+
+<<! print labels >>=
+mdl$get_labels()
+@

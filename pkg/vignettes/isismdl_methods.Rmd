@@ -1,0 +1,99 @@
+---
+title: "Isismdl methods"
+author: "Rob van Harrevelt"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: false
+linkcolor: blue    
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+header-includes:
+- \usepackage{makeidx}
+- \usepackage{hyperref}
+- \makeindex
+
+---
+
+\newcommand{\midx}[1]{\index{#1@\texttt{#1}}}
+
+<!--   
+PREPARATIONS
+-->
+```{r echo = FALSE, message = FALSE}
+
+library(isismdl)
+
+# input/output chunks are separated
+# R inputlines start with >, outputlines with nothing
+knitr::opts_chunk$set(collapse = FALSE, comment = "", prompt = TRUE)
+```
+
+# Introduction
+
+Package `isismdl` contains an R6 class `IsisMdl`, a class that represents
+an econometric model consisting of a number of non-linear equations. 
+This object contains several methods. This manual describes these methods
+in detail, using the ISLM model as example. A detailed description of the
+ISLM model is presented in the Tutorial. This manual gives a more systematic
+description of the various methods of `IsisMdl` objects.
+
+We first create an `IsisMdl` object from the model file using the commands
+```{r, results = "hide"}
+compile_mdl("islm.mdl")
+mdl <- read_mdl("islm.mif")
+```
+
+# The model period
+
+The method `set_period(period)`\midx{set\_period} sets the model period
+\index{model period}.
+`period` is a `regperiod_range` object (see the documentation of package
+`regts`) or an object that can be coerced
+to a `regperiod_range`. For example
+```{r}
+p <- regperiod_range("2016Q4", "2018Q4")
+mdl$set_period(p)
+```
+This is equivalent to
+```{r}
+mdl$set_period("2016Q4/2018Q4")
+```
+
+The model period is the longest period for which the model can be solved.
+The model period should be disinguished from the 'model data period'
+\index{model data period}, which is the model period extended with a lag 
+and lead period. Since the ISLM model has a maximum lag of 1,
+the model data period starts one period before the model period. The ISLM
+model has no leads and hence the end period of the model period and the
+model data period are the same.
+
+Methods `get_period()`\midx{get\_period} and 
+`get_data_period()`\midx{get\_data\_period} return the model period
+and the model data period, respectively:
+```{r}
+mdl$get_period()
+```
+
+Method `set_period()` also allocates storage for
+all model timeseries and constant adjustments. Model timeseries are
+available for the model data period and constant adjustment
+for the model period. `set_period()` initialises all model timeseries with 
+`NA` and all constant
+adjusments with 0. All fix values and fit targets are removed.
+
+# Setting data
+
+The methods `set_data()`\midx{set\_data}, 
+`set_values()` \midx{set\_values} and `change_values()`\midx{change\_values}
+can be used to set model data.
+
+## `set_values(value, names, pattern, period = self$get_data_period())` {-} \midx{set\_values}
+
+This method ...
+
+\printindex

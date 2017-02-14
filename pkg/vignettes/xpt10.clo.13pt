@@ -1,0 +1,127 @@
+%%
+%% This is file `xpt10.clo',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% xclass.dtx  (with options: `10pt')
+%% 
+%%  This system is distributed in the hope that it will be useful,
+%%  but WITHOUT ANY WARRANTY; without even the implied warranty of
+%%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+%% 
+%% 
+%% IMPORTANT NOTICE:
+%% 
+%% For error reports in case of UNCHANGED versions see bugs.txt.
+%% 
+%% Please do not request updates from us directly.  Distribution is
+%% done through Mail-Servers and TeX organizations.
+%% 
+%% You are not allowed to change this file.
+%% 
+%% You are allowed to distribute this file under the condition that
+%% it is distributed together with all files mentioned in manifest.txt.
+%% 
+%% If you receive only some of these files from someone, complain!
+%% 
+%% You are NOT ALLOWED to distribute this file alone.  You are NOT
+%% ALLOWED to take money for the distribution or use of either this
+%% file or a changed version, except for a nominal charge for copying
+%% etc.
+%% \CharacterTable
+%%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%%   Digits        \0\1\2\3\4\5\6\7\8\9
+%%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%%   Dollar        \$     Percent       \%     Ampersand     \&
+%%   Acute accent  \'     Left paren    \(     Right paren   \)
+%%   Asterisk      \*     Plus          \+     Comma         \,
+%%   Minus         \-     Point         \.     Solidus       \/
+%%   Colon         \:     Semicolon     \;     Less than     \<
+%%   Equals        \=     Greater than  \>     Question mark \?
+%%   Commercial at \@     Left bracket  \[     Backslash     \\
+%%   Right bracket \]     Circumflex    \^     Underscore    \_
+%%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%%   Right brace   \}     Tilde         \~}
+\ProvidesFile{xpt10.clo}
+              [2001/09/12 v1.0a
+      LaTeX file (size option)]
+\renewcommand{\normalsize}{%
+   \@setfontsize\normalsize\@xpt{13}%
+   \abovedisplayskip 10\p@ \@plus2\p@ \@minus5\p@
+   \abovedisplayshortskip \z@ \@plus3\p@
+   \belowdisplayshortskip 6\p@ \@plus3\p@ \@minus3\p@
+   \belowdisplayskip \abovedisplayskip}%
+\normalsize
+\newcommand{\small}{%
+   \@setfontsize\small\@ixpt{11}%
+   \abovedisplayskip 8.5\p@ \@plus3\p@ \@minus4\p@
+   \abovedisplayshortskip \z@ \@plus2\p@
+   \belowdisplayshortskip 4\p@ \@plus2\p@ \@minus2\p@
+   \belowdisplayskip \abovedisplayskip
+}
+\newcommand{\footnotesize}{%
+   \@setfontsize\footnotesize\@viiipt{9.5}%
+   \abovedisplayskip 6\p@ \@plus2\p@ \@minus4\p@
+   \abovedisplayshortskip \z@ \@plus\p@
+   \belowdisplayshortskip 3\p@ \@plus\p@ \@minus2\p@
+   \belowdisplayskip \abovedisplayskip
+}
+\newcommand{\scriptsize}{\@setfontsize\scriptsize\@viipt\@viiipt}
+\newcommand{\tiny}{\@setfontsize\tiny\@vpt\@vipt}
+\newcommand{\large}{\@setfontsize\large\@xiipt{14}}
+\newcommand{\Large}{\@setfontsize\Large\@xivpt{18}}
+\newcommand{\LARGE}{\@setfontsize\LARGE\@xviipt{22}}
+\newcommand{\huge}{\@setfontsize\huge\@xxpt{25}}
+\newcommand{\Huge}{\@setfontsize\Huge\@xxvpt{30}}
+\voffset=-1in
+\setlength\headheight{6mm}
+\setlength\headsep   {11mm}
+\setlength\topskip   {10\p@}
+\setlength\footskip{6mm}
+\addtolength{\footskip}{6mm}
+\addtolength{\footskip}{2mm}
+\setlength\maxdepth{.5\topskip}
+\setlength\@maxdepth\maxdepth
+\setlength\textwidth{\paperwidth}
+\addtolength\textwidth{-74mm}
+\if@bigtopmargin
+\setlength\topmargin{30mm}
+\else
+\setlength\topmargin{10mm}
+\fi
+\setlength\@tempdima{\paperheight}
+\addtolength\@tempdima{-\topmargin}
+\addtolength\@tempdima{-\headheight}
+\addtolength\@tempdima{-\headsep}
+\addtolength\@tempdima{-\footskip}
+\addtolength\@tempdima{-30mm}
+  \divide\@tempdima\baselineskip
+  \@tempcnta=\@tempdima
+  \setlength\textheight{\@tempcnta\baselineskip}
+%%%\addtolength\textheight{\topskip}
+\setlength\@tempdima{37mm}
+\addtolength{\@tempdima}{-1in}
+\setlength\oddsidemargin{\@tempdima}
+\setlength\evensidemargin{\@tempdima}
+\setlength\marginparwidth{20mm}
+\setlength\marginparsep {10\p@}
+\setlength\marginparpush{5\p@}
+\setlength\footnotesep{6.65pt}
+\setlength{\skip\footins}{9\p@ \@plus 4\p@ \@minus 2\p@}
+\setlength\floatsep    {12\p@ \@plus 2\p@ \@minus 2\p@}
+\setlength\textfloatsep{20\p@ \@plus 2\p@ \@minus 4\p@}
+\setlength\intextsep   {12\p@ \@plus 2\p@ \@minus 2\p@}
+\setlength\dblfloatsep    {12\p@ \@plus 2\p@ \@minus 2\p@}
+\setlength\dbltextfloatsep{20\p@ \@plus 2\p@ \@minus 4\p@}
+\setlength\@fptop{0\p@}
+\setlength\@fpsep{8\p@ \@plus 2fil}
+\setlength\@fpbot{0\p@ \@plus 1fil}
+\setlength\@dblfptop{0\p@}
+\setlength\@dblfpsep{8\p@ \@plus 2fil}
+\setlength\@dblfpbot{0\p@ \@plus 1fil}
+\setlength\partopsep{0\p@}
+\endinput
+%%
+%% End of file `xpt10.clo'.

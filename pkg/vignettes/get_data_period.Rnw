@@ -1,0 +1,29 @@
+\ProcStart
+\Function{get\_data\_period}{getUdataUperiod}{}
+%
+\index{get\_data\_period@\Procname{get\_data\_period}}%
+
+\Description
+Returns the model data period
+
+\Usage
+
+\begin{usage}
+mdl$get_data_period()
+\end{usage}
+
+\Details
+
+The model data period is the model period extended with
+a lag and lead period.
+
+\Value
+
+A \texttt{regperiod\_range} object
+
+\Examples
+See the examples for \hyperlink{HUsetUperiod}{\Procname{set\_period}}
+
+\Seealso
+\hyperlink{HUgetUperiod}{\Procname{get\_period}}\\
+\hyperlink{HUsetUperiod}{\Procname{set\_period}}

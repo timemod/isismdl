@@ -1,0 +1,69 @@
+\ProcStart
+\Function{set\_period}{setUperiod}{}
+%
+\index{set\_period@\Procname{set\_period}}%
+
+\Description
+Sets the model period
+
+\Usage
+
+\begin{usage}
+mdl$set_period(period)
+\end{usage}
+
+\Arguments
+
+\begin{Argdescription}
+%
+\Parg{period}{mandatory}{single}{in}{untyped}
+%
+A \texttt{regperiod\_range} object (see the documentation of package
+\texttt{regts}) or an object that can be coerced
+to a \texttt{regperiod\_range}.
+%
+\end{Argdescription}
+
+\Details
+The model period is the longest period for which the model can be solved.
+The model period should be disinguished from the 'model data period'
+\index{model data period}, which is the model period extended with a lag
+and lead period.
+
+The model period and the model data period can be retrieved with the
+methods \Procname{get\_period} and \Procname{get\_data\_period}.
+
+This method also initialises all model timeseries with \texttt{NA}
+and all constant adjusments with 0.
+
+\Value
+
+The modified \texttt{IsisMdl} object
+
+\Examples
+<<! set_period_regperiod   >>=
+p <- regperiod_range("2016Q4", "2017Q3")
+mdl$set_period(p)
+@
+
+
+This is equivalent to
+<<! set_period_character >>=
+mdl$set_period("2016Q4/2017Q3")
+@
+
+We can check the periods with \Procname{get\_period}
+and \Procname(get\_data\_period):
+<<! get_period >>=
+mdl$get_period()
+mdl$get_data_period()
+@
+The example model (the ISLM model),
+has a maximum lag of 1 and no leads.
+The model data period therefore starts one period before the model period,
+and ends at the same period as the model period.
+
+\Seealso
+
+\hyperlink{HUgetperiod}{\Procname{get\_period}} \\
+\hyperlink{HUgetdataperiod}{\Procname{get\_data\_period}}
