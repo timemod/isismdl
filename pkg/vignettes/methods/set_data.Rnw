@@ -1,10 +1,11 @@
-\ProcStart
-\Function{set\_[data|ca|fix|fit]}{setUdata}{}
+\MethodStart
+%\Method{set\_[data|ca|fix|fit]}{setUdata}{}
+\FourMethods{set\_data}{setUdata}{set\_ca}{set\_fix}{set\_fit}
 %
-\index{set\_data@\Procname{set\_data}}
-\index{set\_ca@\Procname{set\_ca}}
-\index{set\_fix@\Procname{set\_fix}}
-\index{set\_fit@\Procname{set\_fit}}
+\index{set\_data@\Methodname{set\_data}}
+\index{set\_ca@\Methodname{set\_ca}}
+\index{set\_fix@\Methodname{set\_fix}}
+\index{set\_fit@\Methodname{set\_fit}}
 
 \Description
 Update the model data, constant adjustments, fix values,
@@ -13,25 +14,25 @@ or fit targets with a timeseries object.
 \Usage
 
 \begin{usage}
-set_data(x, names = colnames(x))
-set_ca(x, names = colnames(x))
-set_fix(x, names = colnames(x))
-set_fit(x, names = colnames(x))
+mdl$set_data(x, names = colnames(x))
+mdl$set_ca(x, names = colnames(x))
+mdl$set_fix(x, names = colnames(x))
+mdl$set_fit(x, names = colnames(x))
 \end{usage}
 
 \Arguments
 \begin{Argdescription}{names}
-\item[\Argitem{x}]     A \texttt{ts} or \texttt{regts} object
+\item[\Argitem{x}]     A \Classname{ts} or \Classname{regts} object
 \item[\Argitem{names}] The names of the model variables whose values,
                        constant adjustments, fix values or fit targets will be
                        updated. Defaults to the column names of \argname{x}.
-                       If \texttt{x} does not have column
+                       If \argname{x} does not have column
                        names, then argument \argname{names} is mandatory.
 \end{Argdescription}
 
 
 \Value
-The modified \texttt{IsisMdl} object
+The modified \Classname{IsisMdl} object
 
 \Details
 
@@ -40,7 +41,7 @@ updates the corresponding model variable.
 
 TODO: MORE DETAILS
 
-Method \Procname{set\_data} will update the model labels if argument \texttt{x}
+Method \Methodname{set\_data} will update the model labels if argument \argname{x}
 has labels.
 
 \Examples
@@ -56,9 +57,9 @@ islm_input <- cbind(r, y, yd, g)
 @
 
 The following example assumes that the model period has been set by
-procedure \hyperlink{HUsetUperiod}{\Procname{set\_period}}
-for the period \texttt{2016Q4/2018Q4}. Suppose that we have the following
-timeseries \texttt{input}
+procedure \hyperlink{HUsetUperiod}{\Methodname{set\_period}}
+for the period \code{2016Q4/2018Q4}. Suppose that we have the following
+timeseries \code{input}
 <<! set_data_print_input >>=
 print(islm_input)
 @
@@ -69,7 +70,7 @@ print(mdl$get_data())
 @
 
 If the input timeseries does not have column names, then we have to specify
-argument \texttt{names}. Univariate timeseries typically do not have column names.
+argument \argname{names}. Univariate timeseries typically do not have column names.
 For example,
 <<! set_data_ms >>=
 ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2016Q4",

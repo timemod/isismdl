@@ -1,7 +1,5 @@
 \documentclass[screen]{refman}
 
-\usepackage{makeidx}
-\usepackage{hyperref}
 \makeindex
 
 \title{Isismdl methods}
@@ -27,24 +25,24 @@ knitr::opts_knit$set(self.contained=FALSE)
 
 \section{Introduction}
 
-Package `isismdl` contains an R6 class `IsisMdl`, a class that represents
+Package \Packagename{isismdl} contains an R6 class \Classname{IsisMdl}, a class that represents
 an econometric model consisting of a number of non-linear equations.
 This object contains several methods. This manual describes these methods
 in detail, using the ISLM model as example. A detailed description of the
 ISLM model is presented in the Tutorial. This manual gives a systematic
-description of the various methods of `IsisMdl` objects.
+description of the various methods of \Packagename{IsisMdl} objects.
 
-We first create an `IsisMdl` object from the model file using the commands
+We first create an \Packagename{IsisMdl} object from the model file using the commands
 <<- create_model, results = "hide" >>=
 compile_mdl("islm.mdl")
 mdl <- read_mdl("islm.mif")
 @
 
-We initiliase the model workspace with the following period:
+We initiase the model workspace with the following period:
 <<- init_mws, results = "hide" >>=
 mdl$set_period("2016Q4/2017Q3")
 @
-(see the description of \hyperlink{HUsetUperiod}{\Procname{set\_period}})
+(see the description of \hyperlink{HUsetUperiod}{\Methodname{set\_period}})
 
 \section{Isismdl methods}
 

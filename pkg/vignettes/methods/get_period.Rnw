@@ -1,7 +1,7 @@
-\ProcStart
-\Function{get\_period}{getUperiod}{}
+\MethodStart
+\Method{get\_period}{getUperiod}{}
 %
-\index{get\_period@\Procname{get\_period}}%
+\index{get\_period@\Methodname{get\_period}}%
 
 \Description
 Returns the model period
@@ -14,11 +14,13 @@ mdl$get_data_period()
 
 \Value
 
-A \texttt{regperiod\_range} object
+A \Classname{regperiod\_range} object
 
 \Examples
-See the examples for \hyperlink{HUsetUperiod}{\Procname{set\_period}}
+<<! get_period >>=
+mdl$get_period()
+@
 
 \Seealso
-\hyperlink{HUgetUdataUperiod}{\Procname{get\_data\_period}}\\
-\hyperlink{HUsetUperiod}{\Procname{set\_period}}
+\hyperlink{HUgetUdataUperiod}{\Methodname{get\_data\_period}}\\
+\hyperlink{HUsetUperiod}{\Methodname{set\_period}}

@@ -1,7 +1,7 @@
-\ProcStart
-\Function{set\_period}{setUperiod}{}
+\MethodStart
+\Method{set\_period}{setUperiod}{}
 %
-\index{set\_period@\Procname{set\_period}}%
+\index{set\_period@\Methodname{set\_period}}%
 
 \Description
 Sets the model period
@@ -15,9 +15,9 @@ mdl$set_period(period)
 \Arguments
 
 \begin{Argdescription}{period}
-\item[\Argitem{period}] A \texttt{regperiod\_range} object (see the
-                        documentation of package \texttt{regts}) or an object
-                        that can be coerced to a \texttt{regperiod\_range}.
+\item[\Argitem{period}] A \Classname{regperiod\_range} object (see the
+                        documentation of package \Packagename{regts}) or an object
+                        that can be coerced to a \Classname{regperiod\_range}.
 \end{Argdescription}
 
 \Details
@@ -27,14 +27,16 @@ The model period should be disinguished from the 'model data period'
 and lead period.
 
 The model period and the model data period can be retrieved with the
-methods \Procname{get\_period} and \Procname{get\_data\_period}.
+methods
+\hyperlink{HUgetperiod}{\Methodname{get\_period}} and
+\hyperlink{HUgetUdataUperiod}{\Methodname{get\_data\_period}} and
 
-This method also initialises all model timeseries with \texttt{NA}
+This method also initialises all model timeseries with \code{NA}
 and all constant adjusments with 0.
 
 \Value
 
-The modified \texttt{IsisMdl} object
+The modified \Classname{IsisMdl} object
 
 \Examples
 <<! set_period_regperiod   >>=
@@ -48,9 +50,9 @@ This is equivalent to
 mdl$set_period("2016Q4/2017Q3")
 @
 
-We can check the periods with \Procname{get\_period}
-and \Procname(get\_data\_period):
-<<! get_period >>=
+We can check the periods with \Methodname{get\_period}
+and \Methodname(get\_data\_period):
+<<! set_period_get_period >>=
 mdl$get_period()
 mdl$get_data_period()
 @
@@ -61,5 +63,5 @@ and ends at the same period as the model period.
 
 \Seealso
 
-\hyperlink{HUgetperiod}{\Procname{get\_period}} \\
-\hyperlink{HUgetdataperiod}{\Procname{get\_data\_period}}
+\hyperlink{HUgetperiod}{\Methodname{get\_period}} \\
+\hyperlink{HUgetdataperiod}{\Methodname{get\_data\_period}}

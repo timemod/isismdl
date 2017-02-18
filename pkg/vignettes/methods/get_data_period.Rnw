@@ -1,7 +1,7 @@
-\ProcStart
-\Function{get\_data\_period}{getUdataUperiod}{}
+\MethodStart
+\Method{get\_data\_period}{getUdataUperiod}{}
 %
-\index{get\_data\_period@\Procname{get\_data\_period}}%
+\index{get\_data\_period@\Methodname{get\_data\_period}}%
 
 \Description
 Returns the model data period
@@ -19,11 +19,13 @@ a lag and lead period.
 
 \Value
 
-A \texttt{regperiod\_range} object
+A \Classname{regperiod\_range} object
 
 \Examples
-See the examples for \hyperlink{HUsetUperiod}{\Procname{set\_period}}
+<<! get_data_period >>=
+mdl$get_data_period()
+@
 
 \Seealso
-\hyperlink{HUgetUperiod}{\Procname{get\_period}}\\
-\hyperlink{HUsetUperiod}{\Procname{set\_period}}
+\hyperlink{HUgetUperiod}{\Methodname{get\_period}}\\
+\hyperlink{HUsetUperiod}{\Methodname{set\_period}}
