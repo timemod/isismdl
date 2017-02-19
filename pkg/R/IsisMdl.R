@@ -238,6 +238,12 @@ IsisMdl <- R6Class("IsisMdl",
             return (names)
         },
         set_period = function(period) {
+            if (is.null(period)) {
+                private$model_period <- NULL
+                # TODO: set ca's, fit targets and fix values to zero.
+                # this should be done at fortran level
+                return (invisible(self))
+            }
             period <- as.regperiod_range(period)
             private$model_period <- period
             p1 <- start_period(period)
@@ -346,6 +352,9 @@ IsisMdl <- R6Class("IsisMdl",
                 names <- union(names,
                                self$get_var_names(pattern, vtype = "allfrml"))
             }
+            if (length(names) == 0) {
+                return(NULL)
+            }
             js <- private$get_period_indices(period)
             data <- .Call("get_data_c", type = "ca",
                            model_index = private$model_index,
@@ -424,20 +433,25 @@ IsisMdl <- R6Class("IsisMdl",
         },
         get_mws = function() {
             "Returns an mws object"
-            if (is.null(private$model_period)) stop(private$period_error_msg)
+            if (!is.null(private$model_period)) {
 
             data <- self$get_data()
-            ca   <- self$get_ca()
-
             # remove columns /rows with only NA from data
             # todo: skip leading/trailing rows with only NA
             data <- data[ , ! apply(is.na(data) , 2 , all), drop = FALSE]
 
+            ca   <- self$get_ca()
             # remove columns with only 0 from ca
             # todo: skip leading/trailing columns with only 0
-            ca <- ca[, !apply(ca == 0, 2, all), drop = FALSE]
+            if (!is.null(ca)) {
+                ca <- ca[, !apply(ca == 0, 2, all), drop = FALSE]
+            }
 
             # todo: rms values
+            } else {
+                data <- NULL
+                ca   <- NULL
+            }
 
             return (structure(list(var_names = private$var_names,
                                    ca_names = self$get_var_names(vtype = "allfrml"),
@@ -472,8 +486,12 @@ IsisMdl <- R6Class("IsisMdl",
             .Call("set_cvgcrit_set_mws", private$model_index, x$cvgcrit)
             .Call("set_ftrelax_set_mws", private$model_index, x$ftrelax)
             self$set_param(x$param)
-            self$set_data(x$data)
-            self$set_ca(x$ca)
+            if (!is.null(x$data)) {
+                self$set_data(x$data)
+            }
+            if (!is.null(x$ca)) {
+                self$set_ca(x$ca)
+            }
             if (!is.null(x$fix)) {
                 self$set_fix(x$fix)
             }
