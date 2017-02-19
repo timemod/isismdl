@@ -1,8 +1,11 @@
 library(isismdl)
 
-ret <- compile_mdl("ifn.mdl")
-ifn <- read_mdl("ifn.mif")
-ifn$set_mws(ifn_input_mws)
+rds_file <- "ifn_basis.rds"
+if (!file.exists(rds_file)) {	
+    stop("No rds file with model present. Run job ifn_basis.R first")
+}
+ifn <- read_mdl(rds_file)
+
 ifn$set_solve_options(report = "minimal", ratreport = "fullrep",
                       ratreport_rep = c(10, 50))
 ifn$solve()

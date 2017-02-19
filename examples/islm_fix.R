@@ -1,16 +1,11 @@
 library(regts)
 library(isismdl)
 
-mif_file <- "islm.mif"
-mws_file <- "basis_mws.RData"
-
-if (!file.exists(mif_file)) {	
-    stop("No mif and mws file available. Run job islm_basis.R first")
+rds_file <- "islm_basis.rds"
+if (!file.exists(rds_file)) {	
+    stop("No rds file with model present. Run job islm_basis.R first")
 }
-
-mdl <- read_mdl(mif_file)
-load(mws_file)
-mdl$set_mws(basis_mws)
+mdl <- read_mdl(rds_file)
 
 # create fix targets
 c_fix <- regts(600, period = mdl$get_period())

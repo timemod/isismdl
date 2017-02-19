@@ -3,9 +3,12 @@ library(nleqslv)
 
 # solve the endogenous leads of the IFN model with nleqslv
 
-ret <- compile_mdl("ifn.mdl")
-ifn <- read_mdl("ifn.mif")
-ifn$set_mws(ifn_input_mws)
+rds_file <- "ifn_basis.rds"
+if (!file.exists(rds_file)) {	
+    stop("No rds file with model present. Run job ifn_basis.R first")
+}
+ifn <- read_mdl(rds_file)
+
 
 get_endoleads <- function() {
     return (ifn$get_data(names = ifn$get_var_names(vtype = "all_endolead"),

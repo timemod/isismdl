@@ -1,5 +1,5 @@
 *.mrf
-*.mif
+*.rds
 *.log
 *.dbg
 *.out

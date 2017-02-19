@@ -104,27 +104,36 @@ This method can be used to change constant adjustments by applying a function
  \item{\code{get_[fix|fit]()}}{\code{get_fix} and \code{get_fit} return
  the fix values and fit targets, respecively.}
 
-\item{\code{set_mws(x)}}{Initialises the model workspace. \code{x} is
-an \code{\link{mws}} objects that contains all information about the model
-that the user can modify: the model period, the model data,
-constant adjustments, fit targets and fix values, parameters and solve options}
-
-\item{\code{get_mws()}}{Returns an \code{\link{mws}} objects that contains all
-information about the modelthat the user can modify: the model period,
-the model data,  constant adjustments, fit targets and fix values, parameters
-and solve options}
+\item{\code{save_RDS(file)}}{Serializes the model object and writes it
+to an RDS file.}
 }
 }
 \examples{
-# copy islm model and compile
+# copy islm model from the package directory and compile
 copy_example_mdl("islm")
-compile_mdl("islm.mdl")
+mdl <- compile_mdl("islm.mdl")
 
-# create the ISLM model based on the mif file
-islm_model <- read_mdl("islm.mif")
+# prepare input timeseries
+r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
+y  <- regts(980,  start = "2015Q1", end = "2016Q3", labels = "income")
+yd <- regts(790, start = "2015Q1", labels = "disposable income")
+g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2015Q2",
+            labels = "government spending")
+ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2015Q2",
+           labels = "money supply")
+islm_input <- cbind(r, y, yd, g, ms)
+print(islm_input)
 
-#  set modelworkspace using example mws islm_input_mws
-islm_model$set_mws(islm_input_mws)
+# set period and update model timeseries
+mdl$set_period("2015Q2/2016Q3")
+mdl$set_data(islm_input)
+
+mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
+                t = "tax"))
+
+mdl$solve()
+
+
 islm_model$solve()
 \dontshow{
 unlink("islm.*")

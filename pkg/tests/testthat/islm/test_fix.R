@@ -1,8 +1,6 @@
 context("fix for ISLM model")
 
-mif_file <- "mdl/islm.mif"
-capture_output(islm_model <- read_mdl(mif_file))
-islm_model$set_mws(islm_input_mws)
+capture_output(islm_model <- read_mdl("islm_mdl.rds"))
 
 i <- regts(200, start = '2015Q2')
 c <- regts(c(600, NA, 600), start = '2015Q2')

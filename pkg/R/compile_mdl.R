@@ -60,11 +60,21 @@
 #' }
 #' @seealso \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
 #' \code{\link{IsisMdl}}
+#' @importFrom tools file_path_sans_ext
 #' @export
 compile_mdl <- function(modelname) {
+    # TODO: currently, compile_mdl_c generates a mif file
+    # that is later read by read_mdl_c. This can be simpler:
+    # after compilation the model information can be put
+    # directly in Fortran memory. Then there is no need to
+    # write and read the mif file.
     retval <- .Call(compile_mdl_c, modelname)
     if (!retval) {
         stop("Compilation was not succesfull")
     }
-    return (invisible(NULL))
+    base_name <- file_path_sans_ext(modelname)
+    mif_file <- paste(base_name, "mif", sep = ".")
+    ret <- IsisMdl$new(mif_file)
+    unlink(mif_file)
+    return(ret)
 }

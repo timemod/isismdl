@@ -1,8 +1,6 @@
 context("fit for ISLM model")
 
-mif_file <- "mdl/islm.mif"
-capture_output(islm_model <- read_mdl(mif_file))
-islm_model$set_mws(islm_input_mws)
+capture_output(islm_model <- read_mdl("islm_mdl.rds"))
 
 i <- regts(200, start = '2015Q2')
 y <- regts(c(990, NA, 1010), start = '2015Q2')
@@ -12,7 +10,6 @@ islm_model$set_fit(fit_targets)
 islm_model$set_rms(c(c = 5.0, i = 21, md = 2, t = 2))
 
 report <- capture_output(islm_model$solve())
-#print(islm_model$get_data())
 
 isis_result <- as.regts(read.csv("isi/fit.csv"), time_column = 1)
 dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,

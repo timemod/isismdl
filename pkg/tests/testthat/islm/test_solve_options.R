@@ -2,9 +2,7 @@ context("solve options for ISLM model")
 
 library(utils)
 
-mif_file <- "mdl/islm.mif"
-
-capture_output(islm_model <- read_mdl(mif_file))
+capture_output(islm_model <- read_mdl("islm_mdl.rds"))
 
 test_that("get_solve_options / set_solve_options", {
     default_opts <- islm_model$get_solve_options()

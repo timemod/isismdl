@@ -80,3 +80,4 @@ set_options.o : kinds.o modelworkspaces.o mws_type.o \
 set_solve_opts.o : set_options.o
 solve_options_type.o : kinds.o model_type.o nucnst.o scalemat.o
 utils.o : model_params.o
+write_model.o : mdl_flen.o modelworkspaces.o

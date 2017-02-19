@@ -21,6 +21,8 @@
 
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
+extern void F77_NAME(write_model_fortran)(int *modelnmlen, const char *modelnm,
+                                          int *model_index, int *ier);
 extern void F77_NAME(get_data_fortran)(int *mws_index, int *nvar, int *ivar, 
                                        int *ntime, int *jtb,
                                        int *jte, double *data);
@@ -74,6 +76,21 @@ SEXP read_mdl_c(SEXP filename) {
             error("Unknown error reading Mif file %s\n", modelnm);
         }
         return ScalarInteger(-1);
+    }
+}
+
+void write_mdl_c(SEXP filename, SEXP model_index_) {
+
+    int model_index = asInteger(model_index_);
+    const char *modelnm = CHAR(STRING_ELT(filename, 0));
+    int modelnmlen = strlen(modelnm);
+    int ier;
+
+    F77_CALL(write_model_fortran)(&modelnmlen, modelnm, &model_index, &ier);
+    
+    // TODO: add correct error handling
+    if (ier != 0) {
+        error("Unknown error writing Mif file %s\n", modelnm);
     }
 }
 
