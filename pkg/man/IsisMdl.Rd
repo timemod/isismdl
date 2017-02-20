@@ -108,6 +108,7 @@ This method can be used to change constant adjustments by applying a function
 to an RDS file.}
 }
 }
+
 \examples{
 # copy islm model from the package directory and compile
 copy_example_mdl("islm")
@@ -133,12 +134,9 @@ mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
 
 mdl$solve()
 
-
-islm_model$solve()
 \dontshow{
 unlink("islm.*")
 }
 
 }
 \keyword{data}
-

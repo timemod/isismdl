@@ -16,4 +16,3 @@ a \code{\link{IsisMdl}} object
 This function reads a model from an RDS file that was generated
 by \code{\link{IsisMdl}} method \code{saveRDS},
 }
-

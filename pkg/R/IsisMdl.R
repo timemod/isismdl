@@ -66,8 +66,6 @@ setOldClass("regperiod_range")
 #'
 #' mdl$solve()
 #'
-#'
-#' islm_model$solve()
 #' \dontshow{
 #' unlink("islm.*")
 #' }
@@ -597,10 +595,10 @@ IsisMdl <- R6Class("IsisMdl",
             .Call("write_mdl_c", mif_file, private$model_index)
             size <- file.info(mif_file)$size
             mif_data <- readBin(mif_file, what = "raw", n = size)
-            serialized_mdl <- structure(list(mif_data = mif_data, 
-                                             mws = self$get_mws()), 
+            serialized_mdl <- structure(list(mif_data = mif_data,
+                                             mws = self$get_mws()),
                                         class = "serialized_isismdl")
-            saveRDS(serialized_mdl, filename)                          
+            saveRDS(serialized_mdl, filename)
             unlink(mif_file)
             return (invisible(self))
         }

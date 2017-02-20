@@ -1,8 +1,11 @@
 \documentclass[screen]{refman}
 
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{IsisMdl Reference Manaul}
+
 \makeindex
 
-\title{Isismdl methods}
+\title{Isismdl Reference Manual}
 \author{Rob van Harrevelt}
 \date{\today}
 
@@ -11,9 +14,7 @@
 \maketitle
 \tableofcontents
 
-
-<<-preparations, echo = FALSE, results = "hide", message= FALSE>>=
-
+<<- preparations, echo = FALSE, results = "hide", message= FALSE >>=
 library(isismdl)
 
 # input/output chunks are separated
@@ -21,7 +22,6 @@ library(isismdl)
 knitr::opts_chunk$set(collapse = FALSE, comment = "", prompt = TRUE)
 knitr::opts_knit$set(self.contained=FALSE)
 @
-
 
 \section{Introduction}
 
@@ -34,8 +34,7 @@ description of the various methods of \Packagename{IsisMdl} objects.
 
 We first create an \Packagename{IsisMdl} object from the model file using the commands
 <<- create_model, results = "hide" >>=
-compile_mdl("islm.mdl")
-mdl <- read_mdl("islm.mif")
+mdl <- compile_mdl("islm.mdl")
 @
 
 We initiase the model workspace with the following period:

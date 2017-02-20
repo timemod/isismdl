@@ -1,6 +1,0 @@
-\contentsline {section}{\numberline {1}Introduction}{1}{section.1}
-\contentsline {section}{\numberline {2}Isismdl methods}{1}{section.2}
-\contentsline {section}{\hbox to\@tempdima {\hfil }\Methodname {get\_data\_period}}{2}{section*.2}
-\contentsline {section}{\hbox to\@tempdima {\hfil }\Methodname {get\_period}}{2}{section*.10}
-\contentsline {section}{\hbox to\@tempdima {\hfil }\Methodname {set\_data/set\_ca/set\_fix/set\_fit}}{3}{section*.17}
-\contentsline {section}{\hbox to\@tempdima {\hfil }\Methodname {set\_period}}{5}{section*.25}

@@ -1,6 +1,6 @@
 context("fit for ISLM model")
 
-capture_output(islm_model <- read_mdl("islm_mdl.rds"))
+capture_output(islm_model <- read_mdl("islm_model.rds"))
 
 i <- regts(200, start = '2015Q2')
 y <- regts(c(990, NA, 1010), start = '2015Q2')

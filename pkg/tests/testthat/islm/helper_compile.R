@@ -13,6 +13,10 @@ ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2015Q2",
             labels = "money supply")
 islm_input <- cbind(r, y, yd, g, ms)
 
+islm_model$set_labels(c(i = "investment", c = "consumption", md = "money demand",
+                        t = "tax"))
+
+
 islm_model$set_period("2015Q2/2016Q3")
 islm_model$set_data(islm_input)
 

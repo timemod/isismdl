@@ -2,7 +2,7 @@ context("solve options for ISLM model")
 
 library(utils)
 
-capture_output(islm_model <- read_mdl("islm_mdl.rds"))
+capture_output(islm_model <- read_mdl("islm_model.rds"))
 
 test_that("get_solve_options / set_solve_options", {
     default_opts <- islm_model$get_solve_options()

@@ -2,7 +2,7 @@ context("solve ISLM model")
 
 library(utils)
 
-capture_output(islm_model <- read_mdl("islm_mdl.rds"))
+capture_output(islm_model <- read_mdl("islm_model.rds"))
 
 report <- capture_output(islm_model$solve())
 #print(islm_model$get_data())

@@ -69,4 +69,3 @@ unlink("islm.*")
 \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
 \code{\link{IsisMdl}}
 }
-

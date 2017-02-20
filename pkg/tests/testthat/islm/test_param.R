@@ -2,7 +2,7 @@ context("modify parameters ISLM model")
 
 library(utils)
 
-capture_output(islm_model <- read_mdl("islm_mdl.rds"))
+capture_output(islm_model <- read_mdl("islm_model.rds"))
 
 islm_model$set_param(list(c0 = 120, t1 = 0.25))
 

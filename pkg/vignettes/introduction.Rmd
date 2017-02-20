@@ -9,7 +9,7 @@ output:
     number_sections: true
 linkcolor: blue    
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Introduction to package isismdl}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   
@@ -49,20 +49,15 @@ cat(readLines('islm.mdl'), sep = '\n')
 
 ## Compiling the model
 
-The function `compile_mdl` compiles the model and 
-generates internal equation code that is used to evaluate the
-model equations:
+The function `compile_mdl` compiles the model and created
+an `IsisMdl` object
 ```{r}
-compile_mdl("islm.mdl")
+mdl <- compile_mdl("islm.mdl")
 ```
 
-Two files are generated:
-
-* `islm.mif` The model information file (mif file). This  is a binary file. It
-contains the internal code for the evaluation of the model equations.
-* `islm.mrf` The model reference file (mrf file), a text file with information about
+This function generates the file `islm.mrf`, the so called
+model eference file (mrf file), a text file with information about
 the structure of the model.
-
 If the compiler detects an error in the model file, an additional
 file `islm.err` is created. This file contains a list of errors.
 
@@ -78,14 +73,6 @@ the feedback variables of the model, because for these variables initial values
 should be provided when solving the model.
 
 ## `IsisMdl` objects
-
-The function `read_mdl` reads the mif files and creates
-a `Isismdl` object.
-
-```{r}
-mdl <- read_mdl("islm.mif")
-mdl
-```
 
 An `IsisMdl` object is an R6 class object. R6 
 classes behave quite differently than the more familiar S3 and S4 classes. 
