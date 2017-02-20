@@ -11,8 +11,7 @@ read_mdl <- function(file) {
     # end of this function
     mif_file <- "read_mdl.mif"
     writeBin(serialized_mdl$mif_data, con = mif_file)
-    ret <- IsisMdl$new(mif_file)
-    ret$set_mws(serialized_mdl$mws)
+    ret <- IsisMdl$new(mif_file, serialized_mdl$mws)
     unlink(mif_file)
     return(ret)
 }

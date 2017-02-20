@@ -81,7 +81,7 @@ period = self$get_period())}}{The methods \code{set_values},
 used to set constant adjustments, fix values and fit targets, respectively.
 These methods work similarly as method \code{set_values}.}
 
-\item{\code{change_data(fun, names, pattern, period = self$get_data_period())}}{
+\item{\code{change_values(fun, names, pattern, period = self$get_data_period())}}{
 This method can be used to change model data by applying a function
 \code{fun} for the specified model variables for the specified period.}
 

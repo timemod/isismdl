@@ -136,7 +136,7 @@ setOldClass("regperiod_range")
 #' used to set constant adjustments, fix values and fit targets, respectively.
 #' These methods work similarly as method \code{set_values}.}
 #'
-#' \item{\code{change_data(fun, names, pattern, period = self$get_data_period())}}{
+#' \item{\code{change_values(fun, names, pattern, period = self$get_data_period())}}{
 #' This method can be used to change model data by applying a function
 #' \code{fun} for the specified model variables for the specified period.}
 #'
@@ -164,7 +164,7 @@ setOldClass("regperiod_range")
 #' }
 IsisMdl <- R6Class("IsisMdl",
     public = list(
-        initialize = function(mif_name) {
+        initialize = function(mif_name, mws = NULL) {
 
             cat(paste("Reading mif file", mif_name, "...\n"))
             private$model_index <- .Call(read_mdl_c, mif_name)
@@ -184,6 +184,9 @@ IsisMdl <- R6Class("IsisMdl",
                function(e) {.Fortran("remove_mws_fortran",
                                      model_index = private$model_index)},
                 onexit = TRUE)
+            if (!missing(mws)) {
+                private$set_mws(mws)
+            }
         },
         print = function(...) {
             cat("IsisModel object\n")
@@ -236,12 +239,6 @@ IsisMdl <- R6Class("IsisMdl",
             return (names)
         },
         set_period = function(period) {
-            if (is.null(period)) {
-                private$model_period <- NULL
-                # TODO: set ca's, fit targets and fix values to zero.
-                # this should be done at fortran level
-                return (invisible(self))
-            }
             period <- as.regperiod_range(period)
             private$model_period <- period
             p1 <- start_period(period)
@@ -254,8 +251,8 @@ IsisMdl <- R6Class("IsisMdl",
                                freq  = as.integer(period[3]), ier = 1L)
 
             private$model_data_period <- regperiod_range(
-                                start_period(private$model_period) - private$maxlag,
-                                end_period(private$model_period) + private$maxlead)
+                         start_period(private$model_period) - private$maxlag,
+                         end_period(private$model_period) + private$maxlead)
             return (invisible(self))
         },
         get_period = function() {
@@ -317,7 +314,8 @@ IsisMdl <- R6Class("IsisMdl",
             "Sets the fit data"
             return (private$set_var(4L, data, names, missing(names)))
         },
-        get_data = function(pattern, names, period = private$model_data_period) {
+        get_data = function(pattern, names, 
+                            period = private$model_data_period) {
             "Returns the model data"
             if (is.null(private$model_period)) stop(private$period_error_msg)
             period <- as.regperiod_range(period)
@@ -383,7 +381,7 @@ IsisMdl <- R6Class("IsisMdl",
                                   period = private$model_period) {
             return (private$set_values_(4L, value, names, pattern, period))
         },
-        change_data = function(fun, names = NULL, pattern = NULL,
+        change_values = function(fun, names = NULL, pattern = NULL,
                                period = private$model_data_period, ...) {
             return(private$change_var_(1L, fun, names, pattern, period, ...))
         },
@@ -429,81 +427,6 @@ IsisMdl <- R6Class("IsisMdl",
                             jtb = js$startp, jte = js$end)
             return (invisible(self))
         },
-        get_mws = function() {
-            "Returns an mws object"
-            if (!is.null(private$model_period)) {
-
-            data <- self$get_data()
-            # remove columns /rows with only NA from data
-            # todo: skip leading/trailing rows with only NA
-            data <- data[ , ! apply(is.na(data) , 2 , all), drop = FALSE]
-
-            ca   <- self$get_ca()
-            # remove columns with only 0 from ca
-            # todo: skip leading/trailing columns with only 0
-            if (!is.null(ca)) {
-                ca <- ca[, !apply(ca == 0, 2, all), drop = FALSE]
-            }
-
-            # todo: rms values
-            } else {
-                data <- NULL
-                ca   <- NULL
-            }
-
-            return (structure(list(var_names = private$var_names,
-                                   ca_names = self$get_var_names(vtype = "allfrml"),
-                                   labels = private$labels,
-                                   model_period = private$model_period,
-                                   solve_options = self$get_solve_options(),
-                                   cvgcrit = .Call("get_cvgcrit_c",
-                                                   private$model_index, 0L),
-                                   ftrelax = .Call("get_ftrelax_c", private$model_index),
-                                   param = self$get_param(),
-                                   data = data, ca = ca,
-                                   fix = self$get_fix(),
-                                   fit = self$get_fit(),
-                                   inactive_eqs = self$get_eq_names(type = "inactive")),
-                              class="mws"))
-        },
-        set_mws = function(x) {
-            "Sets the model workspace"
-            if (!inherits(x, "mws")) {
-                stop("x is not an mws object")
-            }
-            if (!identical(x$var_names, self$get_var_names()) |
-                !identical(x$ca_names, self$get_var_names(vtype = "allfrml")) |
-                !identical(names(x$param), self$get_par_names())) {
-                     # todo: check parameter length, this should be the same
-                    stop("Mws x does not agree with the model definition")
-            }
-            #todo: check endogenous leads etc.
-            private$labels <- x$labels
-            self$set_period(x$model_period)
-            do.call(self$set_solve_options, x$solve_options)
-            .Call("set_cvgcrit_set_mws", private$model_index, x$cvgcrit)
-            .Call("set_ftrelax_set_mws", private$model_index, x$ftrelax)
-            self$set_param(x$param)
-            if (!is.null(x$data)) {
-                self$set_data(x$data)
-            }
-            if (!is.null(x$ca)) {
-                self$set_ca(x$ca)
-            }
-            if (!is.null(x$fix)) {
-                self$set_fix(x$fix)
-            }
-            if (!is.null(x$fit)) {
-                self$set_fit(x$fit)
-            }
-
-            # make all equations active execpt for the inactive equations
-            self$set_eq_status("active")
-            if (length(x$inactive_eqs) > 0) {
-                self$set_eq_status("inactive", vars = x$inactive_eqs)
-            }
-            return (invisible(self))
-        },
         get_solve_options = function() {
             "Gets the default solve options"
             return (.Call("get_solve_opts_c",
@@ -529,7 +452,8 @@ IsisMdl <- R6Class("IsisMdl",
             if (!is.numeric(value) || length(value) != 1) {
                 stop("value should be a single numerical value")
             }
-            .Call("set_cvgcrit_c", private$model_index, names, as.numeric(value))
+            .Call("set_cvgcrit_c", private$model_index, names, 
+                  as.numeric(value))
             return  (invisible(self))
         },
         set_ftrelax = function(value, pattern, names) {
@@ -547,7 +471,8 @@ IsisMdl <- R6Class("IsisMdl",
             if (!is.numeric(value) || length(value) != 1) {
                 stop("value should be a single numerical value")
             }
-            .Call("set_ftrelax_c", private$model_index, names, as.numeric(value))
+            .Call("set_ftrelax_c", private$model_index, names, 
+                  as.numeric(value))
             return  (invisible(self))
         },
         get_ftrelax = function() {
@@ -561,8 +486,8 @@ IsisMdl <- R6Class("IsisMdl",
         set_eq_status = function(stat, pattern, names) {
             "Activate or deactivate equations"
 
-            # TODO: if vars specified, then check if it contains names that are
-            # no model variables
+            # TODO: if vars specified, then check if it contains
+            # names that are no model variables
 
             if (missing(pattern) && missing(names)) {
                 names <- self$get_eq_names()
@@ -596,7 +521,7 @@ IsisMdl <- R6Class("IsisMdl",
             size <- file.info(mif_file)$size
             mif_data <- readBin(mif_file, what = "raw", n = size)
             serialized_mdl <- structure(list(mif_data = mif_data,
-                                             mws = self$get_mws()),
+                                             mws = private$get_mws()),
                                         class = "serialized_isismdl")
             saveRDS(serialized_mdl, filename)
             unlink(mif_file)
@@ -743,6 +668,63 @@ IsisMdl <- R6Class("IsisMdl",
             names <- intersect(names(labels), private$var_names)
             private$labels[names] <- labels[names]
             return(invisible(NULL))
+        },
+        get_mws = function() {
+            # Returns an mws object, containing all information 
+            # about the model that is not written to the mif file.
+            if (!is.null(private$model_period)) {
+
+            data <- self$get_data()
+            # remove columns /rows with only NA from data
+            # todo: skip leading/trailing rows with only NA
+            data <- data[ , ! apply(is.na(data) , 2 , all), drop = FALSE]
+
+            ca   <- self$get_ca()
+            # remove columns with only 0 from ca
+            # todo: skip leading/trailing columns with only 0
+            if (!is.null(ca)) {
+                ca <- ca[, !apply(ca == 0, 2, all), drop = FALSE]
+            }
+
+            # todo: rms values
+            } else {
+                data <- NULL
+                ca   <- NULL
+            }
+            l <- list(labels = private$labels,
+                      model_period = private$model_period,
+                      solve_options = self$get_solve_options(),
+                      cvgcrit = .Call("get_cvgcrit_c", private$model_index, 0L),
+                      ftrelax = .Call("get_ftrelax_c", private$model_index),
+                      data = data, ca = ca,
+                      fix = self$get_fix(), fit = self$get_fit())
+            return(structure(l, class="mws"))
+        },
+        set_mws = function(x) {
+            # Update the model with the information in a mws 
+            # mws object, containing all information about the
+            # model that is not written to the mif file.
+            if (!inherits(x, "mws")) {
+                stop("Error in set_mws: x is not an mws object")
+            }
+            private$labels <- x$labels
+            do.call(self$set_solve_options, x$solve_options)
+            .Call("set_cvgcrit_set_mws", private$model_index, x$cvgcrit)
+            .Call("set_ftrelax_set_mws", private$model_index, x$ftrelax)
+            if (!is.null(x$model_period)) {
+                self$set_period(x$model_period)
+                self$set_data(x$data)
+                if (!is.null(x$ca)) {
+                    self$set_ca(x$ca)
+                }
+                if (!is.null(x$fix)) {
+                    self$set_fix(x$fix)
+                }
+                if (!is.null(x$fit)) {
+                    self$set_fit(x$fit)
+                }
+            }
+            return (invisible(self))
         }
     )
 )
