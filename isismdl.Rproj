@@ -15,9 +15,4 @@ LaTeX: pdfLaTeX
 AutoAppendNewline: Yes
 StripTrailingWhitespace: Yes
 
-BuildType: Package
-PackageUseDevtools: Yes
-PackagePath: pkg
-PackageInstallArgs: --no-multiarch --with-keep.source
-PackageCheckArgs: --no-multiarch
-PackageRoxygenize: rd,collate,namespace
+BuildType: Makefile

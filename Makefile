@@ -128,6 +128,7 @@ document: install_deps
 install: install_deps
 	$(MAKE) -f Makedeps
 	-@rm -rf tmp
+	R -e "devtools::install('"$(PKGDIR)"', build_vignettes = TRUE)"
 	R CMD INSTALL $(INSTALL_FLAGS) $(PKGDIR)
 
 install_deps:
