@@ -16,7 +16,7 @@ PKGDATE=$(shell grep 'Date' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
 TODAY=$(shell date "+%Y-%m-%d")
 
 OSNAME := $(shell uname | tr A-Z a-z)
-ifeq ($(findstring windows, $(OSNAME)), windows)
+ifeq ($(findstring windows, $(OSNAME)), windows) 
     OSTYPE = windows
 else
     # Linux or MAC OSX
@@ -39,6 +39,7 @@ help:
 	@echo "   mkpkg     - builds source package and checks with --as-cran"
 	@echo "   bin       - builds binary package in ./tmp"
 	@echo "   install   - install package in .libPaths()[1]"
+	@echo "   installv  - install package with vignettes in .libPaths()[1]"
 	@echo "   uninstall - uninstall package from .libPaths()[1]"
 	@echo "   clean     - cleans up everything"
 	@echo "   flags     - display R config flags and some macros"
@@ -54,6 +55,7 @@ CPP=$(shell R CMD config CXX)
 CPP_FLAGS=$(shell R CMD config --cppflags)
 
 flags:
+	@echo "OSTYPE=$(OSTYPE)"
 	@echo "R_HOME=$(R_HOME)"
 	@echo "SHELL=$(SHELL) "
 	@echo "CPP_FLAGS=$(CPP_FLAGS)"
@@ -117,7 +119,8 @@ bin: install_deps
 	$(MAKE) -f Makedeps
 	-@rm -rf tmp
 	mkdir tmp
-	R CMD INSTALL $(INSTALL_FLAGS) -l ./tmp --build $(PKGDIR)
+	R CMD build
+	R CMD INSTALL $(INSTALL_FLAGS) -l ./tmp --build $(PKGTAR)
 
 document: install_deps
 	$(MAKE) -f Makedeps
@@ -127,9 +130,12 @@ document: install_deps
 
 install: install_deps
 	$(MAKE) -f Makedeps
-	-@rm -rf tmp
-	R -e "devtools::install('"$(PKGDIR)"', build_vignettes = TRUE)"
 	R CMD INSTALL $(INSTALL_FLAGS) $(PKGDIR)
+
+installv: install_deps
+	$(MAKE) -f Makedeps
+	R CMD build
+	R CMD INSTALL $(INSTALL_FLAGS) $(PKGTAR)
 
 install_deps:
 	R --slave -f install_deps.R

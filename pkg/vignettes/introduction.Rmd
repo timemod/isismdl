@@ -15,14 +15,6 @@ vignette: >
   
 ---
 
-# Introduction
-
-This introductiomn shows how package `isismdl` can be
-used to solve a simple example model, 
-a dynamical version of the ISLM model.
-
-[Here follows a description of the ISLM model]
-
 <!--   
 PREPARATIONS
 -->
@@ -35,28 +27,44 @@ library(isismdl)
 knitr::opts_chunk$set(collapse = FALSE, comment = "", prompt = TRUE)
 ```
 
-## The model file
+# Introduction
+
+This introduction shows how package `isismdl` can be used to solve a simple example 
+model, a dynamical version of the ISLM model.
+
+[Here follows a description of the ISLM model]
+
+# The model file
 
 The model file should be defined on an external ASCII file. A detailed
 discussion about the syntax of this file is provided in the Reference
 Manual of Isis.
 
-For the example ISLM-model, the model files has the following contents
+A model file for the ISLM model is included in the example models
+in directory `models` of the package directory.
+Function `copy_example_mdl` is a convenience
+function that can be used to copy these example models to your working directory.
+For the ISLM model, use
+```{r, results = "hide"}
+copy_example_mdl("islm")
+```
+The command above copies the islm model to file `islm.mdl` in the current 
+working directory.
 
+The model file `islm.mdl` has the following contents:
 ```{r echo = FALSE, comment=''}
 cat(readLines('islm.mdl'), sep = '\n')
 ```
 
-## Compiling the model
+# Creating the  model
 
-The function `compile_mdl` compiles the model and created
-an `IsisMdl` object
+The function `isis_mdl` parses the model file and creates an `IsisMdl` object
 ```{r}
-mdl <- compile_mdl("islm.mdl")
+mdl <- isis_mdl("islm.mdl")
 ```
 
 This function generates the file `islm.mrf`, the so called
-model eference file (mrf file), a text file with information about
+model reference file (mrf file), a text file with information about
 the structure of the model.
 If the compiler detects an error in the model file, an additional
 file `islm.err` is created. This file contains a list of errors.
@@ -67,17 +75,21 @@ The mrf file for our ISLM looks like this:
 cat(readLines('islm.mrf'), sep = '\n')
 ```
 
-The mrf file contains technical information about the model. For example,
-it shows the feedback variables of the model. It is important to know
-the feedback variables of the model, because for these variables initial values
-should be provided when solving the model.
+The mrf file contains technical information about the model.
+For example, it shows which variables are exogenous or endogenous,
+and which variables are feedback variables. A brief explanation of these
+concepts:
 
-## `IsisMdl` objects
+* Exogenous variables are variables that only occur at the right hand side of the equation.
+* Endogenous variables are variables on the left hand side of the equations.
+* A feedback variable is a variable that directly or indirectly depends on itself. In order to solve the model, initial guess values for the feedback variables have to be specified.
+
+# `IsisMdl` objects
 
 An `IsisMdl` object is an R6 class object. R6 
 classes behave quite differently than the more familiar S3 and S4 classes. 
 For example, for R6 classes methods are part of the object itself and not of 
-generic functions. R6 classes behave in a simular way as classes in
+generic functions. R6 classes behave in a similar way as classes in
 object oriented languages such as Java, C++ or Python. 
 
 For example, the method `get_params()` can be used to
@@ -117,37 +129,42 @@ mdl2 <- mdl$clone(deep = TRUE)
 mdl2$set_param(list(m0 = -9999))
 mdl$get_param("m0")
 ```
+Without the argument `deep = TRUE`, the result of the `clone` method
+is the same as the result of an assignment `mdl2 <- mdl`.
 
-## Solving the model \label{sec:solve}
+# Solving the model \label{sec:solve}
 
-Suppose that we want to solve the model for the period from 2016 to
-2021. Then we need the values of the exogenous variables for that period.
+Suppose that we want to solve the model for the period from `2017Q1` to
+`2018Q2`. Then we need the values of the exogenous variables for that period.
 For the feedback variables `y` and `r` we also need initial
-starting values for the solution period.
-Since `r`, `y` and `y_d` have a lag 1, we also need values for these
-variables in 2015. 
+starting values for the model period `2017Q1/2018Q2'.
+Since `r`, `y` and `y_d` are lagged, we also need values for these
+variables in `2016Q4`. 
 
-To supply the required data to the model, we first define `regts` 
-timeseries objects. For the exogenous variables `g` and `ms` we
-assume an annual growth of 1.5% after 2016.
+In typical applications, the input timeseries are read
+from an external file, for example a csv file. For this tutorial
+we will create a timeseries object manually by employing
+function `regts` of the `regts` package. For the exogenous variables
+`g` and `ms` we assume an annual growth of 1.5% after `2016Q4`.
 ```{r}
 # exogenous variables:
-g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2016")
-ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2016")
+g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2017Q1")
+ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2017Q1")
 # feedback variables (with lag):
-r <- regts(3.4, period = "2015/2021")
-y <- regts(980, period = "2015/2021")
+r <- regts(3.4, period = "2016Q4/2018Q2")
+y <- regts(980, period = "2016Q4/2018Q2")
 # lagged variable
-yd <- regts(790, start = "2015")
+yd <- regts(790, start = "2016Q4")
 data <- cbind(g, ms, r, y, yd)
 data
 ```
 
 To transfer these variables to the model, we first
-have to define the model period. For this we use the
+have to define the model period. This is the period for which the model will be 
+solved. For this we use the
 method `set_period()`:
 ```{r}
-mdl$set_period(regperiod_range("2016", "2021"))
+mdl$set_period(regperiod_range("2017Q1", "2018Q2"))
 mdl
 ```
 The data period is the model period extended with the lag and lead period.
@@ -160,62 +177,70 @@ with method `set_data()`:
 mdl$set_data(data)
 ```
 
-Method `set_data()` is described in more detail in section \ref{sec:data}.
 To check the model data, we use
 ```{r}
 mdl$get_data()
 ```
-Model variables that we have not explicitly set all have value `NA`. 
-Values for these variables will be computed when solving the model.
+Model variables that we have not explicitly set all value `NA`.
+These values are not needed to solve the model.
 
 We are now ready to solve the model:
 ```{r}
 mdl$solve()
 ```
 
-The method  `get_data()` can be used to retrieve the solution.
+The method `get_data()` can be used to retrieve the solution.
 ```{r}
 mdl$get_data()
 ```
 
-## Transferring data to the model \label{sec:data}
+# Writing and reading `IsisMdl` objects
 
-In section \ref{sec:solve}, we used method `set_data` to initialize
-the model variables. This section gives a a more detailed  description of this 
-method.
-
-The method compares the column names of the input and 
-updates the corresponding model variable. However, sometimes
-the input does not have column names or not the column names 
-that you need. Univariate timeseries typically have no column
-names (see the vignette "Introduction to package regts" for
-more information about this issue). In that case, we use argument
-`names` to supply the timeseries names.
-
-The methods `set_ca`, `set_fix`, and `set_fit` can be used
-to set constant adjustments, fix values and fit targets. 
-They work similar to `set_data`. 
-For example, suppose that we have new information about exogenous 
-variable `g` for periods 2016 and 2017:
+To write an `IsisMdl`object to a file, use
 ```{r}
-g <- regts(c(213, 218), period = "2016/2017")
-```
-Since `g` does not have a column name, we have to specify the `names`
-argument:
-```{r}
-mdl$set_data(g, names = "g")
-mdl$get_data("g")
+mdl$saveRDS(file = "islm_mdl.rds")
 ```
 
-This example also shows that the model variables are only
-modified for the intersection of the period range of the
-input timeseries and the model data period.
+This methods serializes the model equations, parameters, model data, solve options, etc.
+You can read this model back with the command
+```{r, results = "hide"}
+mdl <- read_mdl("islm_mdl.rds")
+```
 
-## Fixing variables
+```{r, echo = FALSE, results = "hide"}
+unlink("islm_mdl.rds")
+```
 
-There are two types of equations in Isis models:
-the so called `frml` (formula) equations, also
-called behavioural equations, and identities.  The frml equations
+Do not use the standard functions for writing objects to a file and to restore them,
+such as `save`, `saveRDS`, `load` and `readRDS`. These functions cannot handle
+the complex structure of `IsisMdl` objects.
 
+# Fixing variables
 
-Endogenous variables that occur in the left hand side of frml equations
+TODO
+
+<!-- There are two types of equations in Isis models: -->
+<!-- the so called `frml` (formula) equations, also -->
+<!-- called behavioural equations, and identities.  The frml equations -->
+
+<!-- Endogenous variables that occur in the left hand side of frml equations -->
+
+# The fit procedure
+
+TODO
+
+# Modellen bewerken
+
+## Vergelijkingen uitschakelen
+
+TODO
+
+## Modeldata aanvullen
+
+TODO
+
+## Losse vergelijkingen draaien
+
+# Bijsturen van het modeloplossen
+
+TODO

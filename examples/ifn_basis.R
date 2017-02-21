@@ -1,7 +1,7 @@
 library(isismdl)
 library(data.table)
 
-ifn <- compile_mdl("ifn.mdl")
+ifn <- isis_mdl("ifn.mdl")
 
 input_file <- "ifn_input.csv"
 input_df <- fread(input = input_file, data.table = FALSE)

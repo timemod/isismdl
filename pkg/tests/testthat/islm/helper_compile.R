@@ -1,7 +1,6 @@
 library(utils)
 
-copy_example_mdl("islm", "mdl/islm.mdl")
-capture.output(islm_model <- compile_mdl("mdl/islm.mdl"))
+capture.output(islm_model <- islm_mdl())
 
 # create input timeseries
 r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")

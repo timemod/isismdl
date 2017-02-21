@@ -3,7 +3,26 @@ library(R6)
 #' @importFrom methods setOldClass
 setOldClass("regperiod_range")
 
-#' An R6 class class representing a macroecomic model
+#' An R6 class class representing an Isis model
+#'
+#' This class is used to solve a system of non-linear equations with lagged
+#' variables. The model equations are specified in a separate text file, the so
+#' called model file. Function  \code{\link{compile_mdl}} parses the model file
+#' and generates an \code{IsisMdl} object. The vignette "Introduction"
+#' gives a detailed description of the usage of \code{IsisMdl} objects.
+#'
+#' The syntax of the model file is the same of the syntax of model file
+#' in Isis, and is described in detail in the Isis Reference Manual
+#' (a vignette with a detailed model syntax description for package IsisMdl will be
+#' available in a future).
+#'
+#' The package included a number of example models in directory \code{models} of
+#' the package library. Function \code{\link{copy_example_mdl}} is a convenience
+#' function that can be used to copy these example models to your working directory.
+#' It is also possible to directly create \code{IsisMdl} objects with functions
+#' \code{\link{islm_mdl}} to create an ISLM model and \code{\link{ifn_mdl}}
+#' to create another example model, the IFN model. The latter model is a model with
+#' leads and can be solved with the Fair-Taylor-method.
 #'
 #' @docType class
 #' @importFrom R6 R6Class
@@ -39,12 +58,11 @@ setOldClass("regperiod_range")
 #' @importFrom "methods" "new"
 #' @export
 #' @keywords data
-#' @return Object of \code{\link{R6Class}} representing a macroeconomic model.
+#' @return Object of \code{\link{R6Class}} representing an Isis model.
 #' @format \code{\link{R6Class}} object.
 #' @examples
-#' # copy islm model from the package directory and compile
-#' copy_example_mdl("islm")
-#' mdl <- compile_mdl("islm.mdl")
+#' # create an example ISLM  model
+#' mdl <- islm_mdl()
 #'
 #' # prepare input timeseries
 #' r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
@@ -71,6 +89,12 @@ setOldClass("regperiod_range")
 #' }
 #'
 #' @section Methods:
+#'
+#' Below a brief list with the class methods of \code{IsisMdl} objects a given.
+#' These methods are described in more details in the vignette
+#' "IsisMdl Method Reference Manual", which can be opened with the command
+#' \code{vignette("IsisMdl Methods", package = "isismdl")}
+#
 #' \describe{
 #'
 #' \item{\code{get_var_names(pattern = ".*", vtype = c("all", "allfrml",
@@ -162,6 +186,9 @@ setOldClass("regperiod_range")
 #' \item{\code{save_RDS(file)}}{Serializes the model object and writes it
 #' to an RDS file.}
 #' }
+#' @seealso \code{\link{compile_mdl}}, \code{\link{islm_mdl}}
+#' and \code{\link{ifn_mdl}}
+#'
 IsisMdl <- R6Class("IsisMdl",
     public = list(
         initialize = function(mif_name, mws = NULL) {
@@ -314,7 +341,7 @@ IsisMdl <- R6Class("IsisMdl",
             "Sets the fit data"
             return (private$set_var(4L, data, names, missing(names)))
         },
-        get_data = function(pattern, names, 
+        get_data = function(pattern, names,
                             period = private$model_data_period) {
             "Returns the model data"
             if (is.null(private$model_period)) stop(private$period_error_msg)
@@ -452,7 +479,7 @@ IsisMdl <- R6Class("IsisMdl",
             if (!is.numeric(value) || length(value) != 1) {
                 stop("value should be a single numerical value")
             }
-            .Call("set_cvgcrit_c", private$model_index, names, 
+            .Call("set_cvgcrit_c", private$model_index, names,
                   as.numeric(value))
             return  (invisible(self))
         },
@@ -471,7 +498,7 @@ IsisMdl <- R6Class("IsisMdl",
             if (!is.numeric(value) || length(value) != 1) {
                 stop("value should be a single numerical value")
             }
-            .Call("set_ftrelax_c", private$model_index, names, 
+            .Call("set_ftrelax_c", private$model_index, names,
                   as.numeric(value))
             return  (invisible(self))
         },
@@ -670,7 +697,7 @@ IsisMdl <- R6Class("IsisMdl",
             return(invisible(NULL))
         },
         get_mws = function() {
-            # Returns an mws object, containing all information 
+            # Returns an mws object, containing all information
             # about the model that is not written to the mif file.
             if (!is.null(private$model_period)) {
 
@@ -701,7 +728,7 @@ IsisMdl <- R6Class("IsisMdl",
             return(structure(l, class="mws"))
         },
         set_mws = function(x) {
-            # Update the model with the information in a mws 
+            # Update the model with the information in a mws
             # mws object, containing all information about the
             # model that is not written to the mif file.
             if (!inherits(x, "mws")) {

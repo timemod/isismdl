@@ -1,10 +1,8 @@
 library(isismdl)
 
 period <- regperiod_range("2015Q2", "2016Q3")
-mif_file <- "islm.mif"
-mws_file <- "basis_mws.RData"
 
-mdl <- compile_mdl("islm")
+mdl <- isis_mdl("islm")
 mdl$set_period(period)
 
 # prepare data
@@ -24,6 +22,3 @@ mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
 mdl$solve()
 
 mdl$saveRDS("islm_basis.rds")
-
-#basis_mws <- mdl$get_mws()
-#save(basis_mws, file = mws_file)

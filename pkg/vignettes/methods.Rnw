@@ -1,11 +1,11 @@
-\documentclass[screen]{refman}
+\documentclass[screen]{methods}
 
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{IsisMdl Reference Manaul}
+%\VignetteIndexEntry{IsisMdl Methods}
 
 \makeindex
 
-\title{Isismdl Reference Manual}
+\title{Isismdl Methods}
 \author{Rob van Harrevelt}
 \date{\today}
 
@@ -25,16 +25,21 @@ knitr::opts_knit$set(self.contained=FALSE)
 
 \section{Introduction}
 
-Package \Packagename{isismdl} contains an R6 class \Classname{IsisMdl}, a class that represents
-an econometric model consisting of a number of non-linear equations.
-This object contains several methods. This manual describes these methods
-in detail, using the ISLM model as example. A detailed description of the
-ISLM model is presented in the Tutorial. This manual gives a systematic
-description of the various methods of \Packagename{IsisMdl} objects.
+Package \Packagename{isismdl} contains an R6 class \Classname{IsisMdl}, a class that represents an econometric model consisting of a number of non-linear equations.
+R6 classes behave quite differently than the more familiar S3 and S4 classes.
+For example, for R6 classes methods are part of the object itself and not of
+generic functions. R6 classes behave in a simular way as classes in
+object oriented languages such as Java, C++ or Python.
 
+The class \Classname{IsisMdl} contains many methods that can be used to
+change the model object or to get information about this object.
+This manual describes these methods in detail, using the ISLM model as an example.
+A detailed description of the ISLM model is presented in the Tutorial.
+
+All examples below assume that we have created an `IsisMdl` object
 We first create an \Packagename{IsisMdl} object from the model file using the commands
 <<- create_model, results = "hide" >>=
-mdl <- compile_mdl("islm.mdl")
+mdl <- islm_mdl()
 @
 
 We initiase the model workspace with the following period:
@@ -43,6 +48,7 @@ mdl$set_period("2016Q4/2017Q3")
 @
 (see the description of \hyperlink{HUsetUperiod}{\Methodname{set\_period}})
 
+\newpage
 \section{Isismdl methods}
 
 <<test, child='methods/get_data_period.Rnw'>>=

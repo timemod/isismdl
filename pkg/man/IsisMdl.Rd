@@ -3,19 +3,42 @@
 \docType{class}
 \name{IsisMdl}
 \alias{IsisMdl}
-\title{An R6 class class representing a macroecomic model}
+\title{An R6 class class representing an Isis model}
 \format{\code{\link{R6Class}} object.}
 \usage{
 IsisMdl
 }
 \value{
-Object of \code{\link{R6Class}} representing a macroeconomic model.
+Object of \code{\link{R6Class}} representing an Isis model.
 }
 \description{
-An R6 class class representing a macroecomic model
+This class is used to solve a system of non-linear equations with lagged
+variables. The model equations are specified in a separate text file, the so
+called model file. Function  \code{\link{compile_mdl}} parses the model file
+and generates an \code{IsisMdl} object. The vignette "Introduction"
+gives a detailed description of the usage of \code{IsisMdl} objects.
+}
+\details{
+The syntax of the model file is the same of the syntax of model file
+in Isis, and is described in detail in the Isis Reference Manual
+(a vignette with a detailed model syntax description for package IsisMdl will be
+available in a future).
+
+The package included a number of example models in directory \code{models} of
+the package library. Function \code{\link{copy_example_mdl}} is a convenience
+function that can be used to copy these example models to your working directory.
+It is also possible to directly create \code{IsisMdl} objects with functions
+\code{\link{islm_mdl}} to create an ISLM model and \code{\link{ifn_mdl}}
+to create another example model, the IFN model. The latter model is a model with
+leads and can be solved with the Fair-Taylor-method.
 }
 \section{Methods}{
 
+
+Below a brief list with the class methods of \code{IsisMdl} objects a given.
+These methods are described in more details in the vignette
+"IsisMdl Method Reference Manual", which can be opened with the command
+\code{vignette("IsisMdl Methods", package = "isismdl")}
 \describe{
 
 \item{\code{get_var_names(pattern = ".*", vtype = c("all", "allfrml",
@@ -110,9 +133,8 @@ to an RDS file.}
 }
 
 \examples{
-# copy islm model from the package directory and compile
-copy_example_mdl("islm")
-mdl <- compile_mdl("islm.mdl")
+# create an example ISLM  model
+mdl <- islm_mdl()
 
 # prepare input timeseries
 r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
@@ -138,5 +160,9 @@ mdl$solve()
 unlink("islm.*")
 }
 
+}
+\seealso{
+\code{\link{compile_mdl}}, \code{\link{islm_mdl}}
+and \code{\link{ifn_mdl}}
 }
 \keyword{data}

@@ -1,10 +1,10 @@
-#' Compile a model file
+#' Creates an \code{\link{IsisMdl}} object from a model file.
 #'
-#' This function compiles a model file.
+#' This function creates an \code{\link{IsisMdl}} object.
 #' A model as defined on an external ASCII file is analysed and
-#' compiled into an internal code.
-#' This internal model code is written to a file with extension \code{mif}
-#' containing equation and variable information.
+#' compiled into an internal code. This internal model code is
+#' written to a file with extension \code{mif} containing equation
+#' and variable information.
 #'
 #' @details
 #'
@@ -54,7 +54,7 @@
 #' @useDynLib isismdl compile_mdl_c
 #' @examples
 #' copy_example_mdl("islm")
-#' compile_mdl("islm.mdl")
+#' mdl <- isis_mdl("islm.mdl")
 #' \dontshow{
 #' unlink("islm.*")
 #' }
@@ -62,7 +62,7 @@
 #' \code{\link{IsisMdl}}
 #' @importFrom tools file_path_sans_ext
 #' @export
-compile_mdl <- function(modelname) {
+isis_mdl <- function(modelname) {
     # TODO: currently, compile_mdl_c generates a mif file
     # that is later read by read_mdl_c. This can be simpler:
     # after compilation the model information can be put
