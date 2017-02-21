@@ -17,3 +17,4 @@ This function returns an unitialized IFN model.
 \examples{
 mdl <- ifn_mdl()
 }
+

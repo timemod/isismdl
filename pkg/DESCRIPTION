@@ -6,11 +6,16 @@ Date: 2016-02-18
 Author: Rob van Harrevelt [aut, cre]
 Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
 Description: Solve macroeconomic models.
-Depends: regts, R6
+Depends:
+    regts,
+    R6
 SystemRequirements: GNU make
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 6.0.1
-Imports: methods
-Suggests: testthat, knitr
+RoxygenNote: 5.0.1
+Imports:
+    methods
+Suggests:
+    testthat,
+    knitr
 VignetteBuilder: knitr
