@@ -2,11 +2,28 @@
 % Please edit documentation in R/fill_mdl_data.R
 \name{fill_mdl_data}
 \alias{fill_mdl_data}
-\title{The S4 variant of fill_mdl_data}
+\title{Solves a model}
 \usage{
-fill_mdl_data(mdl, data, ca = NULL, period)
+fill_mdl_data(mdl, period = mdl@period)
+}
+\arguments{
+\item{mdl}{an \code{\link{IsisMdlS4}} object}
+
+\item{period}{a \code{\link[regts]{regperiod_range}} object}
+}
+\value{
+an \code{\link{IsisMdlS4}} object
 }
 \description{
-The S4 variant of fill_mdl_data
+This procedure attempts to calculate missing data for endogenous
+variables of a model by solving the identity equations in solution order.
+When there are no data for an endogenous variable in a period
+and that variable is determined by an identity, a value could be
+calculated if all right-hand side variables used in the equation
+were available. If running the equation results in a valid
+number, the missing value will be replaced. The procedure will
+never overwrite existing valid data.
+The procedure can be used to fill in data before and beyond the
+model data period (as set by @proc{setmdp}) for as many
+variables as possible.
 }
-

@@ -15,4 +15,3 @@ This function returns an unitialized ISLM model.
 \examples{
 mdl <- islm_mdl()
 }
-

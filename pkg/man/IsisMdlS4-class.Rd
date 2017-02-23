@@ -2,8 +2,8 @@
 % Please edit documentation in R/IsisMdlS4.R
 \docType{class}
 \name{IsisMdlS4-class}
-\alias{IsisMdlS4}
 \alias{IsisMdlS4-class}
+\alias{IsisMdlS4}
 \title{class IsisMdlS4}
 \description{
 A simple S4 class of Isis models

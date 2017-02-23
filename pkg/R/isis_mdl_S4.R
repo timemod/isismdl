@@ -62,12 +62,15 @@
 #' \code{\link{IsisMdl}}
 #' @importFrom tools file_path_sans_ext
 #' @export
-isis_mdl_S4 <- function(modelname) {
+isis_mdl_S4 <- function(modelname, period) {
     # TODO: currently, compile_mdl_c generates a mif file
     # that is later read by read_mdl_c. This can be simpler:
     # after compilation the model information can be put
     # directly in Fortran memory. Then there is no need to
     # write and read the mif file.
+
+    period <- as.regperiod_range(period)
+
     retval <- .Call(compile_mdl_c, modelname)
     if (!retval) {
         stop("Compilation was not succesfull")
@@ -84,11 +87,24 @@ isis_mdl_S4 <- function(modelname) {
     maxlead <- ret$maxlead
 
     # get parameters
-    names <- .Call(get_par_names_c, model_index)
+    par_names <- .Call(get_par_names_c, model_index)
     params <- .Call("get_param_c", model_index = model_index,
-                    names = names)
+                    names = par_names)
+
+    names    <- .Call(get_var_names_c, "all",     model_index)
+    ca_names <- .Call(get_var_names_c, "allfrml", model_index)
 
     unlink(mif_file)
-    return(IsisMdlS4(model_index = model_index, maxlag = maxlag,
-                     maxlead = maxlead, params = params))
+
+    data_period <- regperiod_range(
+        start_period(period) - maxlag, end_period(period) + maxlead)
+
+    data <- create_data(names, data_period)
+    ca   <- create_ca(ca_names, period)
+
+    ret <- IsisMdlS4(model_index = model_index, maxlag = maxlag,
+                     maxlead = maxlead, params = params,
+                     names = names, ca_names = ca_names,
+                     period = period, data_period = data_period,
+                     data = data, ca = ca)
 }

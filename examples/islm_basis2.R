@@ -2,8 +2,7 @@ library(isismdl)
 
 period <- regperiod_range("2015Q2", "2016Q3")
 
-mdl <- isis_mdl_S4("islm")
-print(mdl)
+mdl <- isis_mdl_S4("islm", period)
 
 # prepare data
 r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
@@ -15,5 +14,8 @@ ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2015Q2",
             labels = "money supply")
 islm_input <- cbind(r, y, yd, g, ms)
 
-ret <- solve_mdl(mdl, data = islm_input, period = period)
+mdl_data(mdl) <- islm_input
+
+ret  <- solve_mdl(mdl)
 print(ret)
+

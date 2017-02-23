@@ -4,7 +4,7 @@
 \alias{isis_mdl_S4}
 \title{Creates an \code{\link{IsisMdlS4}} object from a model file.}
 \usage{
-isis_mdl_S4(modelname)
+isis_mdl_S4(modelname, period)
 }
 \arguments{
 \item{modelname}{The name of the model file.
@@ -69,4 +69,3 @@ unlink("islm.*")
 \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
 \code{\link{IsisMdl}}
 }
-

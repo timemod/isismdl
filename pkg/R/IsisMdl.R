@@ -1,5 +1,3 @@
-library(R6)
-
 #' @importFrom methods setOldClass
 setOldClass("regperiod_range")
 

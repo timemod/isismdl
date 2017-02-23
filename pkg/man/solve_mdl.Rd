@@ -2,12 +2,23 @@
 % Please edit documentation in R/solve_mdl.R
 \name{solve_mdl}
 \alias{solve_mdl}
-\title{The S4 variant of solve_mdl}
+\title{Solves a model}
 \usage{
-solve_mdl(mdl, data, ca = NULL, fix = NULL, fit = NULL, period,
-  options = list(), fit_options = list())
+solve_mdl(mdl, period = mdl@period, options = list(),
+  fit_options = list())
+}
+\arguments{
+\item{mdl}{an \code{\link{IsisMdlS4}} object}
+
+\item{period}{a \code{\link[regts]{regperiod_range}} object}
+
+\item{options}{a list with solve options}
+
+\item{fit_options}{a list with options for the fit procedure}
+}
+\value{
+an \code{\link{IsisMdlS4}} object
 }
 \description{
-The S4 variant of solve_mdl
+Solves a model
 }
-
