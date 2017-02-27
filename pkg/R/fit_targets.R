@@ -1,17 +1,17 @@
-#' Retrieve or update the fix values
+#' Retrieve or update the fit targets
 #'
 #' @param mdl an \code{\link{IsisMdl}} object
 #' @param names a character vector with variable names
 #' @param value a \code{\link[ts]{ts}} or \code{\link[regts]{regts}}
 #'  or an object that can be coerced to a \code{regperiod_range}
 #' @export
-fix_values <- function(mdl) {
-    return(mdl@fix)
+fit_targets <- function(mdl) {
+    return(mdl@fit)
 }
 
-#' @rdname fix_values
+#' @rdname fit_targets
 #' @importFrom regts get_regperiod_range
 #' @export
-`fix_values<-` <- function(mdl, names = colnames(value), value) {
-    return(update_data(mdl, "fix",  value, names, missing(names)))
+`fit_targets<-` <- function(mdl, names = colnames(value), value) {
+    return(update_data(mdl, "fit",  value, names, missing(names)))
 }
