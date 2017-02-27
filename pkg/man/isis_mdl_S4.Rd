@@ -4,12 +4,27 @@
 \alias{isis_mdl_S4}
 \title{Creates an \code{\link{IsisMdlS4}} object from a model file.}
 \usage{
-isis_mdl_S4(modelname, period)
+isis_mdl_S4(modelname, period, data = NULL, ca = NULL, fix_values = NULL,
+  fit_targets = NULL)
 }
 \arguments{
 \item{modelname}{The name of the model file.
 An extension \code{mdl} is appended to the specified name if the filename
 does not already have an extension.}
+
+\item{period}{a \code{\link[regts]{regperiod_range}} object}
+
+\item{data}{the model data as a  \code{\link[regts]{regts}} object with column
+names}
+
+\item{ca}{the constant adjustments as a  \code{\link[regts]{regts}} object
+with column names}
+
+\item{fix_values}{the fix values as a  \code{\link[regts]{regts}} object
+with column names}
+
+\item{fit_targets}{the fit targets as a  \code{\link[regts]{regts}} object
+with column names}
 }
 \description{
 This function creates an \code{\link{IsisMdl}} object.

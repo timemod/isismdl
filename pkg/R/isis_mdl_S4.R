@@ -51,6 +51,15 @@
 #' @param modelname The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
 #' does not already have an extension.
+#' @param period a \code{\link[regts]{regperiod_range}} object
+#' @param data the model data as a  \code{\link[regts]{regts}} object with column
+#' names
+#' @param ca the constant adjustments as a  \code{\link[regts]{regts}} object
+#' with column names
+#' @param fix_values the fix values as a  \code{\link[regts]{regts}} object
+#' with column names
+#' @param fit_targets the fit targets as a  \code{\link[regts]{regts}} object
+#' with column names
 #' @useDynLib isismdl compile_mdl_c
 #' @examples
 #' copy_example_mdl("islm")
@@ -62,7 +71,8 @@
 #' \code{\link{IsisMdl}}
 #' @importFrom tools file_path_sans_ext
 #' @export
-isis_mdl_S4 <- function(modelname, period) {
+isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
+                        fix_values = NULL, fit_targets = NULL) {
     # TODO: currently, compile_mdl_c generates a mif file
     # that is later read by read_mdl_c. This can be simpler:
     # after compilation the model information can be put
@@ -99,12 +109,44 @@ isis_mdl_S4 <- function(modelname, period) {
     data_period <- regperiod_range(
         start_period(period) - maxlag, end_period(period) + maxlead)
 
-    data <- create_data(names, data_period)
-    ca   <- create_ca(ca_names, period)
+    init_data <- create_data(names, data_period)
+    init_ca   <- create_ca(ca_names, period)
 
-    ret <- IsisMdlS4(model_index = model_index, maxlag = maxlag,
+    mdl <- IsisMdlS4(model_index = model_index, maxlag = maxlag,
                      maxlead = maxlead, params = params,
                      names = names, ca_names = ca_names,
                      period = period, data_period = data_period,
-                     data = data, ca = ca)
+                     data = init_data, ca = init_ca)
+
+    # update data
+    if (!missing(data)) {
+        if (!is.null(colnames(data))) {
+            mdl <- update_data(mdl, "data", data, colnames(data), TRUE)
+        } else {
+            stop("data has no column names")
+        }
+    }
+    if (!missing(ca)) {
+        if (!is.null(colnames(ca))) {
+            mdl <- update_data(mdl, "ca", ca, colnames(ca), TRUE)
+        } else {
+            stop("ca has no column names")
+        }
+    }
+    if (!missing(fix_values)) {
+        if (!is.null(colnames(fix_values))) {
+            mdl <- update_data(mdl, "fix", fix_values, colnames(fix_values), TRUE)
+        } else {
+            stop("fix_values has no column names")
+        }
+    }
+    if (!missing(fit_targets)) {
+        if (!is.null(colnames(fit_targets))) {
+            mdl <- update_data(mdl, "fit", fit_targets, colnames(fit_targets), TRUE)
+        } else {
+            stop("fit_targets has no column names")
+        }
+    }
+
+    return(mdl)
 }
