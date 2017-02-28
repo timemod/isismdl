@@ -70,6 +70,7 @@
 #' @seealso \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
 #' \code{\link{IsisMdl}}
 #' @importFrom tools file_path_sans_ext
+#' @useDynLib isismdl get_solve_opts_c
 #' @export
 isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
                         fix_values = NULL, fit_targets = NULL) {
@@ -103,6 +104,7 @@ isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
 
     names    <- .Call(get_var_names_c, "all",     model_index)
     ca_names <- .Call(get_var_names_c, "allfrml", model_index)
+    solve_opts <- .Call(get_solve_opts_c, model_index)
 
     unlink(mif_file)
 
@@ -114,6 +116,7 @@ isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
 
     mdl <- IsisMdlS4(model_index = model_index, maxlag = maxlag,
                      maxlead = maxlead, params = params,
+                     solve_opts = solve_opts,
                      names = names, ca_names = ca_names,
                      period = period, data_period = data_period,
                      data = init_data, ca = init_ca)

@@ -608,3 +608,13 @@ void set_eq_status_c(SEXP mws_index_, SEXP names, SEXP status) {
         }
     }
 }
+
+/* Activate all equations */
+void activate_all_equations(SEXP mdl_index_) {
+    int mdl_index = asInteger(mdl_index_);
+    int neq  = F77_CALL(get_eq_count)(&mdl_index);
+    int ieq;
+    for (ieq = 0; ieq < neq; ieq++) {
+        F77_CALL(activate_equation)(&mdl_index, &ieq);
+    }
+}

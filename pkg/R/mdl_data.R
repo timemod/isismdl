@@ -19,7 +19,7 @@ mdl_data <- function(mdl, names, pattern, period = mdl@data_period) {
         stop("Argument pattern not yet supported")
         #names <- union(names, self$get_var_names(pattern))
     }
-    return(mdl@data[period, names])
+    return(mdl@data[period, names, drop = FALSE])
 }
 
 #' @rdname mdl_data

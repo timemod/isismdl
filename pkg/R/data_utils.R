@@ -77,7 +77,7 @@ update_data <- function(mdl, type, new_data, new_names, new_names_missing) {
     if (type == "data") {
         mdl@data[p, names] <- new_data
     } else if (type == "ca") {
-        mdl@data[p, names] <- new_data
+        mdl@ca[p, names] <- new_data
     } else if (type == "fix") {
         if (is.null(mdl@fix)) {
             mdl@fix <- new_data
