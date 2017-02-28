@@ -7,6 +7,8 @@
 set_eq_status(mdl, pattern, names, status = c("active", "inactive"))
 }
 \arguments{
+\item{mdl}{an \code{\link{IsisMdl}} object}
+
 \item{pattern}{a regular expression}
 
 \item{names}{a character vector with the equation names}

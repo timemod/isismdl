@@ -1,5 +1,6 @@
 #'  Sets the the equation status (active or inactive) of one or more equations.
 #'
+#' @param mdl an \code{\link{IsisMdl}} object
 #' @param pattern a regular expression
 #' @param names a character vector with the equation names
 #' @param status equation status (\code{"active"} or \code{"inactive"})

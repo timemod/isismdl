@@ -20,7 +20,7 @@
 #' unlink("islm.*")
 #' unlink("mdl", recursive = TRUE)
 #' }
-#' @seealso \code{\link{compile_mdl}} and \code{\link{IsisMdl}}
+#' @seealso \code{\link{isis_mdl}} and \code{\link{IsisMdl}}
 #' @export
 copy_example_mdl <- function(model_name,
                              filename = paste(model_name, "mdl", sep = ".")) {

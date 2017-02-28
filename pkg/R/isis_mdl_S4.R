@@ -124,28 +124,28 @@ isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
     # update data
     if (!missing(data)) {
         if (!is.null(colnames(data))) {
-            mdl <- update_data(mdl, "data", data, colnames(data), TRUE)
+            mdl <- set_data(mdl, data, colnames(data))
         } else {
             stop("data has no column names")
         }
     }
     if (!missing(ca)) {
         if (!is.null(colnames(ca))) {
-            mdl <- update_data(mdl, "ca", ca, colnames(ca), TRUE)
+            mdl <- set_ca(mdl, ca, colnames(ca))
         } else {
             stop("ca has no column names")
         }
     }
     if (!missing(fix_values)) {
         if (!is.null(colnames(fix_values))) {
-            mdl <- update_data(mdl, "fix", fix_values, colnames(fix_values), TRUE)
+            mdl <- set_fix(mdl, fix_values, colnames(fix_values))
         } else {
             stop("fix_values has no column names")
         }
     }
     if (!missing(fit_targets)) {
         if (!is.null(colnames(fit_targets))) {
-            mdl <- update_data(mdl, "fit", fit_targets, colnames(fit_targets), TRUE)
+            mdl <- set_fit(mdl, fit_targets, colnames(fit_targets))
         } else {
             stop("fit_targets has no column names")
         }

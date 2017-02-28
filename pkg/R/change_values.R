@@ -1,33 +1,24 @@
-#' Change the model data.
+#' Changes the model data or constant adjustments by applying a function.
 #'
 #' @param mdl an \code{\link{IsisMdl}} object
 #' @param fun an function
 #' @param names a character vector with variable names
 #' @param pattern a regular expression
 #' @param period an \code{\link[regts]{regperiod_range}} object
-#' @param value a \code{\link[ts]{ts}} or \code{\link[regts]{regts}}
-#'  or an object that can be coerced to a \code{regperiod_range}
-#' @importFrom regts as.regperiod_range
+#' @param ... arguments passed to \code{fun}
+#' @name change_data
+NULL
+
+#' @describeIn change_data Change the model variables
 #' @export
-change_values <- function(mdl, fun, names = NULL, pattern = NULL,
-                           period = mdl@data_period) {
+change_data <- function(mdl, fun, names = NULL, pattern = NULL,
+                          period = mdl@data_period) {
+    return(change_values_(mdl, "data", fun, names, pattern, period))
+}
 
-    period <- as.regperiod_range(period)
-    nper <- length_range(period)
-
-    if (!missing(names)) {
-        names <- intersect(mdl@names, names)
-    }
-    if (is.null(pattern) && is.null(names)) {
-        names <- mdl@names
-    } else if (is.null(names)) {
-        stop("pattern not yet supported")
-    } else if (!is.null(pattern)) {
-        stop("pattern not yet supported")
-      #names <- union(names, self$get_var_names(pattern))
-   }
-
-    period <- regrange_intersect(mdl@data_period, period)
-    mdl@data[period, names] <- fun(mdl@data[period, names])
-    return(invisible(mdl))
+#' @describeIn change_data Change the constant adjusments
+#' @export
+change_ca <- function(mdl, fun, names = NULL, pattern = NULL,
+                        period = mdl@period) {
+    return(change_values_(mdl, "ca", fun, names, pattern, period))
 }

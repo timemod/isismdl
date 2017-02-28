@@ -5,7 +5,7 @@ setOldClass("regperiod_range")
 #'
 #' This class is used to solve a system of non-linear equations with lagged
 #' variables. The model equations are specified in a separate text file, the so
-#' called model file. Function  \code{\link{compile_mdl}} parses the model file
+#' called model file. Function  \code{\link{isis_mdl}} parses the model file
 #' and generates an \code{IsisMdl} object. The vignette "Introduction"
 #' gives a detailed description of the usage of \code{IsisMdl} objects.
 #'
@@ -184,7 +184,7 @@ setOldClass("regperiod_range")
 #' \item{\code{save_RDS(file)}}{Serializes the model object and writes it
 #' to an RDS file.}
 #' }
-#' @seealso \code{\link{compile_mdl}}, \code{\link{islm_mdl}}
+#' @seealso \code{\link{isis_mdl}}, \code{\link{islm_mdl}}
 #' and \code{\link{ifn_mdl}}
 #'
 IsisMdl <- R6Class("IsisMdl",

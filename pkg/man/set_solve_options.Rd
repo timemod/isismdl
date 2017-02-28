@@ -6,6 +6,11 @@
 \usage{
 set_solve_options(mdl, ...)
 }
+\arguments{
+\item{mdl}{an \code{\link{IsisMdl}} object}
+
+\item{...}{the solve options (TODO: document the possible options)}
+}
 \description{
 Set the solve options
 }
