@@ -114,8 +114,8 @@ isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
     init_data <- create_data(names, data_period)
     init_ca   <- create_ca(ca_names, period)
 
-    mdl <- IsisMdlS4(model_index = model_index, maxlag = maxlag,
-                     maxlead = maxlead, params = params,
+    mdl <- IsisMdlS4(control = ModelControl$new(model_index), 
+                     maxlag = maxlag, maxlead = maxlead, params = params,
                      solve_opts = solve_opts,
                      names = names, ca_names = ca_names,
                      period = period, data_period = data_period,

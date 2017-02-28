@@ -19,16 +19,16 @@ setMethod("saveRDS", "IsisMdlS4",
 
     # TODO: use tempfile
     mif_file <- "saveRDS.mif"
-    .Call("write_mdl_c", mif_file, object@model_index)
+    .Call("write_mdl_c", mif_file, object@control$index)
     size <- file.info(mif_file)$size
     mif_data <- readBin(mif_file, what = "raw", n = size)
 
     slot_names <- names(getSlots("IsisMdlS4"))
-    slot_names <- setdiff(slot_names, c("model_index"))
+    slot_names <- setdiff(slot_names, "control")
     serialized_mdl <-lapply(slot_names, FUN = function(x) {slot(object, x)})
     names(serialized_mdl) <- slot_names
     serialized_mdl$mif_data <- mif_data
-    saveRDS(serialized_mdl, file, ...)
+    saveRDS(serialized_mdl, file)
     unlink(mif_file)
     return (invisible(NULL))
 }

@@ -18,7 +18,6 @@ read_mdl_S4 <- function(file) {
 
     slots <- serialized_mdl
     slots$mif_data <- NULL
-    slots$model_index <- model_index
-
+    slots$control <- ModelControl$new(model_index)
     return(do.call(IsisMdlS4, slots))
 }

@@ -5,10 +5,10 @@
 #' @param type the variable type (see Isis Reference Manual)
 #' @useDynLib isismdl get_var_names_c
 #' @export
-get_var_names <- function(mdl, pattern = ".*",
+var_names <- function(mdl, pattern = ".*",
                      type = c("all", "allfrml", "all_endolead")) {
     type <- match.arg(type)
-    names <- .Call("get_var_names_c", type, mdl@model_index)
+    names <- .Call("get_var_names_c", type, mdl@control$index)
     if (!missing(pattern)) {
         sel <- grep(pattern, names)
         names <- names[sel]

@@ -26,7 +26,7 @@ fill_mdl_data <- function(mdl, period = mdl@period) {
     prepare_mws(mdl, period, solve = FALSE)
 
     nper   <- as.integer(length_range(period))
-    .Call("filmdt_c", model_index = mdl@model_index,
+    .Call("filmdt_c", model_index = mdl@control$index,
           jtb = 1L, jte = nper)
 
     return(update_data_ca(mdl, period))

@@ -9,7 +9,7 @@
 #' @export
 eq_names <- function(mdl, pattern = ".*", type =  c("all", "inactive")) {
     type <- match.arg(type)
-    names <- .Call("get_eq_names_c", type, mdl@model_index)
+    names <- .Call("get_eq_names_c", type, mdl@control$index)
     if (!missing(pattern)) {
         sel <- grep(pattern, names)
         names <- names[sel]

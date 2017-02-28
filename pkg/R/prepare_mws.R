@@ -13,12 +13,12 @@ prepare_mws <- function(mdl, period, solve = TRUE) {
 
     set_param_mws(mdl)
 
-    .Call("set_solve_opts_c", mdl@model_index, mdl@solve_opts)
+    .Call("set_solve_opts_c", mdl@control$index, mdl@solve_opts)
 
     # handle inactive / active equations
-    .Call("activate_all_equations", mdl@model_index)
+    .Call("activate_all_equations", mdl@control$index)
     if (length(mdl@inactive_eqs) > 0) {
-        .Call("set_eq_status_c", mdl@model_index, mdl@inactive_eqs, "inactive")
+        .Call("set_eq_status_c", mdl@control$index, mdl@inactive_eqs, "inactive")
     }
 
     set_period(mdl, period)
@@ -40,7 +40,7 @@ set_period <- function(mdl, period) {
     p2 <- end_period(period)
     start <- as.integer(c(get_year(p1), get_subperiod(p1)))
     end   <- as.integer(c(get_year(p2), get_subperiod(p2)))
-    retval <- .Fortran("set_period_fortran", model_index = mdl@model_index,
+    retval <- .Fortran("set_period_fortran", model_index = mdl@control$index,
                        start = start, end = end, freq  = as.integer(period[3]),
                        ier = 1L)
     return(invisible(NULL))
@@ -58,7 +58,7 @@ set_period <- function(mdl, period) {
 set_var <- function(mdl, set_type, data, mdl_period) {
     shift <- get_period_indices(mdl_period, get_regperiod_range(data))$startp
     names <- colnames(data)
-    .Call(set_c, set_type, mdl@model_index, data, names, shift)
+    .Call(set_c, set_type, mdl@control$index, data, names, shift)
 
     return(invisible(NULL))
 }
@@ -73,6 +73,6 @@ set_param_mws <- function(mdl) {
     # convert integer list elements to numeric
     p <- lapply(mdl@params, as.numeric)
 
-    nset <- .Call("set_param_c", model_index = mdl@model_index, p)
+    nset <- .Call("set_param_c", model_index = mdl@control$index, p)
     return(invisible(NULL))
 }
