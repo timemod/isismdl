@@ -22,6 +22,8 @@ IsisMdlS4 <- setClass(
         inactive_eqs = "character",
         solve_opts = "list",
         fit_opts = "list",
+        cvgcrit = "numeric",
+        ftrelax = "ANY",
         maxlag = "integer",
         maxlead = "integer",
         names = "character",

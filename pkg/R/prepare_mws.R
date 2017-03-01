@@ -9,16 +9,23 @@
 #' @useDynLib isismdl activate_all_equations
 #' @useDynLib isismdl set_eq_status_c
 #' @useDynLib isismdl set_solve_opts_c
+#' @useDynLib isismdl set_cvgcrit_c_S4
+#' @useDynLib isismdl set_ftrelax_c_S4
 prepare_mws <- function(mdl, period, solve = TRUE) {
 
     set_param_mws(mdl)
 
     .Call("set_solve_opts_c", mdl@control$index, mdl@solve_opts)
+    .Call("set_cvgcrit_c_S4", mdl@control$index, mdl@cvgcrit)
+    if (!is.null(mdl@ftrelax)) {
+        .Call("set_ftrelax_c_S4", mdl@control$index, mdl@ftrelax)
+    }
 
     # handle inactive / active equations
     .Call("activate_all_equations", mdl@control$index)
     if (length(mdl@inactive_eqs) > 0) {
-        .Call("set_eq_status_c", mdl@control$index, mdl@inactive_eqs, "inactive")
+        .Call("set_eq_status_c", mdl@control$index, mdl@inactive_eqs,
+              "inactive")
     }
 
     set_period(mdl, period)
@@ -27,12 +34,14 @@ prepare_mws <- function(mdl, period, solve = TRUE) {
         set_var(mdl, 2L, mdl@ca, period)
     }
     if (!is.null(mdl@fix)) {
+        t <- system.time(
         set_var(mdl, 3L, mdl@fix, period)
+        )
     }
     if (solve && !is.null(mdl@fit)) {
         set_var(mdl, 4L, mdl@fit, period)
     }
-
+    return(invisible(NULL))
 }
 
 set_period <- function(mdl, period) {
@@ -59,7 +68,6 @@ set_var <- function(mdl, set_type, data, mdl_period) {
     shift <- get_period_indices(mdl_period, get_regperiod_range(data))$startp
     names <- colnames(data)
     .Call(set_c, set_type, mdl@control$index, data, names, shift)
-
     return(invisible(NULL))
 }
 

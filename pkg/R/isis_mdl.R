@@ -50,7 +50,16 @@
 #'
 #' @param modelname The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
-#' does not already have an extension.
+#' does not already have an extension
+#' @param period a \code{\link[regts]{regperiod_range}} object
+#' @param data the model data as a  \code{\link[regts]{regts}} object with column
+#' names
+#' @param ca the constant adjustments as a  \code{\link[regts]{regts}} object
+#' with column names
+#' @param fix_values the fix values as a  \code{\link[regts]{regts}} object
+#' with column names
+#' @param fit_targets the fit targets as a  \code{\link[regts]{regts}} object
+#' with column names
 #' @useDynLib isismdl compile_mdl_c
 #' @examples
 #' copy_example_mdl("islm")
@@ -62,7 +71,8 @@
 #' \code{\link{IsisMdl}}
 #' @importFrom tools file_path_sans_ext
 #' @export
-isis_mdl <- function(modelname) {
+isis_mdl <- function(modelname, period = NULL, data = NULL, ca = NULL,
+                     fix_values = NULL, fit_targets = NULL) {
     # TODO: currently, compile_mdl_c generates a mif file
     # that is later read by read_mdl_c. This can be simpler:
     # after compilation the model information can be put
@@ -74,7 +84,41 @@ isis_mdl <- function(modelname) {
     }
     base_name <- file_path_sans_ext(modelname)
     mif_file <- paste(base_name, "mif", sep = ".")
-    ret <- IsisMdl$new(mif_file)
+    mdl <- IsisMdl$new(mif_file)
     unlink(mif_file)
-    return(ret)
+
+    if (!is.null(period)) {
+        mdl$set_period(period)
+    }
+
+    # update data
+    if (!missing(data)) {
+        if (!is.null(colnames(data))) {
+            mdl$set_data(data, colnames(data))
+        } else {
+            stop("data has no column names")
+        }
+    }
+    if (!missing(ca)) {
+        if (!is.null(colnames(ca))) {
+            mdl$et_ca(ca, colnames(ca))
+        } else {
+            stop("ca has no column names")
+        }
+    }
+    if (!missing(fix_values)) {
+        if (!is.null(colnames(fix_values))) {
+            mdl$set_fix(fix_values, colnames(fix_values))
+        } else {
+            stop("fix_values has no column names")
+        }
+    }
+    if (!missing(fit_targets)) {
+        if (!is.null(colnames(fit_targets))) {
+            mdl$set_fit(fit_targets, colnames(fit_targets))
+        } else {
+            stop("fit_targets has no column names")
+        }
+    }
+    return(mdl)
 }

@@ -240,14 +240,29 @@ module mws_type
             integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte
             real(kind = MWS_RKIND), dimension(ntime, nvar), intent(out) :: mat
 
-            integer :: i, j, jt
+            integer :: i, j, jt, iv, jstart, jend
             logical :: error
+
+
+            jstart = max(jtb, 1 - mws%mdl%mxlag)
+            jend   = min(jte,  mws%perlen +  mws%mdl%mxlead)
         
-            do i = 1, nvar
-                do jt = jtb, jte
-                    j = jt - jtb + 1
-                    ! j is row index of mat
-                    call get_var_value(mws, ivar(i), jt, mat(j, i), error)
+            if (jstart > jtb .or. jend < jte) then
+                mat = NA
+            endif
+
+            do jt = jstart, jend
+                j = jt - jtb + 1
+                ! j is row index of mat
+                do i = 1, nvar
+                    iv = ivar(i)
+                    if (jt <= 0) then
+                        mat(j, i) = mws%lags(iv, jt + mws%mdl%mxlag) 
+                    elseif (jt <= mws%perlen) then
+                        mat(j,i) = mws%mdl_data(iv, jt)
+                    else
+                        mat(j,i) = mws%leads(iv, jt - mws%perlen) 
+                    endif
                 end do
             end do
         end subroutine get_mdl_data
@@ -257,21 +272,28 @@ module mws_type
             integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*)
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
 
-            integer :: i, j, jt, jstart, jend
+            integer :: i, j, jt, jstart, jend, iv
             integer, intrinsic :: min, max
             logical :: error
 
             jstart = max(jtb, 1 - mws%mdl%mxlag)
             jend   = min(jte,  mws%perlen +  mws%mdl%mxlead)
 
-            do i = 1, nvar
-                do jt = jstart, jend
-                    j = jt - jtb + 1
-                    ! j is row index of mat
-                    call set_var_value(mws, ivar(i), jt, mat(j, icol(i)), error)
+            do jt = jstart, jend
+                j = jt - jtb + 1
+                ! j is row index of mat
+                do i = 1, nvar
+                    iv = ivar(i)
+                    if (jt < 1) then
+                        mws%lags(iv, jt + mws%mdl%mxlag) = mat(j, icol(i))
+                    elseif (jt .le. mws%perlen) then
+                        mws%mdl_data(iv, jt) =  mat(j, icol(i))
+                    else
+                        mws%leads(iv, jt - mws%perlen) = mat(j, icol(i))
+                    endif
                 end do
             end do
-        
+
         end subroutine set_data
 
         subroutine set_ca(mws, nvar, ivar, ntime, jtb, jte, mat, icol)
@@ -286,11 +308,11 @@ module mws_type
             jstart = max(jtb, 1)
             jend   = min(jte,  mws%perlen)
 
-            do i = 1, nvar
-                aci = mws%mdl%aci(ivar(i))
-                if (aci <= 0) cycle
-                do jt = jstart, jend
-                    j = jt - jtb + 1
+            do jt = jstart, jend
+                j = jt - jtb + 1
+                do i = 1, nvar
+                    aci = mws%mdl%aci(ivar(i))
+                    if (aci <= 0) cycle
                     mws%constant_adjustments(aci, jt) = mat(j, icol(i))
                 end do
             enddo
@@ -301,14 +323,19 @@ module mws_type
             integer, intent(in) :: nca, ica(nca), ntime, jtb, jte
             real(kind = MWS_RKIND), dimension(ntime, nca), intent(out) :: mat
 
-            integer :: i, j, jt
+            integer :: i, j, jt, jstart, jend
 
-            mat = NA
+            jstart = max(jtb, 1)
+            jend   = min(jte, mws%perlen)
+
+            if (jstart > jtb .or. jend < jte) then
+                mat = NA
+            endif
         
-            do i = 1, nca
-                do jt = max(jtb, 0), min(jte, mws%perlen)
-                    j = jt - jtb + 1
-                    ! j is row index of mat
+            do jt = jstart, jend
+                j = jt - jtb + 1
+                ! j is row index of mat
+                do i = 1, nca
                     mat(j, i) = mws%constant_adjustments(ica(i), jt)
                 end do
             end do

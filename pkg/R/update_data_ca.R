@@ -2,11 +2,10 @@
 # some action has taken place in Fortran memory (solve, fillmdt, etc.)
 # INPUT:
 #   mdl    the IsisMdl object
-#   period the model period IN FORTRAN MEMORY (this can be 
+#   period the model period IN FORTRAN MEMORY (this can be
 #          different from mdl@period!
-# OUTPUT: 
+# OUTPUT:
 #   mdl   a new IsisMdl object
-
 update_data_ca <- function(mdl, period) {
 
     data <- get_data(mdl, period = period)
@@ -25,7 +24,7 @@ update_data_ca <- function(mdl, period) {
 # for the specified period.
 # INPUT:
 #   mdl    the IsisMdl object
-#   period the model period IN FORTRAN MEMORY (this can be 
+#   period the model period IN FORTRAN MEMORY (this can be
 #          different from mdl@period!
 # OUTPUT:  a regts with all model data
 get_data <- function(mdl, period) {
@@ -40,7 +39,7 @@ get_data <- function(mdl, period) {
 # for the specified period.
 # INPUT:
 #   mdl    the IsisMdl object
-#   period the model period IN FORTRAN MEMORY (this can be 
+#   period the model period IN FORTRAN MEMORY (this can be
 #          different from mdl@period!
 # OUTPUT:  a regts with all constant adjustments
 get_ca <- function(mdl, period) {

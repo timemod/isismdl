@@ -71,6 +71,8 @@
 #' \code{\link{IsisMdl}}
 #' @importFrom tools file_path_sans_ext
 #' @useDynLib isismdl get_solve_opts_c
+#' @useDynLib isismdl get_cvgcrit_c
+#' @useDynLib isismdl get_ftrelax_c
 #' @export
 isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
                         fix_values = NULL, fit_targets = NULL) {
@@ -106,6 +108,17 @@ isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
     ca_names <- .Call(get_var_names_c, "allfrml", model_index)
     solve_opts <- .Call(get_solve_opts_c, model_index)
 
+    cvgcrit = .Call("get_cvgcrit_c", model_index, 0L)
+    names(cvgcrit) <- names
+
+    endo_lead_names <- .Call(get_var_names_c, "all_endolead", model_index)
+    if (length(endo_lead_names) > 0) {
+        ftrelax = .Call("get_ftrelax_c", model_index)
+        names(ftrelax) <- endo_lead_names
+    } else {
+        ftrelax <- NULL
+    }
+
     unlink(mif_file)
 
     data_period <- regperiod_range(
@@ -114,9 +127,10 @@ isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
     init_data <- create_data(names, data_period)
     init_ca   <- create_ca(ca_names, period)
 
-    mdl <- IsisMdlS4(control = ModelControl$new(model_index), 
+    mdl <- IsisMdlS4(control = ModelControl$new(model_index),
                      maxlag = maxlag, maxlead = maxlead, params = params,
                      solve_opts = solve_opts,
+                     cvgcrit = cvgcrit, ftrelax = ftrelax,
                      names = names, ca_names = ca_names,
                      period = period, data_period = data_period,
                      data = init_data, ca = init_ca)

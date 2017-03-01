@@ -498,6 +498,31 @@ void set_cvgcrit_c(SEXP mws_index_, SEXP names, SEXP value_) {
     }
 }
 
+/* Sets convergence criterium for some model variables (version for S4)*/
+void set_cvgcrit_c_S4(SEXP mws_index_, SEXP cvgcrit_) {
+    int mws_index = asInteger(mws_index_);
+    SEXP names = getAttrib(cvgcrit_, R_NamesSymbol);
+    double *cvgcrit = REAL(cvgcrit_);
+    int i, cnt = 0;
+    int n_names =  length(names);
+    for (i = 0; i < n_names; i++) {
+        const char *name = CHAR(STRING_ELT(names, i));
+        int namelen = strlen(name);
+        int iv = F77_CALL(get_var_index)(&mws_index, name, &namelen);
+        if (iv > 0) {   
+            cnt++;
+            F77_CALL(set_test)(&mws_index, &iv, &cvgcrit[i]);
+        } else {
+           warning("\"%s\" is not a model variable\n", name);
+        }
+    }
+
+    if (cnt < n_names) {
+        error("%d incorrect variable name(s) encountered. See warning(s).\n", 
+              n_names - cnt);
+    }
+}
+
 /* Sets convergence criterium for all model variables, used in set_mws.
  * values is a vector with convergence criteria for the model variables
  * in natural (i.e. non-alphabetical) order */
@@ -537,6 +562,31 @@ void set_ftrelax_c(SEXP mws_index_, SEXP names, SEXP value_) {
         if (iendex > 0) {   
             cnt++;
             F77_CALL(set_ftrelax)(&mws_index, &iendex, &value);
+        } else {
+           warning("\"%s\" is not an endogenous lead.\n", name);
+        }
+    }
+
+    if (cnt < n_names) {
+        error("%d incorrect variable name(s) encountered. See warning(s).\n", 
+              n_names - cnt);
+    }
+}
+
+/* Sets Fair-Taylor criterium for some model variables (version for S4)*/
+void set_ftrelax_c_S4(SEXP mws_index_, SEXP ftrelax_) {
+    int mws_index = asInteger(mws_index_);
+    SEXP names = getAttrib(ftrelax_, R_NamesSymbol);
+    double *ftrelax = REAL(ftrelax_);
+    int i, cnt = 0;
+    int n_names =  length(names);
+    for (i = 0; i < n_names; i++) {
+        const char *name = CHAR(STRING_ELT(names, i));
+        int namelen = strlen(name);
+        int iendex = F77_CALL(get_iendex)(&mws_index, name, &namelen);
+        if (iendex > 0) {   
+            cnt++;
+            F77_CALL(set_ftrelax)(&mws_index, &iendex, &ftrelax[i]);
         } else {
            warning("\"%s\" is not an endogenous lead.\n", name);
         }
