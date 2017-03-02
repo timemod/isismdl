@@ -33,6 +33,7 @@ IsisMdlS4 <- setClass(
         data = "regts",
         ca = "ANY",
         fix = "ANY",
-        fit = "ANY"
+        fit = "ANY",
+        rms = "ANY"
     )
 )

@@ -5,7 +5,7 @@
 \alias{mdl_data}
 \alias{ca}
 \alias{fix_values}
-\alias{fit_values}
+\alias{fit_targets}
 \title{Retrieve timeseries from the model data, constant adjusments, fix values
 or fit targets}
 \usage{
@@ -13,12 +13,12 @@ mdl_data(mdl, names, pattern, period = mdl@data_period)
 
 ca(mdl, names, pattern, period = mdl@data_period)
 
-fix_values(mdl, period = mdl@period)
+fix_values(mdl)
 
-fit_values(mdl, period = mdl@period)
+fit_targets(mdl)
 }
 \arguments{
-\item{mdl}{an \code{\link{IsisMdl}} object}
+\item{mdl}{an \code{\link{IsisMdlS4}} object}
 
 \item{names}{a character vector with variable names}
 
@@ -38,6 +38,6 @@ or fit targets
 
 \item \code{fix_values}: Fix values
 
-\item \code{fit_values}: Fit targets
+\item \code{fit_targets}: Fit targets
 }}
 

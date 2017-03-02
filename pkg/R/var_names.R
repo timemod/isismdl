@@ -13,5 +13,8 @@ var_names <- function(mdl, pattern = ".*",
         sel <- grep(pattern, names)
         names <- names[sel]
     }
+    if (type == "allfrml" || type == "all_endolead") {
+        names <- sort(names)
+    }
     return(names)
 }

@@ -11,24 +11,28 @@ NULL
 
 #' @describeIn set_values Sets the values of model variables
 #' @export
-set_values <- function(mdl, value, names, pattern, period = mdl@data_period) {
+set_values <- function(mdl, value, names = NULL, pattern = NULL,
+                       period = mdl@data_period) {
     return(set_values_(mdl, "data",  value, names, pattern, period))
 }
 
 #' @describeIn set_values Sets the values of model variables
 #' @export
-set_ca_values <- function(mdl, value, names, pattern, period = mdl@period) {
+set_ca_values <- function(mdl, value, names = NULL, pattern = NULL,
+                          period = mdl@period) {
     return(set_values_(mdl, "ca",  value, names, pattern, period))
 }
 
 #' @describeIn set_values Sets the values of the fix values
 #' @export
-set_fit_values <- function(mdl, value, names, pattern, period = mdl@period) {
+set_fit_values <- function(mdl, value, names = NULL, pattern = NULL,
+                           period = mdl@period) {
     return(set_values_(mdl, "fit",  value, names, pattern, period))
 }
 
 #' @describeIn set_values Sets the values of the fit targets
 #' @export
-set_fix_values <- function(mdl, value, names, pattern, period = mdl@period) {
+set_fix_values <- function(mdl, value, names = NULL, pattern = NULL,
+                           period = mdl@period) {
     return(set_values_(mdl, "fix",  value, names, pattern, period))
 }

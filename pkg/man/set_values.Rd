@@ -8,13 +8,17 @@
 \alias{set_fix_values}
 \title{Sets the values of specific model variables.}
 \usage{
-set_values(mdl, value, names, pattern, period = mdl@data_period)
+set_values(mdl, value, names = NULL, pattern = NULL,
+  period = mdl@data_period)
 
-set_ca_values(mdl, value, names, pattern, period = mdl@period)
+set_ca_values(mdl, value, names = NULL, pattern = NULL,
+  period = mdl@period)
 
-set_fit_values(mdl, value, names, pattern, period = mdl@period)
+set_fit_values(mdl, value, names = NULL, pattern = NULL,
+  period = mdl@period)
 
-set_fix_values(mdl, value, names, pattern, period = mdl@period)
+set_fix_values(mdl, value, names = NULL, pattern = NULL,
+  period = mdl@period)
 }
 \arguments{
 \item{mdl}{an \code{\link{IsisMdl}} object}

@@ -1,22 +1,21 @@
-context("fix for ISLM model")
+context("fix for ISLM model (S4 version)")
 
-capture_output(islm_model <- read_mdl("islm_model.rds"))
+capture_output(islm_model <- read_mdl_S4("islm_model_S4.rds"))
 
 i <- regts(200, start = '2015Q2')
 c <- regts(c(600, NA, 600), start = '2015Q2')
 fix <- cbind(i, c)
 
-islm_model$set_fix(fix)
+islm_model <- set_fix(islm_model, fix)
 
-report <- capture_output(islm_model$solve())
-#print(islm_model$get_data())
+report <- capture_output(islm_model <- solve_mdl(islm_model))
 
 isis_result <- as.regts(read.csv("isi/fix.csv"), time_column = 1)
-dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,
-             fun = cvgdif)
+dif <- tsdif(mdl_data(islm_model, period = "2015Q2/2016Q3"), isis_result,
+             tol = 1e-6, fun = cvgdif)
 #print(dif)
 test_that("Testing get_fix", {
-    expect_identical(islm_model$get_fix(), fix[ , c("c", "i")])
+    expect_identical(fix_values(islm_model), fix)
 })
 
 test_that("Comparing solve with fix variables for the ISLM model", {
@@ -26,11 +25,12 @@ test_that("Comparing solve with fix variables for the ISLM model", {
 })
 
 #  now unfix the variables, set CAs to zero and solve again
-islm_model$set_fix_values(NA, pattern = ".*")
-islm_model$set_ca_values(0)
-report <- capture_output(islm_model$solve())
+islm_model <- set_fix_values(islm_model, NA, pattern = ".*")
+islm_model <- set_ca_values(islm_model, 0)
+report <- capture_output(islm_model <- solve_mdl(islm_model))
+
 isis_result <- as.regts(read.csv("isi/solve.csv"), time_column = 1)
-dif <- tsdif(islm_model$get_data(period = "2015Q2/2016Q3"), isis_result,
+dif <- tsdif(mdl_data(islm_model, period = "2015Q2/2016Q3"), isis_result,
              tol = 1e-6, fun = cvgdif)
 #print(dif)
 

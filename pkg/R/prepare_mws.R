@@ -11,6 +11,7 @@
 #' @useDynLib isismdl set_solve_opts_c
 #' @useDynLib isismdl set_cvgcrit_c_S4
 #' @useDynLib isismdl set_ftrelax_c_S4
+#' @useDynLib isismdl set_rms_c
 prepare_mws <- function(mdl, period, solve = TRUE) {
 
     set_param_mws(mdl)
@@ -40,6 +41,10 @@ prepare_mws <- function(mdl, period, solve = TRUE) {
     }
     if (solve && !is.null(mdl@fit)) {
         set_var(mdl, 4L, mdl@fit, period)
+    }
+
+    if (!is.null(mdl@rms)) {
+        .Call("set_rms_c", mdl@control$index, mdl@rms)
     }
     return(invisible(NULL))
 }

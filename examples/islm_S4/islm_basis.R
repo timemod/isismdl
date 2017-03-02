@@ -2,10 +2,8 @@ library(isismdl)
 
 period <- regperiod_range("2015Q2", "2016Q3")
 
-mdl <- isis_mdl("islm")
-mdl$set_period(period)
+mdl <- isis_mdl_S4("islm", period)
 
-# prepare data
 r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
 y  <- regts(980,  start = "2015Q1", end = "2016Q3", labels = "income")
 yd <- regts(790, start = "2015Q1", labels = "disposable income")
@@ -14,11 +12,9 @@ g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2015Q2",
 ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2015Q2",
             labels = "money supply")
 islm_input <- cbind(r, y, yd, g, ms)
-mdl$set_data(islm_input)
 
-mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
-                 t = "tax"))
+mdl <- set_data(mdl, islm_input)
 
-mdl$solve()
+mdl  <- solve_mdl(mdl)
 
-mdl$saveRDS("islm_basis.rds")
+saveRDS(mdl, "islm_basis.rds")

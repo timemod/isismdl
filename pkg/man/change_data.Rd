@@ -12,7 +12,7 @@ change_data(mdl, fun, names = NULL, pattern = NULL,
 change_ca(mdl, fun, names = NULL, pattern = NULL, period = mdl@period)
 }
 \arguments{
-\item{mdl}{an \code{\link{IsisMdl}} object}
+\item{mdl}{an \code{\link{IsisMdlS4}} object}
 
 \item{fun}{an function}
 

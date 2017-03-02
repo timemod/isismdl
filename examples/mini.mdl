@@ -1,2 +1,0 @@
-ident x = 0.5 * x + y;
-frml y = 2;

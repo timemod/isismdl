@@ -624,9 +624,7 @@ IsisMdl <- R6Class("IsisMdl",
             return (invisible(self))
         },
         set_values_ = function(set_type, value, names, pattern, period) {
-            if (!is.numeric(value)) {
-                stop("argument value should be a numeric vector")
-            }
+            value <- as.numeric(value)
             period <- as.regperiod_range(period)
             nper <- length_range(period)
             vlen <- length(value)
