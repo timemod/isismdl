@@ -1,7 +1,6 @@
-library(regts)
 library(isismdl)
 
-rds_file <- "islm_basis_S4.rds"
+rds_file <- "islm_basis.rds"
 if (!file.exists(rds_file)) {	
     stop("No rds file with model present. Run job islm_basis.R first")
 }

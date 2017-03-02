@@ -16,6 +16,5 @@ islm_input <- cbind(r, y, yd, g, ms)
 mdl <- set_data(mdl, islm_input)
 
 mdl  <- solve_mdl(mdl)
-print(mdl)
 
-saveRDS(mdl, "islm_basis_S4.rds")
+saveRDS(mdl, "islm_basis.rds")
