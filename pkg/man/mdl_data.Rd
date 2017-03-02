@@ -18,7 +18,7 @@ fix_values(mdl)
 fit_targets(mdl)
 }
 \arguments{
-\item{mdl}{an \code{\link{IsisMdl}} object}
+\item{mdl}{an \code{\link{IsisMdlS4}} object}
 
 \item{names}{a character vector with variable names}
 

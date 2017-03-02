@@ -2,8 +2,7 @@ library(isismdl)
 
 period <- regperiod_range("2015Q2", "2016Q3")
 
-mdl <- isis_mdl("islm")
-mdl$set_period(period)
+mdl <- isis_mdl("islm", period)
 
 # prepare data
 r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")

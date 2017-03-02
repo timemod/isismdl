@@ -9,12 +9,29 @@
 saveRDS(object, file = "", ascii = FALSE, version = NULL,
   compress = TRUE, refhook = NULL)
 
-\S4method{saveRDS}{IsisMdlS4}(object, file)
+\S4method{saveRDS}{IsisMdlS4}(object, file = "", ascii = FALSE,
+  version = NULL, compress = TRUE, refhook = NULL)
 }
 \arguments{
-\item{object}{an \code{\link{IsisMdl}} object}
+\item{object}{R object to serialize (for example an \code{\link{IsisMdlS4}}
+object)}
 
-\item{file}{a \code{\link[base]{connection}} or the name of the file where}
+\item{file}{a connection or the name of the file where the R object is saved
+to or read from.}
+
+\item{ascii}{a logical. If \code{TRUE} or \code{NA}, an ASCII representation
+is written; otherwise (default), a binary one is used. See the comments
+in the help for save.}
+
+\item{version}{the workspace format version to use. \code{NULL} specifies
+the current default version (2). Versions prior to 2 are not supported, so
+this will only be relevant when there are later versions.}
+
+\item{compress}{a logical specifying whether saving to a named file is
+to use "gzip" compression, or one of "gzip", "bzip2" or "xz" to indicate
+ the type of compression to be used. Ignored if file is a connection.}
+
+\item{refhook}{a hook function for handling reference objects.}
 }
 \description{
 The special version for \code{\link{IsisMdl}} objects takes care of the

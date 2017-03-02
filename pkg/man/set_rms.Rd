@@ -7,7 +7,7 @@
 set_rms(mdl, values)
 }
 \arguments{
-\item{mdl}{an \code{\link{IsisMdl}} object}
+\item{mdl}{an \code{\link{IsisMdlS4}} object}
 
 \item{values}{a named numeric vector with rms values}
 }

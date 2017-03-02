@@ -18,7 +18,7 @@ set_fix(mdl, data, names = colnames(data))
 set_fit(mdl, data, names = colnames(data))
 }
 \arguments{
-\item{mdl}{an \code{\link{IsisMdl}} object}
+\item{mdl}{an \code{\link{IsisMdlS4}} object}
 
 \item{data}{a \code{\link[ts]{ts}} or \code{\link[regts]{regts}}
 or an object that can be coerced to a \code{regperiod_range}}

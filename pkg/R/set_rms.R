@@ -1,6 +1,6 @@
 #' Sets or updates  the rms values
 #'
-#' @param mdl an \code{\link{IsisMdl}} object
+#' @param mdl an \code{\link{IsisMdlS4}} object
 #' @param values a named numeric vector with rms values
 #' @export
 set_rms <- function(mdl, values) {

@@ -1,6 +1,6 @@
 #' Changes the model data or constant adjustments by applying a function.
 #'
-#' @param mdl an \code{\link{IsisMdl}} object
+#' @param mdl an \code{\link{IsisMdlS4}} object
 #' @param fun an function
 #' @param names a character vector with variable names
 #' @param pattern a regular expression

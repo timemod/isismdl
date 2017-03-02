@@ -2,7 +2,7 @@
 #'
 #' Returns the equation names
 #'
-#' @param mdl an \code{\link{IsisMdl}} object
+#' @param mdl an \code{\link{IsisMdlS4}} object
 #' @param pattern a regular expression
 #' @param type the type (all or inactive)
 #' @useDynLib isismdl get_eq_names_c

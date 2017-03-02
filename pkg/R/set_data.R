@@ -1,7 +1,7 @@
 #' Transfers data from a timeseries object to the model data, constant adjusments,
 #' fix values or fit targets.
 #'
-#' @param mdl an \code{\link{IsisMdl}} object
+#' @param mdl an \code{\link{IsisMdlS4}} object
 #' @param data a \code{\link[ts]{ts}} or \code{\link[regts]{regts}}
 #'  or an object that can be coerced to a \code{regperiod_range}
 #' @param names a character vector with variable names. Defaults to the
