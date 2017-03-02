@@ -784,12 +784,12 @@ do k = 1, mdl%nfb
        rsum = dasum(nfbk, jacob(:, k), 1)
 
        if (rsum == Rzero) then
-           !call msczot(k, 1, 'C')
+           call msczot(k, 1, 'C')
            if (retcod == 0) then
                retcod = 1
            endif
        else if (rsum <= mdl%nfb * Rmeps) then
-           !call msczot(k, 2, 'C')
+           call msczot(k, 2, 'C')
            if (retcod == 0 ) then
                retcod = 2
            endif
@@ -805,12 +805,12 @@ do k = 1, mdl%nfb
    if (mdl%lik(mdl%numfb(k)) ) then
        rsum = dasum(nfbk, jacob(k,1), int(jacdim, ISIS_IKIND))
        if (rsum == Rzero ) then
-           !call msczot(k, 1, 'R')
+           call msczot(k, 1, 'R')
            if (retcod == 0) then
                retcod = 1
            endif
        else if (rsum <= mdl%nfb * Rmeps) then
-           !call msczot(k, 2, 'R')
+           call msczot(k, 2, 'R')
            if (retcod == 0) then
                retcod = 2
            endif
@@ -823,45 +823,43 @@ return
 
 contains
 
-!    subroutine msczot(ifb, errcod, indicator)
-!    use msimot
-!    use mcnmut
-!!         print message for (almost) 0 column/row
-!!         caused by feedback variable ifb
-!
-!integer ::        ifb
-!integer ::        errcod
-!    character*1   indicator
-!integer ::        otype
-!
-!*CALL MP$MPSDAT$VF9
-!
-!    call mcf7ex(name, nlen, mdl%ivnames(mdl%numfb(ifb)), mdl%vnames)
-!
-!    if( indicator .eq. 'C' ) then
-!      if( errcod .eq. 1 ) then
-!        write(str,'(2a)') 'Zero column for feedback variable ', name(:nlen)
-!        otype = O_ERRQ
-!      else
-!        write(str,'(2a)') 'Almost zero column for feedback variable ', &
-!&               name(:nlen)
-!        otype = O_WMSG
-!      endif
-!    else
-!      if( errcod .eq. 1 ) then
-!        write(str,'(2a)') 'Zero row for feedback variable ', name(:nlen)
-!        otype = O_ERRQ
-!      else
-!        write(str,'(2a)') 'Almost zero row for feedback variable ', name(:nlen)
-!        otype = O_WMSG
-!      endif
-!    endif
-!
-!    call strout(otype)
-!
-!    return
-!    end subroutine msczot
-!
+    subroutine msczot(ifb, errcod, indicator)
+    use msimot
+    use mdl_name_utils
+    integer, intent(in) :: ifb, errcod
+    character(len = 1), intent(in) ::  indicator
+    !  print message for (almost) 0 column/row
+    !  caused by feedback variable ifb
+
+    integer ::  otype
+
+    call mcf7ex(name, nlen, mdl%ivnames(mdl%numfb(ifb)), mdl%vnames)
+
+    if (indicator == 'C') then
+        if (errcod == 1) then
+            write(str,'(2a)') 'Zero column for feedback variable ', name(:nlen)
+            otype = O_ERRQ
+        else
+            write(str,'(2a)') 'Almost zero column for feedback variable ', &
+                     name(:nlen)
+            otype = O_WMSG
+        endif
+    else
+        if (errcod == 1) then
+            write(str,'(2a)') 'Zero row for feedback variable ', name(:nlen)
+            otype = O_ERRQ
+         else
+             write(str,'(2a)') 'Almost zero row for feedback variable ', &
+                              name(:nlen)
+            otype = O_WMSG
+         endif
+    endif
+
+    call strout(otype)
+
+    return
+    end subroutine msczot
+
 end subroutine msczjc
 
 end module msnwut
