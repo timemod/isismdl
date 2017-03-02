@@ -109,9 +109,7 @@ set_data_ <- function(mdl, type, new_data, new_names, new_names_missing) {
 #
 #' @importFrom regts regts
 set_values_ <- function(mdl, type, value, names, pattern, period) {
-    if (!is.numeric(value)) {
-        stop("argument value should be a numeric vector")
-    }
+    value <- as.numeric(value)
     period <- as.regperiod_range(period)
     nper <- length_range(period)
     vlen <- length(value)
@@ -129,9 +127,9 @@ set_values_ <- function(mdl, type, value, names, pattern, period) {
     if (is.null(pattern) && is.null(names)) {
         names <- data_names
     } else if (is.null(names)) {
-        names <- grep(pattern, data_names)
+        names <- data_names[grep(pattern, data_names)]
     } else if (!is.null(pattern)) {
-        names <- union(names,  grep(pattern, data_names))
+        names <- union(names,  data_names[grep(pattern, data_names)])
     }
 
     # TODO: if type = "data" or type = "ca" and value is a scalar, then the

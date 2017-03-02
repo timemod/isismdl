@@ -1,22 +1,7 @@
 library(utils)
 
-capture.output(islm_model <- islm_mdl())
-
-# create input timeseries
-r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
-y  <- regts(980,  start = "2015Q1", end = "2016Q3", labels = "income")
-yd <- regts(790, start = "2015Q1", labels = "disposable income")
-g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2015Q2",
-            labels = "government spending")
-ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2015Q2",
-            labels = "money supply")
-islm_input <- cbind(r, y, yd, g, ms)
-
-islm_model$set_labels(c(i = "investment", c = "consumption", md = "money demand",
-                        t = "tax"))
-
-
-islm_model$set_period("2015Q2/2016Q3")
-islm_model$set_data(islm_input)
-
+capture.output(islm_model <- islm_mdl("2015Q2/2016Q3"))
 islm_model$saveRDS("islm_model.rds")
+
+capture.output(islm_model <- islm_mdl_S4("2015Q2/2016Q3"))
+saveRDS(islm_model, "islm_model_S4.rds")

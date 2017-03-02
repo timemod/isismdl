@@ -38,14 +38,12 @@ ca <- function(mdl, names, pattern, period = mdl@data_period) {
 
 #' @describeIn mdl_data Fix values
 #' @export
-fix_values <- function(mdl, period = mdl@period) {
-    period <- as.regperiod_range(period)
-    return(mdl@fix[period, , drop = FALSE])
+fix_values <- function(mdl) {
+     return(mdl@fix)
 }
 
 #' @describeIn mdl_data Fit targets
 #' @export
-fit_values <- function(mdl, period = mdl@period) {
-    period <- as.regperiod_range(period)
-    return(mdl@fit[period, , drop = FALSE])
+fit_targets <- function(mdl) {
+     return(mdl@fit)
 }
