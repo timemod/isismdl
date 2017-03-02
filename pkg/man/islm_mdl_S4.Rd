@@ -10,7 +10,7 @@ islm_mdl_S4(period)
 \item{period}{the model period for the ISLM model}
 }
 \value{
-a \code{\link{IsisMdl}} object
+a \code{\link{IsisMdlS4}} object
 }
 \description{
 This function returns an example ISLM model, If argument \code{period} has

@@ -1,6 +1,6 @@
 #' Save an object to an RDS file.
 #'
-#' The special version for \code{\link{IsisMdl}} objects takes care of the
+#' The special version for \code{\link{IsisMdlS4}} objects takes care of the
 #' equation code stored in Fortran memory.
 #' @name saveRDS
 #' @param object R object to serialize (for example an \code{\link{IsisMdlS4}}

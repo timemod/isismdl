@@ -1,6 +1,6 @@
 #' Creates an \code{\link{IsisMdlS4}} object from a model file.
 #'
-#' This function creates an \code{\link{IsisMdl}} object.
+#' This function creates an \code{\link{IsisMdlS4}} object.
 #' A model as defined on an external ASCII file is analysed and
 #' compiled into an internal code. This internal model code is
 #' written to a file with extension \code{mif} containing equation
@@ -63,12 +63,11 @@
 #' @useDynLib isismdl compile_mdl_c
 #' @examples
 #' copy_example_mdl("islm")
-#' mdl <- isis_mdl("islm.mdl")
+#' mdl <- isis_mdl_S4("islm.mdl")
 #' \dontshow{
 #' unlink("islm.*")
 #' }
-#' @seealso \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
-#' \code{\link{IsisMdl}}
+#' @seealso \code{\link{copy_example_mdl}} and \code{\link{IsisMdlS4}}
 #' @importFrom tools file_path_sans_ext
 #' @useDynLib isismdl get_solve_opts_c
 #' @useDynLib isismdl get_cvgcrit_c

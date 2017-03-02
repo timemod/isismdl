@@ -1,6 +1,6 @@
 #' Sets the values of specific model variables.
 #'
-#' @param mdl an \code{\link{IsisMdl}} object
+#' @param mdl an \code{\link{IsisMdlS4}} object
 #' @param value a numeric vector of length 1 or with the same length
 #' as the length of the range of \code{period}.
 #' @param names a character vector with variable names

@@ -5,11 +5,8 @@ setOldClass("regts")
 
 #'  class IsisMdlS4
 #'
-#'  A simple S4 class of Isis models
+#'  A simple S4 class for Isis models
 #'
-#'  Aap
-#'
-#' @slot model_index the model index
 #' @importFrom methods setClass
 IsisMdlS4 <- setClass(
 

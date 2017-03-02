@@ -21,7 +21,7 @@ set_fix_values(mdl, value, names = NULL, pattern = NULL,
   period = mdl@period)
 }
 \arguments{
-\item{mdl}{an \code{\link{IsisMdl}} object}
+\item{mdl}{an \code{\link{IsisMdlS4}} object}
 
 \item{value}{a numeric vector of length 1 or with the same length
 as the length of the range of \code{period}.}

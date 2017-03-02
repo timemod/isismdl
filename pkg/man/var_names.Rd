@@ -7,7 +7,7 @@
 var_names(mdl, pattern = ".*", type = c("all", "allfrml", "all_endolead"))
 }
 \arguments{
-\item{mdl}{an \code{\link{IsisMdl}} object}
+\item{mdl}{an \code{\link{IsisMdlS4}} object}
 
 \item{pattern}{a regular expression}
 

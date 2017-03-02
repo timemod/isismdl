@@ -27,7 +27,7 @@ with column names}
 with column names}
 }
 \description{
-This function creates an \code{\link{IsisMdl}} object.
+This function creates an \code{\link{IsisMdlS4}} object.
 A model as defined on an external ASCII file is analysed and
 compiled into an internal code. This internal model code is
 written to a file with extension \code{mif} containing equation
@@ -75,12 +75,11 @@ All generated files have the same basename as the model file.
 }
 \examples{
 copy_example_mdl("islm")
-mdl <- isis_mdl("islm.mdl")
+mdl <- isis_mdl_S4("islm.mdl")
 \dontshow{
 unlink("islm.*")
 }
 }
 \seealso{
-\code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
-\code{\link{IsisMdl}}
+\code{\link{copy_example_mdl}} and \code{\link{IsisMdlS4}}
 }

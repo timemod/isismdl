@@ -1,9 +1,9 @@
-#' Reads a model from an RDS file (S4 version)
+#' Reads a model from an RDS file (R6 version)
 #'
-#' This function reads a model from an RDS file that was generated
-#' by function \code{\link{readRDS}} using an  \code{IsisMdlS4} object.
+#' This function reads a model from an RDS file that was created
+#' by method \code{\link{saveRDS}} of an \code{IsisMdl} object.
 #' @param file the name of the RDS file
-#' @return a \code{\link{IsisMdlS4}} object
+#' @return a \code{\link{IsisMdl}} object
 #' @export
 read_mdl <- function(file) {
     serialized_mdl <- readRDS(file)

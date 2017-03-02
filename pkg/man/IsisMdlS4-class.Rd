@@ -6,14 +6,5 @@
 \alias{IsisMdlS4}
 \title{class IsisMdlS4}
 \description{
-A simple S4 class of Isis models
+A simple S4 class for Isis models
 }
-\details{
-Aap
-}
-\section{Slots}{
-
-\describe{
-\item{\code{model_index}}{the model index}
-}}
-
