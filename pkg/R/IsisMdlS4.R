@@ -17,9 +17,13 @@ IsisMdlS4 <- setClass(
 
     # Define the slots
     slots = c(
-        model_index = "integer",
+        control = "ANY",
         params = "list",
-        inactive_eqs = "integer",
+        inactive_eqs = "character",
+        solve_opts = "list",
+        fit_opts = "list",
+        cvgcrit = "numeric",
+        ftrelax = "ANY",
         maxlag = "integer",
         maxlead = "integer",
         names = "character",

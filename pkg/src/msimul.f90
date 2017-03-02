@@ -87,6 +87,7 @@ if (opts%mode /= 'R') then
     call init_fit_work(do_fit, fit_err)
     if (fit_err > 0) then
         simerr = 6
+        call report_solve_error(simerr)
         goto 999
    endif
 else
@@ -113,6 +114,7 @@ endif
 
 if (retcod /= 0)  then
     simerr = retcod
+    call report_solve_error(simerr)
 endif
 
 ! final messages about CPU secs and total iterations/divergence
@@ -122,8 +124,6 @@ call simot3(tnew - told, itrtot, ndiver)
 change = .true.
 
 999 continue
-
-if (simerr /= 0) call report_solve_error(simerr)
 
 call clear_msfix
 

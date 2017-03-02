@@ -70,6 +70,9 @@
 #' @seealso \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
 #' \code{\link{IsisMdl}}
 #' @importFrom tools file_path_sans_ext
+#' @useDynLib isismdl get_solve_opts_c
+#' @useDynLib isismdl get_cvgcrit_c
+#' @useDynLib isismdl get_ftrelax_c
 #' @export
 isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
                         fix_values = NULL, fit_targets = NULL) {
@@ -103,6 +106,18 @@ isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
 
     names    <- .Call(get_var_names_c, "all",     model_index)
     ca_names <- .Call(get_var_names_c, "allfrml", model_index)
+    solve_opts <- .Call(get_solve_opts_c, model_index)
+
+    cvgcrit = .Call("get_cvgcrit_c", model_index, 0L)
+    names(cvgcrit) <- names
+
+    endo_lead_names <- .Call(get_var_names_c, "all_endolead", model_index)
+    if (length(endo_lead_names) > 0) {
+        ftrelax = .Call("get_ftrelax_c", model_index)
+        names(ftrelax) <- endo_lead_names
+    } else {
+        ftrelax <- NULL
+    }
 
     unlink(mif_file)
 
@@ -112,8 +127,10 @@ isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
     init_data <- create_data(names, data_period)
     init_ca   <- create_ca(ca_names, period)
 
-    mdl <- IsisMdlS4(model_index = model_index, maxlag = maxlag,
-                     maxlead = maxlead, params = params,
+    mdl <- IsisMdlS4(control = ModelControl$new(model_index),
+                     maxlag = maxlag, maxlead = maxlead, params = params,
+                     solve_opts = solve_opts,
+                     cvgcrit = cvgcrit, ftrelax = ftrelax,
                      names = names, ca_names = ca_names,
                      period = period, data_period = data_period,
                      data = init_data, ca = init_ca)
@@ -121,28 +138,28 @@ isis_mdl_S4 <- function(modelname, period, data = NULL, ca = NULL,
     # update data
     if (!missing(data)) {
         if (!is.null(colnames(data))) {
-            mdl <- update_data(mdl, "data", data, colnames(data), TRUE)
+            mdl <- set_data(mdl, data, colnames(data))
         } else {
             stop("data has no column names")
         }
     }
     if (!missing(ca)) {
         if (!is.null(colnames(ca))) {
-            mdl <- update_data(mdl, "ca", ca, colnames(ca), TRUE)
+            mdl <- set_ca(mdl, ca, colnames(ca))
         } else {
             stop("ca has no column names")
         }
     }
     if (!missing(fix_values)) {
         if (!is.null(colnames(fix_values))) {
-            mdl <- update_data(mdl, "fix", fix_values, colnames(fix_values), TRUE)
+            mdl <- set_fix(mdl, fix_values, colnames(fix_values))
         } else {
             stop("fix_values has no column names")
         }
     }
     if (!missing(fit_targets)) {
         if (!is.null(colnames(fit_targets))) {
-            mdl <- update_data(mdl, "fit", fit_targets, colnames(fit_targets), TRUE)
+            mdl <- set_fit(mdl, fit_targets, colnames(fit_targets))
         } else {
             stop("fit_targets has no column names")
         }

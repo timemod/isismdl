@@ -14,7 +14,7 @@ Object of \code{\link{R6Class}} representing an Isis model.
 \description{
 This class is used to solve a system of non-linear equations with lagged
 variables. The model equations are specified in a separate text file, the so
-called model file. Function  \code{\link{compile_mdl}} parses the model file
+called model file. Function  \code{\link{isis_mdl}} parses the model file
 and generates an \code{IsisMdl} object. The vignette "Introduction"
 gives a detailed description of the usage of \code{IsisMdl} objects.
 }
@@ -162,7 +162,7 @@ unlink("islm.*")
 
 }
 \seealso{
-\code{\link{compile_mdl}}, \code{\link{islm_mdl}}
+\code{\link{isis_mdl}}, \code{\link{islm_mdl}}
 and \code{\link{ifn_mdl}}
 }
 \keyword{data}

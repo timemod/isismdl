@@ -1,33 +1,51 @@
-#' Retrieve or update the model data.
+#' Retrieve timeseries from the model data, constant adjusments, fix values
+#' or fit targets
 #'
 #' @param mdl an \code{\link{IsisMdl}} object
 #' @param names a character vector with variable names
 #' @param pattern a regular expression
 #' @param period an \code{\link[regts]{regperiod_range}} object
-#' @param value a \code{\link[ts]{ts}} or \code{\link[regts]{regts}}
-#'  or an object that can be coerced to a \code{regperiod_range}
-#' @rdname mdl_data
+#' @name mdl_data
+NULL
+
+#' @describeIn mdl_data Model data
 #' @export
 mdl_data <- function(mdl, names, pattern, period = mdl@data_period) {
     period <- as.regperiod_range(period)
     if (missing(pattern) && missing(names)) {
         names <- mdl@names
     } else if (missing(names)) {
-        #names <- self$get_var_names(pattern)
-        stop("Argument pattern not yet supported")
+        names <- get_var_names(mdl, pattern)
     } else if (!missing(pattern)) {
-        stop("Argument pattern not yet supported")
-        #names <- union(names, self$get_var_names(pattern))
+        names <- union(names, get_var_names(mdl, pattern))
     }
-    return(mdl@data[period, names])
+    return(mdl@data[period, names, drop = FALSE])
 }
 
-#' @rdname mdl_data
-#' @importFrom regts get_regperiod_range
+#' @describeIn mdl_data Constant adjustments
 #' @export
-`mdl_data<-` <- function(mdl, names = colnames(value), value) {
-    return(update_data(mdl, "data",  value, names, missing(names)))
+ca <- function(mdl, names, pattern, period = mdl@data_period) {
+    period <- as.regperiod_range(period)
+    if (missing(pattern) && missing(names)) {
+        names <- mdl@ca_names
+    } else if (missing(names)) {
+        names <- grep(pattern, mdl@ca_names)
+    } else if (!missing(pattern)) {
+        names <- union(names, grep(pattern, mdl@ca_names))
+    }
+    return(mdl@ca[period, names, drop = FALSE])
 }
 
+#' @describeIn mdl_data Fix values
+#' @export
+fix_values <- function(mdl, period = mdl@period) {
+    period <- as.regperiod_range(period)
+    return(mdl@fix[period, , drop = FALSE])
+}
 
-
+#' @describeIn mdl_data Fit targets
+#' @export
+fit_values <- function(mdl, period = mdl@period) {
+    period <- as.regperiod_range(period)
+    return(mdl@fit[period, , drop = FALSE])
+}

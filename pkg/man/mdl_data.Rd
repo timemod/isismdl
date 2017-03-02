@@ -2,12 +2,20 @@
 % Please edit documentation in R/mdl_data.R
 \name{mdl_data}
 \alias{mdl_data}
-\alias{mdl_data<-}
-\title{Retrieve or update the model data.}
+\alias{mdl_data}
+\alias{ca}
+\alias{fix_values}
+\alias{fit_values}
+\title{Retrieve timeseries from the model data, constant adjusments, fix values
+or fit targets}
 \usage{
 mdl_data(mdl, names, pattern, period = mdl@data_period)
 
-mdl_data(mdl, names = colnames(value)) <- value
+ca(mdl, names, pattern, period = mdl@data_period)
+
+fix_values(mdl, period = mdl@period)
+
+fit_values(mdl, period = mdl@period)
 }
 \arguments{
 \item{mdl}{an \code{\link{IsisMdl}} object}
@@ -17,10 +25,19 @@ mdl_data(mdl, names = colnames(value)) <- value
 \item{pattern}{a regular expression}
 
 \item{period}{an \code{\link[regts]{regperiod_range}} object}
-
-\item{value}{a \code{\link[ts]{ts}} or \code{\link[regts]{regts}}
-or an object that can be coerced to a \code{regperiod_range}}
 }
 \description{
-Retrieve or update the model data.
+Retrieve timeseries from the model data, constant adjusments, fix values
+or fit targets
 }
+\section{Functions}{
+\itemize{
+\item \code{mdl_data}: Model data
+
+\item \code{ca}: Constant adjustments
+
+\item \code{fix_values}: Fix values
+
+\item \code{fit_values}: Fit targets
+}}
+
