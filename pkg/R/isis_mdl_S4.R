@@ -63,7 +63,7 @@
 #' @useDynLib isismdl compile_mdl_c
 #' @examples
 #' copy_example_mdl("islm")
-#' mdl <- isis_mdl_S4("islm.mdl")
+#' mdl <- isis_mdl_S4("islm.mdl", period = "2017Q1/2017Q4")
 #' \dontshow{
 #' unlink("islm.*")
 #' }
