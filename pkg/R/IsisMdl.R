@@ -325,7 +325,12 @@ IsisMdl <- R6Class("IsisMdl",
         },
         set_data = function(data, names = colnames(data)) {
             "Sets the model data"
-            return (private$set_var(1L, data, names, missing(names)))
+            if (is.null(self$get_period()))
+            { # If non-existent, also set period
+                data_period <- regts::get_regperiod_range(input_ts)
+                self$set_period(data_period)
+            }
+            return(private$set_var(1L, data, names, missing(names)))
         },
         set_ca = function(data, names = colnames(data)) {
             "Sets the constant adjustments"
