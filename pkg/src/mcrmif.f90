@@ -13,11 +13,10 @@ integer, intent(out)     :: ier, fstat
 !       1  can't open mif file
 !       2  read error mif file (iostat in fstat)
 !       3  invalid identification string on file
-!       4  file is corrupted
+!       5  file is corrupt
 !       10 not enough memory for reading the model
 
-integer, intrinsic :: max
-integer(kind = MC_IKIND) :: maxeqt, fbosiz, stat, idum
+integer(kind = MC_IKIND) :: maxeqt, fbosiz, stat
 
 integer(kind = MC_IKIND) ::  eqCharCount, varCharCount, &
 &               parCharCount, funCharCount, ulFunCharCount
@@ -99,7 +98,7 @@ type(model), intent(inout)        :: mdl
 integer ::  ier, fstat, modelnmlen, modelnm(*)
 
 logical(kind = MC_LKIND) :: ldum1
-integer(kind = MC_IKIND) :: idum1, ufargl, fbosiz
+integer(kind = MC_IKIND) :: idum1, fbosiz
 
 ier = 1
 
@@ -156,8 +155,6 @@ goto 900
 goto 900
 896 ier = 3
 goto 900
-897 ier = 4
-goto 900
 898 ier = 5
 goto 900
 
@@ -180,10 +177,8 @@ use mif_file
 
 type(model), intent(inout) :: mdl
 integer ::  ier,fstat
-integer ::    i, j
-integer ::    ufargl,smax, idumar(2)
-character(len = 6), allocatable :: userf(:)
-integer(kind = MC_IKIND), allocatable :: dummyar(:)
+integer ::    i
+integer ::    smax
 
 ier = 0
 

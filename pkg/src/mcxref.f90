@@ -42,7 +42,7 @@ character*(mcmxnm) name
 integer ::   bysget
 external bysget
 
-character*8 string
+character(len = 8) :: string
 logical ::   exist
 
 integer ::   ios, i, maxlg, maxld, nxref, iref
@@ -50,7 +50,7 @@ integer ::   j, ldum, npro, nsim, nepi
 integer ::   p,cnt,tcnt
 
 integer ::   lp
-character*256 line
+character(len = 256) :: line
 
 integer ::   mxvlen,mxplen,mxelen,leadsp
 integer ::   maxcln
@@ -59,7 +59,7 @@ integer :: xref_alloc_stat
 integer ::   minfbo,maxfbo,fbostp
 real(kind = SOLVE_RKIND) :: avgfbo, z
 
-character*1 vartyp
+character(len = 1) :: vartyp
 
 integer  :: cntrdv, nzrcnt, idum
 integer(kind = MC_IKIND) :: lhsnum
@@ -621,11 +621,6 @@ goto 999
 940 continue
 errstr = 'Mcxref: internal error 3'
 ier = 6
-goto 999
-
-970 continue
-errstr = 'Mcxref: cannot allocate memory'
-ier = 7
 goto 999
 
 990 continue

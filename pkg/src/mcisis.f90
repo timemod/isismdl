@@ -531,8 +531,8 @@ subroutine mcoerr(errcod)
 
 !     In    errcod   Integer    type error
 
-integer ::  errcod
-character*80 errmsg
+integer, intent(in) ::  errcod
+character(len = 80) :: errmsg
 
 goto(1,2,3,4,5,6,7,8,9,10,11,12,13) errcod
 errmsg = 'Unknown error'
@@ -620,8 +620,8 @@ subroutine mcgerr( errcod)
 
     !  In    errcod   Integer    type error
 
-    integer ::  errcod
-    character*50 errmsg
+    integer, intent(in) ::  errcod
+    character(len = 50) :: errmsg
 
     select case(errcod)
     case (1)
@@ -649,7 +649,7 @@ use output_utils
 
 ! error message for a file (read/write) error
 
-character*80 errmsg
+character(len = 80) :: errmsg
 
 if( filerr .eq. 1 ) then
     errmsg = 'Cannot open error file'
@@ -728,7 +728,7 @@ integer, intent(in) ::  msgnum, mpar
 
 ! print progress .. messages
 
-character*80 str
+character(len = 80) :: str
 
 goto(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) msgnum
 goto 200

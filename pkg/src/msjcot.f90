@@ -37,7 +37,7 @@ subroutine jacot2(matitr,itr,rcond)
 ! if output options require it
 
 integer ::  matitr, itr
-real*8 rcond
+real(kind = SOLVE_RKIND) :: rcond
 
 if (repopt >= REP_PERIOD) then
    write(str, 901, round = 'compatible') matitr, itr, rcond
@@ -59,7 +59,7 @@ use msvars
 
 integer ::  itr
 
-character*80  jachdr
+character(len = 80) :: jachdr
 
 write(jachdr,'(a,i4,2a)') 'Newton Jacobian matrix at iteration ',itr, &
 &           ' in period ',perstr
@@ -146,7 +146,6 @@ call strout(O_OUTN)
 
 901 format(' Broyden update becomes singular ', ' (1/condscal = ', 1p,e9.2, ')' )
 
-900 continue
 return
 end subroutine jacot6
 

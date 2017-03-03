@@ -71,9 +71,8 @@
 
 
 integer :: ier, errval, nfbprev
-integer :: namelen
 integer, dimension(:), allocatable :: fbtypfix
-character(len = 20) :: rname = "MDORDR"
+!character(len = 20) :: rname = "MDORDR"
 !*IF TIMER
 !      real :: told, tnew
 !*ENDIF

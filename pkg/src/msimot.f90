@@ -206,17 +206,17 @@ use nuna
 ! basic number format routine
 ! fixed width and switch to E format if abs(x) too big/small
 
-real*8      x
+real(kind = SOLVE_RKIND) :: x
 character*(*) numstr
 
-character*10 EFMT, FFMT
+character(len = 10) :: EFMT, FFMT
 parameter( EFMT = '(1P,E12.5)' )
 parameter( FFMT = '(F12.5)'    )
-real*8     TOOBIG, TOOSML
+real(kind = SOLVE_RKIND) :: TOOBIG, TOOSML
 parameter (TOOBIG = 1.0D5, TOOSML = 1.0D-5)
 
 logical ::   usefmt
-real*8   z
+real(kind = SOLVE_RKIND) :: z
 
 usefmt(z) = abs(z) .ge. TOOBIG .or. (abs(z) .gt. Rzero .and. abs(z) .le. TOOSML)
 
@@ -243,13 +243,13 @@ use nuna
 ! If the number is too big or small, then the number is printed using
 ! ES format with noEfmt printed numbers.
 
-real*8, intent(in) ::  x
+real(kind = SOLVE_RKIND), intent(in) ::  x
 integer, intent(in)         :: numWidV, intWid, nodecim, noEfmt
 character*(*), intent(out)  :: numstr
-logical                     :: uffmt
-character*9                 :: formt
-character*2                 :: f
-character*3                 :: d
+logical                    :: uffmt
+character(len = 9)         :: formt
+character(len = 2)         :: f
+character(len = 3)         :: d
 
 if (nuifna(x))  then
    ! number is NA
@@ -302,7 +302,7 @@ end subroutine nvlvfmt
 
 subroutine svlfmt(val, ib, ie, colwid)
 
-real*8        val(*)
+real(kind = SOLVE_RKIND) :: val(*)
 integer ::        ib, ie
 integer ::        colwid
 
@@ -329,7 +329,7 @@ subroutine svlvfmt(val, ib, ie, colwid, numWidV, intWid, nodecim, noEfmt)
 !     print numbers in specified width with F format
 !     if too big/small switch to E-format
 !     right justified within column width
-real*8, intent(in) ::  val(*)
+real(kind = SOLVE_RKIND), intent(in) ::  val(*)
 integer, intent(in) :: ib, ie
 integer, intent(in) :: colwid, numWidV, intWid, nodecim
 integer, intent(in) :: noEfmt
@@ -526,7 +526,7 @@ integer ::        nmlen,shift
 character*(*) dst
 integer ::        dlen
 
-character*8   temp
+character(len = 8) :: temp
 integer ::        shfwid
 integer ::        i
 
@@ -562,13 +562,13 @@ use nucnst
 ! cidx   contains numbers of variables to print in columns
 
 
-real*8        x(xdim,*)
 integer(kind = MC_IKIND) :: xdim, nxr, nxc, ridx(*), cidx(*)
+real(kind = SOLVE_RKIND) :: x(xdim,*)
 character*(*) mathdr
 
 integer ::    colwid, maxrhl, maxchl
 integer ::    ncpb,ncpe,npcols,i,j
-real*8        temp(20)
+real(kind = SOLVE_RKIND) :: temp(20)
 
 !     colwid  column width
 !     maxrhl  length of longest row    header
@@ -638,8 +638,8 @@ use nuna
 ! the number is printed in F or E format.
 
 implicit none
-real*8, intent(in)  :: x
-real*8              :: xref
+real(kind = SOLVE_RKIND), intent(in)  :: x
+real(kind = SOLVE_RKIND) :: xref
 integer, intent(in) :: intWid, nodec
 integer             :: numWidV, noEfmt, pointWid
 
@@ -694,8 +694,8 @@ use nucnst
 
 implicit none
 integer, intent(in) :: intWid, nodec
-real*8, intent(in)  ::  x
-real*8              :: toobig, toosml
+real(kind = SOLVE_RKIND), intent(in)  ::  x
+real(kind = SOLVE_RKIND)  :: toobig, toosml
 
 toobig = Rten**(intWid)
 toosml = Rten**(-nodec)

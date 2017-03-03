@@ -7,7 +7,11 @@
 !
 
 subroutine donowt( dum1, dum2 )
-    real*8 dum1, dum2
+    real(kind = 8), intent(in) :: dum1, dum2
+    
+    real(kind = 8) :: x
+
+    x = dum1
 
    ! intentionally do nothing
    return

@@ -25,7 +25,7 @@ integer, intent(out)            :: ier
 
 integer(kind = MC_IKIND), dimension(maxpol) :: polish
 
-integer ::   ios,i,j
+integer ::   ios, i
 integer ::   smax
 integer(kind = MC_IKIND) :: fbosiz
 logical ::   exist, code_in_memory

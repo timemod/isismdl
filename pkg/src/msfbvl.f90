@@ -39,13 +39,13 @@ use nuna
 
 integer, intent(out) :: retcod
 integer(kind = MC_IKIND), intent(in) ::  order(*), ostart, oend
-real*8   result, result2, zsave, delta
+real(kind = ISIS_RKIND) ::  result, result2, zsave, delta
 
 integer ::  p, pstart, pend, eqnum, lhs
 integer ::  xcod
 
 integer, external ::  bysget
-character*1 eqtyp
+character(len = 1) :: eqtyp
 real(kind = SOLVE_RKIND), pointer, dimension(:) :: rhsvars
 
 pstart = ostart

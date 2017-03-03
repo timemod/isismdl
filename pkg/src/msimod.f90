@@ -13,7 +13,7 @@ subroutine simod1(iv, jlag)
 integer ::   iv
 integer ::   jlag
 
-character*80  dst
+character(len = 80) :: dst
 integer ::        dlen
 
 call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
@@ -35,8 +35,8 @@ subroutine simod2(iv, jlead)
 integer ::  jlead
 integer ::  iv
 
-character*80  dst
-integer ::        dlen
+character(len = 80) :: dst
+integer :: dlen
 
 call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
 call nshfmt(name, nlen, jlead, dst , dlen)
@@ -73,7 +73,7 @@ subroutine simod4(p,i)
 
 integer ::  p, i
 
-character*80  dst
+character(len = 80) :: dst
 integer ::        dlen
 
 call mcf7ex(name, nlen, mdl%ipnames(p), mdl%pnames)

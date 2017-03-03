@@ -6,8 +6,8 @@ contains
 ! the inverse condition of matrix A using the factorisation.
 subroutine qrco(a, lda, m, n, tau, rcond, work, lwork)
 use kinds
-real(kind = ISIS_RKIND), intent(inout) :: a(lda,*)
 integer(kind = LI_IKIND), intent(in) :: lda, m, n, lwork
+real(kind = ISIS_RKIND), intent(inout) :: a(lda,*)
 real(kind = ISIS_RKIND), intent(out) :: tau(*), rcond, work(*)
 
 integer(kind = LAPACK_IKIND) :: info

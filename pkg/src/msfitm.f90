@@ -211,7 +211,7 @@ contains
             call fitot0(2)
         endif
         
-        900 return
+        return
     end subroutine solfit
 
     !-----------------------------------------------------------------------
@@ -255,13 +255,12 @@ contains
         parameter(Qzero = 0.0_SOLVE_RKIND)
         
         logical ::  deval,fcvgd,prihdr
-        integer ::  i, j
+        integer ::  i
         integer ::  fiscod,fiter,wmxidx,wmxtyp,djcnt
-        integer ::  xcod, stat
-        real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, svd_tol
+        integer ::  xcod
+        real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond !, svd_tol
         real(kind = ISIS_RKIND), dimension(:,:), allocatable :: dj_copy
-        integer, intrinsic :: max
-        integer :: svd_err
+        ! integer :: svd_err
         logical :: memory_error
 
         !     fiscod is fit iteration status
@@ -617,7 +616,7 @@ contains
     real(kind = ISIS_RKIND) :: t, mat_norm, rowcnd, colcnd, amax
     integer(kind = LAPACK_IKIND) :: info
     
-    integer ::  i, j, ires, idum, itr0, matitr, ier, stat
+    integer ::  i, j, ires, idum, itr0, matitr, stat
     
     
     !     RMSDEL is constant for calculation of derivative

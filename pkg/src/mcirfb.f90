@@ -209,7 +209,7 @@ logical ::  chkfb
 !         print overview of redundant feedback variables
 
 
-    character*80 str
+    character(len = 80) :: str
 integer ::  i
 integer ::  nlen1,nlen2
 

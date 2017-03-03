@@ -67,7 +67,6 @@ contains
    integer, intent(in), optional :: jtime
    logical, intent(in) :: solve_model
 
-   real(kind = ISIS_RKIND), intrinsic :: sin, cos, tan
    !real(kind = ISIS_RKIND), external :: sdcdnm, sdivnm
    real(kind = ISIS_RKIND) :: rop1, rop2
 
@@ -87,7 +86,7 @@ contains
    real(kind = ISIS_RKIND), parameter :: QZERO = 0.0D0 , QONE = 1.0D0
    real(kind = ISIS_RKIND) :: tmp
 
-   integer :: ip, ipsave, ipend, iposum, ipodel, ipsavl
+   integer :: ip, ipend, iposum, ipodel
    integer :: ipcode,kxar,nstack
    integer :: jsum,mindo, maxdo,jdel,ndel
    integer :: jshift,juf,nstuf,nstuf_old,iarg
@@ -127,8 +126,6 @@ contains
 ! ipcode    current ipcode
 ! ip        instruction pointer
 ! ipend     last valid index for ip
-! ipsave    saved value of ip when doing a user function
-! ipsavl    saved value of ipend (set when starting a function)
 ! iposum    value of ip for a sum function
 ! ipodel    value of ip for a del function
 !               Sum and Del may Not be nested !!

@@ -94,10 +94,10 @@ subroutine fitot4(fiter,newjac,dcond,delwmx,dlwmxp,iv, wmxtyp,prihdr)
     
     integer ::  fiter,iv,wmxtyp
     logical ::  newjac,prihdr
-    real*8  dcond,delwmx, dlwmxp
+    real(kind = SOLVE_RKIND) :: dcond, delwmx, dlwmxp
     
     integer ::       clen, hdrlen, rpos
-    character*6  chdr(6)
+    character(len = 6) :: chdr(6)
     integer ::       chln(6), cwid(6)
     integer ::       k
     
@@ -167,7 +167,7 @@ subroutine fitot5(relcvg)
     ! relative convergence very bad
     ! no better point can be found
     
-    real*8 relcvg
+    real(kind = SOLVE_RKIND) :: relcvg
     
     write(str,'(a,f5.3)', round = 'compatible') &
     &     'Fit relative convergence above ',relcvg
@@ -184,7 +184,7 @@ subroutine fitot6(iv, crit)
     !     print warning about relatively large CA
     
     integer(kind = SOLVE_IKIND) :: iv
-    real*8   crit
+    real(kind = SOLVE_RKIND) ::  crit
     
     call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
     
@@ -208,8 +208,8 @@ subroutine fitot8(ier,dcond)
     
     ! print message about bad condition of Fit D matrix
     
-    integer ::  ier
-    real*8  dcond
+    integer, intent(in) ::  ier
+    real(kind = SOLVE_RKIND), intent(in) :: dcond
     
     if( ier .eq. 2 ) then
        str = 'Fit Error - total loss of precision of D matrix'
@@ -246,7 +246,7 @@ subroutine fitot9(fiter,fcvgd,djcnt,maxiter)
        endif
     endif
     
-    900 return
+    return
 end subroutine fitot9
 
 subroutine fitot10(fiter)
@@ -379,15 +379,13 @@ subroutine fitonu_fix(nu, numu)
 end subroutine fitonu_fix
 
 subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
+    integer(kind = SOLVE_IKIND), intent(in) :: numw(*), numu(*), nw, nu, nu_max
     real(kind = SOLVE_RKIND), intent(in) :: dj(nu_max, nw)
     integer, intent(in) :: fiter
-    integer(kind = SOLVE_IKIND), intent(in) :: numw(*), numu(*), nw, nu, nu_max
     
     ! output of D matrix
     
-    character*80 dhdr
-    
-    integer ::  i
+    character(len = 80) :: dhdr
     
     write(dhdr,'(4a,i4)') 'Transpose of matrix D (scaled with rms)', &
     & ' in period ', perstr, ' at iteration ',fiter
@@ -404,7 +402,7 @@ end subroutine fitodj
 subroutine fitoca(delu, numu, nu,fiter)
     use mdl_name_utils
     
-    real*8   delu(*)
+    real(kind = SOLVE_RKIND), intent(in) ::  delu(*)
     integer, intent(in) :: fiter
     integer(kind = SOLVE_IKIND), intent(in) :: numu(*), nu
     
@@ -414,10 +412,8 @@ subroutine fitoca(delu, numu, nu,fiter)
     
     integer ::   colwid, rpos
     
-    real*8   temp(2)
-    character*12  chdr(2)
-    save          chdr
-    
+    real(kind = SOLVE_RKIND) :: temp(2)
+    character(len = 12), save :: chdr(2)
     data chdr / 'New value', 'Change' /
     
     colwid = max(NUMWID, 12)

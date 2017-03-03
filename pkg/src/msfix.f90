@@ -13,9 +13,7 @@ module msfix
             integer, intent(in) :: jt
 
             type(mdl_variable), pointer :: fix_var
-            integer(kind = SOLVE_IKIND) :: aci
             real(kind = MWS_RKIND) :: value
-            logical :: error
 
             has_fix_vars = .false.
 

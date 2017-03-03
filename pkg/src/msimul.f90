@@ -33,7 +33,7 @@ use nucnst
 !     variable can be used for cleanup purposes
 
 logical ::  quit
-integer ::  usedat,ndiver, js, i, retcod, fit_err
+integer ::  usedat,ndiver, retcod, fit_err
 real    ::  told, tnew
 
 ! set error flag in global common to 0
@@ -147,9 +147,9 @@ use msratop
 !     0     if all ok
 
 integer ::  ndiver, retcod
-integer ::  usedat, iratex, i, k, j, noncvg, imax, jmax, repfull
+integer ::  usedat, iratex, noncvg, imax, jmax
 
-real*8  xold, xnew, xomax, xnmax, absdif, dismax
+real(kind = SOLVE_RKIND) :: xomax, xnmax, dismax
 
 ! initialisation for simulb in first iteration
 if (opts%start == 'C') then
@@ -242,8 +242,8 @@ use nucnst
 
 integer ::  imax,jmax
 integer ::  noncvg
-real*8  dismax, xomax, xnmax
-real*8  xold, xnew, absdif, pcvg
+real(kind = SOLVE_RKIND) :: dismax, xomax, xnmax
+real(kind = SOLVE_RKIND) :: xold, xnew, absdif, pcvg
 
 integer ::  k,i,j
 
@@ -301,7 +301,7 @@ use nuna
 ! update endogenous leads with FairTaylor relaxation
 ! approx. Jacobi iteration for linear systems
 
-real*8  xold, xnew, xrlx
+real(kind = SOLVE_RKIND) :: xold, xnew, xrlx
 integer ::  k, i, j
 
 do k = 1, mdl%nendex
@@ -354,10 +354,9 @@ use msimot
 ! no rational expectations
 
 integer ::  ndiver, retcod
-integer ::        usedat
-logical ::        quit
-integer ::        i, j, ier
-integer  ::   jstart, jend, jt, step
+integer ::  usedat
+logical ::  quit
+integer  :: jstart, jend, jt, step
 
 ndiver = 0
 

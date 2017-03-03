@@ -51,10 +51,9 @@ subroutine fill_mdl_data(jt1, jt2, report_type)
 
         integer, external ::  bysget
         character(len = 1) :: eqtype
-        integer ::      tgain
         logical ::     error
 
-        real*8 x, xresult
+        real(kind = SOLVE_RKIND) :: x, xresult
         integer ::  i, iequ, lhsvar, ier
 
         didfb = .false.

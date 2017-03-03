@@ -176,7 +176,7 @@ contains
 
 subroutine mceini
 
-integer ::  last, i
+integer :: i
 
 !     contains definitions for setting and getting
 !     various data/flags for model code opcodes

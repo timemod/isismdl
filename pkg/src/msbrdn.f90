@@ -86,7 +86,7 @@ integer, intent(in) :: itr
 !                   other problems
 !     retcod = 10 : not enough memory
 
-real*8   rcond
+real(kind = ISIS_RKIND) :: rcond
 
 integer ::   matitr, ier
 integer(kind = LAPACK_IKIND) :: j, info
@@ -201,8 +201,8 @@ use msjcot
 use nuv
 integer(kind = LI_IKIND), intent(in) :: n, ldr
 integer, intent(out) :: ier
-real*8  q(ldr,*),r(ldr,*)
-real*8  fp(*),wa(*)
+real(kind = ISIS_RKIND) :: q(ldr,*),r(ldr,*)
+real(kind = ISIS_RKIND) :: fp(*),wa(*)
 
 !***********************************************************************
 
@@ -228,7 +228,7 @@ real*8  fp(*),wa(*)
 
 integer ::  i, info
 logical ::  doupdt
-real*8  eta,sts,rcond
+real(kind = SOLVE_RKIND) :: eta,sts,rcond
 
 !     fudge factor for determining whether update is to actually done
 
