@@ -6,7 +6,7 @@
 #' is ready to be solved.
 #'
 #' @param period the model period for the ISLM model
-#' @return a \code{\link{IsisMdl}} object
+#' @return a \code{\link{IsisMdlS4}} object
 #' @examples
 #' mdl <- islm_mdl()
 #' @export

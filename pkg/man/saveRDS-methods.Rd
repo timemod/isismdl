@@ -34,6 +34,6 @@ to use "gzip" compression, or one of "gzip", "bzip2" or "xz" to indicate
 \item{refhook}{a hook function for handling reference objects.}
 }
 \description{
-The special version for \code{\link{IsisMdl}} objects takes care of the
+The special version for \code{\link{IsisMdlS4}} objects takes care of the
 equation code stored in Fortran memory.
 }

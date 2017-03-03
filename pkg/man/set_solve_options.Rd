@@ -7,7 +7,7 @@
 set_solve_options(mdl, ...)
 }
 \arguments{
-\item{mdl}{an \code{\link{IsisMdl}} object}
+\item{mdl}{an \code{\link{IsisMdlS4}} object}
 
 \item{...}{the solve options (TODO: document the possible options)}
 }

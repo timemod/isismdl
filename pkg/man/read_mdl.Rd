@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_mdl.R
 \name{read_mdl}
 \alias{read_mdl}
-\title{Reads a model from an RDS file (S4 version)}
+\title{Reads a model from an RDS file (R6 version)}
 \usage{
 read_mdl(file)
 }
@@ -10,9 +10,9 @@ read_mdl(file)
 \item{file}{the name of the RDS file}
 }
 \value{
-a \code{\link{IsisMdlS4}} object
+a \code{\link{IsisMdl}} object
 }
 \description{
-This function reads a model from an RDS file that was generated
-by function \code{\link{readRDS}} using an  \code{IsisMdlS4} object.
+This function reads a model from an RDS file that was created
+by method \code{\link{saveRDS}} of an \code{IsisMdl} object.
 }

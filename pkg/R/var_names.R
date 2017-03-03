@@ -1,6 +1,6 @@
 #' Returns the names of the model variables
 #'
-#' @param mdl an \code{\link{IsisMdl}} object
+#' @param mdl an \code{\link{IsisMdlS4}} object
 #' @param pattern a regular expression
 #' @param type the variable type (see Isis Reference Manual)
 #' @useDynLib isismdl get_var_names_c

@@ -1,6 +1,6 @@
 #' Set the solve options
 #'
-#' @param mdl an \code{\link{IsisMdl}} object
+#' @param mdl an \code{\link{IsisMdlS4}} object
 #' @param ... the solve options (TODO: document the possible options)
 #' @export
 set_solve_options <- function(mdl, ...) {

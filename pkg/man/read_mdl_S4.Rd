@@ -10,9 +10,10 @@ read_mdl_S4(file)
 \item{file}{the name of the RDS file}
 }
 \value{
-a \code{\link{IsisMdl}} object
+a \code{\link{IsisMdlS4}} object
 }
 \description{
-This function reads a model from an RDS file that was generated
-by \code{\link{IsisMdl}} method \code{saveRDS},
+This function reads a model from an RDS file that was created
+by writing an \code{\link{IsisMdlS4}} object to a rds file
+with function \code{\link{saveRDS}}.
 }
