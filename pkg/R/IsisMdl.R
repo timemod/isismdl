@@ -325,10 +325,11 @@ IsisMdl <- R6Class("IsisMdl",
         },
         set_data = function(data, names = colnames(data)) {
             "Sets the model data"
-            if (is.null(self$get_period()))
-            { # If non-existent, also set period
-                data_period <- regts::get_regperiod_range(input_ts)
-                self$set_period(data_period)
+            if (is.null(self$get_period())) {
+                stop(paste0("The period for which you want to solve is not set yet.",
+                             " Please set the solve period with set_period().",
+                             " E.g.: set_period(\"", regts::start_period(data) + private$maxlag,
+                             "/", regts::end_period(data) - private$maxlead, "\")."))
             }
             return(private$set_var(1L, data, names, missing(names)))
         },
