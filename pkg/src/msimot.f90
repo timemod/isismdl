@@ -460,7 +460,7 @@ call strout(O_OUTF)
 if(tuse .lt. 0.0) tuse = tuse - 24.0*60.0*60.0
 
 write(str,'(a,f8.2,a)', round = 'compatible') &
-&       'Solve model used ', tuse,' Cpu secs'
+&       'Solve model used ', tuse,' CPU secs'
 call strout(O_OUTF)
 
 if (ndiver > 0) then
@@ -743,12 +743,12 @@ end function useFfmt
             call print_option_real("          matrix", opts%cnmtrx, tab_pos)
 
             tab_pos = 58
-            call print_option_int("Maximum updates Newtom matrix per period", &
+            call print_option_int("Maximum updates Newton matrix per period", &
                                   opts%maxmat, tab_pos)
             call print_option_int(&
-                 "Maximum number of linesearches with old Jacobian", &
+                 "Maximum number of line searches with old Jacobian", &
                                   opts%bktmax, tab_pos)
-            call print_option_txt("Criterion for linesearch decisions etc.", &
+            call print_option_txt("Criterion for line search decisions etc.", &
                   get_arith_text(opts%arith), tab_pos)
 
             str = " "
