@@ -182,7 +182,7 @@ use nucnst
 integer, intent(out) :: retcod, matitr
 
 integer :: fbnum, i, j, k
-real*8 :: delta
+real(kind = SOLVE_RKIND) :: delta
 
 ! reset all feedback values to initial state
 do i = 1, mdl%nfb
@@ -503,11 +503,11 @@ subroutine xvlfmt( x, numstr )
 !              and recompile
 
 use nuna
-real*8        x
+real(kind = SOLVE_RKIND) :: x
 
 character*(*) numstr
 
-character*11 EFMT
+character(len = 11) :: EFMT
 parameter( EFMT = '(1p,e24.17)' )
 
 if( .not. nuifna(x) ) then

@@ -215,13 +215,8 @@ parameter( FFMT = '(F12.5)'    )
 real(kind = SOLVE_RKIND) :: TOOBIG, TOOSML
 parameter (TOOBIG = 1.0D5, TOOSML = 1.0D-5)
 
-logical ::   usefmt
-real(kind = SOLVE_RKIND) :: z
-
-usefmt(z) = abs(z) .ge. TOOBIG .or. (abs(z) .gt. Rzero .and. abs(z) .le. TOOSML)
-
-if (.not. nuifna(x) ) then
-   if( usefmt(x) ) then
+if (.not. nuifna(x)) then
+   if (usefmt(x)) then
       write(numstr, EFMT, round = 'compatible') x
    else
       write(numstr, FFMT, round = 'compatible') x
@@ -231,6 +226,15 @@ else
 endif
 
 return
+
+contains
+
+    logical function usefmt(z)
+        real(kind = SOLVE_RKIND), intent(in) :: z
+            usefmt = abs(z) >= TOOBIG .or. &
+                     (abs(z) > Rzero .and. abs(z) <= TOOSML)
+    end function usefmt
+
 end subroutine nvlfmt
 
 !-----------------------------------------------------------------------

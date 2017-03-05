@@ -278,7 +278,7 @@ else
 endif
 
 if (ier /= 0) then
-   call jacot6(ier,rcond)
+   call jacot6(rcond)
 endif
 return
 end subroutine msbrup

@@ -73,11 +73,10 @@ integer(kind = LAPACK_IKIND) :: info
 
 
 if  (lwork == -1) then
-
-!         Determine optimal workspace for dqeqrf / dtrcon.
-!         dtrcon requires a workspace 4 * n.
+    ! Determine optimal workspace for dqeqrf / dtrcon.
+    ! dtrcon requires a workspace 4 * n.
     call dgeqrf(m, n, a, lda, tau, work, -1_LAPACK_IKIND, info)
-    work(1) = max(work(1), 4.0 * n)
+    work(1) = max(work(1), 4.0_SOLVE_RKIND * n)
     return
 endif
 

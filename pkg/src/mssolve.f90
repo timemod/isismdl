@@ -66,8 +66,8 @@ logical ::        convgd, quit
 
 integer ::        xcod,xsptyp, imax, itr, i, rcod, tcod, bcnt, ier
 
-real*8     Fstart, Fbmax, Fbmaxp, Fquot, Fquotp, Fcrit
-real*8     ypfbi
+real(kind = SOLVE_RKIND) :: Fstart, Fbmax, Fbmaxp, Fquot, Fquotp, Fcrit
+real(kind = SOLVE_RKIND) :: ypfbi
 
 !     Fbmax  largest scaled change in feedback variables
 !     Fquot  ratio of current and previous maximum scaled change

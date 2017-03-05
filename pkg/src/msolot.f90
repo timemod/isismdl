@@ -103,7 +103,7 @@ integer ::  itr
 
 integer ::   maxlen, maxcol, colwid
 integer ::   j,jb,je
-real*8   temp(20)
+real(kind = SOLVE_RKIND) :: temp(20)
 
 maxlen = maxnli(mdl%ivnames, mdl%numfb, 1_MC_IKIND, mdl%nfb)
 colwid = max(NUMWID, maxlen)
@@ -226,8 +226,8 @@ subroutine solotc(itr, relax)
 !     print message for relaxation factor in newton method
 !     if output options require it
 
-integer ::  itr
-real*8  relax
+integer, intent(in) ::  itr
+real(kind = SOLVE_RKIND), intent(in) :: relax
 
 if (repopt == REP_FULLREP) then
    write(str,'(a,f5.3,a,i4)', round = 'compatible') &

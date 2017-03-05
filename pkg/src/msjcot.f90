@@ -134,12 +134,11 @@ end subroutine jacot5
 
 !-----------------------------------------------------------------------
 
-subroutine jacot6(ier,rcond)
+subroutine jacot6(rcond)
 
-!     print message for ill conditioned/singular broyden update
+! print message for ill conditioned/singular broyden update
 
-integer ::  ier
-real*8 rcond
+real(kind = solve_RKIND), intent(in) :: rcond
 
 write(str, 901, round = 'compatible') rcond
 call strout(O_OUTN)

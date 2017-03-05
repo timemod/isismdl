@@ -63,7 +63,7 @@ character(len = 1) :: vartyp
 
 integer  :: cntrdv, nzrcnt, idum
 integer(kind = MC_IKIND) :: lhsnum
-integer :: stat
+integer :: stat, retcod
 
 ier = 0
 
@@ -178,11 +178,23 @@ if( .not. rfshrt ) then
 
        equno(lhsnum) = i
 
-       call addxrf(i, nv   , iv,    nxref, maxref, &
-&                  ivref, ixref, ieref, *900, *930)
+       call addxrf(i, nv, iv, nxref, maxref, ivref, ixref, ieref, retcod)
+       if (retcod /= 0) then
+           if (retcod == 1) then
+               goto 900
+            else
+               goto 930
+            endif
+       endif
 
-       call addxrf(i, nparv, iparv, nxref, maxref, &
-&                  ipref, ixref, ieref, *900, *940)
+       call addxrf(i, nparv, iparv, nxref, maxref, ipref, ixref, ieref, retcod)
+       if (retcod /= 0) then
+           if (retcod == 1) then
+               goto 900
+            else
+               goto 940
+            endif
+       endif
 
    end do
 endif
@@ -646,40 +658,50 @@ end subroutine write_xref
 
 !-----------------------------------------------------------------------
 
-subroutine addxrf(iequ, nsimv, isimv, nxref, maxref, ivref, ixref, ieref, *, *)
+subroutine addxrf(iequ, nsimv, isimv, nxref, maxref, ivref, ixref, ieref, &
+                  retcod)
 use model_params
 integer, intent(in) :: iequ, nsimv, isimv(*), maxref
 integer, intent(inout) :: nxref
 integer(kind = MC_IKIND), intent(inout) :: ivref(*), ixref(*), ieref(*)
+integer, intent(out) :: retcod
+
+! retcod
+!     0  ok
+!     1  too many references
+!     2  internal error
 
 integer ::  j, k, iref
 
-do  k=1,nsimv
+retcod = 0
+
+do k =1, nsimv
    nxref = nxref + 1
-   if(nxref .gt. maxref) goto 910
+   if (nxref > maxref) then
+       retcod = 1
+       return
+   endif
    ixref(nxref) = 0
    ieref(nxref) = iequ
    iref = ivref(isimv(k))
-   if(iref .eq. 0) then
+   if (iref == 0) then
       ivref(isimv(k)) = nxref
    else
-      do  j=1,maxref
-         if(ixref(iref) .eq. 0) then
+      do j = 1, maxref
+         if (ixref(iref) == 0) then
             ixref(iref) = nxref
-            goto 100
+            cycle
          else
             iref = ixref(iref)
          endif
       enddo
-!           Internal error
-      goto 920
+      ! Internal error
+      retcod = 2
+      return
    endif
-100 continue
 enddo
 
 return
-910 return 1
-920 return 2
 end subroutine addxrf
 
 !-----------------------------------------------------------------------

@@ -6,14 +6,15 @@
 ! do anything.
 !
 
-subroutine donowt( dum1, dum2 )
-    real(kind = 8), intent(in) :: dum1, dum2
+subroutine donowt(dum1, dum2)
+    use kinds
+    real(kind = SOLVE_RKIND), intent(in) :: dum1, dum2
+    ! intentionally do nothing
+
+    real(kind = SOLVE_RKIND) :: x
     
-    real(kind = 8) :: x
+    x = dum1 + dum2
 
-    x = dum1
-
-   ! intentionally do nothing
    return
 end subroutine donowt
 

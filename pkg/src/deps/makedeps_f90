@@ -55,6 +55,7 @@ msimox.o : kinds.o mdl_name_utils.o msimot.o msratop.o msvars.o
 msimul.o : msfitm.o msfix.o msimob.o msimot.o msimox.o msolot.o \
           msratop.o mssolve.o msutil.o msvars.o nucnst.o nuna.o output_utils.o
 msjcot.o : mdl_name_utils.o msimot.o msvars.o
+msnothing.o : kinds.o
 msnwut.o : kinds.o mdl_name_utils.o msfbvl.o msimot.o msjcot.o \
           msolot.o msutil.o msvars.o nucnst.o nuna.o nuv.o scalemat.o
 msolot.o : mdl_name_utils.o msimot.o msvars.o nuna.o

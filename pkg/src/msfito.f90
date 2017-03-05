@@ -84,7 +84,6 @@ subroutine fitot3(errcode)
         call strout(O_WMSG)
     endif
     
-    900 return
 end subroutine fitot3
 
 subroutine fitot4(fiter,newjac,dcond,delwmx,dlwmxp,iv, wmxtyp,prihdr)
