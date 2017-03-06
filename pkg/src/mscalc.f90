@@ -102,6 +102,11 @@ contains
    logical ::   error
    real(kind = MWS_RKIND), pointer, dimension(:) :: rhsvars
 
+   ulf_res = NA
+   jdel = 0
+   maxdo = 0
+   jsum = 0
+
    ! includes definitions for special ipcode data arrays
    ! !! all are 0-base and must be declared as such in
    ! receiving functions and subroutines
@@ -114,6 +119,8 @@ contains
        else
            rhsvars => curvars
        endif
+   else 
+       rhsvars => null()
    endif
 
 ! evaluates an equation by running a stack machine

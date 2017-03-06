@@ -27,6 +27,7 @@ type(mdl_variable) :: fix_var
 real(kind = SOLVE_RKIND) :: fix_value
 
 errflg = 0
+old_lik = .true.
 
 eqtype = char(bysget(mdl%etype, eqnum))
 if(ichar(eqtype) .gt. 96) then

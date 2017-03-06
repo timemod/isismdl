@@ -79,6 +79,8 @@ integer, dimension(:), allocatable :: fbtypfix
 logical :: checkfbrd_tmp
 integer :: fbrdcnt_tmp, alloc_stat
 
+fbrdcnt_tmp = 0
+
 !
 ! handle some optional arguments
 !

@@ -304,6 +304,8 @@ use nuna
 real(kind = SOLVE_RKIND) :: xold, xnew, xrlx
 integer ::  k, i, j
 
+xnew = NA
+
 do k = 1, mdl%nendex
 
    i = mdl%iendex(k)

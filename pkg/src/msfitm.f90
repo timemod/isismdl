@@ -617,6 +617,8 @@ contains
     integer(kind = LAPACK_IKIND) :: info
     
     integer ::  i, j, ires, idum, itr0, matitr, stat
+
+    itr0 = 0
     
     
     !     RMSDEL is constant for calculation of derivative

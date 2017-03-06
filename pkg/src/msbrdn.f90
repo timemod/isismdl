@@ -90,7 +90,6 @@ real(kind = ISIS_RKIND) :: rcond
 
 integer ::   matitr, ier
 integer(kind = LAPACK_IKIND) :: j, info
-logical ::   quit
 
 real(kind = ISIS_RKIND), dimension(:,:), allocatable :: jac
 integer ::  i, stat, svd_err
@@ -162,10 +161,8 @@ endif
 
 if (ier /= 0) then
     call jacot5(ier)
-    if (quit) then
-        retcod = 1
-        return
-    endif
+    retcod = 1
+    return
 endif
 
 !     copy the upper triangular part of a QR decomposition
