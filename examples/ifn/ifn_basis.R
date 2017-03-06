@@ -11,4 +11,4 @@ ifn$set_ftrelax(0.5, names = "lambda")
 ifn$set_solve_options(xmaxiter = 1500, ratreport = "iter",
                       report = "minimal", ratreport_rep =c(10, 50))
 
-ifn$saveRDS("ifn_basis.rds")
+ifn$write_mdl("ifn_basis.rds")

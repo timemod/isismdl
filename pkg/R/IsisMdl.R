@@ -545,9 +545,9 @@ IsisMdl <- R6Class("IsisMdl",
                             jtb = js$startp, jte = js$end)
             return (invisible(self))
         },
-        saveRDS = function(filename) {
+        write_mdl = function(filename) {
             # TODO: use tempfile
-            mif_file <- "saveRDS.mif"
+            mif_file <- "write_mdl.mif"
             .Call("write_mdl_c", mif_file, private$model_index)
             size <- file.info(mif_file)$size
             mif_data <- readBin(mif_file, what = "raw", n = size)

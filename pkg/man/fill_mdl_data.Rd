@@ -4,7 +4,7 @@
 \alias{fill_mdl_data}
 \title{Solves a model}
 \usage{
-fill_mdl_data(mdl, period = mdl@period)
+fill_mdl_data(mdl, period = mdl@data_period)
 }
 \arguments{
 \item{mdl}{an \code{\link{IsisMdlS4}} object}
