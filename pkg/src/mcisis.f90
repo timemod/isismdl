@@ -734,63 +734,64 @@ case (1)
 case (2) 
     str = 'Scanning model...'
 
-    case (3) 
-        str = 'Compiling model...'
+case (3) 
+    str = 'Compiling model...'
 
-    case (4)
-        str = 'Ordering equations...'
+case (4)
+    str = 'Ordering equations...'
 
-    case(5)
-        str = 'Writing MIF file...'
+case(5)
+    str = 'Writing MIF file...'
 
-    case (6)
-        str = 'Writing cross-reference file...'
+case (6)
+    str = 'Writing cross-reference file...'
 
-    case (7)
-        str = 'End compilation'
+case (7)
+    str = 'End compilation'
 
-    case (8) 
-        str = '         equations processed'
+case (8) 
+    str = '         equations processed'
+    write(str(4:8),'(i5)' ) mpar
 
-    case (9) 
-        str = 'Checking redundant feedback variables'
+case (9) 
+    str = 'Checking redundant feedback variables'
 
-    case (10)
-        str = '         redundant feedback variables detected'
-        write(str(4:8),'(i5)' ) mpar
+case (10)
+    str = '         redundant feedback variables detected'
+    write(str(4:8),'(i5)' ) mpar
 
-    case (11)
-        if (mpar == 0) then
-            str = 'Removing redundant feedback variables'
-        else
-            str = 'Not removing redundant feedback variables'
-        endif
+case (11)
+    if (mpar == 0) then
+        str = 'Removing redundant feedback variables'
+    else
+        str = 'Not removing redundant feedback variables'
+    endif
 
-    case (12)
-        str = 'Generating feedback variable ordering'
+case (12)
+    str = 'Generating feedback variable ordering'
 
-    case (13)
-        str = 'Feedback jacobian too dense (< 10% step reduction)'
+case (13)
+    str = 'Feedback jacobian too dense (< 10% step reduction)'
 
-    case (14)
-        str = 'Out of memory for feedback ordering'
+case (14)
+    str = 'Out of memory for feedback ordering'
 
-    case (15)
-        str = 'NO feedback ordering generated and installed'
+case (15)
+    str = 'NO feedback ordering generated and installed'
 
-    case (16)
-        str = '       feedback variables added'
-        write(str(4:9),'(i6)' ) mpar
+case (16)
+    str = '       feedback variables added'
+    write(str(4:9),'(i6)' ) mpar
 
-    case (17)
-        str = 'Redundancies resolved in    passes'
-        write(str(29:30),'(i2)' ) mpar
+case (17)
+    str = 'Redundancies resolved in    passes'
+    write(str(29:30),'(i2)' ) mpar
 
-    case (18)
-        str = 'More than 5 passes for redundant feedbacks'
+case (18)
+    str = 'More than 5 passes for redundant feedbacks'
 
 case default
-    return
+return
 
 end select
 
