@@ -19,7 +19,7 @@
 #' @return an \code{\link{IsisMdlS4}} object
 #' @export
 #' @export
-fill_mdl_data <- function(mdl, period = mdl@period) {
+fill_mdl_data <- function(mdl, period = mdl@data_period) {
 
     period <- as.regperiod_range(period)
 
