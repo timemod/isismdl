@@ -83,7 +83,7 @@ integer, intent(out) :: retcod, matitr
 
 integer ::       fbnum, i, j
 
-real*8      delta
+real(kind = SOLVE_RKIND) :: delta
 
 ! reset all feedback values to initial state
 do i = 1, mdl%nfb
@@ -182,7 +182,7 @@ use nucnst
 integer, intent(out) :: retcod, matitr
 
 integer :: fbnum, i, j, k
-real*8 :: delta
+real(kind = SOLVE_RKIND) :: delta
 
 ! reset all feedback values to initial state
 do i = 1, mdl%nfb
@@ -290,7 +290,7 @@ integer :: maxfbn
 !  maxfbn  length of longest feedback name
 
 integer ::       clen, rpos, strind
-character*20 chdr(3)
+character(len = 20) :: chdr(3)
 integer ::       chln(3), cwid(3), xwid(3)
 integer ::       i,k
 
@@ -400,11 +400,11 @@ use msvars
 use msimot
 use mdl_name_utils
 
-integer ::        itr, imax
-real*8        Fbmax, Fquot, Fcrit
+integer, intent(in) ::  itr, imax
+real(kind = SOLVE_RKIND), intent(in) :: Fbmax, Fquot, Fcrit
 
 integer ::       clen, hdrlen, rpos
-character*6  chdr(6)
+character(len = 6) :: chdr(6)
 integer ::       chln(6), cwid(6)
 integer ::       k
 
@@ -478,11 +478,10 @@ subroutine evlfmt( x, numstr )
 !              and recompile
 
 use nuna
-real*8        x
+real(kind = SOLVE_RKIND), intent(in) :: x
+character*(*), intent(out) :: numstr
 
-character*(*) numstr
-
-character*10 EFMT
+character(len = 10) ::  EFMT
 parameter( EFMT = '(1p,e12.5)' )
 
 if (.not. nuifna(x) ) then
@@ -504,11 +503,11 @@ subroutine xvlfmt( x, numstr )
 !              and recompile
 
 use nuna
-real*8        x
+real(kind = SOLVE_RKIND) :: x
 
 character*(*) numstr
 
-character*11 EFMT
+character(len = 11) :: EFMT
 parameter( EFMT = '(1p,e24.17)' )
 
 if( .not. nuifna(x) ) then
@@ -622,9 +621,9 @@ use msolot
 
 integer ::  retcod,rcod,itr,bcnt
 logical ::  matlst
-real*8  Fcrit,Fquot,Fquotp,Fbmax,Fbmaxp
-real*8  f
-integer ::  imax,i, nfbk
+real(kind = SOLVE_RKIND) :: Fcrit, Fquot, Fquotp, Fbmax, Fbmaxp
+real(kind = SOLVE_RKIND) :: f
+integer ::  imax, i
 
 rcod = 0
 bcnt = 0

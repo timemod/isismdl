@@ -103,7 +103,7 @@ integer ::  itr
 
 integer ::   maxlen, maxcol, colwid
 integer ::   j,jb,je
-real*8   temp(20)
+real(kind = SOLVE_RKIND) :: temp(20)
 
 maxlen = maxnli(mdl%ivnames, mdl%numfb, 1_MC_IKIND, mdl%nfb)
 colwid = max(NUMWID, maxlen)
@@ -188,7 +188,7 @@ subroutine solota(itr, relax)
 !     but only if output option requires it
 
 integer ::  itr
-real*8  relax
+real(kind = SOLVE_RKIND) :: relax
 
 if (repopt == REP_FULLREP) then
    write(str,'(a,f5.3,a,i4)', round = 'compatible') &
@@ -226,8 +226,8 @@ subroutine solotc(itr, relax)
 !     print message for relaxation factor in newton method
 !     if output options require it
 
-integer ::  itr
-real*8  relax
+integer, intent(in) ::  itr
+real(kind = SOLVE_RKIND), intent(in) :: relax
 
 if (repopt == REP_FULLREP) then
    write(str,'(a,f5.3,a,i4)', round = 'compatible') &
@@ -249,7 +249,7 @@ subroutine svdhdr(split, mxlen)
 logical ::  split
 integer ::  mxlen
 
-character*10  hdr(6)
+character(len = 10) :: hdr(6)
 integer ::        hln(6)
 integer ::        rpos, hlen
 integer ::        i
@@ -297,11 +297,11 @@ subroutine svdln(split, mxnlen, curnam, curlen,oldval,newval,disc, dsctyp, test)
 
 !     output of solve discrepancy line
 
-logical ::         split
-integer ::         mxnlen
-character*(*)  curnam
-integer ::         curlen
-real*8         oldval, newval, disc, test
+logical, intent(in) ::         split
+integer, intent(in) ::         mxnlen
+character*(*), intent(in) :: curnam
+integer, intent(in) ::  curlen
+real(kind = SOLVE_RKIND), intent(in) :: oldval, newval, disc, test
 
 character*(*)  dsctyp
 
@@ -347,12 +347,12 @@ use nuna
 
 ! print overview of not converged variables if requested
 
-integer ::  itr
-character*3   dtyp, armax
+integer, intent(in) ::  itr
+character(len = 3) :: dtyp, armax
 
 logical ::        split
-real*8        dismax, dval
-real*8        Qone
+real(kind = SOLVE_RKIND) :: dismax, dval
+real(kind = SOLVE_RKIND) :: Qone
 parameter    (Qone = 1.0d0)
 integer ::  i, imax, mxlen
 

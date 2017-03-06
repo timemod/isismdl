@@ -87,8 +87,8 @@ integer ::    i, lri, last, m, mm, nresto, nsingl
 integer ::    loopso, loopeo, nfbold
 integer ::    fx,eqfnum, numfix_tmp, idum
 
-integer ::    bysget
-character*1 eqtyp
+integer, external ::    bysget
+character(len = 1) :: eqtyp
 
 logical ::    usinac_tmp, fixepi_tmp
 integer ::    fbctyp
@@ -493,7 +493,7 @@ subroutine mcorim
 !     -----------------------------------------------------------------
 
 integer ::  i, lri, lcj, last
-character*1 eqtyp
+character(len = 1) :: eqtyp
 
 integer ::  bysget
 external bysget

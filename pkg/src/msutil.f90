@@ -629,22 +629,23 @@ end subroutine cpvecf
 
 subroutine cpvech(dst, src, n, lik)
 
-!     conditional copy n elements from src vector to dst vector
-!     only copy an element if lik(i) is .false. (exogenous)
-!     XOR
-!       if source is not NA
+! conditional copy n elements from src vector to dst vector
+! only copy an element if lik(i) is .false. (exogenous)
+!   XOR
+! if source is not NA
 
 use model_params
-integer(kind = MC_IKIND) :: n
-real*8  dst(*), src(*)
+integer(kind = MC_IKIND), intent(in) :: n
+real(kind = SOLVE_RKIND), intent(in) :: src(*)
+real(kind = SOLVE_RKIND), intent(out) :: dst(*)
+logical(kind = MC_IKIND), intent(in) :: lik(*)
 
-logical(kind = MC_IKIND) lik(*)
 integer ::  i
 
-do i=1,n
-   if( .not. lik(i) ) then
+do i = 1, n
+   if (.not. lik(i) ) then
       dst(i) = src(i)
-   elseif( .not. nuifna(src(i)) ) then
+   elseif (.not. nuifna(src(i))) then
       dst(i) = src(i)
    endif
 enddo

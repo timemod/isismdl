@@ -418,6 +418,8 @@ integer function get_shift()
       get_shift = - mdl%equat(ip+1)
   case (5:6)
       get_shift =   mdl%equat(ip+1)
+  case default
+      get_shift = 0
   end select
 end function get_shift
 

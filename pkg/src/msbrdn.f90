@@ -86,11 +86,10 @@ integer, intent(in) :: itr
 !                   other problems
 !     retcod = 10 : not enough memory
 
-real*8   rcond
+real(kind = ISIS_RKIND) :: rcond
 
 integer ::   matitr, ier
 integer(kind = LAPACK_IKIND) :: j, info
-logical ::   quit
 
 real(kind = ISIS_RKIND), dimension(:,:), allocatable :: jac
 integer ::  i, stat, svd_err
@@ -162,10 +161,8 @@ endif
 
 if (ier /= 0) then
     call jacot5(ier)
-    if (quit) then
-        retcod = 1
-        return
-    endif
+    retcod = 1
+    return
 endif
 
 !     copy the upper triangular part of a QR decomposition
@@ -201,8 +198,8 @@ use msjcot
 use nuv
 integer(kind = LI_IKIND), intent(in) :: n, ldr
 integer, intent(out) :: ier
-real*8  q(ldr,*),r(ldr,*)
-real*8  fp(*),wa(*)
+real(kind = ISIS_RKIND) :: q(ldr,*),r(ldr,*)
+real(kind = ISIS_RKIND) :: fp(*),wa(*)
 
 !***********************************************************************
 
@@ -228,7 +225,7 @@ real*8  fp(*),wa(*)
 
 integer ::  i, info
 logical ::  doupdt
-real*8  eta,sts,rcond
+real(kind = SOLVE_RKIND) :: eta,sts,rcond
 
 !     fudge factor for determining whether update is to actually done
 
@@ -278,7 +275,7 @@ else
 endif
 
 if (ier /= 0) then
-   call jacot6(ier,rcond)
+   call jacot6(rcond)
 endif
 return
 end subroutine msbrup

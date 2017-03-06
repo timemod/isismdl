@@ -12,7 +12,7 @@ use mdl_name_utils
 ! print guesses for rational expectations
 
 integer ::  iratex
-character*8   target
+character(len =  8) :: target
 integer(kind = MC_IKIND) :: kendex(20)
 real(kind = MWS_RKIND) :: temp(20)
 
@@ -82,7 +82,7 @@ integer, intent(in) ::  tlen
 logical, intent(in) :: screen   ! print message to the screen
 
 integer ::  i
-character*10  hdr(7)
+character(len = 10) :: hdr(7)
 integer ::        hln(7)
 integer ::        rpos, hlen
 
@@ -251,7 +251,6 @@ real(kind = SOLVE_RKIND) ::  cvgtst
 character(len = 8) :: target
 character(len = 3) ::  cdum
 logical ::        split
-real(kind = SOLVE_RKIND), intrinsic :: abs
 
 str =  'Largest remaining discrepancy'
 call strout(O_OUTN)
@@ -277,8 +276,6 @@ call rtxdln(split, nlen, name, nlen, target, xomax, xnmax, &
 &           dismax * cvgtst, cdum, cvgtst, .true., &
             opts%ratrepopt == RATOPT_FULLREPSCRN)
 
-500 continue
-
 return
 end subroutine simox4
 
@@ -292,11 +289,11 @@ use msvars
 ! rational expectations simulation
 
 
-character*3   cdum
-character*8   target
+character(len = 3) :: cdum
+character(len = 8) :: target
 logical ::        split, first
 integer ::        mxnlen
-real*8        xold, xnew, absdif, cvgtst
+real(kind = SOLVE_RKIND) :: xold, xnew, absdif, cvgtst
 
 integer ::  i,j,k
 

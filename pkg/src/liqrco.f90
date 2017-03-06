@@ -6,8 +6,8 @@ contains
 ! the inverse condition of matrix A using the factorisation.
 subroutine qrco(a, lda, m, n, tau, rcond, work, lwork)
 use kinds
-real(kind = ISIS_RKIND), intent(inout) :: a(lda,*)
 integer(kind = LI_IKIND), intent(in) :: lda, m, n, lwork
+real(kind = ISIS_RKIND), intent(inout) :: a(lda,*)
 real(kind = ISIS_RKIND), intent(out) :: tau(*), rcond, work(*)
 
 integer(kind = LAPACK_IKIND) :: info
@@ -73,11 +73,10 @@ integer(kind = LAPACK_IKIND) :: info
 
 
 if  (lwork == -1) then
-
-!         Determine optimal workspace for dqeqrf / dtrcon.
-!         dtrcon requires a workspace 4 * n.
+    ! Determine optimal workspace for dqeqrf / dtrcon.
+    ! dtrcon requires a workspace 4 * n.
     call dgeqrf(m, n, a, lda, tau, work, -1_LAPACK_IKIND, info)
-    work(1) = max(work(1), 4.0 * n)
+    work(1) = max(work(1), 4.0_SOLVE_RKIND * n)
     return
 endif
 

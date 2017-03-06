@@ -18,6 +18,8 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, ier)
 
     call read_mif_file(mws_array(model_index)%mdl, modelnmlen, modelnm, ier, &
 &                      fstat)
+
+    ! TODO: error handling if fstat != 0
     
     str = "Model with       equations read"
     write(str(12:16), '(I5)') mws_array(model_index)%mdl%neq

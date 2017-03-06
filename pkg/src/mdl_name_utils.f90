@@ -330,8 +330,8 @@ subroutine hsortmvn(ivar, nvar, nameptrs, names)
     ! nameptrs(ivar(i)) points to the position in names where the name
     ! of the corresponding variable name is stored.
     implicit none
-    integer(kind = MC_IKIND), intent(out) :: ivar(nvar)
     integer(kind = MC_IKIND), intent(in)  :: nvar, nameptrs(*), names(*)
+    integer(kind = MC_IKIND), intent(out) :: ivar(nvar)
 
     integer(kind = MC_IKIND)  :: i
 
@@ -400,7 +400,7 @@ subroutine hsortmvn(ivar, nvar, nameptrs, names)
       integer(kind = MC_IKIND), intent(in) :: cnt
   
   
-      integer :: sb, se, j, k, index
+      integer :: sb, se, j, k
   
       find_name = 0
   

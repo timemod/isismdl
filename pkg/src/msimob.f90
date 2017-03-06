@@ -15,7 +15,7 @@ contains
         ! print missing or invalid lag message for variable with lag jlag
         ! (jlag > 0). iv is variable index
         
-        character*80  dst
+        character(len = 80) :: dst
         integer :: dlen
         
         call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
@@ -45,7 +45,7 @@ contains
         ! print missing or invalid lead message for variable with lead jlead
         ! iv is variable index
         
-        character*80  dst
+        character(len = 80) :: dst
         integer ::        dlen
         
         call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)

@@ -168,6 +168,10 @@ module msvars
 
             integer(kind = LAPACK_IKIND) :: info
 
+            lwork_qr = 0
+            lwrk1 = 0
+            lwrk2 = 0
+
             if (opts%method == 'B' .or. opts%method == 'Q') then
                 ! calculate work space of QR decomposition
                 call qrco(rdum, mdl%nfb, mdl%nfb, mdl%nfb, &

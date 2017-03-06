@@ -241,8 +241,6 @@ module mws_type
             real(kind = MWS_RKIND), dimension(ntime, nvar), intent(out) :: mat
 
             integer :: i, j, jt, iv, jstart, jend
-            logical :: error
-
 
             jstart = max(jtb, 1 - mws%mdl%mxlag)
             jend   = min(jte,  mws%perlen +  mws%mdl%mxlead)
@@ -273,8 +271,6 @@ module mws_type
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
 
             integer :: i, j, jt, jstart, jend, iv
-            integer, intrinsic :: min, max
-            logical :: error
 
             jstart = max(jtb, 1 - mws%mdl%mxlag)
             jend   = min(jte,  mws%perlen +  mws%mdl%mxlead)
@@ -303,7 +299,6 @@ module mws_type
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
 
             integer :: i, j, jt, jstart, jend, aci
-            integer, intrinsic :: min, max
 
             jstart = max(jtb, 1)
             jend   = min(jte,  mws%perlen)
@@ -382,7 +377,6 @@ module mws_type
             logical, intent(in) :: fix
 
             integer :: i, j, jstart, jend, vcnt, ierr, iv, im
-            integer, intrinsic :: min, max
             real(kind = MWS_RKIND) :: fix_value
 
             type(mdl_variables), pointer :: mdl_vars

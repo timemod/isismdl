@@ -176,7 +176,7 @@ contains
 
 subroutine mceini
 
-integer ::  last, i
+integer :: i
 
 !     contains definitions for setting and getting
 !     various data/flags for model code opcodes
@@ -199,26 +199,6 @@ integer ::   rinval
 integer ::   hbits
 parameter( PRECIS = 256 , HBITS = PRECIS * PRECIS )
 parameter( PVFLAG = 1  , RINVAL = 1)
-!     statement functions for extracting data from opdat
-!     set operator data
-!       argument k incoming precedence (0..255)
-!       argument l instack  precedence (0..255)
-!       argument m 1 to indicate opcode is equivalent to push value
-!                  use PVFLAG parameter
-!       argument n 1 to indicate opcode should not occur in resulting code
-!                  use RINVAL parameter
-integer ::  sopdat, icprec,isprec,ioprli,irinvl
-integer ::  k,l,m,n
-sopdat(k,l,m,n) = k + PRECIS * l + HBITS * ( m + 2 * n )
-!     icprec(k)  = opdat(k) & 0xFF
-!     isprec(k)  = opdat(k) & 0xFF00
-!     ioprli(k)  = opdat(k) & 0x10000  (= (opdat(k) >> 16) & 1)
-!     irinvl(k)  = opdat(k) & 0x100000 (= (opdat(k) >> 16) & 2)
-icprec(k) = mod( mod(opdat(k),HBITS) , PRECIS)
-isprec(k) =      mod(opdat(k),HBITS) / PRECIS
-ioprli(k) = mod( opdat(k)/HBITS, 2)
-irinvl(k) =    ( opdat(k)/HBITS) / 2
-
 opskip =  0
 
 do  i=0,maxopc
@@ -455,7 +435,44 @@ do  i = 1, 6
 enddo
 
 return
-end subroutine mceini
 
+contains
+    integer function sopdat(k,l,m,n) 
+        integer, intent(in) ::  k,l,m,n
+        ! set operator data
+        !   argument k incoming precedence (0..255)
+        !   argument l instack  precedence (0..255)
+        !   argument m 1 to indicate opcode is equivalent to push value
+        !              use PVFLAG parameter
+        !   argument n 1 to indicate opcode should not occur in resulting code
+        !              use RINVAL parameter
+        sopdat = k + PRECIS * l + HBITS * ( m + 2 * n )
+    end function sopdat
+    
+    integer function icprec(k)
+        integer, intent(in) :: k
+        ! icprec(k)  = opdat(k) & 0xFF
+        icprec = mod( mod(opdat(k),HBITS) , PRECIS)
+    end function icprec
+    
+    integer function isprec(k)
+        integer, intent(in) :: k
+        ! isprec(k)  = opdat(k) & 0xFF00
+        isprec = mod(opdat(k), HBITS) / PRECIS
+    end function isprec
+    
+    integer function ioprli(k)
+        integer, intent(in) :: k
+        ! ioprli(k)  = opdat(k) & 0x10000  (= (opdat(k) >> 16) & 1)
+        ioprli = mod(opdat(k) / HBITS, 2)
+    end function ioprli
+    
+    integer function irinvl(k)
+        integer, intent(in) :: k
+        ! irinvl(k)  = opdat(k) & 0x100000 (= (opdat(k) >> 16) & 2)
+        irinvl =  (opdat(k)/HBITS) / 2
+    end function irinvl
+
+end subroutine mceini
 
 end module mcedef

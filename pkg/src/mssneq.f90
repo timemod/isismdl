@@ -185,58 +185,54 @@ use msimot
 
 !     print error message for single equation solver
 
-integer ::   ier, jtime, iequ
+integer :: ier, jtime, iequ
+logical :: print_msg
 
-character*8   stj
+character(len = 8) :: stj
 
 call mcf7ex(name, nlen, mdl%ienames(iequ), mdl%enames)
 call sjttmp( stj, jtime)
 
-goto( 1, 2, 3, 4, 5, 6, 7) ier
-goto 500
+print_msg = .true.
 
-1 continue
-write(str, '(2a)' ) 'in equation: ',name(:nlen)
-call strout(O_ERRQ)
-str = 'quitting this equation'
-goto 100
+select case (ier)
 
-2 continue
-!     computational error (message already printed)
-goto 110
+case (1)
+    write(str, '(2a)' ) 'in equation: ',name(:nlen)
+    call strout(O_ERRQ)
+    str = 'quitting this equation'
 
-3 continue
-!     missing rhs (no message)
-goto 110
+case (2)
+    ! computational error (message already printed)
+    print_msg = .false.
 
-4 continue
-str = 'No convergence in 50 iterations'
-goto 100
+case (3) 
+    !  missing rhs (no message)
+    print_msg = .false.
 
-5 continue
-str = 'Zero derivative in implicit equation'
-goto 110
+case (4)
+    str = 'No convergence in 50 iterations'
 
-6 continue
-str = 'Implicit equation has not converged'
-call strout(O_ERRQ)
-str = 'No better point found'
-goto 100
+case (5)
+    str = 'Zero derivative in implicit equation'
 
-7 continue
-str = 'Missing/invalid initial value in implicit equation'
+case (6)
+    str = 'Implicit equation has not converged'
+    call strout(O_ERRQ)
+    str = 'No better point found'
 
-100 continue
+case (7)
+    str = 'Missing/invalid initial value in implicit equation'
 
-call strout(O_ERRF)
+case default
+    return
 
-110 continue
+end select
+
+if (print_msg) call strout(O_ERRF)
 
 write(str, '(4a)') 'in period ',stj,' for equation: ',name(:nlen)
-
 call strout(O_ERRF)
-
-500 continue
 
 return
 end subroutine msverr

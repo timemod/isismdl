@@ -145,7 +145,7 @@ subroutine solve_fortran(mws_index, jtb, jte, opts_present, error)
     integer(c_int), intent(in) :: mws_index, jtb, jte, opts_present
     integer(c_int), intent(out) :: error
 
-    integer :: i, errflg
+    integer :: errflg
     type(solve_options), pointer :: opt
 
     if (opts_present /= 0) then

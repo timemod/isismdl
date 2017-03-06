@@ -13,6 +13,7 @@ module get_options
                     return
                 endif
             end do
+            get_imode = -1
             call rexit("Internal error: mode not found")
         end function get_imode
 
@@ -24,6 +25,7 @@ module get_options
                     return
                 endif
             end do
+            get_istart = -1
             call rexit("Internal error: start option not found")
         end function get_istart
 

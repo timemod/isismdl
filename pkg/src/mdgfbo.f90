@@ -13,8 +13,6 @@ subroutine mdgfbo(mdl, errflg)
     !           > 0: some error has occurred
     !
 
-    integer :: fbor_err
-
     !
     ! generate dependency structure
     !

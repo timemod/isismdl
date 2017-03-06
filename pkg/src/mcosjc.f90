@@ -24,7 +24,7 @@ integer ::        nlen
 
 !     output buffer (1 line)
 
-character*256 str
+character(len = 256) :: str
 integer ::        spos
 
 integer ::        rpos, k

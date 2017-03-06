@@ -531,46 +531,42 @@ subroutine mcoerr(errcod)
 
 !     In    errcod   Integer    type error
 
-integer ::  errcod
-character*80 errmsg
+integer, intent(in) ::  errcod
+character(len = 80) :: errmsg
 
-goto(1,2,3,4,5,6,7,8,9,10,11,12,13) errcod
-errmsg = 'Unknown error'
-goto 100
-
-1 errmsg = 'No diagonal match'
-goto 100
-2 errmsg = 'No ordering found'
-goto 100
-3 errmsg = 'Diagonal element not found'
-goto 100
-4 errmsg = 'Equations still unordered'
-goto 100
-5 errmsg = 'cannot mdl%order feedbacks'
-goto 100
-6 errmsg = 'duplicate lhs var'
-goto 100
-7 errmsg = 'too many arcs in model'
-goto 100
-8 errmsg = 'Error reading scratch file'
-goto 100
-9 errmsg = 'End of file on scratch file'
-goto 100
-10 errmsg = 'prepos not finished'
-goto 100
-11 errmsg = 'too many feedbacks'
-goto 100
-12 errmsg = 'non zero element in single'
-goto 100
-13 errmsg = 'cannot choose feedback'
-goto 100
-
-100 continue
-
-!call fmtlog('B5*Mcordr: ' // errmsg(:len_trim(errmsg)) // '*EX')
+select case (errcod)
+case (1)
+    errmsg = 'No diagonal match'
+case (2)
+    errmsg = 'No ordering found'
+case (3)
+    errmsg = 'Diagonal element not found'
+case (4)
+    errmsg = 'Equations still unordered'
+case (5)
+    errmsg = 'cannot mdl%order feedbacks'
+case (6)
+    errmsg = 'duplicate lhs var'
+case (7)
+    errmsg = 'too many arcs in model'
+case (8)
+    errmsg = 'Error reading scratch file'
+case (9)
+    errmsg = 'End of file on scratch file'
+case (10)
+    errmsg = 'prepos not finished'
+case (11)
+    errmsg = 'too many feedbacks'
+case (12)
+    errmsg = 'non zero element in single'
+case (13)
+    errmsg = 'cannot choose feedback'
+case default
+    errmsg = 'Unknown error'
+end select
 
 return
-end
+end subroutine mcoerr
 
 !-----------------------------------------------------------------------
 
@@ -620,8 +616,8 @@ subroutine mcgerr( errcod)
 
     !  In    errcod   Integer    type error
 
-    integer ::  errcod
-    character*50 errmsg
+    integer, intent(in) ::  errcod
+    character(len = 50) :: errmsg
 
     select case(errcod)
     case (1)
@@ -649,7 +645,7 @@ use output_utils
 
 ! error message for a file (read/write) error
 
-character*80 errmsg
+character(len = 80) :: errmsg
 
 if( filerr .eq. 1 ) then
     errmsg = 'Cannot open error file'
@@ -722,102 +718,85 @@ end subroutine mcxerr
 
 !-----------------------------------------------------------------------
 
-subroutine mcimsg( msgnum, mpar)
+subroutine mcimsg(msgnum, mpar)
 use output_utils
 integer, intent(in) ::  msgnum, mpar
 
 ! print progress .. messages
 
-character*80 str
+character(len = 80) :: str
 
-goto(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) msgnum
-goto 200
+select case (msgnum)
 
-1 continue
-str = 'Isis Model Compiler 3.00'
-goto 100
+case (1)
+    str = 'Isis Model Compiler 3.00'
 
-2 continue
-str = 'Scanning model...'
-goto 100
+case (2) 
+    str = 'Scanning model...'
 
-3 continue
-str = 'Compiling model...'
-goto 100
+    case (3) 
+        str = 'Compiling model...'
 
-4 continue
-str = 'Ordering equations...'
-goto 100
+    case (4)
+        str = 'Ordering equations...'
 
-5 continue
-str = 'Writing MIF file...'
-goto 100
+    case(5)
+        str = 'Writing MIF file...'
 
-6 continue
-str = 'Writing cross-reference file...'
-goto 100
+    case (6)
+        str = 'Writing cross-reference file...'
 
-7 continue
-str = 'End compilation'
-goto 100
+    case (7)
+        str = 'End compilation'
 
-8 continue
-str = '         equations processed'
-write(str(1:8),'(i8)' ) mpar
-goto 100
+    case (8) 
+        str = '         equations processed'
 
-9 continue
-str = 'Checking redundant feedback variables'
-goto 100
+    case (9) 
+        str = 'Checking redundant feedback variables'
 
-10 continue
-str = '         redundant feedback variables detected'
-write(str(4:8),'(i5)' ) mpar
-goto 100
+    case (10)
+        str = '         redundant feedback variables detected'
+        write(str(4:8),'(i5)' ) mpar
 
-11 continue
-if (mpar == 0) then
-    str = 'Removing redundant feedback variables'
-else
-    str = 'Not removing redundant feedback variables'
-endif
-goto 100
+    case (11)
+        if (mpar == 0) then
+            str = 'Removing redundant feedback variables'
+        else
+            str = 'Not removing redundant feedback variables'
+        endif
 
-12 continue
-str = 'Generating feedback variable ordering'
-goto 100
+    case (12)
+        str = 'Generating feedback variable ordering'
 
-13 continue
-str = 'Feedback jacobian too dense (< 10% step reduction)'
-goto 100
+    case (13)
+        str = 'Feedback jacobian too dense (< 10% step reduction)'
 
-14 continue
-str = 'Out of memory for feedback ordering'
-goto 100
+    case (14)
+        str = 'Out of memory for feedback ordering'
 
-15 continue
-str = 'NO feedback ordering generated and installed'
-goto 100
+    case (15)
+        str = 'NO feedback ordering generated and installed'
 
-16 continue
-str = '       feedback variables added'
-write(str(4:9),'(i6)' ) mpar
-goto 100
+    case (16)
+        str = '       feedback variables added'
+        write(str(4:9),'(i6)' ) mpar
 
-17 continue
-str = 'Redundancies resolved in    passes'
-write(str(29:30),'(i2)' ) mpar
-goto 100
+    case (17)
+        str = 'Redundancies resolved in    passes'
+        write(str(29:30),'(i2)' ) mpar
 
-18 continue
-str = 'More than 5 passes for redundant feedbacks'
-goto 100
+    case (18)
+        str = 'More than 5 passes for redundant feedbacks'
 
-100 continue
+case default
+    return
+
+end select
 
 call isismdl_out(str)
 
-200 return
+return
 end subroutine mcimsg
 
 !-----------------------------------------------------------------------
