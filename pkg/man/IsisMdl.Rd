@@ -35,21 +35,18 @@ leads and can be solved with the Fair-Taylor-method.
 \section{Methods}{
 
 
-Below a brief list with the class methods of \code{IsisMdl} objects a given.
-These methods are described in more details in the vignette
-"IsisMdl Method Reference Manual", which can be opened with the command
-\code{vignette("IsisMdl Methods", package = "isismdl")}
+\code{IsisMdl} objects support the following methods. These methods
+are described in detail in the different subsection of the documentation
+For example, method \code{solve} is described in section
+\code{\link{solve}}.
 \describe{
 
-\item{\code{get_var_names(pattern = ".*", vtype = c("all", "allfrml",
-"all_endolead"))}}{Returns the names of the model variables. \code{pattern} is
-a regular expression, \code{vtype} the variable type.}
+\item{\code{\link{get_var_names}}}{Returns the names of the model
+variables}
 
-\item{\code{get_par_names(pattern = ".*")}}{Returns
-the names of the model parameters \code{pattern} is a regular expression.}
+\item{\code{get_par_names}}{Returns the names of the model parameters}
 
-\item{\code{get_eq_names(pattern = ".*", vtype = c("all", "inactive"))}}{Returns
-the names of the equations. \code{pattern} is a regular expression}
+\item{\code{\link{get_eq_names}}}{Returns the names of the equations.}
 
 \item{\code{set_period(period)}}{Sets the model period. \code{period}
 is a \code{\link{regperiod_range}} object or an object that can be coerced
@@ -62,7 +59,7 @@ adjustments are only available for the model period. This method
 also initialises all model timeseries with \code{NA} and all constant
 adjusments with 0.}
 
-\item{\code{get_period()}}{Returns the model period}
+\item{\code{get_period}}{Returns the model period}
 
 \item{\code{get_data_period()}}{Returns the model data period}
 
@@ -78,56 +75,48 @@ list.}
 \code{pattern} is a regular expression, \code{names} is a vector with parameter
 names.}
 
-\item{\code{set_[data|ca|fix|fit](data, names = colnames(data))}}{
-The methods \code{set_data}, \code{set_ca}, \code{set_fix} and
-\code{set_fit} can be used to set the values of the model data,
-constant adjustments, fix values, and fit targets, respectively.
-\code{data} is a \code{regts} or \code{ts} object. With argument \code{names}
-the names of the timeseries in \code{data} can be specified. This argument
-is mandatory if \code{data} does not have column names. If \code{data} has
-labels, then method \code{set_data} will update the labels of the
-corresponding model variables}
+\item{\code{\link{set_data}}}{Transfer timeseries to the model data}
 
-\item{\code{set_values(value, names, pattern, period = self$get_data_period())}}{
-This method provides an another way to set model variables.
-\code{value} is a numeric vector of length 1 or with the same length
-as the length of the range of \code{period}.
-\code{pattern} is a regular expression, \code{names} a list of variables
- and \code{period} an \code{\link[regts]{regperiod_range}} object
-or an object that can be coerced to \code{regperiod_range}. The variables
-with the specified names of with names that match the regular expression
-are set to the specified value for the period.}
+\item{\code{\link{set_ca}}}{Transfer timeseries to the constant adjustments}
 
-\item{\code{set_[ca_values|fix_values|fit_values](value, names, pattern,
-period = self$get_period())}}{The methods \code{set_values},
-\code{set_ca_values}, \code{set_fix_values} and \code{set_fit_values} can be
-used to set constant adjustments, fix values and fit targets, respectively.
-These methods work similarly as method \code{set_values}.}
+\item{\code{\link{set_fix}}}{Transfer timeseries to the fix values} 
 
-\item{\code{change_values(fun, names, pattern, period = self$get_data_period())}}{
-This method can be used to change model data by applying a function
-\code{fun} for the specified model variables for the specified period.}
+\item{\code{\link{set_fit}}}{Transfer timeseries to the fit targets} 
 
-\item{\code{change_ca(fun, names, pattern, period = self$get_data_period())}}{
-This method can be used to change constant adjustments by applying a function
-\code{fun} for the specified model variables for the specified period.}
+\item{\code{\link{set_values}}}{Sets the values of the model data}
 
- \item{\code{get_data(pattern, names, period = self$get_data_period())}}{
- Returns the model data. \code{pattern} is
- a regular expression, \code{names} a list of variables
- and \code{period} an \code{\link[regts]{regperiod_range}} object
- or an object that can be coerced to \code{regperiod_range}.}
+\item{\code{\link{set_ca_values}}}{Sets the values of the constant 
+adjustments}
 
- \item{\code{get_ca(pattern, names, period = self$get_period())}}{
- Returns the constant adustments. \code{pattern} is
- a regular expression, \code{names} a list of variables
- and \code{period} an \code{\link[regts]{regperiod_range}} object
- or an object that can be coerced to \code{regperiod_range}.}
+\item{\code{\link{set_fix_values}}}{Sets the fix values}
 
- \item{\code{get_[fix|fit]()}}{\code{get_fix} and \code{get_fit} return
- the fix values and fit targets, respecively.}
+\item{\code{\link{set_fit_values}}}{Sets the values of the fit targets}
 
-\item{\code{save_RDS(file)}}{Serializes the model object and writes it
+\item{\code{\link{set_fit}}}{Transfer timeseries to the fit targets} 
+
+\item{\code{\link{change_data}}}{Change model data by applying a function}
+
+\item{\code{\link{change_data}}}{Change the constant adjusmtments by
+applying a function}
+
+\item{\code{\link{get_data}}}{Returns the model data}
+
+\item{\code{\link{get_ca}}}{Returns the constant adjustments}
+
+\item{\code{\link{get_fix}}}{Returns the fix values}
+
+\item{\code{\link{get_fit}}}{Returns the fit targets}
+
+\item{\code{\link{set_rms}}}{Sets or updates  the rms values}
+
+\item{\code{\link{set_solve_options}}}{Sets the solve options}
+
+\item{\code{\link{solve}}}{Solves the model}
+
+\item{\code{\link{fill_mdl_data}}}{Calculates missing model
+data from identities}
+
+\item{\code{write_mdl(file)}}{Serializes the model object and writes it
 to an RDS file.}
 }
 }
