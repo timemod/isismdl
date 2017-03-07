@@ -198,7 +198,7 @@ mdl$get_data()
 
 To write an `IsisMdl`object to a file, use
 ```{r}
-mdl$saveRDS(file = "islm_mdl.rds")
+mdl$write_mdl(file = "islm_mdl.rds")
 ```
 
 This methods serializes the model equations, parameters, model data, solve options, etc.

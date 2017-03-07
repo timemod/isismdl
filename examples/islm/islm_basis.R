@@ -20,4 +20,4 @@ mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
 
 mdl$solve()
 
-mdl$saveRDS("islm_basis.rds")
+mdl$write_mdl("islm_basis.rds")
