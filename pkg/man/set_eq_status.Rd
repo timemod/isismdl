@@ -49,6 +49,7 @@ endogenous leads and therefore the default solution mode will be
 
 \preformatted{
 mdl$set_eq_status(pattern, names, status =  c("active", "inactive"))
+
 }
 
 \code{mdl} is an \code{\link{IsisMdl}} object

@@ -9,6 +9,7 @@
 #' \preformatted{
 #' mdl$get_var_names(pattern = ".*", 
 #'                   type =  c("all", "allfrml", "all_endolead"))
+#'
 #' }
 #'
 #' \code{mdl} is an \code{IsisMdl} object
@@ -21,6 +22,102 @@
 #' }
 NULL
 
+#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
+#' @name set_labels
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} sets labels
+#' for the model variables.
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_labels(labels)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{labels}}{a named character vector.
+#' The names are the names of the model variables}
+#' }
+#' @examples
+#' mdl <- islm_mdl()
+#' mdl$set_labels(c(c = "Consumption", i = "investments"))
+NULL
+
+#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
+#' @name set_labels
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} sets labels
+#' for the model variables.
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_labels(labels)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{labels}}{a named character vector.
+#' The names are the names of the model variables}
+#' }
+#' @examples
+#' mdl <- islm_mdl()
+#' mdl$set_labels(c(c = "Consumption", i = "investments"))
+NULL
+
+#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
+#' @name set_labels
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} sets labels
+#' for the model variables.
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_labels(labels)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{labels}}{a named character vector.
+#' The names are the names of the model variables}
+#' }
+#' @examples
+#' mdl <- islm_mdl()
+#' mdl$set_labels(c(c = "Consumption", i = "investments"))
+NULL
+
+
+
+#' \code{\link{IsisMdl}} method: returns the names of the model variables
+#' @name get_par_names
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the names of
+#' the model parameters
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_par_names(pattern = ".*")
+#'
+#' }
+#'
+#' \code{mdl} is an \code{IsisMdl} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{pattern}}{a regular expression}
+#' }
+NULL
+
 #' \code{\link{IsisMdl}} method: returns the the equation names
 #' @name get_eq_names
 #'
@@ -30,6 +127,7 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$get_eq_names(pattern = ".*", type =  c("all", "inactive"))
+#'
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -91,6 +189,7 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_eq_status(pattern, names, status =  c("active", "inactive"))
+#'
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -107,6 +206,75 @@ NULL
 #' then all equations will be activated or deactivated.
 NULL
 
+#' \code{\link{IsisMdl}} method: sets the model period
+#' @name set_period
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} sets the model period.
+#' This is the longest period for which
+#' the model may be solved. This method also allocates storage for
+#' all model timeseries and constant adjustments. Model timeseries are
+#' available for the so called 'model data period', which is
+#' the model period extended with a lag and lead period. Constant
+#' adjustments are only available for the model period. This method
+#' also initialises all model timeseries with \code{NA} and all constant
+#' adjustments with 0.
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_period(period)
+#'
+#' }
+#'
+#' \code{mdl} is an \code{IsisMdl} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{period}}{\code{\link[regts]{regperiod_range}}
+#' object, or an object that can be coerced to 
+#' \code{\link[regts]{regperiod_range}}}
+#' }
+#'
+#' @examples
+#' mdl <- islm_mdl()
+#' mdl$set_period("2017Q2/2021Q3")
+NULL
+
+#' \code{\link{IsisMdl}} method: returns the model period
+#' @name get_period
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the model period.
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_period()
+#'
+#' }
+#'
+#' \code{mdl} is an \code{IsisMdl} object
+#' @seealso
+#' \code{\link{set_period}}
+NULL
+
+#' \code{\link{IsisMdl}} method: returns the model data period
+#' @name get_data_period
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the model data period.
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_data_period()
+#'
+#' }
+#'
+#' \code{mdl} is an \code{IsisMdl} object
+#' @seealso
+#' \code{\link{set_period}}
+NULL
+
 #' \code{\link{IsisMdl}} method: Solves the model.
 #' @name solve
 #'
@@ -117,6 +285,7 @@ NULL
 #' \preformatted{
 #' mdl$solve(period = mdl$get_period(), options = list(), 
 #'           fit_options = list()
+#' 
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -124,8 +293,8 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{period}}{\code{\link[regts]{regperiod_range}
-#'} object, or an object 
+#' \item{\code{period}}{\code{\link[regts]{regperiod_range}}
+#' object, or an object 
 #' that can be coerced to \code{\link[regts]{regperiod_range}}}
 #' \item{\code{optons}}{a list with solve options}
 #' \item{\code{fit_options}}{a list with options for the fit procedure}
@@ -136,6 +305,7 @@ NULL
 NULL
 
 #' \code{\link{IsisMdl}} method: Calculates missing model data from identities
+#' @name fill_mdl_data
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} 
@@ -149,6 +319,7 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$fill_mdl_data(period = mdl$get_data_period())
+#' 
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -158,7 +329,6 @@ NULL
 #' \describe{
 #' \item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
 #' }
-#' @name fill_mdl_data
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$set_data(regts(NA, period = mdl$get_period()), names = "y")
@@ -167,8 +337,8 @@ NULL
 
 #' \code{\link{IsisMdl}} methods: Retrieve timeseries from the model data, 
 #' constant adjusments, fix values or fit targets
-#' @name get_data
-#' @aliases get_ca get_fix get_fit
+#' @name get_data-methods
+#' @aliases get_data get_ca get_fix get_fit
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}} 
 #' can be used to retrieve timeseries from the model data, 
@@ -210,8 +380,8 @@ NULL
 
 #' \code{\link{IsisMdl}} methods: transfers data from a timeseries 
 #' object to the model data, constant adjusments, fix values or fit targets.
-#' @name set_data
-#' @aliases set_ca set_fix set_fit
+#' @name set_data-methods
+#' @aliases set_data set_ca set_fix set_fit
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}} 
 #' Transfers data from a timeseries object to the model data, 
@@ -229,6 +399,7 @@ NULL
 #' mdl$set_fix(data, names = colnames(data))
 #'
 #' mdl$set_fit(data, names = colnames(data))
+#' 
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -258,8 +429,8 @@ NULL
 
 #' \code{\link{IsisMdl}} methods: Sets the values of the model data, 
 #' constant adjusments, fix values or fit targets
-#' @name set_values
-#' @aliases set_ca_values set_fix_values set_fit_values
+#' @name set_values-methods
+#' @aliases set_values set_ca_values set_fix_values set_fit_values
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}} 
 #' can be used to set the values of the model data, constant adjusments,
@@ -274,6 +445,7 @@ NULL
 #' mdl$set_fix_values(value, names, pattern, period = mdl$get_period())
 #'
 #' mdl$set_fit_values(value, names, pattern, period = mdl$get_period())
+#' 
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -301,8 +473,8 @@ NULL
 NULL
 
 #' \code{\link{IsisMdl}} methods: changes the model data or constant adjustments by applying a function.
-#' @name change_data
-#' @aliases change_ca
+#' @name change_data-methods
+#' @aliases change_data change_ca
 #' @description
 #' This methods of R6 class \code{\link{IsisMdl}} 
 #' changes the model data or constant adjustments by applying a function.
@@ -345,7 +517,10 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_rms(values)
+#'
 #' }
+#'
+#' \code{mdl} is an \code{\link{IsisMdl}} object
 
 #' @section Arguments:
 #'
@@ -365,8 +540,10 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_solve_options(...)
+#'
 #' }
-
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
 #' @section Arguments:
 #'
 #' \describe{
@@ -379,7 +556,109 @@ NULL
 NULL
 
 
+#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
+#' @name set_labels
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} sets labels
+#' for the model variables.
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_labels(labels)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{labels}}{a named character vector.
+#' The names are the names of the model variables}
+#' }
+#' @examples
+#' mdl <- islm_mdl()
+#' mdl$set_labels(c(c = "Consumption", i = "investments"))
+NULL
+
+#' \code{\link{IsisMdl}} method: Returns the labels of the model variables.
+#' @name get_labels
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}}
+#' returns the labels of the model variables.
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_labels()
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @seealso
+#' \code{\link{set_labels}}
+NULL
+
+#' \code{\link{IsisMdl}} method: Sets the model parameters
+#' @name set_param
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}}
+#' sets the model parameters
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_param(p)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{p}}{a named list.
+#' The names are the names of the parameter names.
+#' The list elements are numeric vectors with a length equal to the length
+#' of the corresponding parameter}
+#' }
+#' @examples
+#' mdl <- islm_mdl()
+#' mdl$set_param(list(i0 = 101))
+NULL
 
 
+#' \code{\link{IsisMdl}} method: Returns model parameters
+#' @name get_param
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}}
+#' returns model parameters
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_param(pattern, names)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{pattern}}{a regular expression}
+#' \item{\code{names}}{a character vector with parameter names}
+#' }
+#' @seealso
+#' \code{\link{set_param}}
+NULL
 
-
+#' Writes the model to an RDS file
+#' @name write_mdl
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}}
+#' serializes the model object and writes it
+#' to an RDS file. The model can be read back by function
+#' \code{\link{read_mdl}}.
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{file}}{the name of the RDS file}
+#' }
+#' @examples
+#' mdl <- islm_mdl("2017Q1/2019Q2")
+#' mdl$write_mdl("islm_mdl.rds")
+#' @seealso \code{\link{read_mdl}} 
+NULL

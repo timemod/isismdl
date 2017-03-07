@@ -44,36 +44,23 @@ For example, method \code{solve} is described in section
 \item{\code{\link{get_var_names}}}{Returns the names of the model
 variables}
 
-\item{\code{get_par_names}}{Returns the names of the model parameters}
+\item{\code{\link{get_par_names}}}{Returns the names of the model parameters}
 
-\item{\code{\link{get_eq_names}}}{Returns the names of the equations.}
+\item{\code{\link{get_eq_names}}}{Returns the names of the equations}
 
-\item{\code{set_period(period)}}{Sets the model period. \code{period}
-is a \code{\link{regperiod_range}} object or an object that can be coerced
-to a \code{regperiod_range}. The model period is the longest period for which
-the model may be solved. This method also allocates storage for
-all model timeseries and constant adjustments. Model timeseries are
-available for the so called 'model data period', which is
-the model period extended with a lag and lead period. Constant
-adjustments are only available for the model period. This method
-also initialises all model timeseries with \code{NA} and all constant
-adjusments with 0.}
+\item{\code{\link{set_period}}}{Sets the model period}
 
-\item{\code{get_period}}{Returns the model period}
+\item{\code{\link{get_period}}}{Returns the model period}
 
-\item{\code{get_data_period()}}{Returns the model data period}
+\item{\code{\link{get_data_period}}}{Returns the model data period}
 
-\item{\code{set_labels(labels)}}{Set labels for the model variables. \code{labels}
- is a named character vector. The names are the names of the model variables.}
+\item{\code{\link{set_labels}}}{Set labels for the model variables}
 
-\item{\code{get_labels()}}{Returns the labels of the model variables.}
+\item{\code{\link{get_labels}}}{Returns the labels of the model variables.}
 
-\item{\code{set_param(p)}}{Sets the model parameter. \code{p} is a named
-list.}
+\item{\code{\link{set_param}}}{Sets the model parameter}
 
-\item{\code{get_param(pattern, names)}}{Returns the model parameter.
-\code{pattern} is a regular expression, \code{names} is a vector with parameter
-names.}
+\item{\code{\link{get_param}}}{Returns model parameters}
 
 \item{\code{\link{set_data}}}{Transfer timeseries to the model data}
 
@@ -96,7 +83,7 @@ adjustments}
 
 \item{\code{\link{change_data}}}{Change model data by applying a function}
 
-\item{\code{\link{change_data}}}{Change the constant adjusmtments by
+\item{\code{\link{change_ca}}}{Change the constant adjusmtments by
 applying a function}
 
 \item{\code{\link{get_data}}}{Returns the model data}
@@ -116,11 +103,10 @@ applying a function}
 \item{\code{\link{fill_mdl_data}}}{Calculates missing model
 data from identities}
 
-\item{\code{write_mdl(file)}}{Serializes the model object and writes it
-to an RDS file.}
+\item{\code{\link{write_mdl}}}{Serializes the model object and writes it
+to an RDS file}
 }
 }
-
 \examples{
 # create an example ISLM  model
 mdl <- islm_mdl()
@@ -155,3 +141,4 @@ unlink("islm.*")
 and \code{\link{ifn_mdl}}
 }
 \keyword{data}
+

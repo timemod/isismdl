@@ -11,6 +11,7 @@ the equation names
 
 \preformatted{
 mdl$get_eq_names(pattern = ".*", type =  c("all", "inactive"))
+
 }
 
 \code{mdl} is an \code{\link{IsisMdl}} object

@@ -10,6 +10,7 @@ the model.
 \preformatted{
 mdl$solve(period = mdl$get_period(), options = list(), 
           fit_options = list()
+
 }
 
 \code{mdl} is an \code{\link{IsisMdl}} object
@@ -18,15 +19,15 @@ mdl$solve(period = mdl$get_period(), options = list(),
 
 
 \describe{
-\item{\code{period}}{\code{\link[regts]{regperiod_range}
-} object, or an object 
+\item{\code{period}}{\code{\link[regts]{regperiod_range}}
+object, or an object 
 that can be coerced to \code{\link[regts]{regperiod_range}}}
 \item{\code{optons}}{a list with solve options}
 \item{\code{fit_options}}{a list with options for the fit procedure}
 }
 }
-
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$solve()
 }
+

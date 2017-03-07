@@ -13,7 +13,10 @@ Sets or updates  the rms values
 
 \preformatted{
 mdl$set_rms(values)
+
 }
+
+\code{mdl} is an \code{\link{IsisMdl}} object
 }
 
 \section{Arguments}{

@@ -13,7 +13,9 @@ Sets or updates  the rms values
 
 \preformatted{
 mdl$set_solve_options(...)
+
 }
+\code{mdl} is an \code{\link{IsisMdl}} object
 }
 
 \section{Arguments}{
@@ -24,8 +26,8 @@ mdl$set_solve_options(...)
 the possible options)}
 }
 }
-
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$set_solve_options(maxiter = 100)
 }
+

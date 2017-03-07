@@ -21,3 +21,4 @@ is ready to be solved.
 \examples{
 mdl <- islm_mdl()
 }
+
