@@ -6,38 +6,8 @@
 \description{
 This method of R6 class \code{\link{IsisMdl}} sets labels
 for the model variables.
-
-This method of R6 class \code{\link{IsisMdl}} sets labels
-for the model variables.
-
-This method of R6 class \code{\link{IsisMdl}} sets labels
-for the model variables.
-
-This method of R6 class \code{\link{IsisMdl}} sets labels
-for the model variables.
 }
 \section{Usage}{
-
-\preformatted{
-mdl$set_labels(labels)
-
-}
-\code{mdl} is an \code{\link{IsisMdl}} object
-
-
-\preformatted{
-mdl$set_labels(labels)
-
-}
-\code{mdl} is an \code{\link{IsisMdl}} object
-
-
-\preformatted{
-mdl$set_labels(labels)
-
-}
-\code{mdl} is an \code{\link{IsisMdl}} object
-
 
 \preformatted{
 mdl$set_labels(labels)
@@ -53,36 +23,9 @@ mdl$set_labels(labels)
 \item{\code{labels}}{a named character vector.
 The names are the names of the model variables}
 }
-
-
-
-\describe{
-\item{\code{labels}}{a named character vector.
-The names are the names of the model variables}
 }
 
-
-
-\describe{
-\item{\code{labels}}{a named character vector.
-The names are the names of the model variables}
-}
-
-
-
-\describe{
-\item{\code{labels}}{a named character vector.
-The names are the names of the model variables}
-}
-}
 \examples{
 mdl <- islm_mdl()
 mdl$set_labels(c(c = "Consumption", i = "investments"))
-mdl <- islm_mdl()
-mdl$set_labels(c(c = "Consumption", i = "investments"))
-mdl <- islm_mdl()
-mdl$set_labels(c(c = "Consumption", i = "investments"))
-mdl <- islm_mdl()
-mdl$set_labels(c(c = "Consumption", i = "investments"))
 }
-

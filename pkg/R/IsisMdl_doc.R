@@ -46,56 +46,6 @@ NULL
 #' mdl$set_labels(c(c = "Consumption", i = "investments"))
 NULL
 
-#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
-#' @name set_labels
-#'
-#' @description
-#' This method of R6 class \code{\link{IsisMdl}} sets labels
-#' for the model variables.
-#' @section Usage:
-#' \preformatted{
-#' mdl$set_labels(labels)
-#'
-#' }
-#' \code{mdl} is an \code{\link{IsisMdl}} object
-#'
-#' @section Arguments:
-#'
-#' \describe{
-#' \item{\code{labels}}{a named character vector.
-#' The names are the names of the model variables}
-#' }
-#' @examples
-#' mdl <- islm_mdl()
-#' mdl$set_labels(c(c = "Consumption", i = "investments"))
-NULL
-
-#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
-#' @name set_labels
-#'
-#' @description
-#' This method of R6 class \code{\link{IsisMdl}} sets labels
-#' for the model variables.
-#' @section Usage:
-#' \preformatted{
-#' mdl$set_labels(labels)
-#'
-#' }
-#' \code{mdl} is an \code{\link{IsisMdl}} object
-#'
-#' @section Arguments:
-#'
-#' \describe{
-#' \item{\code{labels}}{a named character vector.
-#' The names are the names of the model variables}
-#' }
-#' @examples
-#' mdl <- islm_mdl()
-#' mdl$set_labels(c(c = "Consumption", i = "investments"))
-NULL
-
-
-
 #' \code{\link{IsisMdl}} method: returns the names of the model variables
 #' @name get_par_names
 #'
@@ -555,30 +505,6 @@ NULL
 #' mdl$set_solve_options(maxiter = 100)
 NULL
 
-
-#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
-#' @name set_labels
-#'
-#' @description
-#' This method of R6 class \code{\link{IsisMdl}} sets labels
-#' for the model variables.
-#' @section Usage:
-#' \preformatted{
-#' mdl$set_labels(labels)
-#'
-#' }
-#' \code{mdl} is an \code{\link{IsisMdl}} object
-#'
-#' @section Arguments:
-#'
-#' \describe{
-#' \item{\code{labels}}{a named character vector.
-#' The names are the names of the model variables}
-#' }
-#' @examples
-#' mdl <- islm_mdl()
-#' mdl$set_labels(c(c = "Consumption", i = "investments"))
-NULL
 
 #' \code{\link{IsisMdl}} method: Returns the labels of the model variables.
 #' @name get_labels

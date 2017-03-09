@@ -29,9 +29,9 @@ mdl$fill_mdl_data(period = mdl$get_data_period())
 \item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
 }
 }
+
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$set_data(regts(NA, period = mdl$get_period()), names = "y")
 mdl$fill_mdl_data()
 }
-

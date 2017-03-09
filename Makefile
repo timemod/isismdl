@@ -128,10 +128,6 @@ document: install_deps
 	R -e "roxygen2::update_collate('"$(PKGDIR)"'); devtools::document('"$(PKGDIR)"')"
 	R CMD Rd2pdf --batch $(PKGDIR) 2>$(PKGDIR).log
 
-document2:
-	-@rm -f $(PKGDIR).pdf
-	R CMD Rd2pdf --batch $(PKGDIR) 2>$(PKGDIR).log
-
 install: install_deps
 	$(MAKE) -f Makedeps
 	R CMD INSTALL $(INSTALL_FLAGS) $(PKGDIR)

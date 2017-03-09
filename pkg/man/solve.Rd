@@ -26,8 +26,8 @@ that can be coerced to \code{\link[regts]{regperiod_range}}}
 \item{\code{fit_options}}{a list with options for the fit procedure}
 }
 }
+
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$solve()
 }
-
