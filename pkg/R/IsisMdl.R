@@ -96,6 +96,10 @@ setOldClass("regperiod_range")
 #
 #' \describe{
 #'
+#' \item{\code{\link{get_maxlag}}}{Returns the maximum lag}
+#'
+#' \item{\code{\link{get_maxlead}}}{Returns the maximum lead}
+#'
 #' \item{\code{\link{get_var_names}}}{Returns the names of the model
 #' variables}
 #'
@@ -205,6 +209,12 @@ IsisMdl <- R6Class("IsisMdl",
                             as.character(private$data_period)))
             }
         },
+        get_maxlag = function() {
+            return(private$maxlag)
+        },
+        get_maxlead = function() {
+            return(private$maxlead)
+        },
         get_var_names = function(pattern = ".*", vtype = "all") {
             if  (vtype != "all") {
                 names <- .Call(get_var_names_c, vtype, private$model_index)
@@ -261,15 +271,6 @@ IsisMdl <- R6Class("IsisMdl",
                  start_period(data_period) + private$maxlag,
                  end_period(data_period)   - private$maxlead)
 
-            if (!missing(data_period)) {
-                if (!missing(data)) {
-                    data <- data[data_period, , drop = FALSE]
-                }
-                if (!missing(ca)) {
-                    ca <- ca[data_period, , drop = FALSE]
-                }
-            }
-           
             if (!missing(data)) {
                 self$set_data(data)
             }

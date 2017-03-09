@@ -1,3 +1,36 @@
+#' \code{\link{IsisMdl}} method: returns the maximum lag of the model
+#' @name get_maxlag
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the maximum
+#' lag of the model
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_maxlag()
+#'
+#' }
+#'
+#' \code{mdl} is an \code{IsisMdl} object
+NULL
+
+#' \code{\link{IsisMdl}} method: returns the maximum lead of the model
+#' @name get_maxlead
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the maximum
+#' lead of the model
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_maxlead()
+#'
+#' }
+#'
+#' \code{mdl} is an \code{IsisMdl} object
+NULL
+
+
 #' \code{\link{IsisMdl}} method: returns the names of the model variables
 #' @name get_var_names
 #'

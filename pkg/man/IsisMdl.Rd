@@ -41,6 +41,10 @@ For example, method \code{solve} is described in section
 \code{\link{solve}}.
 \describe{
 
+\item{\code{\link{get_maxlag}}}{Returns the maximum lag}
+
+\item{\code{\link{get_maxlead}}}{Returns the maximum lead}
+
 \item{\code{\link{get_var_names}}}{Returns the names of the model
 variables}
 
