@@ -18,11 +18,11 @@ fix values or fit targets.
 \preformatted{
 mdl$set_values(value, names, pattern, period = mdl$get_data_period())
 
-mdl$set_ca_values(value, names, pattern, period = mdl$get_period())
+mdl$set_ca_values(value, names, pattern, period = mdl$get_data_period())
 
-mdl$set_fix_values(value, names, pattern, period = mdl$get_period())
+mdl$set_fix_values(value, names, pattern, period = mdl$get_data_period())
 
-mdl$set_fit_values(value, names, pattern, period = mdl$get_period())
+mdl$set_fit_values(value, names, pattern, period = mdl$get_data_period())
 
 }
 

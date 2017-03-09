@@ -18,7 +18,7 @@ constant adjusments, fix values or fit targets.
 \preformatted{
 mdl$get_data(pattern, names, period = mdl$get_data_period())
 
-mdl$get_ca(pattern, names, period = mdl$get_period())
+mdl$get_ca(pattern, names, period = mdl$get_data_period())
 
 mdl$get_fix()
 

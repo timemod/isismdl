@@ -16,7 +16,7 @@ character(len =  8) :: target
 integer(kind = MC_IKIND) :: kendex(20)
 real(kind = MWS_RKIND) :: temp(20)
 
-integer ::  j, k, jlast, kstep, kh, jt, ih
+integer ::  j, k, jlast, kstep, kh, jt, ih, jtd
 integer ::   maxlen, colwid
 
 maxlen = maxnlz(mdl%ivnames, mdl%iendex, 1_MC_IKIND, mdl%nendex)
@@ -52,11 +52,13 @@ do kh = 1, mdl%nendex, kstep
 
    do jt = jf + 1, jl
 
+      jtd = jt + mdl%mxlag
+
       call sjttmp(target,jt)
       call strini(target, 11)
 
       do ih = 1, k
-         temp(ih) = mws%mdl_data(kendex(ih), jt)
+         temp(ih) = mws%mdl_data(kendex(ih), jtd)
       end do
       call svlfmt(temp, 1, k, colwid)
       call strout(O_OUTB)
@@ -314,7 +316,7 @@ do k = 1, mdl%nendex
    do j = jf + 1, jl
 
        xold   = endo_leads(k, j)
-       xnew   = mws%mdl_data(i, j)
+       xnew   = mws%mdl_data(i, j + mdl%mxlag)
        absdif = abs(xnew-xold)
        cdum   = 'Abs'
        if (abs(xold) > 1.0_SOLVE_RKIND) then

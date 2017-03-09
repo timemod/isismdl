@@ -25,6 +25,7 @@ integer, external ::  bysget
 character(len = 1) :: eqtype
 type(mdl_variable) :: fix_var
 real(kind = SOLVE_RKIND) :: fix_value
+integer :: jtd
 
 errflg = 0
 old_lik = .true.
@@ -49,6 +50,8 @@ endif
 
 do jtime = jt1, jt2
 
+   jtd = jtime + mdl%mxlag
+
    if (.not. period_ok(mws, jtime)) cycle
 
    if (fix_var%var_index == lhs) then
@@ -56,28 +59,18 @@ do jtime = jt1, jt2
        fix_value = get_mdl_var_value(fix_var, jtime)
        if (.not. nuifna(fix_value)) then
            mdl%lik(lhs) = .false.
-           mws%mdl_data(lhs, jtime) = fix_value
+           mws%mdl_data(lhs, jtd) = fix_value
        endif
    endif
 
    ! now test behavioural equation
    if (eqtype == 'B' .or. eqtype == 'M') then
-       ! If outside main period no valid result is possible
-       ! but if lhs is endogenous then
-       ! it may be required to store invalid lhs
-       ! if lhs is fixed nothing to store (no CA storage available)
-       if (jtime < 1 .or. jtime > mws%perlen) then
-           if (mdl%lik(lhs) ) then
-               goto 480
-           else
-               cycle
-           endif
-       else if (mdl%lik(lhs)) then
+       if (mdl%lik(lhs)) then
            ! if lhs is endogenous ca() must be valid
-           if (nuifna(mws%constant_adjustments(jca, jtime))) goto 480
+           if (nuifna(mws%constant_adjustments(jca, jtd))) goto 480
        else
            ! if lhs is fixed lhs must be valid
-           if (nuifna(mws%mdl_data(lhs, jtime))) goto 480
+           if (nuifna(mws%mdl_data(lhs, jtd))) goto 480
        endif
 
    endif
@@ -95,9 +88,9 @@ do jtime = jt1, jt2
       call msisng(result, eqnum, jtime, ier)
       if (ier == 0) then
           if (mdl%lik(lhs)) then
-              result = result + mws%constant_adjustments(jca, jtime)
+              result = result + mws%constant_adjustments(jca, jtd)
           else
-              result = mws%mdl_data(lhs, jtime) - result
+              result = mws%mdl_data(lhs, jtd) - result
           endif
       endif
 
@@ -140,7 +133,7 @@ do jtime = jt1, jt2
    if (mdl%lik(lhs)) then
        call set_var_value(mws, lhs, jtime, result, error)
    else
-       mws%constant_adjustments(jca, jtime) = result
+       mws%constant_adjustments(jca, jtd) = result
    endif
 
    if (fix_var%var_index == lhs) then

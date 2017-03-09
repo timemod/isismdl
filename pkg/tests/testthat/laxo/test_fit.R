@@ -40,7 +40,8 @@ report <- capture_output(mdl$solve(options = list(report = "none")))
 dif <- tsdif(mdl$get_data()[mdl_period, ], isis_result, tol = 1e-6, fun = cvgdif)
 
 ca_names <- mdl$get_var_names(vtype = "allfrml")
-dif_ca <- tsdif(mdl$get_ca(), isis_ca_result, tol = 1e-6, fun = cvgdif)
+dif_ca <- tsdif(mdl$get_ca(period = mdl_period), isis_ca_result, tol = 1e-6, 
+                fun = cvgdif)
 
 test_that("Testing get_fit", {
     fit_ref <- fit_targets

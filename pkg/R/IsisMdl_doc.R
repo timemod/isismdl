@@ -46,6 +46,56 @@ NULL
 #' mdl$set_labels(c(c = "Consumption", i = "investments"))
 NULL
 
+#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
+#' @name set_labels
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} sets labels
+#' for the model variables.
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_labels(labels)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{labels}}{a named character vector.
+#' The names are the names of the model variables}
+#' }
+#' @examples
+#' mdl <- islm_mdl()
+#' mdl$set_labels(c(c = "Consumption", i = "investments"))
+NULL
+
+#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
+#' @name set_labels
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} sets labels
+#' for the model variables.
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_labels(labels)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{labels}}{a named character vector.
+#' The names are the names of the model variables}
+#' }
+#' @examples
+#' mdl <- islm_mdl()
+#' mdl$set_labels(c(c = "Consumption", i = "investments"))
+NULL
+
+
+
 #' \code{\link{IsisMdl}} method: returns the names of the model variables
 #' @name get_par_names
 #'
@@ -161,15 +211,20 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} sets the model period.
-#' This is the longest period for which
-#' the model may be solved. This method also allocates storage for
-#' all model timeseries and constant adjustments. Model timeseries are
-#' available for the so called 'model data period', which is
-#' the model period extended with a lag and lead period. Constant
-#' adjustments are only available for the model period. This method
-#' also initialises all model timeseries with \code{NA} and all constant
+#' This is the default period used when solving the model.
+#' 
+#' If the model data has not already been initialized with method
+#' \code{\link{init_data}}, then \code{set_period} also initializes
+#' the model data. In that case the model data period is set to the 
+#' specified model period extended with a lag and lead period.
+#' Model timeseries are initialized with \code{NA} and all constant
 #' adjustments with 0.
 #'
+#' If the model data has already been initialized with  method
+#' \code{\link{init_data}}, then the new model period
+#' should be compatible with the model data period. 
+#' In particular, the new model period extended with a lag and lead period
+#' should not contain periods outside the model data period.
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_period(period)
@@ -189,6 +244,51 @@ NULL
 #' @examples
 #' mdl <- islm_mdl()
 #' mdl$set_period("2017Q2/2021Q3")
+NULL
+
+#' \code{\link{IsisMdl}} method: initialized the model data.
+#' @name init_data
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} initializes the
+#' model data.
+#' 
+#' This method sets the model data period and initializes
+#'  the model variables and constant adjustmemts.
+#'
+#' You have to specify one of the two arguments \code{data_period} 
+#' and \code{data}. If \code{data_period}  has not been specified, 
+#'  then the model data period is set to the period range of
+#' \code{data}. If \code{data} has not been specified,
+#' then argument \code{data_period} is mandatory.
+#'
+#' The method first initializes all model timeseries with \code{NA} 
+#' and all constant adjustments with 0 for the data period.
+#' If arguments \code{data} or \code{ca} have been specified,
+#'  then the model variables or constant adjustments are 
+#' subsequently updated with the timeseries \code{data} or \code{ca},
+#' respectively.
+#'
+#' This methods also sets the model period, the standard period
+#' for which the model will be solved. The model period
+#' is obtained from the data period by subtracting the lag and lead periods.
+#' @section Usage:
+#' \preformatted{
+#' mdl$init_data(data_period, data, ca)
+#'
+#' }
+#'
+#' \code{mdl} is an \code{IsisMdl} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{data_period}}{\code{\link[regts]{regperiod_range}}
+#' object, or an object that can be coerced to 
+#' \code{\link[regts]{regperiod_range}}}
+#' \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
+#'  object}
+#' }
 NULL
 
 #' \code{\link{IsisMdl}} method: returns the model period
@@ -285,6 +385,40 @@ NULL
 #' mdl$fill_mdl_data()
 NULL
 
+#' \code{\link{IsisMdl}} method: runs model equations
+#' @name run_eqn
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} 
+#' runs specific equations of the model separately.
+#' Each specified equation is run separately for the specified period.
+#' If the equation is a stochastic equation (a \code{frml} equation)
+#' and the corresponding endogenous variable has been fixed
+#' then the constant adjustment for the equation will be calculated
+#' such that the result of the equation equals the predetermined required
+#' value for the left-hand side.
+#' 
+#' @section Usage:
+#' \preformatted{
+#' mdl$run_eqn(names = mdl$get_eq_names(), period = mdl$get_data_period())
+#' 
+#' }
+#'
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#' 
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{names}}{a character vector with equation names}
+#' \item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
+#' }
+#'
+#' @examples
+#' mdl <- islm_mdl("2017Q1/2019Q3")
+#' mdl$run_eqn(names = c("c", "t"))
+NULL
+
+
 #' \code{\link{IsisMdl}} methods: Retrieve timeseries from the model data, 
 #' constant adjusments, fix values or fit targets
 #' @name get_data-methods
@@ -298,7 +432,7 @@ NULL
 #' \preformatted{
 #' mdl$get_data(pattern, names, period = mdl$get_data_period())
 #'
-#' mdl$get_ca(pattern, names, period = mdl$get_period())
+#' mdl$get_ca(pattern, names, period = mdl$get_data_period())
 #'
 #' mdl$get_fix()
 #'
@@ -390,12 +524,12 @@ NULL
 #' \preformatted{
 #' mdl$set_values(value, names, pattern, period = mdl$get_data_period())
 #'
-#' mdl$set_ca_values(value, names, pattern, period = mdl$get_period())
+#' mdl$set_ca_values(value, names, pattern, period = mdl$get_data_period())
 #'
-#' mdl$set_fix_values(value, names, pattern, period = mdl$get_period())
+#' mdl$set_fix_values(value, names, pattern, period = mdl$get_data_period())
 #'
-#' mdl$set_fit_values(value, names, pattern, period = mdl$get_period())
-#' 
+#' mdl$set_fit_values(value, names, pattern, period = mdl$get_data_period())
+#'
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -433,7 +567,7 @@ NULL
 #' \preformatted{
 #' mdl$change_data(fun, names, pattern, period = mdl$get_data_period())
 #'
-#' mdl$change_ca(fun names, pattern, period = mdl$get_period())
+#' mdl$change_ca(fun names, pattern, period = mdl$get_data_period())
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -505,6 +639,30 @@ NULL
 #' mdl$set_solve_options(maxiter = 100)
 NULL
 
+
+#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
+#' @name set_labels
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} sets labels
+#' for the model variables.
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_labels(labels)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{labels}}{a named character vector.
+#' The names are the names of the model variables}
+#' }
+#' @examples
+#' mdl <- islm_mdl()
+#' mdl$set_labels(c(c = "Consumption", i = "investments"))
+NULL
 
 #' \code{\link{IsisMdl}} method: Returns the labels of the model variables.
 #' @name get_labels

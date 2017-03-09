@@ -292,9 +292,9 @@ do i = 1, mdl%nrv
       do j = mdl%ibx2(i), mdl%ibx2(i + 1) - 1
            jlead = jstart + j - mdl%ibx2(i) + 1
            if( jlead > jl ) then
-              lags_leads(j) = mws%mdl_data(i, jl)
+              lags_leads(j) = mws%mdl_data(i, jl + mdl%mxlag)
            else
-              lags_leads(j) = mws%mdl_data(i, jlead)
+              lags_leads(j) = mws%mdl_data(i, jlead + mdl%mxlag)
            endif
       enddo
 
@@ -332,7 +332,7 @@ if (opts%mode == "X" .and. allocated(endo_leads)) then
         if (i .le. 0) cycle
         if (.not. mdl%lik(i)) cycle
         do j = jf + 1, jl
-            endo_leads(k, j) = mws%mdl_data(i, j)
+            endo_leads(k, j) = mws%mdl_data(i, j + mdl%mxlag)
         enddo
      enddo
 endif
@@ -348,11 +348,7 @@ do k = 1, mdl%nendex
 
     if (opts%uplead) then
         do j = jl + 1, jl + mdl%ibx2(i + 1) - mdl%ibx2(i)
-            if (j > mws%perlen) then
-                 mws%leads(i, j - mws%perlen) = mws%mdl_data(i, jl)
-             else
-                 mws%mdl_data(i, j) = mws%mdl_data(i, jl)
-            endif
+            mws%mdl_data(i, j + mdl%mxlag) = mws%mdl_data(i, jl + mdl%mxlag)
         enddo
     endif
 
@@ -372,27 +368,19 @@ subroutine reset_lags_leads(jf)
     ! init_lags_leads_check)
     
     integer ::  i, j, jlag, jlead
-    
+
     do i = 1, mdl%nrv
     
        ! lags
        do j = mdl%ibx1(i), mdl%ibx1(i + 1) - 1
            jlag = jf - (1 + j - mdl%ibx1(i))
-           if (jlag <= 0) then
-               lags_leads(j) = mws%lags(i, jlag + mws%mdl%mxlag)
-           else
-               lags_leads(j) = mws%mdl_data(i, jlag)
-           endif
+           lags_leads(j) = mws%mdl_data(i, jlag + mdl%mxlag)
        enddo
     
        ! leads
        do j = mdl%ibx2(i), mdl%ibx2(i + 1) - 1
-            jlead = jf + j - mdl%ibx2(i) + 1
-            if (jlead > mws%perlen) then
-                lags_leads(j) = mws%leads(i, jlead - mws%perlen)
-            else
-                lags_leads(j) = mws%mdl_data(i, jlead)
-            endif
+           jlead = jf + j - mdl%ibx2(i) + 1
+           lags_leads(j) = mws%mdl_data(i, jlead + mdl%mxlag)
        enddo
     enddo
     
@@ -445,7 +433,7 @@ subroutine get_next_lag_forwards(ivar, jt, chk, is_na)
 
     ! set -1 (next period) for this variable
     ! get the value from the model data at the current period
-    lags_leads(mdl%ibx1(ivar)) = mws%mdl_data(ivar, jt)
+    lags_leads(mdl%ibx1(ivar)) = mws%mdl_data(ivar, jt + mdl%mxlag)
 
     if (chk) then
         is_na = nuifna(lags_leads(mdl%ibx1(ivar)))
@@ -561,7 +549,7 @@ subroutine get_next_lead_backwards(ivar, jt, chk, is_na)
 
     ! set +1 lead for this variable for the next period,
     ! get the value from the model data at the current period
-    lags_leads(mdl%ibx2(ivar)) = mws%mdl_data(ivar, jt)
+    lags_leads(mdl%ibx2(ivar)) = mws%mdl_data(ivar, jt + mdl%mxlag)
 
     if (chk) then
         is_na = nuifna(lags_leads(mdl%ibx2(ivar)))
@@ -577,10 +565,13 @@ end subroutine get_next_lead_backwards
 
        ! store current CAs in the mws
 
-       integer :: i
+       integer :: i, jtd
+
+       jtd = jt + mdl%mxlag
 
        do i = 1, mdl%nca
-           if (mdl%ica(i) > 0) mws%constant_adjustments(i, jt) = ca(mdl%ica(i))
+           if (mdl%ica(i) > 0) mws%constant_adjustments(i, jtd) = &
+                              ca(mdl%ica(i))
        enddo
 
        return
@@ -593,11 +584,13 @@ end subroutine get_next_lead_backwards
 
        ! copy CAs from the mws to array ca
 
-       integer :: i
+       integer :: i, jtd
+
+       jtd = jt + mdl%mxlag
 
        do i = 1, mdl%nca
            if (mdl%ica(i) > 0) ca(mdl%ica(i)) =   &     
-&               mws%constant_adjustments(i, jt) 
+&               mws%constant_adjustments(i, jtd) 
            enddo
 
        return
@@ -685,14 +678,14 @@ logical :: error
 
 if (opts%start == 'C' ) then
     ! ------   current
-    curvars = mws%mdl_data(:, period)
+    curvars = mws%mdl_data(:, period + mdl%mxlag)
 elseif (opts%start == 'P' ) then
     ! ------   previous
-    curvars =  mws%mdl_data(:, max(period - 1, 1))
+    curvars =  mws%mdl_data(:, max(period - 1, 1) + mdl%mxlag)
 elseif (opts%start == 'D' ) then
     ! ------   1. relaxed current
     !          2. redo feedback variables
-    curvars = mws%mdl_data(:, period)
+    curvars = mws%mdl_data(:, period + mdl%mxlag)
     do j = 1, mdl%nfb
         fbnum = mdl%numfb(j)
         call get_var_value(mws, fbnum, period, zx, error)
@@ -704,7 +697,7 @@ elseif (opts%start == 'D' ) then
 elseif (opts%start == 'Q') then
     ! ------   1. relaxed previous
     !          2. redo feedback variables
-    curvars = mws%mdl_data(:, max(period - 1, 1))
+    curvars = mws%mdl_data(:, max(period - 1, 1) + mdl%mxlag)
     do j = 1, mdl%nfb
         fbnum = mdl%numfb(j)
         call get_var_value(mws, fbnum, period - 1, zx, error)

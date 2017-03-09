@@ -135,6 +135,25 @@ subroutine mdlpas_fortran(mws_index, jtb, jte)
     end do
 end subroutine mdlpas_fortran
 
+subroutine run_eqn_fortran(mws_index, neq, eqnums, jtb, jte)
+    use modelworkspaces
+    use iso_c_binding
+    use msvars
+    use msslvq
+    integer(c_int), intent(in) :: mws_index, neq, jtb, jte
+    integer(c_int), intent(in) :: eqnums(neq)
+    ! 
+    ! run a number of equations
+    !
+    integer :: ieq, errflg
+    
+    call msvarsinit(mws_array(mws_index))
+        
+    do ieq = 1, neq
+        call solve_equation(eqnums(ieq), .false., jtb, jte, errflg)
+    end do
+end subroutine run_eqn_fortran
+
 subroutine solve_fortran(mws_index, jtb, jte, opts_present, error)
     use modelworkspaces
     use iso_c_binding

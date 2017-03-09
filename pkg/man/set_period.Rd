@@ -5,14 +5,20 @@
 \title{\code{\link{IsisMdl}} method: sets the model period}
 \description{
 This method of R6 class \code{\link{IsisMdl}} sets the model period.
-This is the longest period for which
-the model may be solved. This method also allocates storage for
-all model timeseries and constant adjustments. Model timeseries are
-available for the so called 'model data period', which is
-the model period extended with a lag and lead period. Constant
-adjustments are only available for the model period. This method
-also initialises all model timeseries with \code{NA} and all constant
+This is the default period used when solving the model.
+
+If the model data has not already been initialized with method
+\code{\link{init_data}}, then \code{set_period} also initializes
+the model data. In that case the model data period is set to the 
+specified model period extended with a lag and lead period.
+Model timeseries are initialized with \code{NA} and all constant
 adjustments with 0.
+
+If the model data has already been initialized with  method
+\code{\link{init_data}}, then the new model period
+should be compatible with the model data period. 
+In particular, the new model period extended with a lag and lead period
+should not contain periods outside the model data period.
 }
 \section{Usage}{
 
