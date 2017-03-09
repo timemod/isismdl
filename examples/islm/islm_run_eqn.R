@@ -13,6 +13,4 @@ mdl$set_ca_values(-4500, names = "t", period = "2015Q1/2015Q2")
 mdl$set_fix_values(333, names = "c", period = "2015Q1/2015Q3")
 print(mdl$get_ca())
 print(mdl$get_fix())
-mdl$run_eqn(c("c", "t"))
-print(mdl$get_data())
-
+mdl$run_eqn(pattern = "c")

@@ -46,56 +46,6 @@ NULL
 #' mdl$set_labels(c(c = "Consumption", i = "investments"))
 NULL
 
-#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
-#' @name set_labels
-#'
-#' @description
-#' This method of R6 class \code{\link{IsisMdl}} sets labels
-#' for the model variables.
-#' @section Usage:
-#' \preformatted{
-#' mdl$set_labels(labels)
-#'
-#' }
-#' \code{mdl} is an \code{\link{IsisMdl}} object
-#'
-#' @section Arguments:
-#'
-#' \describe{
-#' \item{\code{labels}}{a named character vector.
-#' The names are the names of the model variables}
-#' }
-#' @examples
-#' mdl <- islm_mdl()
-#' mdl$set_labels(c(c = "Consumption", i = "investments"))
-NULL
-
-#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
-#' @name set_labels
-#'
-#' @description
-#' This method of R6 class \code{\link{IsisMdl}} sets labels
-#' for the model variables.
-#' @section Usage:
-#' \preformatted{
-#' mdl$set_labels(labels)
-#'
-#' }
-#' \code{mdl} is an \code{\link{IsisMdl}} object
-#'
-#' @section Arguments:
-#'
-#' \describe{
-#' \item{\code{labels}}{a named character vector.
-#' The names are the names of the model variables}
-#' }
-#' @examples
-#' mdl <- islm_mdl()
-#' mdl$set_labels(c(c = "Consumption", i = "investments"))
-NULL
-
-
-
 #' \code{\link{IsisMdl}} method: returns the names of the model variables
 #' @name get_par_names
 #'
@@ -397,10 +347,13 @@ NULL
 #' then the constant adjustment for the equation will be calculated
 #' such that the result of the equation equals the predetermined required
 #' value for the left-hand side.
+#'
+#' If neither argument \code{pattern} or \code{names} have been specified,
+#' then all active model equations are ran in solve order.
 #' 
 #' @section Usage:
 #' \preformatted{
-#' mdl$run_eqn(names = mdl$get_eq_names(), period = mdl$get_data_period())
+#' mdl$run_eqn(pattern, names, period = mdl$get_data_period())
 #' 
 #' }
 #'
@@ -409,7 +362,11 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{names}}{a character vector with equation names}
+#' \item{\code{pattern}}{a regular expression. Equations with names
+#' matching the regular expression are run in solve order}
+#' \item{\code{names}}{a character vector with equation names. The
+#' corresponding equations are solved in the order as they are
+#' specified}
 #' \item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
 #' }
 #'
@@ -637,31 +594,6 @@ NULL
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$set_solve_options(maxiter = 100)
-NULL
-
-
-#' \code{\link{IsisMdl}} method: Sets labels for the model variables.
-#' @name set_labels
-#'
-#' @description
-#' This method of R6 class \code{\link{IsisMdl}} sets labels
-#' for the model variables.
-#' @section Usage:
-#' \preformatted{
-#' mdl$set_labels(labels)
-#'
-#' }
-#' \code{mdl} is an \code{\link{IsisMdl}} object
-#'
-#' @section Arguments:
-#'
-#' \describe{
-#' \item{\code{labels}}{a named character vector.
-#' The names are the names of the model variables}
-#' }
-#' @examples
-#' mdl <- islm_mdl()
-#' mdl$set_labels(c(c = "Consumption", i = "investments"))
 NULL
 
 #' \code{\link{IsisMdl}} method: Returns the labels of the model variables.

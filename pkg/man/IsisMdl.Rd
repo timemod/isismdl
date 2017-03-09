@@ -48,6 +48,8 @@ variables}
 
 \item{\code{\link{get_eq_names}}}{Returns the names of the equations}
 
+\item{\code{\link{init_data}}}{Initializes the model data}
+
 \item{\code{\link{set_period}}}{Sets the model period}
 
 \item{\code{\link{get_period}}}{Returns the model period}

@@ -12,11 +12,14 @@ and the corresponding endogenous variable has been fixed
 then the constant adjustment for the equation will be calculated
 such that the result of the equation equals the predetermined required
 value for the left-hand side.
+
+If neither argument \code{pattern} or \code{names} have been specified,
+then all active model equations are ran in solve order.
 }
 \section{Usage}{
 
 \preformatted{
-mdl$run_eqn(names = mdl$get_eq_names(), period = mdl$get_data_period())
+mdl$run_eqn(pattern, names, period = mdl$get_data_period())
 
 }
 
@@ -27,7 +30,11 @@ mdl$run_eqn(names = mdl$get_eq_names(), period = mdl$get_data_period())
 
 
 \describe{
-\item{\code{names}}{a character vector with equation names}
+\item{\code{pattern}}{a regular expression. Equations with names
+matching the regular expression are run in solve order}
+\item{\code{names}}{a character vector with equation names. The
+corresponding equations are solved in the order as they are
+specified}
 \item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
 }
 }

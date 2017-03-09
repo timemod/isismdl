@@ -1,4 +1,4 @@
-#}' @importFrom methods setOldClass
+#' @importFrom methods setOldClass
 setOldClass("regperiod_range")
 
 #' An R6 class class representing an Isis model
@@ -234,8 +234,10 @@ IsisMdl <- R6Class("IsisMdl",
             }
             return (names)
         },
-        get_eq_names = function(pattern = ".*", type = "all") {
-            names <- .Call("get_eq_names_c", type, private$model_index)
+        get_eq_names = function(pattern = ".*", type = "all", 
+                                order = c("sorted", "solve", "natural")) {
+            order <- match.arg(order)
+            names <- .Call("get_eq_names_c", type, private$model_index, order)
             if (!missing(pattern)) {
                 sel <- grep(pattern, names)
                 names <- names[sel]
@@ -469,13 +471,25 @@ IsisMdl <- R6Class("IsisMdl",
                             jtb = js$startp, jte = js$end)
             return (invisible(self))
         },
-        run_eqn = function(names = self$get_eq_names(), 
-                           period = private$data_period) {
+        run_eqn = function(pattern, names, period = private$data_period) {
             "Run model equations"
-            # TODO: add a pattern argument, and use an order options as in
-            # Isis
             period <- as.regperiod_range(period)
-            eqnums <- as.integer(match(names, self$get_eq_names()))
+            if (missing(pattern) && missing(names)) {
+                eq_names <- self$get_eq_names(order = "solve")
+            } else if (missing(pattern) && !missing(names)) {
+                eq_names <- intersect(names, self$get_eq_names())
+                eq_nums <- as.integer(match(eq_names, self$get_eq_names()))
+            } else if (!missing(pattern) && missing(names)) {
+                eq_names <- self$get_eq_names(order = "solve")
+                ieqs <- grep(pattern, eq_names)
+                eq_names <- eq_names[ieqs]
+            } else {
+                stop(paste("Only one of arguments pattern and names can  be",
+                           "specified"))
+            }
+            print(eq_names)
+
+            eqnums <- as.integer(match(eq_names, self$get_eq_names()))
             neq <- as.integer(length(eqnums))
             if (is.null(private$model_period)) stop(private$period_error_msg)
             js <- private$get_period_indices(period)

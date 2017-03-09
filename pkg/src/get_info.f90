@@ -271,3 +271,11 @@ function equation_is_active(model_index, ieq, alpha)
         equation_is_active = 0
     endif
 end function equation_is_active
+
+integer function get_eq_order(model_index, ieq)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in) :: model_index, ieq
+    get_eq_order = mws_array(model_index)%mdl%order(ieq)
+end function get_eq_order
+
