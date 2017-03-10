@@ -348,8 +348,7 @@ module mws_type
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
             logical, intent(in) :: fix
 
-            integer :: i, j, jstart, jend, vcnt, ierr, iv, im
-            real(kind = MWS_RKIND) :: fix_value
+            integer :: i, jstart, jend, vcnt, ierr, iv, im
 
             type(mdl_variables), pointer :: mdl_vars
 
@@ -370,16 +369,6 @@ module mws_type
                 if (fix .and. .not. is_frml(mws%mdl, iv)) cycle
                 call add_mdl_variable(mdl_vars, iv, vcnt, jstart, &
                                       mat(im, icol(i)), ierr)
-                if (fix) then
-                    ! update mdl data
-                    do j = 1, vcnt
-                        fix_value = mat(j + im - 1, icol(i))
-                        if (.not. nuifna(fix_value)) then
-                            mws%mdl_data(iv, jstart + j - 1 + mws%mdl%mxlag) = &
-                                     fix_value
-                        endif
-                    end do
-                endif
                 if (ierr /=0) return
             end do
 
