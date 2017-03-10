@@ -117,7 +117,7 @@ isis_mdl <- function(modelname, period, data, ca, fix_values, fit_targets) {
 
     if (!missing(ca)) {
         if (!is.null(colnames(ca))) {
-            mdl$et_ca(ca, colnames(ca))
+            mdl$set_ca(ca, colnames(ca))
         } else {
             stop("ca has no column names")
         }
@@ -129,6 +129,7 @@ isis_mdl <- function(modelname, period, data, ca, fix_values, fit_targets) {
             stop("fix_values has no column names")
         }
     }
+
     if (!missing(fit_targets)) {
         if (!is.null(colnames(fit_targets))) {
             mdl$set_fit(fit_targets, colnames(fit_targets))
