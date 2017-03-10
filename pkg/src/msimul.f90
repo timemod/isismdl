@@ -258,7 +258,7 @@ do k = 1, mdl%nendex
     do j = jf + 1, jl
 
         xold = endo_leads(k, j)
-        xnew = mws%mdl_data(i, j)
+        xnew = mws%mdl_data(i, j + mdl%mxlag)
         absdif = abs(xnew-xold)
         if (abs(xold) .gt. Rone) absdif = absdif/abs(xold)
 
@@ -323,21 +323,17 @@ do k = 1, mdl%nendex
 
    do j = jf + 1, jl
        xold = endo_leads(k, j)
-       xnew = mws%mdl_data(i, j)
+       xnew = mws%mdl_data(i, j + mdl%mxlag)
        xnew = xold + xrlx * (xnew - xold)
        endo_leads(k, j) = xnew
-       mws%mdl_data(i, j) = xnew
+       mws%mdl_data(i, j + mdl%mxlag) = xnew
    enddo
 
    ! update leads beyond last period if needed
 
    if (opts%uplead) then
        do j = jl + 1, jl + mdl%ibx2(i + 1) - mdl%ibx2(i)
-           if (j > mws%perlen) then
-              mws%leads(i, j - mws%perlen) = xnew
-           else
-              mws%mdl_data(i, j) = xnew
-           endif
+           mws%mdl_data(i, j + mdl%mxlag) = xnew
        enddo
    endif
 
@@ -358,7 +354,7 @@ use msimot
 integer ::  ndiver, retcod
 integer ::  usedat
 logical ::  quit
-integer  :: jstart, jend, jt, step
+integer  :: jstart, jend, jt, step, jtd
 
 ndiver = 0
 
@@ -378,6 +374,8 @@ call sjcstr(jc)
 
 do jt = jstart, jend, step
 
+    jtd = jt + mdl%mxlag
+
     ! set ca's (constant adjustments)
     ! if usedat is 1 then
     !     set current starting values and exogenous vars
@@ -393,11 +391,11 @@ do jt = jstart, jend, step
    call retrieve_ca(jt)
 
    if (usedat == 1) then
-       curvars = mws%mdl_data(:, jt)
+       curvars = mws%mdl_data(:, jtd)
    elseif (usedat == 2) then
-      call cpvech(curvars, mws%mdl_data(1, jt), mdl%nrv, mdl%lik)
+      call cpvech(curvars, mws%mdl_data(1, jtd), mdl%nrv, mdl%lik)
    else
-      call cpvecf(curvars, mws%mdl_data(1, jt), mdl%nrv, mdl%lik)
+      call cpvecf(curvars, mws%mdl_data(1, jtd), mdl%nrv, mdl%lik)
    endif
     
    ! solve current period
@@ -447,7 +445,7 @@ subroutine store_solution(jt)
     ! Store the solution for the current period in the mws
 
     call store_ca(jt)
-    mws%mdl_data(:, jt) = curvars
+    mws%mdl_data(:, jt + mdl%mxlag) = curvars
     return
 end subroutine store_solution
 

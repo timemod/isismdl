@@ -41,12 +41,18 @@ For example, method \code{solve} is described in section
 \code{\link{solve}}.
 \describe{
 
+\item{\code{\link{get_maxlag}}}{Returns the maximum lag}
+
+\item{\code{\link{get_maxlead}}}{Returns the maximum lead}
+
 \item{\code{\link{get_var_names}}}{Returns the names of the model
 variables}
 
 \item{\code{\link{get_par_names}}}{Returns the names of the model parameters}
 
 \item{\code{\link{get_eq_names}}}{Returns the names of the equations}
+
+\item{\code{\link{init_data}}}{Initializes the model data}
 
 \item{\code{\link{set_period}}}{Sets the model period}
 

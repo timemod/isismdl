@@ -79,13 +79,7 @@ module mssneq
         
         ier = 0
 
-        if (jtime <= 0) then
-            xdst => mws%lags(lhs, jtime + mws%mdl%mxlag) 
-        elseif (jtime <= mws%perlen) then
-            xdst => mws%mdl_data(lhs, jtime)
-        else
-            xdst => mws%leads(lhs, jtime - mws%perlen) 
-        endif
+        xdst => mws%mdl_data(lhs, jtime + mdl%mxlag) 
         
         ! test if xdst contains valid starting value
         ! if not try 1 period lagged value
@@ -107,7 +101,7 @@ module mssneq
         xsave = xdst
         zsave = xdst
         
-        if (jca /= 0) caval = mws%constant_adjustments(jca, jtime)
+        if (jca /= 0) caval = mws%constant_adjustments(jca, jtime + mdl%mxlag)
         
         ipb = mdl%nrecp(iequ) + 1
         ipe = mdl%nrecp(iequ + 1)

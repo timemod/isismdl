@@ -198,15 +198,16 @@ subroutine get_fix_info(model_index, nfix,  jtb, jte)
 
     nfix = mws%fix_vars%var_count
 
-    jtb = -1
-    do jt = 1, mws%perlen
+    jtb = - mws%mdl%mxlag
+    jte = - mws%mdl%mxlag
+    do jt = 1 - mws%mdl%mxlag, mws%perlen
         if (isfixp(mws, jt)) then
             jtb = jt
             exit
         endif
     end do
-    if (jtb > 0) then
-        do jt = mws%perlen, jtb, -1
+    if (jtb > -mws%mdl%mxlag) then
+        do jt = mws%perlen + mws%mdl%mxlead, jtb, -1
             if (isfixp(mws, jt)) then
                 jte = jt
                 exit
@@ -230,14 +231,15 @@ subroutine get_fit_info(model_index, nfit,  jtb, jte)
 
     nfit = mws%fit_targets%var_count
 
-    jtb = -1
-    do jt = 1, mws%perlen
+    jtb = - mws%mdl%mxlag
+    jte = - mws%mdl%mxlag
+    do jt = 1 - mws%mdl%mxlag, mws%perlen
         if (isfitp(mws, jt)) then
             jtb = jt
             exit
         endif
     end do
-    if (jtb > 0) then
+    if (jtb > -mws%mdl%mxlag) then
         do jt = mws%perlen, jtb, -1
             if (isfitp(mws, jt)) then
                 jte = jt
@@ -269,3 +271,11 @@ function equation_is_active(model_index, ieq, alpha)
         equation_is_active = 0
     endif
 end function equation_is_active
+
+integer function get_eq_order(model_index, ieq)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in) :: model_index, ieq
+    get_eq_order = mws_array(model_index)%mdl%order(ieq)
+end function get_eq_order
+

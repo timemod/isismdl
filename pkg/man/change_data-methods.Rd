@@ -14,7 +14,7 @@ changes the model data or constant adjustments by applying a function.
 \preformatted{
 mdl$change_data(fun, names, pattern, period = mdl$get_data_period())
 
-mdl$change_ca(fun names, pattern, period = mdl$get_period())
+mdl$change_ca(fun names, pattern, period = mdl$get_data_period())
 }
 
 \code{mdl} is an \code{\link{IsisMdl}} object

@@ -8,12 +8,12 @@ module mws_type
     use solve_options_type
 
     type modelworkspace
-        integer :: perlen = 0 ! length of the model period
+        integer :: perlen = 0      ! length of the model period
+        integer :: data_perlen = 0 ! length of the model data period
         type(period) :: start_period
         type(period) :: end_period
         real(kind = MWS_RKIND), dimension(:, :), allocatable :: &
-                             mdl_data, constant_adjustments, lags, &
-                             leads
+                             mdl_data, constant_adjustments 
         real(kind = MWS_RKIND), dimension(:), allocatable :: test, ftrelax
         type(model) :: mdl
         type(mdl_variables) :: fix_vars
@@ -39,9 +39,6 @@ module mws_type
             
             error = 0
 
-            allocate(mws%lags(mws%mdl%nrv, mws%mdl%mxlag), stat = stat)
-            if (stat == 0) allocate(mws%leads(mws%mdl%nrv, mws%mdl%mxlead), &
-                                    stat = stat)
             if (stat == 0) allocate(mws%test(mws%mdl%nrv), stat = stat)
             if (stat == 0) allocate(mws%ftrelax(mws%mdl%nendex), stat = stat)
             if (stat /= 0) then
@@ -49,8 +46,6 @@ module mws_type
                 error = 1
                 return
             endif
-            mws%lags = NA
-            mws%leads = NA
             mws%test = sqrt(Rmeps)
             mws%ftrelax = NA
             mws%dbgeqn = .false.
@@ -62,14 +57,11 @@ module mws_type
             type(modelworkspace), intent(inout) :: mws
             integer :: stat
             mws%perlen = 0
+            mws%data_perlen = 0
             deallocate(mws%mdl_data, stat = stat)
-            deallocate(mws%lags, stat = stat)
-            deallocate(mws%leads, stat = stat)
             deallocate(mws%constant_adjustments, stat = stat)
             deallocate(mws%test, stat = stat)
             deallocate(mws%ftrelax, stat = stat)
-            deallocate(mws%lags, stat = stat)
-            deallocate(mws%leads, stat = stat)
             deallocate(mws%rmsu, stat = stat)
             call clear_mdl_variables(mws%fix_vars)
             call clear_mdl_variables(mws%fit_targets)
@@ -130,12 +122,11 @@ module mws_type
             mws%end_period%frequency = freq
 
             mws%perlen = get_period_count(mws%start_period, mws%end_period)
+            mws%data_perlen = mws%perlen + mws%mdl%mxlag + mws%mdl%mxlead
 
             deallocate(mws%mdl_data, stat = stat)
             deallocate(mws%constant_adjustments, stat = stat)
             call mddata(mws, error)
-            mws%lags = NA
-            mws%leads = NA
 
             call clear_mdl_variables(mws%fix_vars)
             call clear_mdl_variables(mws%fit_targets)
@@ -163,9 +154,9 @@ module mws_type
                 return
             endif
         
-            allocate(mws%mdl_data(mws%mdl%nrv, mws%perlen), stat = stat)
+            allocate(mws%mdl_data(mws%mdl%nrv, mws%data_perlen), stat = stat)
             if (stat == 0) allocate(mws%constant_adjustments(mws%mdl%nca, &
-&                                                            mws%perlen), &
+&                                                        mws%data_perlen), &
 &                                   stat = stat)
             if (stat /= 0) then
                 call isismdl_error("Not enough memory to allocate the mws")
@@ -185,7 +176,7 @@ module mws_type
             integer, intent(in) :: itime
             !
             ! This function returns .true. if itime is
-            ! a valid time index for variable ivar
+            ! a valid time index
             !
             period_ok = itime >= 1 - mws%mdl%mxlag .and. &
                         itime <= mws%perlen + mws%mdl%mxlead
@@ -197,20 +188,14 @@ module mws_type
             real(kind = MWS_RKIND), intent(out) :: value
             logical, intent(out) :: error
 
+            error = .false.
             if (.not. period_ok(mws, itime)) then
                 error = .true.
                 value = NA
                 return
             endif
 
-            error = .false.
-            if (itime <= 0) then
-                value = mws%lags(ivar, itime + mws%mdl%mxlag) 
-            elseif (itime <= mws%perlen) then
-                value = mws%mdl_data(ivar, itime)
-            else
-                value = mws%leads(ivar, itime - mws%perlen) 
-            endif
+            value = mws%mdl_data(ivar, itime + mws%mdl%mxlag)
         end subroutine get_var_value
 
         subroutine set_var_value(mws, ivar, itime, value, error)
@@ -226,13 +211,8 @@ module mws_type
                 return
             endif
 
-            if (itime < 1) then
-                mws%lags(ivar, itime + mws%mdl%mxlag) = value
-            elseif (itime .le. mws%perlen) then
-                mws%mdl_data(ivar, itime) = value
-            else
-                mws%leads(ivar, itime - mws%perlen) = value
-            endif
+            mws%mdl_data(ivar, itime + mws%mdl%mxlag) = value
+
         end subroutine set_var_value
 
         subroutine get_mdl_data(mws, nvar, ivar, ntime, jtb, jte, mat)
@@ -240,7 +220,7 @@ module mws_type
             integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte
             real(kind = MWS_RKIND), dimension(ntime, nvar), intent(out) :: mat
 
-            integer :: i, j, jt, iv, jstart, jend
+            integer :: i, j, jt, iv, jstart, jend, jtd
 
             jstart = max(jtb, 1 - mws%mdl%mxlag)
             jend   = min(jte,  mws%perlen +  mws%mdl%mxlead)
@@ -250,17 +230,12 @@ module mws_type
             endif
 
             do jt = jstart, jend
+                jtd = jt + mws%mdl%mxlag
                 j = jt - jtb + 1
                 ! j is row index of mat
                 do i = 1, nvar
                     iv = ivar(i)
-                    if (jt <= 0) then
-                        mat(j, i) = mws%lags(iv, jt + mws%mdl%mxlag) 
-                    elseif (jt <= mws%perlen) then
-                        mat(j,i) = mws%mdl_data(iv, jt)
-                    else
-                        mat(j,i) = mws%leads(iv, jt - mws%perlen) 
-                    endif
+                    mat(j, i) = mws%mdl_data(iv, jtd) 
                 end do
             end do
         end subroutine get_mdl_data
@@ -270,23 +245,18 @@ module mws_type
             integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*)
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
 
-            integer :: i, j, jt, jstart, jend, iv
+            integer :: i, j, jt, jstart, jend, iv, jtd
 
             jstart = max(jtb, 1 - mws%mdl%mxlag)
             jend   = min(jte,  mws%perlen +  mws%mdl%mxlead)
 
             do jt = jstart, jend
+                jtd = jt + mws%mdl%mxlag
                 j = jt - jtb + 1
                 ! j is row index of mat
                 do i = 1, nvar
                     iv = ivar(i)
-                    if (jt < 1) then
-                        mws%lags(iv, jt + mws%mdl%mxlag) = mat(j, icol(i))
-                    elseif (jt .le. mws%perlen) then
-                        mws%mdl_data(iv, jt) =  mat(j, icol(i))
-                    else
-                        mws%leads(iv, jt - mws%perlen) = mat(j, icol(i))
-                    endif
+                    mws%mdl_data(iv, jtd) = mat(j, icol(i))
                 end do
             end do
 
@@ -298,17 +268,18 @@ module mws_type
             integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*)
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
 
-            integer :: i, j, jt, jstart, jend, aci
+            integer :: i, j, jt, jstart, jend, aci, jtd
 
-            jstart = max(jtb, 1)
-            jend   = min(jte,  mws%perlen)
+            jstart = max(jtb, 1 - mws%mdl%mxlag)
+            jend   = min(jte,  mws%perlen +  mws%mdl%mxlead)
 
             do jt = jstart, jend
                 j = jt - jtb + 1
+                jtd = jt + mws%mdl%mxlag
                 do i = 1, nvar
                     aci = mws%mdl%aci(ivar(i))
                     if (aci <= 0) cycle
-                    mws%constant_adjustments(aci, jt) = mat(j, icol(i))
+                    mws%constant_adjustments(aci, jtd) = mat(j, icol(i))
                 end do
             enddo
         end subroutine set_ca
@@ -318,10 +289,10 @@ module mws_type
             integer, intent(in) :: nca, ica(nca), ntime, jtb, jte
             real(kind = MWS_RKIND), dimension(ntime, nca), intent(out) :: mat
 
-            integer :: i, j, jt, jstart, jend
+            integer :: i, j, jt, jstart, jend, jtd
 
-            jstart = max(jtb, 1)
-            jend   = min(jte, mws%perlen)
+            jstart = max(jtb, 1 - mws%mdl%mxlag)
+            jend   = min(jte,  mws%perlen +  mws%mdl%mxlead)
 
             if (jstart > jtb .or. jend < jte) then
                 mat = NA
@@ -329,9 +300,10 @@ module mws_type
         
             do jt = jstart, jend
                 j = jt - jtb + 1
+                jtd = jt + mws%mdl%mxlag
                 ! j is row index of mat
                 do i = 1, nca
-                    mat(j, i) = mws%constant_adjustments(ica(i), jt)
+                    mat(j, i) = mws%constant_adjustments(ica(i), jtd)
                 end do
             end do
         end subroutine get_ca
@@ -387,8 +359,9 @@ module mws_type
                 mdl_vars => mws%fit_targets
             endif
 
-            jstart = max(jtb, 1)
-            jend   = min(jte,  mws%perlen)
+            jstart = max(jtb, 1 - mws%mdl%mxlag)
+            jend   = min(jte,  mws%perlen +  mws%mdl%mxlead)
+
             vcnt = jend - jstart + 1
             im = jstart - jtb + 1
 
@@ -402,7 +375,8 @@ module mws_type
                     do j = 1, vcnt
                         fix_value = mat(j + im - 1, icol(i))
                         if (.not. nuifna(fix_value)) then
-                            mws%mdl_data(iv, jstart + j - 1) = fix_value
+                            mws%mdl_data(iv, jstart + j - 1 + mws%mdl%mxlag) = &
+                                     fix_value
                         endif
                     end do
                 endif

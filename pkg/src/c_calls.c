@@ -160,9 +160,10 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
 }
 
 /* get equation names sorted alphabetically */
-SEXP get_eq_names_c(SEXP type_, SEXP model_index_) {
+SEXP get_eq_names_c(SEXP type_, SEXP model_index_, SEXP order_) {
     int model_index = asInteger(model_index_);
     const char *type_str = CHAR(asChar(type_));
+    const char *order_str = CHAR(asChar(order_));
     int type;
     if (strcmp(type_str, "all") == 0) {
         type = ALL_EQ;
@@ -173,20 +174,25 @@ SEXP get_eq_names_c(SEXP type_, SEXP model_index_) {
     }
 
     int neq  = F77_CALL(get_eq_count)(&model_index);
-    int alphabet = 1;
+    int alphabet = (strcmp(order_str, "sorted") == 0)   ? 1 : 0;
+    int solve_order = (strcmp(order_str, "solve") == 0) ? 1 : 0;
 
     /* get list of equation indices */
-    int *ieq = (int *) R_alloc(neq, sizeof(int));
+    int *ieqs = (int *) R_alloc(neq, sizeof(int));
     int cnt = 0;
-    int i, ok;
+    int i, ieq, ok;
     for (i = 1; i <= neq; i++) {
+        ieq = solve_order ? F77_CALL(get_eq_order)(&model_index, &i) : i;
+        if (ieq <= 0) {
+            continue;
+        }
         if (type == INACTIVE_EQ) {
-            ok = ! F77_CALL(equation_is_active)(&model_index, &i, &alphabet);
+            ok = ! F77_CALL(equation_is_active)(&model_index, &ieq, &alphabet);
         } else {
             ok = 1;
         }
         if (ok) {
-            ieq[cnt++] = i;
+            ieqs[cnt++] = ieq;
         }
     }
 
@@ -195,7 +201,7 @@ SEXP get_eq_names_c(SEXP type_, SEXP model_index_) {
     char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, cnt));
     for (i = 0; i < cnt; i++) {
-        F77_CALL(get_equation_name)(&model_index, ieq + i, name, &len,
+        F77_CALL(get_equation_name)(&model_index, ieqs + i, name, &len,
                                     &alphabet);
         name[len] = '\0';
         SET_STRING_ELT(names, i, mkChar(name));

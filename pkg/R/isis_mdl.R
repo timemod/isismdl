@@ -70,9 +70,15 @@
 #' @seealso \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
 #' \code{\link{IsisMdl}}
 #' @importFrom tools file_path_sans_ext
+#' @importFrom regts regrange_union
+#' @importFrom regts as.regperiod_range
+#' @importFrom regts start_period
+#' @importFrom regts end_period
 #' @export
-isis_mdl <- function(modelname, period = NULL, data = NULL, ca = NULL,
-                     fix_values = NULL, fit_targets = NULL) {
+isis_mdl <- function(modelname, period, data, ca, fix_values, fit_targets) {
+    if (!missing(period)) {
+        period <- as.regperiod_range(period)
+    }
     # TODO: currently, compile_mdl_c generates a mif file
     # that is later read by read_mdl_c. This can be simpler:
     # after compilation the model information can be put
@@ -87,18 +93,28 @@ isis_mdl <- function(modelname, period = NULL, data = NULL, ca = NULL,
     mdl <- IsisMdl$new(mif_file)
     unlink(mif_file)
 
-    if (!is.null(period)) {
+    if (!missing(data)) {
+        data_period <- get_regperiod_range(data)
+        if (!missing(period)) {
+            print(mdl)
+            # data_period should be the union of the regperiod_range of data
+            # and the supplied period extended with a lag and lead period.
+            data_period_2 <- regperiod_range(
+                 start_period(period) - mdl$get_maxlag(),
+                 end_period(period)   + mdl$get_maxlead())
+            data_period <- regrange_union(data_period, data_period_2)
+        }
+        if (is.null(colnames(data))) {
+            stop("data has no column names")
+        } else {
+            mdl$init_data(data_period = data_period, data = data)
+        } 
+    }
+
+    if (!missing(period)) {
         mdl$set_period(period)
     }
 
-    # update data
-    if (!missing(data)) {
-        if (!is.null(colnames(data))) {
-            mdl$set_data(data, colnames(data))
-        } else {
-            stop("data has no column names")
-        }
-    }
     if (!missing(ca)) {
         if (!is.null(colnames(ca))) {
             mdl$et_ca(ca, colnames(ca))

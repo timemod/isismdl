@@ -4,8 +4,7 @@
 \alias{isis_mdl}
 \title{Creates an \code{\link{IsisMdl}} object from a model file.}
 \usage{
-isis_mdl(modelname, period = NULL, data = NULL, ca = NULL,
-  fix_values = NULL, fit_targets = NULL)
+isis_mdl(modelname, period, data, ca, fix_values, fit_targets)
 }
 \arguments{
 \item{modelname}{The name of the model file.
