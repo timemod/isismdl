@@ -10,7 +10,8 @@ the equation names
 \section{Usage}{
 
 \preformatted{
-mdl$get_eq_names(pattern = ".*", type =  c("all", "inactive"))
+mdl$get_eq_names(pattern = ".*", type =  c("all", "inactive"),
+                 order =  order = c("sorted", "solve", "natural"))
 
 }
 
@@ -23,6 +24,7 @@ mdl$get_eq_names(pattern = ".*", type =  c("all", "inactive"))
 \describe{
 \item{\code{pattern}}{a regular expression}
 \item{\code{type}}{the type (all or inactive)}
+\item{\code{order}}{the ordering of the equations}
 }
 }
 

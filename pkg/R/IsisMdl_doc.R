@@ -107,9 +107,11 @@ NULL
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the
 #' the equation names
+#'
 #' @section Usage:
 #' \preformatted{
-#' mdl$get_eq_names(pattern = ".*", type =  c("all", "inactive"))
+#' mdl$get_eq_names(pattern = ".*", type =  c("all", "inactive"),
+#'                  order =  order = c("sorted", "solve", "natural"))
 #'
 #' }
 #'
@@ -120,6 +122,7 @@ NULL
 #' \describe{
 #' \item{\code{pattern}}{a regular expression}
 #' \item{\code{type}}{the type (all or inactive)}
+#' \item{\code{order}}{the ordering of the equations}
 #' }
 NULL
 
