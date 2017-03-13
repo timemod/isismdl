@@ -42,10 +42,10 @@ ident bzcap  bzcap  = (  -(1-alfa)*( cfcap - delta )
 ?ident bzcap bzcap  = Bz / (px * kgv );
 ident bcap   bcap  = min( bzmax, max ( bzcap, bzmin ) );
 ?ident B       B  = bcap * px * kgv ;
-ident kgv    kgv  = (1-delta) * kgv(-1) + X;
+ident kgv    kgv  = (1-delta) * kgv(-1) + x;
 ident a       a  = theta + (1-alfa) * eta;
 ident xk     xk  = ( lambda - theta - eta ) / (phi * (1-tc) * a );
-ident X       X  = xk * kgv(-1);
+ident x       x  = xk * kgv(-1);
 ident eta   eta  = ( (theta + eta(+1)) + (1-tc(+1)) * a(+1) * (i + bcap * di) )
                   / (1+rho(+1)) - theta;
 
