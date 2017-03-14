@@ -1,0 +1,18 @@
+copy_file("../../../../inst/models/ifn.mdl"; "ifn.mdl");
+cmpmdl("ifn");
+read_mdl("ifn");
+
+mdl_per = 2y..100y;
+setmdp(mdl_per);
+
+read_ts_csv(filename = "../input/input.csv"; dest = mws);
+
+setmva(ft = "*"; cvgcrit = sqrt(NU_EPS));
+setmva(use = lambda; ftrelax = 0.5);
+solve(xmaxiter = 1500; repopt = minimal; ratopt = period;
+      ratrep = 10; ratrepfull = 50);
+
+write_ts_csv("solve.csv"; per = mdl_per; input_from = mws;
+             options = transpose; lowercase = true);
+
+delete_file(["ifn.mdl", "ifn.mif", "ifn.mrf"]);
