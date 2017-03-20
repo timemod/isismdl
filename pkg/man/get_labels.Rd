@@ -15,7 +15,7 @@ mdl$get_labels()
 }
 \code{mdl} is an \code{\link{IsisMdl}} object
 }
-
 \seealso{
 \code{\link{set_labels}}
 }
+

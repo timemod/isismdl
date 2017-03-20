@@ -26,8 +26,8 @@ The list elements are numeric vectors with a length equal to the length
 of the corresponding parameter}
 }
 }
-
 \examples{
 mdl <- islm_mdl()
 mdl$set_param(list(i0 = 101))
 }
+

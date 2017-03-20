@@ -24,8 +24,8 @@ mdl$set_labels(labels)
 The names are the names of the model variables}
 }
 }
-
 \examples{
 mdl <- islm_mdl()
 mdl$set_labels(c(c = "Consumption", i = "investments"))
 }
+

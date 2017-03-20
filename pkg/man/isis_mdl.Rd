@@ -4,10 +4,10 @@
 \alias{isis_mdl}
 \title{Creates an \code{\link{IsisMdl}} object from a model file.}
 \usage{
-isis_mdl(modelname, period, data, ca, fix_values, fit_targets)
+isis_mdl(model_file, period, data, ca, fix_values, fit_targets)
 }
 \arguments{
-\item{modelname}{The name of the model file.
+\item{model_file}{The name of the model file.
 An extension \code{mdl} is appended to the specified name if the filename
 does not already have an extension}
 
@@ -83,3 +83,4 @@ unlink("islm.*")
 \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
 \code{\link{IsisMdl}}
 }
+

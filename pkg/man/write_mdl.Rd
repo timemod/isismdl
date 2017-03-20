@@ -16,7 +16,6 @@ to an RDS file. The model can be read back by function
 \item{\code{file}}{the name of the RDS file}
 }
 }
-
 \examples{
 mdl <- islm_mdl("2017Q1/2019Q2")
 mdl$write_mdl("islm_mdl.rds")
@@ -24,3 +23,4 @@ mdl$write_mdl("islm_mdl.rds")
 \seealso{
 \code{\link{read_mdl}}
 }
+
