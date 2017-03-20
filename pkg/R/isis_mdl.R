@@ -48,7 +48,7 @@
 #' All generated files have the same basename as the model file.
 #'
 #'
-#' @param modelname The name of the model file.
+#' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
 #' does not already have an extension
 #' @param period a \code{\link[regts]{regperiod_range}} object
@@ -75,7 +75,7 @@
 #' @importFrom regts start_period
 #' @importFrom regts end_period
 #' @export
-isis_mdl <- function(modelname, period, data, ca, fix_values, fit_targets) {
+isis_mdl <- function(model_file, period, data, ca, fix_values, fit_targets) {
     if (!missing(period)) {
         period <- as.regperiod_range(period)
     }
@@ -84,11 +84,11 @@ isis_mdl <- function(modelname, period, data, ca, fix_values, fit_targets) {
     # after compilation the model information can be put
     # directly in Fortran memory. Then there is no need to
     # write and read the mif file.
-    retval <- .Call(compile_mdl_c, modelname)
+    retval <- .Call(compile_mdl_c, model_file)
     if (!retval) {
         stop("Compilation was not succesfull")
     }
-    base_name <- file_path_sans_ext(modelname)
+    base_name <- file_path_sans_ext(model_file)
     mif_file <- paste(base_name, "mif", sep = ".")
     mdl <- IsisMdl$new(mif_file)
     unlink(mif_file)
@@ -108,7 +108,7 @@ isis_mdl <- function(modelname, period, data, ca, fix_values, fit_targets) {
             stop("data has no column names")
         } else {
             mdl$init_data(data_period = data_period, data = data)
-        } 
+        }
     }
 
     if (!missing(period)) {
