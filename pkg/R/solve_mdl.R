@@ -5,7 +5,7 @@ solve_mdl <- function(model_file, period, data, ca, fix_values, fit_targets) {
         stop("Please specify at least model_file, period and data.")
     }
 	
-    mdl <- isis_mdl(modelname = model_file, period = period, data = data)
+    mdl <- isis_mdl(model_file = model_file, period = period, data = data)
 	
     if (!missing(ca)) mdl$set_ca(ca)
     if (!missing(fix_values)) mdl$set_fix(fixed_ts)
