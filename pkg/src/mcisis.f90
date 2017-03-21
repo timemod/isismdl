@@ -780,12 +780,12 @@ case (15)
     str = 'NO feedback ordering generated and installed'
 
 case (16)
-    str = '       feedback variables added'
-    write(str(4:9),'(i6)' ) mpar
+    str = '         feedback variables added'
+    write(str(3:8),'(i6)' ) mpar
 
 case (17)
     str = 'Redundancies resolved in    passes'
-    write(str(29:30),'(i2)' ) mpar
+    write(str(26:27),'(i2)' ) mpar
 
 case (18)
     str = 'More than 5 passes for redundant feedbacks'
