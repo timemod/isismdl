@@ -113,7 +113,6 @@ data from identities}
 to an RDS file}
 }
 }
-
 \examples{
 # create an example ISLM  model
 mdl <- islm_mdl()
@@ -148,3 +147,4 @@ unlink("islm.*")
 and \code{\link{ifn_mdl}}
 }
 \keyword{data}
+

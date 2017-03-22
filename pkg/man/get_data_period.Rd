@@ -15,7 +15,7 @@ mdl$get_data_period()
 
 \code{mdl} is an \code{IsisMdl} object
 }
-
 \seealso{
 \code{\link{set_period}}
 }
+
