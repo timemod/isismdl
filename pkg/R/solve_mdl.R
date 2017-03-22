@@ -8,7 +8,7 @@ solve_mdl <- function(model_file, period, data, ca, fix_values, fit_targets) {
     mdl <- isis_mdl(model_file = model_file, period = period, data = data)
 	
     if (!missing(ca)) mdl$set_ca(ca)
-    if (!missing(fix_values)) mdl$set_fix(fixed_ts)
+    if (!missing(fix_values)) mdl$set_fix(fix_values)
     if (!missing(fit_targets)) mdl$set_fit(fit_targets)
 	
     mdl$fill_mdl_data()
