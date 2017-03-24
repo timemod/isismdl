@@ -38,8 +38,8 @@ specified}
 \item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
 }
 }
+
 \examples{
 mdl <- islm_mdl("2017Q1/2019Q3")
 mdl$run_eqn(names = c("c", "t"))
 }
-

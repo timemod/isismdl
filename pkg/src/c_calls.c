@@ -5,6 +5,7 @@
 #include "c_calls.h"
 #include "set_solve_options.h"
 #include "set_fit_options.h"
+#include "option_utils.h"
 
 #define MAX_NAME_LEN 32
 #define ALL     1
@@ -47,7 +48,8 @@ extern void F77_NAME(set_fix_fit_fortran)(int *mws_index, int *, int *ivar,
                                       double *data, int *icol, int *fix);
 extern void F77_NAME(solve_fortran)(int *mws_index, int *startp, int *endp,
                                     int *opts_present, int *error);
-extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp);
+extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp,
+                                     int *report_type);
 extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index,
                                       double *value);
 extern void F77_NAME(set_test)(int *mws_index, int *var_index, double *value);
@@ -473,11 +475,15 @@ void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,
 }
 
 
-void filmdt_c(SEXP mws_index_, SEXP startp_, SEXP endp_) {
+void filmdt_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP report_) {
+    const char *REPORT_OPTIONS[] = {"no", "minimal", "period"};
+    const char *report = CHAR(STRING_ELT(report_, 0));
     int mws_index = asInteger(mws_index_);
     int startp = asInteger(startp_);
     int endp= asInteger(endp_);
-    F77_CALL(filmdt_fortran)(&mws_index, &startp, &endp);
+    int report_type = get_i_option(report, REPORT_OPTIONS, 
+                                   NO_ELM(REPORT_OPTIONS));
+    F77_CALL(filmdt_fortran)(&mws_index, &startp, &endp, &report_type);
 }
 
 /* Sets convergence criterium for some model variables */

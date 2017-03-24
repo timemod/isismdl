@@ -24,7 +24,7 @@ mdl$get_param(pattern, names)
 \item{\code{names}}{a character vector with parameter names}
 }
 }
+
 \seealso{
 \code{\link{set_param}}
 }
-

@@ -37,4 +37,3 @@ unlink("mdl", recursive = TRUE)
 \seealso{
 \code{\link{isis_mdl}} and \code{\link{IsisMdl}}
 }
-

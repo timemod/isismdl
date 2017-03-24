@@ -1,5 +1,9 @@
 module msfill
 
+integer, parameter, private :: NO_REP     = 1  ! no report (silent)
+integer, parameter, private :: MIN_REP    = 2  ! minimal report
+integer, parameter, private :: PERIOD_REP = 3  ! report per period
+
 contains
 subroutine fill_mdl_data(jt1, jt2, report_type)
     use msvars
@@ -26,13 +30,13 @@ subroutine fill_mdl_data(jt1, jt2, report_type)
           itnum = itnum + 1
           ngain = 0
           call msfilp(jtime, ngain, didfb)
-          if (report_type == 2) call filot1(ngain, jtime, itnum)
+          if (report_type == PERIOD_REP) call filot1(ngain, jtime, itnum)
           tgain = tgain + ngain
           if (ngain == 0 .or. mdl%nfb == 0 .or. .not. didfb) exit
         end do
 
      end do
-     call filot2(tgain)
+     if (report_type /= NO_REP) call filot2(tgain)
 
      return
      end subroutine fill_mdl_data
