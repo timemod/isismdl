@@ -9,6 +9,6 @@ mdl <- read_mdl(rds_file)
 
 mdl$set_data(regts(NA, period = mdl$get_period()), names = "y")
 print(mdl$get_data())
-mdl$fill_mdl_data()
+mdl$fill_mdl_data(report = "no");
 print(mdl$get_data())
 

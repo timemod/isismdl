@@ -39,8 +39,8 @@ object, or an object that can be coerced to
 \code{\link[regts]{regperiod_range}}}
 }
 }
+
 \examples{
 mdl <- islm_mdl()
 mdl$set_period("2017Q2/2021Q3")
 }
-

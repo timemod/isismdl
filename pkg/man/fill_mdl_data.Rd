@@ -15,7 +15,8 @@ variables as possible.
 \section{Usage}{
 
 \preformatted{
-mdl$fill_mdl_data(period = mdl$get_data_period())
+mdl$fill_mdl_data(period = mdl$get_data_period(),
+                  report = c("period", "minimal", "no"))
 
 }
 
@@ -27,11 +28,29 @@ mdl$fill_mdl_data(period = mdl$get_data_period())
 
 \describe{
 \item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
+\item{\code{report}}{Defines the type of report about the number of
+replaced missing values. See details.}
 }
 }
+
+\section{Details}{
+
+
+Argument \code{report} can be used to specify
+the type of report about the number of replaced missing values
+Specify
+\describe{
+\item{\code{minimal}}{to get a minimal report. Only the total number
+of replaced missing values is reported}
+\item{\code{period}}{to get a report per period (default). For each period
+the number of replaced missing values is reported}
+\item{\code{no}}{to not generate a report}
+}
+}
+
 \examples{
+mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$set_data(regts(NA, period = mdl$get_period()), names = "y")
 mdl$fill_mdl_data()
 }
-

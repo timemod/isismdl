@@ -2,11 +2,10 @@
 % Please edit documentation in R/solve_mdl.R
 \name{solve_mdl}
 \alias{solve_mdl}
-\title{Function solve_mdl returns a solved model, given a model file name and corresponding data.}
+\title{Function solve_mdl solves model for given data and returns resulting data and constant adjustments (ca).}
 \usage{
-solve_mdl(model_file, period, data, ca, fix_values, fit_targets)
+solve_mdl(model_file, data, period, fix_values, ca, fit_targets)
 }
 \description{
-Function solve_mdl returns a solved model, given a model file name and corresponding data.
+Function solve_mdl solves model for given data and returns resulting data and constant adjustments (ca).
 }
-

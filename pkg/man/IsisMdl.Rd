@@ -72,20 +72,20 @@ variables}
 
 \item{\code{\link{set_ca}}}{Transfer timeseries to the constant adjustments}
 
-\item{\code{\link{set_fix}}}{Transfer timeseries to the fix values} 
+\item{\code{\link{set_fix}}}{Transfer timeseries to the fix values}
 
-\item{\code{\link{set_fit}}}{Transfer timeseries to the fit targets} 
+\item{\code{\link{set_fit}}}{Transfer timeseries to the fit targets}
 
 \item{\code{\link{set_values}}}{Sets the values of the model data}
 
-\item{\code{\link{set_ca_values}}}{Sets the values of the constant 
+\item{\code{\link{set_ca_values}}}{Sets the values of the constant
 adjustments}
 
 \item{\code{\link{set_fix_values}}}{Sets the fix values}
 
 \item{\code{\link{set_fit_values}}}{Sets the values of the fit targets}
 
-\item{\code{\link{set_fit}}}{Transfer timeseries to the fit targets} 
+\item{\code{\link{set_fit}}}{Transfer timeseries to the fit targets}
 
 \item{\code{\link{change_data}}}{Change model data by applying a function}
 
@@ -113,6 +113,7 @@ data from identities}
 to an RDS file}
 }
 }
+
 \examples{
 # create an example ISLM  model
 mdl <- islm_mdl()
@@ -147,4 +148,3 @@ unlink("islm.*")
 and \code{\link{ifn_mdl}}
 }
 \keyword{data}
-

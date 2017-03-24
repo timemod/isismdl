@@ -181,15 +181,15 @@ subroutine solve_fortran(mws_index, jtb, jte, opts_present, error)
     call msclear
 end subroutine solve_fortran
 
-subroutine filmdt_fortran(mws_index, jtb, jte)
+subroutine filmdt_fortran(mws_index, jtb, jte, report_type)
     use modelworkspaces
     use msvars
     use msfill
     use iso_c_binding, only : c_int
-    integer(c_int), intent(in) :: mws_index, jtb, jte
+    integer(c_int), intent(in) :: mws_index, jtb, jte, report_type
 
     call msvarsinit(mws_array(mws_index))
-    call fill_mdl_data(jtb, jte, 2)
+    call fill_mdl_data(jtb, jte, report_type)
 
 end subroutine filmdt_fortran
 
