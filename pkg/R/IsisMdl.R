@@ -491,8 +491,6 @@ IsisMdl <- R6Class("IsisMdl",
         stop(paste("Only one of arguments pattern and names can  be",
                    "specified"))
       }
-      print(eq_names)
-
       eqnums <- as.integer(match(eq_names, self$get_eq_names()))
       neq <- as.integer(length(eqnums))
       if (is.null(private$model_period)) stop(private$period_error_msg)
