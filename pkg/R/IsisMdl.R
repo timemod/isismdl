@@ -441,11 +441,11 @@ IsisMdl <- R6Class("IsisMdl",
       .Call(set_rms_c, private$model_index, values)
       return (invisible(self))
     },
-        set_solve_options = function(...) {
-            "Set  the default solve options"
-            .Call("set_solve_opts_c", private$model_index, list(...))
-            return (invisible(self))
-        },
+    set_solve_options = function(...) {
+      "Set  the default solve options"
+      .Call("set_solve_opts_c", private$model_index, list(...))
+      return (invisible(self))
+    },
     set_fit_options = function(...) {
       "Set  the default solve options"
       .Call("set_fit_opts_c", private$model_index, list(...))
