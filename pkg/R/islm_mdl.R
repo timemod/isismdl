@@ -17,9 +17,9 @@ islm_mdl <- function(period = NULL) {
     unlink(mdl_file)
 
     if (!is.null(period)) {
-        period <- as.regperiod_range(period)
+        period <- as.period_range(period)
         mdl$set_period(period)
-        nper <- length_range(period)
+        nper <- nperiod(period)
         data_per <- mdl$get_data_period()
         r  <- regts(3.35, period = data_per, labels = "interest rate")
         y  <- regts(980,  period = data_per, labels = "income")

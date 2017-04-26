@@ -51,7 +51,7 @@
 #' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
 #' does not already have an extension
-#' @param period a \code{\link[regts]{regperiod_range}} object
+#' @param period a \code{\link[regts]{period_range}} object
 #' @param data the model data as a  \code{\link[regts]{regts}} object with column
 #' names
 #' @param ca the constant adjustments as a  \code{\link[regts]{regts}} object
@@ -70,14 +70,14 @@
 #' @seealso \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
 #' \code{\link{IsisMdl}}
 #' @importFrom tools file_path_sans_ext
-#' @importFrom regts regrange_union
-#' @importFrom regts as.regperiod_range
+#' @importFrom regts range_union
+#' @importFrom regts as.period_range
 #' @importFrom regts start_period
 #' @importFrom regts end_period
 #' @export
 isis_mdl <- function(model_file, period, data, ca, fix_values, fit_targets) {
     if (!missing(period)) {
-        period <- as.regperiod_range(period)
+        period <- as.period_range(period)
     }
     # TODO: currently, compile_mdl_c generates a mif file
     # that is later read by read_mdl_c. This can be simpler:
@@ -94,15 +94,15 @@ isis_mdl <- function(model_file, period, data, ca, fix_values, fit_targets) {
     unlink(mif_file)
 
     if (!missing(data)) {
-        data_period <- get_regperiod_range(data)
+        data_period <- get_period_range(data)
         if (!missing(period)) {
             print(mdl)
-            # data_period should be the union of the regperiod_range of data
+            # data_period should be the union of the period_range of data
             # and the supplied period extended with a lag and lead period.
-            data_period_2 <- regperiod_range(
+            data_period_2 <- period_range(
                  start_period(period) - mdl$get_maxlag(),
                  end_period(period)   + mdl$get_maxlead())
-            data_period <- regrange_union(data_period, data_period_2)
+            data_period <- range_union(data_period, data_period_2)
         }
         if (is.null(colnames(data))) {
             stop("data has no column names")

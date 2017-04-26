@@ -222,9 +222,9 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{period}}{\code{\link[regts]{regperiod_range}}
+#' \item{\code{period}}{\code{\link[regts]{period_range}}
 #' object, or an object that can be coerced to 
-#' \code{\link[regts]{regperiod_range}}}
+#' \code{\link[regts]{period_range}}}
 #' }
 #'
 #' @examples
@@ -269,9 +269,9 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{data_period}}{\code{\link[regts]{regperiod_range}}
+#' \item{\code{data_period}}{\code{\link[regts]{period_range}}
 #' object, or an object that can be coerced to 
-#' \code{\link[regts]{regperiod_range}}}
+#' \code{\link[regts]{period_range}}}
 #' \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
 #'  object}
 #' }
@@ -329,9 +329,9 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{period}}{\code{\link[regts]{regperiod_range}}
+#' \item{\code{period}}{\code{\link[regts]{period_range}}
 #' object, or an object 
-#' that can be coerced to \code{\link[regts]{regperiod_range}}}
+#' that can be coerced to \code{\link[regts]{period_range}}}
 #' \item{\code{optons}}{a list with solve options}
 #' \item{\code{fit_options}}{a list with options for the fit procedure}
 #' } 
@@ -364,7 +364,7 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
+#' \item{\code{period}}{a \code{\link[regts]{period_range}} object}
 #' \item{\code{report}}{Defines the type of report about the number of
 #' replaced missing values. See details.}
 #' }
@@ -423,7 +423,7 @@ NULL
 #' \item{\code{names}}{a character vector with equation names. The
 #' corresponding equations are solved in the order as they are
 #' specified}
-#' \item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
+#' \item{\code{period}}{a \code{\link[regts]{period_range}} object}
 #' }
 #'
 #' @examples
@@ -460,8 +460,8 @@ NULL
 #' \describe{
 #' \item{\code{names}}{a character vector with variable names}
 #' \item{\code{pattern}}{a regular expression}
-#' \item{\code{period}}{an \code{\link[regts]{regperiod_range}} object or an
-#' object that can be coerced to a \code{regperiod_range}}
+#' \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
+#' object that can be coerced to a \code{period_range}}
 #' }
 #' @section Methods:
 #' \itemize{
@@ -554,8 +554,8 @@ NULL
 #' as the length of the range of \code{period}}
 #' \item{\code{names}}{a character vector with variable names}
 #' \item{\code{pattern}}{a regular expression}
-#' \item{\code{period}}{an \code{\link[regts]{regperiod_range}} object or an
-#' object that can be coerced to a \code{regperiod_range}}
+#' \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
+#' object that can be coerced to a \code{period_range}}
 #' }
 #' @section Methods:
 #' \itemize{
@@ -591,8 +591,8 @@ NULL
 #' \item{\code{fun}}{a function}
 #' \item{\code{names}}{a character vector with variable names}
 #' \item{\code{pattern}}{a regular expression}
-#' \item{\code{period}}{an \code{\link[regts]{regperiod_range}} object or an
-#' object that can be coerced to a \code{regperiod_range}}
+#' \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
+#' object that can be coerced to a \code{period_range}}
 #' \item{\code{...}}{arguments passed to \code{fun}}
 #' }
 #' @section Methods:

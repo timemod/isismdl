@@ -19,9 +19,9 @@ mdl$solve(period = mdl$get_period(), options = list(),
 
 
 \describe{
-\item{\code{period}}{\code{\link[regts]{regperiod_range}}
+\item{\code{period}}{\code{\link[regts]{period_range}}
 object, or an object 
-that can be coerced to \code{\link[regts]{regperiod_range}}}
+that can be coerced to \code{\link[regts]{period_range}}}
 \item{\code{optons}}{a list with solve options}
 \item{\code{fit_options}}{a list with options for the fit procedure}
 }

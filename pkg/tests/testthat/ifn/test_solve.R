@@ -16,7 +16,7 @@ mdl_per <- ifn_mdl$get_period()
 dif <- tsdif(ifn_mdl$get_data(period = mdl_per), isis_result, tol = 1e-6,
              fun = cvgdif)
 test_that("Comparing ordinary solve for the ISLM model", {
-    expect_identical(ifn_mdl$get_data_period(), regperiod_range("1y", "101y"))
+    expect_identical(ifn_mdl$get_data_period(), period_range("1y", "101y"))
     expect_identical(ifn_mdl$get_var_names(), colnames(isis_result))
     expect_identical(dif$missing_names1, character(0))
     expect_identical(dif$missing_names2, character(0))

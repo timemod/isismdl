@@ -35,7 +35,7 @@ matching the regular expression are run in solve order}
 \item{\code{names}}{a character vector with equation names. The
 corresponding equations are solved in the order as they are
 specified}
-\item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
+\item{\code{period}}{a \code{\link[regts]{period_range}} object}
 }
 }
 
