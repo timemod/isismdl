@@ -1,5 +1,5 @@
 #' @importFrom methods setOldClass
-setOldClass("regperiod_range")
+setOldClass("period_range")
 
 #' An R6 class class representing an Isis model
 #'
@@ -258,7 +258,7 @@ IsisMdl <- R6Class("IsisMdl",
 
       if (missing(data_period)) {
         if (!missing(data)) {
-          data_period <- get_regperiod_range(data)
+          data_period <- get_period_range(data)
         } else {
           stop(paste("Argument data_period is mandatory if",
                      "argument data has not been specified"))
@@ -267,7 +267,7 @@ IsisMdl <- R6Class("IsisMdl",
       private$init_data_(data_period)
 
       # update the model period
-      private$model_period <- regperiod_range(
+      private$model_period <- period_range(
         start_period(data_period) + private$maxlag,
         end_period(data_period)   - private$maxlead)
 
@@ -279,10 +279,10 @@ IsisMdl <- R6Class("IsisMdl",
       }
     },
     set_period = function(period) {
-      period <- as.regperiod_range(period)
+      period <- as.period_range(period)
 
       if (is.null(private$data_period)) {
-        data_period <- regperiod_range(
+        data_period <- period_range(
           start_period(period) - private$maxlag,
           end_period(period)   + private$maxlead)
         private$init_data_(data_period)
@@ -360,7 +360,7 @@ IsisMdl <- R6Class("IsisMdl",
                         period = private$data_period) {
       "Returns the model data"
       if (is.null(private$model_period)) stop(private$period_error_msg)
-      period <- as.regperiod_range(period)
+      period <- as.period_range(period)
       if (missing(pattern) && missing(names)) {
         names <- private$var_names
       } else if (missing(names)) {
@@ -381,7 +381,7 @@ IsisMdl <- R6Class("IsisMdl",
     get_ca = function(pattern, names, period = private$data_period) {
       "Returns the constant adjustments"
       if (is.null(private$model_period)) stop(private$period_error_msg)
-      period <- as.regperiod_range(period)
+      period <- as.period_range(period)
       if (missing(pattern) && missing(names)) {
         names <- self$get_var_names(vtype = "allfrml")
       } else if (missing(names)) {
@@ -455,7 +455,7 @@ IsisMdl <- R6Class("IsisMdl",
                      fit_options = list()) {
       "Solve the model for the specified period"
       if (is.null(private$model_period)) stop(private$period_error_msg)
-      period <- as.regperiod_range(period)
+      period <- as.period_range(period)
       private$check_model_period(period)
       js <- private$get_period_indices(period)
       .Call("solve_c", model_index = private$model_index,
@@ -468,7 +468,7 @@ IsisMdl <- R6Class("IsisMdl",
       # Calculates missing model data from identities.
       report <- match.arg(report)
       if (is.null(private$model_period)) stop(private$period_error_msg)
-      period <- as.regperiod_range(period)
+      period <- as.period_range(period)
       js <- private$get_period_indices(period)
       .Call("filmdt_c", model_index = private$model_index,
             jtb = js$startp, jte = js$end,
@@ -477,7 +477,7 @@ IsisMdl <- R6Class("IsisMdl",
     },
     run_eqn = function(pattern, names, period = private$data_period) {
       "Run model equations"
-      period <- as.regperiod_range(period)
+      period <- as.period_range(period)
       if (missing(pattern) && missing(names)) {
         eq_names <- self$get_eq_names(order = "solve")
       } else if (missing(pattern) && !missing(names)) {
@@ -622,7 +622,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
     },
     get_period_indices = function(period, extended = TRUE) {
-      period <- as.regperiod_range(period)
+      period <- as.period_range(period)
       mdl_period_start <- start_period(private$fortran_period)
       startp <- as.integer(start_period(period) - mdl_period_start + 1)
       endp   <- as.integer(end_period(period)   - mdl_period_start + 1)
@@ -650,7 +650,7 @@ IsisMdl <- R6Class("IsisMdl",
       if (is.null(private$model_period)) stop(private$period_error_msg)
       data <- as.regts(data)
       shift <- private$get_period_indices(
-        get_regperiod_range(data))$startp
+        get_period_range(data))$startp
       if (!is.matrix(data)) {
         dim(data) <- c(length(data), 1)
       }
@@ -673,8 +673,8 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_values_ = function(set_type, value, names, pattern, period) {
       value <- as.numeric(value)
-      period <- as.regperiod_range(period)
-      nper <- length_range(period)
+      period <- as.period_range(period)
+      nper <- nperiod(period)
       vlen <- length(value)
       if (vlen != 1 && vlen != nper) {
         stop(paste("Argument value should have length 1 or the same",
@@ -693,8 +693,8 @@ IsisMdl <- R6Class("IsisMdl",
       private$set_var(set_type, data, names, FALSE)
     },
     change_var_ = function(set_type, fun, names, pattern, period, ...) {
-      period <- as.regperiod_range(period)
-      nper <- length_range(period)
+      period <- as.period_range(period)
+      nper <- nperiod(period)
       if (is.null(pattern) && is.null(names)) {
         names <- private$var_names
       } else if (is.null(names)) {
@@ -713,7 +713,7 @@ IsisMdl <- R6Class("IsisMdl",
     get_variables = function(type, names, period) {
       # general function used to get model data or constant adjustments
       if (is.null(private$model_period)) stop(private$period_error_msg)
-      period <- as.regperiod_range(period)
+      period <- as.period_range(period)
       if (length(names) > 0) {
         js <- private$get_period_indices(period)
         data <- .Call("get_data_c", type = type,
@@ -800,7 +800,7 @@ IsisMdl <- R6Class("IsisMdl",
       # and fit targets. The model data is initialized with NA,
       # constant adjustments with 0.
       private$data_period <- data_period
-      fortran_period <- regperiod_range(
+      fortran_period <- period_range(
         start_period(data_period) + private$maxlag,
         end_period(data_period)   - private$maxlead)
       private$fortran_period <- fortran_period

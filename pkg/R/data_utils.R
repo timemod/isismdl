@@ -1,13 +1,13 @@
 create_data <- function(names, period) {
     nvar <- length(names)
-    nper <- length_range(period)
+    nper <- nperiod(period)
     return(regts(matrix(NA_real_, ncol = nvar, nrow = nper),
                   period = period, names = names))
 }
 
 create_ca <- function(names, period) {
     nvar <- length(names)
-    nper <- length_range(period)
+    nper <- nperiod(period)
     return(regts(matrix(0, ncol = nvar, nrow = nper), period = period,
                   names = names))
 }
@@ -71,7 +71,7 @@ set_data_ <- function(mdl, type, new_data, new_names, new_names_missing) {
     }
 
     names <- intersect(new_names, data_names)
-    p <- regrange_intersect(data_period, get_regperiod_range(new_data))
+    p <- range_intersect(data_period, get_period_range(new_data))
 
     new_data <-  new_data[p, names, drop = FALSE]
 
@@ -110,8 +110,8 @@ set_data_ <- function(mdl, type, new_data, new_names, new_names_missing) {
 #' @importFrom regts regts
 set_values_ <- function(mdl, type, value, names, pattern, period) {
     value <- as.numeric(value)
-    period <- as.regperiod_range(period)
-    nper <- length_range(period)
+    period <- as.period_range(period)
+    nper <- nperiod(period)
     vlen <- length(value)
     if (vlen != 1 && vlen != nper) {
         stop(paste("Argument value should have length 1 or the same",
@@ -153,7 +153,7 @@ set_values_ <- function(mdl, type, value, names, pattern, period) {
 #
 change_values_ <- function(mdl, type, fun, names, pattern, period, ...) {
 
-    period <- as.regperiod_range(period)
+    period <- as.period_range(period)
 
     if (type == "data") {
         data_names <- mdl@names
@@ -177,7 +177,7 @@ change_values_ <- function(mdl, type, fun, names, pattern, period, ...) {
         names <- union(names, grep(pattern, data_names))
     }
 
-    period <- regrange_intersect(data_period, period)
+    period <- range_intersect(data_period, period)
 
     if (type == "data") {
         mdl@data[period, names] <- fun(mdl@data[period, names])
