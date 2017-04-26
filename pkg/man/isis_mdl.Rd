@@ -11,7 +11,7 @@ isis_mdl(model_file, period, data, ca, fix_values, fit_targets)
 An extension \code{mdl} is appended to the specified name if the filename
 does not already have an extension}
 
-\item{period}{a \code{\link[regts]{regperiod_range}} object}
+\item{period}{a \code{\link[regts]{period_range}} object}
 
 \item{data}{the model data as a  \code{\link[regts]{regts}} object with column
 names}

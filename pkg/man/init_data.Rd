@@ -41,9 +41,9 @@ mdl$init_data(data_period, data, ca)
 
 
 \describe{
-\item{\code{data_period}}{\code{\link[regts]{regperiod_range}}
+\item{\code{data_period}}{\code{\link[regts]{period_range}}
 object, or an object that can be coerced to 
-\code{\link[regts]{regperiod_range}}}
+\code{\link[regts]{period_range}}}
 \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
  object}
 }

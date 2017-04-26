@@ -27,7 +27,7 @@ mdl$fill_mdl_data(period = mdl$get_data_period(),
 
 
 \describe{
-\item{\code{period}}{a \code{\link[regts]{regperiod_range}} object}
+\item{\code{period}}{a \code{\link[regts]{period_range}} object}
 \item{\code{report}}{Defines the type of report about the number of
 replaced missing values. See details.}
 }

@@ -35,8 +35,8 @@ mdl$get_fit()
 \describe{
 \item{\code{names}}{a character vector with variable names}
 \item{\code{pattern}}{a regular expression}
-\item{\code{period}}{an \code{\link[regts]{regperiod_range}} object or an
-object that can be coerced to a \code{regperiod_range}}
+\item{\code{period}}{an \code{\link[regts]{period_range}} object or an
+object that can be coerced to a \code{period_range}}
 }
 }
 

@@ -164,7 +164,7 @@ have to define the model period. This is the period for which the model will be
 solved. For this we use the
 method `set_period()`:
 ```{r}
-mdl$set_period(regperiod_range("2017Q1", "2018Q2"))
+mdl$set_period(period_range("2017Q1", "2018Q2"))
 mdl
 ```
 The data period is the model period extended with the lag and lead period.

@@ -34,9 +34,9 @@ mdl$set_period(period)
 
 
 \describe{
-\item{\code{period}}{\code{\link[regts]{regperiod_range}}
+\item{\code{period}}{\code{\link[regts]{period_range}}
 object, or an object that can be coerced to 
-\code{\link[regts]{regperiod_range}}}
+\code{\link[regts]{period_range}}}
 }
 }
 
