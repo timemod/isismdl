@@ -1,4 +1,12 @@
-#' Function solve_mdl solves model for given data and returns resulting data and constant adjustments (ca).
+#' Function solve_mdl solves model for given data and returns resulting data and constant adjustments
+#' @param model_file is a reference to the file containing the \code{\link{IsisMdl}} model
+#' @param data is a \code{regts} object containing time series data
+#' @param period is a \code{period} object describing a time interval
+#' @param fix_values is a \code{regts} object containing known time series data that should be fixed during analysis
+#' @param ca describes the so-called constant adjustment values
+#' @param fit_targets describes the so-called fit targets
+#' @seealso
+#' \code{\link{set_data-methods}, \link{get_period}}
 #' @export
 solve_mdl <- function(model_file, data, period, fix_values, ca, fit_targets) {
     if (missing(model_file) || missing(data)) {
