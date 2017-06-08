@@ -1,0 +1,7 @@
+
+ident f1 f1 = x1**2 + x2**2 - 2;
+ident f2 f2 = exp(x1-1) + x2**3 - 2;
+
+ident x1 x1 = x1 + f1;
+ident x2 x2 = x2 + f2;
+

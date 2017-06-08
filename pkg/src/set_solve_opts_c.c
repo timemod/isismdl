@@ -31,6 +31,8 @@ extern void F77_SUB(set_ratreport_rep)(int *, int *);
 extern void F77_SUB(set_bktmax)(int *);
 extern void F77_SUB(set_xtfac)(double *);
 
+extern void F77_SUB(check_options)(void);
+
 static void set_option(const char *name, SEXP value);
 static void set_debug_opts(SEXP option);
 
@@ -98,6 +100,8 @@ void set_solve_options(int *mws_index, int *use_mws, SEXP options) {
     for (i = 0; i < length(options); i++) {
         set_option(CHAR(STRING_ELT(names, i)), VECTOR_ELT(options, i));
     }
+
+    F77_CALL(check_options)();
 }
 
 static void set_option(const char *name, SEXP value) {

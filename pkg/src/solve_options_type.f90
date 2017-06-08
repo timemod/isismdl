@@ -81,7 +81,6 @@ module solve_options_type
 
         ! output options
         integer(kind = ISIS_IKIND) :: repopt
-        integer(kind = ISIS_IKIND) :: iendsm
 
         ! ratex options
         logical(kind = ISIS_IKIND) :: uplead
@@ -133,7 +132,6 @@ contains
 
         ! output options
         options%repopt = REP_PERIOD
-        options%iendsm = 1
 
         ! ratex (Fair-Taylor) options
         options%ratrepopt = RATREP_ITER

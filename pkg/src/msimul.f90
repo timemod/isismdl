@@ -78,8 +78,7 @@ call mszini(jf)
 ! warning message for unavailable previous starting values first period
 ! if using strict previous method
 if (opts%start == 'P' .and. jf == 1) then
-   !call simot2
-   continue
+   call simot2
 endif
 
 ! check for fit procedure and call startup routine
@@ -569,23 +568,20 @@ subroutine report_solve_error(error)
 
     select case (error)
     case (1)
-        call isismdl_out("Simulation not possible")
+        call isismdl_warn("Simulation not possible")
     case (2)
-        call isismdl_out("Simulation stopped")
+        call isismdl_warn("Simulation stopped")
     case (3)
-        call isismdl_out("Initial lags/leads missing/invalid. Simulation not possible.")
+        call isismdl_warn("Initial lags/leads missing/invalid. Simulation not possible.")
     case (4)
-        call isismdl_out("Invalid parameter values detected. Simulation not possible")
+        call isismdl_warn("Invalid parameter values detected. Simulation not possible")
     case (5)
-        call isismdl_out("Fair-Taylor has not converged")
+        call isismdl_warn("Fair-Taylor has not converged")
     case (6)
-        call isismdl_out("Out of memory")
+        call isismdl_warn("Out of memory. Simulation not succesfull")
     case default
-        call isismdl_out("Unknown problem in solve")
+        call isismdl_warn("Unknown problem in solve. Simulation not succesfull")
     end select
-
-    call isismdl_warn("Solve model issued error messages." // &
-         NEW_LINE('A') // "The solve may be unsuccesfull/incomplete or erroneous.")
 
 end subroutine report_solve_error
 

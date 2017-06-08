@@ -697,13 +697,13 @@ bcnt = 0
        !   -- no more backtracking steps allowed/possible
 
        if ((.not. matlst) .and. njcmat < opts%maxmat) then
-       !jacobian out of date but new jacobian allowed
-            rcod = 2
-            !call solot9(itr)
+           !jacobian out of date but new jacobian allowed
+           rcod = 2
+           call solot9(itr)
        else
            ! no better point found
            rcod = 4
-           !call solotb(matlst)
+           call solotb(matlst)
        endif
 
    else
@@ -718,7 +718,7 @@ bcnt = 0
               yp(mdl%numfb(i)) = f
           endif
        end do
-       !call solota(itr, relax)
+       call solota(itr, relax)
        bcnt = bcnt + 1
        itr  = itr  + 1
 
