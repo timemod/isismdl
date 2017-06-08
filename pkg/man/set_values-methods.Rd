@@ -6,10 +6,10 @@
 \alias{set_ca_values}
 \alias{set_fix_values}
 \alias{set_fit_values}
-\title{\code{\link{IsisMdl}} methods: Sets the values of the model data, 
+\title{\code{\link{IsisMdl}} methods: Sets the values of the model data,
 constant adjusments, fix values or fit targets}
 \description{
-These methods of R6 class \code{\link{IsisMdl}} 
+These methods of R6 class \code{\link{IsisMdl}}
 can be used to set the values of the model data, constant adjusments,
 fix values or fit targets.
 }

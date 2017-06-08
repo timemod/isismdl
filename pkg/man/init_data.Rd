@@ -10,16 +10,16 @@ model data.
 This method sets the model data period and initializes
  the model variables and constant adjustmemts.
 
-You have to specify one of the two arguments \code{data_period} 
-and \code{data}. If \code{data_period}  has not been specified, 
+You have to specify one of the two arguments \code{data_period}
+and \code{data}. If \code{data_period}  has not been specified,
  then the model data period is set to the period range of
 \code{data}. If \code{data} has not been specified,
 then argument \code{data_period} is mandatory.
 
-The method first initializes all model timeseries with \code{NA} 
+The method first initializes all model timeseries with \code{NA}
 and all constant adjustments with 0 for the data period.
 If arguments \code{data} or \code{ca} have been specified,
- then the model variables or constant adjustments are 
+ then the model variables or constant adjustments are
 subsequently updated with the timeseries \code{data} or \code{ca},
 respectively.
 
@@ -42,7 +42,7 @@ mdl$init_data(data_period, data, ca)
 
 \describe{
 \item{\code{data_period}}{\code{\link[regts]{period_range}}
-object, or an object that can be coerced to 
+object, or an object that can be coerced to
 \code{\link[regts]{period_range}}}
 \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
  object}

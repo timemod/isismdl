@@ -10,7 +10,7 @@ the model variables
 \section{Usage}{
 
 \preformatted{
-mdl$get_var_names(pattern = ".*", 
+mdl$get_var_names(pattern = ".*",
                   type =  c("all", "allfrml", "all_endolead"))
 
 }

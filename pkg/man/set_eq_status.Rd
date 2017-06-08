@@ -4,7 +4,7 @@
 \alias{set_eq_status}
 \title{\code{\link{IsisMdl}} method: activates or de-activates one or more equations.}
 \description{
-This method of R6 class \code{\link{IsisMdl}} 
+This method of R6 class \code{\link{IsisMdl}}
 can be used to set the equation status (active or inactive)
 of one or more equations.
 

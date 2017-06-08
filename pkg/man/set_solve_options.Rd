@@ -4,10 +4,8 @@
 \alias{set_solve_options}
 \title{\code{\link{IsisMdl}} method: Sets the solve options}
 \description{
-This method of R6 class \code{\link{IsisMdl}} 
-sets or update the rms values
-
-Sets or updates  the rms values
+This method of R6 class \code{\link{IsisMdl}}
+sets the solve options.
 }
 \section{Usage}{
 
@@ -22,7 +20,7 @@ mdl$set_solve_options(...)
 
 
 \describe{
-\item{\code{...}}{the solve options (TODO: document 
+\item{\code{...}}{the solve options, as named arguments (TODO: document
 the possible options)}
 }
 }

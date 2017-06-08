@@ -8,7 +8,7 @@ This method of R6 class \code{\link{IsisMdl}} solves
 the model.
 \code{IsisMdl} method: @section Usage:
 \preformatted{
-mdl$solve(period = mdl$get_period(), options = list(), 
+mdl$solve(period = mdl$get_period(), options = list(),
           fit_options = list()
 
 }
@@ -20,7 +20,7 @@ mdl$solve(period = mdl$get_period(), options = list(),
 
 \describe{
 \item{\code{period}}{\code{\link[regts]{period_range}}
-object, or an object 
+object, or an object
 that can be coerced to \code{\link[regts]{period_range}}}
 \item{\code{optons}}{a list with solve options}
 \item{\code{fit_options}}{a list with options for the fit procedure}

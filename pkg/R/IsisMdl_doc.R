@@ -40,7 +40,7 @@ NULL
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$get_var_names(pattern = ".*", 
+#' mdl$get_var_names(pattern = ".*",
 #'                   type =  c("all", "allfrml", "all_endolead"))
 #'
 #' }
@@ -130,7 +130,7 @@ NULL
 #' @name set_eq_status
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}} 
+#' This method of R6 class \code{\link{IsisMdl}}
 #' can be used to set the equation status (active or inactive)
 #' of one or more equations.
 #'
@@ -140,28 +140,28 @@ NULL
 #' Sometimes however it can be necessary to temporarily
 #' exclude an equation from the model and
 #' the solution process without actually removing it.
-#' 
+#'
 #' Deactivating an equation implies that the left-hand side variable
 #' becomes an exogenous variable. As long as an equation is
 #' inactive, the corresponding left-hand side variable and any
 #' constant adjustment (for \code{frml} equations) will remain
 #' \emph{unchanged} in the model workspace.
-#' 
+#'
 #' However the methods \code{set_data}, \code{set_ca},
 #' \code{get_data} and \code{get_ca}
 #' will still transfer data to and from the model workspace.
-#' 
+#'
 #' A deactivated equation can also be reactivated. It will again
 #' participate in the solution process and its left-hand side
 #' variable will be treated as endogenous.
-#' 
+#'
 #' Since deactivating effectively changes the structure of the model,
 #' it may be necessary to compute a new ordering of the model.
 #' This is not done automatically.
 #' You must do it by hand. Currently, package \code{isismdl} does
 #' not yet support reordering the model, but this feature will
 #' become available in the future.
-#' 
+#'
 #' If the left-hand side variable of a deactivated equation
 #' appears as lead in the model, that lead will
 #' temporarily be marked as an exogenous lead.
@@ -186,8 +186,8 @@ NULL
 #' \item{\code{pattern}}{a regular expression}
 #' \item{\code{status}}{the equation states (all or inactive)}
 #' }
-#' 
-#' 
+#'
+#'
 #' If neither \code{pattern} nor \code{status} have been specified,
 #' then all equations will be activated or deactivated.
 NULL
@@ -198,17 +198,17 @@ NULL
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} sets the model period.
 #' This is the default period used when solving the model.
-#' 
+#'
 #' If the model data has not already been initialized with method
 #' \code{\link{init_data}}, then \code{set_period} also initializes
-#' the model data. In that case the model data period is set to the 
+#' the model data. In that case the model data period is set to the
 #' specified model period extended with a lag and lead period.
 #' Model timeseries are initialized with \code{NA} and all constant
 #' adjustments with 0.
 #'
 #' If the model data has already been initialized with  method
 #' \code{\link{init_data}}, then the new model period
-#' should be compatible with the model data period. 
+#' should be compatible with the model data period.
 #' In particular, the new model period extended with a lag and lead period
 #' should not contain periods outside the model data period.
 #' @section Usage:
@@ -223,7 +223,7 @@ NULL
 #'
 #' \describe{
 #' \item{\code{period}}{\code{\link[regts]{period_range}}
-#' object, or an object that can be coerced to 
+#' object, or an object that can be coerced to
 #' \code{\link[regts]{period_range}}}
 #' }
 #'
@@ -238,20 +238,20 @@ NULL
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} initializes the
 #' model data.
-#' 
+#'
 #' This method sets the model data period and initializes
 #'  the model variables and constant adjustmemts.
 #'
-#' You have to specify one of the two arguments \code{data_period} 
-#' and \code{data}. If \code{data_period}  has not been specified, 
+#' You have to specify one of the two arguments \code{data_period}
+#' and \code{data}. If \code{data_period}  has not been specified,
 #'  then the model data period is set to the period range of
 #' \code{data}. If \code{data} has not been specified,
 #' then argument \code{data_period} is mandatory.
 #'
-#' The method first initializes all model timeseries with \code{NA} 
+#' The method first initializes all model timeseries with \code{NA}
 #' and all constant adjustments with 0 for the data period.
 #' If arguments \code{data} or \code{ca} have been specified,
-#'  then the model variables or constant adjustments are 
+#'  then the model variables or constant adjustments are
 #' subsequently updated with the timeseries \code{data} or \code{ca},
 #' respectively.
 #'
@@ -270,7 +270,7 @@ NULL
 #'
 #' \describe{
 #' \item{\code{data_period}}{\code{\link[regts]{period_range}}
-#' object, or an object that can be coerced to 
+#' object, or an object that can be coerced to
 #' \code{\link[regts]{period_range}}}
 #' \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
 #'  object}
@@ -319,9 +319,9 @@ NULL
 #' the model.
 #' \code{IsisMdl} method: @section Usage:
 #' \preformatted{
-#' mdl$solve(period = mdl$get_period(), options = list(), 
+#' mdl$solve(period = mdl$get_period(), options = list(),
 #'           fit_options = list()
-#' 
+#'
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -330,11 +330,11 @@ NULL
 #'
 #' \describe{
 #' \item{\code{period}}{\code{\link[regts]{period_range}}
-#' object, or an object 
+#' object, or an object
 #' that can be coerced to \code{\link[regts]{period_range}}}
 #' \item{\code{optons}}{a list with solve options}
 #' \item{\code{fit_options}}{a list with options for the fit procedure}
-#' } 
+#' }
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$solve()
@@ -344,7 +344,7 @@ NULL
 #' @name fill_mdl_data
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}} 
+#' This method of R6 class \code{\link{IsisMdl}}
 #' attempts to calculate missing data for endogenous
 #' variables of a model by solving the identity equations in solution order.
 #'
@@ -356,11 +356,11 @@ NULL
 #' \preformatted{
 #' mdl$fill_mdl_data(period = mdl$get_data_period(),
 #'                   report = c("period", "minimal", "no"))
-#' 
+#'
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
-#' 
+#'
 #' @section Arguments:
 #'
 #' \describe{
@@ -395,7 +395,7 @@ NULL
 #' @name run_eqn
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}} 
+#' This method of R6 class \code{\link{IsisMdl}}
 #' runs specific equations of the model separately.
 #' Each specified equation is run separately for the specified period.
 #' If the equation is a stochastic equation (a \code{frml} equation)
@@ -406,15 +406,15 @@ NULL
 #'
 #' If neither argument \code{pattern} or \code{names} have been specified,
 #' then all active model equations are ran in solve order.
-#' 
+#'
 #' @section Usage:
 #' \preformatted{
 #' mdl$run_eqn(pattern, names, period = mdl$get_data_period())
-#' 
+#'
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
-#' 
+#'
 #' @section Arguments:
 #'
 #' \describe{
@@ -432,13 +432,13 @@ NULL
 NULL
 
 
-#' \code{\link{IsisMdl}} methods: Retrieve timeseries from the model data, 
+#' \code{\link{IsisMdl}} methods: Retrieve timeseries from the model data,
 #' constant adjusments, fix values or fit targets
 #' @name get_data-methods
 #' @aliases get_data get_ca get_fix get_fit
 #' @description
-#' These methods of R6 class \code{\link{IsisMdl}} 
-#' can be used to retrieve timeseries from the model data, 
+#' These methods of R6 class \code{\link{IsisMdl}}
+#' can be used to retrieve timeseries from the model data,
 #' constant adjusments, fix values or fit targets.
 #'
 #' @section Usage:
@@ -475,13 +475,13 @@ NULL
 #'}
 NULL
 
-#' \code{\link{IsisMdl}} methods: transfers data from a timeseries 
+#' \code{\link{IsisMdl}} methods: transfers data from a timeseries
 #' object to the model data, constant adjusments, fix values or fit targets.
 #' @name set_data-methods
 #' @aliases set_data set_ca set_fix set_fit
 #' @description
-#' These methods of R6 class \code{\link{IsisMdl}} 
-#' Transfers data from a timeseries object to the model data, 
+#' These methods of R6 class \code{\link{IsisMdl}}
+#' Transfers data from a timeseries object to the model data,
 #' constant adjusments, fix values or fit targets.
 #'
 #' If \code{data} has labels, then method \code{set_data} will update
@@ -496,11 +496,11 @@ NULL
 #' mdl$set_fix(data, names = colnames(data))
 #'
 #' mdl$set_fit(data, names = colnames(data))
-#' 
+#'
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
-#' 
+#'
 #' @section Arguments:
 #'
 #' \describe{
@@ -524,12 +524,12 @@ NULL
 #'}
 NULL
 
-#' \code{\link{IsisMdl}} methods: Sets the values of the model data, 
+#' \code{\link{IsisMdl}} methods: Sets the values of the model data,
 #' constant adjusments, fix values or fit targets
 #' @name set_values-methods
 #' @aliases set_values set_ca_values set_fix_values set_fit_values
 #' @description
-#' These methods of R6 class \code{\link{IsisMdl}} 
+#' These methods of R6 class \code{\link{IsisMdl}}
 #' can be used to set the values of the model data, constant adjusments,
 #' fix values or fit targets.
 #'
@@ -573,7 +573,7 @@ NULL
 #' @name change_data-methods
 #' @aliases change_data change_ca
 #' @description
-#' This methods of R6 class \code{\link{IsisMdl}} 
+#' This methods of R6 class \code{\link{IsisMdl}}
 #' changes the model data or constant adjustments by applying a function.
 #'
 #' @section Usage:
@@ -607,7 +607,7 @@ NULL
 #' @name set_rms
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}} 
+#' This method of R6 class \code{\link{IsisMdl}}
 #' sets or update the rms values
 #' @description
 #' Sets or updates  the rms values
@@ -630,10 +630,9 @@ NULL
 #' @name set_solve_options
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}} 
-#' sets or update the rms values
-#' @description
-#' Sets or updates  the rms values
+#' This method of R6 class \code{\link{IsisMdl}}
+#' sets the solve options.
+#'
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_solve_options(...)
@@ -644,7 +643,7 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{...}}{the solve options (TODO: document 
+#' \item{\code{...}}{the solve options, as named arguments (TODO: document
 #' the possible options)}
 #' }
 #' @examples
@@ -732,5 +731,5 @@ NULL
 #' @examples
 #' mdl <- islm_mdl("2017Q1/2019Q2")
 #' mdl$write_mdl("islm_mdl.rds")
-#' @seealso \code{\link{read_mdl}} 
+#' @seealso \code{\link{read_mdl}}
 NULL

@@ -63,11 +63,11 @@ static void set_option(const char *name, SEXP value) {
     double x;
     if (!strcmp(name, "mode")) {
         CHECK_LENGTH(name, value);
-        i = get_imode(CHAR(STRING_ELT(value, 0)));
+        i = get_imode(name, CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_mode)(&i);
     } else if (!strcmp(name, "fbstart")) {
         CHECK_LENGTH(name, value);
-        i = get_istart(CHAR(STRING_ELT(value, 0)));
+        i = get_istart(name, CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_start)(&i);
     } else if (!strcmp(name, "maxiter")) {
         CHECK_LENGTH(name, value);
@@ -107,21 +107,21 @@ static void set_option(const char *name, SEXP value) {
         F77_CALL(set_mratex)(&i);
     } else if (!strcmp(name, "xupdate")) {
         CHECK_LENGTH(name, value);
-        i = get_uplead(CHAR(STRING_ELT(value, 0)));
+        i = get_uplead(name, CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_uplead)(&i);
     } else if (!strcmp(name, "dbgopt")) {
         set_debug_opts(value);
     } else if (!strcmp(name, "erropt")) {
         CHECK_LENGTH(name, value);
-        i = get_erropt(CHAR(STRING_ELT(value, 0)));
+        i = get_erropt(name, CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_erropt)(&i);
     } else if (!strcmp(name, "report")) {
         CHECK_LENGTH(name, value);
-        i = get_repopt(CHAR(STRING_ELT(value, 0)));
+        i = get_repopt(name,  CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_repopt)(&i);
     } else if (!strcmp(name, "ratreport")) {
         CHECK_LENGTH(name, value);
-        i = get_ratrepopt(CHAR(STRING_ELT(value, 0)));
+        i = get_ratrepopt(name, CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_ratrepopt)(&i);
     } else if (!strcmp(name, "ratreport_rep")) {
         if (!(length(value) == 1 || length(value) == 2)) {

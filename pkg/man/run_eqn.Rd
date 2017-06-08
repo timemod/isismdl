@@ -4,7 +4,7 @@
 \alias{run_eqn}
 \title{\code{\link{IsisMdl}} method: runs model equations}
 \description{
-This method of R6 class \code{\link{IsisMdl}} 
+This method of R6 class \code{\link{IsisMdl}}
 runs specific equations of the model separately.
 Each specified equation is run separately for the specified period.
 If the equation is a stochastic equation (a \code{frml} equation)
