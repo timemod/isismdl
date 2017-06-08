@@ -66,4 +66,7 @@ test_that("errors", {
 
   msg <- "ratreport_rep should not contain NA values"
   expect_error(islm_model$set_solve_options(ratreport_rep = c(1, NA)), msg)
+
+  msg <- "rlxmin is smaller than rlxmax"
+  expect_error(islm_model$set_solve_options(rlxmin = 0.4, rlxmax = 0.2), msg)
 })

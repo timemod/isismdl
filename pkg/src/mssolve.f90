@@ -331,7 +331,7 @@ else
         ! Newton / Newton QR
         if (Fcrit > opts%crelax .and. relax >= opts%rlxmin / opts%rlxspeed) then
             relax  = opts%rlxspeed * relax
-            !call solotc(itr, relax)
+            call solotc(itr, relax)
        endif
     endif
 endif
@@ -456,7 +456,7 @@ endif
             if (.not. tstvfb()) then
                 !  invalid values in feedback set
                 !  cannot continue with gauss-seidel
-                ! call solot8(itr)
+                call solot8(itr)
                 retcod = 1
                 return
             endif
@@ -507,7 +507,6 @@ endif
         
         ! find out if simulation has to be stopped
         if (.not. convgd) then
-            !call solote(quit)
             quit = .true.
             if (quit) then
                 retcod = 1

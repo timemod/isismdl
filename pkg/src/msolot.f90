@@ -356,7 +356,7 @@ real(kind = SOLVE_RKIND) :: Qone
 parameter    (Qone = 1.0d0)
 integer ::  i, imax, mxlen
 
-if (opts%iendsm .eq. 3 .and. repopt <= REP_MINIMAL) return
+if (repopt <= REP_MINIMAL) return
 
 write(str,901) perstr,itr
 call strout(O_OUTN)

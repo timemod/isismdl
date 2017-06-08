@@ -138,3 +138,12 @@ subroutine set_erropt(erropt)
     integer(c_int), intent(in) :: erropt
     options_set%erropt = erropt
 end subroutine set_erropt
+
+subroutine check_options
+    use set_options
+    use output_utils
+
+    if (options_set%rlxmin > options_set%rlxmax) then
+        call isismdl_error("rlxmin is smaller than rlxmax")
+    endif
+end subroutine check_options
