@@ -46,26 +46,29 @@ const char *get_ratrepopt_text(int ratrepopt) {
     return get_option_text(ratrepopt, RATREP_OPTIONS, NO_ELM(RATREP_OPTIONS));
 }
 
-int get_imode(const char *mode_text) {
-    return get_i_option(mode_text, MODES, NO_ELM(MODES));
+int get_imode(const char *name, const char *mode_text) {
+    return get_i_option(name, mode_text, MODES, NO_ELM(MODES));
 }
 
-int get_istart(const char *start_text) {
-    return get_i_option(start_text, START_OPTIONS, NO_ELM(START_OPTIONS));
+int get_istart(const char *name, const char *start_text) {
+    return get_i_option(name, start_text, START_OPTIONS, NO_ELM(START_OPTIONS));
 }
 
-int get_uplead(const char *xupdate_text) {
-    return strcmp(xupdate_text, XUPDATE_OPTIONS[0]);
+int get_uplead(const char *name, const char *xupdate_text) {
+    return get_i_option(name, xupdate_text, XUPDATE_OPTIONS, 
+                        NO_ELM(XUPDATE_OPTIONS)) - 1;
 }
 
-int get_erropt(const char *erropt_text) {
-    return get_i_option(erropt_text, ERROPT_OPTIONS, NO_ELM(ERROPT_OPTIONS));
+int get_erropt(const char *name, const char *erropt_text) {
+    return get_i_option(name, erropt_text, ERROPT_OPTIONS, 
+                        NO_ELM(ERROPT_OPTIONS));
 }
 
-int get_repopt(const char *repopt_text) {
-    return get_i_option(repopt_text, REP_OPTIONS, NO_ELM(REP_OPTIONS));
+int get_repopt(const char *name, const char *repopt_text) {
+    return get_i_option(name, repopt_text, REP_OPTIONS, NO_ELM(REP_OPTIONS));
 }
 
-int get_ratrepopt(const char *ratrepopt_text) {
-    return get_i_option(ratrepopt_text, RATREP_OPTIONS, NO_ELM(RATREP_OPTIONS));
+int get_ratrepopt(const char *name, const char *ratrepopt_text) {
+    return get_i_option(name, ratrepopt_text, RATREP_OPTIONS, 
+                        NO_ELM(RATREP_OPTIONS));
 }

@@ -13,6 +13,7 @@ const char *get_fit_repopt_text(int repopt) {
     return get_option_text(repopt, FITREP_OPTIONS, NO_ELM(FITREP_OPTIONS));
 }
 
-int get_fit_repopt(const char *repopt_text) {
-    return get_i_option(repopt_text, FITREP_OPTIONS, NO_ELM(FITREP_OPTIONS));
+int get_fit_repopt(const char *name, const char *repopt_text) {
+    return get_i_option(name, repopt_text, FITREP_OPTIONS, 
+                        NO_ELM(FITREP_OPTIONS));
 }

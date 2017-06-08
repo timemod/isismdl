@@ -481,7 +481,7 @@ void filmdt_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP report_) {
     int mws_index = asInteger(mws_index_);
     int startp = asInteger(startp_);
     int endp= asInteger(endp_);
-    int report_type = get_i_option(report, REPORT_OPTIONS, 
+    int report_type = get_i_option("report", report, REPORT_OPTIONS, 
                                    NO_ELM(REPORT_OPTIONS));
     F77_CALL(filmdt_fortran)(&mws_index, &startp, &endp, &report_type);
 }

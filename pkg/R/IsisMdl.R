@@ -443,18 +443,27 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_solve_options = function(...) {
       "Set  the default solve options"
-      .Call("set_solve_opts_c", private$model_index, list(...))
+      opts <- list(...)
+      private$check_options(opts, is_argument_list = TRUE,
+                            type = "solve_options")
+      .Call("set_solve_opts_c", private$model_index, opts)
       return (invisible(self))
     },
     set_fit_options = function(...) {
       "Set  the default solve options"
-      .Call("set_fit_opts_c", private$model_index, list(...))
+      opts <- list(...)
+      private$check_options(opts, is_argument_list = TRUE, type = "fit_options")
+      .Call("set_fit_opts_c", private$model_index, opts)
       return (invisible(self))
     },
     solve = function(period = private$model_period, options = list(),
                      fit_options = list()) {
       "Solve the model for the specified period"
       if (is.null(private$model_period)) stop(private$period_error_msg)
+      private$check_options(options, is_argument_list = FALSE,
+                            type = "solve_options")
+      private$check_options(options, is_argument_list = FALSE,
+                            type = "fit_options")
       period <- as.period_range(period)
       private$check_model_period(period)
       js <- private$get_period_indices(period)
@@ -823,6 +832,23 @@ IsisMdl <- R6Class("IsisMdl",
                     private$data_period, "). The period",
                     " should lie within the range ",
                     private$fortran_period, "."))
+      }
+      return(invisible(NULL))
+    },
+    check_options = function(options, is_argument_list, type) {
+      if (!is.list(options)) {
+        stop(paste("The", type, "should be a named list"))
+      }
+      if (length(options) == 0) {
+        return(invisible(NULL))
+      }
+      names <- names(options)
+      if (is.null(names) || !is.na(Position(f = function(x) {x == ""}, names))) {
+        if (is_argument_list) {
+          stop(paste("The", type, "should be specified as named arguments"))
+        } else {
+          stop(paste("The", type, "should be a named list"))
+        }
       }
       return(invisible(NULL))
     }

@@ -6,11 +6,11 @@
 \alias{set_ca}
 \alias{set_fix}
 \alias{set_fit}
-\title{\code{\link{IsisMdl}} methods: transfers data from a timeseries 
+\title{\code{\link{IsisMdl}} methods: transfers data from a timeseries
 object to the model data, constant adjusments, fix values or fit targets.}
 \description{
-These methods of R6 class \code{\link{IsisMdl}} 
-Transfers data from a timeseries object to the model data, 
+These methods of R6 class \code{\link{IsisMdl}}
+Transfers data from a timeseries object to the model data,
 constant adjusments, fix values or fit targets.
 
 If \code{data} has labels, then method \code{set_data} will update

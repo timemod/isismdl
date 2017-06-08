@@ -6,11 +6,11 @@
 \alias{get_ca}
 \alias{get_fix}
 \alias{get_fit}
-\title{\code{\link{IsisMdl}} methods: Retrieve timeseries from the model data, 
+\title{\code{\link{IsisMdl}} methods: Retrieve timeseries from the model data,
 constant adjusments, fix values or fit targets}
 \description{
-These methods of R6 class \code{\link{IsisMdl}} 
-can be used to retrieve timeseries from the model data, 
+These methods of R6 class \code{\link{IsisMdl}}
+can be used to retrieve timeseries from the model data,
 constant adjusments, fix values or fit targets.
 }
 \section{Usage}{

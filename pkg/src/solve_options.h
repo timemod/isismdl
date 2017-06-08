@@ -1,12 +1,12 @@
 const char *get_mode_text(int imode);
 const char *get_start_text(int istart);
 const char *get_xupdate_text(int uplead);
-int get_imode(const char *mode_text);
-int get_istart(const char *stary_text);
-int get_uplead(const char *xupdate_text);
-int get_erropt(const char *erropt_text);
-int get_repopt(const char *erropt_text);
-int get_ratrepopt(const char *erropt_text);
+int get_imode(const char*name, const char *mode_text);
+int get_istart(const char *name, const char *stary_text);
+int get_uplead(const char *name, const char *xupdate_text);
+int get_erropt(const char *name, const char *erropt_text);
+int get_repopt(const char *name, const char *repopt_text);
+int get_ratrepopt(const char *name, const char *erropt_text);
 const char *get_erropt_text(int erropt);
 const char *get_repopt_text(int repopt);
 const char *get_ratrepopt_text(int ratrepopt);

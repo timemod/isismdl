@@ -4,7 +4,7 @@
 \alias{set_rms}
 \title{\code{\link{IsisMdl}} method: Sets or updates  the rms values}
 \description{
-This method of R6 class \code{\link{IsisMdl}} 
+This method of R6 class \code{\link{IsisMdl}}
 sets or update the rms values
 
 Sets or updates  the rms values

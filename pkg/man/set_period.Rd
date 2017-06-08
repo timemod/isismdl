@@ -9,14 +9,14 @@ This is the default period used when solving the model.
 
 If the model data has not already been initialized with method
 \code{\link{init_data}}, then \code{set_period} also initializes
-the model data. In that case the model data period is set to the 
+the model data. In that case the model data period is set to the
 specified model period extended with a lag and lead period.
 Model timeseries are initialized with \code{NA} and all constant
 adjustments with 0.
 
 If the model data has already been initialized with  method
 \code{\link{init_data}}, then the new model period
-should be compatible with the model data period. 
+should be compatible with the model data period.
 In particular, the new model period extended with a lag and lead period
 should not contain periods outside the model data period.
 }
@@ -35,7 +35,7 @@ mdl$set_period(period)
 
 \describe{
 \item{\code{period}}{\code{\link[regts]{period_range}}
-object, or an object that can be coerced to 
+object, or an object that can be coerced to
 \code{\link[regts]{period_range}}}
 }
 }

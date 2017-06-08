@@ -4,7 +4,7 @@
 \alias{fill_mdl_data}
 \title{\code{\link{IsisMdl}} method: Calculates missing model data from identities}
 \description{
-This method of R6 class \code{\link{IsisMdl}} 
+This method of R6 class \code{\link{IsisMdl}}
 attempts to calculate missing data for endogenous
 variables of a model by solving the identity equations in solution order.
 

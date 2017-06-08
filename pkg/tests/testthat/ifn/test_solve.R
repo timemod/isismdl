@@ -6,7 +6,7 @@ capture_output(ifn_mdl <- read_mdl("ifn_mdl.rds"))
 
 ifn_mdl$set_ftrelax(0.5, names = "lambda")
 ifn_mdl$set_solve_options(xmaxiter = 1500, ratreport = "iter",
-                         report = "minimal", ratreport_rep =c(10, 50))
+                         report = "minimal", ratreport_rep = c(10, 50))
 
 report <- capture_output(ifn_mdl$solve())
 
