@@ -34,6 +34,48 @@ extern void F77_SUB(set_xtfac)(double *);
 static void set_option(const char *name, SEXP value);
 static void set_debug_opts(SEXP option);
 
+int get_non_negative_int(const char *name, SEXP value) {
+
+    const char *msg = "%s should be an integer";
+    if (!isNumeric(value)) {
+        error(msg, name); 
+    }
+    int i = asInteger(value);
+    if (i == NA_INTEGER) {
+        error("%s should not be NA", name); 
+    } else if (i < 0) {
+        error("%s should be a non-negative integer", name); 
+    } 
+    if (!isInteger(value)) {
+        if (i != asReal(value)) {
+            error(msg, name); 
+        }
+    }
+    return i;
+}
+
+double get_finite_number(const char *name, SEXP value) {
+    /* returns a finite number */
+    const char *msg = "%s should be a number";
+    if (!isNumeric(value)) {
+        error(msg, name); 
+    }
+    double x = asReal(value);
+    if (!R_FINITE(x)) {
+        error("%s should  be a finite number", name); 
+    }
+    return x;
+}
+
+double get_positive_number(const char *name, SEXP value) {
+    /* returns a positive number */
+    double x = get_finite_number(name, value);
+    if (x <= 0) {
+        error("%s should  be a positive number", name); 
+    }
+    return x;
+}
+
 void set_solve_opts_c(SEXP mws_index_, SEXP options) {
     int mws_index = asInteger(mws_index_);
     int opts_present = length(options) > 0;
@@ -71,39 +113,48 @@ static void set_option(const char *name, SEXP value) {
         F77_CALL(set_start)(&i);
     } else if (!strcmp(name, "maxiter")) {
         CHECK_LENGTH(name, value);
-        i = asInteger(value);
+        i = get_non_negative_int(name, value);
         F77_CALL(set_maxit)(&i);
     } else if (!strcmp(name, "maxjacupd")) {
         CHECK_LENGTH(name, value);
-        i = asInteger(value);
+        i = get_non_negative_int(name, value);
         F77_CALL(set_maxmat)(&i);
     } else if (!strcmp(name, "rlxspeed")) {
         CHECK_LENGTH(name, value);
-        x = asReal(value);
+        x = get_positive_number(name, value);
+        if (x >= 1) {
+            error("%s should be smaller than 1\n", name);
+        }
         F77_CALL(set_rlxspeed)(&x);
     } else if (!strcmp(name, "rlxmin")) {
         CHECK_LENGTH(name, value);
-        x = asReal(value);
+        x = get_positive_number(name, value);
+        if (x > 1) {
+            error("%s should be smaller than or equal to 1\n", name);
+        }
         F77_CALL(set_rlxmin)(&x);
     } else if (!strcmp(name, "rlxmax")) {
         CHECK_LENGTH(name, value);
-        x = asReal(value);
+        x = get_positive_number(name, value);
+        if (x > 1) {
+            error("%s should be smaller than or equal to 1\n", name);
+        }
         F77_CALL(set_rlxmax)(&x);
     } else if (!strcmp(name, "cstpbk")) {
         CHECK_LENGTH(name, value);
-        x = asReal(value);
+        x = get_positive_number(name, value);
         F77_CALL(set_cstpbk)(&x);
     } else if (!strcmp(name, "cnmtrx")) {
         CHECK_LENGTH(name, value);
-        x = asReal(value);
+        x = get_positive_number(name, value);
         F77_CALL(set_cnmtrx)(&x);
     } else if (!strcmp(name, "xrelax")) {
         CHECK_LENGTH(name, value);
-        x = asReal(value);
+        x = get_positive_number(name, value);
         F77_CALL(set_xrelax)(&x);
     } else if (!strcmp(name, "xmaxiter")) {
         CHECK_LENGTH(name, value);
-        i = asInteger(value);
+        i = get_non_negative_int(name, value);
         F77_CALL(set_mratex)(&i);
     } else if (!strcmp(name, "xupdate")) {
         CHECK_LENGTH(name, value);
@@ -124,21 +175,30 @@ static void set_option(const char *name, SEXP value) {
         i = get_ratrepopt(name, CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_ratrepopt)(&i);
     } else if (!strcmp(name, "ratreport_rep")) {
-        if (!(length(value) == 1 || length(value) == 2)) {
+        if (!isNumeric(value)) {
+            error("%s should be a numeric vector", name);
+        } else if (!(length(value) == 1 || length(value) == 2)) {
             error("The value for option %s should have length 1 or 2", name); \
         }
         SEXP ival = PROTECT(coerceVector(value, INTSXP));
         int rep = INTEGER(ival)[0];
         int repfull = (length(value) == 2) ? INTEGER(ival)[1] : rep;
+        if (rep == NA_INTEGER || repfull == NA_INTEGER) {
+            error("%s should not contain NA values", name);
+        }
         F77_CALL(set_ratreport_rep)(&rep, &repfull);
         UNPROTECT(1);
     } else if (!strcmp(name, "bktmax")) {
         CHECK_LENGTH(name, value);
-        i = asInteger(value);
+        i = get_non_negative_int(name, value);
         F77_CALL(set_bktmax)(&i);
     } else if (!strcmp(name, "xtfac")) {
         CHECK_LENGTH(name, value);
-        x = asReal(value);
+        x = get_finite_number(name, value);
+        if (x < 2.0) {
+            x = 2.0;
+            warning("The minimum value of xtfac is 2\n");
+        }
         F77_CALL(set_xtfac)(&x);
     } else {
        error("Unknown solve option %s\n", name);
