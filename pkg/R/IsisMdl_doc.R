@@ -709,14 +709,18 @@ NULL
 #' For \code{"fixed"} the leads beyond the solution period
 #' are fixed at the initial values. For \code{"lastval"} leads beyond 
 #' the solution period take on the values from the last solution date}
-#' \item{\code{dbgopt}}{Character string defining the type of debugging output.
-#' See section "Debugging options" below}
+#' \item{\code{dbgopt}}{A character vector specifying one more
+#' debugging options. See section "Debugging options" below}
 #' \item{\code{erropt}}{Character string defining the error handling when 
 #' invalid lags, leads and/or exogenous variables are detected.
 #' Possible values are \code{"stop"} (stop on errors) 
 #' and \code{cont} (continue on errors). The default is \code{"stop"}}
-#' \item{\code{report}}{Defines the type of computation progress report.
-#' See section "Report options" below}
+#' \item{\code{report}}{A character string defining the type of 
+#' computation progress report. Possible values are
+#' \code{"period"} (for a report per period),
+#' \code{"fullrep"} (for a full report), 
+#' \code{"minimal"}  (for a minimal report), and
+#' \code{"no"}  (for no report). The default is \code{"period"}}
 #' \item{\code{ratreport}}{Defines the type of rational expectations progress
 #' report. See section "Ratex report options" below}
 #' \item{\code{ratreport_rep}}{A numeric vector of length 2, specifying 
@@ -799,12 +803,30 @@ NULL
 #'
 #' @section Debugging options:
 #'
-#' TODO
-#'
-#' @section Report options:
-#'
-#' TODO
-#'
+#' Argument \code{dbgopt} can be used to specify one or more
+#' options for debugging.  Possible values are
+#' \describe{
+#' \item{\code{"prifb"}}{print feedback variables at each iteration}
+#' \item{\code{"prild"}}{print all leads at each ratex iteration}
+#' \item{\code{"prijac"}}{print jacobian matrix when updated}
+#' \item{\code{"prinoconv"}}{print all not converged endogenous variables}
+#' \item{\code{"prinotconvl"}}{print all not converged leads}
+#' \item{\code{"allinfo"}}{all of the above}
+#' \item{\code{"noprifb"}}{do not print feedback variables at each iteration}
+#' \item{\code{"noprild"}}{do not print all leads at each ratex iteration}
+#' \item{\code{"noprijac"}}{do not print jacobian matrix when updated}
+#' \item{\code{"noprinoconv"}}{print only the largest discrepancy of
+#' all not converged endogenous variables}
+#' \item{\code{"noprinotconvl"}}{print only the largest discrepancy of
+#' all not converged leads}
+#' \item{\code{"noinfo"}}{no debugging output}
+#' \item{\code{"priscal"}}{print scaling factors as determined from the
+#' jacobian}
+#' \item{\code{nopriscal}}{do not print scaling factors as determined
+#' from the jacobian}
+#' }
+#' Default is no printing of debugging information.
+
 #' @section Ratex report options:
 #'
 #' TODO
@@ -819,11 +841,12 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} can be used to set one or more
-#' fit options. These options will be stored in the \code{IsisMdl} object.
+#' options for the fit procedure. 
+#' These options will be stored in the \code{IsisMdl} object.
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, dbgopt)
+#' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, report, dbgopt)
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 #'
@@ -845,12 +868,31 @@ NULL
 #' larger than \code{mkdcrt} a new fit jacobian will be calculated
 #' in the next iteration. Any value specified must lie between 0.05
 #' and 0.95. The default value is 0.5.}
-#' \item{\code{dbgopt}}{Debug options. See section "Debug options" below}
+#' \item{\code{report}}{A character string specifying the the
+#' type of report of the fit procedure for each period.
+#' Possible values are \code{"fullrep"} 
+#' (the default, an iteration report is printed for each period)
+#' and  \code{"minimal"} (for a one line summary).}
+#' \item{\code{dbgopt}}{A character vector specifying one or more
+#' debug options. See section "Debugging options" below}
 #' }
 #' 
-#' @section Debug Options:
+#' @section Debugging options:
 #' 
-#' TODO
+#' Argument \code{dbgopt} can be used to specify one or more
+#' options for debugging the fit procedure.  Possible values are
+#' \describe{
+#' \item{\code{prica}}{print the fit jacobian every time it is calculated}
+#' \item{\code{noprica}}{do not print the fit jacobian every time it is
+#' calculated}
+#' \item{\code{prijac}}{print the fit jacobian every time it is calculated}
+#' \item{\code{noprijac}}{do not print the fit jacobian every time it is
+#' calculated}
+#' \item{\code{supsot}}{to suppress all output of the normal solution process}
+#' \item{\code{nosupsot}}{to not suppress all output of the normal solution
+#' process. Output will be a mess if this option is used}
+#' }
+#' The default debug options are \code{c("noprica", "noprijac", "supsot")}
 NULL
 
 #'

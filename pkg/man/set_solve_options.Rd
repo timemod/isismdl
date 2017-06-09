@@ -73,14 +73,18 @@ leads. Possible values are \code{"fixed"} (the default) and \code{"lastval"}.
 For \code{"fixed"} the leads beyond the solution period
 are fixed at the initial values. For \code{"lastval"} leads beyond 
 the solution period take on the values from the last solution date}
-\item{\code{dbgopt}}{Character string defining the type of debugging output.
-See section "Debugging options" below}
+\item{\code{dbgopt}}{A character vector specifying one more
+debugging options. See section "Debugging options" below}
 \item{\code{erropt}}{Character string defining the error handling when 
 invalid lags, leads and/or exogenous variables are detected.
 Possible values are \code{"stop"} (stop on errors) 
 and \code{cont} (continue on errors). The default is \code{"stop"}}
-\item{\code{report}}{Defines the type of computation progress report.
-See section "Report options" below}
+\item{\code{report}}{A character string defining the type of 
+computation progress report. Possible values are
+\code{"period"} (for a report per period),
+\code{"fullrep"} (for a full report), 
+\code{"minimal"}  (for a minimal report), and
+\code{"no"}  (for no report). The default is \code{"period"}}
 \item{\code{ratreport}}{Defines the type of rational expectations progress
 report. See section "Ratex report options" below}
 \item{\code{ratreport_rep}}{A numeric vector of length 2, specifying 
@@ -169,13 +173,29 @@ The default is \code{"current"}.
 \section{Debugging options}{
 
 
-TODO
+Argument \code{dbgopt} can be used to specify one or more
+options for debugging.  Possible values are
+\describe{
+\item{\code{"prifb"}}{print feedback variables at each iteration}
+\item{\code{"prild"}}{print all leads at each ratex iteration}
+\item{\code{"prijac"}}{print jacobian matrix when updated}
+\item{\code{"prinoconv"}}{print all not converged endogenous variables}
+\item{\code{"prinotconvl"}}{print all not converged leads}
+\item{\code{"allinfo"}}{all of the above}
+\item{\code{"noprifb"}}{do not print feedback variables at each iteration}
+\item{\code{"noprild"}}{do not print all leads at each ratex iteration}
+\item{\code{"noprijac"}}{do not print jacobian matrix when updated}
+\item{\code{"noprinoconv"}}{print only the largest discrepancy of
+all not converged endogenous variables}
+\item{\code{"noprinotconvl"}}{print only the largest discrepancy of
+all not converged leads}
+\item{\code{"noinfo"}}{no debugging output}
+\item{\code{"priscal"}}{print scaling factors as determined from the
+jacobian}
+\item{\code{nopriscal}}{do not print scaling factors as determined
+from the jacobian}
 }
-
-\section{Report options}{
-
-
-TODO
+Default is no printing of debugging information.
 }
 
 \section{Ratex report options}{

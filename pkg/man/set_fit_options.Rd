@@ -5,12 +5,13 @@
 \title{\code{\link{IsisMdl}} method: Sets the options for the fit procedure.}
 \description{
 This method of R6 class \code{\link{IsisMdl}} can be used to set one or more
-fit options. These options will be stored in the \code{IsisMdl} object.
+options for the fit procedure. 
+These options will be stored in the \code{IsisMdl} object.
 }
 \section{Usage}{
 
 \preformatted{
-mdl$set_fit_options(maxiter, cvgabs, mkdcrt, dbgopt)
+mdl$set_fit_options(maxiter, cvgabs, mkdcrt, report, dbgopt)
 }
 \code{mdl} is an \code{\link{IsisMdl}} object
 }
@@ -34,13 +35,32 @@ the fit target values is
 larger than \code{mkdcrt} a new fit jacobian will be calculated
 in the next iteration. Any value specified must lie between 0.05
 and 0.95. The default value is 0.5.}
-\item{\code{dbgopt}}{Debug options. See section "Debug options" below}
+\item{\code{report}}{A character string specifying the the
+type of report of the fit procedure for each period.
+Possible values are \code{"fullrep"} 
+(the default, an iteration report is printed for each period)
+and  \code{"minimal"} (for a one line summary).}
+\item{\code{dbgopt}}{A character vector specifying one or more
+debug options. See section "Debugging options" below}
 }
 }
 
-\section{Debug Options}{
+\section{Debugging options}{
 
 
-TODO
+Argument \code{dbgopt} can be used to specify one or more
+options for debugging the fit procedure.  Possible values are
+\describe{
+\item{\code{prica}}{print the fit jacobian every time it is calculated}
+\item{\code{noprica}}{do not print the fit jacobian every time it is
+calculated}
+\item{\code{prijac}}{print the fit jacobian every time it is calculated}
+\item{\code{noprijac}}{do not print the fit jacobian every time it is
+calculated}
+\item{\code{supsot}}{to suppress all output of the normal solution process}
+\item{\code{nosupsot}}{to not suppress all output of the normal solution
+process. Output will be a mess if this option is used}
+}
+The default debug options are \code{c("noprica", "noprijac", "supsot")}
 }
 
