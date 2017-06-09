@@ -451,25 +451,21 @@ IsisMdl <- R6Class("IsisMdl",
       names <- names(match.call()[-1])
       options <- lapply(names, FUN = function(x) {eval(parse(text = x))})
       names(options) <- names
-
       .Call("set_solve_opts_c", private$model_index, options)
       return (invisible(self))
     },
-    set_fit_options = function(...) {
-      "Set  the default solve options"
-      opts <- list(...)
-      private$check_options(opts, is_argument_list = TRUE, type = "fit_options")
-      .Call("set_fit_opts_c", private$model_index, opts)
+    set_fit_options = function(maxiter, cvgabs, mkdcrt, dbgopt) {
+      names <- names(match.call()[-1])
+      options <- lapply(names, FUN = function(x) {eval(parse(text = x))})
+      .Call("set_fit_opts_c", private$model_index, options)
       return (invisible(self))
     },
     solve = function(period = private$model_period, options = list(),
                      fit_options = list()) {
       "Solve the model for the specified period"
       if (is.null(private$model_period)) stop(private$period_error_msg)
-      private$check_options(options, is_argument_list = FALSE,
-                            type = "solve_options")
-      private$check_options(options, is_argument_list = FALSE,
-                            type = "fit_options")
+      private$check_options(options, type = "solve_options")
+      private$check_options(options, type = "fit_options")
       period <- as.period_range(period)
       private$check_model_period(period)
       js <- private$get_period_indices(period)
@@ -841,7 +837,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
       return(invisible(NULL))
     },
-    check_options = function(options, is_argument_list, type) {
+    check_options = function(options, type) {
       if (!is.list(options)) {
         stop(paste("The", type, "should be a named list"))
       }
@@ -850,11 +846,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
       names <- names(options)
       if (is.null(names) || !is.na(Position(f = function(x) {x == ""}, names))) {
-        if (is_argument_list) {
-          stop(paste("The", type, "should be specified as named arguments"))
-        } else {
           stop(paste("The", type, "should be a named list"))
-        }
       }
       return(invisible(NULL))
     }

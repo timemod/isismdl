@@ -5,7 +5,7 @@
 \title{\code{\link{IsisMdl}} method: Sets the solve options}
 \description{
 This method of R6 class \code{\link{IsisMdl}} can be used to set one or more
-solve options.
+solve options. These options will be stored in the \code{IsisMdl} object.
 }
 \section{Usage}{
 
@@ -22,47 +22,96 @@ mdl$set_solve_options(mode, fbstart, maxiter, maxjacupd, rlxspeed,
 \section{Arguments}{
 
 
+All arguments below expect a numerical value unless mentioned otherwise.
+
 \describe{
 \item{\code{mode}}{a character string specifying the solution mode
 (\code{"auto"}, \code{"ratex"}, \code{"dynamic"}, \code{"reschk"},
 \code{"backward"} or \code{"static"}). \code{"auto"} is the default.
-See details.}
+See section "Solution modes" below}
 \item{\code{fbstart}}{a character string specifying
 the method of initialising feedback values.
 (\code{"current"}, \code{"previous"}, \code{"curifok"} or \code{"previfok"}).
-The default is \code{"current"}. See details.}
+The default is \code{"current"}. See section "Feedback initialisation
+methods" below}
 \item{\code{maxiter}}{the maximum number of iterations per period (default 50)}
 \item{\code{maxjacupd}}{the maximum number of Newton Jacobian updates per period
- (default is 10)}
- \item{\code{rlxspeed}}{}
- \item{\code{rlxmin}}{}
- \item{\code{rlxmax}}{}
- \item{\code{cstpbk}}{}
- \item{\code{cnmtrx}}{}
- \item{\code{xrelax}}{}
- \item{\code{xmaxiter}}{}
- \item{\code{xupdate}}{}
- \item{\code{dbgopt}}{}
- \item{\code{erropt}}{}
- \item{\code{report}}{}
- \item{\code{ratreport}}{}
- \item{\code{ratreport_rep}}{}
- \item{\code{bktmax}}{}
- \item{\code{xtfac}}{}
+ (default 10)}
+ \item{\code{rlxspeed}}{Newton relaxation shrinkage (default is 0.5)}
+ \item{\code{rlxmin}}{Minimum Newton relaxation factor (default is 0.05)}
+ \item{\code{rlxmax}}{Maximum Newton relaxation factor (default is 1.0)}
+ \item{\code{cstpbk}}{Stepback criterion (default is 1.3).
+If the convergence criterium \code{Fcrit} is larger
+than \code{cstpbk} or invalid feedback variables 
+have been obtained then the Newton step
+is not accepted and linesearching will be initiated. 
+If the linesearching procedure failed
+(\code{Fcrit} is still larger than \code{cstpbk}
+after the maximum number of linesearch steps \code{bktmax}
+has been reached or if the relaxation
+factor has become smaller than \code{rlxmin}), 
+a new Jacobian matrix is computed.  
+In each linesearch step the current relaxation factor is shrunk by 
+\code{rspeed}. 
+The relaxation factor is set to its maximum value
+\code{rlxmax}) when a new Jacobian has been calculated.
+}
+ \item{\code{cnmtrx}}{Recalculate matrix criterion (default is 0.9).
+If the convergence criterium \code{Fcrit} is larger
+than \code{cnmtrx} but smaller than \code{cstpbk},
+the Newton step is accepted but a new Jacobian is computed
+and the relaxation factor is set to its maximum value
+\code{rlxmax}.
+The new Jacobian is used in the next step. However, the 
+Jacobian will not be recalculated if the number of Jacobian updates
+in a period is larger than \code{maxjacupd}}
+ \item{\code{xrelax}}{Rational expectations relaxation factor (default is 1)}
+ \item{\code{xmaxiter}}{Maximum number of rational expectation iterations
+(default is 10)}
+ \item{\code{xupdate}}{Character string defining the method of updating
+leads. Possible values are \code{"fixed"} (the default) and \code{"lastval"}.
+For \code{"fixed"} the leads beyond the solution period
+are fixed at the initial values. For \code{"lastval"} leads beyond 
+the solution period take on the values from the last solution date}
+\item{\code{dbgopt}}{Character string defining the type of debugging output.
+See section "Debugging options" below}
+\item{\code{erropt}}{Character string defining the error handling when 
+invalid lags, leads and/or exogenous variables are detected.
+Possible values are \code{"stop"} (stop on errors) 
+and \code{cont} (continue on errors). The default is \code{"stop"}}
+\item{\code{report}}{Defines the type of computation progress report.
+See section "Report options" below}
+\item{\code{ratreport}}{Defines the type of rational expectations progress
+report. See section "Ratex report options" below}
+\item{\code{ratreport_rep}}{A numeric vector of length 2, specifying 
+Fair Taylor non-convergence report thresholds. See section
+"Ratex report options" below}
+\item{\code{bktmax}}{Maximum number of backtracking linesearch steps 
+with old jacobian. Sometimes it is necessary for the Broyden 
+method to take a shorter step than the standard step. This is called
+backtracking linesearch. \code{bktmax} is the maximum number of
+line search steps before a new Jacobian is computed}
+\item{\code{xtfac}}{Rational expectations convergence test multiplier
+When using the \code{"ratex"} solution mode,
+convergence of endogenous leads cannot be tested to the accuracy used in
+testing for convergence in the solution of the model.
+This option specifies the multiplier to apply to the convergence criterion
+for each endogenous variable if the variable has an endogenous lead.
+Suppose for example that some variable has a convergence criterion of $10^{-5}$
+and assume a value of 10 for the multiplier.
+Then its endogenous lead will be regarded as converged}
 }
 }
 
-\section{Details}{
+\section{Solution modes}{
 
 
-\strong{The solution mode}
-
-Argument \code{mode} can be used to specify the solution Mode. Possible
-values are:
+The solution mode can be specified with argument \code{mode}.
+Possible values are:
 \describe{
 \item{\code{"auto"}}{determine the solution mode automatically:
-\code{"ratex"} for models with endogenous leads}
-and \code{"dynamic"} for models without endogenous leads
+\code{"ratex"} for models with endogenous leads
+and \code{"dynamic"} for models without endogenous leads}
 \item{\code{"dynamic"}}{to update lags and current values of all
 right-hand side endogenous variables (leads are not updated). This is the
 default for models without endogenous leads}
@@ -88,6 +137,51 @@ If a model contains leads then the \code{"ratex"} mode is the
 default; this is a Fair-Taylor algorithm.
 
 The default is \code{"auto"}.
+}
+
+\section{Feedback initialisation methods}{
+
+
+Argument \code{fbstart} can be used to specify 
+the way how the feedback variables at the current period
+(i.e. the period for which the model is being solved)
+are initialised from the model data.
+Possible values of \code{fbstart} are:
+\describe{
+\item{\code{"current"}}{the initial values are always taken from the
+current period. This is the default}
+\item{\code{"previous"}}{The initial values are
+taken from the previous period except when the first period
+to be solved is the start of the model data period.
+In that case current period values are used}
+\item{\code{"curifok"}}{Current period
+values are used if they are valid otherwise previous period
+values are used}
+\item{\code{"previfok"}}{At the start of the solution
+period, previous period values will be used if they are available
+and valid; otherwise current period values will be used.
+Thereafter previous period initial values are always used, which is
+equivalent to the \code{"previous"} method}
+}
+The default is \code{"current"}.
+}
+
+\section{Debugging options}{
+
+
+TODO
+}
+
+\section{Report options}{
+
+
+TODO
+}
+
+\section{Ratex report options}{
+
+
+TODO
 }
 
 \examples{

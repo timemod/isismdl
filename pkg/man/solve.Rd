@@ -6,7 +6,10 @@
 \description{
 This method of R6 class \code{\link{IsisMdl}} solves
 the model.
-\code{IsisMdl} method: @section Usage:
+}
+\section{Usage}{
+
+\code{IsisMdl} method: 
 \preformatted{
 mdl$solve(period = mdl$get_period(), options = list(),
           fit_options = list()
@@ -15,6 +18,7 @@ mdl$solve(period = mdl$get_period(), options = list(),
 
 \code{mdl} is an \code{\link{IsisMdl}} object
 }
+
 \section{Arguments}{
 
 
@@ -22,12 +26,26 @@ mdl$solve(period = mdl$get_period(), options = list(),
 \item{\code{period}}{\code{\link[regts]{period_range}}
 object, or an object
 that can be coerced to \code{\link[regts]{period_range}}}
-\item{\code{optons}}{a list with solve options}
-\item{\code{fit_options}}{a list with options for the fit procedure}
+\item{\code{options}}{a named list with solve options,
+for example \code{list(maxiter = 50)}. 
+The names are the corresponding argument names of 
+method \code{\link{set_solve_options}}
+The specified options will only used in this call of
+{solve()} and will not be stored in the \code{IsisMdl} object}
+\item{\code{fit_options}}{a named list with options for the fit procedure,
+for example \code{list(maxiter = 10)}. 
+The names are the corresponding argument names of 
+method \code{\link{set_fit_options}}
+The specified options will only used in this call of
+{solve()} and will not be stored in the \code{IsisMdl} object}
 }
 }
 
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
-mdl$solve()
+mdl$solve(options = list(report = "fullrep"))
+}
+\seealso{
+\code{\link{set_solve_options}} and 
+\code{\link{set_fit_options}}
 }
