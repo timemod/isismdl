@@ -441,12 +441,18 @@ IsisMdl <- R6Class("IsisMdl",
       .Call(set_rms_c, private$model_index, values)
       return (invisible(self))
     },
-    set_solve_options = function(...) {
-      "Set  the default solve options"
-      opts <- list(...)
-      private$check_options(opts, is_argument_list = TRUE,
-                            type = "solve_options")
-      .Call("set_solve_opts_c", private$model_index, opts)
+    set_solve_options = function(mode, fbstart, maxiter, maxjacupd, rlxspeed,
+                                 rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
+                                 xmaxiter, xupdate, dbgopt, erropt,
+                                 report, ratreport, ratreport_rep, bktmax,
+                                 xtfac) {
+
+      # create a list of supplied options
+      names <- names(match.call()[-1])
+      options <- lapply(names, FUN = function(x) {eval(parse(text = x))})
+      names(options) <- names
+
+      .Call("set_solve_opts_c", private$model_index, options)
       return (invisible(self))
     },
     set_fit_options = function(...) {

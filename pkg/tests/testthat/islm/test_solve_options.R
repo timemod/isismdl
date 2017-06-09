@@ -29,12 +29,9 @@ test_that("get_solve_options / set_solve_options", {
 
 test_that("errors", {
 
-  msg <- "The solve_options should be specified as named arguments"
+  msg <- "Illegal value xxx for option mode"
   expect_error(islm_model$set_solve_options("xxx"), msg)
   expect_error(islm_model$set_solve_options("xxx",  maxiter = 2), msg)
-
-  msg <- "Unknown solve option x"
-  expect_error(islm_model$set_solve_options(x = "xxx"), msg)
 
   msg <- "Illegal value xxx for option report"
   expect_error(islm_model$set_solve_options(report = "xxx"), msg)

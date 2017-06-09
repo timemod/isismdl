@@ -630,22 +630,87 @@ NULL
 #' @name set_solve_options
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}}
-#' sets the solve options.
+#' This method of R6 class \code{\link{IsisMdl}} can be used to set one or more
+#' solve options.
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_solve_options(...)
-#'
+#' mdl$set_solve_options(mode, fbstart, maxiter, maxjacupd, rlxspeed,
+#'                       rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
+#'                       xmaxiter, xupdate, dbgopt, erropt,
+#'                       report, ratreport, ratreport_rep, bktmax,
+#'                       xtfac)
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 #'
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{...}}{the solve options, as named arguments (TODO: document
-#' the possible options)}
+#' \item{\code{mode}}{a character string specifying the solution mode
+#' (\code{"auto"}, \code{"ratex"}, \code{"dynamic"}, \code{"reschk"},
+#' \code{"backward"} or \code{"static"}). \code{"auto"} is the default.
+#' See details.}
+#' \item{\code{fbstart}}{a character string specifying
+#' the method of initialising feedback values.
+#' (\code{"current"}, \code{"previous"}, \code{"curifok"} or \code{"previfok"}).
+#' The default is \code{"current"}. See details.}
+#' \item{\code{maxiter}}{the maximum number of iterations per period (default 50)}
+#' \item{\code{maxjacupd}}{the maximum number of Newton Jacobian updates per period
+#'  (default is 10)}
+#'  \item{\code{rlxspeed}}{}
+#'  \item{\code{rlxmin}}{}
+#'  \item{\code{rlxmax}}{}
+#'  \item{\code{cstpbk}}{}
+#'  \item{\code{cnmtrx}}{}
+#'  \item{\code{xrelax}}{}
+#'  \item{\code{xmaxiter}}{}
+#'  \item{\code{xupdate}}{}
+#'  \item{\code{dbgopt}}{}
+#'  \item{\code{erropt}}{}
+#'  \item{\code{report}}{}
+#'  \item{\code{ratreport}}{}
+#'  \item{\code{ratreport_rep}}{}
+#'  \item{\code{bktmax}}{}
+#'  \item{\code{xtfac}}{}
 #' }
+#'
+#' @section Details:
+#'
+#' \strong{The solution mode}
+#'
+#' Argument \code{mode} can be used to specify the solution Mode. Possible
+#' values are:
+#' \describe{
+#' \item{\code{"auto"}}{determine the solution mode automatically:
+#' \code{"ratex"} for models with endogenous leads}
+#' and \code{"dynamic"} for models without endogenous leads
+#' \item{\code{"dynamic"}}{to update lags and current values of all
+#' right-hand side endogenous variables (leads are not updated). This is the
+#' default for models without endogenous leads}
+#' \item{\code{"ratex"}}{to update lags, leads and current values of all
+#' right-hand side endogenous variables. This is the default mode
+#' for models with endogenous leads.
+#' The model is solved in dynamic mode for all periods conditional
+#' on the endogenous right-hand side leads. After solving for the complete
+#' solution period the endogenous leads are updated with the the results
+#' for the corresponding endogenous variables. The solution process thus consists
+#' of an two loops: an inner loop solving the model  for all periods given the leads and
+#' an outer loop which solves for the endogenous leads}
+#' \item{\code{"static"}}{to update only current values of right-hand side
+#' endogenous variables lags and leads are not modified}
+#' \item{\code{"reschk"}}{to not update right-hand side
+#' endogenous variables from the solution}
+#' \item{\code{"backward"}}{same as dynamic, except that the model is solved
+#' backwards. The model is solved in reversed order by starting at the last
+#' solution period and ending at the first solution period. Leads are updated
+#' and lags are not updated}
+#' }
+#' If a model contains leads then the \code{"ratex"} mode is the
+#' default; this is a Fair-Taylor algorithm.
+#'
+
+#' The default is \code{"auto"}.
+#'
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$set_solve_options(maxiter = 100)
