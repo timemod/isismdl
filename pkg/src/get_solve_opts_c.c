@@ -6,7 +6,7 @@
 #include "solve_options.h"
 #include "init_set_get_options.h"
 
-#define N_OPTS 19
+#define N_OPTS 20
 
 extern void F77_CALL(get_solve_options)(int *imode, int *istart, int *maxit, 
               int *maxmat, double *rlxspeed, double *rlxmin, double *rlxmax, 
@@ -59,12 +59,8 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
     add_option("erropt",    PROTECT(mkString(get_erropt_text(erropt))));
     add_option("report",    PROTECT(mkString(get_repopt_text(repopt))));
     add_option("ratreport", PROTECT(mkString(get_ratrepopt_text(ratrepopt))));
-    
-    /* ratreport_rep */
-    SEXP ratrep = PROTECT(allocVector(REALSXP, 2));
-    REAL(ratrep)[0] = ratreport_rep;
-    REAL(ratrep)[1] = ratfullreport_rep;
-    add_option("ratreport_rep", ratrep);
+    add_option("ratreport_rep",  PROTECT(ScalarInteger(ratreport_rep)));
+    add_option("ratfullreport_rep",  PROTECT(ScalarInteger(ratfullreport_rep)));
 
     add_debug_option();
 

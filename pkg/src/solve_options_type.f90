@@ -101,6 +101,7 @@ contains
         use model_type
         use scalemat
         use nucnst, only : Rmeps
+        use nuna, only : NA_INTEGER
         type(solve_options), intent(out) :: options
         options%mode = "?"
         options%method = "?"
@@ -136,7 +137,7 @@ contains
         ! ratex (Fair-Taylor) options
         options%ratrepopt = RATREP_ITER
         options%ratreport_rep = 1
-        options%ratfullreport_rep = 1
+        options%ratfullreport_rep = NA_INTEGER
         options%xrelax = 1.0_ISIS_RKIND
         options%mratex = 10
         options%xtfac = 10.0_ISIS_RKIND

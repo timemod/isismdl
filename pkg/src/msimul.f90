@@ -146,7 +146,7 @@ use msratop
 !     0     if all ok
 
 integer ::  ndiver, retcod
-integer ::  usedat, iratex, noncvg, imax, jmax
+integer ::  usedat, iratex, noncvg, imax, jmax, ratfullrep
 
 real(kind = SOLVE_RKIND) :: xomax, xnmax, dismax
 
@@ -157,6 +157,12 @@ elseif (opts%start == 'D') then
     usedat = 2
 else
     usedat = 0
+endif
+
+if (opts%ratfullreport_rep == NA_INTEGER) then
+    ratfullrep = opts%ratreport_rep
+else
+    ratfullrep = opts%ratfullreport_rep
 endif
 
 do iratex = 1, opts%mratex
@@ -188,12 +194,11 @@ do iratex = 1, opts%mratex
        ! no convergence; print a message if required
        if (opts%ratrepopt /= RATOPT_MINIMAL .and. &
           ((mod(iratex, opts%ratreport_rep)   == 0)  .or. &
-           (mod(iratex, opts%ratfullreport_rep) == 0)))  then
+           (mod(iratex, ratfullrep) == 0)))  then
            call simox2(iratex, noncvg)
        endif
-       if ((opts%ratrepopt == RATOPT_FULLREP  &
-            .or. opts%ratrepopt == RATOPT_FULLREPSCRN) &
-              .and. mod(iratex, opts%ratfullreport_rep) == 0) then
+       if (opts%ratrepopt == RATOPT_FULLREP .and. &
+           mod(iratex, ratfullrep) == 0) then
            call simox4(jmax, imax, xomax, xnmax, dismax)
        endif
        if (iratex /= opts%mratex ) then

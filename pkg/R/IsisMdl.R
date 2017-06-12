@@ -444,8 +444,8 @@ IsisMdl <- R6Class("IsisMdl",
     set_solve_options = function(mode, fbstart, maxiter, maxjacupd, rlxspeed,
                                  rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
                                  xmaxiter, xupdate, dbgopt, erropt,
-                                 report, ratreport, ratreport_rep, bktmax,
-                                 xtfac) {
+                                 report, ratreport, ratreport_rep,
+                                 ratfullreport_rep, bktmax, xtfac) {
 
       # create a list of supplied options
       names <- names(match.call()[-1])
