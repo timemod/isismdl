@@ -78,4 +78,10 @@ mdl$set_eq_status("inactive", names = c("c", "i"))
 
 # deactivate all equations starting with "y" ("y" and "yd")
 mdl$set_eq_status("inactive", pattern = "^y*")
+
+# print all deactivated equations
+print(mdl$get_eq_names(type = "inactive"))
+}
+\seealso{
+\code{\link{get_eq_names}}
 }

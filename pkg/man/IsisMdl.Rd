@@ -113,9 +113,6 @@ variables}
 \item{\code{\link{set_eq_status}}}{Sets the equation status 
 \code{"active"} or \code{"inactive")}}
 
-\item{\code{\link{set_eq_status}}}{}{Returns the equation status 
-\code{"active"} or \code{"inactive")}}
-
 \item{\code{\link{set_ftrelax}}}{Sets the Fair-Taylor relaxtion factors}
 
 \item{\code{\link{get_ftrelax}}}{Returns the Fair-Taylor relaxtion factors}

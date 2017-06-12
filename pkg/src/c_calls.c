@@ -18,7 +18,8 @@
 #define FIT   4
 
 #define ALL_EQ      1
-#define INACTIVE_EQ 2
+#define ACTIVE_EQ   2
+#define INACTIVE_EQ 3
 
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
@@ -169,6 +170,8 @@ SEXP get_eq_names_c(SEXP type_, SEXP model_index_, SEXP order_) {
     int type;
     if (strcmp(type_str, "all") == 0) {
         type = ALL_EQ;
+    } else if (strcmp(type_str, "active") == 0) {
+        type = ACTIVE_EQ;
     } else if (strcmp(type_str, "inactive") == 0) {
         type = INACTIVE_EQ;
     } else {
@@ -188,8 +191,10 @@ SEXP get_eq_names_c(SEXP type_, SEXP model_index_, SEXP order_) {
         if (ieq <= 0) {
             continue;
         }
-        if (type == INACTIVE_EQ) {
-            ok = ! F77_CALL(equation_is_active)(&model_index, &ieq, &alphabet);
+        if (type == ACTIVE_EQ || type == INACTIVE_EQ) {
+            int is_active = F77_CALL(equation_is_active)(&model_index, &ieq, 
+                                                         &alphabet);
+            ok = type == ACTIVE_EQ ? is_active : !is_active;
         } else {
             ok = 1;
         }

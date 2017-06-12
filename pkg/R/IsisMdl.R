@@ -168,9 +168,6 @@ setOldClass("period_range")
 #' \item{\code{\link{set_eq_status}}}{Sets the equation status 
 #' \code{"active"} or \code{"inactive")}}
 #'
-#' \item{\code{\link{get_eq_status}}}{}{Returns the equation status 
-#' \code{"active"} or \code{"inactive")}}
-#'
 #' \item{\code{\link{set_ftrelax}}}{Sets the Fair-Taylor relaxtion factors}
 #'
 #' \item{\code{\link{get_ftrelax}}}{Returns the Fair-Taylor relaxtion factors}
@@ -262,8 +259,10 @@ IsisMdl <- R6Class("IsisMdl",
       }
       return (names)
     },
-    get_eq_names = function(pattern = ".*", type = "all",
+    get_eq_names = function(pattern = ".*", 
+                            type = c("all", "active", "inactive"),
                             order = c("sorted", "solve", "natural")) {
+      type  <- match.arg(type)
       order <- match.arg(order)
       names <- .Call("get_eq_names_c", type, private$model_index, order)
       if (!missing(pattern)) {
