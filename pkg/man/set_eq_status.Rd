@@ -48,7 +48,7 @@ endogenous leads and therefore the default solution mode will be
 \section{Usage}{
 
 \preformatted{
-mdl$set_eq_status(pattern, names, status =  c("active", "inactive"))
+mdl$set_eq_status(status =  c("active", "inactive"), pattern, names)
 
 }
 
@@ -59,12 +59,23 @@ mdl$set_eq_status(pattern, names, status =  c("active", "inactive"))
 
 
 \describe{
-\item{\code{pattern}}{a regular expression}
-\item{\code{status}}{the equation states (all or inactive)}
+\item{\code{status}}{a character string specifying
+the equation status (\code{"active"} or code{"inactive"})}
+\item{\code{pattern}}{a regular expression specifying the names
+of the equations}
+\item{\code{names}}{a character vector with the names of the equations}
 }
-
 
 If neither \code{pattern} nor \code{status} have been specified,
 then all equations will be activated or deactivated.
 }
 
+\examples{
+mdl <- islm_mdl()
+
+# deactivate equation "c" and "i"
+mdl$set_eq_status("inactive", names = c("c", "i"))
+
+# deactivate all equations starting with "y" ("y" and "yd")
+mdl$set_eq_status("inactive", pattern = "^y*")
+}

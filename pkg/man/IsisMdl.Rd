@@ -104,6 +104,22 @@ applying a function}
 
 \item{\code{\link{set_solve_options}}}{Sets the solve options}
 
+\item{\code{\link{set_cvgcrit}}}{Sets the convergence criterion for selected
+variables}
+
+\item{\code{\link{set_cvgcrit}}}{Returns the convergence criterion for selected
+variables}
+
+\item{\code{\link{set_eq_status}}}{Sets the equation status 
+\code{"active"} or \code{"inactive")}}
+
+\item{\code{\link{set_eq_status}}}{}{Returns the equation status 
+\code{"active"} or \code{"inactive")}}
+
+\item{\code{\link{set_ftrelax}}}{Sets the Fair-Taylor relaxtion factors}
+
+\item{\code{\link{get_ftrelax}}}{Returns the Fair-Taylor relaxtion factors}
+
 \item{\code{\link{solve}}}{Solves the model}
 
 \item{\code{\link{fill_mdl_data}}}{Calculates missing model

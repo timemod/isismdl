@@ -4,7 +4,7 @@ module nuna
     ! constant for holding missing values.
     ! the constant should be initialised once.
     real(kind = ISIS_RKIND), save :: NA = -1.0_ISIS_RKIND
-    integer(kind = ISIS_IKIND), save :: NA_INTEGER = -1.0_ISIS_IKIND
+    integer(kind = ISIS_IKIND), save :: NA_INTEGER = -1_ISIS_IKIND
 
     contains
 

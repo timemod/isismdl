@@ -159,6 +159,22 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{set_solve_options}}}{Sets the solve options}
 #'
+#' \item{\code{\link{set_cvgcrit}}}{Sets the convergence criterion for selected
+#' variables}
+#'
+#' \item{\code{\link{set_cvgcrit}}}{Returns the convergence criterion for selected
+#' variables}
+#'
+#' \item{\code{\link{set_eq_status}}}{Sets the equation status 
+#' \code{"active"} or \code{"inactive")}}
+#'
+#' \item{\code{\link{get_eq_status}}}{}{Returns the equation status 
+#' \code{"active"} or \code{"inactive")}}
+#'
+#' \item{\code{\link{set_ftrelax}}}{Sets the Fair-Taylor relaxtion factors}
+#'
+#' \item{\code{\link{get_ftrelax}}}{Returns the Fair-Taylor relaxtion factors}
+#'
 #' \item{\code{\link{solve}}}{Solves the model}
 #'
 #' \item{\code{\link{fill_mdl_data}}}{Calculates missing model
@@ -215,9 +231,11 @@ IsisMdl <- R6Class("IsisMdl",
     get_maxlead = function() {
       return(private$maxlead)
     },
-    get_var_names = function(pattern = ".*", vtype = "all") {
-      if  (vtype != "all") {
-        names <- .Call(get_var_names_c, vtype, private$model_index)
+    get_var_names = function(pattern = ".*", 
+                             type = c("all", "allfrml", "all_endolead")) {
+      type <- match.arg(type)
+      if  (type != "all") {
+        names <- .Call(get_var_names_c, type, private$model_index)
       } else {
         names <- private$var_names
       }
@@ -225,10 +243,10 @@ IsisMdl <- R6Class("IsisMdl",
         sel <- grep(pattern, names)
         names <- names[sel]
       }
-      if (vtype == "allfrml" || vtype == "all_endolead") {
+      if (type == "allfrml" || type == "all_endolead") {
         names <- sort(names)
       }
-      return (names)
+      return(names)
     },
     set_labels = function(labels) {
       private$update_labels(labels)
@@ -383,12 +401,12 @@ IsisMdl <- R6Class("IsisMdl",
       if (is.null(private$model_period)) stop(private$period_error_msg)
       period <- as.period_range(period)
       if (missing(pattern) && missing(names)) {
-        names <- self$get_var_names(vtype = "allfrml")
+        names <- self$get_var_names(type = "allfrml")
       } else if (missing(names)) {
-        names <- self$get_var_names(pattern, vtype = "allfrml")
+        names <- self$get_var_names(pattern, type = "allfrml")
       } else if (!missing(pattern)) {
         names <- union(names,
-                       self$get_var_names(pattern, vtype = "allfrml"))
+                       self$get_var_names(pattern, type = "allfrml"))
       }
       if (length(names) == 0) {
         return(NULL)
@@ -542,9 +560,9 @@ IsisMdl <- R6Class("IsisMdl",
     set_ftrelax = function(value, pattern, names) {
       "Sets the Fair-Taylor relaxation criterion."
       if (missing(pattern) && missing(names)) {
-        names <- self$get_var_names(vtype = "all_endolead")
+        names <- self$get_var_names(type = "all_endolead")
       } else if (!missing(pattern)) {
-        pvars <- self$get_var_names(pattern, vtype = "all_endolead")
+        pvars <- self$get_var_names(pattern, type = "all_endolead")
         if (!missing(names)) {
           names <- union(pvars, names)
         } else {
@@ -566,11 +584,11 @@ IsisMdl <- R6Class("IsisMdl",
       sorted_names <- sort(names(values))
       return (values[sorted_names])
     },
-    set_eq_status = function(stat, pattern, names) {
+    set_eq_status = function(status = c("active", "inactive"), 
+                             pattern, names) {
       "Activate or deactivate equations"
 
-      # TODO: if vars specified, then check if it contains
-      # names that are no model variables
+      status <- match.arg(status)
 
       if (missing(pattern) && missing(names)) {
         names <- self$get_eq_names()
@@ -582,11 +600,11 @@ IsisMdl <- R6Class("IsisMdl",
           names <- pvars
         }
       }
-      if (!is.character(stat) || length(stat) != 1) {
-        stop("value should be a single character value")
-      }
-      .Call("set_eq_status_c", private$model_index, names, stat);
-      return  (invisible(self))
+
+      # TODO: if names specified, then check if it contains
+      # names that are no model variables
+      .Call("set_eq_status_c", private$model_index, names, status);
+      return(invisible(self))
     },
     mdlpas = function(period = private$model_period) {
       "Run all equations of the model in solution order forwards in time"

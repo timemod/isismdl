@@ -36,7 +36,19 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the names of
-#' the model variables
+#' the model variables. By default, the function returns all variable
+#' names. Argument \code{pattern} can be specified to select only
+#' variables with names matching a regular expression. Argument \code{type}
+#' can be specified to select variables with a specific type.
+#' The following types are supported
+#' \describe{
+#' \item{\code{"allfrml"}}{all stochastic variables (both active and inactive).
+#' Stochastic variables are variables that occur on the left hand side
+#' of frml equations}
+#' \item{\code{"all_endolead"}}{all variables with endogenous leads
+#' (both active and inactive)}
+#' \item{\code{"all"}}{all variables}
+#' }
 #'
 #' @section Usage:
 #' \preformatted{
@@ -50,9 +62,19 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{pattern}}{a regular expression}
-#' \item{\code{type}}{the variable type}
+#' \item{\code{pattern}}{a regular expression specifying variable names}
+#' \item{\code{type}}{a character string specifying the variable type. See
+#' the description above}
 #' }
+#' 
+#' @examples
+#' mdl <- islm_mdl()
+#'
+#' # get the names of all stochastic variables
+#' mdl$get_var_names(type = "allfrml")
+#'
+#' # get all variables with names starting with "y":
+#' mdl$get_var_names(pattern = "^y.*")
 NULL
 
 #' \code{\link{IsisMdl}} method: Sets labels for the model variables.
@@ -174,7 +196,7 @@ NULL
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_eq_status(pattern, names, status =  c("active", "inactive"))
+#' mdl$set_eq_status(status =  c("active", "inactive"), pattern, names)
 #'
 #' }
 #'
@@ -183,13 +205,23 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{pattern}}{a regular expression}
-#' \item{\code{status}}{the equation states (all or inactive)}
+#' \item{\code{status}}{a character string specifying
+#' the equation status (\code{"active"} or code{"inactive"})}
+#' \item{\code{pattern}}{a regular expression specifying the names
+#' of the equations}
+#' \item{\code{names}}{a character vector with the names of the equations}
 #' }
-#'
 #'
 #' If neither \code{pattern} nor \code{status} have been specified,
 #' then all equations will be activated or deactivated.
+#' @examples
+#' mdl <- islm_mdl()
+#'
+#' # deactivate equation "c" and "i"
+#' mdl$set_eq_status("inactive", names = c("c", "i"))
+#' 
+#' # deactivate all equations starting with "y" ("y" and "yd")
+#' mdl$set_eq_status("inactive", pattern = "^y*")
 NULL
 
 #' \code{\link{IsisMdl}} method: sets the model period
@@ -726,13 +758,9 @@ NULL
 #' \item{\code{ratreport_rep}}{An integer number specifying
 #' the Fair-Taylor report repetition count.
 #' See Section "Ratex report options" below}
-#' argument \code{ratreport} is \code{"minimal"}.
 #' \item{\code{ratfullreport_rep}}{An integer number, specifying
 #' the Fair-Taylor full report repetition count. See Section 
 #' "Ratex report options" below}
-#'
-#' The number of not converged expectation values is printed every \code{ratrep}
-#' Fair Taylor iteration. The default is 1. This option is ignored if 
 #' \item{\code{bktmax}}{Maximum number of backtracking linesearch steps 
 #' with old jacobian. Sometimes it is necessary for the Broyden 
 #' method to take a shorter step than the standard step. This is called
@@ -940,6 +968,116 @@ NULL
 #' @seealso
 #' \code{\link{set_labels}}
 NULL
+
+#' \code{\link{IsisMdl}} method: Sets the convergence criterion for selected
+#' variables.
+#' @name set_cvgcrit
+#' @aliases get_cvgcrit
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} sets the
+#' convergence criterion for one or more endogenous model variables.
+#' A variable \eqn{x} has converged when two
+#' successive values \eqn{x_2} and
+#' \eqn{x_1} satisfy the following
+#' condition 
+#' \deqn{|x_2 - x_1| \le \epsilon \max(1,|x_1|)}
+#' where \eqn{\epsilon} is
+#' the convergence criterion for the tested
+#' variable.
+#' 
+#' The default value of \eqn{\epsilon} for all variables
+#' is the square root of the machine precision
+#' (\code{sqrt(.Machine$double.eps)}, typically about \code{1.5e-8})
+#' 
+#' Method \code{get_cvgcrit()} returns
+#' the convergence criteria for all model variables
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_cvgcrit(value, pattern, names) 
+#'
+#' mdl$get_cvgcrit()
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{value}}{convergence criterion. This must be 
+#' a small positive number}
+#' \item{\code{pattern}}{a regular expression specifying the
+#' variable names}
+#' \item{\code{names}}{a character vector with variable names}
+#' }
+#'
+#' If neither \code{pattern} nor \code{names} have been specified,
+#' then the convergence criterion of all endogenous variables
+#' will be set to the specified value.
+#'
+#' @examples
+#' mdl <- islm_mdl()
+#'
+#' # set convergence criterion for variables "c" and "i":
+#' mdl$set_cvgcrit(1e-4, names = c("c", "i"))
+#' 
+#' # set convergence criterion for variables "y" and "yd":
+#' mdl$set_cvgcrit(1e-4, pattern = "^y*")
+#'
+#' print(mdl$get_cvgcrit())
+NULL
+
+#' \code{\link{IsisMdl}} method: Sets the Fair-Taylor relaxtion factors
+#' @name set_ftrelax
+#' @aliases get_ftrelax
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} sets the
+#' Fair-Taylor relaxtion factors for the endogenous leads.
+#' 
+#' Method \code{get_ftrelax()} returns
+#' the Fair-Taylor relaxtion factors
+#' for all endogenous leads.
+#' @section Usage:
+#' \preformatted{
+#' mdl$set_ftrelaxvalue, pattern, names) 
+#'
+#' mdl$get_ftrelax()
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{value}}{Fair-Taylor relaxtion number.
+#' This must be a positive number or \code{NA} to disable any previously set value.
+#' The default value for all endogenous leads is \code{NA}, which means that
+#' the general uniform Fair-taylor relaxation 
+#' (solve option \code{ftrelax}, see \code{\link{set_solve_options}})
+#' will be applied}
+#' \item{\code{pattern}}{a regular expression specifying the
+#' variable names}
+#' \item{\code{names}}{a character vector with variable names}
+#' }
+#'
+#' If neither \code{pattern} nor \code{names} have been specified,
+#' then the Fair-Taylor relaxtion factors of all variables
+#' with endogenous leads will be set to the specified values.
+#'
+#' @examples
+#' mdl <- ifn_mdl()
+#'
+#' # set Fair-relaxtion factor all all variables with names of length 2 
+#' # to 0.8:
+#' mdl$set_ftrelax(0.5, pattern = "^..$")
+#'
+#' # set Fair-relaxtion factor for variable "lambda":
+#' mdl$set_ftrelax(0.5, names = "lambda")
+#' 
+#' print(mdl$get_ftrelax())
+NULL
+
 
 #' \code{\link{IsisMdl}} method: Sets the model parameters
 #' @name set_param

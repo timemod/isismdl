@@ -90,13 +90,9 @@ report. See section "Ratex report options" below}
 \item{\code{ratreport_rep}}{An integer number specifying
 the Fair-Taylor report repetition count.
 See Section "Ratex report options" below}
-argument \code{ratreport} is \code{"minimal"}.
 \item{\code{ratfullreport_rep}}{An integer number, specifying
 the Fair-Taylor full report repetition count. See Section 
 "Ratex report options" below}
-
-The number of not converged expectation values is printed every \code{ratrep}
-Fair Taylor iteration. The default is 1. This option is ignored if 
 \item{\code{bktmax}}{Maximum number of backtracking linesearch steps 
 with old jacobian. Sometimes it is necessary for the Broyden 
 method to take a shorter step than the standard step. This is called
