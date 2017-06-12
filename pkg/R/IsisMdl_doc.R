@@ -651,8 +651,8 @@ NULL
 #' mdl$set_solve_options(mode, fbstart, maxiter, maxjacupd, rlxspeed,
 #'                       rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
 #'                       xmaxiter, xupdate, dbgopt, erropt,
-#'                       report, ratreport, ratreport_rep, bktmax,
-#'                       xtfac)
+#'                       report, ratreport, ratreport_rep, ratfullreport_rep,
+#'                       bktmax, xtfac)
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 #'
@@ -723,9 +723,16 @@ NULL
 #' \code{"no"}  (for no report). The default is \code{"period"}}
 #' \item{\code{ratreport}}{Defines the type of rational expectations progress
 #' report. See section "Ratex report options" below}
-#' \item{\code{ratreport_rep}}{A numeric vector of length 2, specifying 
-#' Fair Taylor non-convergence report thresholds. See section
+#' \item{\code{ratreport_rep}}{An integer number specifying
+#' the Fair-Taylor report repetition count.
+#' See Section "Ratex report options" below}
+#' argument \code{ratreport} is \code{"minimal"}.
+#' \item{\code{ratfullreport_rep}}{An integer number, specifying
+#' the Fair-Taylor full report repetition count. See Section 
 #' "Ratex report options" below}
+#'
+#' The number of not converged expectation values is printed every \code{ratrep}
+#' Fair Taylor iteration. The default is 1. This option is ignored if 
 #' \item{\code{bktmax}}{Maximum number of backtracking linesearch steps 
 #' with old jacobian. Sometimes it is necessary for the Broyden 
 #' method to take a shorter step than the standard step. This is called
@@ -829,7 +836,29 @@ NULL
 
 #' @section Ratex report options:
 #'
-#' TODO
+#' The type of report is determined by argument \code{ratreport}.
+#' Arguments \code{ratreport_rep} (the report repetion count)
+#' and \code{ratfullreport_rep} (the full report repetition count),
+#' both specified as integer numbers,
+#' can be used to futher modify the progress report.
+#'
+#' Possible values for \code{ratreport} are
+#' \describe{
+#' \item{\code{"iter"}}{print the number of not converged 
+#' expectation values every \code{ratreport_rep} Fair Taylor iteration
+#' (the default)}
+#' \item{\code{"fullrep"}}{full report. The number of not converged 
+#' expectation values is printed every \code{ratreport_rep} Fair Taylor
+#'  iteration and the largest remaining discrepancy every 
+#' \code{ratfullreport_rep} Fair Taylor iteration}
+#' \item{\code{"minimal"}}{for a full report only after the last Fair Taylor
+#' iteration}
+#' }
+#' 
+#' If \code{ratfullreport_rep} is \code{NA}, then the full report
+#' is printed every \code{ratreport_rep} Fair-Taylor iteration.
+#' The default values for \code{ratreport_rep}  and \code{ratfullreport_rep}
+#' are 1 and \code{NA}, respectively.
 #'
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")

@@ -58,11 +58,12 @@ test_that("errors", {
   msg <- "rlxmin should be smaller than or equal to 1"
   expect_error(islm_model$set_solve_options(rlxmin = 2))
 
-  msg <- "ratreport_rep should be a numeric vector"
+  msg <- "ratreport_rep should be an integer"
   expect_error(islm_model$set_solve_options(ratreport_rep = "jan"), msg)
 
-  msg <- "ratreport_rep should not contain NA values"
-  expect_error(islm_model$set_solve_options(ratreport_rep = c(1, NA)), msg)
+  msg <- "ratreport_rep should not be NA"
+  expect_error(islm_model$set_solve_options(ratreport_rep = NA), msg)
+  expect_silent(islm_model$set_solve_options(ratfullreport_rep = NA))
 
   msg <- "rlxmin is smaller than rlxmax"
   expect_error(islm_model$set_solve_options(rlxmin = 0.4, rlxmax = 0.2), msg)

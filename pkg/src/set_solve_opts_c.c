@@ -27,7 +27,8 @@ extern void F77_SUB(set_solve_dbgopts)(int *, int *, int *, int *, int *, int *)
 extern void F77_SUB(set_erropt)(int *);
 extern void F77_SUB(set_repopt)(int *);
 extern void F77_SUB(set_ratrepopt)(int *);
-extern void F77_SUB(set_ratreport_rep)(int *, int *);
+extern void F77_SUB(set_ratreport_rep)(int *);
+extern void F77_SUB(set_ratfullreport_rep)(int *);
 extern void F77_SUB(set_bktmax)(int *);
 extern void F77_SUB(set_xtfac)(double *);
 
@@ -179,19 +180,27 @@ static void set_option(const char *name, SEXP value) {
         i = get_ratrepopt(name, CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_ratrepopt)(&i);
     } else if (!strcmp(name, "ratreport_rep")) {
+        CHECK_LENGTH(name, value);
+        i = get_non_negative_int(name, value);
+        F77_CALL(set_ratreport_rep)(&i);
+    } else if (!strcmp(name, "ratfullreport_rep")) {
+        CHECK_LENGTH(name, value);
+        const char *msg = "%s should be an integer";
         if (!isNumeric(value)) {
-            error("%s should be a numeric vector", name);
-        } else if (!(length(value) == 1 || length(value) == 2)) {
-            error("The value for option %s should have length 1 or 2", name); \
+            error(msg, name); 
         }
-        SEXP ival = PROTECT(coerceVector(value, INTSXP));
-        int rep = INTEGER(ival)[0];
-        int repfull = (length(value) == 2) ? INTEGER(ival)[1] : rep;
-        if (rep == NA_INTEGER || repfull == NA_INTEGER) {
-            error("%s should not contain NA values", name);
+        int i = asInteger(value);
+        if (i != NA_INTEGER) {
+            if (i < 0) {
+                error("%s should be a non-negative integer", name); 
+            } 
+            if (!isInteger(value)) {
+                if (i != asReal(value)) {
+                    error(msg, name); 
+                }
+            }
         }
-        F77_CALL(set_ratreport_rep)(&rep, &repfull);
-        UNPROTECT(1);
+        F77_CALL(set_ratfullreport_rep)(&i);
     } else if (!strcmp(name, "bktmax")) {
         CHECK_LENGTH(name, value);
         i = get_non_negative_int(name, value);

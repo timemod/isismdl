@@ -96,13 +96,19 @@ subroutine set_ratrepopt(ratrepopt)
     options_set%ratrepopt = ratrepopt
 end subroutine set_ratrepopt
 
-subroutine set_ratreport_rep(rep, repfull)
+subroutine set_ratreport_rep(rep)
     use set_options
     use iso_c_binding, only : c_int
-    integer(c_int), intent(in) :: rep, repfull
+    integer(c_int), intent(in) :: rep
     options_set%ratreport_rep     = rep
-    options_set%ratfullreport_rep = repfull
 end subroutine set_ratreport_rep
+
+subroutine set_ratfullreport_rep(rep)
+    use set_options
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: rep
+    options_set%ratfullreport_rep = rep
+end subroutine set_ratfullreport_rep
 
 subroutine set_bktmax(bktmax)
     use set_options
@@ -146,4 +152,5 @@ subroutine check_options
     if (options_set%rlxmin > options_set%rlxmax) then
         call isismdl_error("rlxmin is smaller than rlxmax")
     endif
+
 end subroutine check_options
