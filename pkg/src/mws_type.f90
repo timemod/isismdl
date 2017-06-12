@@ -404,6 +404,22 @@ module mws_type
 
         end subroutine set_rms
 
+        logical function has_rms(mws) 
+            type(modelworkspace), intent(in) :: mws
+            has_rms = allocated(mws%rmsu)
+        end function has_rms
+
+        subroutine get_rms(mws, values)
+            type(modelworkspace), intent(in) :: mws
+            real(kind = MWS_RKIND), intent(out) :: values(1:mws%mdl%nca)
+    
+            if (.not. has_rms(mws)) then
+                values = NA
+            else
+                values = mws%rmsu
+            endif
+        end subroutine get_rms
+
         subroutine mknumu(mws, numu, numr, nu)
             use nucnst
             type(modelworkspace), intent(in) :: mws 

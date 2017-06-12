@@ -53,6 +53,8 @@ extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp,
                                      int *report_type);
 extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index,
                                       double *value);
+extern int F77_NAME(has_rms_fortran)(int *mws_index);
+extern void F77_NAME(get_rms_fortran)(int *mws_index, double *values);
 extern void F77_NAME(set_test)(int *mws_index, int *var_index, double *value);
 extern double F77_NAME(get_test)(int *mws_index, int *var_index, int *alphabet);
 extern void F77_NAME(activate_equation)(int *mws_index, int *var_index);
@@ -454,6 +456,19 @@ void set_rms_c(SEXP mws_index_, SEXP values) {
         double value = REAL(values)[i];
         F77_NAME(set_rms_fortran)(&mws_index, &iv, &value);
     }
+} 
+
+SEXP get_rms_c(SEXP mws_index_) {
+    int mws_index = asInteger(mws_index_);
+    if (!F77_CALL(has_rms_fortran)(&mws_index)) {
+        return R_NilValue;
+    } else {
+        int n = F77_CALL(get_ca_count)(&mws_index);
+        SEXP ret = PROTECT(allocVector(REALSXP, n));
+        F77_CALL(get_rms_fortran)(&mws_index, REAL(ret));
+        UNPROTECT(1);
+        return ret;
+    }
 }
 
 void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,
@@ -515,10 +530,10 @@ void set_cvgcrit_c(SEXP mws_index_, SEXP names, SEXP value_) {
     }
 }
 
-/* Sets convergence criterium for all model variables, used in set_mws.
+/* Sets convergence criterium for all model variables, used in init_mws.
  * values is a vector with convergence criteria for the model variables
  * in natural (i.e. non-alphabetical) order */
-void set_cvgcrit_set_mws(SEXP mws_index_, SEXP values) {
+void set_cvgcrit_init_mws(SEXP mws_index_, SEXP values) {
     int mws_index = asInteger(mws_index_);
     int i;
     for (i = 1; i <- length(values); i++) {
@@ -567,7 +582,7 @@ void set_ftrelax_c(SEXP mws_index_, SEXP names, SEXP value_) {
 
 /* Sets Fair-Taylor relaxation factors for all endogenous leads.
  * in natural (i.e. non-alphabetical) order */
-void set_ftrelax_set_mws(SEXP mws_index_, SEXP values) {
+void set_ftrelax_init_mws(SEXP mws_index_, SEXP values) {
     int mws_index = asInteger(mws_index_);
     int i;
     for (i = 1; i <= length(values); i++) {

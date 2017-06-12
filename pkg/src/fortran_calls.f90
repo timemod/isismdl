@@ -115,6 +115,33 @@ subroutine set_rms_fortran(mws_index, var_index, value)
     call set_rms(mws_array(mws_index), var_index, value, error)
 end subroutine set_rms_fortran
 
+function has_rms_fortran(mws_index)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in) :: mws_index
+    integer(c_int) :: has_rms_fortran
+
+    logical :: has_rms_
+
+    has_rms_ = has_rms(mws_array(mws_index))
+    if (has_rms_) then
+        has_rms_fortran =  1
+    else 
+        has_rms_fortran =  0
+    endif
+    
+end function has_rms_fortran
+
+subroutine get_rms_fortran(mws_index, values)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in) :: mws_index
+    real(c_double), intent(out) :: values(*)
+
+    call get_rms(mws_array(mws_index), values)
+end subroutine get_rms_fortran
+
+
 ! run all equations in the model starting a each time
 subroutine mdlpas_fortran(mws_index, jtb, jte)
     use modelworkspaces

@@ -37,6 +37,7 @@ setOldClass("period_range")
 #' @useDynLib isismdl set_param_c
 #' @useDynLib isismdl set_c
 #' @useDynLib isismdl set_rms_c
+#' @useDynLib isismdl get_rms_c
 #' @useDynLib isismdl set_solve_opts_c
 #' @useDynLib isismdl get_solve_opts_c
 #' @useDynLib isismdl set_fit_opts_c
@@ -44,10 +45,10 @@ setOldClass("period_range")
 #' @useDynLib isismdl filmdt_c
 #' @useDynLib isismdl remove_mws_fortran
 #' @useDynLib isismdl set_cvgcrit_c
-#' @useDynLib isismdl set_cvgcrit_set_mws
+#' @useDynLib isismdl set_cvgcrit_init_mws
 #' @useDynLib isismdl get_cvgcrit_c
 #' @useDynLib isismdl set_ftrelax_c
-#' @useDynLib isismdl set_ftrelax_set_mws
+#' @useDynLib isismdl set_ftrelax_init_mws
 #' @useDynLib isismdl get_ftrelax_c
 #' @useDynLib isismdl set_eq_status_c
 #' @useDynLib isismdl mdlpas_fortran
@@ -206,7 +207,7 @@ IsisMdl <- R6Class("IsisMdl",
                                           model_index = private$model_index)},
                     onexit = TRUE)
       if (!missing(mws)) {
-        private$set_mws(mws)
+        private$init_mws(mws)
       }
     },
     print = function(...) {
@@ -457,6 +458,16 @@ IsisMdl <- R6Class("IsisMdl",
       names(values) <- names
       .Call(set_rms_c, private$model_index, values)
       return (invisible(self))
+    },
+    get_rms = function() {
+      values <- .Call(get_rms_c, private$model_index)
+      if (is.null(values)) {
+        return(numeric(0))
+      } else {
+        names(values) <- .Call(get_var_names_c, "allfrml", private$model_index)
+        values <- values[!is.na(values)]
+        return(values[order(names(values))])
+      }
     },
     set_solve_options = function(mode, fbstart, maxiter, maxjacupd, rlxspeed,
                                  rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
@@ -785,7 +796,6 @@ IsisMdl <- R6Class("IsisMdl",
           ca <- ca[, !apply(ca == 0, 2, all), drop = FALSE]
         }
 
-        # todo: rms values
       } else {
         data <- NULL
         ca   <- NULL
@@ -796,20 +806,22 @@ IsisMdl <- R6Class("IsisMdl",
                 cvgcrit = .Call("get_cvgcrit_c", private$model_index, 0L),
                 ftrelax = .Call("get_ftrelax_c", private$model_index),
                 data = data, ca = ca,
-                fix = self$get_fix(), fit = self$get_fit())
+                fix = self$get_fix(), fit = self$get_fit(),
+                rms = self$get_rms())
       return(structure(l, class="mws"))
     },
-    set_mws = function(x) {
-      # Update the model with the information in a mws
-      # mws object, containing all information about the
+    init_mws = function(x) {
+      # Initialize the mws with information in a mws
+      # object, containing all information about the
       # model that is not written to the mif file.
+      # Only used via read_mdl.
       if (!inherits(x, "mws")) {
-        stop("Error in set_mws: x is not an mws object")
+        stop("Error in init_mws: x is not an mws object")
       }
       private$labels <- x$labels
       do.call(self$set_solve_options, x$solve_options)
-      .Call("set_cvgcrit_set_mws", private$model_index, x$cvgcrit)
-      .Call("set_ftrelax_set_mws", private$model_index, x$ftrelax)
+      .Call("set_cvgcrit_init_mws", private$model_index, x$cvgcrit)
+      .Call("set_ftrelax_init_mws", private$model_index, x$ftrelax)
       if (!is.null(x$data)) {
         self$init_data(data = x$data, ca = x$ca)
         self$set_period(x$model_period)
@@ -818,6 +830,9 @@ IsisMdl <- R6Class("IsisMdl",
         }
         if (!is.null(x$fit)) {
           self$set_fit(x$fit)
+        }
+        if (length(x$rms) > 0) {
+          self$set_rms(x$rms)
         }
       }
       return (invisible(self))

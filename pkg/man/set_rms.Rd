@@ -2,10 +2,15 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{set_rms}
 \alias{set_rms}
+\alias{get_rms}
 \title{\code{\link{IsisMdl}} method: Sets or updates  the rms values}
 \description{
 This method of R6 class \code{\link{IsisMdl}}
-sets or update the rms values
+sets or update the root mean square error data 
+used in the fit procedure. Root mean square errors
+equal to 0 or \code{NA} are not used in the fit procedure.
+
+Method \code{get_rms} returns all non-\code{NA} rms values,
 
 Sets or updates  the rms values
 }
@@ -13,6 +18,8 @@ Sets or updates  the rms values
 
 \preformatted{
 mdl$set_rms(values)
+
+mdl$get_rms()
 
 }
 
@@ -27,3 +34,8 @@ mdl$set_rms(values)
 }
 }
 
+\examples{
+mdl <- islm_mdl(period = "2017Q1/2018Q4")
+mdl$set_rms(c(c = 5.0, t = 2, i = 21, md = 2))
+print(mdl$get_rms())
+}
