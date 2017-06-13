@@ -228,6 +228,21 @@ subroutine remove_mws_fortran(model_index)
     call remove_mws(model_index)
 end subroutine remove_mws_fortran
 
+subroutine clear_fit_fortran(model_index)
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: model_index
+    call clear_fit(mws_array(model_index))
+end subroutine clear_fit_fortran
+
+subroutine clear_fix_fortran(model_index)
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: model_index
+    call clear_fix(mws_array(model_index))
+end subroutine clear_fix_fortran
+
+
 subroutine set_test(mws_index, ivar, value)
     ! set convergence test value
     use modelworkspaces
@@ -299,5 +314,7 @@ subroutine clone_mws_fortran(model_index, model_index_clone)
     if (model_index_clone < 0) return
 
     mws_array(model_index_clone) = mws_array(model_index)
+    call clone_fit(mws_array(model_index_clone))
+    call clone_fix(mws_array(model_index_clone))
     
 end subroutine clone_mws_fortran

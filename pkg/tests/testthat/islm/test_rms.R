@@ -20,6 +20,12 @@ test_that("get_rms with all positive numbers", {
   expect_identical(mdl3$get_rms(), rms_values_sorted)
 })
 
+test_that("rms values after clear_fit", {
+  mdl_clear <- mdl2$clone(deep = TRUE)
+  mdl_clear$clear_fit()
+  expect_identical(mdl_clear$get_rms(), numeric(0))
+})
+
 rms_values2 <- c(c = 5.0, t = NA, i = 0, md = 2)
 
 mdl4 <- mdl$clone(deep = TRUE)
@@ -52,3 +58,7 @@ test_that("errors", {
   expect_error(mdl6$set_rms(2),
                "Argument values is not a named numeric vector")
 })
+
+
+
+

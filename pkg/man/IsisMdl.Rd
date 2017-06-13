@@ -110,7 +110,7 @@ variables}
 \item{\code{\link{set_cvgcrit}}}{Returns the convergence criterion for selected
 variables}
 
-\item{\code{\link{set_eq_status}}}{Sets the equation status 
+\item{\code{\link{set_eq_status}}}{Sets the equation status
 \code{"active"} or \code{"inactive")}}
 
 \item{\code{\link{set_ftrelax}}}{Sets the Fair-Taylor relaxtion factors}

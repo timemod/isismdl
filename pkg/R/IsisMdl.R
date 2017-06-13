@@ -44,6 +44,8 @@ setOldClass("period_range")
 #' @useDynLib isismdl solve_c
 #' @useDynLib isismdl filmdt_c
 #' @useDynLib isismdl remove_mws_fortran
+#' @useDynLib isismdl clear_fit_fortran
+#' @useDynLib isismdl clear_fix_fortran
 #' @useDynLib isismdl set_cvgcrit_c
 #' @useDynLib isismdl set_cvgcrit_init_mws
 #' @useDynLib isismdl get_cvgcrit_c
@@ -166,7 +168,7 @@ setOldClass("period_range")
 #' \item{\code{\link{set_cvgcrit}}}{Returns the convergence criterion for selected
 #' variables}
 #'
-#' \item{\code{\link{set_eq_status}}}{Sets the equation status 
+#' \item{\code{\link{set_eq_status}}}{Sets the equation status
 #' \code{"active"} or \code{"inactive")}}
 #'
 #' \item{\code{\link{set_ftrelax}}}{Sets the Fair-Taylor relaxtion factors}
@@ -229,7 +231,7 @@ IsisMdl <- R6Class("IsisMdl",
     get_maxlead = function() {
       return(private$maxlead)
     },
-    get_var_names = function(pattern = ".*", 
+    get_var_names = function(pattern = ".*",
                              type = c("all", "allfrml", "all_endolead")) {
       type <- match.arg(type)
       if  (type != "all") {
@@ -260,7 +262,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
       return(names)
     },
-    get_eq_names = function(pattern = ".*", 
+    get_eq_names = function(pattern = ".*",
                             type = c("all", "active", "inactive"),
                             order = c("sorted", "solve", "natural")) {
       type  <- match.arg(type)
@@ -455,7 +457,7 @@ IsisMdl <- R6Class("IsisMdl",
         values[] <- as.numeric(values)
       } else if (!is.numeric(values)) {
          stop("Argument values is not a numeric vector")
-      } 
+      }
       if (is.null(names(values))) {
         stop("Argument values is not a named numeric vector")
       }
@@ -603,7 +605,7 @@ IsisMdl <- R6Class("IsisMdl",
       sorted_names <- sort(names(values))
       return(values[sorted_names])
     },
-    set_eq_status = function(status = c("active", "inactive"), 
+    set_eq_status = function(status = c("active", "inactive"),
                              pattern, names) {
       "Activate or deactivate equations"
 
@@ -645,6 +647,14 @@ IsisMdl <- R6Class("IsisMdl",
                                   class = "serialized_isismdl")
       saveRDS(serialized_mdl, file)
       unlink(mif_file)
+      return(invisible(self))
+    },
+    clear_fit = function() {
+      .Fortran("clear_fit_fortran", model_index = private$model_index)
+      return(invisible(self))
+    },
+    clear_fix = function() {
+      .Fortran("clear_fix_fortran", model_index = private$model_index)
       return(invisible(self))
     }
   ),

@@ -1186,6 +1186,12 @@ NULL
 #' serializes the model object and writes it
 #' to an RDS file. The model can be read back by function
 #' \code{\link{read_mdl}}.
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$write_mdl(file)
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
 #' @section Arguments:
 #'
 #' \describe{
@@ -1195,4 +1201,32 @@ NULL
 #' mdl <- islm_mdl("2017Q1/2019Q2")
 #' mdl$write_mdl("islm_mdl.rds")
 #' @seealso \code{\link{read_mdl}}
+NULL
+
+#' \code{\link{IsisMdl}} method: deletes all fit targets and rms values
+#' values
+#' @name clear_fit
+#' @description
+#' This methods of R6 class \code{\link{IsisMdl}}
+#' deletes all fit targets and root mean square (rms) error values
+#' for the fit procedure.
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$clear_fit()
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+NULL
+
+#' \code{\link{IsisMdl}} method: deletes all fix values
+#' @name clear_fix
+#' @description
+#' This methods of R6 class \code{\link{IsisMdl}}
+#' deletes all fix values
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$clear_fix()
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
 NULL
