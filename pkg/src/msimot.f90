@@ -81,8 +81,7 @@ contains
 
         ! carcon is used for FTN carriage control
 
-
-        call isismdl_out(str)
+        if (opts%repopt /= REP_NONE) call isismdl_out(str)
     
         select case (otype)
         case (O_ERRM, O_ERRF, O_ERRQ)

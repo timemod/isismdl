@@ -63,7 +63,7 @@ static void set_fit_option(const char *name, SEXP value) {
         set_fit_debug_opts(value);
     } else if (!strcmp(name, "report")) {
         CHECK_LENGTH(name, value);
-        i = get_fit_repopt(CHAR(STRING_ELT(value, 0)));
+        i = get_fit_repopt(name, CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_fit_repopt)(&i);
     } else {
        error("Unknown fit option %s\n", name);

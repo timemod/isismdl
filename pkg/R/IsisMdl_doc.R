@@ -677,20 +677,20 @@ NULL
 #'}
 NULL
 
-#' \code{\link{IsisMdl}} method: Sets or updates  the rms values
+#' \code{\link{IsisMdl}} method: Sets or updates  the root mean square errors
 #' @name set_rms
 #' @aliases get_rms
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}}
-#' sets or update the root mean square error data 
-#' used in the fit procedure. Root mean square errors
-#' equal to 0 or \code{NA} are not used in the fit procedure.
+#' sets or updates the root mean square (rms) error data 
+#' used in the fit procedure. All variables whose rms value
+#' is larger than 0 and not \code{NA} are used as 
+#' instruments of the fit procedure.
 #'
-#' Method \code{get_rms} returns all non-\code{NA} rms values,
+#' Method \code{get_rms} returns all rms values
+#' larger than 0 and not equal to \code{NA}.
 #'
-#' @description
-#' Sets or updates  the rms values
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_rms(values)
@@ -704,11 +704,19 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{values}}{a named numeric vector with rms values}
+#' \item{\code{values}}{a named numeric vector with rms values.
+#' If a value is positive and not \code{"NA"},
+#' then the corresponding value will be used
+#' as fit instrument}
 #' }
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
+#'
 #' mdl$set_rms(c(c = 5.0, t = 2, i = 21, md = 2))
+#' print(mdl$get_rms())
+#' 
+#' # stop using variable t as fit instrument
+#' mdl$set_rms(c(t = NA))
 #' print(mdl$get_rms())
 NULL
 
@@ -793,7 +801,9 @@ NULL
 #' \code{"period"} (for a report per period),
 #' \code{"fullrep"} (for a full report), 
 #' \code{"minimal"}  (for a minimal report), and
-#' \code{"no"}  (for no report). The default is \code{"period"}}
+#' \code{"none"}  (for no report). The default is \code{"period"}}
+#'  The report options \code{"none"} also suppresses all output
+#' of the fit procedure and the Fair-Taylor progress report.
 #' \item{\code{ratreport}}{Defines the type of rational expectations progress
 #' report. See section "Ratex report options" below}
 #' \item{\code{ratreport_rep}}{An integer number specifying

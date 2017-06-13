@@ -84,7 +84,9 @@ computation progress report. Possible values are
 \code{"period"} (for a report per period),
 \code{"fullrep"} (for a full report), 
 \code{"minimal"}  (for a minimal report), and
-\code{"no"}  (for no report). The default is \code{"period"}}
+\code{"none"}  (for no report). The default is \code{"period"}}
+ The report options \code{"none"} also suppresses all output
+of the fit procedure and the Fair-Taylor progress report.
 \item{\code{ratreport}}{Defines the type of rational expectations progress
 report. See section "Ratex report options" below}
 \item{\code{ratreport_rep}}{An integer number specifying

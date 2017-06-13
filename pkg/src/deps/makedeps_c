@@ -6,7 +6,7 @@ ecode.o : dependencies.h ecode.h ipcode.h mchdr.h mcinit.h mcopt.h \
          symbol.h util.h xpcdef.h xpctab.h
 expsymtab.o : dependencies.h isismdl_types.h mcinit.h symbol.h \
              xpcdef.h
-fit_options.o : option_utils.h solve_options.h
+fit_options.o : fit_options.h option_utils.h solve_options.h
 fname.o : fname.h
 futils.o : futils.h
 get_solve_opts_c.o : init_set_get_options.h solve_options.h
