@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "solve_options.h"
-#include "init_set_get_options.h"
+#include "init_get_options.h"
+#include "get_option_utils.h"
 
 #define N_OPTS 20
 
@@ -16,11 +17,7 @@ extern void F77_CALL(get_solve_options)(int *imode, int *istart, int *maxit,
               double *xtfac);
 extern void F77_CALL(get_solve_dbgopts)(int *, int *, int *,  int *, int *, 
                                       int *);
-static void add_option(const char *name, SEXP value);
-static void add_debug_option(void);
-
-static SEXP ret, names;
-static int cnt;
+static SEXP get_debug_option(void);
 
 SEXP get_solve_opts_c(SEXP mws_index_) {
 
@@ -28,10 +25,7 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
 
     F77_CALL(init_get_options)(&mws_index);
 
-    ret  = PROTECT(allocVector(VECSXP, N_OPTS));
-    names = PROTECT(allocVector(STRSXP, N_OPTS));
-
-    cnt = 0;
+    init_options(N_OPTS);
 
     int imode, istart, maxit, maxmat, mratex, uplead, erropt, repopt, 
         ratrepopt, ratreport_rep, ratfullreport_rep, bktmax;
@@ -62,31 +56,22 @@ SEXP get_solve_opts_c(SEXP mws_index_) {
     add_option("ratreport_rep",  PROTECT(ScalarInteger(ratreport_rep)));
     add_option("ratfullreport_rep",  PROTECT(ScalarInteger(ratfullreport_rep)));
 
-    add_debug_option();
+    add_option("dbgopt", get_debug_option());
 
-    setAttrib(ret, R_NamesSymbol, names);
-
-    UNPROTECT(2 + N_OPTS);
-    return ret;
+    UNPROTECT(N_OPTS);
+    return get_options();
 }
 
-static void add_option(const char *name, SEXP value) {
-    SET_STRING_ELT(names, cnt, mkChar(name));
-    SET_VECTOR_ELT(ret, cnt++, value);
-}
-
-static void add_debug_option(void) {
-
-    SET_STRING_ELT(names, cnt, mkChar("dbgopt"));
+SEXP get_debug_option(void) {
 
     int priter, prexen, jacprt, suptst, xsuptt, prscal;
     F77_CALL(get_solve_dbgopts)(&priter, &prexen, &jacprt, &suptst, &xsuptt, 
                                 &prscal);
 
     if (!priter && !prexen && !jacprt && suptst && xsuptt && !prscal) {
-        SET_VECTOR_ELT(ret, cnt++, PROTECT(mkString(DBG_NONE)));
+        return PROTECT(mkString(DBG_NONE));
     } else if (priter && prexen && jacprt && !suptst && !xsuptt && prscal) {
-        SET_VECTOR_ELT(ret, cnt++, PROTECT(mkString(DBG_ALL)));
+        return PROTECT(mkString(DBG_ALL));
     } else {
         SEXP value = PROTECT(allocVector(STRSXP, 6));
         SET_STRING_ELT(value, 0, mkChar(DBG_PRITER_OPTS[priter]));
@@ -95,6 +80,6 @@ static void add_debug_option(void) {
         SET_STRING_ELT(value, 3, mkChar(DBG_SUPTST_OPTS[!suptst]));
         SET_STRING_ELT(value, 4, mkChar(DBG_XSUPTT_OPTS[!xsuptt]));
         SET_STRING_ELT(value, 5, mkChar(DBG_PRSCAL_OPTS[prscal]));
-        SET_VECTOR_ELT(ret, cnt++, value);
+        return value;
     }
 }

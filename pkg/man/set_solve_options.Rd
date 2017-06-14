@@ -2,10 +2,14 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{set_solve_options}
 \alias{set_solve_options}
+\alias{get_solve_options}
 \title{\code{\link{IsisMdl}} method: Sets the solve options}
 \description{
 This method of R6 class \code{\link{IsisMdl}} can be used to set one or more
 solve options. These options will be stored in the \code{IsisMdl} object.
+
+Method \code{get_solve_options} returns the solve options as a named
+list
 }
 \section{Usage}{
 
@@ -15,7 +19,10 @@ mdl$set_solve_options(mode, fbstart, maxiter, maxjacupd, rlxspeed,
                       xmaxiter, xupdate, dbgopt, erropt,
                       report, ratreport, ratreport_rep, ratfullreport_rep,
                       bktmax, xtfac)
+
+mdl$get_solve_options()
 }
+
 \code{mdl} is an \code{\link{IsisMdl}} object
 }
 

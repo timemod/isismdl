@@ -104,6 +104,12 @@ applying a function}
 
 \item{\code{\link{set_solve_options}}}{Sets the solve options}
 
+\item{\code{\link{get_solve_options}}}{Returns the solve options}
+
+\item{\code{\link{set_fit_options}}}{Sets the options for the fit procedure}
+
+\item{\code{\link{get_fit_options}}}{Returns the options for the fit procedure}
+
 \item{\code{\link{set_cvgcrit}}}{Sets the convergence criterion for selected
 variables}
 

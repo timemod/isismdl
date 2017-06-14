@@ -2,11 +2,8 @@
 #include <Rdefines.h>
 #include "fit_options.h"
 #include "set_fit_options.h"
+#include "set_option_utils.h"
 #include "init_set_get_options.h"
-
-#define CHECK_LENGTH(name, value) if (length(value) > 1) { \
-    error("The value for option %s should have length 1.", name); \
-}
 
 extern void F77_SUB(init_set_solve_opts)(int *mws_index, int *use_mws);
 extern void F77_SUB(init_get_solve_opts)(int *mws_index);
@@ -25,13 +22,12 @@ void set_fit_opts_c(SEXP mws_index_, SEXP options) {
     int opts_present = length(options) > 0;
     if (opts_present) {
         int use_mws = 1;
-        set_fit_options(&mws_index, &use_mws, options);
+        F77_CALL(init_set_options)(&mws_index, &use_mws);
+        set_fit_options(&mws_index, options);
     }
 }
 
-void set_fit_options(int *mws_index, int *use_mws, SEXP options) {
-
-    F77_CALL(init_set_options)(mws_index, use_mws);
+void set_fit_options(int *mws_index, SEXP options) {
 
     /* call init_get_solve_opts, we need this because 
      * of the call of get_fit_dbgopts */
@@ -49,15 +45,15 @@ static void set_fit_option(const char *name, SEXP value) {
     double x;
     if (!strcmp(name, "maxiter")) {
         CHECK_LENGTH(name, value);
-        i = asInteger(value);
+        i = get_non_negative_int(name, value);
         F77_CALL(set_fit_maxit)(&i);
     } else if (!strcmp(name, "cvgabs")) {
         CHECK_LENGTH(name, value);
-        x = asReal(value);
+        x = get_positive_number(name, value);
         F77_CALL(set_fit_cvgabs)(&x);
     } else if (!strcmp(name, "mkdcrt")) {
         CHECK_LENGTH(name, value);
-        x = asReal(value);
+        x = get_positive_number(name, value);
         F77_CALL(set_fit_mkdcrt)(&x);
     } else if (!strcmp(name, "dbgopt")) {
         set_fit_debug_opts(value);
@@ -77,7 +73,6 @@ static void set_fit_debug_opts(SEXP option) {
     int i;
     for (i = 0; i < length(option); i++) {
         const char *opt = CHAR(STRING_ELT(option, i));
-        Rprintf("opt = %s\n", opt);
         int positive = strncmp(opt, "no", 2);
         const char *s = positive ? opt : opt + 2;
         if (!strcmp(s, FIT_PRICA_OPTS[1])) {
@@ -85,7 +80,7 @@ static void set_fit_debug_opts(SEXP option) {
         } else if (!strcmp(s, FIT_PRIJAC_OPTS[1])) {
             prijac = positive;
         } else if (!strcmp(s, FIT_SUPSOT_OPTS[1])) {
-            supsot = !positive;
+            supsot = positive;
         } else {
             error("Unknown debug option for the fit procedure %s\n",
                     opt);

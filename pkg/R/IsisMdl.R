@@ -41,6 +41,7 @@ setOldClass("period_range")
 #' @useDynLib isismdl set_solve_opts_c
 #' @useDynLib isismdl get_solve_opts_c
 #' @useDynLib isismdl set_fit_opts_c
+#' @useDynLib isismdl get_fit_opts_c
 #' @useDynLib isismdl solve_c
 #' @useDynLib isismdl filmdt_c
 #' @useDynLib isismdl remove_mws_fortran
@@ -161,6 +162,12 @@ setOldClass("period_range")
 #' \item{\code{\link{set_rms}}}{Sets or updates  the rms values}
 #'
 #' \item{\code{\link{set_solve_options}}}{Sets the solve options}
+#'
+#' \item{\code{\link{get_solve_options}}}{Returns the solve options}
+#'
+#' \item{\code{\link{set_fit_options}}}{Sets the options for the fit procedure}
+#'
+#' \item{\code{\link{get_fit_options}}}{Returns the options for the fit procedure}
 #'
 #' \item{\code{\link{set_cvgcrit}}}{Sets the convergence criterion for selected
 #' variables}
@@ -550,9 +557,14 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     get_solve_options = function() {
-      "Gets the default solve options"
+      "Returns the default solve options"
       return(.Call("get_solve_opts_c",
                     model_index = private$model_index))
+    },
+    get_fit_options = function() {
+      "Returns the default fit options"
+      return(.Call("get_fit_opts_c",
+                   model_index = private$model_index))
     },
     get_cvgcrit = function() {
       values <- .Call("get_cvgcrit_c", private$model_index, 1L)

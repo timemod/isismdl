@@ -47,7 +47,7 @@ with endogenous leads will be set to the specified values.
 mdl <- ifn_mdl()
 
 # set Fair-relaxtion factor all all variables with names of length 2 
-# to 0.8:
+# to 0.5:
 mdl$set_ftrelax(0.5, pattern = "^..$")
 
 # set Fair-relaxtion factor for variable "lambda":

@@ -2,16 +2,23 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{set_fit_options}
 \alias{set_fit_options}
+\alias{get_fit_options}
 \title{\code{\link{IsisMdl}} method: Sets the options for the fit procedure.}
 \description{
 This method of R6 class \code{\link{IsisMdl}} can be used to set one or more
 options for the fit procedure. 
 These options will be stored in the \code{IsisMdl} object.
+
+Method \code{get_fit_options} returns the solve options as a named
+list
 }
 \section{Usage}{
 
 \preformatted{
 mdl$set_fit_options(maxiter, cvgabs, mkdcrt, report, dbgopt)
+
+mdl$get_fit_options()
+
 }
 \code{mdl} is an \code{\link{IsisMdl}} object
 }
@@ -41,7 +48,7 @@ Possible values are \code{"fullrep"}
 (the default, an iteration report is printed for each period)
 and  \code{"minimal"} (for a one line summary).}
 \item{\code{dbgopt}}{A character vector specifying one or more
-debug options. See section "Debugging options" below}
+debugging options. See section "Debugging options" below}
 }
 }
 

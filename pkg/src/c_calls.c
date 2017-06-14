@@ -6,6 +6,7 @@
 #include "set_solve_options.h"
 #include "set_fit_options.h"
 #include "option_utils.h"
+#include "init_set_get_options.h"
 
 #define MAX_NAME_LEN 32
 #define ALL     1
@@ -61,6 +62,7 @@ extern void F77_NAME(activate_equation)(int *mws_index, int *var_index);
 extern void F77_NAME(deactivate_equation)(int *mws_index, int *var_index);
 extern void F77_NAME(set_ftrelax)(int *mws_index, int *var_index, double *value);
 extern double F77_NAME(get_ftrelax)(int *mws_index, int *var_index);
+extern void F77_SUB(init_set_options)(int *mws_index, int *use_mws);
 
 SEXP read_mdl_c(SEXP filename) {
 
@@ -480,15 +482,21 @@ void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,
     int endp= asInteger(endp_);
 
     int opts_present = length(options) > 0;
+    int fit_opts_present = length(fit_options) > 0;
+
+    opts_present = opts_present || fit_opts_present;
+
     if (opts_present) {
         int use_mws = 0;
-        set_solve_options(&mws_index, &use_mws, options);
+        F77_CALL(init_set_options)(&mws_index, &use_mws);
     }
-    int fit_opts_present = length(fit_options) > 0;
+
+    if (opts_present) {
+        set_solve_options(&mws_index, options);
+    }
     if (fit_opts_present) {
         int use_mws = 0;
-        set_fit_options(&mws_index, &use_mws, fit_options);
-        opts_present = 1;
+        set_fit_options(&mws_index, fit_options);
     }
     int error;
     F77_CALL(solve_fortran)(&mws_index, &startp, &endp, &opts_present, &error);

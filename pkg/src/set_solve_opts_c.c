@@ -3,11 +3,8 @@
 #include "set_solve_opts.h"
 #include "solve_options.h"
 #include "set_solve_options.h"
+#include "set_option_utils.h"
 #include "init_set_get_options.h"
-
-#define CHECK_LENGTH(name, value) if (length(value) > 1) { \
-    error("The value for option %s should have length 1.", name); \
-}
 
 extern void F77_SUB(set_mode)(int *);
 extern void F77_SUB(set_start)(int *);
@@ -37,60 +34,17 @@ extern void F77_SUB(check_options)(void);
 static void set_option(const char *name, SEXP value);
 static void set_debug_opts(SEXP option);
 
-int get_non_negative_int(const char *name, SEXP value) {
-
-    const char *msg = "%s should be an integer";
-    if (!isNumeric(value)) {
-        error(msg, name); 
-    }
-    int i = asInteger(value);
-    if (i == NA_INTEGER) {
-        error("%s should not be NA", name); 
-    } else if (i < 0) {
-        error("%s should be a non-negative integer", name); 
-    } 
-    if (!isInteger(value)) {
-        if (i != asReal(value)) {
-            error(msg, name); 
-        }
-    }
-    return i;
-}
-
-double get_finite_number(const char *name, SEXP value) {
-    /* returns a finite number */
-    const char *msg = "%s should be a number";
-    if (!isNumeric(value)) {
-        error(msg, name); 
-    }
-    double x = asReal(value);
-    if (!R_FINITE(x)) {
-        error("%s should  be a finite number", name); 
-    }
-    return x;
-}
-
-double get_positive_number(const char *name, SEXP value) {
-    /* returns a positive number */
-    double x = get_finite_number(name, value);
-    if (x <= 0) {
-        error("%s should  be a positive number", name); 
-    }
-    return x;
-}
-
 void set_solve_opts_c(SEXP mws_index_, SEXP options) {
     int mws_index = asInteger(mws_index_);
     int opts_present = length(options) > 0;
     if (opts_present) {
         int use_mws = 1;
-        set_solve_options(&mws_index, &use_mws, options);
+        F77_CALL(init_set_options)(&mws_index, &use_mws);
+        set_solve_options(&mws_index, options);
     }
 }
 
-void set_solve_options(int *mws_index, int *use_mws, SEXP options) {
-
-    F77_CALL(init_set_options)(mws_index, use_mws);
+void set_solve_options(int *mws_index, SEXP options) {
 
     /* call init_get_solve_opts, we need this because 
      * of the call of get_solve_dbgopts */
