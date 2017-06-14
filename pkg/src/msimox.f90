@@ -10,7 +10,6 @@ use msvars
 use mdl_name_utils
 
 ! print guesses for rational expectations
-
 integer ::  iratex
 character(len =  8) :: target
 integer(kind = MC_IKIND) :: kendex(20)
@@ -18,6 +17,8 @@ real(kind = MWS_RKIND) :: temp(20)
 
 integer ::  j, k, jlast, kstep, kh, jt, ih, jtd
 integer ::   maxlen, colwid
+
+if (opts%repopt == REP_NONE) return
 
 maxlen = maxnlz(mdl%ivnames, mdl%iendex, 1_MC_IKIND, mdl%nendex)
 colwid = max(maxlen, NUMWID )
@@ -146,6 +147,8 @@ character(len = *), intent(in) :: dsctyp
 real(kind = SOLVE_RKIND), intent(in) :: test
 logical, intent(in) :: first
 
+if (opts%repopt == REP_NONE) return
+
 if( .not. split ) then
    call strini(curnam(:curlen), 1 + mxlen + ICSPAC)
 else
@@ -195,6 +198,8 @@ use msratop
 
 integer ::  noncvg, iratex
 
+if (opts%repopt == REP_NONE) return
+
 write(str,901) noncvg,iratex
 call strout(O_OUTN)
 
@@ -211,6 +216,8 @@ subroutine simox3(iratex)
 !     rational expectations have converged
 
 integer ::  iratex
+
+if (opts%repopt == REP_NONE) return
 
 if( iratex .le. 9999 ) then
    write(str,'(a,i4,a)') 'Convergence for consistent expectations after', &

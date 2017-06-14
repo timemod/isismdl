@@ -495,7 +495,6 @@ void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,
         set_solve_options(&mws_index, options);
     }
     if (fit_opts_present) {
-        int use_mws = 0;
         set_fit_options(&mws_index, fit_options);
     }
     int error;
