@@ -41,10 +41,10 @@ extern int F77_NAME(set_param_fortran)(int *mws_index, int *ipar, double *data,
                                         int *len);
 extern void F77_NAME(set_data_fortran)(int *mws_index, int *nvar, int *ivar, 
                                        int *ntime, int *jtb, int *jte, 
-                                       double *data, int *icol);
+                                       double *data, int *icol, int *upd_mode);
 extern void F77_NAME(set_ca_fortran)(int *mws_index, int *, int *ivar, 
                                        int *ntime, int *jtb, int *jte, 
-                                       double *data, int *icol);
+                                       double *data, int *icol, int *upd_mode);
 extern void F77_NAME(set_fix_fit_fortran)(int *mws_index, int *, int *ivar, 
                                       int *ntime, int *jtb, int *jte, 
                                       double *data, int *icol, int *fix);
@@ -350,10 +350,24 @@ SEXP set_param_c(SEXP mws_index_, SEXP param_list) {
     return ScalarInteger(cnt);
 }
 
-void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_) {
+void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_,
+           SEXP upd_mode_) {
     int set_type = asInteger(set_type_);
     int mws_index = asInteger(mws_index_);
     int shift = asInteger(shift_);
+    const char *upd_mode_str = CHAR(asChar(upd_mode_));
+
+    /* Convert upd_mode_str to an integer. The integer 
+     * values should agree with the parameters
+     * UPD and UPD_NA in Fortran module mws_type. */
+    int upd_mode = 1;
+    if (set_type == SET_DATA || set_type == SET_CA) {
+        if (strcmp(upd_mode_str, "upd") == 0) {
+            upd_mode = 1;
+        } else if (strcmp(upd_mode_str, "updval") == 0) {
+            upd_mode = 3;
+        }
+    }
 
     SEXP dim = getAttrib(mat, R_DimSymbol);
     int ntime = INTEGER(dim)[0];
@@ -375,6 +389,7 @@ void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_) {
         }
     }
 
+
     int jtb = shift;
     int jte = shift + ntime - 1;
 
@@ -383,11 +398,11 @@ void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_) {
     switch (set_type) {
         case SET_DATA:
             F77_CALL(set_data_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb,
-                                       &jte, REAL(mat), icol);
+                                       &jte, REAL(mat), icol, &upd_mode);
             break;
         case SET_CA:
             F77_CALL(set_ca_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb,
-                                     &jte, REAL(mat), icol);
+                                     &jte, REAL(mat), icol, &upd_mode);
             break;
         case SET_FIX:
         case SET_FIT:

@@ -362,18 +362,22 @@ IsisMdl <- R6Class("IsisMdl",
       return(.Call("get_param_c", model_index = private$model_index,
                     names = names))
     },
-    set_data = function(data, names = colnames(data)) {
+    set_data = function(data, names = colnames(data),
+                        upd_mode = c("upd", "updval")) {
       "Sets the model data"
+      upd_mode <- match.arg(upd_mode)
       if (is.null(private$data_period)) {
         stop(paste("The data period has not been set yet.",
                    "Please initialize the with model data with init_data().",
                    "E.g.: init_data(data)"))
       }
-      return(private$set_var(1L, data, names, missing(names)))
+      return(private$set_var(1L, data, names, missing(names), upd_mode))
     },
-    set_ca = function(data, names = colnames(data)) {
+    set_ca = function(data, names = colnames(data), 
+                      upd_mode = c("upd", "updval")) {
       "Sets the constant adjustments"
-      return(private$set_var(2L, data, names, missing(names)))
+      upd_mode <- match.arg(upd_mode)
+      return(private$set_var(2L, data, names, missing(names), upd_mode))
     },
     set_fix = function(data, names = colnames(data)) {
       "Sets the fix data"
@@ -698,7 +702,8 @@ IsisMdl <- R6Class("IsisMdl",
       endp   <- as.integer(end_period(period)   - mdl_period_start + 1)
       return(list(startp = startp, endp = endp))
     },
-    set_var = function(set_type, data, names, names_missing) {
+    set_var = function(set_type, data, names, names_missing, 
+                       upd_mode = "upd") {
       # General function used to update model data, constant adjustments,
       # fix values or fit targets.
       if (NCOL(data) == 0) {
@@ -719,8 +724,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
       if (is.null(private$model_period)) stop(private$period_error_msg)
       data <- as.regts(data)
-      shift <- private$get_period_indices(
-        get_period_range(data))$startp
+      shift <- private$get_period_indices(get_period_range(data))$startp
       if (!is.matrix(data)) {
         dim(data) <- c(length(data), 1)
       }
@@ -736,7 +740,7 @@ IsisMdl <- R6Class("IsisMdl",
           private$update_labels(lbls)
         }
       }
-      .Call(set_c, set_type, private$model_index, data, names, shift)
+      .Call(set_c, set_type, private$model_index, data, names, shift, upd_mode)
 
       # TODO: report number of timeseries that have not been set
       return(invisible(self))

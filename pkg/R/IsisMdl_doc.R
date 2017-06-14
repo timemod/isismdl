@@ -563,9 +563,9 @@ NULL
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_data(data, names = colnames(data))
+#' mdl$set_data(data, names = colnames(data), upd_mode = c("upd", "updval"))
 #'
-#' mdl$set_ca(data, names = colnames(data))
+#' mdl$set_ca(data, names = colnames(data), upd_mode = c("upd", "updval"))
 #'
 #' mdl$set_fix(data, names = colnames(data))
 #'
@@ -583,6 +583,8 @@ NULL
 #' \item{\code{names}}{a character vector with variable names. Defaults to the
 #' column names of \code{data}. If \code{data} does not have column names,
 #' then argument \code{names} is mandatory}
+#' \item{\code{upd_mode}}{a character string specifying how the timeseries are
+#' updated. See details}.
 #' }
 
 #' @section Methods:
