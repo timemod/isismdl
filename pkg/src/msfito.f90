@@ -21,6 +21,8 @@ end subroutine fitot0
 subroutine fitota(iv)
     use mdl_name_utils
     integer(kind = SOLVE_IKIND), intent(in) :: iv
+
+    if (opts%repopt == REP_NONE) return
     
     ! print message for endogenous fit CA
     ! vnptr is name pointer
@@ -36,6 +38,8 @@ subroutine fitotb(iv)
     use mdl_name_utils
     integer(kind = SOLVE_IKIND), intent(in) :: iv
     
+    if (opts%repopt == REP_NONE) return
+
     ! print message for exogenous fit target
     ! vnptr is name pointer
     
@@ -50,6 +54,7 @@ subroutine fitot2(nonval)
     integer, intent(in) :: nonval
     
     ! print message for total of missing fit targets
+    if (opts%repopt == REP_NONE) return
     
     write(str,'(i5,2a)') nonval, &
     &    ' inconsistent/missing/invalid fit targets/CA detected'
@@ -60,6 +65,8 @@ end subroutine fitot2
 
 subroutine fitot3(errcode)
     integer, intent(in) :: errcode
+
+    if (opts%repopt == REP_NONE) return
     
     if( errcode .eq. 2 ) then
         str = 'No fit targets found for this period'
@@ -90,7 +97,6 @@ subroutine fitot4(fiter,newjac,dcond,delwmx,dlwmxp,iv, wmxtyp,prihdr)
     use mdl_name_utils
     
     ! print progress of current fit
-    
     integer ::  fiter,iv,wmxtyp
     logical ::  newjac,prihdr
     real(kind = SOLVE_RKIND) :: dcond, delwmx, dlwmxp
@@ -105,6 +111,8 @@ subroutine fitot4(fiter,newjac,dcond,delwmx,dlwmxp,iv, wmxtyp,prihdr)
     data chdr / 'Fiter' , 'Icond', 'Ratio', 'Delwmx', 'Type' , 'Name'/
     data chln /    5    ,    5   ,    5   ,    6    ,   4    ,   4   /
     data cwid /    6    ,    9   , NUMWID , NUMWID  ,   4    ,   0   /
+    
+    if (opts%repopt == REP_NONE) return
     
     if( prihdr ) then
        call strini(' ', 1)
@@ -167,6 +175,8 @@ subroutine fitot5(relcvg)
     ! no better point can be found
     
     real(kind = SOLVE_RKIND) :: relcvg
+
+    if (opts%repopt == REP_NONE) return
     
     write(str,'(a,f5.3)', round = 'compatible') &
     &     'Fit relative convergence above ',relcvg
@@ -184,6 +194,8 @@ subroutine fitot6(iv, crit)
     
     integer(kind = SOLVE_IKIND) :: iv
     real(kind = SOLVE_RKIND) ::  crit
+
+    if (opts%repopt == REP_NONE) return
     
     call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
     
@@ -197,6 +209,9 @@ end subroutine fitot6
 
 subroutine fitot7(nbig)
     integer, intent(in) ::  nbig
+
+    if (opts%repopt == REP_NONE) return
+    
     write(str, '(i5,a)') nbig, ' residuals > threshold'
     call strout(O_WMSG)
     return
@@ -209,6 +224,8 @@ subroutine fitot8(ier,dcond)
     
     integer, intent(in) ::  ier
     real(kind = SOLVE_RKIND), intent(in) :: dcond
+
+    if (opts%repopt == REP_NONE) return
     
     if( ier .eq. 2 ) then
        str = 'Fit Error - total loss of precision of D matrix'
@@ -228,6 +245,8 @@ end subroutine fitot8
 subroutine fitot9(fiter,fcvgd,djcnt,maxiter)
     integer ::  fiter, djcnt, maxiter
     logical ::  fcvgd
+    
+    if (opts%repopt == REP_NONE) return
     
     if( fcvgd ) then
        write(str,'(3a,i4,2a,i4,a)' ) 'Fit convergence in ',perstr , &
@@ -254,6 +273,8 @@ subroutine fitot10(fiter)
     
     integer, intent(in) :: fiter
     
+    if (opts%repopt == REP_NONE) return
+    
     write(str, '(a,i4)') 'The fit jacobian contains invalid values at iteration', &
     & fiter
     call strout(O_ERRQ)
@@ -266,7 +287,8 @@ subroutine fitot10(fiter)
 end subroutine fitot10
 
 subroutine fitot11
-
+    
+    if (opts%repopt == REP_NONE) return
 
     str = 'Not enough memory for the fit procedure'
     call strout(O_ERRM)
@@ -279,6 +301,8 @@ subroutine fitot12(matitr, nu)
     integer, intent(in) :: matitr
     integer(kind = SOLVE_IKIND), intent(in) :: nu
     
+    if (opts%repopt == REP_NONE) return
+    
     write(str, '(a,i4)') 'Total number of iterations for accurate calculation fit' // &
     &  ' Jacobian', matitr
     call strout(O_OUTN)
@@ -290,6 +314,9 @@ subroutine fitot12(matitr, nu)
 end subroutine fitot12
 
 subroutine fitot13
+    
+    if (opts%repopt == REP_NONE) return
+    
     write(str, '(a,i4)') &
     &  'Numerical problem during the calculation of the fit Jacobian'
     call strout(O_ERRQ)
@@ -300,12 +327,18 @@ subroutine fitot13
 end subroutine fitot13
 
 subroutine fitot14
+    
+    if (opts%repopt == REP_NONE) return
+    
     str = 'Not enough memory to allocate the fit jacobian'
     call strout(O_ERRM)
     return
 end subroutine fitot14
 
 subroutine fitot15
+    
+    if (opts%repopt == REP_NONE) return
+    
     str = 'Not enough memory for the svd analysis of the fit jacobian'
     call strout(O_ERRM)
     return
@@ -317,6 +350,8 @@ subroutine fitotc_invalid(iv)
     ! print message about invalid values in column of derivatives in fit jacobian
     
     integer(kind = SOLVE_IKIND) :: iv
+    
+    if (opts%repopt == REP_NONE) return
     
     call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
     
@@ -334,6 +369,8 @@ subroutine fitotc(iv)
     ! print message about zero column of derivatives in fit jacobian
 
     integer(kind = SOLVE_IKIND) :: iv
+    
+    if (opts%repopt == REP_NONE) return
 
     call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
 
@@ -353,6 +390,8 @@ subroutine fitonu(nu, numu)
     
     character(len = 25) :: hdr
     
+    if (opts%repopt == REP_NONE) return
+    
     write(hdr,'(i5,a)') nu,' CAs used by Fit'
     
     call msnmot(nu,  numu(:nu), mdl%ivnames, mdl%vnames, hdr)
@@ -367,6 +406,8 @@ subroutine fitonu_fix(nu, numu)
     ! uses a specialised name output routine.
     ! This verion is used when the fit CAs have changed
     ! because some CAs were disabled by the fit procedure.
+    
+    if (opts%repopt == REP_NONE) return
     
     write(str,'(a)') '----> List of CAs used by Fit changed ' // &
     &   ' because some variables are fixed/unfixed '
@@ -385,6 +426,8 @@ subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
     ! output of D matrix
     
     character(len = 80) :: dhdr
+    
+    if (opts%repopt == REP_NONE) return
     
     write(dhdr,'(4a,i4)') 'Transpose of matrix D (scaled with rms)', &
     & ' in period ', perstr, ' at iteration ',fiter
@@ -414,6 +457,8 @@ subroutine fitoca(delu, numu, nu,fiter)
     real(kind = SOLVE_RKIND) :: temp(2)
     character(len = 12), save :: chdr(2)
     data chdr / 'New value', 'Change' /
+    
+    if (opts%repopt == REP_NONE) return
     
     colwid = max(NUMWID, 12)
     
