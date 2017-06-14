@@ -9,6 +9,14 @@ serializes the model object and writes it
 to an RDS file. The model can be read back by function
 \code{\link{read_mdl}}.
 }
+\section{Usage}{
+
+\preformatted{
+mdl$write_mdl(file)
+}
+\code{mdl} is an \code{\link{IsisMdl}} object
+}
+
 \section{Arguments}{
 
 

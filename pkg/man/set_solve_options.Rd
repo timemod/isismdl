@@ -2,27 +2,240 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{set_solve_options}
 \alias{set_solve_options}
+\alias{get_solve_options}
 \title{\code{\link{IsisMdl}} method: Sets the solve options}
 \description{
-This method of R6 class \code{\link{IsisMdl}}
-sets the solve options.
+This method of R6 class \code{\link{IsisMdl}} can be used to set one or more
+solve options. These options will be stored in the \code{IsisMdl} object.
+
+Method \code{get_solve_options} returns the solve options as a named
+list
 }
 \section{Usage}{
 
 \preformatted{
-mdl$set_solve_options(...)
+mdl$set_solve_options(mode, fbstart, maxiter, maxjacupd, rlxspeed,
+                      rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
+                      xmaxiter, xupdate, dbgopt, erropt,
+                      report, ratreport, ratreport_rep, ratfullreport_rep,
+                      bktmax, xtfac)
 
+mdl$get_solve_options()
 }
+
 \code{mdl} is an \code{\link{IsisMdl}} object
 }
 
 \section{Arguments}{
 
 
+All arguments below expect a numerical value unless mentioned otherwise.
+
 \describe{
-\item{\code{...}}{the solve options, as named arguments (TODO: document
-the possible options)}
+\item{\code{mode}}{a character string specifying the solution mode
+(\code{"auto"}, \code{"ratex"}, \code{"dynamic"}, \code{"reschk"},
+\code{"backward"} or \code{"static"}). \code{"auto"} is the default.
+See section "Solution modes" below}
+\item{\code{fbstart}}{a character string specifying
+the method of initialising feedback values.
+(\code{"current"}, \code{"previous"}, \code{"curifok"} or \code{"previfok"}).
+The default is \code{"current"}. See section "Feedback initialisation
+methods" below}
+\item{\code{maxiter}}{the maximum number of iterations per period (default 50)}
+\item{\code{maxjacupd}}{the maximum number of Newton Jacobian updates per period
+ (default 10)}
+ \item{\code{rlxspeed}}{Newton relaxation shrinkage (default is 0.5)}
+ \item{\code{rlxmin}}{Minimum Newton relaxation factor (default is 0.05)}
+ \item{\code{rlxmax}}{Maximum Newton relaxation factor (default is 1.0)}
+ \item{\code{cstpbk}}{Stepback criterion (default is 1.3).
+If the convergence criterium \code{Fcrit} is larger
+than \code{cstpbk} or invalid feedback variables 
+have been obtained then the Newton step
+is not accepted and linesearching will be initiated. 
+If the linesearching procedure failed
+(\code{Fcrit} is still larger than \code{cstpbk}
+after the maximum number of linesearch steps \code{bktmax}
+has been reached or if the relaxation
+factor has become smaller than \code{rlxmin}), 
+a new Jacobian matrix is computed.  
+In each linesearch step the current relaxation factor is shrunk by 
+\code{rspeed}. 
+The relaxation factor is set to its maximum value
+\code{rlxmax}) when a new Jacobian has been calculated.
 }
+ \item{\code{cnmtrx}}{Recalculate matrix criterion (default is 0.9).
+If the convergence criterium \code{Fcrit} is larger
+than \code{cnmtrx} but smaller than \code{cstpbk},
+the Newton step is accepted but a new Jacobian is computed
+and the relaxation factor is set to its maximum value
+\code{rlxmax}.
+The new Jacobian is used in the next step. However, the 
+Jacobian will not be recalculated if the number of Jacobian updates
+in a period is larger than \code{maxjacupd}}
+ \item{\code{xrelax}}{Rational expectations relaxation factor (default is 1)}
+ \item{\code{xmaxiter}}{Maximum number of rational expectation iterations
+(default is 10)}
+ \item{\code{xupdate}}{Character string defining the method of updating
+leads. Possible values are \code{"fixed"} (the default) and \code{"lastval"}.
+For \code{"fixed"} the leads beyond the solution period
+are fixed at the initial values. For \code{"lastval"} leads beyond 
+the solution period take on the values from the last solution date}
+\item{\code{dbgopt}}{A character vector specifying one more
+debugging options. See section "Debugging options" below}
+\item{\code{erropt}}{Character string defining the error handling when 
+invalid lags, leads and/or exogenous variables are detected.
+Possible values are \code{"stop"} (stop on errors) 
+and \code{cont} (continue on errors). The default is \code{"stop"}}
+\item{\code{report}}{A character string defining the type of 
+computation progress report. Possible values are
+\code{"period"} (for a report per period),
+\code{"fullrep"} (for a full report), 
+\code{"minimal"}  (for a minimal report), and
+\code{"none"}  (for no report). The default is \code{"period"}}
+ The report options \code{"none"} also suppresses all output
+of the fit procedure and the Fair-Taylor progress report.
+\item{\code{ratreport}}{Defines the type of rational expectations progress
+report. See section "Ratex report options" below}
+\item{\code{ratreport_rep}}{An integer number specifying
+the Fair-Taylor report repetition count.
+See Section "Ratex report options" below}
+\item{\code{ratfullreport_rep}}{An integer number, specifying
+the Fair-Taylor full report repetition count. See Section 
+"Ratex report options" below}
+\item{\code{bktmax}}{Maximum number of backtracking linesearch steps 
+with old jacobian. Sometimes it is necessary for the Broyden 
+method to take a shorter step than the standard step. This is called
+backtracking linesearch. \code{bktmax} is the maximum number of
+line search steps before a new Jacobian is computed}
+\item{\code{xtfac}}{Rational expectations convergence test multiplier
+When using the \code{"ratex"} solution mode,
+convergence of endogenous leads cannot be tested to the accuracy used in
+testing for convergence in the solution of the model.
+This option specifies the multiplier to apply to the convergence criterion
+for each endogenous variable if the variable has an endogenous lead.
+Suppose for example that some variable has a convergence criterion of $10^{-5}$
+and assume a value of 10 for the multiplier.
+Then its endogenous lead will be regarded as converged}
+}
+}
+
+\section{Solution modes}{
+
+
+The solution mode can be specified with argument \code{mode}.
+Possible values are:
+\describe{
+\item{\code{"auto"}}{determine the solution mode automatically:
+\code{"ratex"} for models with endogenous leads
+and \code{"dynamic"} for models without endogenous leads}
+\item{\code{"dynamic"}}{to update lags and current values of all
+right-hand side endogenous variables (leads are not updated). This is the
+default for models without endogenous leads}
+\item{\code{"ratex"}}{to update lags, leads and current values of all
+right-hand side endogenous variables. This is the default mode
+for models with endogenous leads.
+The model is solved in dynamic mode for all periods conditional
+on the endogenous right-hand side leads. After solving for the complete
+solution period the endogenous leads are updated with the the results
+for the corresponding endogenous variables. The solution process thus consists
+of an two loops: an inner loop solving the model  for all periods given the leads and
+an outer loop which solves for the endogenous leads}
+\item{\code{"static"}}{to update only current values of right-hand side
+endogenous variables lags and leads are not modified}
+\item{\code{"reschk"}}{to not update right-hand side
+endogenous variables from the solution}
+\item{\code{"backward"}}{same as dynamic, except that the model is solved
+backwards. The model is solved in reversed order by starting at the last
+solution period and ending at the first solution period. Leads are updated
+and lags are not updated}
+}
+If a model contains leads then the \code{"ratex"} mode is the
+default; this is a Fair-Taylor algorithm.
+
+The default is \code{"auto"}.
+}
+
+\section{Feedback initialisation methods}{
+
+
+Argument \code{fbstart} can be used to specify 
+the way how the feedback variables at the current period
+(i.e. the period for which the model is being solved)
+are initialised from the model data.
+Possible values of \code{fbstart} are:
+\describe{
+\item{\code{"current"}}{the initial values are always taken from the
+current period. This is the default}
+\item{\code{"previous"}}{The initial values are
+taken from the previous period except when the first period
+to be solved is the start of the model data period.
+In that case current period values are used}
+\item{\code{"curifok"}}{Current period
+values are used if they are valid otherwise previous period
+values are used}
+\item{\code{"previfok"}}{At the start of the solution
+period, previous period values will be used if they are available
+and valid; otherwise current period values will be used.
+Thereafter previous period initial values are always used, which is
+equivalent to the \code{"previous"} method}
+}
+The default is \code{"current"}.
+}
+
+\section{Debugging options}{
+
+
+Argument \code{dbgopt} can be used to specify one or more
+options for debugging.  Possible values are
+\describe{
+\item{\code{"prifb"}}{print feedback variables at each iteration}
+\item{\code{"prild"}}{print all leads at each ratex iteration}
+\item{\code{"prijac"}}{print jacobian matrix when updated}
+\item{\code{"prinoconv"}}{print all not converged endogenous variables}
+\item{\code{"prinotconvl"}}{print all not converged leads}
+\item{\code{"allinfo"}}{all of the above}
+\item{\code{"noprifb"}}{do not print feedback variables at each iteration}
+\item{\code{"noprild"}}{do not print all leads at each ratex iteration}
+\item{\code{"noprijac"}}{do not print jacobian matrix when updated}
+\item{\code{"noprinoconv"}}{print only the largest discrepancy of
+all not converged endogenous variables}
+\item{\code{"noprinotconvl"}}{print only the largest discrepancy of
+all not converged leads}
+\item{\code{"noinfo"}}{no debugging output}
+\item{\code{"priscal"}}{print scaling factors as determined from the
+jacobian}
+\item{\code{nopriscal}}{do not print scaling factors as determined
+from the jacobian}
+}
+Default is no printing of debugging information.
+}
+
+\section{Ratex report options}{
+
+
+The type of report is determined by argument \code{ratreport}.
+Arguments \code{ratreport_rep} (the report repetion count)
+and \code{ratfullreport_rep} (the full report repetition count),
+both specified as integer numbers,
+can be used to futher modify the progress report.
+
+Possible values for \code{ratreport} are
+\describe{
+\item{\code{"iter"}}{print the number of not converged 
+expectation values every \code{ratreport_rep} Fair Taylor iteration
+(the default)}
+\item{\code{"fullrep"}}{full report. The number of not converged 
+expectation values is printed every \code{ratreport_rep} Fair Taylor
+ iteration and the largest remaining discrepancy every 
+\code{ratfullreport_rep} Fair Taylor iteration}
+\item{\code{"minimal"}}{for a full report only after the last Fair Taylor
+iteration}
+}
+
+If \code{ratfullreport_rep} is \code{NA}, then the full report
+is printed every \code{ratreport_rep} Fair-Taylor iteration.
+The default values for \code{ratreport_rep}  and \code{ratfullreport_rep}
+are 1 and \code{NA}, respectively.
 }
 
 \examples{

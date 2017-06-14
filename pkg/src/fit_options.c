@@ -1,6 +1,7 @@
 #include <string.h>
 #include "solve_options.h"
 #include "option_utils.h"
+#include "fit_options.h"
 
 /* NOTE: the ordering of REPORT_OPTIONS should agree with the
  * ordering of the fit%repopt in solve_options_type.f90 */

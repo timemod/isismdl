@@ -2,17 +2,24 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{set_rms}
 \alias{set_rms}
-\title{\code{\link{IsisMdl}} method: Sets or updates  the rms values}
+\alias{get_rms}
+\title{\code{\link{IsisMdl}} method: Sets or updates  the root mean square errors}
 \description{
 This method of R6 class \code{\link{IsisMdl}}
-sets or update the rms values
+sets or updates the root mean square (rms) error data 
+used in the fit procedure. All variables whose rms value
+is larger than 0 and not \code{NA} are used as 
+instruments of the fit procedure.
 
-Sets or updates  the rms values
+Method \code{get_rms} returns all rms values
+larger than 0 and not equal to \code{NA}.
 }
 \section{Usage}{
 
 \preformatted{
 mdl$set_rms(values)
+
+mdl$get_rms()
 
 }
 
@@ -23,7 +30,20 @@ mdl$set_rms(values)
 
 
 \describe{
-\item{\code{values}}{a named numeric vector with rms values}
+\item{\code{values}}{a named numeric vector with rms values.
+If a value is positive and not \code{"NA"},
+then the corresponding value will be used
+as fit instrument}
 }
 }
 
+\examples{
+mdl <- islm_mdl(period = "2017Q1/2018Q4")
+
+mdl$set_rms(c(c = 5.0, t = 2, i = 21, md = 2))
+print(mdl$get_rms())
+
+# stop using variable t as fit instrument
+mdl$set_rms(c(t = NA))
+print(mdl$get_rms())
+}

@@ -5,13 +5,30 @@
 \title{\code{\link{IsisMdl}} method: returns the the equation names}
 \description{
 This method of R6 class \code{\link{IsisMdl}} returns the
-the equation names
+the equation names.
+Argument \code{pattern} can be specified to select only
+equations with names matching a regular expression. Argument \code{type}
+can be specified to select equations with a specific type.
+The following types are supported
+\describe{
+\item{\code{"active"}}{active equations}
+\item{\code{"inactive"}}{inactive equations}
+\item{\code{"all"}}{all equations, the default}
+}
+
+Argument \code{order} specifies the order of the eqautions returned.
+The following ordering options are recognized:
+\describe{
+\item{\code{"sorted"}}{alphabetically ordering}
+\item{\code{"solve"}}{ordered according to the solution sequence}
+\item{\code{"natural"}}{same order as in the \code{mdl} file}
+}
 }
 \section{Usage}{
 
 \preformatted{
-mdl$get_eq_names(pattern = ".*", type =  c("all", "inactive"),
-                 order =  order = c("sorted", "solve", "natural"))
+mdl$get_eq_names(pattern = ".*", type =  c("all", "active", "inactive"),
+                 order =  c("sorted", "solve", "natural"))
 
 }
 
@@ -22,9 +39,18 @@ mdl$get_eq_names(pattern = ".*", type =  c("all", "inactive"),
 
 
 \describe{
-\item{\code{pattern}}{a regular expression}
-\item{\code{type}}{the type (all or inactive)}
-\item{\code{order}}{the ordering of the equations}
+\item{\code{pattern}}{a regular expression specifying equation names}
+\item{\code{type}}{the equation type, see description)}
+\item{\code{order}}{the ordering of the equations (see description)}
 }
 }
 
+\examples{
+mdl <- islm_mdl()
+
+# get the names of equations in solution order
+mdl$get_eq_names(order = "solve")
+
+# get all equations with names starting with "y":
+mdl$get_eq_names(pattern = "^y.*")
+}

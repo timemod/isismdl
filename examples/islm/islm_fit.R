@@ -2,7 +2,7 @@ library(regts)
 library(isismdl)
 
 rds_file <- "islm_basis.rds"
-if (!file.exists(rds_file)) {	
+if (!file.exists(rds_file)) {
     stop("No rds file with model present. Run job islm_basis.R first")
 }
 mdl <- read_mdl(rds_file)
@@ -18,7 +18,7 @@ print(rms_values)
 print(names(rms_values))
 mdl$set_rms(rms_values)
 mdl$set_solve_options(report = "period")
-mdl$set_fit_options(report = "mininal")
+mdl$set_fit_options(report = "minimal")
 mdl$solve()
 print(mdl$get_data())
 print(mdl$get_ca())

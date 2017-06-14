@@ -2,16 +2,19 @@ module nuna
     use kinds
 
     ! constant for holding missing values.
-    ! the constant should be intitialised once.
+    ! the constant should be initialised once.
     real(kind = ISIS_RKIND), save :: NA = -1.0_ISIS_RKIND
+    integer(kind = ISIS_IKIND), save :: NA_INTEGER = -1_ISIS_IKIND
 
     contains
 
         ! initialise constant NA by calling the C function 
-        ! get_na_real (see nuna.c). 
+        ! get_na_real (see nuna_c.c). 
         subroutine init_na
             real(kind = ISIS_RKIND), external :: get_na_real
+            integer(kind = ISIS_IKIND), external :: get_na_integer
             NA = get_na_real()
+            NA_INTEGER = get_na_integer()
         end subroutine init_na
 
         logical function nuifna(x)

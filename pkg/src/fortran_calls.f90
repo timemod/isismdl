@@ -115,6 +115,33 @@ subroutine set_rms_fortran(mws_index, var_index, value)
     call set_rms(mws_array(mws_index), var_index, value, error)
 end subroutine set_rms_fortran
 
+function has_rms_fortran(mws_index)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in) :: mws_index
+    integer(c_int) :: has_rms_fortran
+
+    logical :: has_rms_
+
+    has_rms_ = has_rms(mws_array(mws_index))
+    if (has_rms_) then
+        has_rms_fortran =  1
+    else 
+        has_rms_fortran =  0
+    endif
+    
+end function has_rms_fortran
+
+subroutine get_rms_fortran(mws_index, values)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in) :: mws_index
+    real(c_double), intent(out) :: values(*)
+
+    call get_rms(mws_array(mws_index), values)
+end subroutine get_rms_fortran
+
+
 ! run all equations in the model starting a each time
 subroutine mdlpas_fortran(mws_index, jtb, jte)
     use modelworkspaces
@@ -201,6 +228,21 @@ subroutine remove_mws_fortran(model_index)
     call remove_mws(model_index)
 end subroutine remove_mws_fortran
 
+subroutine clear_fit_fortran(model_index)
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: model_index
+    call clear_fit(mws_array(model_index))
+end subroutine clear_fit_fortran
+
+subroutine clear_fix_fortran(model_index)
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: model_index
+    call clear_fix(mws_array(model_index))
+end subroutine clear_fix_fortran
+
+
 subroutine set_test(mws_index, ivar, value)
     ! set convergence test value
     use modelworkspaces
@@ -272,5 +314,7 @@ subroutine clone_mws_fortran(model_index, model_index_clone)
     if (model_index_clone < 0) return
 
     mws_array(model_index_clone) = mws_array(model_index)
+    call clone_fit(mws_array(model_index_clone))
+    call clone_fix(mws_array(model_index_clone))
     
 end subroutine clone_mws_fortran

@@ -6,6 +6,7 @@
 #include "set_solve_options.h"
 #include "set_fit_options.h"
 #include "option_utils.h"
+#include "init_set_get_options.h"
 
 #define MAX_NAME_LEN 32
 #define ALL     1
@@ -18,7 +19,8 @@
 #define FIT   4
 
 #define ALL_EQ      1
-#define INACTIVE_EQ 2
+#define ACTIVE_EQ   2
+#define INACTIVE_EQ 3
 
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
@@ -52,12 +54,15 @@ extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp,
                                      int *report_type);
 extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index,
                                       double *value);
+extern int F77_NAME(has_rms_fortran)(int *mws_index);
+extern void F77_NAME(get_rms_fortran)(int *mws_index, double *values);
 extern void F77_NAME(set_test)(int *mws_index, int *var_index, double *value);
 extern double F77_NAME(get_test)(int *mws_index, int *var_index, int *alphabet);
 extern void F77_NAME(activate_equation)(int *mws_index, int *var_index);
 extern void F77_NAME(deactivate_equation)(int *mws_index, int *var_index);
 extern void F77_NAME(set_ftrelax)(int *mws_index, int *var_index, double *value);
 extern double F77_NAME(get_ftrelax)(int *mws_index, int *var_index);
+extern void F77_SUB(init_set_options)(int *mws_index, int *use_mws);
 
 SEXP read_mdl_c(SEXP filename) {
 
@@ -169,6 +174,8 @@ SEXP get_eq_names_c(SEXP type_, SEXP model_index_, SEXP order_) {
     int type;
     if (strcmp(type_str, "all") == 0) {
         type = ALL_EQ;
+    } else if (strcmp(type_str, "active") == 0) {
+        type = ACTIVE_EQ;
     } else if (strcmp(type_str, "inactive") == 0) {
         type = INACTIVE_EQ;
     } else {
@@ -188,8 +195,10 @@ SEXP get_eq_names_c(SEXP type_, SEXP model_index_, SEXP order_) {
         if (ieq <= 0) {
             continue;
         }
-        if (type == INACTIVE_EQ) {
-            ok = ! F77_CALL(equation_is_active)(&model_index, &ieq, &alphabet);
+        if (type == ACTIVE_EQ || type == INACTIVE_EQ) {
+            int is_active = F77_CALL(equation_is_active)(&model_index, &ieq, 
+                                                         &alphabet);
+            ok = type == ACTIVE_EQ ? is_active : !is_active;
         } else {
             ok = 1;
         }
@@ -449,6 +458,19 @@ void set_rms_c(SEXP mws_index_, SEXP values) {
         double value = REAL(values)[i];
         F77_NAME(set_rms_fortran)(&mws_index, &iv, &value);
     }
+} 
+
+SEXP get_rms_c(SEXP mws_index_) {
+    int mws_index = asInteger(mws_index_);
+    if (!F77_CALL(has_rms_fortran)(&mws_index)) {
+        return R_NilValue;
+    } else {
+        int n = F77_CALL(get_ca_count)(&mws_index);
+        SEXP ret = PROTECT(allocVector(REALSXP, n));
+        F77_CALL(get_rms_fortran)(&mws_index, REAL(ret));
+        UNPROTECT(1);
+        return ret;
+    }
 }
 
 void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,
@@ -460,15 +482,21 @@ void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,
     int endp= asInteger(endp_);
 
     int opts_present = length(options) > 0;
+    int fit_opts_present = length(fit_options) > 0;
+
+    opts_present = opts_present || fit_opts_present;
+
     if (opts_present) {
         int use_mws = 0;
-        set_solve_options(&mws_index, &use_mws, options);
+        F77_CALL(init_set_options)(&mws_index, &use_mws);
     }
-    int fit_opts_present = length(fit_options) > 0;
+
+    if (opts_present) {
+        set_solve_options(&mws_index, options);
+    }
     if (fit_opts_present) {
         int use_mws = 0;
-        set_fit_options(&mws_index, &use_mws, fit_options);
-        opts_present = 1;
+        set_fit_options(&mws_index, fit_options);
     }
     int error;
     F77_CALL(solve_fortran)(&mws_index, &startp, &endp, &opts_present, &error);
@@ -510,10 +538,10 @@ void set_cvgcrit_c(SEXP mws_index_, SEXP names, SEXP value_) {
     }
 }
 
-/* Sets convergence criterium for all model variables, used in set_mws.
+/* Sets convergence criterium for all model variables, used in init_mws.
  * values is a vector with convergence criteria for the model variables
  * in natural (i.e. non-alphabetical) order */
-void set_cvgcrit_set_mws(SEXP mws_index_, SEXP values) {
+void set_cvgcrit_init_mws(SEXP mws_index_, SEXP values) {
     int mws_index = asInteger(mws_index_);
     int i;
     for (i = 1; i <- length(values); i++) {
@@ -562,7 +590,7 @@ void set_ftrelax_c(SEXP mws_index_, SEXP names, SEXP value_) {
 
 /* Sets Fair-Taylor relaxation factors for all endogenous leads.
  * in natural (i.e. non-alphabetical) order */
-void set_ftrelax_set_mws(SEXP mws_index_, SEXP values) {
+void set_ftrelax_init_mws(SEXP mws_index_, SEXP values) {
     int mws_index = asInteger(mws_index_);
     int i;
     for (i = 1; i <= length(values); i++) {

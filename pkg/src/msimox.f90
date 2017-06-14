@@ -72,7 +72,7 @@ end subroutine simox1
 
 !-----------------------------------------------------------------------
 
-subroutine rtxhdr(split, mxlen, tlen, screen)
+subroutine rtxhdr(split, mxlen, tlen)
 
 !     output of ratex discrepancy/ies header line
 !     mxlen is (maximum name length) (modified if < len(variable))
@@ -81,7 +81,6 @@ subroutine rtxhdr(split, mxlen, tlen, screen)
 logical, intent(out) ::  split
 integer, intent(inout) ::  mxlen
 integer, intent(in) ::  tlen
-logical, intent(in) :: screen   ! print message to the screen
 
 integer ::  i
 character(len = 10) :: hdr(7)
@@ -126,7 +125,6 @@ do  i=2,7
 enddo
 
 call strout(O_OUTN)
-if (screen) print *, str(:len_trim(str))
 
 return
 end subroutine rtxhdr
@@ -134,7 +132,7 @@ end subroutine rtxhdr
 !-----------------------------------------------------------------------
 
 subroutine rtxdln(split,mxlen,curnam,curlen,target,oldval,newval, &
-&                 disc, dsctyp, test, first, screen)
+&                 disc, dsctyp, test, first)
 
 !     output of ratex discrepancy line
 
@@ -147,7 +145,6 @@ real(kind = SOLVE_RKIND), intent(in) :: oldval, newval, disc
 character(len = *), intent(in) :: dsctyp
 real(kind = SOLVE_RKIND), intent(in) :: test
 logical, intent(in) :: first
-logical, intent(in) :: screen   ! print message to the screen
 
 if( .not. split ) then
    call strini(curnam(:curlen), 1 + mxlen + ICSPAC)
@@ -155,7 +152,6 @@ else
    if( first ) then
       write(str,'(2a)') 'Variable ',curnam(:curlen)
       call strout(O_OUTN)
-      if (screen) print *, str(:len_trim(str))
    endif
    call strini( ' ', 1)
 endif
@@ -186,7 +182,6 @@ spos = spos + len(dsctyp) + ICSPAC
 call nvlfmt(test, str(spos : spos + NUMWID - 1))
 
 call strout(O_OUTN)
-if (screen) print *, str(:len_trim(str))
 
 return
 end subroutine rtxdln
@@ -202,11 +197,6 @@ integer ::  noncvg, iratex
 
 write(str,901) noncvg,iratex
 call strout(O_OUTN)
-
-if (opts%ratrepopt == RATOPT_ITERSCRN .or. &
-    opts%ratrepopt == RATOPT_FULLREPSCRN) then
-   print *, str(:len_trim(str))
-endif
 
 901 format('No convergence for ',i8,' expectation values ', &
 &      'after ',i8,' iterations')
@@ -269,14 +259,12 @@ endif
 
 !     header line
 
-call rtxhdr(split, nlen, len(target), &
-            opts%ratrepopt == RATOPT_FULLREPSCRN)
+call rtxhdr(split, nlen, len(target))
 
 !     next line with variable name or single line with variable name
 cvgtst = opts%xtfac * mws%test(imax)
 call rtxdln(split, nlen, name, nlen, target, xomax, xnmax, &
-&           dismax * cvgtst, cdum, cvgtst, .true., &
-            opts%ratrepopt == RATOPT_FULLREPSCRN)
+&           dismax * cvgtst, cdum, cvgtst, .true.)
 
 return
 end subroutine simox4
@@ -303,7 +291,7 @@ str = 'All remaining discrepancies'
 call strout(O_OUTB)
 
 mxnlen = maxnli(mdl%ivnames, mdl%iendex, 1_MC_IKIND, mdl%nendex)
-call rtxhdr(split, mxnlen, len(target), .false.)
+call rtxhdr(split, mxnlen, len(target))
 
 do k = 1, mdl%nendex
 
@@ -331,7 +319,7 @@ do k = 1, mdl%nendex
           endif
           call sjttmp(target,j)
           call rtxdln(split, mxnlen, name, nlen, target,xold,xnew, &
-&                     absdif, cdum, cvgtst, first, .false.)
+&                     absdif, cdum, cvgtst, first)
           if( first ) first = .not. first
        endif
 

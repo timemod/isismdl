@@ -38,7 +38,7 @@ mdl_period <- mdl$get_period()
 dif <- tsdif(mdl$get_data(period = mdl_period), isis_result, tol = 1e-6, 
              fun = cvgdif)
 
-ca_names <- mdl$get_var_names(vtype = "allfrml")
+ca_names <- mdl$get_var_names(type = "allfrml")
 dif_ca <- tsdif(mdl$get_ca(period = mdl_period), isis_ca_result, tol = 1e-6, 
                 fun = cvgdif)
 

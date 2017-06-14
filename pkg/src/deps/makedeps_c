@@ -1,15 +1,19 @@
 by.o : isismdl_types.h
-c_calls.o : c_calls.h get_info.h option_utils.h set_fit_options.h \
-           set_solve_options.h
+c_calls.o : c_calls.h get_info.h init_set_get_options.h option_utils.h \
+           set_fit_options.h set_solve_options.h
 dependencies.o : dependencies.h util.h
 ecode.o : dependencies.h ecode.h ipcode.h mchdr.h mcinit.h mcopt.h \
          symbol.h util.h xpcdef.h xpctab.h
 expsymtab.o : dependencies.h isismdl_types.h mcinit.h symbol.h \
              xpcdef.h
-fit_options.o : option_utils.h solve_options.h
+fit_options.o : fit_options.h option_utils.h solve_options.h
 fname.o : fname.h
 futils.o : futils.h
-get_solve_opts_c.o : init_set_get_options.h solve_options.h
+get_fit_opts_c.o : fit_options.h get_option_utils.h \
+                  init_set_get_options.h
+get_option_utils.o : get_option_utils.h
+get_solve_opts_c.o : get_option_utils.h init_get_options.h \
+                    solve_options.h
 include_paths.o : futils.h mchdr.h mcopt.h util.h
 mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h ipcode.h \
           isismdl.h mchdr.h mcinit.h mcopt.h outecode.h outmdl.h symbol.h util.h \
@@ -27,9 +31,10 @@ scan.o : dependencies.h ecode.h flags.h fname.h ipcode.h mchdr.h \
 scan_params.o : dependencies.h ecode.h ipcode.h isismdl.h mchdr.h \
                mcopt.h symbol.h util.h xpcdef.h xpctab.h
 set_fit_opts_c.o : fit_options.h init_set_get_options.h \
-                  set_fit_options.h
-set_solve_opts_c.o : init_set_get_options.h set_solve_options.h \
-                    set_solve_opts.h solve_options.h
+                  set_fit_options.h set_option_utils.h
+set_option_utils.o : set_option_utils.h
+set_solve_opts_c.o : init_set_get_options.h set_option_utils.h \
+                    set_solve_options.h set_solve_opts.h solve_options.h
 solve_options.o : option_utils.h solve_options.h
 symbol.o : dependencies.h isismdl.h symbol.h util.h xpcdef.h
 util.o : isismdl.h util.h

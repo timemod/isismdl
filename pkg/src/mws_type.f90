@@ -62,11 +62,36 @@ module mws_type
             deallocate(mws%constant_adjustments, stat = stat)
             deallocate(mws%test, stat = stat)
             deallocate(mws%ftrelax, stat = stat)
-            deallocate(mws%rmsu, stat = stat)
-            call clear_mdl_variables(mws%fix_vars)
-            call clear_mdl_variables(mws%fit_targets)
+            call clear_fit(mws)
+            call clear_fix(mws)
             call deallocate_model(mws%mdl)
         end subroutine clear_mws
+
+        subroutine clear_fit(mws)
+            type(modelworkspace), intent(inout) :: mws
+            integer :: stat
+            deallocate(mws%rmsu, stat = stat)
+            call clear_mdl_variables(mws%fit_targets)
+        end subroutine clear_fit
+
+        subroutine clear_fix(mws)
+            type(modelworkspace), intent(inout) :: mws
+            call clear_mdl_variables(mws%fix_vars)
+        end subroutine clear_fix
+
+        subroutine clone_fit(mws) 
+            type(modelworkspace), intent(inout) :: mws
+            type(mdl_variables) :: clone
+            call clone_mdl_variables(mws%fit_targets, clone)
+            mws%fit_targets = clone
+        end subroutine clone_fit
+
+        subroutine clone_fix(mws) 
+            type(modelworkspace), intent(inout) :: mws
+            type(mdl_variables) :: clone
+            call clone_mdl_variables(mws%fix_vars, clone)
+            mws%fix_vars = clone
+        end subroutine clone_fix
 
         ! 
         ! Sets a model parameter. Returns 0 on succes and 1 if argument
@@ -403,6 +428,22 @@ module mws_type
             if (.not. error) mws%rmsu(aci) = value
 
         end subroutine set_rms
+
+        logical function has_rms(mws) 
+            type(modelworkspace), intent(in) :: mws
+            has_rms = allocated(mws%rmsu)
+        end function has_rms
+
+        subroutine get_rms(mws, values)
+            type(modelworkspace), intent(in) :: mws
+            real(kind = MWS_RKIND), intent(out) :: values(1:mws%mdl%nca)
+    
+            if (.not. has_rms(mws)) then
+                values = NA
+            else
+                values = mws%rmsu
+            endif
+        end subroutine get_rms
 
         subroutine mknumu(mws, numu, numr, nu)
             use nucnst

@@ -90,7 +90,7 @@ logical function has_mdl_var(mdl_vars, jt)
 end function has_mdl_var
 
 subroutine clear_mdl_variables(mdl_vars)
-    type(mdl_variables) :: mdl_vars
+    type(mdl_variables), intent(inout) :: mdl_vars
     !
     ! clear mdl variables
     !
@@ -109,7 +109,6 @@ subroutine clear_mdl_variables(mdl_vars)
     nullify(mdl_var)
     nullify(mdl_vars%first)
     mdl_vars%var_count = 0
-
 end subroutine clear_mdl_variables
 
 subroutine add_mdl_variable(mdl_vars, varnum, vcnt, jstart, vardat, ierr)
@@ -235,8 +234,38 @@ subroutine add_mdl_variable(mdl_vars, varnum, vcnt, jstart, vardat, ierr)
 
 end subroutine add_mdl_variable
 
+subroutine clone_mdl_variables(mdl_vars, mdl_vars_clone)
+    type(mdl_variables), intent(in)  :: mdl_vars
+    type(mdl_variables), intent(out) :: mdl_vars_clone
+
+    integer :: stat
+    type(mdl_variable), pointer :: cur, cur_clone, prev_clone
+    
+    mdl_vars_clone%var_count = mdl_vars%var_count
+    if (mdl_vars%var_count == 0) return
+
+    cur => mdl_vars%first
+    prev_clone => null()
+    do
+       allocate(cur_clone, stat = stat)
+       cur_clone = cur
+       cur_clone%next => null()
+       if (associated(prev_clone)) then
+           prev_clone%next => cur_clone
+       else 
+           mdl_vars_clone%first => cur_clone
+       endif
+       prev_clone => cur_clone
+       cur => cur%next
+       if (.not. associated(cur)) exit
+    end do
+
+    cur_clone => mdl_vars_clone%first
+
+end subroutine clone_mdl_variables
+
 subroutine dump_mdl_variables(mdl_vars)
-    type(mdl_variables) :: mdl_vars
+    type(mdl_variables), intent(in) :: mdl_vars
 
     !
     ! Dump mdl values (for testing purpose only
