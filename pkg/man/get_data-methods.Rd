@@ -53,3 +53,7 @@ object that can be coerced to a \code{period_range}}
 }
 }
 
+\seealso{
+\code{\link{set_data-methods}}, \code{\link{set_values-methods}}
+and \code{\link{change_data-methods}}
+}

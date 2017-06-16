@@ -33,12 +33,14 @@ mdl$set_fit(data, names = colnames(data), upd_mode = c("upd", "updval"))
 
 \describe{
 \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
- object}
-\item{\code{names}}{a character vector with variable names. Defaults to the
+ timeseries object}
+\item{\code{names}}{a character vector with variable names, with the 
+same length as the number of timeseries in \code{data}. Defaults to the
 column names of \code{data}. If \code{data} does not have column names,
 then argument \code{names} is mandatory}
-\item{\code{upd_mode}}{a character string specifying how the timeseries are
-updated. See details}.
+\item{\code{upd_mode}}{the update mode, a character string specifying
+how the timeseries are updated: \code{"upd"} (standard update, default) or 
+\code{"updval"} (update only with valid numbers). See details}.
 }
 }
 
@@ -56,10 +58,57 @@ model variables (i.e. model variables that occur at the left
 hand side of a frml equation). The model variables will be fixed
 at the specified value. A fix value of \code{NA} implies 
 that the corresponding variable is not fixed. \code{set_fix} 
-also updates the model data with all non-NA values}
+also updates the model data with all non NA values}
 \item{\code{set_fit}}{Set fit targets for the fit procedure.
 A fit target value of \code{NA} implies 
 that the corresponding variable is no fit target}
 }
 }
 
+\section{Details}{
+
+
+Method \code{set_data} transfers data from a timeseries object to the
+model data. If \code{data} is a multivariate timeseries object, then
+each column is used to update the model variable with the same
+name as the column name. If \code{data} does not have column names,
+or if the column names do not correspond to the model variable names,
+then argument \code{names} should be specified.
+
+By default, all values in \code{data} are used to update the corresponding
+model variable. Sometimes it is desirable to skip the \code{NA} values
+in \code{data}. This can be achieved by selecting \code{"updval"} for argument
+\code{upd_mode}. Other non finite numbers (\code{NaN}, \code{Inf}, and
+\code{-Inf}) are also disregarded for this update mode.
+
+\code{set_ca}, \code{set_fix} and \code{set_fit} and
+\code{set_data} works similarly.
+}
+
+\examples{
+
+mdl <- islm_mdl(period = "2017Q1/2017Q3")
+
+# create a multivariate regts object for exogenous variables g and md
+exo <- regts(matrix(c(200, 210, 220, 250, 260, 270), ncol = 2),
+             start = "2017Q1", names = c("g", "ms"))
+
+# set and print data
+mdl$set_data(exo)
+print(mdl$get_data())
+
+# create a univariate regts object for exogenous variable ms,
+# with a missing value in 2017Q2
+ms <- regts(c(255, NA, 273), start = "2017Q1")
+
+# update with update mode updval (ignore NA)
+# note that here we have to specify argument names,
+# because md does not have column names
+mdl$set_data(ms, names = "ms", upd_mode = "updval")
+print(mdl$get_data())
+
+}
+\seealso{
+\code{\link{get_data-methods}}, \code{\link{set_values-methods}}
+and \code{\link{change_data-methods}}
+}
