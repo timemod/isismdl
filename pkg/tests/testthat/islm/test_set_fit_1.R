@@ -30,11 +30,42 @@ test_that("set_fit update mode upd", {
   # expect_equal(mdl2$get_ca(), new_ca)
 })
 
-# test_that("set_ca update mode updval", {
-#   mdl2 <- mdl$clone(deep = TRUE)
-#   mdl2$set_ca(new_ca, upd_mode = "updval")
-#   expect_equal(mdl2$get_ca(), mdl$get_ca())
-# })
+test_that("set_fit for update mode upd (second test)", {
+  mdl2 <- mdl$clone(deep = TRUE)
+
+  fit2 <- fit
+  fit2["2015q2", "i"] <- NA
+  fit2["2015q3", "c"] <- 650
+
+  mdl2$set_fit(fit)
+  mdl2$set_fit(fit2, upd_mode = "upd")
+
+  fit_combi <- ts_update(fit, fit2, method = "tsupd")[, c("c", "y")]
+  # update labels (ts_update does not handle labels correctly yet)
+  fit_combi <- update_ts_labels(fit_combi, ts_labels(fit))
+
+  expect_equal(mdl2$get_fit(), fit_combi)
+  expect_equal(mdl2$get_data(), mdl$get_data())
+})
+
+
+test_that("set_fit for update mode updval", {
+  mdl2 <- mdl$clone(deep = TRUE)
+
+  fit2 <- fit
+  fit2["2015q2", "i"] <- NA
+  fit2["2015q3", "c"] <- 650
+
+  mdl2$set_fit(fit)
+  mdl2$set_fit(fit2, upd_mode = "updval")
+
+  fit_combi <- ts_update(fit, fit2, method = "tsupdval")[, c("c", "i", "y")]
+  # update labels (ts_update does not handle labels correctly yet)
+  fit_combi <- update_ts_labels(fit_combi, ts_labels(fit))
+
+  expect_equal(mdl2$get_fit(), fit_combi)
+  expect_equal(mdl2$get_data(), mdl$get_data())
+})
 
 
 

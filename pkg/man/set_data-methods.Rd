@@ -20,10 +20,9 @@ mdl$set_data(data, names = colnames(data), upd_mode = c("upd", "updval"))
 
 mdl$set_ca(data, names = colnames(data), upd_mode = c("upd", "updval"))
 
-mdl$set_fix(data, names = colnames(data))
+mdl$set_fix(data, names = colnames(data), upd_mode = c("upd", "updval"))
 
-mdl$set_fit(data, names = colnames(data))
-
+mdl$set_fit(data, names = colnames(data), upd_mode = c("upd", "updval"))
 }
 
 \code{mdl} is an \code{\link{IsisMdl}} object

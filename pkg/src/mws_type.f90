@@ -26,15 +26,6 @@ module mws_type
 
     private :: update_value
 
-    !
-    ! constant for several update modes.
-    ! the constants should be in agreement with ...
-    !
-    integer, parameter, private :: REPLACE = 0
-    integer, parameter, private :: UPD     = 1
-    integer, parameter, private :: UPD_NA  = 2
-    integer, parameter, private :: UPD_VAL = 3
-
     contains
 
         subroutine mwsinit(mws, error)
@@ -400,14 +391,16 @@ module mws_type
         end subroutine get_fix_fit
 
         subroutine set_fix_fit(mws, nvar, ivar, ntime, jtb, jte, mat, icol, &
-                               fix)
+                               fix, upd_mode)
             ! set fix or fit values, depending on variable fix
             type(modelworkspace), intent(inout), target :: mws 
-            integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*)
+            integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*), &
+                                   upd_mode
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
+            real(kind = MWS_RKIND) :: fix_value
             logical, intent(in) :: fix
 
-            integer :: i, jstart, jend, vcnt, ierr, iv, im
+            integer :: i, jstart, jend, vcnt, ierr, iv, im, it, itd
 
             type(mdl_variables), pointer :: mdl_vars
 
@@ -427,15 +420,20 @@ module mws_type
                 iv = ivar(i)
                 if (fix .and. .not. is_frml(mws%mdl, iv)) cycle
                 call add_mdl_variable(mdl_vars, iv, vcnt, jstart, &
-                                      mat(im, icol(i)), ierr)
+                                      mat(im, icol(i)), upd_mode, ierr)
                 if (ierr /=0) return ! not enough memory
+                if (fix) then
+                    ! update mdl data
+                    do it = 1, vcnt
+                        itd = it + mws%mdl%mxlag
+                        fix_value = mat(im + it - 1, icol(i))
+                        if (.not. nuifna(fix_value)) then
+                            mws%mdl_data(iv, jstart + itd - 1) = fix_value
+                        endif
+                     end do
+                 endif
             end do
 
-            if (fix) then
-                ! also update the model data variables
-                call set_data(mws, nvar, ivar, ntime, jtb, jte, mat, icol, &
-                              UPD_VAL)
-            endif
         end subroutine set_fix_fit
 
         logical function isfixp(mws, jt)

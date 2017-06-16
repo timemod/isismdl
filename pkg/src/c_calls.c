@@ -47,7 +47,8 @@ extern void F77_NAME(set_ca_fortran)(int *mws_index, int *, int *ivar,
                                        double *data, int *icol, int *upd_mode);
 extern void F77_NAME(set_fix_fit_fortran)(int *mws_index, int *, int *ivar, 
                                       int *ntime, int *jtb, int *jte, 
-                                      double *data, int *icol, int *fix);
+                                      double *data, int *icol, int *fix,
+                                      int *upd_mode);
 extern void F77_NAME(solve_fortran)(int *mws_index, int *startp, int *endp,
                                     int *opts_present, int *error);
 extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp,
@@ -361,12 +362,10 @@ void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_,
      * values should agree with the parameters
      * UPD and UPD_NA in Fortran module mws_type. */
     int upd_mode = 1;
-    if (set_type == SET_DATA || set_type == SET_CA) {
-        if (strcmp(upd_mode_str, "upd") == 0) {
-            upd_mode = 1;
-        } else if (strcmp(upd_mode_str, "updval") == 0) {
-            upd_mode = 3;
-        }
+    if (strcmp(upd_mode_str, "upd") == 0) {
+        upd_mode = 1;
+    } else if (strcmp(upd_mode_str, "updval") == 0) {
+        upd_mode = 3;
     }
 
     SEXP dim = getAttrib(mat, R_DimSymbol);
@@ -408,7 +407,8 @@ void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_,
         case SET_FIT:
             fix = set_type == SET_FIX;
             F77_CALL(set_fix_fit_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb, 
-                                          &jte, REAL(mat), icol, &fix);
+                                          &jte, REAL(mat), icol, &fix, 
+                                          &upd_mode);
             break;
     }
 }

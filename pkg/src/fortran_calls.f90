@@ -96,18 +96,18 @@ subroutine set_ca_fortran(mws_index, nvar, ivar, ntime, jtb, jte, mat, icol, &
 end subroutine set_ca_fortran
 
 subroutine set_fix_fit_fortran(mws_index, nvar, ivar, ntime, jtb, jte, mat, &
-                               icol, fix_)
+                               icol, fix_, upd_mode)
     use modelworkspaces
     use iso_c_binding
     integer(c_int), intent(in) :: mws_index, nvar, ivar(*), ntime, jtb, jte, &
-                                  icol(*)
+                                  icol(*), upd_mode
     real(c_double), dimension(ntime, nvar), intent(in) :: mat
     integer(c_int), intent(in) :: fix_
         
     logical fix
     fix = fix_ /= 0
     call set_fix_fit(mws_array(mws_index), nvar, ivar, ntime, jtb, jte, mat, &
-                     icol, fix)
+                     icol, fix, upd_mode)
 end subroutine set_fix_fit_fortran
 
 subroutine set_rms_fortran(mws_index, var_index, value)

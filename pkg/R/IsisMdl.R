@@ -379,13 +379,17 @@ IsisMdl <- R6Class("IsisMdl",
       upd_mode <- match.arg(upd_mode)
       return(private$set_var(2L, data, names, missing(names), upd_mode))
     },
-    set_fix = function(data, names = colnames(data)) {
+    set_fix = function(data, names = colnames(data),
+                       upd_mode = c("upd", "updval")) {
       "Sets the fix data"
-      return(private$set_var(3L, data, names, missing(names)))
+      upd_mode <- match.arg(upd_mode)
+      return(private$set_var(3L, data, names, missing(names), upd_mode))
     },
-    set_fit = function(data, names = colnames(data)) {
+    set_fit = function(data, names = colnames(data),
+                       upd_mode = c("upd", "updval")) {
       "Sets the fit data"
-      return(private$set_var(4L, data, names, missing(names)))
+      upd_mode <- match.arg(upd_mode)
+      return(private$set_var(4L, data, names, missing(names), upd_mode))
     },
     get_data = function(pattern, names,
                         period = private$data_period) {
