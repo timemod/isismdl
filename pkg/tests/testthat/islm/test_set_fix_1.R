@@ -2,7 +2,7 @@ library(utils)
 library(isismdl)
 library(testthat)
 
-context("set_ca for the ISLM model")
+context("set_fix (1) for the ISLM model")
 
 capture_output(mdl <- read_mdl("islm_model_solved.rds"))
 
@@ -26,9 +26,7 @@ test_that("set_fix update mode upd", {
   new_data <- update_ts_labels(new_data, ts_labels(old_data))
 
   # get_fix currently does not return labels
-  tmp <- fix_ordered
-  ts_labels(tmp) <- NULL
-  expect_equal(mdl2$get_fix(), tmp)
+  expect_equal(mdl2$get_fix(), fix_ordered)
 
   expect_equal(mdl2$get_data(), new_data)
 

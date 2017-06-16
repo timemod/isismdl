@@ -428,7 +428,13 @@ IsisMdl <- R6Class("IsisMdl",
       data <- .Call("get_data_c", type = "ca",
                     model_index = private$model_index,
                     names = names, jtb = js$startp, jte = js$endp)
-      return(regts(data, start = start_period(period), names = names))
+      ret <- regts(data, start = start_period(period), names = names)
+      if (length(private$labels) > 0) {
+        lbls <- private$labels
+        lbls[] <- paste(lbls, "(constant adjustment)")
+        ret <- update_ts_labels(ret, lbls)
+      }
+      return(ret)
     },
     get_fix = function() {
       "Returns the fix values"
@@ -806,6 +812,9 @@ IsisMdl <- R6Class("IsisMdl",
         ret <- regts(ret[[2]], start = start_period(private$model_period)
                      + ret[[1]] - 1, names = ret[[3]])
         ret <- ret[ , sort(colnames(ret)), drop = FALSE]
+        if (length(private$labels) > 0) {
+          ret <- update_ts_labels(ret, private$labels)
+        }
       }
       return(ret)
     },
