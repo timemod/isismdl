@@ -431,19 +431,11 @@ module mws_type
                 if (ierr /=0) return ! not enough memory
             end do
 
-            !if (fix) then
-            ! update mdl data
-            !    do i = 1, nvar
-            !        iv = ivar(i)
-            !        do it = 1, vcnt
-            !            fix_value = mat(im + it - 1, icol(i))
-            !            if (.not. nuifna(fix_value)) then
-            !                mdl_data(varnum, jstart + it - 1) = fix_value
-            !               endif
-            !        end do
-            !    end do
-            !endif
-
+            if (fix) then
+                ! also update the model data variables
+                call set_data(mws, nvar, ivar, ntime, jtb, jte, mat, icol, &
+                              UPD_VAL)
+            endif
         end subroutine set_fix_fit
 
         logical function isfixp(mws, jt)

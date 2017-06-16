@@ -1,3 +1,6 @@
+library(testthat)
+library(isismdl)
+
 context("fit for laxo model")
 
 mdl_file <- "mdl/laxo.mdl"

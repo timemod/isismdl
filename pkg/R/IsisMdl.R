@@ -805,7 +805,7 @@ IsisMdl <- R6Class("IsisMdl",
       if (!is.null(ret)) {
         ret <- regts(ret[[2]], start = start_period(private$model_period)
                      + ret[[1]] - 1, names = ret[[3]])
-        ret <- ret[, sort(colnames(ret))]
+        ret <- ret[ , sort(colnames(ret)), drop = FALSE]
       }
       return(ret)
     },

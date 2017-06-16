@@ -557,10 +557,6 @@ NULL
 #' These methods of R6 class \code{\link{IsisMdl}}
 #' Transfers data from a timeseries object to the model data,
 #' constant adjusments, fix values or fit targets.
-#'
-#' If \code{data} has labels, then method \code{set_data} will update
-#' the labels of the corresponding model variables
-#'
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_data(data, names = colnames(data), upd_mode = c("upd", "updval"))
@@ -589,14 +585,21 @@ NULL
 
 #' @section Methods:
 #'
-#' \itemize{
-#' \item \code{set_data}: Set model data
-#'
-#'\item \code{set_ca}: Set constant adjustments
-#'
-#'\item \code{set_fix}: Set fix values
-#'
-#'\item \code{set_fit}: Set fit values
+#' \describe{
+#' \item{\code{set_data}}{Sets model data. 
+#' If \code{data} has labels, then \code{set_data} will also update
+#' the labels of the corresponding model variables}
+#' \item{\code{set_ca}}{Set constant adjustments, i.e. the residuals of
+#' behavourial (frml) equations}
+#' \item{\code{set_fix}}{Set fix values for the stochastic 
+#' model variables (i.e. model variables that occur at the left
+#' hand side of a frml equation). The model variables will be fixed
+#' at the specified value. A fix value of \code{NA} implies 
+#' that the corresponding variable is not fixed. \code{set_fix} 
+#' also updates the model data with all non-NA values}
+#' \item{\code{set_fit}}{Set fit targets for the fit procedure.
+#' A fit target value of \code{NA} implies 
+#' that the corresponding variable is no fit target}
 #'}
 NULL
 
