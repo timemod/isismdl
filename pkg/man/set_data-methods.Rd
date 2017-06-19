@@ -34,12 +34,12 @@ mdl$set_fit(data, names = colnames(data), upd_mode = c("upd", "updval"))
 \describe{
 \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
  timeseries object}
-\item{\code{names}}{a character vector with variable names, with the 
+\item{\code{names}}{a character vector with variable names, with the
 same length as the number of timeseries in \code{data}. Defaults to the
 column names of \code{data}. If \code{data} does not have column names,
 then argument \code{names} is mandatory}
 \item{\code{upd_mode}}{the update mode, a character string specifying
-how the timeseries are updated: \code{"upd"} (standard update, default) or 
+how the timeseries are updated: \code{"upd"} (standard update, default) or
 \code{"updval"} (update only with valid numbers). See details}.
 }
 }
@@ -48,19 +48,19 @@ how the timeseries are updated: \code{"upd"} (standard update, default) or
 
 
 \describe{
-\item{\code{set_data}}{Sets model data. 
+\item{\code{set_data}}{Sets model data.
 If \code{data} has labels, then \code{set_data} will also update
 the labels of the corresponding model variables}
 \item{\code{set_ca}}{Set constant adjustments, i.e. the residuals of
 behavourial (frml) equations}
-\item{\code{set_fix}}{Set fix values for the stochastic 
+\item{\code{set_fix}}{Set fix values for the stochastic
 model variables (i.e. model variables that occur at the left
 hand side of a frml equation). The model variables will be fixed
-at the specified value. A fix value of \code{NA} implies 
-that the corresponding variable is not fixed. \code{set_fix} 
+at the specified value. A fix value of \code{NA} implies
+that the corresponding variable is not fixed. \code{set_fix}
 also updates the model data with all non NA values}
 \item{\code{set_fit}}{Set fit targets for the fit procedure.
-A fit target value of \code{NA} implies 
+A fit target value of \code{NA} implies
 that the corresponding variable is no fit target}
 }
 }

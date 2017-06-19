@@ -6,7 +6,7 @@
 \title{\code{\link{IsisMdl}} method: Sets the options for the fit procedure.}
 \description{
 This method of R6 class \code{\link{IsisMdl}} can be used to set one or more
-options for the fit procedure. 
+options for the fit procedure.
 These options will be stored in the \code{IsisMdl} object.
 
 Method \code{get_fit_options} returns the solve options as a named
@@ -44,7 +44,7 @@ in the next iteration. Any value specified must lie between 0.05
 and 0.95. The default value is 0.5.}
 \item{\code{report}}{A character string specifying the the
 type of report of the fit procedure for each period.
-Possible values are \code{"fullrep"} 
+Possible values are \code{"fullrep"}
 (the default, an iteration report is printed for each period)
 and  \code{"minimal"} (for a one line summary).}
 \item{\code{dbgopt}}{A character vector specifying one or more

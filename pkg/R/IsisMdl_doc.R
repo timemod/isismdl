@@ -66,7 +66,7 @@ NULL
 #' \item{\code{type}}{a character string specifying the variable type. See
 #' the description above}
 #' }
-#' 
+#'
 #' @examples
 #' mdl <- islm_mdl()
 #'
@@ -245,7 +245,7 @@ NULL
 #'
 #' # deactivate equation "c" and "i"
 #' mdl$set_eq_status("inactive", names = c("c", "i"))
-#' 
+#'
 #' # deactivate all equations starting with "y" ("y" and "yd")
 #' mdl$set_eq_status("inactive", pattern = "^y*")
 #'
@@ -379,7 +379,7 @@ NULL
 #' This method of R6 class \code{\link{IsisMdl}} solves
 #' the model.
 #' @section Usage:
-#' \code{IsisMdl} method: 
+#' \code{IsisMdl} method:
 #' \preformatted{
 #' mdl$solve(period = mdl$get_period(), options = list(),
 #'           fit_options = list()
@@ -395,19 +395,19 @@ NULL
 #' object, or an object
 #' that can be coerced to \code{\link[regts]{period_range}}}
 #' \item{\code{options}}{a named list with solve options,
-#' for example \code{list(maxiter = 50)}. 
-#' The names are the corresponding argument names of 
+#' for example \code{list(maxiter = 50)}.
+#' The names are the corresponding argument names of
 #' method \code{\link{set_solve_options}}
 #' The specified options will only used in this call of
 #' {solve()} and will not be stored in the \code{IsisMdl} object}
 #' \item{\code{fit_options}}{a named list with options for the fit procedure,
-#' for example \code{list(maxiter = 10)}. 
-#' The names are the corresponding argument names of 
+#' for example \code{list(maxiter = 10)}.
+#' The names are the corresponding argument names of
 #' method \code{\link{set_fit_options}}
 #' The specified options will only used in this call of
 #' {solve()} and will not be stored in the \code{IsisMdl} object}
 #' }
-#' @seealso \code{\link{set_solve_options}} and 
+#' @seealso \code{\link{set_solve_options}} and
 #' \code{\link{set_fit_options}}
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
@@ -577,30 +577,30 @@ NULL
 #' \describe{
 #' \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
 #'  timeseries object}
-#' \item{\code{names}}{a character vector with variable names, with the 
+#' \item{\code{names}}{a character vector with variable names, with the
 #' same length as the number of timeseries in \code{data}. Defaults to the
 #' column names of \code{data}. If \code{data} does not have column names,
 #' then argument \code{names} is mandatory}
 #' \item{\code{upd_mode}}{the update mode, a character string specifying
-#' how the timeseries are updated: \code{"upd"} (standard update, default) or 
+#' how the timeseries are updated: \code{"upd"} (standard update, default) or
 #' \code{"updval"} (update only with valid numbers). See details}.
 #' }
 #' @section Methods:
 #'
 #' \describe{
-#' \item{\code{set_data}}{Sets model data. 
+#' \item{\code{set_data}}{Sets model data.
 #' If \code{data} has labels, then \code{set_data} will also update
 #' the labels of the corresponding model variables}
 #' \item{\code{set_ca}}{Set constant adjustments, i.e. the residuals of
 #' behavourial (frml) equations}
-#' \item{\code{set_fix}}{Set fix values for the stochastic 
+#' \item{\code{set_fix}}{Set fix values for the stochastic
 #' model variables (i.e. model variables that occur at the left
 #' hand side of a frml equation). The model variables will be fixed
-#' at the specified value. A fix value of \code{NA} implies 
-#' that the corresponding variable is not fixed. \code{set_fix} 
+#' at the specified value. A fix value of \code{NA} implies
+#' that the corresponding variable is not fixed. \code{set_fix}
 #' also updates the model data with all non NA values}
 #' \item{\code{set_fit}}{Set fit targets for the fit procedure.
-#' A fit target value of \code{NA} implies 
+#' A fit target value of \code{NA} implies
 #' that the corresponding variable is no fit target}
 #'}
 #' @section Details:
@@ -617,14 +617,14 @@ NULL
 #' in \code{data}. This can be achieved by selecting \code{"updval"} for argument
 #' \code{upd_mode}. Other non finite numbers (\code{NaN}, \code{Inf}, and
 #' \code{-Inf}) are also disregarded for this update mode.
-#' 
+#'
 #' \code{set_ca}, \code{set_fix} and \code{set_fit} and
 #' \code{set_data} works similarly.
 #'
 #' @examples
 #'
 #' mdl <- islm_mdl(period = "2017Q1/2017Q3")
-#' 
+#'
 #' # create a multivariate regts object for exogenous variables g and md
 #' exo <- regts(matrix(c(200, 210, 220, 250, 260, 270), ncol = 2),
 #'              start = "2017Q1", names = c("g", "ms"))
@@ -648,7 +648,7 @@ NULL
 NULL
 
 #' \code{\link{IsisMdl}} methods: Sets the values of the model data,
-#' constant adjusments, fix values or fit targets
+#' constant adjustments, fix values or fit targets
 #' @name set_values-methods
 #' @aliases set_values set_ca_values set_fix_values set_fit_values
 #' @description
@@ -676,25 +676,48 @@ NULL
 #' \item{\code{value}}{a numeric vector of length 1 or with the same length
 #' as the length of the range of \code{period}}
 #' \item{\code{names}}{a character vector with variable names}
-#' \item{\code{pattern}}{a regular expression}
+#' \item{\code{pattern}}{a regular expression specifying the
+#' variable names}
 #' \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
-#' object that can be coerced to a \code{period_range}}
+#' object that can be coerced to a \code{period_range}. The default
+#' is the data period}
 #' }
 #' @section Methods:
-#' \itemize{
-#' \item \code{set_values}: Model data
+#' \describe{
+#' \item{\code{set_values}}{Sets the values of model data}
+#' \item{\code{set_ca}}{Sets the values of the  constant adjustments, i.e. the
+#' residuals of behavourial (frml) equations.}
+#' \item{\code{set_fix}}{Set fix values for the stochastic
+#' model variables (i.e. model variables that occur at the left
+#' hand side of a frml equation). The model variables will be fixed
+#' at the specified value. A fix value of \code{NA} implies
+#' that the corresponding variable is not fixed. \code{set_fix}
+#' also updates the model data with all non NA values}
+#' \item{\code{set_fit}}{Set fit targets for the fit procedure.
+#' A fit target value of \code{NA} implies
+#' that the corresponding variable is no fit target}
+#' }
 #'
-#'\item \code{set_ca_values}: Constant adjustments
+#' @examples
 #'
-#'\item \code{set_fix_values}: Fix values
+#' mdl <- islm_mdl(period = "2017Q1/2017Q3")
 #'
-#'\item \code{set_fit_values}: Fit targets
-#'}
+#' # set the values for y in the full data period
+#' mdl$set_values(1000, names = "y")
+#'
+#' # set the values of ms and md in 2017Q1 and 2017Q2
+#' mdl$set_values(c(205,206), pattern = "^m.$", period = "2017Q1/2017Q2")
+#'
+#' print(mdl$get_data())
+#'
+#' @examples
+#'
 #' @seealso \code{\link{get_data-methods}}, \code{\link{set_data-methods}}
 #' and \code{\link{change_data-methods}}
 NULL
 
-#' \code{\link{IsisMdl}} methods: changes the model data or constant adjustments by applying a function.
+#' \code{\link{IsisMdl}} methods: changes the model data or constant
+#' adjustments by applying a function.
 #' @name change_data-methods
 #' @aliases change_data change_ca
 #' @description
@@ -721,11 +744,24 @@ NULL
 #' \item{\code{...}}{arguments passed to \code{fun}}
 #' }
 #' @section Methods:
-#' \itemize{
-#' \item \code{change_values}: Model data
+#' \describe{
+#' \item{\code{changes_data}}{Changes the model data}
+#' \item{\code{change_ca}}{Changes the constant adjustments}
+#' }
+#' @examples
+#' mdl <- islm_mdl(period = "2017Q1/2017Q3")
 #'
-#'\item \code{change_ca}: Constant adjustments
-#'}
+#' # increase y and yd with 10% for the full data period
+#' mdl$change_data(pattern = "^y.?$", fun = function(x) {x * 1.1})
+#'
+#' # increase ms in 2017Q1 and 2017Q2 with 10 and 20, resp.
+#' mdl$change_data(names = "ms", fun = function(x, dx) {x + dx},
+#'                 dx = c(10, 20), period = "2017Q1/2017Q2")
+#' print(mdl$get_data())
+#'
+#' @seealso \code{\link{get_data-methods}}, \code{\link{set_data-methods}} and
+#' \code{\link{set_values-methods}}
+#'
 NULL
 
 #' \code{\link{IsisMdl}} method: Sets or updates  the root mean square errors
@@ -734,9 +770,9 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}}
-#' sets or updates the root mean square (rms) error data 
+#' sets or updates the root mean square (rms) error data
 #' used in the fit procedure. All variables whose rms value
-#' is larger than 0 and not \code{NA} are used as 
+#' is larger than 0 and not \code{NA} are used as
 #' instruments of the fit procedure.
 #'
 #' Method \code{get_rms} returns all rms values
@@ -765,7 +801,7 @@ NULL
 #'
 #' mdl$set_rms(c(c = 5.0, t = 2, i = 21, md = 2))
 #' print(mdl$get_rms())
-#' 
+#'
 #' # stop using variable t as fit instrument
 #' mdl$set_rms(c(t = NA))
 #' print(mdl$get_rms())
@@ -796,7 +832,7 @@ NULL
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 #'
 #' @section Arguments:
-#' 
+#'
 #' All arguments below expect a numerical value unless mentioned otherwise.
 #'
 #' \describe{
@@ -817,17 +853,17 @@ NULL
 #'  \item{\code{rlxmax}}{Maximum Newton relaxation factor (default is 1.0)}
 #'  \item{\code{cstpbk}}{Stepback criterion (default is 1.3).
 #' If the convergence criterium \code{Fcrit} is larger
-#' than \code{cstpbk} or invalid feedback variables 
+#' than \code{cstpbk} or invalid feedback variables
 #' have been obtained then the Newton step
-#' is not accepted and linesearching will be initiated. 
+#' is not accepted and linesearching will be initiated.
 #' If the linesearching procedure failed
 #' (\code{Fcrit} is still larger than \code{cstpbk}
 #' after the maximum number of linesearch steps \code{bktmax}
 #' has been reached or if the relaxation
-#' factor has become smaller than \code{rlxmin}), 
-#' a new Jacobian matrix is computed.  
-#' In each linesearch step the current relaxation factor is shrunk by 
-#' \code{rspeed}. 
+#' factor has become smaller than \code{rlxmin}),
+#' a new Jacobian matrix is computed.
+#' In each linesearch step the current relaxation factor is shrunk by
+#' \code{rspeed}.
 #' The relaxation factor is set to its maximum value
 #' \code{rlxmax}) when a new Jacobian has been calculated.
 #' }
@@ -837,7 +873,7 @@ NULL
 #' the Newton step is accepted but a new Jacobian is computed
 #' and the relaxation factor is set to its maximum value
 #' \code{rlxmax}.
-#' The new Jacobian is used in the next step. However, the 
+#' The new Jacobian is used in the next step. However, the
 #' Jacobian will not be recalculated if the number of Jacobian updates
 #' in a period is larger than \code{maxjacupd}}
 #'  \item{\code{xrelax}}{Rational expectations relaxation factor (default is 1)}
@@ -846,18 +882,18 @@ NULL
 #'  \item{\code{xupdate}}{Character string defining the method of updating
 #' leads. Possible values are \code{"fixed"} (the default) and \code{"lastval"}.
 #' For \code{"fixed"} the leads beyond the solution period
-#' are fixed at the initial values. For \code{"lastval"} leads beyond 
+#' are fixed at the initial values. For \code{"lastval"} leads beyond
 #' the solution period take on the values from the last solution date}
 #' \item{\code{dbgopt}}{A character vector specifying one more
 #' debugging options. See section "Debugging options" below}
-#' \item{\code{erropt}}{Character string defining the error handling when 
+#' \item{\code{erropt}}{Character string defining the error handling when
 #' invalid lags, leads and/or exogenous variables are detected.
-#' Possible values are \code{"stop"} (stop on errors) 
+#' Possible values are \code{"stop"} (stop on errors)
 #' and \code{cont} (continue on errors). The default is \code{"stop"}}
-#' \item{\code{report}}{A character string defining the type of 
+#' \item{\code{report}}{A character string defining the type of
 #' computation progress report. Possible values are
 #' \code{"period"} (for a report per period),
-#' \code{"fullrep"} (for a full report), 
+#' \code{"fullrep"} (for a full report),
 #' \code{"minimal"}  (for a minimal report), and
 #' \code{"none"}  (for no report). The default is \code{"period"}}
 #'  The report options \code{"none"} also suppresses all output
@@ -868,10 +904,10 @@ NULL
 #' the Fair-Taylor report repetition count.
 #' See Section "Ratex report options" below}
 #' \item{\code{ratfullreport_rep}}{An integer number, specifying
-#' the Fair-Taylor full report repetition count. See Section 
+#' the Fair-Taylor full report repetition count. See Section
 #' "Ratex report options" below}
-#' \item{\code{bktmax}}{Maximum number of backtracking linesearch steps 
-#' with old jacobian. Sometimes it is necessary for the Broyden 
+#' \item{\code{bktmax}}{Maximum number of backtracking linesearch steps
+#' with old jacobian. Sometimes it is necessary for the Broyden
 #' method to take a shorter step than the standard step. This is called
 #' backtracking linesearch. \code{bktmax} is the maximum number of
 #' line search steps before a new Jacobian is computed}
@@ -921,8 +957,8 @@ NULL
 #' The default is \code{"auto"}.
 #'
 #' @section Feedback initialisation methods:
-#' 
-#' Argument \code{fbstart} can be used to specify 
+#'
+#' Argument \code{fbstart} can be used to specify
 #' the way how the feedback variables at the current period
 #' (i.e. the period for which the model is being solved)
 #' are initialised from the model data.
@@ -981,17 +1017,17 @@ NULL
 #'
 #' Possible values for \code{ratreport} are
 #' \describe{
-#' \item{\code{"iter"}}{print the number of not converged 
+#' \item{\code{"iter"}}{print the number of not converged
 #' expectation values every \code{ratreport_rep} Fair Taylor iteration
 #' (the default)}
-#' \item{\code{"fullrep"}}{full report. The number of not converged 
+#' \item{\code{"fullrep"}}{full report. The number of not converged
 #' expectation values is printed every \code{ratreport_rep} Fair Taylor
-#'  iteration and the largest remaining discrepancy every 
+#'  iteration and the largest remaining discrepancy every
 #' \code{ratfullreport_rep} Fair Taylor iteration}
 #' \item{\code{"minimal"}}{for a full report only after the last Fair Taylor
 #' iteration}
 #' }
-#' 
+#'
 #' If \code{ratfullreport_rep} is \code{NA}, then the full report
 #' is printed every \code{ratreport_rep} Fair-Taylor iteration.
 #' The default values for \code{ratreport_rep}  and \code{ratfullreport_rep}
@@ -1008,7 +1044,7 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} can be used to set one or more
-#' options for the fit procedure. 
+#' options for the fit procedure.
 #' These options will be stored in the \code{IsisMdl} object.
 #'
 #' Method \code{get_fit_options} returns the solve options as a named
@@ -1024,7 +1060,7 @@ NULL
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 #'
 #' @section Arguments:
-#' 
+#'
 #' All arguments below expect a numerical value unless mentioned otherwise.
 #'
 #' \describe{
@@ -1043,15 +1079,15 @@ NULL
 #' and 0.95. The default value is 0.5.}
 #' \item{\code{report}}{A character string specifying the the
 #' type of report of the fit procedure for each period.
-#' Possible values are \code{"fullrep"} 
+#' Possible values are \code{"fullrep"}
 #' (the default, an iteration report is printed for each period)
 #' and  \code{"minimal"} (for a one line summary).}
 #' \item{\code{dbgopt}}{A character vector specifying one or more
 #' debugging options. See section "Debugging options" below}
 #' }
-#' 
+#'
 #' @section Debugging options:
-#' 
+#'
 #' Argument \code{dbgopt} can be used to specify one or more
 #' options for debugging the fit procedure.  Possible values are
 #' \describe{
@@ -1096,21 +1132,21 @@ NULL
 #' A variable \eqn{x} has converged when two
 #' successive values \eqn{x_2} and
 #' \eqn{x_1} satisfy the following
-#' condition 
+#' condition
 #' \deqn{|x_2 - x_1| \le \epsilon \max(1,|x_1|)}
 #' where \eqn{\epsilon} is
 #' the convergence criterion for the tested
 #' variable.
-#' 
+#'
 #' The default value of \eqn{\epsilon} for all variables
 #' is the square root of the machine precision
 #' (\code{sqrt(.Machine$double.eps)}, typically about \code{1.5e-8})
-#' 
+#'
 #' Method \code{get_cvgcrit()} returns
 #' the convergence criteria for all model variables
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_cvgcrit(value, pattern, names) 
+#' mdl$set_cvgcrit(value, pattern, names)
 #'
 #' mdl$get_cvgcrit()
 #'
@@ -1120,7 +1156,7 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{value}}{convergence criterion. This must be 
+#' \item{\code{value}}{convergence criterion. This must be
 #' a small positive number}
 #' \item{\code{pattern}}{a regular expression specifying the
 #' variable names}
@@ -1136,7 +1172,7 @@ NULL
 #'
 #' # set convergence criterion for variables "c" and "i":
 #' mdl$set_cvgcrit(1e-4, names = c("c", "i"))
-#' 
+#'
 #' # set convergence criterion for variables "y" and "yd":
 #' mdl$set_cvgcrit(1e-4, pattern = "^y*")
 #'
@@ -1150,13 +1186,13 @@ NULL
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} sets the
 #' Fair-Taylor relaxtion factors for the endogenous leads.
-#' 
+#'
 #' Method \code{get_ftrelax()} returns
 #' the Fair-Taylor relaxtion factors
 #' for all endogenous leads.
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_ftrelaxvalue, pattern, names) 
+#' mdl$set_ftrelaxvalue, pattern, names)
 #'
 #' mdl$get_ftrelax()
 #'
@@ -1169,7 +1205,7 @@ NULL
 #' \item{\code{value}}{Fair-Taylor relaxtion number.
 #' This must be a positive number or \code{NA} to disable any previously set value.
 #' The default value for all endogenous leads is \code{NA}, which means that
-#' the general uniform Fair-taylor relaxation 
+#' the general uniform Fair-taylor relaxation
 #' (solve option \code{ftrelax}, see \code{\link{set_solve_options}})
 #' will be applied}
 #' \item{\code{pattern}}{a regular expression specifying the
@@ -1184,13 +1220,13 @@ NULL
 #' @examples
 #' mdl <- ifn_mdl()
 #'
-#' # set Fair-relaxtion factor all all variables with names of length 2 
+#' # set Fair-relaxtion factor all all variables with names of length 2
 #' # to 0.5:
 #' mdl$set_ftrelax(0.5, pattern = "^..$")
 #'
 #' # set Fair-relaxtion factor for variable "lambda":
 #' mdl$set_ftrelax(0.5, names = "lambda")
-#' 
+#'
 #' print(mdl$get_ftrelax())
 NULL
 

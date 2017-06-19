@@ -7,7 +7,7 @@
 \alias{set_fix_values}
 \alias{set_fit_values}
 \title{\code{\link{IsisMdl}} methods: Sets the values of the model data,
-constant adjusments, fix values or fit targets}
+constant adjustments, fix values or fit targets}
 \description{
 These methods of R6 class \code{\link{IsisMdl}}
 can be used to set the values of the model data, constant adjusments,
@@ -36,25 +36,46 @@ mdl$set_fit_values(value, names, pattern, period = mdl$get_data_period())
 \item{\code{value}}{a numeric vector of length 1 or with the same length
 as the length of the range of \code{period}}
 \item{\code{names}}{a character vector with variable names}
-\item{\code{pattern}}{a regular expression}
+\item{\code{pattern}}{a regular expression specifying the
+variable names}
 \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
-object that can be coerced to a \code{period_range}}
+object that can be coerced to a \code{period_range}. The default
+is the data period}
 }
 }
 
 \section{Methods}{
 
-\itemize{
-\item \code{set_values}: Model data
-
-\item \code{set_ca_values}: Constant adjustments
-
-\item \code{set_fix_values}: Fix values
-
-\item \code{set_fit_values}: Fit targets
+\describe{
+\item{\code{set_values}}{Sets the values of model data}
+\item{\code{set_ca}}{Sets the values of the  constant adjustments, i.e. the
+residuals of behavourial (frml) equations.}
+\item{\code{set_fix}}{Set fix values for the stochastic
+model variables (i.e. model variables that occur at the left
+hand side of a frml equation). The model variables will be fixed
+at the specified value. A fix value of \code{NA} implies
+that the corresponding variable is not fixed. \code{set_fix}
+also updates the model data with all non NA values}
+\item{\code{set_fit}}{Set fit targets for the fit procedure.
+A fit target value of \code{NA} implies
+that the corresponding variable is no fit target}
 }
 }
 
+\examples{
+
+mdl <- islm_mdl(period = "2017Q1/2017Q3")
+
+# set the values for y in the full data period
+mdl$set_values(1000, names = "y")
+
+# set the values of ms and md in 2017Q1 and 2017Q2
+mdl$set_values(c(205,206), pattern = "^m.$", period = "2017Q1/2017Q2")
+
+print(mdl$get_data())
+
+
+}
 \seealso{
 \code{\link{get_data-methods}}, \code{\link{set_data-methods}}
 and \code{\link{change_data-methods}}

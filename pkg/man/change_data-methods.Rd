@@ -4,7 +4,8 @@
 \alias{change_data-methods}
 \alias{change_data}
 \alias{change_ca}
-\title{\code{\link{IsisMdl}} methods: changes the model data or constant adjustments by applying a function.}
+\title{\code{\link{IsisMdl}} methods: changes the model data or constant
+adjustments by applying a function.}
 \description{
 This methods of R6 class \code{\link{IsisMdl}}
 changes the model data or constant adjustments by applying a function.
@@ -35,10 +36,25 @@ object that can be coerced to a \code{period_range}}
 
 \section{Methods}{
 
-\itemize{
-\item \code{change_values}: Model data
-
-\item \code{change_ca}: Constant adjustments
+\describe{
+\item{\code{changes_data}}{Changes the model data}
+\item{\code{change_ca}}{Changes the constant adjustments}
 }
 }
 
+\examples{
+mdl <- islm_mdl(period = "2017Q1/2017Q3")
+
+# increase y and yd with 10\% for the full data period
+mdl$change_data(pattern = "^y.?$", fun = function(x) {x * 1.1})
+
+# increase ms in 2017Q1 and 2017Q2 with 10 and 20, resp.
+mdl$change_data(names = "ms", fun = function(x, dx) {x + dx},
+                dx = c(10, 20), period = "2017Q1/2017Q2")
+print(mdl$get_data())
+
+}
+\seealso{
+\code{\link{get_data-methods}}, \code{\link{set_data-methods}} and
+\code{\link{set_values-methods}}
+}
