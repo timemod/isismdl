@@ -15,11 +15,16 @@ ts_labels(fix) <- c("investment", "consumption", "income")
 # an ordered list of fix values without identities:
 fix_ordered <- fix[, c("c", "i")]
 
+fix2 <- fix
+fix2["2015q2", "i"] <- NA
+fix2["2015q3", "c"] <- 650
+
 old_data <- mdl$get_data()
 
+fix_mdl <- mdl$clone(deep = TRUE)
+fix_mdl$set_fix(fix)
+
 test_that("set_fix update mode upd", {
-  mdl2 <- mdl$clone(deep = TRUE)
-  mdl2$set_fix(fix)
 
   new_data <- ts_update(old_data, fix_ordered, method = "tsupdval")
   # ts_update does not handle labels correctly.
@@ -27,24 +32,18 @@ test_that("set_fix update mode upd", {
   new_data <- update_ts_labels(new_data, ts_labels(old_data))
 
   # get_fix currently does not return labels
-  expect_equal(mdl2$get_fix(), fix_ordered)
-  expect_equal(mdl2$get_data(), new_data)
+  expect_equal(fix_mdl$get_fix(), fix_ordered)
+  expect_equal(fix_mdl$get_data(), new_data)
 
-  mdl3 <- mdl$clone(deep = TRUE)
-  mdl3$set_fix(fix, upd_mode = "upd")
-  expect_equal(mdl3$get_fix(), fix_ordered)
-  expect_equal(mdl3$get_data(), new_data)
+  fix_mdl2 <- fix_mdl$clone(deep = TRUE)
+  fix_mdl2$set_fix(fix, upd_mode = "upd")
+  expect_equal(fix_mdl2$get_fix(), fix_ordered)
+  expect_equal(fix_mdl2$get_data(), new_data)
 })
 
 test_that("set_fix for update mode upd, second test", {
-  mdl2 <- mdl$clone(deep = TRUE)
-
-  fix2 <- fix
-  fix2["2015q2", "i"] <- NA
-  fix2["2015q3", "c"] <- 650
-
-  mdl2$set_fix(fix)
-  mdl2$set_fix(fix2, upd_mode = "upd")
+  fix_mdl2 <- fix_mdl$clone(deep = TRUE)
+  fix_mdl2$set_fix(fix2, upd_mode = "upd")
 
   fix_combi <- ts_update(fix, fix2, method = "tsupd")[, "c", drop = FALSE]
   # update labels (ts_update does not handle labels correctly yet)
@@ -59,32 +58,36 @@ test_that("set_fix for update mode upd, second test", {
   # this should be fixed in the future
   new_data <- update_ts_labels(new_data, ts_labels(old_data))
 
-  expect_equal(mdl2$get_fix(), fix_combi)
-  expect_equal(mdl2$get_data(), new_data)
+  expect_equal(fix_mdl2$get_fix(), fix_combi)
+  expect_equal(fix_mdl2$get_data(), new_data)
 })
 
 
 test_that("set_fix for update mode updval", {
-   mdl2 <- mdl$clone(deep = TRUE)
+  fix_mdl2 <- fix_mdl$clone(deep = TRUE)
+  fix_mdl2$set_fix(fix2, upd_mode = "updval")
 
-   fix2 <- fix
-   fix2["2015q2", "i"] <- NA
-   fix2["2015q3", "c"] <- 650
+  fix_combi <- ts_update(fix, fix2, method = "tsupdval")[, c("c", "i")]
+  # update labels (ts_update does not handle labels correctly yet)
+  fix_combi <- update_ts_labels(fix_combi, ts_labels(fix))
 
-   mdl2$set_fix(fix)
-   mdl2$set_fix(fix2, upd_mode = "updval")
+  new_data <- ts_update(old_data, fix_combi, method = "tsupdval")
+  # ts_update does not handle labels correctly.
+  # this should be fixed in the future
+  new_data <- update_ts_labels(new_data, ts_labels(old_data))
 
-   fix_combi <- ts_update(fix, fix2, method = "tsupdval")[, c("c", "i")]
-   # update labels (ts_update does not handle labels correctly yet)
-   fix_combi <- update_ts_labels(fix_combi, ts_labels(fix))
+  expect_equal(fix_mdl2$get_fix(), fix_combi)
+  expect_equal(fix_mdl2$get_data(), new_data)
+})
 
-   new_data <- ts_update(old_data, fix_combi, method = "tsupdval")
-   # ts_update does not handle labels correctly.
-   # this should be fixed in the future
-   new_data <- update_ts_labels(new_data, ts_labels(old_data))
+test_that("set_fix_values", {
+  fix_mdl2 <- fix_mdl$clone(deep = TRUE)
+  fix_mdl2$set_fix_values(NA, names = "c", period = "2015Q4")
+  expect_equal(fix_mdl2$get_fix(), fix_ordered["2015Q2", , drop = FALSE])
+  expect_equal(fix_mdl2$get_data(), fix_mdl$get_data())
 
-   expect_equal(mdl2$get_fix(), fix_combi)
-   expect_equal(mdl2$get_data(), new_data)
+  fix_mdl2$set_fix_values(NA, names = c("c", "i"), period = "2015Q2")
+  expect_null(fix_mdl2$get_fit())
 })
 
 

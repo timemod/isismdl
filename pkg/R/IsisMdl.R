@@ -373,7 +373,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
       return(private$set_var(1L, data, names, missing(names), upd_mode))
     },
-    set_ca = function(data, names = colnames(data), 
+    set_ca = function(data, names = colnames(data),
                       upd_mode = c("upd", "updval")) {
       "Sets the constant adjustments"
       upd_mode <- match.arg(upd_mode)
@@ -712,7 +712,7 @@ IsisMdl <- R6Class("IsisMdl",
       endp   <- as.integer(end_period(period)   - mdl_period_start + 1)
       return(list(startp = startp, endp = endp))
     },
-    set_var = function(set_type, data, names, names_missing, 
+    set_var = function(set_type, data, names, names_missing,
                        upd_mode = "upd") {
       # General function used to update model data, constant adjustments,
       # fix values or fit targets.
@@ -851,6 +851,7 @@ IsisMdl <- R6Class("IsisMdl",
       l <- list(labels = private$labels,
                 model_period = private$model_period,
                 solve_options = self$get_solve_options(),
+                fit_options = self$get_fit_options(),
                 cvgcrit = .Call("get_cvgcrit_c", private$model_index, 0L),
                 ftrelax = .Call("get_ftrelax_c", private$model_index),
                 data = data, ca = ca,
@@ -868,6 +869,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
       private$labels <- x$labels
       do.call(self$set_solve_options, x$solve_options)
+      do.call(self$set_fit_options, x$fit_options)
       .Call("set_cvgcrit_init_mws", private$model_index, x$cvgcrit)
       .Call("set_ftrelax_init_mws", private$model_index, x$ftrelax)
       if (!is.null(x$data)) {
@@ -908,7 +910,7 @@ IsisMdl <- R6Class("IsisMdl",
     },
     check_model_period = function(period) {
       if ((start_period(period) < start_period(private$fortran_period))  ||
-          (end_period(period)   > end_period(private$fortran_period ))) {
+          (end_period(period)   > end_period(private$fortran_period))) {
         stop(paste0("The specified period (", period,
                     ") is not compatible with the data period (",
                     private$data_period, "). The period",
