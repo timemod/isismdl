@@ -119,8 +119,16 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{pattern}}{a regular expression}
+#' \item{\code{pattern}}{a regular expression specifying parameter names}
 #' }
+#' @examples
+#' mdl <- islm_mdl()
+#'
+#' # print all model parameter names
+#' print(mdl$get_par_names())
+#'
+#' # print names of model paramters with names starting with c
+#' print(mdl$get_par_names(pattern = "^c.*"))
 NULL
 
 #' \code{\link{IsisMdl}} method: returns the the equation names
@@ -1230,7 +1238,6 @@ NULL
 #' print(mdl$get_ftrelax())
 NULL
 
-
 #' \code{\link{IsisMdl}} method: Sets the model parameters
 #' @name set_param
 #'
@@ -1272,9 +1279,17 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{pattern}}{a regular expression}
+#' \item{\code{pattern}}{a regular expression specifying parameter names}
 #' \item{\code{names}}{a character vector with parameter names}
 #' }
+#' @examples
+#' mdl <- islm_mdl()
+#'
+#' # print all model parameters
+#' print(mdl$get_param())
+#'
+#' # print parameters c0, c1, c2 and c3
+#' print(mdl$get_param(pattern = "^c.*"))
 #' @seealso
 #' \code{\link{set_param}}
 NULL

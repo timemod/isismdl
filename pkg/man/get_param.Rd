@@ -20,11 +20,20 @@ mdl$get_param(pattern, names)
 
 
 \describe{
-\item{\code{pattern}}{a regular expression}
+\item{\code{pattern}}{a regular expression specifying parameter names}
 \item{\code{names}}{a character vector with parameter names}
 }
 }
 
+\examples{
+mdl <- islm_mdl()
+
+# print all model parameters
+print(mdl$get_param())
+
+# print parameters c0, c1, c2 and c3
+print(mdl$get_param(pattern = "^c.*"))
+}
 \seealso{
 \code{\link{set_param}}
 }

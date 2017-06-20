@@ -21,7 +21,16 @@ mdl$get_par_names(pattern = ".*")
 
 
 \describe{
-\item{\code{pattern}}{a regular expression}
+\item{\code{pattern}}{a regular expression specifying parameter names}
 }
 }
 
+\examples{
+mdl <- islm_mdl()
+
+# print all model parameter names
+print(mdl$get_par_names())
+
+# print names of model paramters with names starting with c
+print(mdl$get_par_names(pattern = "^c.*"))
+}
