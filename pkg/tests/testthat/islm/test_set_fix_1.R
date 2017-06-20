@@ -21,7 +21,7 @@ fix2["2015q3", "c"] <- 650
 
 old_data <- mdl$get_data()
 
-fix_mdl <- mdl$clone(deep = TRUE)
+fix_mdl <- mdl$copy()
 fix_mdl$set_fix(fix)
 
 test_that("set_fix update mode upd", {
@@ -42,7 +42,7 @@ test_that("set_fix update mode upd", {
 })
 
 test_that("set_fix for update mode upd, second test", {
-  fix_mdl2 <- fix_mdl$clone(deep = TRUE)
+  fix_mdl2 <- fix_mdl$copy()
   fix_mdl2$set_fix(fix2, upd_mode = "upd")
 
   fix_combi <- ts_update(fix, fix2, method = "tsupd")[, "c", drop = FALSE]
@@ -81,7 +81,7 @@ test_that("set_fix for update mode updval", {
 })
 
 test_that("set_fix_values", {
-  fix_mdl2 <- fix_mdl$clone(deep = TRUE)
+  fix_mdl2 <- fix_mdl$copy()
   fix_mdl2$set_fix_values(NA, names = "c", period = "2015Q4")
   expect_equal(fix_mdl2$get_fix(), fix_ordered["2015Q2", , drop = FALSE])
   expect_equal(fix_mdl2$get_data(), fix_mdl$get_data())

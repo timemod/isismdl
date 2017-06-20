@@ -107,7 +107,7 @@ mdl$get_param("m0")
 ```
 Input for method `set_params()` is a named list.
 
-## Cloning `IsisMdl` objects
+## Copying `IsisMdl` objects
 
 Consider the following assignment:
 ```{r}
@@ -122,15 +122,13 @@ mdl$get_param("m0")
 The usual copy-on-modify semantics that are used for convential
 R objects such as S3 or S4 classes do not apply to R6 classes.
 
-If you want to create a copy of the model, use the `clone()` method with
+If you want to create a copy of the model, use the `copy()` method with
 argument `deep = TRUE` :
 ```{r}
-mdl2 <- mdl$clone(deep = TRUE)
+mdl2 <- mdl$copy()
 mdl2$set_param(list(m0 = -9999))
 mdl$get_param("m0")
 ```
-Without the argument `deep = TRUE`, the result of the `clone` method
-is the same as the result of an assignment `mdl2 <- mdl`.
 
 # Solving the model \label{sec:solve}
 

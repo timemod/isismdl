@@ -19,7 +19,7 @@ fit2 <- fit
 fit2["2015q2", "i"] <- NA
 fit2["2015q3", "c"] <- 650
 
-fit_mdl <- mdl$clone(deep = TRUE)
+fit_mdl <- mdl$copy()
 fit_mdl <- mdl$set_fit(fit)
 
 test_that("set_fit update mode upd", {

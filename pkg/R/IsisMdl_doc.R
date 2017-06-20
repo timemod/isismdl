@@ -1346,3 +1346,24 @@ NULL
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 NULL
+
+#' \code{\link{IsisMdl}} method: Returns a copy of this \code{IsisMdl} object
+#' @name copy
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}}
+#' returns a deep copy of an \code{IsisMdl} object
+#' @section Usage:
+#' \preformatted{
+#' mdl$copy()
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Details:
+#' \code{mdl$copy()} is  equivalent to \code{mdl$clone(deep = TRUE)}
+#'
+#' @examples
+#' mdl <- islm_mdl("2017Q1/2019Q2")
+#' mdl2 <- mdl$copy()
+NULL

@@ -100,6 +100,8 @@ setOldClass("period_range")
 #
 #' \describe{
 #'
+#' \item{\code{\link{copy}}}{Returns a deep copy of the \code{IsisMdl} object}
+#'
 #' \item{\code{\link{get_maxlag}}}{Returns the maximum lag}
 #'
 #' \item{\code{\link{get_maxlead}}}{Returns the maximum lead}
@@ -682,6 +684,9 @@ IsisMdl <- R6Class("IsisMdl",
     clear_fix = function() {
       .Fortran("clear_fix_fortran", model_index = private$model_index)
       return(invisible(self))
+    },
+    copy = function() {
+      return(self$clone(deep = TRUE))
     }
   ),
   private = list(
