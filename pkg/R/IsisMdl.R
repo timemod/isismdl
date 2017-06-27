@@ -15,9 +15,7 @@ setOldClass("period_range")
 #' available in a future).
 #'
 #' The package included a number of example models in directory \code{models} of
-#' the package library. Function \code{\link{copy_example_mdl}} is a convenience
-#' function that can be used to copy these example models to your working directory.
-#' It is also possible to directly create \code{IsisMdl} objects with functions
+#' the package library. It is also possible to directly create \code{IsisMdl} objects with functions
 #' \code{\link{islm_mdl}} to create an ISLM model and \code{\link{ifn_mdl}}
 #' to create another example model, the IFN model. The latter model is a model with
 #' leads and can be solved with the Fair-Taylor-method.

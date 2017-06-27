@@ -73,13 +73,18 @@ to a file with an extension \code{err}.
 All generated files have the same basename as the model file.
 }
 \examples{
-copy_example_mdl("islm")
+
+# copy the islm.mdl file in the directory models of the package
+# directory to the current directory
+mdl_file <- system.file("models", "islm.mdl", package = "isismdl")
+file.copy(mdl_file, "islm.mdl")
+
 mdl <- isis_mdl("islm.mdl")
 \dontshow{
 unlink("islm.*")
 }
 }
 \seealso{
-\code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
-\code{\link{IsisMdl}}
+\code{\link{IsisMdl}}, \code{\link{islm_mdl}} and
+\code{\link{ifn_mdl}}
 }

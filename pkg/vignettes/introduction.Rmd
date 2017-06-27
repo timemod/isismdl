@@ -42,14 +42,14 @@ Manual of Isis.
 
 A model file for the ISLM model is included in the example models
 in directory `models` of the package directory.
-Function `copy_example_mdl` is a convenience
-function that can be used to copy these example models to your working directory.
-For the ISLM model, use
-```{r, results = "hide"}
-copy_example_mdl("islm")
+To copy this file to you working directory, use
+```{r echo = FALSE, message = FALSE}
+unlink("islm.mdl")
 ```
-The command above copies the islm model to file `islm.mdl` in the current 
-working directory.
+```{r results='hide'}
+mdl_file <- system.file("models", "islm.mdl", package = "isismdl")
+file.copy(mdl_file, "islm.mdl")
+```
 
 The model file `islm.mdl` has the following contents:
 ```{r echo = FALSE, comment=''}
