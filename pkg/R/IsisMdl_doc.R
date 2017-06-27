@@ -454,7 +454,7 @@ NULL
 #' @section Details:
 #'
 #' Argument \code{report} can be used to specify
-#' the type of report about the number of replaced missing values
+#' the type of report about the number of replaced missing values.
 #' Specify
 #' \describe{
 #' \item{\code{minimal}}{to get a minimal report. Only the total number
@@ -467,10 +467,11 @@ NULL
 #'
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
-#' @examples
-#' mdl <- islm_mdl(period = "2017Q1/2018Q4")
-#' mdl$set_data(regts(NA, period = mdl$get_period()), names = "y")
-#' mdl$fill_mdl_data()
+#'
+#' mdl$set_values(200, names = "t", period = "2017Q1")
+#
+#' mdl$fill_mdl_data(period = "2017Q1")
+#' print(mdl$get_data(names = "yd"))
 NULL
 
 #' \code{\link{IsisMdl}} method: runs model equations
@@ -555,6 +556,16 @@ NULL
 #'
 #'\item \code{get_fit_targets}: Fit targets
 #'}
+#'
+#' @examples
+#' mdl <- islm_mdl(period = "2017Q1/2017Q3")
+#'
+#' print(mdl$get_data())
+#'
+#' print(mdl$get_data(names = c("g", "y"), period = "2017Q2/"))
+#'
+#' print(mdl$get_data(pattern = "^ymdl"))
+#'
 #' @seealso \code{\link{set_data-methods}}, \code{\link{set_values-methods}}
 #' and \code{\link{change_data-methods}}
 NULL

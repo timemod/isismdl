@@ -37,7 +37,7 @@ replaced missing values. See details.}
 
 
 Argument \code{report} can be used to specify
-the type of report about the number of replaced missing values
+the type of report about the number of replaced missing values.
 Specify
 \describe{
 \item{\code{minimal}}{to get a minimal report. Only the total number
@@ -50,7 +50,8 @@ the number of replaced missing values is reported}
 
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
-mdl <- islm_mdl(period = "2017Q1/2018Q4")
-mdl$set_data(regts(NA, period = mdl$get_period()), names = "y")
-mdl$fill_mdl_data()
+
+mdl$set_values(200, names = "t", period = "2017Q1")
+mdl$fill_mdl_data(period = "2017Q1")
+print(mdl$get_data(names = "yd"))
 }

@@ -407,7 +407,11 @@ IsisMdl <- R6Class("IsisMdl",
       data <- .Call("get_data_c", type = "data",
                     model_index = private$model_index,
                     names = names, jtb = js$startp, jte = js$endp)
-      ret <- regts(data, start = start_period(period), names = names)
+      startp <- start_period(period)
+      if (is.null(startp)) {
+        startp <- start_period(mdl$get_data_period())
+      }
+      ret <- regts(data, start = startp, names = names)
       if (length(private$labels) > 0) {
         ret <- update_ts_labels(ret, private$labels)
       }
@@ -432,7 +436,11 @@ IsisMdl <- R6Class("IsisMdl",
       data <- .Call("get_data_c", type = "ca",
                     model_index = private$model_index,
                     names = names, jtb = js$startp, jte = js$endp)
-      ret <- regts(data, start = start_period(period), names = names)
+      startp <- start_period(period)
+      if (is.null(startp)) {
+        startp <- start_period(mdl$get_data_period())
+      }
+      ret <- regts(data, start = startp, names = names)
       if (length(private$labels) > 0) {
         lbls <- private$labels
         lbls[] <- paste(lbls, "(constant adjustment)")
@@ -711,18 +719,36 @@ IsisMdl <- R6Class("IsisMdl",
     get_period_indices = function(period, extended = TRUE) {
       period <- as.period_range(period)
       mdl_period_start <- start_period(private$fortran_period)
-      startp <- as.integer(start_period(period) - mdl_period_start + 1)
-      endp   <- as.integer(end_period(period)   - mdl_period_start + 1)
+
+      startp <- start_period(period)
+      endp <- end_period(period)
+      if (is.null(startp)) {
+        startp <- start_period(private$data_period)
+      }
+      if (is.null(endp)) {
+        endp <- end_period(private$data_period)
+      }
+      startp <- as.integer(startp - mdl_period_start + 1)
+      endp   <- as.integer(endp   - mdl_period_start + 1)
       return(list(startp = startp, endp = endp))
     },
     set_var = function(set_type, data, names, names_missing,
                        upd_mode = "upd") {
-      # General function used to update model data, constant adjustments,
-      # fix values or fit targets.
       if (NCOL(data) == 0) {
         # TODO: warning?
         return(invisible(NULL))
       }
+      if (!is.ts(data)) {
+         stop("Argument data is not a timeseries object")
+      }
+      if (frequency(data) != frequency(private$data_period)) {
+        stop(paste0("The frequency of data does not agree with the data period ",
+                   as.character(private$data_period), "."))
+      }
+      # TODO:
+      # General function used to update model data, constant adjustments,
+      # fix values or fit targets
+
       if (is.null(names)) {
         if (names_missing) {
           stop(paste("Argument data has no colnames.",
@@ -828,6 +854,7 @@ IsisMdl <- R6Class("IsisMdl",
     update_labels = function(labels) {
       names <- intersect(names(labels), private$var_names)
       private$labels[names] <- labels[names]
+      private$labels <- private$labels[order(names(private$labels))]
       return(invisible(NULL))
     },
     get_mws = function() {
