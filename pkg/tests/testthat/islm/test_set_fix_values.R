@@ -1,0 +1,41 @@
+library(utils)
+library(isismdl)
+library(testthat)
+
+context("set_fix_values for the ISLM model")
+
+capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+
+i <- regts(200, start = '2015Q2')
+c <- regts(c(600, NA, 600), start = '2015Q2')
+t <- regts(c(190, 195), start = '2015Q3')
+fix <- cbind(c, i, t)
+ts_labels(fix) <- c("consumption", "investment", "tax")
+mdl$set_fix(fix)
+
+new_fix <- fix[mdl$get_data_period(), ]
+new_fix[ , "c" ] <- 620
+new_fix["2015Q3/2016Q2", c("t", "i")] <- 210:213
+new_fix["2016Q2", "t"] <- 190
+
+test_that("set_fix_values works correctly", {
+  mdl2 <- mdl$clone(deep = TRUE)
+  mdl2$set_fix_values(620, names = "c")
+  mdl2$set_fix_values(210:213, names = c("t", "i"), period = "2015Q3/2016Q2")
+  mdl2$set_fix_values(190, pattern = "^t$", period = "2016Q2")
+  expect_equal(mdl2$get_fix(), new_fix)
+  mdl2$set_fix_values(NA, names = "md")
+  expect_equal(mdl2$get_fix(), new_fix)
+  mdl2$set_fix_values(NA, names = "t")
+  expect_equal(mdl2$get_fix(), new_fix[, c("c", "i")])
+  mdl2$set_fix_values(NA, period = "2016Q1/")
+  expect_equal(mdl2$get_fix(), new_fix["2015Q1/2015Q4" , c("c", "i")])
+})
+
+test_that("set_fix_values handles errors correctly", {
+  mdl2 <- mdl$clone(deep = TRUE)
+  msg <- "y is not a stochastic model variable"
+  expect_error(mdl2$set_fix_values(1, names = "y"), msg)
+  msg <- "The variables y xxx are no stochastic model variables"
+  expect_error(mdl2$set_fix_values(1, names = c("y", "xxx", "c")), msg)
+})

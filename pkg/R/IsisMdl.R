@@ -487,7 +487,7 @@ IsisMdl <- R6Class("IsisMdl",
       if (is.null(private$model_period)) stop(private$period_error_msg)
       private$check_options(options, type = "solve_options")
       private$check_options(options, type = "fit_options")
-      period <- as.period_range(period)
+      period <- private$convert_period_arg(period, data_period = FALSE)
       private$check_model_period(period)
       js <- private$get_period_indices(period)
       .Call("solve_c", model_index = private$model_index,
@@ -500,7 +500,7 @@ IsisMdl <- R6Class("IsisMdl",
       # Calculates missing model data from identities.
       report <- match.arg(report)
       if (is.null(private$model_period)) stop(private$period_error_msg)
-      period <- as.period_range(period)
+      period <- private$convert_period_arg(period)
       js <- private$get_period_indices(period)
       .Call("filmdt_c", model_index = private$model_index,
             jtb = js$startp, jte = js$end,
@@ -509,7 +509,7 @@ IsisMdl <- R6Class("IsisMdl",
     },
     run_eqn = function(pattern, names, period = private$data_period) {
       "Run model equations"
-      period <- as.period_range(period)
+      period <- private$convert_period_arg(period)
       if (missing(pattern) && missing(names)) {
         eq_names <- self$get_eq_names(order = "solve")
       } else if (missing(pattern) && !missing(names)) {
@@ -692,7 +692,7 @@ IsisMdl <- R6Class("IsisMdl",
     get_data_ = function(type, names, pattern, period) {
       # general function used to get model data or constant adjustments
       if (is.null(private$model_period)) stop(private$period_error_msg)
-      period <- as.period_range(period)
+      period <- private$convert_period_arg(period)
       names <- private$get_names_(type, names, pattern)
       if (length(names) == 0) {
         return(NULL)
@@ -701,11 +701,7 @@ IsisMdl <- R6Class("IsisMdl",
       data <- .Call("get_data_c", type = type,
                     model_index = private$model_index,
                     names = names, jtb = js$startp, jte = js$endp)
-      startp <- start_period(period)
-      if (is.null(startp)) {
-        startp <- start_period(private$data_period)
-      }
-      ret <- regts(data, start = startp, names = names)
+      ret <- regts(data, start = start_period(period), names = names)
       if (length(private$labels) > 0) {
         lbls <- private$labels
         if (type == private$ca_type) {
@@ -717,7 +713,7 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_data_ = function(set_type, data, names, names_missing,
                        upd_mode = "upd") {
-
+      if (is.null(private$model_period)) stop(private$period_error_msg)
       if (!inherits(data, "ts")) {
          # we use inherits and not is.ts, because is.ts returns FALSE if
          # length(x) == 0
@@ -799,8 +795,9 @@ IsisMdl <- R6Class("IsisMdl",
       return(names)
     },
     set_values_ = function(set_type, value, names, pattern, period) {
+      if (is.null(private$model_period)) stop(private$period_error_msg)
       value <- as.numeric(value)
-      period <- as.period_range(period)
+      period <- private$convert_period_arg(period)
       nper <- nperiod(period)
       vlen <- length(value)
       if (vlen != 1 && vlen != nper) {
@@ -814,7 +811,7 @@ IsisMdl <- R6Class("IsisMdl",
       private$set_data_(set_type, data, names, FALSE)
     },
     change_var_ = function(set_type, fun, names, pattern, period, ...) {
-      period <- as.period_range(period)
+      period <- private$convert_period_arg(period)
       nper <- nperiod(period)
       names <- private$get_names_(set_type, names, pattern)
       if (set_type == private$data_type) {
@@ -950,6 +947,27 @@ IsisMdl <- R6Class("IsisMdl",
           stop(paste("The", type, "should be a named list"))
       }
       return(invisible(NULL))
+    },
+    convert_period_arg = function(period, data_period = TRUE) {
+      period <- as.period_range(period)
+      if (frequency(period) != frequency(private$data_period)) {
+        stop(paste0("Period ", period, " has a different frequency than ",
+                    "the model period ", private$model_period, "."))
+      }
+      if (data_period) {
+        defaultp <- private$data_period
+      } else {
+        defaultp <- private$model_period
+      }
+      startp <- start_period(period)
+      if (is.null(startp)) {
+        startp <- start_period(defaultp)
+      }
+      endp <- end_period(period)
+      if (is.null(endp)) {
+        endp <- end_period(defaultp)
+      }
+      return(period_range(startp, endp))
     }
   )
 )
