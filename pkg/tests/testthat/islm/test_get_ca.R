@@ -22,3 +22,14 @@ test_that("get_ca works correctly", {
   expect_equal(mdl$get_ca(period = "2016Q1/2016Q3", pattern = "^t"),
                ca["2016Q1/2016Q3", "t", drop = FALSE])
 })
+
+test_that("get_ca handles errors correctly", {
+  msg <- "xxx is not a stochastic model variable"
+  expect_error(mdl$get_ca(names = "xxx"), msg)
+  msg <- "y is not a stochastic model variable"
+  expect_error(mdl$get_ca(names = c("c", "y")), msg)
+  msg <- "y is not a stochastic model variable"
+  expect_error(mdl$get_ca(names = "y", pattern = "^y"), msg)
+  msg <-"The variables xxx y are no stochastic model variables"
+  expect_error(mdl$get_ca(names = c("xxx", "y")), msg)
+})

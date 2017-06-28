@@ -21,4 +21,18 @@ test_that("get_data works correctly", {
                data["2015Q1/2016Q1", c("c", "g")])
   expect_equal(mdl$get_data(period = "2016Q1/2016Q3", pattern = "^y"),
                data["2016Q1/2016Q3", c("y", "yd")])
+  expect_equal(mdl$get_data(period = "2016Q1/2016Q3", pattern = "^y",
+                            names = c("y")),
+               data["2016Q1/2016Q3", c("y", "yd")])
+})
+
+test_that("get_data handles errors correctly", {
+  msg <- "xxx is not a model variable"
+  expect_error(mdl$get_data(names = "xxx"), msg)
+  msg <- "xxx is not a model variable"
+  expect_error(mdl$get_data(names = c("c", "xxx")), msg)
+  msg <- "xxx is not a model variable"
+  expect_error(mdl$get_data(names = "xxx", pattern = "^y"), msg)
+  msg <-"The variables xxx yyy are no model variables"
+  expect_error(mdl$get_data(names = c("xxx", "yyy")), msg)
 })

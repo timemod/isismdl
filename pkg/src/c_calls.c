@@ -259,13 +259,7 @@ SEXP get_param_c(SEXP mws_index_, SEXP names) {
 /* General function for getting model data or constant adjustments */
 SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
 
-    const char *type_str = CHAR(STRING_ELT(type_, 0));
-    int type;
-    if (strcmp(type_str, "ca") == 0) {
-         type = CA;
-    } else {
-        type = DATA;
-    }
+    int type = asInteger(type_);
 
     int mws_index = asInteger(mws_index_);
     int jtb = asInteger(jtb_);
@@ -351,8 +345,11 @@ SEXP set_param_c(SEXP mws_index_, SEXP param_list) {
     return ScalarInteger(cnt);
 }
 
-void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_,
-           SEXP upd_mode_) {
+/* General function for setting model data, constant adjustments,
+ * fix value or fit values */
+void set_data_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, 
+                SEXP shift_, SEXP upd_mode_) {
+
     int set_type = asInteger(set_type_);
     int mws_index = asInteger(mws_index_);
     int shift = asInteger(shift_);
