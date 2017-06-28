@@ -2,7 +2,7 @@ library(utils)
 library(isismdl)
 library(testthat)
 
-context("set_data for the  ISLM model")
+context("get_data for the  ISLM model")
 
 capture_output(mdl <- read_mdl("islm_model.rds"))
 

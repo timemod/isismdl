@@ -409,7 +409,7 @@ IsisMdl <- R6Class("IsisMdl",
                     names = names, jtb = js$startp, jte = js$endp)
       startp <- start_period(period)
       if (is.null(startp)) {
-        startp <- start_period(mdl$get_data_period())
+        startp <- start_period(private$data_period)
       }
       ret <- regts(data, start = startp, names = names)
       if (length(private$labels) > 0) {
@@ -438,7 +438,7 @@ IsisMdl <- R6Class("IsisMdl",
                     names = names, jtb = js$startp, jte = js$endp)
       startp <- start_period(period)
       if (is.null(startp)) {
-        startp <- start_period(mdl$get_data_period())
+        startp <- start_period(private$data_period)
       }
       ret <- regts(data, start = startp, names = names)
       if (length(private$labels) > 0) {
@@ -734,21 +734,19 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_var = function(set_type, data, names, names_missing,
                        upd_mode = "upd") {
-      if (NCOL(data) == 0) {
-        # TODO: warning?
-        return(invisible(NULL))
-      }
-      if (!is.ts(data)) {
+
+      if (!inherits(data, "ts")) {
+         # we use inherits and not is.ts, because is.ts returns FALSE if
+         # length(x) == 0
          stop("Argument data is not a timeseries object")
       }
       if (frequency(data) != frequency(private$data_period)) {
-        stop(paste0("The frequency of data does not agree with the data period ",
-                   as.character(private$data_period), "."))
+        stop(paste0("The frequency of data does not agree with the data",
+                    " period ", as.character(private$data_period), "."))
       }
-      # TODO:
-      # General function used to update model data, constant adjustments,
-      # fix values or fit targets
-
+      if (NCOL(data) == 0) {
+        return(invisible(NULL))
+      }
       if (is.null(names)) {
         if (names_missing) {
           stop(paste("Argument data has no colnames.",
@@ -756,10 +754,9 @@ IsisMdl <- R6Class("IsisMdl",
         } else {
           stop("names is null")
         }
-      }  else {
-        if (length(names) < NCOL(data)) {
-          stop("The length of arument names is less than the number of columns of data")
-        }
+      }  else if (length(names) < NCOL(data)) {
+          stop(paste("The length of arument names is less than the number of ",
+                    "columns of data"))
       }
       if (is.null(private$model_period)) stop(private$period_error_msg)
       data <- as.regts(data)
@@ -780,8 +777,6 @@ IsisMdl <- R6Class("IsisMdl",
         }
       }
       .Call(set_c, set_type, private$model_index, data, names, shift, upd_mode)
-
-      # TODO: report number of timeseries that have not been set
       return(invisible(self))
     },
     set_values_ = function(set_type, value, names, pattern, period) {

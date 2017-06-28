@@ -2,7 +2,7 @@ library(utils)
 library(isismdl)
 library(testthat)
 
-context("set_data for the  ISLM model")
+context("get_ca for the  ISLM model")
 
 capture_output(mdl <- read_mdl("islm_model.rds"))
 
@@ -11,8 +11,7 @@ nperiod <- nperiod(mdl$get_data_period())
 set.seed(123)
 ca <- matrix(rnorm(nperiod * length(names)), nrow = nperiod)
 labels <- paste(mdl$get_labels()[names], "(constant adjustment)")
-ca <- regts(data, period = mdl$get_data_period(), names = names,
-            labels = labels)
+ca <- regts(ca, period = mdl$get_data_period(), names = names, labels = labels)
 mdl$set_ca(ca)
 
 test_that("get_ca works correctly", {
