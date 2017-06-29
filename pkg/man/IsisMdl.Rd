@@ -48,6 +48,12 @@ For example, method \code{solve} is described in section
 \item{\code{\link{get_var_names}}}{Returns the names of the model
 variables}
 
+\item{\code{\link{get_exo_names}}}{Returns the names of the exogenous model
+variables}
+
+\item{\code{\link{get_endo_names}}}{Returns the names of the endogenous model
+variables}
+
 \item{\code{\link{get_par_names}}}{Returns the names of the model parameters}
 
 \item{\code{\link{get_eq_names}}}{Returns the names of the equations}

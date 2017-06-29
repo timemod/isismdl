@@ -6,7 +6,7 @@ context("get_ca for the  ISLM model")
 
 capture_output(mdl <- read_mdl("islm_model.rds"))
 
-names <- mdl$get_var_names(type = "allfrml")
+names <- mdl$get_endo_names(type = "frml")
 nperiod <- nperiod(mdl$get_data_period())
 set.seed(123)
 ca <- matrix(rnorm(nperiod * length(names)), nrow = nperiod)

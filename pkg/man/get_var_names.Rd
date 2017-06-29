@@ -2,29 +2,16 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{get_var_names}
 \alias{get_var_names}
-\title{\code{\link{IsisMdl}} method: returns the names of the model variables}
+\title{\code{\link{IsisMdl}} method: returns the names of the model
+variables}
 \description{
 This method of R6 class \code{\link{IsisMdl}} returns the names of
-the model variables. By default, the function returns all variable
-names. Argument \code{pattern} can be specified to select only
-variables with names matching a regular expression. Argument \code{type}
-can be specified to select variables with a specific type.
-The following types are supported
-\describe{
-\item{\code{"allfrml"}}{all stochastic variables (both active and inactive).
-Stochastic variables are variables that occur on the left hand side
-of frml equations}
-\item{\code{"all_endolead"}}{all variables with endogenous leads
-(both active and inactive)}
-\item{\code{"all"}}{all variables}
-}
+the model variables, both exogenous and endogenous.
 }
 \section{Usage}{
 
 \preformatted{
-mdl$get_var_names(pattern = ".*",
-                  type =  c("all", "allfrml", "all_endolead"))
-
+mdl$get_var_names(pattern = ".*")
 }
 
 \code{mdl} is an \code{IsisMdl} object
@@ -35,17 +22,18 @@ mdl$get_var_names(pattern = ".*",
 
 \describe{
 \item{\code{pattern}}{a regular expression specifying variable names}
-\item{\code{type}}{a character string specifying the variable type. See
-the description above}
 }
 }
 
 \examples{
 mdl <- islm_mdl()
 
-# get the names of all stochastic variables
-mdl$get_var_names(type = "allfrml")
+# get the names of all model variables
+mdl$get_var_names()
 
-# get all variables with names starting with "y":
+# get all variables with names starting with "m":
 mdl$get_var_names(pattern = "^y.*")
+}
+\seealso{
+\code{\link{get_endo_names}} and \code{\link{get_exo_names}}
 }

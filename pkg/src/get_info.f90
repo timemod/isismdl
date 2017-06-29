@@ -64,7 +64,7 @@ end subroutine get_variable_name
 
 subroutine get_ca_name(model_index, i, nam, nlen)
     ! returns the name of the i'th constant adjustment 
-    ! (NOT in alphabetical order!!!)
+    ! (NOT in alphabetical order!!!), both active and inactive
     use modelworkspaces
     use iso_c_binding
     integer(c_int), intent(in)   :: model_index, i
@@ -74,6 +74,8 @@ subroutine get_ca_name(model_index, i, nam, nlen)
     integer :: ivar
 
     ivar = mws_array(model_index)%mdl%ica(i)
+    ! ivar is negative for deactived equations
+    ivar = abs(ivar)
     call get_var_name(mws_array(model_index)%mdl, ivar, .false., nam, nlen);
 end subroutine get_ca_name
 
@@ -259,18 +261,27 @@ function get_param_length(model_index, i)
     get_param_length = mws_array(model_index)%mdl%nvalp(i)
 end function get_param_length
 
-function equation_is_active(model_index, ieq, alpha)
+function equation_is_active(model_index, ieq)
     use modelworkspaces
     use iso_c_binding
     integer(c_int) :: equation_is_active
-    integer(c_int), intent(in) :: model_index, ieq, alpha
+    integer(c_int), intent(in) :: model_index, ieq
 
-    if (is_active(mws_array(model_index)%mdl, ieq, alpha /= 0)) then
+    if (is_active(mws_array(model_index)%mdl, ieq)) then
         equation_is_active = 1
     else 
         equation_is_active = 0
     endif
 end function equation_is_active
+
+function get_lhsnum(model_index, ieq)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: get_lhsnum
+    integer(c_int), intent(in) :: model_index, ieq
+
+    get_lhsnum = mws_array(model_index)%mdl%lhsnum(ieq)
+end function get_lhsnum
 
 integer function get_eq_order(model_index, ieq)
     use modelworkspaces

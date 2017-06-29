@@ -107,6 +107,12 @@ setOldClass("period_range")
 #' \item{\code{\link{get_var_names}}}{Returns the names of the model
 #' variables}
 #'
+#' \item{\code{\link{get_exo_names}}}{Returns the names of the exogenous model
+#' variables}
+#'
+#' \item{\code{\link{get_endo_names}}}{Returns the names of the endogenous model
+#' variables}
+#'
 #' \item{\code{\link{get_par_names}}}{Returns the names of the model parameters}
 #'
 #' \item{\code{\link{get_eq_names}}}{Returns the names of the equations}
@@ -238,22 +244,39 @@ IsisMdl <- R6Class("IsisMdl",
     get_maxlead = function() {
       return(private$maxlead)
     },
-    get_var_names = function(pattern = ".*",
-                             type = c("all", "allfrml", "all_endolead")) {
+    get_var_names = function(pattern = ".*") {
+      names <- .Call(get_var_names_c, "all", private$model_index)
+      if (!missing(pattern)) {
+        sel <- grep(pattern, names)
+        names <- names[sel]
+      }
+      return(names)
+    },
+    get_exo_names = function(pattern = ".*") {
+      names <- setdiff(self$get_var_names(pattern), self$get_endo_names(pattern))
+      return(names)
+    },
+    get_endo_names = function(pattern = ".*",
+                              type = c("all", "frml", "endolead"),
+                              status = c("active", "inactive", "all")) {
       type <- match.arg(type)
-      if  (type != "all") {
-        names <- .Call(get_var_names_c, type, private$model_index)
+      status <- match.arg(status)
+
+      if (type == "all") {
+        names <- .Call("get_eq_names_c", private$model_index, status, order, 1L)
       } else {
-        names <- private$var_names
+        names <- .Call(get_var_names_c, type, private$model_index)
+        if (status != "all") {
+          names <- intersect(names,
+                             .Call("get_eq_names_c", private$model_index,
+                                   status, order, 1L))
+        }
       }
       if (!missing(pattern)) {
         sel <- grep(pattern, names)
         names <- names[sel]
       }
-      if (type == "allfrml" || type == "all_endolead") {
-        names <- sort(names)
-      }
-      return(names)
+      return(sort(names))
     },
     set_labels = function(labels) {
       private$update_labels(labels)
@@ -270,14 +293,17 @@ IsisMdl <- R6Class("IsisMdl",
       return(names)
     },
     get_eq_names = function(pattern = ".*",
-                            type = c("all", "active", "inactive"),
+                            status = c("all", "active", "inactive"),
                             order = c("sorted", "solve", "natural")) {
-      type  <- match.arg(type)
+      status  <- match.arg(status)
       order <- match.arg(order)
-      names <- .Call("get_eq_names_c", type, private$model_index, order)
+      names <- .Call("get_eq_names_c", private$model_index,status, order, 0L)
       if (!missing(pattern)) {
         sel <- grep(pattern, names)
         names <- names[sel]
+      }
+      if (order == "sorted") {
+        names <- names[order(names)]
       }
       return(names)
     },
@@ -451,7 +477,7 @@ IsisMdl <- R6Class("IsisMdl",
       if (is.null(values)) {
         return(numeric(0))
       } else {
-        names(values) <- .Call(get_var_names_c, "allfrml", private$model_index)
+        names(values) <- .Call(get_var_names_c, "frml", private$model_index)
         values <- values[!is.na(values)]
         values <- values[values != 0]
         if (length(values) == 0) {
@@ -568,9 +594,9 @@ IsisMdl <- R6Class("IsisMdl",
     set_ftrelax = function(value, pattern, names) {
       "Sets the Fair-Taylor relaxation criterion."
       if (missing(pattern) && missing(names)) {
-        names <- self$get_var_names(type = "all_endolead")
+        names <- self$get_endo_names(type = "endolead", status = "all")
       } else if (!missing(pattern)) {
-        pvars <- self$get_var_names(pattern, type = "all_endolead")
+        pvars <- self$get_endo_names(pattern, type = "endolead", status = "all")
         if (!missing(names)) {
           names <- union(pvars, names)
         } else {
@@ -587,8 +613,7 @@ IsisMdl <- R6Class("IsisMdl",
     get_ftrelax = function() {
       "Returns the Fair-Taylor relaxtion factors"
       values <- .Call("get_ftrelax_c", private$model_index)
-      names(values) <- .Call(get_var_names_c, "all_endolead",
-                             private$model_index)
+      names(values) <- .Call(get_var_names_c, "endolead", private$model_index)
       sorted_names <- sort(names(values))
       return(values[sorted_names])
     },
@@ -748,7 +773,7 @@ IsisMdl <- R6Class("IsisMdl",
         data <- apply(data, MARGIN = c(1,2), FUN = as.numeric)
       }
 
-      if (set_type == 1) {
+      if (set_type == private$data_type) {
         lbls <- ts_labels(data)
         if (!is.null(lbls)) {
           names(lbls) <- names
@@ -760,15 +785,16 @@ IsisMdl <- R6Class("IsisMdl",
     },
     get_names_ = function(type, names, pattern) {
       if (type == private$ca_type || type == private$fix_type) {
-        type <- "allfrml"
+        type <- "frml"
+        vnames <- self$get_endo_names(type = "frml", status = "all")
       } else {
         type <- "all"
+        vnames <- self$get_var_names()
       }
-      vnames <- self$get_var_names(type = type)
       if (!is.null(names)) {
         error_vars <- setdiff(names, vnames)
         if (length(error_vars) > 0) {
-          if (type == "allfrml") {
+          if (type == "frml") {
             type_txt <- "stochastic "
           } else {
             type_txt <- ""

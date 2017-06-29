@@ -31,29 +31,44 @@ NULL
 NULL
 
 
-#' \code{\link{IsisMdl}} method: returns the names of the model variables
-#' @name get_var_names
+#' \code{\link{IsisMdl}} method: returns the names of the endogenous model
+#' variables
+#' @name get_endo_names
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the names of
-#' the model variables. By default, the function returns all variable
-#' names. Argument \code{pattern} can be specified to select only
-#' variables with names matching a regular expression. Argument \code{type}
+#' the endogenous model variables. By default, the function returns the
+#' names of all active endogenous variables. Argument \code{pattern} can be
+#' specified to select only variables with names matching a regular expression.
+#' Argument \code{type}
 #' can be specified to select variables with a specific type.
 #' The following types are supported
 #' \describe{
-#' \item{\code{"allfrml"}}{all stochastic variables (both active and inactive).
+#' \item{\code{"frml"}}{stochastic variables.
 #' Stochastic variables are variables that occur on the left hand side
 #' of frml equations}
-#' \item{\code{"all_endolead"}}{all variables with endogenous leads
-#' (both active and inactive)}
-#' \item{\code{"all"}}{all variables}
+#' \item{\code{"endolead"}}{all variables with endogenous leads}
+#' \item{\code{"all"}}{all endogenous variables, the default}
+#' }
+#'
+#' If some equation have been deactivated (see \code{\link{set_eq_status}},
+#' then argument \code{status} may be useful.
+#' By default, the function only returns the names of the active
+#' endogenous variables, i.e. the variables that occur on the
+#' left hand side of active equation. This behaviour can be modified
+#' by specifying the status\code{status}. The following options
+#' for argument \code{status} are recognized:
+#'\describe{
+#' \item{\code{"active"}}{active endogenous variables, the default}
+#' \item{\code{"inactive"}}{inactive endogenous variables}
+#' \item{\code{"all"}}{all endogenous variables}
 #' }
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$get_var_names(pattern = ".*",
-#'                   type =  c("all", "allfrml", "all_endolead"))
+#' mdl$get_endo_names(pattern = ".*",
+#'                   type =  c("all", "frml", "endolead"),
+#'                   status = c("active", "inactive", "all"))
 #'
 #' }
 #'
@@ -65,16 +80,19 @@ NULL
 #' \item{\code{pattern}}{a regular expression specifying variable names}
 #' \item{\code{type}}{a character string specifying the variable type. See
 #' the description above}
+#' \item{\code{status}}{a character string specifying the status of the
+#' endogenous variable (inactive or active). See the description above}
 #' }
 #'
+#' @seealso \code{\link{get_exo_names}} and \code{\link{get_var_names}}
 #' @examples
 #' mdl <- islm_mdl()
 #'
 #' # get the names of all stochastic variables
-#' mdl$get_var_names(type = "allfrml")
+#' mdl$get_endo_names(type = "frml")
 #'
 #' # get all variables with names starting with "y":
-#' mdl$get_var_names(pattern = "^y.*")
+#' mdl$get_endo_names(pattern = "^y.*")
 NULL
 
 #' \code{\link{IsisMdl}} method: Sets labels for the model variables.
@@ -100,6 +118,70 @@ NULL
 #' mdl <- islm_mdl()
 #' mdl$set_labels(c(c = "Consumption", i = "investments"))
 NULL
+
+#' \code{\link{IsisMdl}} method: returns the names of the exogenous model
+#' variables
+#' @name get_exo_names
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the names of
+#' the exogenous model variables, including
+#' the left hand side variables of inactive equations
+#' (see \code{\link{set_eq_status}}).
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_exo_names(pattern = ".*")
+#' }
+#'
+#' \code{mdl} is an \code{IsisMdl} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{pattern}}{a regular expression specifying variable names}
+#' }
+#' @seealso \code{\link{get_endo_names}} and \code{\link{get_var_names}}
+#' @examples
+#' mdl <- islm_mdl()
+#'
+#' # get the names of all exogenous model variables
+#' mdl$get_exo_names()
+#'
+#' # get all variables with names starting with "g":
+#' mdl$get_exo_names(pattern = "^g.*")
+NULL
+
+#' \code{\link{IsisMdl}} method: returns the names of the model
+#' variables
+#' @name get_var_names
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the names of
+#' the model variables, both exogenous and endogenous.
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_var_names(pattern = ".*")
+#' }
+#'
+#' \code{mdl} is an \code{IsisMdl} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{pattern}}{a regular expression specifying variable names}
+#' }
+#'
+#' @seealso \code{\link{get_endo_names}} and \code{\link{get_exo_names}}
+#' @examples
+#' mdl <- islm_mdl()
+#'
+#' # get the names of all model variables
+#' mdl$get_var_names()
+#'
+#' # get all variables with names starting with "m":
+#' mdl$get_var_names(pattern = "^y.*")
+NULL
+
 
 #' \code{\link{IsisMdl}} method: returns the names of the model variables
 #' @name get_par_names
@@ -138,9 +220,9 @@ NULL
 #' This method of R6 class \code{\link{IsisMdl}} returns the
 #' the equation names.
 #' Argument \code{pattern} can be specified to select only
-#' equations with names matching a regular expression. Argument \code{type}
-#' can be specified to select equations with a specific type.
-#' The following types are supported
+#' equations with names matching a regular expression. Argument \code{status}
+#' can be specified to select only the active or inactive equations.
+#' Possible options for argument \code{status are}
 #' \describe{
 #' \item{\code{"active"}}{active equations}
 #' \item{\code{"inactive"}}{inactive equations}
@@ -157,7 +239,7 @@ NULL
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$get_eq_names(pattern = ".*", type =  c("all", "active", "inactive"),
+#' mdl$get_eq_names(pattern = ".*", status =  c("all", "active", "inactive"),
 #'                  order =  c("sorted", "solve", "natural"))
 #'
 #' }
@@ -168,7 +250,7 @@ NULL
 #'
 #' \describe{
 #' \item{\code{pattern}}{a regular expression specifying equation names}
-#' \item{\code{type}}{the equation type, see description)}
+#' \item{\code{status}}{the equation status, see description)}
 #' \item{\code{order}}{the ordering of the equations (see description)}
 #' }
 #' @examples
@@ -258,7 +340,7 @@ NULL
 #' mdl$set_eq_status("inactive", pattern = "^y*")
 #'
 #' # print all deactivated equations
-#' print(mdl$get_eq_names(type = "inactive"))
+#' print(mdl$get_eq_names(status = "inactive"))
 NULL
 
 #' \code{\link{IsisMdl}} method: sets the model period

@@ -7,9 +7,9 @@
 This method of R6 class \code{\link{IsisMdl}} returns the
 the equation names.
 Argument \code{pattern} can be specified to select only
-equations with names matching a regular expression. Argument \code{type}
-can be specified to select equations with a specific type.
-The following types are supported
+equations with names matching a regular expression. Argument \code{status}
+can be specified to select only the active or inactive equations.
+Possible options for argument \code{status are}
 \describe{
 \item{\code{"active"}}{active equations}
 \item{\code{"inactive"}}{inactive equations}
@@ -27,7 +27,7 @@ The following ordering options are recognized:
 \section{Usage}{
 
 \preformatted{
-mdl$get_eq_names(pattern = ".*", type =  c("all", "active", "inactive"),
+mdl$get_eq_names(pattern = ".*", status =  c("all", "active", "inactive"),
                  order =  c("sorted", "solve", "natural"))
 
 }
@@ -40,7 +40,7 @@ mdl$get_eq_names(pattern = ".*", type =  c("all", "active", "inactive"),
 
 \describe{
 \item{\code{pattern}}{a regular expression specifying equation names}
-\item{\code{type}}{the equation type, see description)}
+\item{\code{status}}{the equation status, see description)}
 \item{\code{order}}{the ordering of the equations (see description)}
 }
 }
