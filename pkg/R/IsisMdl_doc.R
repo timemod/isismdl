@@ -420,6 +420,9 @@ NULL
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$solve(options = list(report = "fullrep"))
+#'
+#' # solve the model for all periods before 2018Q1
+#' mdl$solve(period = "/2017Q4")
 NULL
 
 #' \code{\link{IsisMdl}} method: Calculates missing model data from identities
@@ -558,10 +561,11 @@ NULL
 #'}
 #'
 #' @examples
-#' mdl <- islm_mdl(period = "2017Q1/2017Q3")
+#' mdl <- islm_mdl(period = "2017Q1/2017Q4")
 #'
 #' print(mdl$get_data())
 #'
+#' # print data for 2017Q2 and later
 #' print(mdl$get_data(names = c("g", "y"), period = "2017Q2/"))
 #'
 #' print(mdl$get_data(pattern = "^ymdl"))

@@ -426,12 +426,12 @@ IsisMdl <- R6Class("IsisMdl",
     },
     change_data = function(fun, names = NULL, pattern = NULL,
                            period = private$data_period, ...) {
-      return(private$change_var_(private$data_type, fun, names, pattern,
+      return(private$change_data_(private$data_type, fun, names, pattern,
                                  period, ...))
     },
     change_ca = function(fun, names = NULL, pattern = NULL,
                          period = private$data_period, ...) {
-      return(private$change_var_(private$ca_type, fun, names, pattern,
+      return(private$change_data_(private$ca_type, fun, names, pattern,
                                  period, ...))
     },
     set_rms = function(values) {
@@ -810,8 +810,11 @@ IsisMdl <- R6Class("IsisMdl",
                     names = names)
       private$set_data_(set_type, data, names, FALSE)
     },
-    change_var_ = function(set_type, fun, names, pattern, period, ...) {
+    change_data_ = function(set_type, fun, names, pattern, period, ...) {
       period <- private$convert_period_arg(period)
+      if (!is.function(fun)) {
+        stop("argument fun is not a function")
+      }
       nper <- nperiod(period)
       names <- private$get_names_(set_type, names, pattern)
       if (set_type == private$data_type) {

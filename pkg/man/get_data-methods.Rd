@@ -54,10 +54,11 @@ object that can be coerced to a \code{period_range}}
 }
 
 \examples{
-mdl <- islm_mdl(period = "2017Q1/2017Q3")
+mdl <- islm_mdl(period = "2017Q1/2017Q4")
 
 print(mdl$get_data())
 
+# print data for 2017Q2 and later
 print(mdl$get_data(names = c("g", "y"), period = "2017Q2/"))
 
 print(mdl$get_data(pattern = "^ymdl"))

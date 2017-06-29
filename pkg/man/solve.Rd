@@ -44,6 +44,9 @@ The specified options will only used in this call of
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$solve(options = list(report = "fullrep"))
+
+# solve the model for all periods before 2018Q1
+mdl$solve(period = "/2017Q4")
 }
 \seealso{
 \code{\link{set_solve_options}} and
