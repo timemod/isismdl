@@ -6,6 +6,7 @@ context("fit for ISLM model")
 capture_output(mdl <- read_mdl("islm_model_solved.rds"))
 all_eqs <- mdl$get_eq_names()
 frml_names <- c("c", "i", "md", "t")
+endo_names <- mdl$get_endo_names()
 
 test_that("Testing equation status after clone", {
   expect_identical(mdl$get_eq_names(status = "inactive"), character(0))
@@ -17,6 +18,11 @@ test_that("Testing equation status after clone", {
   expect_identical(mdl2$get_endo_names(type = "frml", status = "all"),
                    frml_names)
   expect_identical(mdl2$get_endo_names(type = "frml"), setdiff(frml_names, "c"))
+  expect_identical(mdl2$get_endo_names(status = "inactive", type = "frml"), "c")
+  expect_identical(mdl2$get_endo_names(status = "all"), endo_names)
+  expect_identical(mdl2$get_endo_names(status = "active"),
+                   setdiff(endo_names, "c"))
+  expect_identical(mdl2$get_endo_names(status = "inactive"), "c")
 })
 
 test_that("pattern argument works correctly", {
@@ -71,8 +77,34 @@ test_that("deactivating fixed equations", {
 
 test_that("fixing deactived equation give an error", {
   mdl2 <- mdl$copy()
-  mdl2$set_eq_status("inactive", names = "c")
-  mdl2$set_fix_values(650, names = "c", period = "/2015Q3")
-
+  mdl2$set_eq_status("inactive", names = c("c", "i"))
+  msg <- "Variable c is inactive and cannot be fixed"
+  expect_error(mdl2$set_fix_values(650, names = "c", period = "/2015Q3"),
+               msg)
+  data <- mdl2$get_data(names = c("c", "i"))
+  msg <- "The variables c i are inactive and cannot be fixed"
+  expect_error(mdl2$set_fix(data), msg)
 })
 
+test_that("deactivating fitted equations", {
+  mdl2 <- mdl$copy()
+  y_ref <- mdl2$get_data(names = "y")
+  mdl2$set_fit_values(10000, names = "y", period = "/2015Q3")
+  mdl2$set_rms(c(c = 5.0))
+  mdl2$set_eq_status("inactive", names = "y")
+  expect_warning(mdl2$solve(options = list(report = "none")),
+                 "Simulation not possible")
+  expect_equal(mdl2$get_data(names = "y"), y_ref)
+  expect_equal(mdl2$get_ca(names = "c"), mdl$get_ca(names = "c"))
+})
+
+test_that("fixing deactived equation give an error", {
+  mdl2 <- mdl$copy()
+  mdl2$set_eq_status("inactive", names = c("y", "yd"))
+  msg <- "Variable y is inactive and cannot be used as fit target"
+  expect_error(mdl2$set_fit_values(650, names = "y", period = "/2015Q3"),
+               msg)
+  data <- mdl2$get_data(names = c("y", "yd"))
+  msg <- "The variables y yd are inactive and cannot be used as fit targets"
+  expect_error(mdl2$set_fit(data), msg)
+})

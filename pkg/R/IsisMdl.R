@@ -780,7 +780,29 @@ IsisMdl <- R6Class("IsisMdl",
           private$update_labels(lbls)
         }
       }
-      .Call(set_data_c, set_type, private$model_index, data, names, shift, upd_mode)
+
+      # check for inactive equations
+      if (set_type == private$fix_type || set_type == private$fit_type) {
+        if (set_type == private$fix_type) {
+          vartype <- "frml"
+          msg <- "fixed"
+        } else {
+          vartype = "all"
+          msg <- "used as fit targets"
+        }
+        inactive <- intersect(names, self$get_endo_names(type = vartype,
+                                                         status = "inactive"))
+        if (length(inactive) > 0) {
+          if (length(inactive) == 1) {
+            stop(paste("Variable", inactive, "is inactive and cannot be", msg))
+          } else {
+            stop(paste("The variables", paste(inactive, collapse = " "),
+                       "are inactive and cannot be", msg))
+          }
+        }
+      }
+      .Call(set_data_c, set_type, private$model_index, data, names, shift,
+            upd_mode)
       return(invisible(self))
     },
     get_names_ = function(type, names, pattern) {
