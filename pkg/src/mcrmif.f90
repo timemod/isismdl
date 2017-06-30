@@ -116,7 +116,8 @@ read(fcode(10:11),*) mifvernum
 read(MIFUNT,err=895,end=895,iostat=fstat) mdl%cnamelen
 if (mdl%cnamelen .gt. MAXMOLEN) goto 898
 read(MIFUNT,err=895,end=895,iostat=fstat) &
-&    mdl%cname(:mdl%cnamelen), mdl%date, mdl%time
+!&    mdl%cname(:mdl%cnamelen), mdl%date, mdl%time
+&    mdl%cname(:mdl%cnamelen)
 
 mdl%nulf = 0
 read(MIFUNT,err=895,end=895,iostat=fstat) mdl%neq,mdl%loops, &

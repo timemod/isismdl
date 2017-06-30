@@ -250,7 +250,7 @@ NULL
 #'
 #' \describe{
 #' \item{\code{pattern}}{a regular expression specifying equation names}
-#' \item{\code{status}}{the equation status, see description)}
+#' \item{\code{status}}{the equation status, see Description}
 #' \item{\code{order}}{the ordering of the equations (see description)}
 #' }
 #' @examples
@@ -1415,6 +1415,33 @@ NULL
 #' mdl$write_mdl("islm_mdl.rds")
 #' @seealso \code{\link{read_mdl}}
 NULL
+
+#' Serializes the model to an \code{serialized_isismdl} S3 class
+#' @name serialize
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}}
+#' serializes the model object and returns
+#' an \code{serialized_isismdl} object, an S3 object that contains
+#' all the information about the model.
+#' The serialized model can be used to create a new
+#' \code{IsisMdl} object with the command
+#' \code{IsisMdl$new(serialized_mdl)}
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$serialize()
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @examples
+#' mdl <- islm_mdl("2017Q1/2019Q2")
+#' serialized_mdl <- mdl$serialize()
+#'
+#' # create a new model from the serialized model
+#' mdl2 <- IsisMdl$new(serialized_mdl)
+#' @seealso \code{\link{write_mdl}} and \code{\link{read_mdl}}
+NULL
+
 
 #' \code{\link{IsisMdl}} method: deletes all fit targets and rms values
 #' values

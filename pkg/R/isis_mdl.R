@@ -95,7 +95,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values, fit_targets) {
   }
   base_name <- file_path_sans_ext(model_file)
   mif_file <- paste(base_name, "mif", sep = ".")
-  mdl <- IsisMdl$new(mif_file)
+  mdl <- IsisMdl$new(mif_file = mif_file)
   unlink(mif_file)
 
   if (!missing(data)) {

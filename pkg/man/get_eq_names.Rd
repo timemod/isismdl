@@ -40,7 +40,7 @@ mdl$get_eq_names(pattern = ".*", status =  c("all", "active", "inactive"),
 
 \describe{
 \item{\code{pattern}}{a regular expression specifying equation names}
-\item{\code{status}}{the equation status, see description)}
+\item{\code{status}}{the equation status, see Description}
 \item{\code{order}}{the ordering of the equations (see description)}
 }
 }

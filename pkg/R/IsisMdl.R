@@ -201,10 +201,30 @@ setOldClass("period_range")
 #'
 IsisMdl <- R6Class("IsisMdl",
   public = list(
-    initialize = function(mif_name, mws = NULL) {
 
-      cat(paste("Reading mif file", mif_name, "...\n"))
-      private$model_index <- .Call(read_mdl_c, mif_name)
+    initialize = function(serialized_mdl, mif_file) {
+
+      if (!missing(mif_file) && !missing(serialized_mdl)) {
+        stop("Specify either argument mif_name or serialized_mdl, but not both")
+      }
+      if (missing(mif_file) && missing(serialized_mdl)) {
+        stop("Specify either argument mif_name or serialized_mdl")
+      }
+
+      if (!missing(serialized_mdl)) {
+        if (!inherits(serialized_mdl, "serialized_isismdl")) {
+          stop("Argument serialized_mdl is not a serialized_isismdl object")
+        }
+        mif_file <- tempfile("mif")
+        writeBin(serialized_mdl$mif_data, con = mif_file)
+      }
+
+      cat(paste("Reading mif file", mif_file, "...\n"))
+      private$model_index <- .Call(read_mdl_c, mif_file)
+
+      if (!missing(serialized_mdl)) {
+        unlink(mif_file)
+      }
 
       # get maximum lag and lead
       ret <- .Fortran("get_max_lag_lead_fortran",
@@ -221,8 +241,9 @@ IsisMdl <- R6Class("IsisMdl",
                     function(e) {.Fortran("remove_mws_fortran",
                                           model_index = private$model_index)},
                     onexit = TRUE)
-      if (!missing(mws)) {
-        private$init_mws(mws)
+
+      if (!missing(serialized_mdl)) {
+        private$init_mws(serialized_mdl$mws)
       }
     },
     print = function(...) {
@@ -649,17 +670,18 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     write_mdl = function(file) {
-      # TODO: use tempfile
-      mif_file <- "write_mdl.mif"
+      saveRDS(self$serialize(), file)
+      return(invisible(self))
+    },
+    serialize = function() {
+      mif_file <- tempfile()
       .Call("write_mdl_c", mif_file, private$model_index)
       size <- file.info(mif_file)$size
       mif_data <- readBin(mif_file, what = "raw", n = size)
-      serialized_mdl <- structure(list(mif_data = mif_data,
-                                       mws = private$get_mws()),
-                                  class = "serialized_isismdl")
-      saveRDS(serialized_mdl, file)
       unlink(mif_file)
-      return(invisible(self))
+      return(structure(list(version = packageVersion("isismdl"),
+                            mif_data = mif_data, mws = private$get_mws()),
+                       class = "serialized_isismdl"))
     },
     clear_fit = function() {
       .Fortran("clear_fit_fortran", model_index = private$model_index)

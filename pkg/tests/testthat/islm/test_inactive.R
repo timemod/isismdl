@@ -23,6 +23,7 @@ test_that("Testing equation status after clone", {
   expect_identical(mdl2$get_endo_names(status = "active"),
                    setdiff(endo_names, "c"))
   expect_identical(mdl2$get_endo_names(status = "inactive"), "c")
+  expect_identical(mdl2$get_exo_names(), c("c", "g", "ms"))
 })
 
 test_that("pattern argument works correctly", {
