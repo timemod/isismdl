@@ -91,8 +91,8 @@ do p = pstart, pend
            if (mdl%lik(lhs)) then
                curvars(lhs) = result + ca(lhs)
            else
-               curvars(lhs) = yp(lhs)
-               ca(lhs)      = yp(lhs) - result
+               curvars(lhs) = fixvars(lhs)
+               ca(lhs)      = fixvars(lhs) - result
            endif
 
        else if( eqtyp == 'M' .and. .not. mdl%lik(lhs)) then
@@ -147,7 +147,7 @@ do p = pstart, pend
         if (mdl%lik(lhs)) then
             curvars(lhs) = NA
         else if( eqtyp .eq. 'B' .or. eqtyp .eq. 'M' ) then
-            curvars(lhs) = yp(lhs)
+            curvars(lhs) = fixvars(lhs)
             ca(lhs)   = NA
         endif
     endif

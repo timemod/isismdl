@@ -28,7 +28,7 @@ module msfix
                         lik_old = mdl%lik
                     endif
                     has_fix_vars = .true.
-                    curvars(fix_var%var_index) = value
+                    fixvars(fix_var%var_index) = value
                     mdl%lik(fix_var%var_index) = .false.
                 endif
                 fix_var => fix_var%next

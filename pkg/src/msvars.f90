@@ -11,7 +11,7 @@ module msvars
     integer(kind = MC_IKIND), dimension(:), allocatable, save :: pivot
     real(kind = MWS_RKIND), dimension(:), allocatable, save :: qrtau, la_work
     real(kind = MWS_RKIND), dimension(:), allocatable, target, &
-&          save :: yp, curvars
+&          save :: yp, curvars, fixvars
     real(kind = MWS_RKIND), dimension(:), allocatable, save :: &
 &         lags_leads, ca, fbval, fbfun, scale, fbwork, fbstep, dx, df
     real(kind = MWS_RKIND), dimension(:, :), allocatable, save :: endo_leads
@@ -89,6 +89,7 @@ module msvars
 
             allocate(yp(mdl%nrv), stat = stat)
             if (stat == 0) allocate(curvars(mdl%nrv), stat = stat)
+            if (stat == 0) allocate(fixvars(mdl%nrv), stat = stat)
             if (stat == 0) allocate(lags_leads(mdl%nd), stat = stat)
             if (stat == 0) allocate(ca(mdl%nrv), stat = stat)
             if (stat /= 0) then
@@ -145,6 +146,7 @@ module msvars
             deallocate(la_work, stat = stat)
             deallocate(yp, stat = stat)
             deallocate(curvars, stat = stat)
+            deallocate(fixvars, stat = stat)
             deallocate(lags_leads, stat = stat)
             deallocate(ca, stat = stat)
             deallocate(fbval, stat = stat)
