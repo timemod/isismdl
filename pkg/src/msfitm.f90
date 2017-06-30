@@ -924,7 +924,7 @@ contains
     fiterr = 0
     nonval = 0
     
-    if (opts%method /= 'N' .and. opts%method /= 'B' .and. opts%method /= 'Q') then
+    if (method /= 'N' .and. method /= 'B' .and. method /= 'Q') then
        if (mdl%nfb /= 0 ) then
            fiterr = 5
            return
@@ -1034,13 +1034,13 @@ contains
     !use msnwqr
     integer :: retcod,itr
     
-    if (opts%method == 'N' ) then
+    if (method == 'N' ) then
         !call msnjac(retcod, itr)
         continue
-    elseif (opts%method == 'Q') then
+    elseif (method == 'Q') then
         !call msqjac(retcod, itr)
         continue
-    elseif (opts%method == 'B') then
+    elseif (method == 'B') then
        call msbjac(retcod, itr)
     endif
     
@@ -1056,14 +1056,14 @@ contains
     
     ! general calculate newton or broyden step
     
-    if (opts%method == 'N' ) then
+    if (method == 'N' ) then
         ! pivoted LU factorization
         !call msnstp
         continue
-    elseif (opts%method == 'Q') then
+    elseif (method == 'Q') then
         ! QR decomposition
         !call msqstp
-    elseif (opts%method == 'B') then
+    elseif (method == 'B') then
         !  expanded QR factorization (no pivots)
         call msbstp
     endif

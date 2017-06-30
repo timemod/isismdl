@@ -53,7 +53,7 @@ pend   = oend
 
 retcod = 0
 
-if (opts%mode == 'R') then
+if (mode == 'R') then
     rhsvars => yp
 else
     rhsvars => curvars

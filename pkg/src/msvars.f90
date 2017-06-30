@@ -27,6 +27,8 @@ module msvars
     type(modelworkspace), pointer :: mws
     type(model), pointer :: mdl
     type(solve_options), pointer :: opts
+    character(len = 1), save :: mode
+    character(len = 1) :: method
 
     private :: get_lwork
 
@@ -62,25 +64,27 @@ module msvars
 
             call msvarsinit(mws_in)
 
-            if (opts%mode == "?") then
+            mode = opts%mode
+            if (mode == "?") then
                 if (has_endo_lead(mdl)) then
-                    opts%mode = "X"
+                    mode = "X"
                 else 
-                    opts%mode = "D"
+                    mode = "D"
                 endif
-            else if (opts%mode == 'X' .and. .not. has_endo_lead(mdl)) then
-                opts%mode = 'D'
+            else if (mode == 'X' .and. .not. has_endo_lead(mdl)) then
+                mode = 'D'
                 call rwarn("Model has no leads ==> using dynamic mode")
             endif
 
-            if (opts%method == '?') then
+            method = opts%method
+            if (method == '?') then
                 if (mdl%nfb == 0) then
-                    opts%method = 'G' ! seidel
+                    method = 'G' ! seidel
                 else
-                    opts%method = 'B' ! broyden
+                    method = 'B' ! broyden
                 endif
-            else if (opts%method /= 'G' .and. mdl%nfb == 0) then
-                opts%method = 'G'
+            else if (method /= 'G' .and. mdl%nfb == 0) then
+                method = 'G'
                 call rwarn("Cannot apply Newton or Broyden method to " // &
                     "model with no feedback variables. Using the Seidel method.")
             endif
@@ -97,7 +101,7 @@ module msvars
                 return
             endif
 
-            if (opts%mode == 'R' .or. opts%method == 'G') return
+            if (mode == 'R' .or. method == 'G') return
 
             la_lwork = get_lwork()
 
@@ -112,7 +116,7 @@ module msvars
                 return
             endif
 
-            if (opts%method == 'B') then
+            if (method == 'B') then
                 allocate(dx(mdl%nfb), stat = stat)
                 if (stat == 0) allocate(df(mdl%nfb), stat = stat)
                 if (stat /= 0) then
@@ -121,7 +125,7 @@ module msvars
                 endif
             endif
 
-            if (opts%mode == 'X' .and. mdl%nendex > 0) then
+            if (mode == 'X' .and. mdl%nendex > 0) then
                 ! endogenous leads for the Fair-Taylor
                 ! method
                 allocate(endo_leads(mws%mdl%nendex, mws%perlen), stat = stat)
@@ -174,7 +178,7 @@ module msvars
             lwrk1 = 0
             lwrk2 = 0
 
-            if (opts%method == 'B' .or. opts%method == 'Q') then
+            if (method == 'B' .or. method == 'Q') then
                 ! calculate work space of QR decomposition
                 call qrco(rdum, mdl%nfb, mdl%nfb, mdl%nfb, &
 &                         rdum(:, 1), rdum(1, 1), rwork, -1_LI_IKIND)
@@ -185,7 +189,7 @@ module msvars
                 lwork_qr = max(lwrk1, lwrk2)
             endif
 
-            select case (opts%method)
+            select case (method)
             case ('N')
                 get_lwork = 5 * mdl%nfb
             case ('B')

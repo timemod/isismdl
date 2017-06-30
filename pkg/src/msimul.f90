@@ -66,8 +66,8 @@ call cpu_time(told)
 ndiver = 0
 
 ! set scale = 1. for Newton/Broyden method
-if (opts%mode /= 'R') then
-    if (opts%method == 'N' .or. opts%method == 'B' .or. opts%method == 'Q') then
+if (mode /= 'R') then
+    if (method == 'N' .or. method == 'B' .or. method == 'Q') then
         scale = Rone
     endif
 endif
@@ -82,7 +82,7 @@ if (opts%start == 'P' .and. jf == 1) then
 endif
 
 ! check for fit procedure and call startup routine
-if (opts%mode /= 'R') then
+if (mode /= 'R') then
     call init_fit_work(do_fit, fit_err)
     if (fit_err > 0) then
         simerr = 6
@@ -95,10 +95,10 @@ endif
 
 ! flag to handle lags: update them during the solution process
 ! or fix them at original values of the mws
-update_lags = opts%mode == 'D' .or. opts%mode == 'X'
-forwards = opts%mode /= 'B'
+update_lags = mode == 'D' .or. mode == 'X'
+forwards = mode /= 'B'
     
-if (opts%mode == 'X') then
+if (mode == 'X') then
     call simulx(ndiver, retcod)
 else
     if (opts%start == 'C') then
@@ -523,7 +523,7 @@ call solot1
 
 call prepare_fix(jt)
 
-if (opts%mode == 'R') then
+if (mode == 'R') then
     call reschk(retcod)
     continue
 else
@@ -539,11 +539,11 @@ else
     endif
     if (dofit_now) then
         call prefit
-    elseif (opts%njacpd == 1 .and. opts%method /= 'G') then
+    elseif (opts%njacpd == 1 .and. method /= 'G') then
         ! new jacobian at start of every period; set scale to 1.0
         matrix = .false.
         scale = Rone
-    elseif(opts%njacpd == 2 .and. opts%method /= 'G') then
+    elseif(opts%njacpd == 2 .and. method /= 'G') then
         ! new jacobian at start of every period and keep old scaling
         matrix = .false.
     endif

@@ -18,7 +18,7 @@ subroutine solone(retcod,ndiver)
      
     integer ::  retcod,ndiver
     
-    if (opts%method == 'G') then
+    if (method == 'G') then
         call solve_gauss_seidel(retcod, ndiver)
     else
         ! 3 methods combined:
@@ -198,12 +198,12 @@ if (.not. matrix) then
     xsptyp = 1
 endif
 
-if (opts%method == "B") then
+if (method == "B") then
     call solve_brdn(xcod, itr)
     continue
-!elseif (opts%method == "N") then
+!elseif (method == "N") then
 !    call solve_nwtn(xcod, itr)
-!elseif (opts%method == "Q") then
+!elseif (method == "Q") then
 !    call solve_nwqr(xcod, itr)
 endif
 
@@ -280,7 +280,7 @@ else
     matlst = .false.
 
     do i = 1, mdl%nfb
-        if (opts%method == "B") then
+        if (method == "B") then
             ypfbi = yp(mdl%numfb(i))
             dx(i) = (ypfbi - fbval(i)) / scale(i)
             df(i) = (ypfbi - curvars(mdl%numfb(i)) - fbfun(i)) / scale(i)
@@ -317,7 +317,7 @@ else
 
     if (Fcrit > opts%cnmtrx .and. njcmat < opts%maxmat) then
         matrix = .false.
-    elseif (opts%method == "B") then
+    elseif (method == "B") then
         call msbrup(mdl%nfb, jacob, jacob(:, mdl%nfb + 1: 2 * mdl%nfb), &
 &                 jacdim, fbfun, la_work, ier)
         if (ier /= 0) then

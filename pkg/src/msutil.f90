@@ -261,7 +261,7 @@ nonval = 0
 quit = .false.
 
 ! jstart is the first period of the simulation
-if (opts%mode == 'B') then
+if (mode == 'B') then
     jstart = jl   ! backwards: start at the last period
 else
     jstart = jf
@@ -323,7 +323,7 @@ if (nonval > 0) then
     quit = opts%erropt == ERROPT_STOP
 endif
 
-if (opts%mode == "X" .and. allocated(endo_leads)) then
+if (mode == "X" .and. allocated(endo_leads)) then
     ! Setup check time series for endogenous leads
     ! Only used for rational expectation mode (the
     ! Fair-Taylor-mode). Not used in the ratex procedure.

@@ -114,7 +114,7 @@ contains
    ! forcheck can't detect this
         
    if (solve_model) then
-       if (opts%mode == 'R') then
+       if (mode == 'R') then
            rhsvars => yp
        else
            rhsvars => curvars
