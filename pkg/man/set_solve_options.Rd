@@ -49,17 +49,17 @@ methods" below}
  \item{\code{rlxmax}}{Maximum Newton relaxation factor (default is 1.0)}
  \item{\code{cstpbk}}{Stepback criterion (default is 1.3).
 If the convergence criterium \code{Fcrit} is larger
-than \code{cstpbk} or invalid feedback variables 
+than \code{cstpbk} or invalid feedback variables
 have been obtained then the Newton step
-is not accepted and linesearching will be initiated. 
+is not accepted and linesearching will be initiated.
 If the linesearching procedure failed
 (\code{Fcrit} is still larger than \code{cstpbk}
 after the maximum number of linesearch steps \code{bktmax}
 has been reached or if the relaxation
-factor has become smaller than \code{rlxmin}), 
-a new Jacobian matrix is computed.  
-In each linesearch step the current relaxation factor is shrunk by 
-\code{rspeed}. 
+factor has become smaller than \code{rlxmin}),
+a new Jacobian matrix is computed.
+In each linesearch step the current relaxation factor is shrunk by
+\code{rspeed}.
 The relaxation factor is set to its maximum value
 \code{rlxmax}) when a new Jacobian has been calculated.
 }
@@ -69,7 +69,7 @@ than \code{cnmtrx} but smaller than \code{cstpbk},
 the Newton step is accepted but a new Jacobian is computed
 and the relaxation factor is set to its maximum value
 \code{rlxmax}.
-The new Jacobian is used in the next step. However, the 
+The new Jacobian is used in the next step. However, the
 Jacobian will not be recalculated if the number of Jacobian updates
 in a period is larger than \code{maxjacupd}}
  \item{\code{xrelax}}{Rational expectations relaxation factor (default is 1)}
@@ -78,18 +78,18 @@ in a period is larger than \code{maxjacupd}}
  \item{\code{xupdate}}{Character string defining the method of updating
 leads. Possible values are \code{"fixed"} (the default) and \code{"lastval"}.
 For \code{"fixed"} the leads beyond the solution period
-are fixed at the initial values. For \code{"lastval"} leads beyond 
+are fixed at the initial values. For \code{"lastval"} leads beyond
 the solution period take on the values from the last solution date}
 \item{\code{dbgopt}}{A character vector specifying one more
 debugging options. See section "Debugging options" below}
-\item{\code{erropt}}{Character string defining the error handling when 
+\item{\code{erropt}}{Character string defining the error handling when
 invalid lags, leads and/or exogenous variables are detected.
-Possible values are \code{"stop"} (stop on errors) 
+Possible values are \code{"stop"} (stop on errors)
 and \code{cont} (continue on errors). The default is \code{"stop"}}
-\item{\code{report}}{A character string defining the type of 
+\item{\code{report}}{A character string defining the type of
 computation progress report. Possible values are
 \code{"period"} (for a report per period),
-\code{"fullrep"} (for a full report), 
+\code{"fullrep"} (for a full report),
 \code{"minimal"}  (for a minimal report), and
 \code{"none"}  (for no report). The default is \code{"period"}}
  The report options \code{"none"} also suppresses all output
@@ -100,10 +100,10 @@ report. See section "Ratex report options" below}
 the Fair-Taylor report repetition count.
 See Section "Ratex report options" below}
 \item{\code{ratfullreport_rep}}{An integer number, specifying
-the Fair-Taylor full report repetition count. See Section 
+the Fair-Taylor full report repetition count. See Section
 "Ratex report options" below}
-\item{\code{bktmax}}{Maximum number of backtracking linesearch steps 
-with old jacobian. Sometimes it is necessary for the Broyden 
+\item{\code{bktmax}}{Maximum number of backtracking linesearch steps
+with old jacobian. Sometimes it is necessary for the Broyden
 method to take a shorter step than the standard step. This is called
 backtracking linesearch. \code{bktmax} is the maximum number of
 line search steps before a new Jacobian is computed}
@@ -158,7 +158,7 @@ The default is \code{"auto"}.
 \section{Feedback initialisation methods}{
 
 
-Argument \code{fbstart} can be used to specify 
+Argument \code{fbstart} can be used to specify
 the way how the feedback variables at the current period
 (i.e. the period for which the model is being solved)
 are initialised from the model data.
@@ -221,12 +221,12 @@ can be used to futher modify the progress report.
 
 Possible values for \code{ratreport} are
 \describe{
-\item{\code{"iter"}}{print the number of not converged 
+\item{\code{"iter"}}{print the number of not converged
 expectation values every \code{ratreport_rep} Fair Taylor iteration
 (the default)}
-\item{\code{"fullrep"}}{full report. The number of not converged 
+\item{\code{"fullrep"}}{full report. The number of not converged
 expectation values is printed every \code{ratreport_rep} Fair Taylor
- iteration and the largest remaining discrepancy every 
+ iteration and the largest remaining discrepancy every
 \code{ratfullreport_rep} Fair Taylor iteration}
 \item{\code{"minimal"}}{for a full report only after the last Fair Taylor
 iteration}

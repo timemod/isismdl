@@ -1,12 +1,13 @@
 library(testthat)
 library(isismdl)
 
-context("fix values for ISLM model")
+context("set_fix (2) for the ISLM model")
 
 # prepare rms values and fix targets
 i <- regts(200, start = '2015Q2')
 c <- regts(c(990, NA, 1010), start = '2015Q2')
 fix <- cbind(c, i)
+ts_labels(fix) <- c("consumption", "investment")
 
 capture_output(mdl <- read_mdl("islm_model.rds"))
 
@@ -23,7 +24,9 @@ test_that("Testing get_fix after cloning", {
   md <- regts(200, start = '2015Q2')
   t <- regts(c(990, NA, 1010), start = '2015Q2')
   fix2 <- cbind(md, t)
+  ts_labels(fix2) <- c("money demand", "tax")
   mdl3$set_fix(fix2)
+
   expect_identical(mdl$get_fix(), fix)
   res_correct <- cbind(fix, fix2)
   res_correct <- res_correct[, order(colnames(res_correct))]

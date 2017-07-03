@@ -24,6 +24,8 @@ module mws_type
 
     end type modelworkspace
 
+    private :: update_value
+
     contains
 
         subroutine mwsinit(mws, error)
@@ -265,15 +267,20 @@ module mws_type
             end do
         end subroutine get_mdl_data
 
-        subroutine set_data(mws, nvar, ivar, ntime, jtb, jte, mat, icol)
+        subroutine set_data(mws, nvar, ivar, ntime, jtb, jte, mat, icol, &
+                            upd_mode)
             type(modelworkspace), intent(inout) :: mws 
-            integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*)
+            integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*), &
+                                   upd_mode
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
 
             integer :: i, j, jt, jstart, jend, iv, jtd
+            real(kind = MWS_RKIND) :: new_value
 
             jstart = max(jtb, 1 - mws%mdl%mxlag)
             jend   = min(jte,  mws%perlen +  mws%mdl%mxlead)
+
+            if (upd_mode == REPLACE) mws%mdl_data = NA
 
             do jt = jstart, jend
                 jtd = jt + mws%mdl%mxlag
@@ -281,17 +288,27 @@ module mws_type
                 ! j is row index of mat
                 do i = 1, nvar
                     iv = ivar(i)
-                    mws%mdl_data(iv, jtd) = mat(j, icol(i))
+                    new_value = mat(j, icol(i))
+                    if (upd_mode <= UPD) then
+                        new_value = new_value
+                    else 
+                        new_value = update_value(mws%mdl_data(iv, jtd), &
+                                                 new_value, upd_mode)
+                    endif
+                    mws%mdl_data(iv, jtd) = new_value
                 end do
             end do
 
         end subroutine set_data
 
-        subroutine set_ca(mws, nvar, ivar, ntime, jtb, jte, mat, icol)
+        subroutine set_ca(mws, nvar, ivar, ntime, jtb, jte, mat, icol, &
+                          upd_mode)
             ! set constant_adjustments
             type(modelworkspace), intent(inout) :: mws 
-            integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*)
+            integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*), &
+                                   upd_mode
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
+            real(kind = MWS_RKIND) :: new_value
 
             integer :: i, j, jt, jstart, jend, aci, jtd
 
@@ -304,7 +321,15 @@ module mws_type
                 do i = 1, nvar
                     aci = mws%mdl%aci(ivar(i))
                     if (aci <= 0) cycle
-                    mws%constant_adjustments(aci, jtd) = mat(j, icol(i))
+                    new_value = mat(j, icol(i))
+                    if (upd_mode <= UPD) then
+                        new_value = new_value
+                    else 
+                        new_value = update_value( &
+                                        mws%constant_adjustments(aci, jtd), &
+                                        new_value, upd_mode)
+                    endif
+                    mws%constant_adjustments(aci, jtd) = new_value
                 end do
             enddo
         end subroutine set_ca
@@ -366,14 +391,16 @@ module mws_type
         end subroutine get_fix_fit
 
         subroutine set_fix_fit(mws, nvar, ivar, ntime, jtb, jte, mat, icol, &
-                               fix)
+                               fix, upd_mode)
             ! set fix or fit values, depending on variable fix
             type(modelworkspace), intent(inout), target :: mws 
-            integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*)
+            integer, intent(in) :: nvar, ivar(*), ntime, jtb, jte, icol(*), &
+                                   upd_mode
             real(kind = MWS_RKIND), dimension(ntime, *), intent(in) :: mat
+            real(kind = MWS_RKIND) :: fix_value
             logical, intent(in) :: fix
 
-            integer :: i, jstart, jend, vcnt, ierr, iv, im
+            integer :: i, jstart, jend, vcnt, ierr, iv, im, it, itd
 
             type(mdl_variables), pointer :: mdl_vars
 
@@ -393,8 +420,18 @@ module mws_type
                 iv = ivar(i)
                 if (fix .and. .not. is_frml(mws%mdl, iv)) cycle
                 call add_mdl_variable(mdl_vars, iv, vcnt, jstart, &
-                                      mat(im, icol(i)), ierr)
-                if (ierr /=0) return
+                                      mat(im, icol(i)), upd_mode, ierr)
+                if (ierr /=0) return ! not enough memory
+                if (fix) then
+                    ! update mdl data
+                    do it = 1, vcnt
+                        itd = it + mws%mdl%mxlag
+                        fix_value = mat(im + it - 1, icol(i))
+                        if (.not. nuifna(fix_value)) then
+                            mws%mdl_data(iv, jstart + itd - 1) = fix_value
+                        endif
+                     end do
+                 endif
             end do
 
         end subroutine set_fix_fit
@@ -488,4 +525,29 @@ module mws_type
             return
         end function isfitp
 
-end module mws_type
+        function update_value(value, update_val, upd_mode)
+            use mws_params
+            real(kind = MWS_RKIND), intent(inout) :: value
+            real(kind = MWS_RKIND), intent(in) :: update_val
+            real(kind = MWS_RKIND) :: update_value
+            integer, intent(in) :: upd_mode
+
+            select case (upd_mode)
+            case (REPLACE, UPD)
+                update_value = update_val
+            case (UPD_NA)
+                if (nuifna(value)) then
+                    update_value = update_val
+                else 
+                    update_value = value
+                endif
+            case (UPD_VAL)
+                if (.not. nuifna(update_val)) then
+                    update_value = update_val
+                else 
+                    update_value =  value
+                endif
+            end select
+        end function update_value
+
+    end module mws_type

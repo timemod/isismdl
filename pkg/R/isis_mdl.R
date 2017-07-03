@@ -62,13 +62,18 @@
 #' with column names
 #' @useDynLib isismdl compile_mdl_c
 #' @examples
-#' copy_example_mdl("islm")
+#'
+#' # copy the islm.mdl file in the directory models of the package
+#' # directory to the current directory
+#' mdl_file <- system.file("models", "islm.mdl", package = "isismdl")
+#' file.copy(mdl_file, "islm.mdl")
+#'
 #' mdl <- isis_mdl("islm.mdl")
 #' \dontshow{
 #' unlink("islm.*")
 #' }
-#' @seealso \code{\link{copy_example_mdl}}, \code{\link{IsisMdl}} and
-#' \code{\link{IsisMdl}}
+#' @seealso \code{\link{IsisMdl}}, \code{\link{islm_mdl}} and
+#' \code{\link{ifn_mdl}}
 #' @importFrom tools file_path_sans_ext
 #' @importFrom regts range_union
 #' @importFrom regts as.period_range
@@ -76,66 +81,65 @@
 #' @importFrom regts end_period
 #' @export
 isis_mdl <- function(model_file, period, data, ca, fix_values, fit_targets) {
+  if (!missing(period)) {
+    period <- as.period_range(period)
+  }
+  # TODO: currently, compile_mdl_c generates a mif file
+  # that is later read by read_mdl_c. This can be simpler:
+  # after compilation the model information can be put
+  # directly in Fortran memory. Then there is no need to
+  # write and read the mif file.
+  retval <- .Call(compile_mdl_c, model_file)
+  if (!retval) {
+    stop("Compilation was not succesfull")
+  }
+  base_name <- file_path_sans_ext(model_file)
+  mif_file <- paste(base_name, "mif", sep = ".")
+  mdl <- IsisMdl$new(mif_file = mif_file)
+  unlink(mif_file)
+
+  if (!missing(data)) {
+    data_period <- get_period_range(data)
     if (!missing(period)) {
-        period <- as.period_range(period)
+      # data_period should be the union of the period_range of data
+      # and the supplied period extended with a lag and lead period.
+      data_period_2 <- period_range(
+        start_period(period) - mdl$get_maxlag(),
+        end_period(period)   + mdl$get_maxlead())
+      data_period <- range_union(data_period, data_period_2)
     }
-    # TODO: currently, compile_mdl_c generates a mif file
-    # that is later read by read_mdl_c. This can be simpler:
-    # after compilation the model information can be put
-    # directly in Fortran memory. Then there is no need to
-    # write and read the mif file.
-    retval <- .Call(compile_mdl_c, model_file)
-    if (!retval) {
-        stop("Compilation was not succesfull")
+    if (is.null(colnames(data))) {
+      stop("data has no column names")
+    } else {
+      mdl$init_data(data_period = data_period, data = data)
     }
-    base_name <- file_path_sans_ext(model_file)
-    mif_file <- paste(base_name, "mif", sep = ".")
-    mdl <- IsisMdl$new(mif_file)
-    unlink(mif_file)
+  }
 
-    if (!missing(data)) {
-        data_period <- get_period_range(data)
-        if (!missing(period)) {
-            print(mdl)
-            # data_period should be the union of the period_range of data
-            # and the supplied period extended with a lag and lead period.
-            data_period_2 <- period_range(
-                 start_period(period) - mdl$get_maxlag(),
-                 end_period(period)   + mdl$get_maxlead())
-            data_period <- range_union(data_period, data_period_2)
-        }
-        if (is.null(colnames(data))) {
-            stop("data has no column names")
-        } else {
-            mdl$init_data(data_period = data_period, data = data)
-        }
-    }
+  if (!missing(period)) {
+    mdl$set_period(period)
+  }
 
-    if (!missing(period)) {
-        mdl$set_period(period)
+  if (!missing(ca)) {
+    if (!is.null(colnames(ca))) {
+      mdl$set_ca(ca, colnames(ca))
+    } else {
+      stop("ca has no column names")
     }
+  }
+  if (!missing(fix_values)) {
+    if (!is.null(colnames(fix_values))) {
+      mdl$set_fix(fix_values, colnames(fix_values))
+    } else {
+      stop("fix_values has no column names")
+    }
+  }
 
-    if (!missing(ca)) {
-        if (!is.null(colnames(ca))) {
-            mdl$set_ca(ca, colnames(ca))
-        } else {
-            stop("ca has no column names")
-        }
+  if (!missing(fit_targets)) {
+    if (!is.null(colnames(fit_targets))) {
+      mdl$set_fit(fit_targets, colnames(fit_targets))
+    } else {
+      stop("fit_targets has no column names")
     }
-    if (!missing(fix_values)) {
-        if (!is.null(colnames(fix_values))) {
-            mdl$set_fix(fix_values, colnames(fix_values))
-        } else {
-            stop("fix_values has no column names")
-        }
-    }
-
-    if (!missing(fit_targets)) {
-        if (!is.null(colnames(fit_targets))) {
-            mdl$set_fit(fit_targets, colnames(fit_targets))
-        } else {
-            stop("fit_targets has no column names")
-        }
-    }
-    return(mdl)
+  }
+  return(mdl)
 }

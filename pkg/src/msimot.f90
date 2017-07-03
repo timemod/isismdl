@@ -732,7 +732,7 @@ end function useFfmt
             call sjttmp(str(pos + 1:), jl)
             call strout(O_OUTB)
     
-            call print_option_txt("Simulation mode", get_mode_text(opts%mode), &
+            call print_option_txt("Simulation mode", get_mode_text(mode), &
                                   tab_pos)
             call print_option_txt("Feedback starting values", &
                               get_start_text(opts%start), tab_pos)

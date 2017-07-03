@@ -11,27 +11,28 @@
 #' mdl <- islm_mdl()
 #' @export
 islm_mdl <- function(period = NULL) {
-    mdl_file <- tempfile(fileext = ".mdl")
-    copy_example_mdl("islm", mdl_file)
-    mdl <- isis_mdl(mdl_file)
-    unlink(mdl_file)
+  mdl_file <- tempfile(fileext = ".mdl")
+  mdl_file_orig <- system.file("models", "islm.mdl", package = "isismdl")
+  file.copy(mdl_file_orig, mdl_file)
+  mdl <- isis_mdl(mdl_file)
+  unlink(mdl_file)
 
-    if (!is.null(period)) {
-        period <- as.period_range(period)
-        mdl$set_period(period)
-        nper <- nperiod(period)
-        data_per <- mdl$get_data_period()
-        r  <- regts(3.35, period = data_per, labels = "interest rate")
-        y  <- regts(980,  period = data_per, labels = "income")
-        yd <- regts(790, start = start_period(data_per), labels = "disposable income")
-        g  <- regts(210 * cumprod(rep(1.015, nper)), period = period,
-                    labels = "government spending")
-        ms <- regts(200 * cumprod(rep(1.015, nper)), period = period,
-                     labels = "money supply")
-        islm_input <- cbind(r, y, yd, g, ms)
-        mdl$set_data(islm_input)
-        mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
-                         t = "tax"))
-    }
-    return(mdl)
+  if (!is.null(period)) {
+    period <- as.period_range(period)
+    mdl$set_period(period)
+    nper <- nperiod(period)
+    data_per <- mdl$get_data_period()
+    r  <- regts(3.35, period = data_per, labels = "interest rate")
+    y  <- regts(980,  period = data_per, labels = "income")
+    yd <- regts(790, start = start_period(data_per), labels = "disposable income")
+    g  <- regts(210 * cumprod(rep(1.015, nper)), period = period,
+                labels = "government spending")
+    ms <- regts(200 * cumprod(rep(1.015, nper)), period = period,
+                labels = "money supply")
+    islm_input <- cbind(r, y, yd, g, ms)
+    mdl$set_data(islm_input)
+    mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
+                     t = "tax"))
+  }
+  return(mdl)
 }

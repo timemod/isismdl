@@ -9,7 +9,7 @@ the model.
 }
 \section{Usage}{
 
-\code{IsisMdl} method: 
+\code{IsisMdl} method:
 \preformatted{
 mdl$solve(period = mdl$get_period(), options = list(),
           fit_options = list()
@@ -27,14 +27,14 @@ mdl$solve(period = mdl$get_period(), options = list(),
 object, or an object
 that can be coerced to \code{\link[regts]{period_range}}}
 \item{\code{options}}{a named list with solve options,
-for example \code{list(maxiter = 50)}. 
-The names are the corresponding argument names of 
+for example \code{list(maxiter = 50)}.
+The names are the corresponding argument names of
 method \code{\link{set_solve_options}}
 The specified options will only used in this call of
 {solve()} and will not be stored in the \code{IsisMdl} object}
 \item{\code{fit_options}}{a named list with options for the fit procedure,
-for example \code{list(maxiter = 10)}. 
-The names are the corresponding argument names of 
+for example \code{list(maxiter = 10)}.
+The names are the corresponding argument names of
 method \code{\link{set_fit_options}}
 The specified options will only used in this call of
 {solve()} and will not be stored in the \code{IsisMdl} object}
@@ -44,8 +44,11 @@ The specified options will only used in this call of
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$solve(options = list(report = "fullrep"))
+
+# solve the model for all periods before 2018Q1
+mdl$solve(period = "/2017Q4")
 }
 \seealso{
-\code{\link{set_solve_options}} and 
+\code{\link{set_solve_options}} and
 \code{\link{set_fit_options}}
 }

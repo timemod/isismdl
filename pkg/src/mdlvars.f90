@@ -111,10 +111,13 @@ subroutine clear_mdl_variables(mdl_vars)
     mdl_vars%var_count = 0
 end subroutine clear_mdl_variables
 
-subroutine add_mdl_variable(mdl_vars, varnum, vcnt, jstart, vardat, ierr)
+subroutine add_mdl_variable(mdl_vars, varnum, vcnt, jstart, vardat, upd_mode, &
+                            ierr)
+
     use kinds
-    type(mdl_variables) :: mdl_vars
-    integer, intent(in) :: varnum, vcnt, jstart
+    use mws_params, only : UPD, UPD_VAL
+    type(mdl_variables), intent(inout) :: mdl_vars
+    integer, intent(in) :: varnum, vcnt, jstart, upd_mode
     real(kind = ISIS_RKIND), intent(in), dimension(*) :: vardat
     integer, intent(out) :: ierr
 
@@ -127,7 +130,7 @@ subroutine add_mdl_variable(mdl_vars, varnum, vcnt, jstart, vardat, ierr)
 
     type(mdl_variable), pointer :: cur, prev
     logical :: all_na
-    integer :: jend, startp_new, endp_new, pcnt_new,  i
+    integer :: jend, startp_new, endp_new, pcnt_new,  i, it
     real(kind = SOLVE_RKIND), allocatable :: temp(:)
     logical :: found
     integer :: stat
@@ -153,6 +156,8 @@ subroutine add_mdl_variable(mdl_vars, varnum, vcnt, jstart, vardat, ierr)
     if (found) then
 
         ! update existing mdl value
+
+        if (upd_mode == UPD_VAL .and. all_na) return
 
         ! increase the size of cur%values if necessary
         !
@@ -181,9 +186,14 @@ subroutine add_mdl_variable(mdl_vars, varnum, vcnt, jstart, vardat, ierr)
         i = jstart - cur%startp + 1
         if (all_na) then
             cur%values(i : i + vcnt - 1) = NA
-        else
+        else if (upd_mode == UPD) then
             cur%values(i : i + vcnt - 1) = vardat(1 : vcnt)
-        endif
+        else 
+            do it = 1, vcnt
+                if (.not. nuifna(vardat(it))) &
+                       cur%values(i + it - 1) = vardat(it)
+            end do
+        endif 
 
     else if (.not. all_na) then
 
@@ -214,7 +224,7 @@ subroutine add_mdl_variable(mdl_vars, varnum, vcnt, jstart, vardat, ierr)
 
     else
 
-       ! mdl value not found and new mdl value values only na's
+       ! mdl value not found and new mdl value values only NA's
        return
 
     endif

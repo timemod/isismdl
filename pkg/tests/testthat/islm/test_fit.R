@@ -8,6 +8,7 @@ rms_values <- c(c = 5.0, t = 2, i = 21, md = 2)
 i <- regts(200, start = '2015Q2')
 y <- regts(c(990, NA, 1010), start = '2015Q2')
 fit_targets <- cbind(y, i)
+ts_labels(fit_targets) <- c("income", "investment")
 
 isis_result <- as.regts(read.csv("isi/fit.csv"), time_column = 1)
 

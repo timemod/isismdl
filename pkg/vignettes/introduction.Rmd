@@ -42,14 +42,14 @@ Manual of Isis.
 
 A model file for the ISLM model is included in the example models
 in directory `models` of the package directory.
-Function `copy_example_mdl` is a convenience
-function that can be used to copy these example models to your working directory.
-For the ISLM model, use
-```{r, results = "hide"}
-copy_example_mdl("islm")
+To copy this file to you working directory, use
+```{r echo = FALSE, message = FALSE}
+unlink("islm.mdl")
 ```
-The command above copies the islm model to file `islm.mdl` in the current 
-working directory.
+```{r results='hide'}
+mdl_file <- system.file("models", "islm.mdl", package = "isismdl")
+file.copy(mdl_file, "islm.mdl")
+```
 
 The model file `islm.mdl` has the following contents:
 ```{r echo = FALSE, comment=''}
@@ -107,7 +107,7 @@ mdl$get_param("m0")
 ```
 Input for method `set_params()` is a named list.
 
-## Cloning `IsisMdl` objects
+## Copying `IsisMdl` objects
 
 Consider the following assignment:
 ```{r}
@@ -122,15 +122,13 @@ mdl$get_param("m0")
 The usual copy-on-modify semantics that are used for convential
 R objects such as S3 or S4 classes do not apply to R6 classes.
 
-If you want to create a copy of the model, use the `clone()` method with
+If you want to create a copy of the model, use the `copy()` method with
 argument `deep = TRUE` :
 ```{r}
-mdl2 <- mdl$clone(deep = TRUE)
+mdl2 <- mdl$copy()
 mdl2$set_param(list(m0 = -9999))
 mdl$get_param("m0")
 ```
-Without the argument `deep = TRUE`, the result of the `clone` method
-is the same as the result of an assignment `mdl2 <- mdl`.
 
 # Solving the model \label{sec:solve}
 

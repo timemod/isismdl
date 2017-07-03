@@ -6,9 +6,9 @@
 \title{\code{\link{IsisMdl}} method: Sets or updates  the root mean square errors}
 \description{
 This method of R6 class \code{\link{IsisMdl}}
-sets or updates the root mean square (rms) error data 
+sets or updates the root mean square (rms) error data
 used in the fit procedure. All variables whose rms value
-is larger than 0 and not \code{NA} are used as 
+is larger than 0 and not \code{NA} are used as
 instruments of the fit procedure.
 
 Method \code{get_rms} returns all rms values

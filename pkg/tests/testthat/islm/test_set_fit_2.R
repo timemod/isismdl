@@ -1,12 +1,13 @@
 library(testthat)
 library(isismdl)
 
-context("fit targets for ISLM model")
+context("set_fit (2) for ISLM model")
 
 # prepare rms values and fit targets
 i <- regts(200, start = '2015Q2')
 y <- regts(c(990, NA, 1010), start = '2015Q2')
 fit_targets <- cbind(y, i)
+ts_labels(fit_targets) <- c("income", "investment")
 
 fit_targets_sorted <- fit_targets[, c("i", "y")]
 
@@ -25,6 +26,7 @@ test_that("Testing get_fit after cloning", {
   c <- regts(200, start = '2015Q2')
   t <- regts(c(990, NA, 1010), start = '2015Q2')
   fit_targets2 <- cbind(c, t)
+  ts_labels(fit_targets2) <- c("consumption", "tax")
   mdl3$set_fit(fit_targets2)
   expect_identical(mdl$get_fit(), fit_targets_sorted)
   res_correct <- cbind(fit_targets_sorted, fit_targets2)

@@ -10,17 +10,17 @@
 
 #define MAX_NAME_LEN 32
 #define ALL     1
-#define ALLFRML 2
-#define ALL_ENDOLEAD 3
+#define FRML 2
+#define ENDOLEAD 3
 
 #define DATA    1
 #define CA     2
 #define FIX   3
 #define FIT   4
 
-#define ALL_EQ      1
-#define ACTIVE_EQ   2
-#define INACTIVE_EQ 3
+#define ALL      1
+#define ACTIVE   2
+#define INACTIVE 3
 
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
@@ -41,13 +41,14 @@ extern int F77_NAME(set_param_fortran)(int *mws_index, int *ipar, double *data,
                                         int *len);
 extern void F77_NAME(set_data_fortran)(int *mws_index, int *nvar, int *ivar, 
                                        int *ntime, int *jtb, int *jte, 
-                                       double *data, int *icol);
+                                       double *data, int *icol, int *upd_mode);
 extern void F77_NAME(set_ca_fortran)(int *mws_index, int *, int *ivar, 
                                        int *ntime, int *jtb, int *jte, 
-                                       double *data, int *icol);
+                                       double *data, int *icol, int *upd_mode);
 extern void F77_NAME(set_fix_fit_fortran)(int *mws_index, int *, int *ivar, 
                                       int *ntime, int *jtb, int *jte, 
-                                      double *data, int *icol, int *fix);
+                                      double *data, int *icol, int *fix,
+                                      int *upd_mode);
 extern void F77_NAME(solve_fortran)(int *mws_index, int *startp, int *endp,
                                     int *opts_present, int *error);
 extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp,
@@ -125,10 +126,10 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
     int type;
     if (strcmp(type_str, "all") == 0) {
         type = ALL;
-    } else if (strcmp(type_str, "allfrml") == 0) {
-        type = ALLFRML;
-    } else  if (strcmp(type_str, "all_endolead") == 0) {
-        type = ALL_ENDOLEAD;
+    } else if (strcmp(type_str, "frml") == 0) {
+        type = FRML;
+    } else  if (strcmp(type_str, "endolead") == 0) {
+        type = ENDOLEAD;
     } else {
         error("Illegal parameter vtype %s\n", type_str);
     } 
@@ -138,14 +139,14 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
     int nvar;
     void (*get_name)(int *, int *, char *, int *);
     switch (type) {
-    case ALL:          nvar = F77_CALL(get_variable_count)(&model_index);
-                       break;
-    case ALLFRML:      nvar = F77_CALL(get_ca_count)(&model_index); 
-                       get_name = F77_CALL(get_ca_name);
-                       break;
-    case ALL_ENDOLEAD: nvar = F77_CALL(get_endex_count)(&model_index); 
-                       get_name = F77_CALL(get_endex_name);
-                       break;
+    case ALL:      nvar = F77_CALL(get_variable_count)(&model_index);
+                   break;
+    case FRML:     nvar = F77_CALL(get_ca_count)(&model_index); 
+                   get_name = F77_CALL(get_ca_name);
+                   break;
+    case ENDOLEAD: nvar = F77_CALL(get_endex_count)(&model_index); 
+                   get_name = F77_CALL(get_endex_name);
+                   break;
     }
 
     /* get list of variables */
@@ -166,24 +167,37 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
     return names;
 }
 
-/* get equation names sorted alphabetically */
-SEXP get_eq_names_c(SEXP type_, SEXP model_index_, SEXP order_) {
+SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP order_,
+                    SEXP endo_names_) {
+    /* This function returns the names of the equations or,
+     * if endo_names == 1, the names of the left hand side variables of the
+     * equations.
+     * INPUT:
+     *   model_index_  the index of the model 
+     *   status_       status ("all", "active" or "inactive")
+     *   order_        order of the equations ("sorted", "natural" or "solve")
+     *   endo_names_   0 if the function should return equation names,
+     *                 1 if it should return the names of the lhs variables.
+     *                 The equation and lhs names are usually the same,
+     *                 but not always.
+     */
     int model_index = asInteger(model_index_);
-    const char *type_str = CHAR(asChar(type_));
+    int endo_names = asInteger(endo_names_);
+    const char *status_str = CHAR(asChar(status_));
     const char *order_str = CHAR(asChar(order_));
-    int type;
-    if (strcmp(type_str, "all") == 0) {
-        type = ALL_EQ;
-    } else if (strcmp(type_str, "active") == 0) {
-        type = ACTIVE_EQ;
-    } else if (strcmp(type_str, "inactive") == 0) {
-        type = INACTIVE_EQ;
+    int status;
+    if (strcmp(status_str, "all") == 0) {
+        status = ALL;
+    } else if (strcmp(status_str, "active") == 0) {
+        status = ACTIVE;
+    } else if (strcmp(status_str, "inactive") == 0) {
+        status = INACTIVE;
     } else {
-        error("Illegal equation type %s specified\n", type_str);
+        error("Illegal equation type %s specified\n", status_str);
     }
 
     int neq  = F77_CALL(get_eq_count)(&model_index);
-    int alphabet = (strcmp(order_str, "sorted") == 0)   ? 1 : 0;
+    int alphabet = 0;
     int solve_order = (strcmp(order_str, "solve") == 0) ? 1 : 0;
 
     /* get list of equation indices */
@@ -195,10 +209,9 @@ SEXP get_eq_names_c(SEXP type_, SEXP model_index_, SEXP order_) {
         if (ieq <= 0) {
             continue;
         }
-        if (type == ACTIVE_EQ || type == INACTIVE_EQ) {
-            int is_active = F77_CALL(equation_is_active)(&model_index, &ieq, 
-                                                         &alphabet);
-            ok = type == ACTIVE_EQ ? is_active : !is_active;
+        if (status == ACTIVE || status == INACTIVE) {
+            int is_active = F77_CALL(equation_is_active)(&model_index, &ieq);
+            ok = status == ACTIVE ? is_active : !is_active;
         } else {
             ok = 1;
         }
@@ -207,19 +220,26 @@ SEXP get_eq_names_c(SEXP type_, SEXP model_index_, SEXP order_) {
         }
     }
 
-    /* now create chacracter vector with the selected equation names */
-    int len;
+    /* now create character vector with the selected equation names */
+    int len, ivar;
     char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, cnt));
     for (i = 0; i < cnt; i++) {
-        F77_CALL(get_equation_name)(&model_index, ieqs + i, name, &len,
+        if (endo_names) {
+            ivar = F77_CALL(get_lhsnum)(&model_index, ieqs + i);
+            F77_CALL(get_variable_name)(&model_index, &ivar, name, &len,
+                                        &alphabet);
+        } else {
+            F77_CALL(get_equation_name)(&model_index, ieqs + i, name, &len,
                                     &alphabet);
+        }
         name[len] = '\0';
         SET_STRING_ELT(names, i, mkChar(name));
     }
     UNPROTECT(1);
     return names;
 }
+
 
 /* Get the model parameters */
 SEXP get_param_c(SEXP mws_index_, SEXP names) {
@@ -258,13 +278,7 @@ SEXP get_param_c(SEXP mws_index_, SEXP names) {
 /* General function for getting model data or constant adjustments */
 SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
 
-    const char *type_str = CHAR(STRING_ELT(type_, 0));
-    int type;
-    if (strcmp(type_str, "ca") == 0) {
-         type = CA;
-    } else {
-        type = DATA;
-    }
+    int type = asInteger(type_);
 
     int mws_index = asInteger(mws_index_);
     int jtb = asInteger(jtb_);
@@ -350,10 +364,25 @@ SEXP set_param_c(SEXP mws_index_, SEXP param_list) {
     return ScalarInteger(cnt);
 }
 
-void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_) {
+/* General function for setting model data, constant adjustments,
+ * fix value or fit values */
+void set_data_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, 
+                SEXP shift_, SEXP upd_mode_) {
+
     int set_type = asInteger(set_type_);
     int mws_index = asInteger(mws_index_);
     int shift = asInteger(shift_);
+    const char *upd_mode_str = CHAR(asChar(upd_mode_));
+
+    /* Convert upd_mode_str to an integer. The integer 
+     * values should agree with the parameters
+     * UPD and UPD_NA in Fortran module mws_type. */
+    int upd_mode = 1;
+    if (strcmp(upd_mode_str, "upd") == 0) {
+        upd_mode = 1;
+    } else if (strcmp(upd_mode_str, "updval") == 0) {
+        upd_mode = 3;
+    }
 
     SEXP dim = getAttrib(mat, R_DimSymbol);
     int ntime = INTEGER(dim)[0];
@@ -375,6 +404,7 @@ void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_) {
         }
     }
 
+
     int jtb = shift;
     int jte = shift + ntime - 1;
 
@@ -383,17 +413,18 @@ void set_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names, SEXP shift_) {
     switch (set_type) {
         case SET_DATA:
             F77_CALL(set_data_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb,
-                                       &jte, REAL(mat), icol);
+                                       &jte, REAL(mat), icol, &upd_mode);
             break;
         case SET_CA:
             F77_CALL(set_ca_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb,
-                                     &jte, REAL(mat), icol);
+                                     &jte, REAL(mat), icol, &upd_mode);
             break;
         case SET_FIX:
         case SET_FIT:
             fix = set_type == SET_FIX;
             F77_CALL(set_fix_fit_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb, 
-                                          &jte, REAL(mat), icol, &fix);
+                                          &jte, REAL(mat), icol, &fix, 
+                                          &upd_mode);
             break;
     }
 }

@@ -11,7 +11,7 @@ convergence criterion for one or more endogenous model variables.
 A variable \eqn{x} has converged when two
 successive values \eqn{x_2} and
 \eqn{x_1} satisfy the following
-condition 
+condition
 \deqn{|x_2 - x_1| \le \epsilon \max(1,|x_1|)}
 where \eqn{\epsilon} is
 the convergence criterion for the tested
@@ -27,7 +27,7 @@ the convergence criteria for all model variables
 \section{Usage}{
 
 \preformatted{
-mdl$set_cvgcrit(value, pattern, names) 
+mdl$set_cvgcrit(value, pattern, names)
 
 mdl$get_cvgcrit()
 
@@ -39,7 +39,7 @@ mdl$get_cvgcrit()
 
 
 \describe{
-\item{\code{value}}{convergence criterion. This must be 
+\item{\code{value}}{convergence criterion. This must be
 a small positive number}
 \item{\code{pattern}}{a regular expression specifying the
 variable names}

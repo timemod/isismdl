@@ -1,3 +1,6 @@
+library(testthat)
+library(isismdl)
+
 context("fit for laxo model")
 
 mdl_file <- "mdl/laxo.mdl"
@@ -35,11 +38,11 @@ report <- capture_output(mdl$solve(options = list(report = "none")))
 
 mdl_period <- mdl$get_period()
 
-dif <- tsdif(mdl$get_data(period = mdl_period), isis_result, tol = 1e-6, 
+dif <- tsdif(mdl$get_data(period = mdl_period), isis_result, tol = 1e-6,
              fun = cvgdif)
 
-ca_names <- mdl$get_var_names(type = "allfrml")
-dif_ca <- tsdif(mdl$get_ca(period = mdl_period), isis_ca_result, tol = 1e-6, 
+ca_names <- mdl$get_endo_names(type = "frml", status = "all")
+dif_ca <- tsdif(mdl$get_ca(period = mdl_period), isis_ca_result, tol = 1e-6,
                 fun = cvgdif)
 
 test_that("Testing get_fit", {

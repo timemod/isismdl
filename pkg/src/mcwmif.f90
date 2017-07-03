@@ -30,9 +30,11 @@ integer ::   smax
 integer(kind = MC_IKIND) :: fbosiz
 logical ::   exist, code_in_memory
 logical(kind = MC_LKIND) :: ldum
-logical(kind = MC_IKIND) :: idum
+integer(kind = MC_IKIND) :: idum
 
-ier = 0
+ier =  0
+ldum = .false.
+idum = 0
 
 code_in_memory = allocated(mdl%equat)
 
@@ -58,7 +60,8 @@ if(ios.ne.0) goto 950
 
 write(mciunt,err=960,iostat=ios) mifver
 write(mciunt,err=960,iostat=ios) mdl%cnamelen
-write(mciunt,err=960,iostat=ios) mdl%cname(:mdl%cnamelen), mdl%date, mdl%time
+!write(mciunt,err=960,iostat=ios) mdl%cname(:mdl%cnamelen), mdl%date, mdl%time
+write(mciunt,err=960,iostat=ios) mdl%cname(:mdl%cnamelen)
 
 write(mciunt,err=960,iostat=ios) mdl%neq,mdl%loops,mdl%loope,ldum,idum, &
 &                 mdl%nuf,mdl%ielast,mdl%ufblen, mdl%eqblen, &

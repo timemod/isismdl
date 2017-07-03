@@ -39,38 +39,38 @@ test_that("get_fit_options / set_fit_options", {
   expect_identical(mdl2$get_fit_options()[["dbgopt"]],
                    c("prica", "noprijac", "nosupsot"))
 
-  opts <- mdl2$get_solve_options()
+  opts <- mdl2$get_fit_options()
   mdl3 <- mdl2$clone(deep = TRUE)
-  do.call(mdl3$set_solve_options, opts)
-  expect_identical(mdl3$get_solve_options(), opts)
+  do.call(mdl3$set_fit_options, opts)
+  expect_identical(mdl3$get_fit_options(), opts)
 
   mdl2$write_mdl("temp.rds")
   capture_output(mdl4 <- read_mdl("temp.rds"))
   unlink("temp.rds")
-  expect_identical(mdl4$get_solve_options(), opts)
+  expect_identical(mdl4$get_fit_options(), opts)
 })
 
 test_that("errors", {
 
-   mdl2 <- mdl$clone(deep = TRUE)
+  mdl2 <- mdl$clone(deep = TRUE)
 
-   msg <- "maxiter should be an integer"
-   expect_error(mdl2$set_fit_options("aap"), msg)
-   expect_error(mdl2$set_fit_options("xxx",  cvgabs = 2), msg)
+  msg <- "maxiter should be an integer"
+  expect_error(mdl2$set_fit_options("aap"), msg)
+  expect_error(mdl2$set_fit_options("xxx",  cvgabs = 2), msg)
 
-   msg <- "Illegal value xxx for option report"
-   expect_error(mdl2$set_fit_options(report = "xxx"), msg)
+  msg <- "Illegal value xxx for option report"
+  expect_error(mdl2$set_fit_options(report = "xxx"), msg)
 
-   msg <- "The value for option maxiter should have length 1"
-   expect_error(mdl2$set_fit_options(maxiter = c("10", "20")))
+  msg <- "The value for option maxiter should have length 1"
+  expect_error(mdl2$set_fit_options(maxiter = c("10", "20")))
 
-   msg <- "maxiter should be an integer"
-   expect_error(mdl2$set_fit_options(maxiter = "xxx"), msg)
-   expect_error(mdl2$set_fit_options(maxiter = 2.12), msg)
+  msg <- "maxiter should be an integer"
+  expect_error(mdl2$set_fit_options(maxiter = "xxx"), msg)
+  expect_error(mdl2$set_fit_options(maxiter = 2.12), msg)
 
-   msg <- "maxiter should be a non-negative integer"
-   expect_error(mdl2$set_fit_options(maxiter = -10), msg)
+  msg <- "maxiter should be a non-negative integer"
+  expect_error(mdl2$set_fit_options(maxiter = -10), msg)
 
-   msg <- "maxiter should not be NA"
-   expect_error(mdl2$set_fit_options(maxiter = NA), msg)
+  msg <- "maxiter should not be NA"
+  expect_error(mdl2$set_fit_options(maxiter = NA), msg)
 })

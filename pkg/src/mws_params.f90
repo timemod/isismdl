@@ -3,10 +3,11 @@ module mws_params
 
     !
     ! constant for several update modes.
-    ! the constants should be in agreement with src/incl/tsupd.tsl
+    ! the constants should be in agreement with ...
     !
-    integer, parameter :: REPLACE = 1
-    integer, parameter :: UPD     = 2
-    integer, parameter :: UPD_NA  = 3
-    integer, parameter :: UPD_VAL = 4
+    integer, parameter :: REPLACE = 0
+    integer, parameter :: UPD     = 1
+    integer, parameter :: UPD_NA  = 2
+    integer, parameter :: UPD_VAL = 3
+    
 end module mws_params

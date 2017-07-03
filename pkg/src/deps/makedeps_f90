@@ -29,7 +29,7 @@ mcxref.o : kinds.o mcdep.o mcjsbl.o mcpars.o mcvars.o mdl_name_utils.o \
           model_params.o
 mdgfbo.o : mccedp.o mcfbor.o model_type.o
 mdl_name_utils.o : mdl_nlen.o model_params.o
-mdlvars.o : kinds.o model_params.o nuna.o
+mdlvars.o : kinds.o model_params.o mws_params.o nuna.o
 mdordr.o : kinds.o mccedp.o mcfbor.o mcirfb.o mcordr.o \
           mdl_name_utils.o model_type.o
 mif_file.o : mdl_flen.o

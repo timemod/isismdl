@@ -25,9 +25,7 @@ in Isis, and is described in detail in the Isis Reference Manual
 available in a future).
 
 The package included a number of example models in directory \code{models} of
-the package library. Function \code{\link{copy_example_mdl}} is a convenience
-function that can be used to copy these example models to your working directory.
-It is also possible to directly create \code{IsisMdl} objects with functions
+the package library. It is also possible to directly create \code{IsisMdl} objects with functions
 \code{\link{islm_mdl}} to create an ISLM model and \code{\link{ifn_mdl}}
 to create another example model, the IFN model. The latter model is a model with
 leads and can be solved with the Fair-Taylor-method.
@@ -41,11 +39,19 @@ For example, method \code{solve} is described in section
 \code{\link{solve}}.
 \describe{
 
+\item{\code{\link{copy}}}{Returns a deep copy of the \code{IsisMdl} object}
+
 \item{\code{\link{get_maxlag}}}{Returns the maximum lag}
 
 \item{\code{\link{get_maxlead}}}{Returns the maximum lead}
 
 \item{\code{\link{get_var_names}}}{Returns the names of the model
+variables}
+
+\item{\code{\link{get_exo_names}}}{Returns the names of the exogenous model
+variables}
+
+\item{\code{\link{get_endo_names}}}{Returns the names of the endogenous model
 variables}
 
 \item{\code{\link{get_par_names}}}{Returns the names of the model parameters}

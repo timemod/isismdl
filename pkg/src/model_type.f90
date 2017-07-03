@@ -32,7 +32,7 @@ module model_type
 &           mxlead, mxlag
         integer(kind = MC_IKIND), dimension(:), allocatable :: &
 &           enames,vnames,pnames,fnames,ulfnames,ienames,ivnames, &
-&           ipnames,ifnames,iulfnames,indexe,lhsnum,indexv, &
+&           ipnames,ifnames,iulfnames,indexe,lhsnum, eqnum, indexv, &
 &           narguf,indexp,nvalp,cfptr,etype, &
 &           numfb,fbtype,iendex,ica,aci,ibx1,ibx2, &
 &           order,fboptr,fbordr,nrecp,nrecuf,equat
@@ -76,6 +76,7 @@ contains
        if (stat == 0) allocate(mdl%indexv(varCount), stat = stat)
        if (stat == 0) allocate(mdl%indexp(parCount), stat = stat)
        if (stat == 0) allocate(mdl%lhsnum(eqCount), stat = stat)
+       if (stat == 0) allocate(mdl%eqnum(eqCount), stat = stat)
        if (stat == 0) allocate(mdl%etype(eqCount / MCNYI4 + 1), stat = stat)
        if (stat == 0) allocate(mdl%narguf(funCount), stat = stat)
        if (stat == 0) allocate(mdl%coef(coefCount), stat = stat)
@@ -138,6 +139,7 @@ contains
         deallocate(mdl%indexv, stat = stat)
         deallocate(mdl%indexp, stat = stat)
         deallocate(mdl%lhsnum, stat = stat)
+        deallocate(mdl%eqnum, stat = stat)
         deallocate(mdl%narguf, stat = stat)
         deallocate(mdl%nvalp, stat = stat)
         deallocate(mdl%cfptr, stat = stat)
@@ -273,22 +275,16 @@ contains
         is_frml = mdl%aci(iv) > 0
     end function is_frml
 
-    logical function is_active(mdl, eqnum, alphabetical)
+    logical function is_active(mdl, eqnum)
         ! returns true if equation eqnum is active
         type(model), intent(in) :: mdl
         integer, intent(in) :: eqnum
-        logical, intent(in) :: alphabetical
 
-        integer :: ieq, eqtyp
+        integer :: eqtyp
         integer, external :: bysget
 
-        if (alphabetical) then
-            ieq = mdl%indexe(eqnum)
-        else
-            ieq = eqnum
-        endif
 
-        eqtyp = bysget(mdl%etype, ieq)
+        eqtyp = bysget(mdl%etype, eqnum)
         ! eqtyp is lowercase for active eqaution and uppercase for an 
         ! inactive equaiton
         is_active = eqtyp <= 96
@@ -315,7 +311,7 @@ contains
         logical :: is_act
         integer, external :: bysget
 
-        is_act = is_active(mdl, eqnum, .false.)
+        is_act = is_active(mdl, eqnum)
 
         if ((action == ACTIVATE .and. is_act) .or. &
             (action == DEACTIVATE  .and. .not. is_act)) return

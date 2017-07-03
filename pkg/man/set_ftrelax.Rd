@@ -15,7 +15,7 @@ for all endogenous leads.
 \section{Usage}{
 
 \preformatted{
-mdl$set_ftrelaxvalue, pattern, names) 
+mdl$set_ftrelaxvalue, pattern, names)
 
 mdl$get_ftrelax()
 
@@ -30,7 +30,7 @@ mdl$get_ftrelax()
 \item{\code{value}}{Fair-Taylor relaxtion number.
 This must be a positive number or \code{NA} to disable any previously set value.
 The default value for all endogenous leads is \code{NA}, which means that
-the general uniform Fair-taylor relaxation 
+the general uniform Fair-taylor relaxation
 (solve option \code{ftrelax}, see \code{\link{set_solve_options}})
 will be applied}
 \item{\code{pattern}}{a regular expression specifying the
@@ -46,7 +46,7 @@ with endogenous leads will be set to the specified values.
 \examples{
 mdl <- ifn_mdl()
 
-# set Fair-relaxtion factor all all variables with names of length 2 
+# set Fair-relaxtion factor all all variables with names of length 2
 # to 0.5:
 mdl$set_ftrelax(0.5, pattern = "^..$")
 
