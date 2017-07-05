@@ -43,8 +43,8 @@ test_that("set_fit for update mode upd (second test)", {
   fit_mdl2 <- fit_mdl$clone(deep = TRUE)
   fit_mdl2$set_fit(fit2, upd_mode = "upd")
 
-  fit_combi <- ts_update(fit, fit2, method = "tsupd")[, c("c", "y")]
-  # update labels (ts_update does not handle labels correctly yet)
+  fit_combi <- update_ts(fit, fit2, method = "upd")[, c("c", "y")]
+  # update labels (update_ts does not handle labels correctly yet)
   fit_combi <- update_ts_labels(fit_combi, ts_labels(fit))
 
   expect_equal(fit_mdl2$get_fit(), fit_combi)
@@ -56,8 +56,8 @@ test_that("set_fit for update mode updval", {
   fit_mdl2 <- fit_mdl$clone(deep = TRUE)
   fit_mdl2$set_fit(fit2, upd_mode = "updval")
 
-  fit_combi <- ts_update(fit, fit2, method = "tsupdval")[, c("c", "i", "y")]
-  # update labels (ts_update does not handle labels correctly yet)
+  fit_combi <- update_ts(fit, fit2, method = "updval")[, c("c", "i", "y")]
+  # update labels (update_ts does not handle labels correctly yet)
   fit_combi <- update_ts_labels(fit_combi, ts_labels(fit))
 
   expect_equal(fit_mdl2$get_fit(), fit_combi)

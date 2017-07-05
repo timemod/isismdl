@@ -26,8 +26,8 @@ fix_mdl$set_fix(fix)
 
 test_that("set_fix update mode upd", {
 
-  new_data <- ts_update(old_data, fix_ordered, method = "tsupdval")
-  # ts_update does not handle labels correctly.
+  new_data <- update_ts(old_data, fix_ordered, method = "updval")
+  # update_ts does not handle labels correctly.
   # this should be fixed in the future
   new_data <- update_ts_labels(new_data, ts_labels(old_data))
 
@@ -45,16 +45,16 @@ test_that("set_fix for update mode upd, second test", {
   fix_mdl2 <- fix_mdl$copy()
   fix_mdl2$set_fix(fix2, upd_mode = "upd")
 
-  fix_combi <- ts_update(fix, fix2, method = "tsupd")[, "c", drop = FALSE]
-  # update labels (ts_update does not handle labels correctly yet)
+  fix_combi <- update_ts(fix, fix2, method = "upd")[, "c", drop = FALSE]
+  # update labels (update_ts does not handle labels correctly yet)
   fix_combi <- update_ts_labels(fix_combi, ts_labels(fix))
 
-  upd1<- ts_update(fix, fix2, method = "tsupdval")[, c("c", "i")]
-  # update labels (ts_update does not handle labels correctly yet)
+  upd1<- update_ts(fix, fix2, method = "updval")[, c("c", "i")]
+  # update labels (update_ts does not handle labels correctly yet)
   upd1 <- update_ts_labels(upd1, ts_labels(fix))
 
-  new_data <- ts_update(old_data, upd1, method = "tsupdval")
-  # ts_update does not handle labels correctly.
+  new_data <- update_ts(old_data, upd1, method = "updval")
+  # update_ts does not handle labels correctly.
   # this should be fixed in the future
   new_data <- update_ts_labels(new_data, ts_labels(old_data))
 
@@ -67,12 +67,12 @@ test_that("set_fix for update mode updval", {
   fix_mdl2 <- fix_mdl$clone(deep = TRUE)
   fix_mdl2$set_fix(fix2, upd_mode = "updval")
 
-  fix_combi <- ts_update(fix, fix2, method = "tsupdval")[, c("c", "i")]
-  # update labels (ts_update does not handle labels correctly yet)
+  fix_combi <- update_ts(fix, fix2, method = "updval")[, c("c", "i")]
+  # update labels (update_ts does not handle labels correctly yet)
   fix_combi <- update_ts_labels(fix_combi, ts_labels(fix))
 
-  new_data <- ts_update(old_data, fix_combi, method = "tsupdval")
-  # ts_update does not handle labels correctly.
+  new_data <- update_ts(old_data, fix_combi, method = "updval")
+  # update_ts does not handle labels correctly.
   # this should be fixed in the future
   new_data <- update_ts_labels(new_data, ts_labels(old_data))
 
@@ -89,6 +89,3 @@ test_that("set_fix_values", {
   fix_mdl2$set_fix_values(NA, names = c("c", "i"), period = "2015Q2")
   expect_null(fix_mdl2$get_fit())
 })
-
-
-
