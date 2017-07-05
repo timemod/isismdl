@@ -271,11 +271,11 @@ IsisMdl <- R6Class("IsisMdl",
         sel <- grep(pattern, names)
         names <- names[sel]
       }
-      return(names)
+      return(sort(names))
     },
     get_exo_names = function(pattern = ".*") {
       names <- setdiff(self$get_var_names(pattern), self$get_endo_names(pattern))
-      return(names)
+      return(sort(names))
     },
     get_endo_names = function(pattern = ".*",
                               type = c("all", "frml", "endolead"),
@@ -311,7 +311,7 @@ IsisMdl <- R6Class("IsisMdl",
         sel <- grep(pattern, names)
         names <- names[sel]
       }
-      return(names)
+      return(sort(names))
     },
     get_eq_names = function(pattern = ".*",
                             status = c("all", "active", "inactive"),
@@ -324,7 +324,7 @@ IsisMdl <- R6Class("IsisMdl",
         names <- names[sel]
       }
       if (order == "sorted") {
-        names <- names[order(names)]
+        names <- sort(names)
       }
       return(names)
     },
