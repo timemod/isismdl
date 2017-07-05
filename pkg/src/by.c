@@ -3,6 +3,7 @@
 #include <Rinternals.h>
 #include "isismdl_types.h"
 #include <string.h>
+#include <ctype.h>
 
 /*
  * R = bysget(str,fb)
@@ -25,6 +26,23 @@ void F77_SUB(bysset)(FUCHAR *str, FINT *fb, FUINT *bv)
     *(str+*fb-1) = (FUCHAR)(*bv);
 }
 
+/* case insensitive comparison.*/
+int strcicmp(char const *a, char const *b, int nb) {
+    int i;
+    for (i = 0 ; i < nb; i++) {
+        /* convert to upper case, because in the ASCII ordering
+         * the upper case letters come before the underscore */
+        int d = tolower(*(a + i)) - tolower(*(b + i));
+        if (d == 0) {
+            /* same letter, in that upper case before upper case */
+            d = *(a + i) - *(b + i);
+        }
+        if (d != 0 || !*(a + 1) || !*(b + 1)) {
+            return d;
+        }
+    }
+}
+
 /*
  * R = byscmp(str1,fb1,nb,str2,fb2)
  * compare <nb> bytes str(fb1..) and str2(fb2..)
@@ -44,7 +62,7 @@ void F77_SUB(bysset)(FUCHAR *str, FINT *fb, FUINT *bv)
 int F77_SUB(byscmp)(FUCHAR *str1, FINT *fb1, FINT *nb, FUCHAR *str2, FINT *fb2) {
     int r = 0;
     if (*nb > 0) {
-        r = memcmp(str1+*fb1-1, str2+*fb2-1, *nb);
+        r = strcicmp(str1+*fb1-1, str2+*fb2-1, *nb);
     }
     if (r) {
         return r > 0 ? +1 : -1;
@@ -87,3 +105,16 @@ void F77_SUB(byszer)(FUCHAR *str, FINT *fb, FINT *nb)
 {
     memset(str+*fb-1, 0, *nb);
 }
+
+#ifdef TEST
+#include <stdio.h>
+
+int main() {
+    printf("result %d\n", strcicmp("aap", "noot", 3));
+    printf("result %d\n", strcicmp("noot", "a", 1));
+    printf("result %d\n", strcicmp("A", "a", 1));
+    printf("result %d\n", strcicmp("a", "A", 1));
+    printf("result %d\n", strcicmp("ab", "a_", 2));
+    printf("result %d\n", strcicmp("a_", "ab", 2));
+}
+#endif
