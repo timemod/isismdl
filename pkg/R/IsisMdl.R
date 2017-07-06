@@ -508,6 +508,25 @@ IsisMdl <- R6Class("IsisMdl",
         }
       }
     },
+    fix_variables = function(names = NULL, pattern = NULL,
+                             period = self$get_period()) {
+      if (is.null(names) && is.null(pattern)) {
+        stop("Either one of argument names or pattern has to be specified")
+      }
+      period <- private$convert_period_arg(period)
+      names <- private$get_names_(private$fix_type, names, pattern)
+      if (length(names) == 0) {
+        return(NULL)
+      }
+      js <- private$get_period_indices(period)
+      fix_data <- .Call("get_data_c", type = private$data_type,
+                    model_index = private$model_index,
+                    names = names, jtb = js$startp, jte = js$endp)
+      fix_data <- regts(fix_data, start = start_period(period), names = names)
+      # TODO: check for NAs in fix_data
+      self$set_fix(fix_data)
+      return(invisible(NULL))
+    },
     set_solve_options = function(mode, fbstart, maxiter, maxjacupd, rlxspeed,
                                  rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
                                  xmaxiter, xupdate, dbgopt, erropt,
