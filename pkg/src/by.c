@@ -41,6 +41,7 @@ int strcicmp(char const *a, char const *b, int nb) {
             return d;
         }
     }
+    return 0;
 }
 
 /*
