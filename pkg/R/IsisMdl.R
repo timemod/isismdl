@@ -337,13 +337,25 @@ IsisMdl <- R6Class("IsisMdl",
           stop(paste("Argument data_period is mandatory if",
                      "argument data has not been specified"))
         }
+      } else {
+        data_period <- as.period_range(data_period)
+        if (is.na(data_period[1]) || is.na(data_period[2])) {
+          stop("data_period should have a lower and upper bound")
+        }
       }
+
+
       private$init_data_(data_period)
 
       # update the model period
-      private$model_period <- period_range(
-        start_period(data_period) + private$maxlag,
-        end_period(data_period)   - private$maxlead)
+      startp <- start_period(data_period) + private$maxlag
+      endp <- end_period(data_period) - private$maxlead
+      if (endp >= startp) {
+        private$model_period <- period_range(startp, endp)
+      } else {
+        stop(paste("The data period is too short. It should contain at least",
+                   private$maxlag + private$maxlead + 1, "periods"))
+      }
 
       if (!missing(data)) {
         self$set_data(data)
@@ -353,7 +365,11 @@ IsisMdl <- R6Class("IsisMdl",
       }
     },
     set_period = function(period) {
+
       period <- as.period_range(period)
+      if (is.na(period[1]) || is.na(period[2])) {
+        stop("period should have a lower and upper bound")
+      }
 
       if (is.null(private$data_period)) {
         data_period <- period_range(
@@ -982,20 +998,22 @@ IsisMdl <- R6Class("IsisMdl",
       # and fit targets. The model data is initialized with NA,
       # constant adjustments with 0.
       private$data_period <- data_period
-      fortran_period <- period_range(
-        start_period(data_period) + private$maxlag,
-        end_period(data_period)   - private$maxlead)
-      private$fortran_period <- fortran_period
+      startp <- start_period(data_period) + private$maxlag
+      endp <- end_period(data_period) - private$maxlead
+      if (endp >= startp) {
+        private$fortran_period <- period_range(startp, endp)
+      } else {
+        stop(paste("The data period is too short. It should contain at least",
+                   private$maxlag + private$maxlead + 1, "periods"))
+      }
       # fortran_period is the data period without
       # lag and lead periods.
-      p1 <- start_period(fortran_period)
-      p2 <- end_period(fortran_period)
-      start <- as.integer(c(get_year(p1), get_subperiod(p1)))
-      end   <- as.integer(c(get_year(p2), get_subperiod(p2)))
+      start <- as.integer(c(get_year(startp), get_subperiod(startp)))
+      end   <- as.integer(c(get_year(endp), get_subperiod(endp)))
       .Fortran("set_period_fortran",
                model_index = private$model_index,
                start = start, end = end,
-               freq  = as.integer(fortran_period[3]), ier = 1L)
+               freq  = as.integer(private$fortran_period[3]), ier = 1L)
     },
     check_model_period = function(period) {
       if ((start_period(period) < start_period(private$fortran_period))  ||
