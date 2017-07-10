@@ -63,26 +63,13 @@ int strcicmp(char const *a, char const *b, int nb) {
 int F77_SUB(byscmp)(FUCHAR *str1, FINT *fb1, FINT *nb, FUCHAR *str2, FINT *fb2) {
     int r = 0;
     if (*nb > 0) {
-        r = strcicmp(str1+*fb1-1, str2+*fb2-1, *nb);
+        r = strcicmp((char *) str1+*fb1-1, (char *) str2+*fb2-1, *nb);
     }
     if (r) {
         return r > 0 ? +1 : -1;
     } else {
         return 0;
     }
-}
-
-int F77_SUB(bysfcp)(FUCHAR *str1, FINT *nb, FUCHAR *str2)
-{
-    int r = 0;
-
-    if( *nb > 0 )
-        r = memcmp(str1, str2, *nb);
-
-    if( r )
-        return r > 0 ? +1 : -1;
-    else
-        return 0;
 }
 
 /*
