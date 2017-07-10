@@ -15,3 +15,7 @@ mdl$clear_fix()
 \code{mdl} is an \code{\link{IsisMdl}} object
 }
 
+\seealso{
+\code{\link{set_fix}}, \code{\link{fix_variables}}
+and \code{\link{get_fix}}
+}

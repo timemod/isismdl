@@ -523,7 +523,12 @@ IsisMdl <- R6Class("IsisMdl",
                     model_index = private$model_index,
                     names = names, jtb = js$startp, jte = js$endp)
       fix_data <- regts(fix_data, start = start_period(period), names = names)
-      # TODO: check for NAs in fix_data
+      if (any(is.na(fix_data))) {
+        na_names <- colnames(fix_data)[apply(fix_data,
+                                FUN = function(x) {any(is.na(x))}, MARGIN = 2)]
+        stop(paste0("Can't fix variable(s) ", paste(na_names, collapse = " "),
+             ".\nThe model variables contain(s) NA values in period ", period))
+      }
       self$set_fix(fix_data)
       return(invisible(NULL))
     },
@@ -725,7 +730,8 @@ IsisMdl <- R6Class("IsisMdl",
     var_count = NA_integer_,
     labels = NULL,
     period_error_msg = paste("The model period is not set.",
-                             "Set the model period with set_period()."),
+                             "Set the model period with set_period() or",
+                             "init_data()."),
     data_type = 1L,
     ca_type = 2L,
     fix_type = 3L,
@@ -1041,6 +1047,9 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(NULL))
     },
     convert_period_arg = function(period, data_period = TRUE) {
+      if (is.null(private$model_period)) {
+        stop(private$period_error_msg)
+      }
       period <- as.period_range(period)
       if (frequency(period) != frequency(private$data_period)) {
         stop(paste0("Period ", period, " has a different frequency than ",
