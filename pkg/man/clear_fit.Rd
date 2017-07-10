@@ -17,3 +17,6 @@ mdl$clear_fit()
 \code{mdl} is an \code{\link{IsisMdl}} object
 }
 
+\seealso{
+\code{\link{set_fit}} and \code{\link{get_fit}}
+}

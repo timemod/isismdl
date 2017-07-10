@@ -748,8 +748,9 @@ NULL
 #' mdl$set_data(ms, names = "ms", upd_mode = "updval")
 #' print(mdl$get_data())
 #'
-#' @seealso \code{\link{get_data-methods}}, \code{\link{set_values-methods}}
-#' and \code{\link{change_data-methods}}
+#' @seealso \code{\link{get_data-methods}}, \code{\link{set_values-methods}},
+#' \code{\link{change_data-methods}}, \code{\link{fix_variables}},
+#' \code{\link{clear_fix}} and \code{\link{clear_fit}}.
 NULL
 
 #' \code{\link{IsisMdl}} methods: Sets the values of the model data,
@@ -1456,6 +1457,7 @@ NULL
 #' mdl$clear_fit()
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @seealso \code{\link{set_fit}} and \code{\link{get_fit}}
 NULL
 
 #' \code{\link{IsisMdl}} method: deletes all fix values
@@ -1469,6 +1471,8 @@ NULL
 #' mdl$clear_fix()
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @seealso \code{\link{set_fix}}, \code{\link{fix_variables}}
+#' and \code{\link{get_fix}}
 NULL
 
 #' \code{\link{IsisMdl}} method: Returns a copy of this \code{IsisMdl} object
@@ -1490,4 +1494,39 @@ NULL
 #' @examples
 #' mdl <- islm_mdl("2017Q1/2019Q2")
 #' mdl2 <- mdl$copy()
+NULL
+
+#' \code{\link{IsisMdl}} method: Fix variables to their current values
+#' @name fix_variables
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} fixes the specified
+#' model variables to their current values.
+#' @section Usage:
+#' \preformatted{
+#' mdl$fix_variables(names, pattern, period = mdl$get_period())
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{pattern}}{a regular expression specifying the
+#' variable names}
+#' \item{\code{names}}{a character vector with variable names}
+#' \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
+#' object that can be coerced to a \code{period_range}}
+#' }
+#'
+#' @examples
+#' mdl <- islm_mdl("2015Q2/2016Q3")
+#' mdl$solve()
+#'
+#' # fix variable "c" for a specific period:
+#' mdl$fix_variables(names = "c", period = "2015Q3/2015Q4")
+#'
+#' # fix all stochastic model variables
+#' mdl$fix_variables(pattern = ".*")
+#' @seealso \code{\link{set_fix}} and \code{\link{get_fix}}
 NULL

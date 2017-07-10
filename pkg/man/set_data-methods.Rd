@@ -109,6 +109,7 @@ print(mdl$get_data())
 
 }
 \seealso{
-\code{\link{get_data-methods}}, \code{\link{set_values-methods}}
-and \code{\link{change_data-methods}}
+\code{\link{get_data-methods}}, \code{\link{set_values-methods}},
+\code{\link{change_data-methods}}, \code{\link{fix_variables}},
+\code{\link{clear_fix}} and \code{\link{clear_fit}}.
 }
