@@ -1,0 +1,6 @@
+? simple example of a recursive model
+? isis should reorder this model
+ident z = y;
+ident y = x;
+ident a = 1;
+ident x = a;
