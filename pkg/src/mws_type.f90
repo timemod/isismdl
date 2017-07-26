@@ -61,6 +61,7 @@ module mws_type
             integer :: stat
             mws%perlen = 0
             mws%data_perlen = 0
+            mws%simerr = -1
             deallocate(mws%mdl_data, stat = stat)
             deallocate(mws%constant_adjustments, stat = stat)
             deallocate(mws%test, stat = stat)

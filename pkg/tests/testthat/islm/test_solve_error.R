@@ -4,32 +4,65 @@ library(testthat)
 
 context("solve ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+# TODO: simerr moet ook weggeschreven worden naar de mif
+
+#capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+
+capture.output(mdl <- islm_mdl("2015Q2/2016Q3"))
 
 mdl$set_solve_options(report = "none")
 
+test_that("get_solve_status for a fresh model", {
+  expect_equal(mdl$get_solve_status(), "Method solve has not yet been called")
+  mdl$solve()
+  expect_equal(mdl$get_solve_status(), "OK")
+})
+
 test_that("warnings", {
+
   mdl2 <- mdl$copy()
+
   mdl2$set_values(NA, names = "y", period = "2015Q2")
-  expect_warning(mdl2$solve(), "Simulation not possible")
-  expect_warning(mdl2$solve(period = "2015Q3"),
-                 "Initial lags/leads missing/invalid. Simulation not possible")
+  msg <- "Simulation not possible"
+  expect_warning(mdl2$solve(), msg)
+  expect_equal(mdl2$get_solve_status(), msg)
+
+  msg <- "Initial lags/leads missing/invalid. Simulation not possible"
+  expect_warning(mdl2$solve(period = "2015Q3"), msg)
+  expect_equal(mdl2$get_solve_status(), msg)
+
   mdl2$set_values(NA, names = "g", period = "2015Q4")
-  expect_warning(mdl2$solve(period = "2015Q4"), "Simulation not possible")
+  msg <- "Simulation not possible"
+  expect_warning(mdl2$solve(period = "2015Q4"), msg)
+  expect_equal(mdl2$get_solve_status(), msg)
+
   mdl2$set_param(list(c0 = NA_real_))
-  expect_warning(mdl2$solve(),
-          "Invalid parameter values detected. Simulation not possible")
+  msg <- "Invalid parameter values detected. Simulation not possible"
+  expect_warning(mdl2$solve(), msg)
+  expect_equal(mdl2$get_solve_status(), msg)
 })
 
 test_that("no warnings for erropt cont", {
+
   mdl2 <- mdl$copy()
   mdl2$set_solve_options(erropt = "cont")
+
+  msg <- "Simulation not possible"
   mdl2$set_values(NA, names = "y", period = "2015Q2")
-  expect_warning(mdl2$solve(), "Simulation not possible")
-  expect_warning(mdl2$solve(period = "2015Q3"), "Simulation stopped")
+  expect_warning(mdl2$solve(), msg)
+  expect_equal(mdl2$get_solve_status(), msg)
+
+  msg <- "Simulation stopped"
+  expect_warning(mdl2$solve(period = "2015Q3"), msg)
+  expect_equal(mdl2$get_solve_status(), msg)
+
   mdl2$set_values(NA, names = "g", period = "2015Q4")
-  expect_warning(mdl2$solve(period = "2015Q4"), "Simulation stopped")
+  msg <- "Simulation stopped"
+  expect_warning(mdl2$solve(period = "2015Q4"), msg)
+  expect_equal(mdl2$get_solve_status(), msg)
+
   mdl2$set_param(list(c0 = NA_real_))
-  expect_warning(mdl2$solve(),
-                 "Invalid parameter values detected. Simulation not possible")
+  msg <-  "Invalid parameter values detected. Simulation not possible"
+  expect_warning(mdl2$solve(), msg)
+  expect_equal(mdl2$get_solve_status(), msg)
 })

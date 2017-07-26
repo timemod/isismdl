@@ -5,7 +5,9 @@
 \title{\code{\link{IsisMdl}} method: Solves the model.}
 \description{
 This method of R6 class \code{\link{IsisMdl}} solves
-the model.
+the model. It requires that the model period has been
+set with methods \code{\link{isis_mdl}}, \code{\link{init_data}}
+or \code{\link{set_period}}).
 }
 \section{Usage}{
 
@@ -41,6 +43,32 @@ The specified options will only used in this call of
 }
 }
 
+\section{Details}{
+
+
+The model will be solved for each subperiod from the
+solution period sequentially.
+The solution is stored in the \code{IsisMdl} object, and can be
+retrieved by methods \code{\link{get_data}}
+(or \code{\link{get_ca}} for the constant adjustments).
+Any subsequent solves of a model will use these data.
+If a \code{solve} has converged and no data have changed,
+then a second \code{solve} will report convergence in 0
+iterations.
+
+The solve options specified are only applied to the current
+solve. If none are specified the solve options
+as specified with method \code{\link{set_solve_options}}
+are used.
+
+The solve procedure \emph{never} raises an error, even if the solve was
+not successful. In that case a warning may be issued. It is up to the user
+to perform any checks.
+Method \code{\link{get_solve_status}} can be used to check
+whether the solve was successfully terminated or not.
+The solve procedure outputs a report which the user should check.
+}
+
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$solve(options = list(report = "fullrep"))
@@ -49,6 +77,6 @@ mdl$solve(options = list(report = "fullrep"))
 mdl$solve(period = "/2017Q4")
 }
 \seealso{
-\code{\link{set_solve_options}} and
-\code{\link{set_fit_options}}
+\code{\link{set_solve_options}},
+\code{\link{set_fit_options}} and \code{\link{get_solve_status}}
 }

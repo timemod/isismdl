@@ -55,6 +55,7 @@ setOldClass("period_range")
 #' @useDynLib isismdl mdlpas_fortran
 #' @useDynLib isismdl clone_mws_fortran
 #' @useDynLib isismdl run_eqn_fortran
+#' @useDynLib isismdl get_solve_status_c
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -189,6 +190,9 @@ setOldClass("period_range")
 #' \item{\code{\link{get_ftrelax}}}{Returns the Fair-Taylor relaxtion factors}
 #'
 #' \item{\code{\link{solve}}}{Solves the model}
+#'
+#' \item{\code{\link{get_solve_status}}}{Returns the status of the last model
+#' solve attempt}
 #'
 #' \item{\code{\link{fill_mdl_data}}}{Calculates missing model
 #' data from identities}
@@ -581,6 +585,9 @@ IsisMdl <- R6Class("IsisMdl",
             jtb = js$startp, jte = js$endp, options,
             fit_options)
       return(invisible(self))
+    },
+    get_solve_status = function() {
+      return(.Call("get_solve_status_c", model_index = private$model_index))
     },
     fill_mdl_data = function(period = private$data_period,
                              report = c("period", "minimal", "no")) {
