@@ -26,6 +26,8 @@ use mdl_name_utils
 
 integer ::   iv
 
+if (repopt == REP_NONE) return
+
 call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
 write(str,'(2a)') 'Missing or invalid value for exogenous variable ', name(:nlen)
 call strout(O_ERRM)
@@ -42,6 +44,8 @@ use mdl_name_utils
 
 integer ::   iv
 
+if (repopt == REP_NONE) return
+
 call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
 write(str,'(2a)') 'Missing or invalid value for CA of ',name(:nlen)
 call strout(O_ERRM)
@@ -54,6 +58,8 @@ subroutine solot4(nonval)
 ! print total number of invalid/missing exo/ca
 
 integer ::  nonval
+
+if (repopt == REP_NONE) return
 
 write(str,'(i5,2a)') nonval,' missing or invalid exos or CAs in period ', perstr
 call strout(O_ERRF)
@@ -70,6 +76,7 @@ integer(kind = MC_IKIND), intent(in) :: iv
 !     print message for missing or invalid feedback value
 !     iv is variable index
 
+if (repopt == REP_NONE) return
 
 call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
 write(str,'(2a)') 'Missing or invalid initial value for feedback variable ', &
@@ -86,6 +93,8 @@ subroutine solot6(nonval)
 !     print total of missing/invalid feedback values
 
 integer ::  nonval
+
+if (repopt == REP_NONE) return
 
 write(str, '(i5,a)' ) nonval ,' missing or invalid initial feedback values'
 call strout(O_ERRF)
@@ -104,6 +113,8 @@ integer ::  itr
 integer ::   maxlen, maxcol, colwid
 integer ::   j,jb,je
 real(kind = SOLVE_RKIND) :: temp(20)
+
+if (repopt == REP_NONE) return
 
 maxlen = maxnli(mdl%ivnames, mdl%numfb, 1_MC_IKIND, mdl%nfb)
 colwid = max(NUMWID, maxlen)
@@ -141,6 +152,8 @@ subroutine solot8(itr)
 ! invalid feedback values have resulted
 
 integer ::  itr
+
+if (repopt == REP_NONE) return
 
 write(str, '(a,i4)') &
 &  'Invalid values for feedback variables detected at iteration', itr

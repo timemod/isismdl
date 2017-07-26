@@ -16,6 +16,8 @@ integer ::   jlag
 character(len = 80) :: dst
 integer ::        dlen
 
+if (repopt == REP_NONE) return
+
 call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
 call nshfmt(name, nlen, -jlag, dst, dlen)
 
@@ -38,6 +40,8 @@ integer ::  iv
 character(len = 80) :: dst
 integer :: dlen
 
+if (repopt == REP_NONE) return
+
 call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
 call nshfmt(name, nlen, jlead, dst , dlen)
 
@@ -55,6 +59,8 @@ subroutine simod3(nonval)
 !     print total of invalid/missing lags/leads
 
 integer ::  nonval
+
+if (repopt == REP_NONE) return
 
 write(str,'(i5,2a)') &
 &    nonval,' missing or invalid lags or leads in period ', perstr
@@ -75,6 +81,8 @@ integer ::  p, i
 
 character(len = 80) :: dst
 integer ::        dlen
+
+if (repopt == REP_NONE) return
 
 call mcf7ex(name, nlen, mdl%ipnames(p), mdl%pnames)
 if (mdl%nvalp(p) .eq. 1) then

@@ -21,6 +21,7 @@ module mws_type
         type(solve_options) :: solve_opts
         logical :: dbgeqn
         real(kind = SOLVE_RKIND), dimension(:), allocatable :: rmsu
+        integer :: simerr = -1
 
     end type modelworkspace
 
