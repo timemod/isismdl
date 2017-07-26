@@ -3,7 +3,7 @@ module msimul
 
     private :: simulx, msftcg, msftup, simulb, soljtc, &
 &              store_solution, store_solution_prepare_next, &
-               report_solve_error, get_error_text
+               report_solve_error
 
     logical, private, save :: forwards, update_lags, chklead
     logical, private :: do_fit
@@ -570,40 +570,27 @@ module msimul
     
     return
     end subroutine soljtc
-    
-    subroutine report_solve_error
+
+    subroutine report_solve_error()
         use output_utils
-
-        character(len = ERROR_TXT_LEN) :: error_text
-
-        call get_error_text(error_text)
-        call isismdl_warn(error_text)
+    
+        select case (mws%simerr)
+        case (1)
+            call isismdl_warn("Simulation not possible")
+        case (2)
+            call isismdl_warn("Simulation stopped")
+        case (3)
+            call isismdl_warn("Initial lags/leads missing/invalid. Simulation not possible.")
+        case (4)
+            call isismdl_warn("Invalid parameter values detected. Simulation not possible")
+        case (5)
+            call isismdl_warn("Fair-Taylor has not converged")
+        case (6)
+            call isismdl_warn("Out of memory. Simulation not succesfull")
+        case default
+            call isismdl_warn("Unknown problem in solve. Simulation not succesfull")
+        end select
     
     end subroutine report_solve_error
 
-    subroutine get_error_text(text) 
-        character(len = ERROR_TXT_LEN), intent(out) :: text
-
-        select case (mws%simerr)
-        case (-1)
-            text = "Method solve has not yet been called"
-        case (0)
-            text = "OK"
-        case (1)
-            text = "Simulation not possible"
-        case (2)
-            text = "Simulation stopped"
-        case (3)
-            text = "Initial lags/leads missing/invalid. Simulation not possible"
-        case (4)
-            text = "Invalid parameter values detected. Simulation not possible"
-        case (5)
-            text = "Fair-Taylor has not converged"
-        case (6)
-            text = "Out of memory. Simulation not succesfull"
-        case default
-            text = "Unknown problem in solve. Simulation not succesfull"
-        end select
-    end subroutine get_error_text
-    
 end module msimul

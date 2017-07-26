@@ -2,14 +2,9 @@ library(utils)
 library(isismdl)
 library(testthat)
 
-context("solve ISLM model")
+context("solve errors ISLM model")
 
-# TODO: simerr moet ook weggeschreven worden naar de mif
-
-#capture_output(mdl <- read_mdl("islm_model_solved.rds"))
-
-capture.output(mdl <- islm_mdl("2015Q2/2016Q3"))
-
+capture_output(mdl <- read_mdl("islm_model_solved.rds"))
 mdl$set_solve_options(report = "none")
 
 test_that("get_solve_status for a fresh model", {
