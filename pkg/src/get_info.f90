@@ -290,3 +290,10 @@ integer function get_eq_order(model_index, ieq)
     get_eq_order = mws_array(model_index)%mdl%order(ieq)
 end function get_eq_order
 
+function get_simerr(model_index)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: get_simerr
+    integer(c_int), intent(in) :: model_index
+    get_simerr = mws_array(model_index)%simerr
+end function get_simerr

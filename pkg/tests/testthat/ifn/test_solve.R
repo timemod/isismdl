@@ -1,8 +1,12 @@
-context("solve IFN model")
-
+library(isismdl)
+library(testthat)
 library(utils)
 
+context("solve IFN model")
 capture_output(ifn_mdl <- read_mdl("ifn_mdl.rds"))
+
+isis_result <- as.regts(read.csv("isi/solve.csv"), time_column = 1)
+mdl_per <- ifn_mdl$get_period()
 
 test_that("ftrelax correctly read from file", {
   res_correct <- c(a = NA, eta = NA, lambda = 0.5, mzk = NA, px = NA, rho = NA)
@@ -16,19 +20,27 @@ test_that("solve options read from file", {
   expect_equal(ifn_mdl$get_solve_options()[names(options_set)], options_set)
 })
 
-report <- ifn_mdl$solve(options = list(report = "none"))
-
-isis_result <- as.regts(read.csv("isi/solve.csv"), time_column = 1)
-
-mdl_per <- ifn_mdl$get_period()
-dif <- tsdif(ifn_mdl$get_data(period = mdl_per), isis_result, tol = 1e-6,
-             fun = cvgdif)
-
-test_that("solve result almost identical to Isis result", {
+test_that("model administration correct", {
+  expect_identical(mdl_per, period_range("2y", "100y"))
   expect_identical(ifn_mdl$get_data_period(), period_range("1y", "101y"))
   expect_identical(ifn_mdl$get_var_names(), colnames(isis_result))
+})
+
+test_that("solve result almost identical to Isis result", {
+  ifn_mdl2 <- ifn_mdl$copy()
+  ifn_mdl2$solve(options = list(report = "none"))
+  dif <- tsdif(ifn_mdl2$get_data(period = mdl_per), isis_result, tol = 1e-6,
+               fun = cvgdif)
   expect_identical(dif$missing_names1, character(0))
   expect_identical(dif$missing_names2, character(0))
   expect_identical(dif$difnames, character(0))
 })
+
+test_that("warning when Fair-Taylor has not converged", {
+  ifn_mdl2 <- ifn_mdl$copy()
+  expect_warning(ifn_mdl2$solve(options = list(xmaxiter = 10,
+                                               report = "none")),
+                           "Fair-Taylor has not converged")
+})
+
 

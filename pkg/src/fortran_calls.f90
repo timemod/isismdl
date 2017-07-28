@@ -208,7 +208,7 @@ subroutine solve_fortran(mws_index, jtb, jte, opts_present, error)
     endif
     call prepare_solve(mws_array(mws_index), opt, jtb, jte, errflg)
     call simul
-    error = simerr
+    error = mws_array(mws_index)%simerr
     call msclear
 end subroutine solve_fortran
 

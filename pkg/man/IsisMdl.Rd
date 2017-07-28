@@ -131,6 +131,9 @@ variables}
 
 \item{\code{\link{solve}}}{Solves the model}
 
+\item{\code{\link{get_solve_status}}}{Returns the status of the last model
+solve attempt}
+
 \item{\code{\link{fill_mdl_data}}}{Calculates missing model
 data from identities}
 

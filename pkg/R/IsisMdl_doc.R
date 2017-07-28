@@ -467,7 +467,10 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} solves
-#' the model.
+#' the model. It requires that the model period has been
+#' set with methods \code{\link{isis_mdl}}, \code{\link{init_data}}
+#' or \code{\link{set_period}}).
+
 #' @section Usage:
 #' \code{IsisMdl} method:
 #' \preformatted{
@@ -497,14 +500,83 @@ NULL
 #' The specified options will only used in this call of
 #' {solve()} and will not be stored in the \code{IsisMdl} object}
 #' }
-#' @seealso \code{\link{set_solve_options}} and
-#' \code{\link{set_fit_options}}
+#'
+#' @section Details:
+#'
+#' The model will be solved for each subperiod from the
+#' solution period sequentially.
+#' The solution is stored in the \code{IsisMdl} object, and can be
+#' retrieved by methods \code{\link{get_data}}
+#' (or \code{\link{get_ca}} for the constant adjustments).
+#' Any subsequent solves of a model will use these data.
+#' If a \code{solve} has converged and no data have changed,
+#' then a second \code{solve} will report convergence in 0
+#' iterations.
+#'
+#' The solve options specified are only applied to the current
+#' solve. If none are specified the solve options
+#' as specified with method \code{\link{set_solve_options}}
+#' are used.
+#'
+#' The solve procedure \emph{never} raises an error, even if the solve was
+#' not successful. In that case a warning may be issued. It is up to the user
+#' to perform any checks.
+#' Method \code{\link{get_solve_status}} can be used to check
+#' whether the solve was successfully terminated or not.
+#' The solve method outputs a report which the user should check.
+#'
+#' @seealso \code{\link{set_solve_options}},
+#' \code{\link{set_fit_options}} and \code{\link{get_solve_status}}
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$solve(options = list(report = "fullrep"))
 #'
 #' # solve the model for all periods before 2018Q1
 #' mdl$solve(period = "/2017Q4")
+NULL
+
+#' \code{\link{IsisMdl}} method: Returns the solve status of the last model solve.
+#' @name get_solve_status
+#' @md
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the status
+#' of the last model solve as a  text string. If the last model solve
+#' was succesfull, it returns the string \code{"OK"}.
+#'
+
+#' @section Usage:
+#' \code{IsisMdl} method:
+#' \preformatted{
+#' mdl$get_solve_status()
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Details:
+#'
+#' The possible return values are:
+#'  * \code{"Method solve has not yet been called"}
+#'  * \code{"OK"}
+#'  * \code{"Simulation not possible"} (usually this means that exogenous
+#'  or feedback variables have \code{NA} values)
+#'  * \code{"Simulation stopped"} (it was not possible to find a solution)
+#'  * \code{"Initial lags/leads missing/invalid. Simulation not possible"}
+#'  * \code{"Invalid parameter values detected. Simulation not possible"}
+#'  * \code{"Fair-Taylor has not converged"}
+#'  * \code{"Out of memory. Simulation not succesfull"}
+#'  * \code{"Unknown problem in solve. Simulation not succesfull"}
+#'
+#' @seealso \code{\link{solve}}
+#' @examples
+#' \dontrun{
+#' mdl <- islm_mdl(period = "2017Q1/2018Q4")
+#' mdl$set_values(NA, names = "y", period = "2017Q1")
+#' mdl$solve()
+#' if (mdl$get_solve_status() != "OK") {
+#'    stop("Error solving the model. Check the warnings!")
+#' }
+#' }
 NULL
 
 #' \code{\link{IsisMdl}} method: Calculates missing model data from identities

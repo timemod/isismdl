@@ -17,6 +17,8 @@ contains
         
         character(len = 80) :: dst
         integer :: dlen
+
+        if (repopt == REP_NONE) return
         
         call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
         call nshfmt(name, nlen, -jlag, dst, dlen)
@@ -32,6 +34,8 @@ contains
         
         ! print total of missing or invalid lags
         
+        if (repopt == REP_NONE) return
+
         write(str,'(i5,2a)') nonval,' missing or invalid lags in period ',perstr
         call strout(O_ERRF)
         return
@@ -47,6 +51,8 @@ contains
         
         character(len = 80) :: dst
         integer ::        dlen
+
+        if (repopt == REP_NONE) return
         
         call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
         call nshfmt(name, nlen, jlead, dst, dlen)
@@ -60,6 +66,7 @@ contains
         integer, intent(in) ::  nonval
 
         ! print total of missing or invalid leads
+        if (repopt == REP_NONE) return
         
         write(str,'(i5,2a)') nonval,' missing or invalid leads in period ',perstr
         call strout(O_ERRF)
