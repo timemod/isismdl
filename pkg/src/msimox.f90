@@ -251,6 +251,8 @@ character(len = 8) :: target
 character(len = 3) ::  cdum
 logical ::        split
 
+if (opts%repopt == REP_NONE) return
+
 str =  'Largest remaining discrepancy'
 call strout(O_OUTN)
 
@@ -293,6 +295,8 @@ integer ::        mxnlen
 real(kind = SOLVE_RKIND) :: xold, xnew, absdif, cvgtst
 
 integer ::  i,j,k
+
+if (opts%repopt == REP_NONE) return
 
 str = 'All remaining discrepancies'
 call strout(O_OUTB)
