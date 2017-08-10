@@ -61,6 +61,7 @@ module msvars
             jf = jf_in
             jl = jl_in
             opts => opts_in
+            itrtot = 0
 
             call msvarsinit(mws_in)
 
@@ -135,7 +136,6 @@ module msvars
                 endif
             endif
 
-            itrtot = 0
         end subroutine prepare_solve
 
         subroutine msclear
