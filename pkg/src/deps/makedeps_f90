@@ -40,7 +40,7 @@ msbrdn.o : kinds.o liqrco.o liqrup.o msjcot.o msnwut.o msvars.o \
 mscalc.o : include/mspushf.inc include/mspushv.inc include/msshift.inc \
           kinds.o mcedef.o mcstak.o model_params.o msimot.o msufstack.o msvars.o \
           mws_type.o nuna.o nuv.o
-msfbvl.o : kinds.o mscalc.o msvars.o nuna.o
+msfbvl.o : kinds.o mdl_name_utils.o mscalc.o msimot.o msvars.o nuna.o
 msfill.o : msimot.o mssneq.o msvars.o
 msfitm.o : kinds.o liqrco.o liqrmn.o mdlvars.o msbrdn.o msfbvl.o \
           msfito.o msnwut.o mssolve.o msutil.o msvars.o nucnst.o nuna.o nuv.o \
