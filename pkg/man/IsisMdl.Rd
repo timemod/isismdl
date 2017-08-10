@@ -116,6 +116,10 @@ applying a function}
 
 \item{\code{\link{get_fit_options}}}{Returns the options for the fit procedure}
 
+\item{\code{\link{set_debug_eqn}}}{Sets the debug equation option}
+
+\item{\code{\link{get_debug_eqn}}}{Returns the debug equation option}
+
 \item{\code{\link{set_cvgcrit}}}{Sets the convergence criterion for selected
 variables}
 

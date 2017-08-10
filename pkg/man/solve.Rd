@@ -66,7 +66,7 @@ not successful. In that case a warning may be issued. It is up to the user
 to perform any checks.
 Method \code{\link{get_solve_status}} can be used to check
 whether the solve was successfully terminated or not.
-The solve procedure outputs a report which the user should check.
+The solve method outputs a report which the user should check.
 }
 
 \examples{
