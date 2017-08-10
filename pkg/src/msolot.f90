@@ -162,7 +162,7 @@ str = 'Further iterations are useless'
 call strout(O_ERRF)
 
 if (.not. mws%dbgeqn) then
-  str = '** Suggestion: use set_solve_debugmode(dbgon);'
+  str = '** Suggestion: use mdl$set_debug_eqn(TRUE)'
   call strout(O_ERRF)
   str = '    before the current solve command in your Isis job'
   call strout(O_ERRF)
