@@ -454,7 +454,7 @@ IsisMdl <- R6Class("IsisMdl",
                     names = names))
     },
     set_data = function(data, names = colnames(data),
-                        upd_mode = c("upd", "updval")) {
+                        upd_mode = c("upd", "updval"), fun) {
       upd_mode <- match.arg(upd_mode)
       if (is.null(private$data_period)) {
         stop(paste("The data period has not been set yet.",
@@ -462,13 +462,13 @@ IsisMdl <- R6Class("IsisMdl",
                    "E.g.: init_data(data)"))
       }
       return(private$set_data_(private$data_type, data, names, missing(names),
-                               upd_mode))
+                               upd_mode, fun))
     },
     set_ca = function(data, names = colnames(data),
-                      upd_mode = c("upd", "updval")) {
+                      upd_mode = c("upd", "updval"), fun) {
       upd_mode <- match.arg(upd_mode)
       return(private$set_data_(private$ca_type, data, names, missing(names),
-                             upd_mode))
+                             upd_mode, fun))
     },
     set_fix = function(data, names = colnames(data),
                        upd_mode = c("upd", "updval")) {
@@ -832,7 +832,8 @@ IsisMdl <- R6Class("IsisMdl",
       return(ret)
     },
     set_data_ = function(set_type, data, names, names_missing,
-                       upd_mode = "upd") {
+                       upd_mode = "upd", fun) {
+
       if (is.null(private$model_period)) stop(private$period_error_msg)
       if (!inherits(data, "ts")) {
          # we use inherits and not is.ts, because is.ts returns FALSE if
@@ -867,6 +868,7 @@ IsisMdl <- R6Class("IsisMdl",
         # make sure that data is a matrix of numeric values
         data <- apply(data, MARGIN = c(1,2), FUN = as.numeric)
       }
+      colnames(data) <- names
 
       if (set_type == private$data_type) {
         lbls <- ts_labels(data)
@@ -895,6 +897,25 @@ IsisMdl <- R6Class("IsisMdl",
                        "are inactive and cannot be", msg))
           }
         }
+      }
+
+      if (!missing(fun)) {
+        if (!is.function(fun)) {
+          stop("fun is not a function")
+        }
+        p <- range_intersect(get_period_range(data), private$data_period)
+        if (is.null(p)) {
+          return(invisible(self))
+        }
+        if (set_type == private$data_type) {
+          names <- intersect(names, self$get_var_names())
+          old_data <- self$get_data(period = p, names = names)
+        } else {
+          names <- intersect(names,
+                             self$get_endo_names(type = "frml"))
+          old_data <- self$get_ca(period = p, names = names)
+        }
+        data <- fun(old_data, data[p, names])
       }
       .Call(set_data_c, set_type, private$model_index, data, names, shift,
             upd_mode)
