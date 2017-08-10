@@ -56,6 +56,8 @@ setOldClass("period_range")
 #' @useDynLib isismdl clone_mws_fortran
 #' @useDynLib isismdl run_eqn_fortran
 #' @useDynLib isismdl get_solve_status_c
+#' @useDynLib isismdl set_dbgeqn
+#' @useDynLib isismdl get_dbgeqn
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -175,6 +177,10 @@ setOldClass("period_range")
 #' \item{\code{\link{set_fit_options}}}{Sets the options for the fit procedure}
 #'
 #' \item{\code{\link{get_fit_options}}}{Returns the options for the fit procedure}
+#'
+#' \item{\code{\link{set_debug_eqn}}}{Sets the debug equation option}
+#'
+#' \item{\code{\link{get_debug_eqn}}}{Returns the debug equation option}
 #'
 #' \item{\code{\link{set_cvgcrit}}}{Sets the convergence criterion for selected
 #' variables}
@@ -332,6 +338,24 @@ IsisMdl <- R6Class("IsisMdl",
       }
       return(names)
     },
+    set_debug_eqn = function(value) {
+      if (!is.logical(value)) {
+        stop("value should be logical")
+      }
+      if (value) {
+        dbgeqn_ <- 1L
+      } else {
+        dbgeqn_ <- 0L
+      }
+      .Fortran("set_dbgeqn", mws_index = private$model_index,
+               dbgeqn_ = dbgeqn_[1])
+      return(invisible(self))
+    },
+    get_debug_eqn = function() {
+      retval <- .Fortran("get_dbgeqn", mws_index = private$model_index,
+                         dbgeqn_ = 1L)
+      return(retval$dbgeqn_ == 1L)
+    },
     init_data = function(data_period, data, ca) {
 
       if (missing(data_period)) {
@@ -367,6 +391,7 @@ IsisMdl <- R6Class("IsisMdl",
       if (!missing(ca)) {
         self$set_ca(ca)
       }
+      return(invisible(self))
     },
     set_period = function(period) {
 
