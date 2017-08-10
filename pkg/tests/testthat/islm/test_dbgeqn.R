@@ -1,0 +1,71 @@
+library(utils)
+library(isismdl)
+library(testthat)
+
+context("equation debugging for the ISLM model")
+
+capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+
+test_that("set/get debug_eqn", {
+  expect_false(mdl$get_debug_eqn())
+  mdl$set_debug_eqn(FALSE)
+  expect_false(mdl$get_debug_eqn())
+  mdl$set_debug_eqn(TRUE)
+  expect_true(mdl$get_debug_eqn())
+})
+
+test_that("comparing models", {
+  mdl2 <- mdl$copy()
+  mdl2$set_debug_eqn(FALSE)
+  expect_true(mdl$get_debug_eqn())
+  expect_false(isTRUE(all.equal(mdl, mdl2)))
+})
+
+test_that("reading/writing model", {
+  mdl$write_mdl("temp.rds")
+  dum <- capture.output(mdl2 <- read_mdl("temp.rds"))
+  unlink("temp.rds")
+  expect_true(mdl2$get_debug_eqn())
+  expect_equal(mdl, mdl2)
+})
+
+# Replace CPU seconds with xxx in a Taxus report, to make comparison with a
+# reference report possible
+convert_report <- function(report) {
+  cpu_line_number <- grep("CPU secs$", report)
+  cpu_line  <- report[cpu_line_number]
+  report[cpu_line_number] <- gsub("\\d+\\.\\d+", "xxx", report[cpu_line_number])
+  return(report)
+}
+
+test_that("debug statements for solve", {
+  mdl2 <- mdl$copy()
+  mdl2$set_values(0, names = "ms", period = "2015Q2/2015Q3")
+  old_data <- mdl2$get_data()
+  report <- capture.output({
+    suppressWarnings(mdl2$solve())
+  })
+  expected_data <- old_data
+  expected_data["2015Q2", "r"] <- NA
+  expect_equal(mdl2$get_data(), expected_data)
+
+  #cat(paste(report, collapse = "\n"))
+  expect_equal_to_reference(convert_report(report),
+                            file.path("data/debug_report1.rds"))
+})
+
+test_that("debug statements for run_eqn", {
+  mdl2 <- mdl$copy()
+  mdl2$set_values(0, names = "ms", period = "2015Q2/2015Q3")
+  old_data <- mdl2$get_data()
+  report <- capture.output({
+    mdl2$run_eqn(period = mdl$get_period())
+  })
+  expected_data <- old_data
+  expected_data["2015Q2/2015Q3", "r"] <- NA
+  expect_equal(mdl2$get_data(), expected_data)
+
+  #cat(paste(report, collapse = "\n"))
+  expect_equal_to_reference(convert_report(report),
+                            file.path("data/debug_report2.rds"))
+})

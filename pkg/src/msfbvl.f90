@@ -158,7 +158,7 @@ do p = pstart, pend
         ! ** 5: unknown equation type
         ! Exit immediately: cannot continue
 
-        !call snwerr(xcod, eqnum)
+        call snwerr(xcod, eqnum)
         retcod = 1
         return
 
@@ -168,7 +168,7 @@ do p = pstart, pend
         ! ** 4: zero derivative implicit equation **
         ! retcod = 2 ????
 
-        !call snwerr(xcod, eqnum)
+        call snwerr(xcod, eqnum)
 
 ! !!!!  elseif( xcod .eq. 3 ) then
 
@@ -191,57 +191,57 @@ return
 
         end function get_delta
 
-!        subroutine snwerr(ier, iequ)
-!        !use msimot
-!        use  mdl_name_utils
-!        integer, intent(in) :: ier, iequ
-!
-!        ! print error messages for errors detected in solve equation
-!        ! called by msloop, msprlg, mseplg
-!
-!        integer ::  sotypq, sotypf
-!        integer, external ::  bysget
-!
-!        if ((ier .eq. 1) .or. (ier .eq. 5)) then
-!             sotypq = O_ERRQ
-!             sotypf = O_ERRF
-!        else
-!             sotypq = O_WMSG
-!             sotypf = O_WMSG
-!        endif
-!
-!        call mcf7ex(name, nlen, mdl%ienames(iequ), mdl%enames)
-!
-!        select case (ier)
-!
-!        case (1)
-!             write(str,'(2a)') '** Serious error in equation ', name(:nlen)
-!
-!        case (2)
-!             write(str,'(2a)') '** Error in equation ',name(:nlen)
-!
-!        case (3)
-!             return
-!
-!        case (4)
-!             write(str,'(2a)') '** Zero derivative in implicit equation ', &
-!&                 name(:nlen)
-!
-!        case (5)
-!             write(str,'(a,i3)') '** Unknown equation type: code=', &
-!&             bysget(mdl%etype,iequ)
-!             call strout(sotypq)
-!             write(str,'(2a)') '** in equation '          , name(:nlen)
-!
-!        case default
-!            write(str,'(a,i4)') '** Unknown error code in snwerr', ier
-!
-!        end select
-!
-!        call strout(sotypf)
-!
-!        return
-!        end subroutine snwerr
+        subroutine snwerr(ier, iequ)
+        use msimot
+        use  mdl_name_utils
+        integer, intent(in) :: ier, iequ
+
+        ! print error messages for errors detected in solve equation
+        ! called by msloop, msprlg, mseplg
+
+        integer ::  sotypq, sotypf
+        integer, external ::  bysget
+
+        if ((ier .eq. 1) .or. (ier .eq. 5)) then
+             sotypq = O_ERRQ
+             sotypf = O_ERRF
+        else
+             sotypq = O_WMSG
+             sotypf = O_WMSG
+        endif
+
+        call mcf7ex(name, nlen, mdl%ienames(iequ), mdl%enames)
+
+        select case (ier)
+
+        case (1)
+             write(str,'(2a)') '** Serious error in equation ', name(:nlen)
+
+        case (2)
+             write(str,'(2a)') '** Error in equation ',name(:nlen)
+
+        case (3)
+             return
+
+        case (4)
+             write(str,'(2a)') '** Zero derivative in implicit equation ', &
+&                 name(:nlen)
+
+        case (5)
+             write(str,'(a,i3)') '** Unknown equation type: code=', &
+&             bysget(mdl%etype,iequ)
+             call strout(sotypq)
+             write(str,'(2a)') '** in equation '          , name(:nlen)
+
+        case default
+            write(str,'(a,i4)') '** Unknown error code in snwerr', ier
+
+        end select
+
+        call strout(sotypf)
+
+        return
+        end subroutine snwerr
 
 end subroutine fbvl
 

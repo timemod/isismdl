@@ -1316,19 +1316,19 @@ contains
       if (errcod == 4) then
           !  exponentation error. (negative_number)**(pow), if pow is a
           !  non-integer
-          write(str,'(a, a20)') '** ---> Base:           ', rop1
+          write(str,'(a, g20.3)') '** ---> Base:           ', rop1
           call strout(O_ERRF)
-          write(str,'(a, a20)') '** ---> Exponent:       ', rop2
+          write(str,'(a, g20.3)') '** ---> Exponent:       ', rop2
           call strout(O_ERRF)
       elseif (errcod <= 5 .and. errcod /= 3) then
           ! unitary operators
-          write(str,'(a, a20)') '** ---> Operand:        ', rop1
+          write(str,'(a, g20.3)') '** ---> Operand:        ', rop1
           call strout(O_ERRF)
       elseif (errcod == 6) then
-!         binary operators
-          write(str,'(a, a20)') '** ---> Left operand:   ', rop2
+          ! binary operators
+          write(str,'(a, g20.3)') '** ---> Left operand:   ', rop2
           call strout(O_ERRF)
-          write(str,'(a, a20)') '** ---> Right operand:  ', rop1
+          write(str,'(a, g20.3)') '** ---> Right operand:  ', rop1
           call strout(O_ERRF)
       endif
 

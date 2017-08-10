@@ -322,3 +322,29 @@ subroutine clone_mws_fortran(model_index, model_index_clone)
     call clone_fix(mws_array(model_index_clone))
     
 end subroutine clone_mws_fortran
+
+subroutine set_dbgeqn(mws_index, dbgeqn_)
+    ! sets dbgeqn
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: mws_index, dbgeqn_
+
+    logical :: dbgeqn
+
+    dbgeqn = dbgeqn_ /= 0
+    mws_array(mws_index)%dbgeqn = dbgeqn
+end subroutine set_dbgeqn
+
+subroutine get_dbgeqn(mws_index, dbgeqn_)
+    ! gets dbgeqn
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: mws_index
+    integer(c_int), intent(out) :: dbgeqn_
+    
+    if (mws_array(mws_index)%dbgeqn) then
+        dbgeqn_ = 1
+    else 
+        dbgeqn_ = 0
+    endif
+end subroutine get_dbgeqn

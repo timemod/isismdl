@@ -279,7 +279,7 @@ subroutine fitot10(fiter)
     & fiter
     call strout(O_ERRQ)
     if (.not. mws%dbgeqn) then
-      str = '** Suggestion: use set_solve_debugmode(dbgon);'
+      str = '** Suggestion: use mdl$set_debug_eqn(TRUE)'
       call strout(O_ERRF)
     endif
     

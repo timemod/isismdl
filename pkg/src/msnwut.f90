@@ -67,7 +67,7 @@ use msvars
 use msfbvl
 use nuna
 use nucnst
-!use msjcot
+use msjcot
  
 !   makes an estimate of the jacobian of the system
 !       F = x - g(x)
@@ -123,7 +123,7 @@ do i = 1, mdl%nfb
           ! test for invalid ==> can't continue
 
           if (nuifna(curvars(fbnum))) then
-               !call jacot1(fbnum, mdl%numfb(i))
+               call jacot1(fbnum, mdl%numfb(i))
                retcod = 1
                return
           endif
@@ -167,7 +167,7 @@ subroutine msjacf(retcod, matitr)
 use msvars
 use msfbvl
 use nucnst
-!use msjcot
+use msjcot
  
 !   makes an estimate of the jacobian of the system
 !       F= x - g(x)
@@ -224,7 +224,7 @@ do i = 1, mdl%nfb
 
           ! test for invalid ==> can't continue
           if (nuifna(curvars(fbnum))) then
-               !call jacot1(fbnum, mdl%numfb(i))
+               call jacot1(fbnum, mdl%numfb(i))
                retcod = 1
                return
           endif
@@ -728,30 +728,6 @@ if (rcod == 0) goto 10
 
 return
 end subroutine mslsg1
-
-!subroutine soltxx(njcmat,opts%maxmat,bcnt,opts%bktmax,matlst)
-!use msimot
-!
-!!     print temporary info
-!
-!integer ::  njcmat,opts%maxmat,bcnt,opts%bktmax
-!logical ::  matlst
-!
-!*CALL MP$MPSDAT$VF9
-!
-!write(str,'(a,i5,a,i5)') '  njcmat=',njcmat,'opts%maxmat=',opts%maxmat
-!call strout(O_ERRF)
-!write(str,'(a,i5,a,i5)') '  bcnt=',bcnt,'opts%bktmax=',opts%bktmax
-!call strout(O_ERRF)
-!if( matlst) then
-!   write(str,'(a)') '  matlst = .true.'
-!else
-!   write(str,'(a)') '  matlst = .false.'
-!endif
-!call strout(O_ERRF)
-!
-!return
-!end subroutine soltxx
 
 subroutine msczjc(retcod)
 use msvars

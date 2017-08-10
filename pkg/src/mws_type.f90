@@ -62,6 +62,7 @@ module mws_type
             mws%perlen = 0
             mws%data_perlen = 0
             mws%simerr = -1
+            mws%dbgeqn = .false.
             deallocate(mws%mdl_data, stat = stat)
             deallocate(mws%constant_adjustments, stat = stat)
             deallocate(mws%test, stat = stat)
