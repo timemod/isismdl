@@ -915,7 +915,15 @@ IsisMdl <- R6Class("IsisMdl",
                              self$get_endo_names(type = "frml"))
           old_data <- self$get_ca(period = p, names = names)
         }
-        data <- fun(old_data, data[p, names])
+        if (length(names) == 0) {
+          return(invisible(self))
+        }
+        new_data <- data[p, names]
+        data <- fun(old_data, new_data)
+        error <- !is.finite(data) & !is.na(old_data) & !is.na(new_data)
+        if (any(error)) {
+          warning("Numerical problem when evaluating fun")
+        }
       }
       .Call(set_data_c, set_type, private$model_index, data, names, shift,
             upd_mode)
