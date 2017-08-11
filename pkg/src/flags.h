@@ -1,3 +1,3 @@
-int add_flag(char *flag);
-int flag_present(char *flag);
+int add_flag(const char *flag);
+int flag_present(const char *flag);
 void clear_flags(void);

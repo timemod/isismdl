@@ -18,14 +18,6 @@ int mcip(char *mfname, int *strict, int *gen_dep_file) {
     return mcexec(mfname, options);
 }
 
-void add_include_dir(char *dirname) {
-    /*
-     * Called from Fortran code: add directory to the name of
-     * include files */
-
-    add_include_path((char *) dirname);
-}
-
 void init_incl_dirs(void) {
     init_include_dirs();
 }

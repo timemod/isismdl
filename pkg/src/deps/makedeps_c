@@ -1,6 +1,7 @@
 by.o : isismdl_types.h
 c_calls.o : c_calls.h get_info.h init_set_get_options.h option_utils.h \
            set_fit_options.h set_solve_options.h
+compile_mdl_c.o : flags.h include_paths.h
 dependencies.o : dependencies.h util.h
 ecode.o : dependencies.h ecode.h ipcode.h mchdr.h mcinit.h mcopt.h \
          symbol.h util.h xpcdef.h xpctab.h
@@ -14,13 +15,14 @@ get_fit_opts_c.o : fit_options.h get_option_utils.h \
 get_option_utils.o : get_option_utils.h
 get_solve_opts_c.o : get_option_utils.h init_get_options.h \
                     solve_options.h
-include_paths.o : futils.h mchdr.h mcopt.h util.h
+include_paths.o : futils.h include_paths.h util.h
 mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h ipcode.h \
           isismdl.h mchdr.h mcinit.h mcopt.h outecode.h outmdl.h symbol.h util.h \
           xpcdef.h
+mchdr.o : include_paths.h mcopt.h
 mcinit.o : dependencies.h ecode.h ipcode.h mcinit.h symbol.h util.h \
           xpcdef.h xpctab.h
-mcip.o : flags.h mchdr.h mcopt.h util.h
+mcip.o : flags.h include_paths.h mchdr.h mcopt.h util.h
 mcopt_init.o : mcopt.h
 option_utils.o : option_utils.h
 outipcode.o : dependencies.h ecode.h ipcode.h isismdl.h \

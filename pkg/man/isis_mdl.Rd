@@ -4,7 +4,7 @@
 \alias{isis_mdl}
 \title{Creates an \code{\link{IsisMdl}} object from a model file.}
 \usage{
-isis_mdl(model_file, period, data, ca, fix_values, fit_targets)
+isis_mdl(model_file, period, data, ca, fix_values, fit_targets, compile_options)
 }
 \arguments{
 \item{model_file}{The name of the model file.
@@ -22,8 +22,7 @@ with column names}
 \item{fix_values}{the fix values as a  \code{\link[regts]{regts}} object
 with column names}
 
-\item{fit_targets}{the fit targets as a  \code{\link[regts]{regts}} object
-with column names}
+\item{compile_options}{options passed to the compiler. See details.}
 }
 \description{
 This function creates an \code{\link{IsisMdl}} object.

@@ -1,19 +1,24 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
+#include "flags.h"
+#include "include_paths.h"
 
 extern void F77_NAME(mcisis)(int *modelnmlen, const char *modelnm,
                              int *idofbrd, int *igenfbo, int *ifbomif,
                              int *iprifb, int *iprisjc, int *mrfopt,
                              int *fbcopt, int *igen_dep_file, int *mcstat);
 
-SEXP compile_mdl_c(SEXP filename) {
+SEXP compile_mdl_c(SEXP filename, SEXP flags, SEXP include_dirs, 
+                   SEXP gen_dep_file_) {
 
     const char *modelnm = CHAR(STRING_ELT(filename, 0));
     int modelnmlen = strlen(modelnm);
-    int idofbrd, igenfbo, ifbomif, iprifbi, iprisjc,
-        mrfopt[2], fbcopt[2], igen_dep_file, mcstat;
+    int gen_dep_file = asInteger(gen_dep_file_);
 
     /* initialise options */
+    int idofbrd, igenfbo, ifbomif, iprifbi, iprisjc,
+        mrfopt[2], fbcopt[2];
+
     idofbrd = 1;
     igenfbo = 1;
     ifbomif = 0;
@@ -23,10 +28,28 @@ SEXP compile_mdl_c(SEXP filename) {
     fbcopt[1] = 200;
     mrfopt[0] = 128;
     mrfopt[1] = 1;
-    igen_dep_file = 0;
 
+    int i;
+
+    /* compiler flags */
+    if (!Rf_isNull(flags)) {
+        for (i = 0; i < length(flags); i++) {
+            const char *flag = CHAR(STRING_ELT(flags, i));
+            add_flag(flag);
+        }
+    }
+
+    /* include directories */
+    if (!Rf_isNull(include_dirs)) {
+        for (i = 0; i < length(include_dirs); i++) {
+            const char *dir = CHAR(STRING_ELT(include_dirs, i));
+            add_include_path(dir);
+        }
+    }
+    
+    int mcstat;
     F77_CALL(mcisis)(&modelnmlen, modelnm, &idofbrd, &igenfbo, &ifbomif,
-                     &iprifbi, &iprisjc, mrfopt, fbcopt, &igen_dep_file, 
+                     &iprifbi, &iprisjc, mrfopt, fbcopt, &gen_dep_file, 
                      &mcstat);
 
     if (mcstat != 0) {

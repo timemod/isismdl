@@ -58,8 +58,7 @@
 #' with column names
 #' @param fix_values the fix values as a  \code{\link[regts]{regts}} object
 #' with column names
-#' @param fit_targets the fit targets as a  \code{\link[regts]{regts}} object
-#' with column names
+#' @param compile_options options passed to the compiler. See details.
 #' @useDynLib isismdl compile_mdl_c
 #' @examples
 #'
@@ -80,19 +79,37 @@
 #' @importFrom regts start_period
 #' @importFrom regts end_period
 #' @export
-isis_mdl <- function(model_file, period, data, ca, fix_values, fit_targets) {
+isis_mdl <- function(model_file, period, data, ca, fix_values, fit_targets,
+                     compile_options) {
+
   if (!missing(period)) {
     period <- as.period_range(period)
   }
+
+
+  default_compile_options <- list(flags = NULL,
+                                  include_dirs = NULL,
+                                  gen_dep_file = FALSE)
+
+  compile_options_ <- default_compile_options
+  if (!missing(compile_options)) {
+    names <- names(compile_options)
+    compile_options_[names] <- compile_options
+  }
+
   # TODO: currently, compile_mdl_c generates a mif file
   # that is later read by read_mdl_c. This can be simpler:
   # after compilation the model information can be put
   # directly in Fortran memory. Then there is no need to
-  # write and read the mif file.
-  retval <- .Call(compile_mdl_c, model_file)
-  if (!retval) {
-    stop("Compilation was not succesfull")
-  }
+  # write and read the mif file
+  with(compile_options_, {
+    retval <- .Call(compile_mdl_c, model_file, flags, include_dirs,
+                    gen_dep_file)
+    if (!retval) {
+      stop("Compilation was not succesfull")
+    }
+  })
+
   base_name <- file_path_sans_ext(model_file)
   mif_file <- paste(base_name, "mif", sep = ".")
   mdl <- IsisMdl$new(mif_file = mif_file)
