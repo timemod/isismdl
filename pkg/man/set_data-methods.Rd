@@ -16,9 +16,11 @@ constant adjusments, fix values or fit targets.
 \section{Usage}{
 
 \preformatted{
-mdl$set_data(data, names = colnames(data), upd_mode = c("upd", "updval"))
+mdl$set_data(data, names = colnames(data), upd_mode = c("upd", "updval"),
+             fun)
 
-mdl$set_ca(data, names = colnames(data), upd_mode = c("upd", "updval"))
+mdl$set_ca(data, names = colnames(data), upd_mode = c("upd", "updval"),
+           fun)
 
 mdl$set_fix(data, names = colnames(data), upd_mode = c("upd", "updval"))
 
@@ -40,7 +42,11 @@ column names of \code{data}. If \code{data} does not have column names,
 then argument \code{names} is mandatory}
 \item{\code{upd_mode}}{the update mode, a character string specifying
 how the timeseries are updated: \code{"upd"} (standard update, default) or
-\code{"updval"} (update only with valid numbers). See details}.
+\code{"updval"} (update only with valid numbers). See details.}
+\item{\code{fun}}{a function used to update the model data. This should
+be function with two arguments. The original model data is passed to the first
+argument of the function and \code{data} to the second argument.
+See the examples.}
 }
 }
 
@@ -106,6 +112,12 @@ ms <- regts(c(255, NA, 273), start = "2017Q1")
 # because md does not have column names
 mdl$set_data(ms, names = "ms", upd_mode = "updval")
 print(mdl$get_data())
+
+# in the next example, we use argument fun to apply an additive shock to the
+# exogenous variables g and ms
+shock <- regts(matrix(c(-5, -10, -15, 3 , 6, 6), ncol = 2),
+             start = "2017Q1", names = c("g", "ms"))
+mdl$set_data(shock, fun = `+`)
 
 }
 \seealso{
