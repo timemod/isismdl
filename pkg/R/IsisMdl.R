@@ -994,7 +994,9 @@ IsisMdl <- R6Class("IsisMdl",
       } else if (set_type == private$ca_type) {
         data <- self$get_ca(names = names, period = period)
       }
-      data <- fun(data, ...)
+      for (c in seq_len(ncol(data))) {
+        data[, c] <- fun(data[, c], ...)
+      }
       private$set_data_(set_type, data, names, FALSE)
     },
 
