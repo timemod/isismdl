@@ -14,11 +14,31 @@ new_data["2015Q3/2016Q2", c("ms", "md")] <-
         new_data["2015Q3/2016Q2", c("ms", "md")] + m_additions
 new_data["2016Q2", c("y", "yd")] <- new_data["2016Q2", c("y", "yd")] * 1.1
 
-test_that("set_values works correctly", {
+test_that("change_data works correctly", {
   mdl2 <- mdl$clone(deep = TRUE)
   mdl2$change_data(function(x, fac) {x * fac}, names = "c", fac = c_multipliers)
   mdl2$change_data(function(x) {x + m_additions}, names = c("ms", "md"),
                      period = "2015Q3/2016Q2")
+  mdl2$change_data(function(x) {x * 1.1}, pattern = "^y", period = "2016Q2")
+  expect_equal(mdl2$get_data(), new_data)
+})
+
+test_that("change_data works correctly with timeseries input", {
+  mdl2 <- mdl$clone(deep = TRUE)
+  mdl2$change_data(function(x, fac) {x * fac}, names = "c", fac = c_multipliers)
+  m_ts <- regts(m_additions, period = "2015Q3/2016Q2")
+  mdl2$change_data(function(x) {x + m_ts}, names = c("ms", "md"),
+                   period = "2015Q3/2016Q2")
+  mdl2$change_data(function(x) {x * 1.1}, pattern = "^y", period = "2016Q2")
+  expect_equal(mdl2$get_data(), new_data)
+})
+
+test_that("change_data works correctly with timeseries input (2)", {
+  mdl2 <- mdl$copy()
+  mdl2$change_data(function(x, fac) {x * fac}, names = "c", fac = c_multipliers)
+  m_ts <- regts(c(-999, m_additions, 999), period = "2015Q2/2016Q3")
+  mdl2$change_data(function(x) {x + m_ts}, names = c("ms", "md"),
+                   period = "2015Q3/2016Q2")
   mdl2$change_data(function(x) {x * 1.1}, pattern = "^y", period = "2016Q2")
   expect_equal(mdl2$get_data(), new_data)
 })
@@ -36,3 +56,5 @@ test_that("change_data handles errors correctly", {
   msg <- "argument fun is not a function"
   expect_error(mdl2$change_data(2, names), msg)
 })
+
+

@@ -25,7 +25,8 @@ mdl$change_ca(fun names, pattern, period = mdl$get_data_period())
 
 
 \describe{
-\item{\code{fun}}{a function}
+\item{\code{fun}}{a function applied each model timeseries or
+constant adjustment specified with argument \code{names} or \code{pattern}}
 \item{\code{names}}{a character vector with variable names}
 \item{\code{pattern}}{a regular expression}
 \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
