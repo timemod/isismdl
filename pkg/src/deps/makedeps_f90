@@ -59,6 +59,8 @@ msnothing.o : kinds.o
 msnwut.o : kinds.o mdl_name_utils.o msfbvl.o msimot.o msjcot.o \
           msolot.o msutil.o msvars.o nucnst.o nuna.o nuv.o scalemat.o
 msolot.o : mdl_name_utils.o msimot.o msvars.o nuna.o
+msordr.o : mccedp.o mdordr.o modelworkspaces.o mws_type.o \
+          output_utils.o
 msrchk.o : msfbvl.o msolot.o msutil.o
 msslvq.o : mdlvars.o mssneq.o msvars.o nuna.o
 mssneq.o : mdl_name_utils.o mscalc.o msimot.o msvars.o nuna.o

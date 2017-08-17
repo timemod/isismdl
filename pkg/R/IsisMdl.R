@@ -58,6 +58,7 @@ setOldClass("period_range")
 #' @useDynLib isismdl get_solve_status_c
 #' @useDynLib isismdl set_dbgeqn
 #' @useDynLib isismdl get_dbgeqn
+#' @useDynLib isismdl order_mdl_c
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -761,6 +762,11 @@ IsisMdl <- R6Class("IsisMdl",
     },
     clear_fix = function() {
       .Fortran("clear_fix_fortran", model_index = private$model_index)
+      return(invisible(self))
+    },
+    order = function() {
+      .Call(order_mdl_c, model_index = private$model_index,
+            orfnam = "")
       return(invisible(self))
     },
     copy = function() {
