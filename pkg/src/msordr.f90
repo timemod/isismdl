@@ -1,4 +1,6 @@
-subroutine msordr(model_index, genfbo_specified, genfbo)
+subroutine msordr(model_index, genfbo_specified, genfbo, &
+                  orfnmlen, orfnm)
+               
     !
     ! reorder the model in solve memory, directly callable from C
     !
@@ -8,7 +10,9 @@ subroutine msordr(model_index, genfbo_specified, genfbo)
     use mws_type
     use output_utils
     use modelworkspaces
+    use msorpr
     integer(c_int), intent(in) :: model_index, genfbo_specified, genfbo
+    integer(c_int), intent(in) ::  orfnmlen, orfnm(*)
 
     ! in genfbo : 1  (* 1  to     generate feedback ordering
     !                 * 0 to NOT generate feedback ordering
@@ -75,6 +79,8 @@ subroutine msordr(model_index, genfbo_specified, genfbo)
     else
         call isismdl_out("No feedback ordering determined")
     endif
+    
+    if (orfnmlen > 0) call print_orf(orfnmlen, orfnm)
 
 
 999 continue
@@ -82,4 +88,5 @@ subroutine msordr(model_index, genfbo_specified, genfbo)
     call clear_edep
 
     return
+
 end subroutine msordr

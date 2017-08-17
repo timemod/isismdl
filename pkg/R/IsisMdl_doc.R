@@ -1660,3 +1660,30 @@ NULL
 #' print(mdl$get_debug_eqn())
 NULL
 
+#' \code{\link{IsisMdl}} method: orders the equations of a model
+
+#' @name order
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} orders the equations of a model.
+#' This can be useful after (de)activation equations.
+#' By specifying argument \code{orfnam} it is also possible to write ordering
+#' information to a file.
+#' @section Usage:
+#' \preformatted{
+#' mdl$order(orfnam)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{orfnam}}{Name of file on which to print ordering information.
+#'   If no output file is specified no ordering information will
+#'   be written}
+#' }
+#'
+NULL
+
+
