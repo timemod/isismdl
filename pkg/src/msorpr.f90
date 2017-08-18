@@ -5,31 +5,27 @@ module msorpr
     contains
 
     ! print ordering information to a file
-    subroutine print_orf(orfnmlen, orfnm)
-        use msvars
+    subroutine print_orf(mdl, orfnmlen, orfnm)
+        use model_type
         use mcjsbl
         use mcxref
         use mdl_flen
         use mdl_name_utils
-        
+        use kinds
+        use output_utils
+            
+        type(model), intent(inout) :: mdl
         integer, intent(in) :: orfnmlen, orfnm(*)
         
-        !     write ordering information
-        !     return code in <ier>
-        !      0  all ok
-        !      1  cannot open file for writing
-        !      2  write error
-        
-        integer ::    mrfopt(2)
-        integer ::    fbcopt(2)
+        integer, parameter, dimension(2) :: mrfopt = (/128, 1 /)
+        integer, parameter, dimension(2) :: fbcopt = (/0, 200/)
         logical ::    prifbi,prisjc,usinac
         integer ::    inactv
         integer ::    i, j, ios, ldum, npro, nepi, nsim
-        integer ::    p, leadsp, cnt, tcnt
-        integer ::    ier
+        integer ::    p, leadsp, cnt, tcnt, ier
         
         integer ::    lp, lenxrf
-        character*256 line
+        character(len = 256) :: line
         
         integer ::    mxvlen,mxelen
         integer ::    maxcln
@@ -38,12 +34,12 @@ module msorpr
         real(kind = SOLVE_RKIND) :: avgfbo, z
         
         integer ::    bysget
-        character*1 eqtyp
+        character(len = 1) :: eqtyp
         
-        character*8 string
+        character(len = 8) :: string
         logical ::   exist
         
-        character*(mcmxnm) name
+        character(len = MCMXNM) name
         character(len = MAXFLEN) :: orfnam
         integer(kind = MC_IKIND), dimension(:,:), allocatable :: sjac
         integer(kind = MC_IKIND), dimension(:), allocatable :: work
@@ -51,17 +47,13 @@ module msorpr
         
         orfnam = ' '
         call byasf7(orfnm, 1, orfnmlen, orfnam)
-        ! TODO: error handling
-        !B5*Cannot open file *S* for writing ordering information*E2X
-        !DECK 646302
-        !5*Error writing ordering information to file *SEX
-        
+
         if (mdl%nfb > 0) then
             allocate(work(mdl%nrv))
             call mcjzct(mdl, nzrcnt, work)
             deallocate(work)
         endif
-        
+
         if (prisjc .and. mdl%nfb > 0) then
            ! calculate symbolic rhs Jacobian
            allocate(sjac(mdl%nfb, mdl%nfb))
@@ -71,13 +63,14 @@ module msorpr
         lenxrf = max(mrfopt(1),50)
         
         ier = 0
-        
+
         inquire(file=orfnam,exist=exist)
         if(exist) then
            open(xrfunt,file=orfnam)
            close(xrfunt,status='DELETE', iostat=ios)
            if( ios .ne. 0 ) goto 910
         endif
+
         
         open(xrfunt,file=orfnam,form='formatted', &
         &    status='NEW',iostat=ios, round = 'compatible')
@@ -350,9 +343,20 @@ module msorpr
         
  1000 continue
         close(xrfunt)
-        
+       
         if (allocated(sjac)) deallocate(sjac)
-        
+    
+        if (ier /= 0) then
+            if (ier == 1) then
+                write(line, "(a, a, a)") "Cannot open file ", trim(orfnam), &
+                          " for writing ordering information"
+            else 
+                write(line, "(a, a)") &
+                    "Error writing ordering information to file ", orfnam
+            endif
+            call isismdl_error(line)
+        endif
+
         return
     end subroutine print_orf
     

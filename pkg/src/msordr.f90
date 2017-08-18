@@ -79,8 +79,8 @@ subroutine msordr(model_index, genfbo_specified, genfbo, &
     else
         call isismdl_out("No feedback ordering determined")
     endif
-    
-    if (orfnmlen > 0) call print_orf(orfnmlen, orfnm)
+
+    if (orfnmlen > 0) call print_orf(mdl, orfnmlen, orfnm)
 
 
 999 continue
