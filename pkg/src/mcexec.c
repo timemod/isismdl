@@ -97,7 +97,7 @@ static void reset(void) {
     clear_flags();
 }
 
-int mcexec(char *mfname, Mcopt options_in) {
+int mcexec(const char *mfname, Mcopt options_in) {
     FILE    *mp;
     char    *fnmdl;
     char    fname[FILENAME_MAX + 1];
@@ -106,6 +106,13 @@ int mcexec(char *mfname, Mcopt options_in) {
     double  cpusecs;
 
     options = options_in;
+
+    /* TODO: 
+     * 1. check options. McIsisMdl is not compatible
+     * with Showocode, etc.
+     * 2. zrf file should be optional
+     * 3. oco filename should be an arument (output_file).
+     */
 
     /*
      * declares and initializes Stp, the symbol table
@@ -184,13 +191,16 @@ int mcexec(char *mfname, Mcopt options_in) {
         if (!options.McIsisMdl) {
             te = clock();
             cpusecs = CPUSECS(tb,te);
-            Rprintf("Scaning used %.2f seconds\n", cpusecs);
+            Rprintf("Scanning used %.2f seconds\n", cpusecs);
 
             Rprintf("Parsing model ...\n" );
             tb = clock();
         }
     }
 
+    if (!options.McIsisMdl) {
+       tb = clock();
+    }
 
     /* initialise parser (needed when mcexec is called more than once)
      */

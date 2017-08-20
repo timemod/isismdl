@@ -1,7 +1,6 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
-#include "flags.h"
-#include "include_paths.h"
+#include "prepare_compiler.h"
 
 extern void F77_NAME(mcisis)(int *modelnmlen, const char *modelnm,
                              int *idofbrd, int *igenfbo, int *ifbomif,
@@ -29,24 +28,8 @@ SEXP compile_mdl_c(SEXP filename, SEXP flags, SEXP include_dirs,
     mrfopt[0] = 128;
     mrfopt[1] = 1;
 
-    int i;
+    prepare_compiler(flags, include_dirs);
 
-    /* compiler flags */
-    if (!Rf_isNull(flags)) {
-        for (i = 0; i < length(flags); i++) {
-            const char *flag = CHAR(STRING_ELT(flags, i));
-            add_flag(flag);
-        }
-    }
-
-    /* include directories */
-    if (!Rf_isNull(include_dirs)) {
-        for (i = 0; i < length(include_dirs); i++) {
-            const char *dir = CHAR(STRING_ELT(include_dirs, i));
-            add_include_path(dir);
-        }
-    }
-    
     int mcstat;
     F77_CALL(mcisis)(&modelnmlen, modelnm, &idofbrd, &igenfbo, &ifbomif,
                      &iprifbi, &iprisjc, mrfopt, fbcopt, &gen_dep_file, 

@@ -13,7 +13,7 @@ struct nlist {
     struct nlist *next;
 };
 
-static struct nlist *hashtab[HASHSIZE];
+static struct nlist *hashtab[HASHSIZE] = {NULL};
 
 static unsigned char hash(const char *s) {
 

@@ -181,7 +181,7 @@ static  void out_enode( Enode *ebase, Enodep estart )
 
         case E_SUM    : /* sum(..) */
                         sumsp = ep->first.sp;
-                        oprintf( "Sum(%s = %d, %d : ",
+                        oprintf( "sum(%s = %d, %d : ",
                                 sumsp->name,
                                 sumsp->u.sumvarp->low,
                                 sumsp->u.sumvarp->high);
@@ -190,7 +190,7 @@ static  void out_enode( Enode *ebase, Enodep estart )
                         break;
 
         case E_DEL    : /* del(..) */
-                        oprintf( "Del(%d : ", ep->first.offset);
+                        oprintf( "del(%d : ", ep->first.offset);
                         out_enode(ebase, ep->second.ep);
                         oprintf( " )" );
                         break;

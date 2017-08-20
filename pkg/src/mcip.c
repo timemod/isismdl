@@ -1,6 +1,3 @@
-/*
- * Wrapper routines called from Isis 
- */
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,8 +13,4 @@ int mcip(char *mfname, int *strict, int *gen_dep_file) {
     options.Strict = *strict;
     options.gen_dep = *gen_dep_file;
     return mcexec(mfname, options);
-}
-
-void init_incl_dirs(void) {
-    init_include_dirs();
 }
