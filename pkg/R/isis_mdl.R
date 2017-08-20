@@ -79,7 +79,7 @@
 #' @importFrom regts start_period
 #' @importFrom regts end_period
 #' @export
-isis_mdl <- function(model_file, period, data, ca, fix_values, fit_targets,
+isis_mdl <- function(model_file, period, data, ca, fix_values,
                      compile_options) {
 
   if (!missing(period)) {
@@ -148,14 +148,6 @@ isis_mdl <- function(model_file, period, data, ca, fix_values, fit_targets,
       mdl$set_fix(fix_values, colnames(fix_values))
     } else {
       stop("fix_values has no column names")
-    }
-  }
-
-  if (!missing(fit_targets)) {
-    if (!is.null(colnames(fit_targets))) {
-      mdl$set_fit(fit_targets, colnames(fit_targets))
-    } else {
-      stop("fit_targets has no column names")
     }
   }
   return(mdl)
