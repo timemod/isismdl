@@ -19,9 +19,7 @@
 #include "mchdr.h"
 #include "flags.h"
 
-#ifndef MCISIS
 #include "outecode.h"
-#endif
 #include "outmdl.h"
 /* futils.h is located in libc */
 #include "futils.h"
@@ -49,9 +47,7 @@ Mcopt options; /* compilation options */
 char    path [FILENAME_MAX + 1];
 char    base [FILENAME_MAX + 1];
 char    ext  [FILENAME_MAX + 1];
-#ifndef MCISIS
 char    xtra [FILENAME_MAX + 1];
-#endif
 
 char    *mkfname(char *fname, char *path, char *base, char *ext);
 
@@ -60,7 +56,6 @@ char    econame[FILENAME_MAX + 1];
 
 static void do_dep(FILE *);               /* for dependency output   */
 
-#ifndef MCISIS
 FILE    *foco = NULL;                   /* for model output */
 char    oconame[FILENAME_MAX + 1];
 
@@ -68,8 +63,6 @@ FILE    *fxtr = NULL;                   /* additional file */
 char    xtrname[FILENAME_MAX + 1];
 
 static void do_zrf(FILE *);               /* for zrf output   */
-
-#endif
 
 /*
  * warnings and errors
@@ -109,10 +102,8 @@ int mcexec(char *mfname, Mcopt options_in) {
     char    *fnmdl;
     char    fname[FILENAME_MAX + 1];
 
-#ifndef MCISIS
     clock_t tb, te;
     double  cpusecs;
-#endif
 
     options = options_in;
 
@@ -173,17 +164,16 @@ int mcexec(char *mfname, Mcopt options_in) {
 
     init_scanner(fnmdl);
 
-    if (!options.Strict) 
+    if (!options.Strict) {
          /* non-strict compilation: parameters may be used before
           * they have been specified. Therefore first scan model
           * for parameters
           */
-    {
 
-#ifndef MCISIS
-        fprintf( stderr, "Scanning model for parameters ...\n" );
-        tb = clock();
-#endif
+        if (!options.McIsisMdl) {
+            Rprintf("Scanning model for parameters ...\n" );
+            tb = clock();
+        }
         scanning = 1;
         mc_scan_params();
         scanning = 0;
@@ -191,14 +181,14 @@ int mcexec(char *mfname, Mcopt options_in) {
         init_scanner(fnmdl);
         mcrestart(NULL);
 
-#ifndef     MCISIS
-        te = clock();
-        cpusecs = CPUSECS(tb,te);
-        fprintf(stderr,"Scaning used %.2f seconds\n", cpusecs);
+        if (!options.McIsisMdl) {
+            te = clock();
+            cpusecs = CPUSECS(tb,te);
+            Rprintf("Scaning used %.2f seconds\n", cpusecs);
 
-        fprintf( stderr, "Parsing model ...\n" );
-        tb = clock();
-#endif
+            Rprintf("Parsing model ...\n" );
+            tb = clock();
+        }
     }
 
 
@@ -208,16 +198,16 @@ int mcexec(char *mfname, Mcopt options_in) {
 
     mcparse();
 
-#ifndef MCISIS
-    te = clock();
-    cpusecs = CPUSECS(tb,te);
-    fprintf(stderr,"Parse used %.2f seconds\n", cpusecs);
-#endif
+    if (!options.McIsisMdl) {
+        te = clock();
+        cpusecs = CPUSECS(tb,te);
+        Rprintf("Parse used %.2f seconds\n", cpusecs);
+    }
 
     if( warncnt || errcnt ) {
-#ifndef MCISIS
-        fprintf(stderr, "Warnings and/or errors written to .err file\n");
-#endif
+        if (!options.McIsisMdl) {
+            error("Warnings and/or errors written to .err file\n");
+        }
         reset();
         return SYNTAX_ERROR;
     }
@@ -230,10 +220,7 @@ int mcexec(char *mfname, Mcopt options_in) {
      * output a legible listing of internal binary code
      */
 
-#ifndef MCISIS
-
-    if( options.Showecode )
-    {
+    if (options.Showecode) {
         feco = efopen( econame, "w" );
         out_ecode(feco);
         fclose(feco);
@@ -243,15 +230,13 @@ int mcexec(char *mfname, Mcopt options_in) {
      * output model code in some form
      */
 
-    if( options.Showocode )
-    {
+    if (options.Showocode) {
         foco = efopen( oconame, "w" );
         out_omdl(foco, options.Substufunc);
         fclose(foco);
     }
 
-    if( options.MakeTroll )
-    {
+    if (options.MakeTroll) {
         /*
          * reuse oconame
          */
@@ -269,8 +254,7 @@ int mcexec(char *mfname, Mcopt options_in) {
         fclose(foco);
     }
 
-    if( options.MakeEviews )
-    {
+    if( options.MakeEviews) {
         /*
          * reuse oconame
          */
@@ -281,7 +265,6 @@ int mcexec(char *mfname, Mcopt options_in) {
         out_vmdl(foco, options.mdlname);
         fclose(foco);
     }
-#endif
 
 if (options.gen_dep) {
     /* reuse variables econame and feco */

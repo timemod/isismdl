@@ -18,12 +18,10 @@ typedef double  real;
 typedef struct Param {
         msize_t cnt;
         int   par_index;   /* parameter index */
-#ifndef MCISIS
         union {
                 real    dval;   /* if cnt == 1 */
                 real    *dp;    /* if cnt  > 1 */
         } u;
-#endif
 } Param;
 
 typedef struct Variable {

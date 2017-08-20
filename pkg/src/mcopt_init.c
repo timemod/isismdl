@@ -7,6 +7,7 @@
 
 /* mcopt_init: initialise the options for the model compiler */
 void mcopt_init(Mcopt *options) {
+    options->McIsisMdl = 1;
     options->Showhash  = 0;
     options->Showecode = 0;
     options->Showocode = 0;

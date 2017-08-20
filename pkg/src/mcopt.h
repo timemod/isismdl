@@ -2,6 +2,7 @@
 #define MCOPT_H
 
 typedef struct _mcopt {
+    int McIsisMdl; /* 1 to generate equation code */
     int Showecode;
     int Showocode;
     int Substufunc;
