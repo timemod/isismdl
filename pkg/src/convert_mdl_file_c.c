@@ -5,10 +5,11 @@
 
 static SEXP getListElement(SEXP list, const char *str);
 
-SEXP convert_mdl_file_c(SEXP filename, SEXP flags, SEXP include_dirs, 
-                        SEXP options) {
+SEXP convert_mdl_file_c(SEXP filename, SEXP outputfile_, SEXP flags, 
+                        SEXP include_dirs, SEXP options) {
 
     const char *modelnm = CHAR(STRING_ELT(filename, 0));
+    const char *outputfile = CHAR(STRING_ELT(outputfile_, 0));
 
     Mcopt mc_options;
     mcopt_init(&mc_options);
@@ -22,7 +23,8 @@ SEXP convert_mdl_file_c(SEXP filename, SEXP flags, SEXP include_dirs,
 
     prepare_compiler(flags, include_dirs);
 
-    int mcstat =  mcexec(modelnm, mc_options);
+    Rprintf("outputfile %s\n", outputfile);
+    int mcstat =  mcexec(modelnm, outputfile, mc_options);
 
     if (mcstat != 0) {
         char *format;

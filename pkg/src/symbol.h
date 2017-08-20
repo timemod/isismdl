@@ -141,7 +141,7 @@ void    sym_uninstall( SymTab *, char * );
 Symbol  *sym_unlink  ( SymTab *, char * );
 void    sym_walk     ( SymTab *, int (*)(Symbol *), Symbol ** );
 void    sym_dump     ( SymTab *);
-void    sym_stat     ( SymTab *, FILE *);
+void    sym_stat     ( SymTab *);
 void    free_symtab  ( SymTab *);
 
 #endif

@@ -3,11 +3,13 @@
 #' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
 #' does not already have an extension
+#' @param output_file The name of the output file.
 #' @param conversion_options conversion options. See details.
 #' @param compile_options options passed to the compiler. See details.
 #' @useDynLib isismdl convert_mdl_file_c
 #' @export
-convert_mdl_file <- function(model_file, conversion_options = list(),
+convert_mdl_file <- function(model_file, output_file,
+                             conversion_options = list(),
                              compile_options = list()) {
 
   default_compile_options <- list(flags = NULL,
@@ -25,8 +27,8 @@ convert_mdl_file <- function(model_file, conversion_options = list(),
   }
 
   with(compile_options_, {
-    retval <- .Call(convert_mdl_file_c, model_file, flags, include_dirs,
-                    conversion_options)
+    retval <- .Call(convert_mdl_file_c, model_file, output_file, flags,
+                    include_dirs, conversion_options)
     return(retval)
   })
 

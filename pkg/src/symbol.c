@@ -214,7 +214,7 @@ void sym_dump(SymTab *stab) {
     sym_walk(stab, print_symbol,  NULL);
 }
 
-void sym_stat( SymTab *stab, FILE *fp ) {
+void sym_stat( SymTab *stab) {
     Symbol  *sp;
     size_t  i, cnt, zcnt, cntmax, totcnt;
 
@@ -235,9 +235,9 @@ void sym_stat( SymTab *stab, FILE *fp ) {
         }
     }
 
-    fprintf(fp, "%lu zero length chains, ", (unsigned long int) zcnt );
-    fprintf(fp, "longest chain %lu, ", (unsigned long int) cntmax );
-    fprintf(fp, "average non zero chain length %lu\n",
+    PRINTF("%lu zero length chains, ", (unsigned long int) zcnt );
+    PRINTF("longest chain %lu, ", (unsigned long int) cntmax );
+    PRINTF("average non zero chain length %lu\n",
             (unsigned long int) (totcnt / (HASHSIZE - zcnt)));
 }
 

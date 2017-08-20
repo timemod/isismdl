@@ -12,5 +12,6 @@ int mcip(char *mfname, int *strict, int *gen_dep_file) {
     mcopt_init(&options);
     options.Strict = *strict;
     options.gen_dep = *gen_dep_file;
-    return mcexec(mfname, options);
+    const char *dum;
+    return mcexec(mfname, dum, options);
 }

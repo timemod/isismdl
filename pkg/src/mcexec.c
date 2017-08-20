@@ -21,7 +21,6 @@
 
 #include "outecode.h"
 #include "outmdl.h"
-/* futils.h is located in libc */
 #include "futils.h"
 
 #include "dependencies.h"
@@ -51,16 +50,7 @@ char    xtra [FILENAME_MAX + 1];
 
 char    *mkfname(char *fname, char *path, char *base, char *ext);
 
-FILE    *feco = NULL;                   /* for ecode output */
-char    econame[FILENAME_MAX + 1];
-
 static void do_dep(FILE *);               /* for dependency output   */
-
-FILE    *foco = NULL;                   /* for model output */
-char    oconame[FILENAME_MAX + 1];
-
-FILE    *fxtr = NULL;                   /* additional file */
-char    xtrname[FILENAME_MAX + 1];
 
 static void do_zrf(FILE *);               /* for zrf output   */
 
@@ -97,7 +87,7 @@ static void reset(void) {
     clear_flags();
 }
 
-int mcexec(const char *mfname, Mcopt options_in) {
+int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
     FILE    *mp;
     char    *fnmdl;
     char    fname[FILENAME_MAX + 1];
@@ -107,12 +97,16 @@ int mcexec(const char *mfname, Mcopt options_in) {
 
     options = options_in;
 
-    /* TODO: 
-     * 1. check options. McIsisMdl is not compatible
-     * with Showocode, etc.
-     * 2. zrf file should be optional
-     * 3. oco filename should be an arument (output_file).
-     */
+    /* check output options */
+    int output_cnt = options.Showecode + options.Showocode +
+                     options.MakeTroll + options.MakeEviews;
+    if (output_cnt > 1) {
+        ERROR("Only a single output type can be selected");
+    } else if (output_cnt != 0 && options.McIsisMdl) {
+        ERROR("Options McIsisMdl is incompatible with output options");
+    } else if (output_cnt == 1 && outputfile == NULL) {
+        ERROR("Argument outputfile should not be NULL");
+    }
 
     /*
      * declares and initializes Stp, the symbol table
@@ -135,12 +129,8 @@ int mcexec(const char *mfname, Mcopt options_in) {
         fnsplit(options.outputname, path, base, ext);
     }
 
-
-    if (!options.McIsisMdl) {
-        mkfname( econame, path, base, "eco" );   /* for ecode           */
-        mkfname( oconame, path, base, "oco" );   /* for inorder output  */
-    }
-    mkfname( msgname, path, base, "err" );   /* for errors and warnings */
+    /* create error file */
+    mkfname(msgname, path, base, "err" );   /* for errors and warnings */
 
     /*
      * delete message file if present
@@ -231,7 +221,7 @@ int mcexec(const char *mfname, Mcopt options_in) {
      */
 
     if (options.Showecode) {
-        feco = efopen( econame, "w" );
+        FILE *feco = efopen(outputfile, "w" );
         out_ecode(feco);
         fclose(feco);
     }
@@ -241,18 +231,19 @@ int mcexec(const char *mfname, Mcopt options_in) {
      */
 
     if (options.Showocode) {
-        foco = efopen( oconame, "w" );
+        FILE *foco = efopen(outputfile,  "w" );
         out_omdl(foco, options.Substufunc);
         fclose(foco);
     }
 
     if (options.MakeTroll) {
-        /*
-         * reuse oconame
-         */
+    
+        ERROR("It is not yet possible to generate Troll output");
 
-        mkfname( oconame, path, base, "inp" ); 
-        foco = efopen( oconame, "w" );
+        /*
+
+        mkfname(outputfile, path, base, "inp" ); 
+        foco = efopen(outputfile, "w" );
 
         strcpy(xtra, base);
         strcat(xtra, "param");
@@ -262,50 +253,44 @@ int mcexec(const char *mfname, Mcopt options_in) {
 
         out_tmdl(foco, fxtr);
         fclose(foco);
+        */
     }
 
     if( options.MakeEviews) {
-        /*
-         * reuse oconame
-         */
-
-        mkfname( oconame, path, base, "prg" ); 
-        foco = efopen( oconame, "w" );
-
+        FILE *foco = efopen(outputfile, "w" );
         out_vmdl(foco, options.mdlname);
         fclose(foco);
     }
 
-if (options.gen_dep) {
-    /* reuse variables econame and feco */
-    mkfname(econame, path, base, "dep");   
-    feco = efopen(econame, "w" );
-    do_dep(feco);
-    fclose(feco);
-}
+    if (options.gen_dep) {
+        char depfilename[FILENAME_MAX + 1];
+        mkfname(depfilename, path, base, "dep");   
+        FILE *fdep = efopen(depfilename, "w" );
+        do_dep(fdep);
+        fclose(fdep);
+    }
 
-    
     if (options.McIsisMdl) {
         /* export the symbol table to the fortran subroutines */
         export_symtab();
     } else {
-        /*
-         * write cross reference
-         *
-         * reuse econame
-         */
-    
-         mkfname( econame, path, base, "zrf" );   
-         feco = efopen( econame, "w" );
-         do_zrf( feco );
-         fclose(feco);
+         if( options.Makezrf) {
+            /*
+             * write cross reference
+             */
+             char zrfname[FILENAME_MAX + 1];
+             mkfname(zrfname, path, base, "zrf" );
+             FILE *fzrf = efopen(zrfname, "w");
+             do_zrf(fzrf);
+             fclose(fzrf);
+         }
     
         if( options.Showhash ) {
-            fprintf( stdout, "Statistics for Equation table\n");
-            sym_stat( Eqntp, stdout);
+            PRINTF("Statistics for Equation table\n");
+            sym_stat(Eqntp);
     
-            fprintf( stdout, "Statistics for Symbol table\n");
-            sym_stat( Stp, stdout);
+            PRINTF("Statistics for Symbol table\n");
+            sym_stat(Stp);
         }
     }
     

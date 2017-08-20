@@ -7,6 +7,7 @@ typedef struct _mcopt {
     int Showocode;
     int Substufunc;
     int Showhash;
+    int Makezrf;
     int MakeTroll;
     int MakeEviews;
     int Debug;
