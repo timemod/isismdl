@@ -22,6 +22,7 @@
 #include "outmdl.h"
 #include "isismdl_types.h"
 #include "dependencies.h"
+#include "mdldef.h"
 
 
 void    cleanup( int );
@@ -54,10 +55,8 @@ Enodep  do_builtin    ( Symbol * , Enodep );
 
 static  void    eqtyp_err(Symbol *);
 
-#ifdef MCISIS
 /* fortran subroutine in mcisis.rf7 */
 void FNAME(save_parameter)(FINT *, FREAL8 *);
-#endif
 
 %}
 
@@ -585,16 +584,16 @@ void    ufunc_epilogue( Symbol *sp, Enodep ex, int is_ulfunc)
     argnames = NULL;
     argdefs = NULL;
 
-#ifdef MCISIS
-     if (!is_ulfunc) {
-         if (errcnt == 0 && warncnt == 0) {
-	     out_ipcode(sp);
-         }
-         fnp->fcp = NULL;
+    if (options.McIsisMdl) {
+        if (!is_ulfunc) {
+            if (errcnt == 0 && warncnt == 0) {
+	        out_ipcode(sp);
+            }
+            fnp->fcp = NULL;
+        }
+     } else {
+         new_eqn(sp);
      }
-#else
-     new_eqn(sp);
-#endif
 }
 
 Enodep  do_builtin( Symbol *sp, Enodep arglist )
@@ -719,14 +718,14 @@ void  eqn_epilogue(Symbol *eqnamesp, int isfrml, Symbol *lhs, Enodep ex,
 
     in_equation = 0;
 
-#ifdef MCISIS
-    if (errcnt == 0 && warncnt == 0) {
-        out_ipcode(eqsp);
+    if (options.McIsisMdl) {
+        if (errcnt == 0 && warncnt == 0) {
+            out_ipcode(eqsp);
+        }
+        eqnp->ecp    = NULL;
+    } else {
+        new_eqn(eqsp);
     }
-    eqnp->ecp    = NULL;
-#else
-    new_eqn(eqsp);
-#endif
 
     if (options.gen_dep) {
         eqnp->deps = close_dependencies();
@@ -910,9 +909,9 @@ void    make_formal( Symbol *sp )
     argp = argdefs[argcnt] = emalloc( sizeof(Argdef) );
     argp->atype   = ARG_NOTUSE;
     argp->lower      = INT_MAX;
-#ifndef MCISIS
-    argp->lower_del  = INT_MAX;
-#endif
+    if (!options.McIsisMdl) {
+        argp->lower_del  = INT_MAX;
+    }
     argp->upper      = INT_MIN;
 
     argnames[argcnt++] = sp->name;
@@ -942,10 +941,10 @@ static  void new_var( Symbol *sp , int xpctype, int vtype )
 
     vp->vtype   = vtype;
     vp->var_index = varCount++; /* variable index (first variable has index 0) */
-#ifndef MCISIS
-    vp->maxlead = 0;
-    vp->maxlag  = 0;
-#endif
+    if (!options.McIsisMdl) {
+        vp->maxlead = 0;
+        vp->maxlag  = 0;
+    }
 }
 
 static  void check_var( Symbol *sp )
@@ -1121,18 +1120,18 @@ void set_parval()
          p->par_index = parCount++; /* variable index (first variable has index 0) */
      }
 
-#ifdef MCISIS
-     FNAME(save_parameter)((FINT *) &curpcnt, pval);
-#else
-     p = Curparam->u.parp;
-     if (curpcnt == 1 ) {
-         p->u.dval = pval[0];
-     } else {
-         p->u.dp = emalloc( sizeof(real) * curpcnt );
-         memcpy( p->u.dp, pval, sizeof(real) * curpcnt );
+    if (options.McIsisMdl) {
+        FNAME(save_parameter)((FINT *) &curpcnt, pval);
+    } else {
+        p = Curparam->u.parp;
+        if (curpcnt == 1 ) {
+            p->u.dval = pval[0];
+        } else {
+            p->u.dp = emalloc( sizeof(real) * curpcnt );
+            memcpy( p->u.dp, pval, sizeof(real) * curpcnt );
+        }
+        new_par(Curparam);
      }
-     new_par(Curparam);
-#endif
 
 #if 0
         fprintf( stderr, "Parameter name %s # of values %u\n",

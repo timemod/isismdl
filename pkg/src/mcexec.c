@@ -91,9 +91,9 @@ static void reset(void) {
     free_symtab(Eqntp);
     Eqntp = NULL;
     free_enodes();
-#ifdef MCISIS
-    free_polish();
-#endif
+    if (options.McIsisMdl) {
+        free_polish();
+    }
     clear_flags();
 }
 
@@ -129,10 +129,10 @@ int mcexec(char *mfname, Mcopt options_in) {
     }
 
 
-#ifndef MCISIS
-    mkfname( econame, path, base, "eco" );   /* for ecode           */
-    mkfname( oconame, path, base, "oco" );   /* for inorder output  */
-#endif
+    if (!options.McIsisMdl) {
+        mkfname( econame, path, base, "eco" );   /* for ecode           */
+        mkfname( oconame, path, base, "oco" );   /* for inorder output  */
+    }
     mkfname( msgname, path, base, "err" );   /* for errors and warnings */
 
     /*
@@ -156,9 +156,9 @@ int mcexec(char *mfname, Mcopt options_in) {
 
 
     if (!file_exists(fnmdl)) {
-#ifndef MCISIS
-        fprintf( stderr, "File %s does not exist\n", fnmdl);
-#endif
+        if (!options.McIsisMdl) {
+            ERROR("File %s does not exist\n", fnmdl);
+        }
         return FILE_ERROR;
     }
 
@@ -206,7 +206,7 @@ int mcexec(char *mfname, Mcopt options_in) {
 
     if( warncnt || errcnt ) {
         if (!options.McIsisMdl) {
-            error("Warnings and/or errors written to .err file\n");
+            ERROR("Warnings and/or errors written to .err file\n");
         }
         reset();
         return SYNTAX_ERROR;
@@ -275,38 +275,37 @@ if (options.gen_dep) {
 }
 
     
-#ifdef MCISIS
-    /* export the symbol table to the fortran subroutines */
-    export_symtab();
-#else
-    /*
-     * write cross reference
-     *
-     * reuse econame
-     */
-
-     mkfname( econame, path, base, "zrf" );   
-     feco = efopen( econame, "w" );
-     do_zrf( feco );
-     fclose(feco);
-
-    if( options.Showhash ) {
-        fprintf( stdout, "Statistics for Equation table\n");
-        sym_stat( Eqntp, stdout);
-
-        fprintf( stdout, "Statistics for Symbol table\n");
-        sym_stat( Stp, stdout);
+    if (options.McIsisMdl) {
+        /* export the symbol table to the fortran subroutines */
+        export_symtab();
+    } else {
+        /*
+         * write cross reference
+         *
+         * reuse econame
+         */
+    
+         mkfname( econame, path, base, "zrf" );   
+         feco = efopen( econame, "w" );
+         do_zrf( feco );
+         fclose(feco);
+    
+        if( options.Showhash ) {
+            fprintf( stdout, "Statistics for Equation table\n");
+            sym_stat( Eqntp, stdout);
+    
+            fprintf( stdout, "Statistics for Symbol table\n");
+            sym_stat( Stp, stdout);
+        }
     }
-#endif
-
-reset();
-return 0;
-}
-
-char    *mkfname( char *fname, char *path, char *base, char *ext)
-{
-    char    *fn;
-
+    
+    reset();
+    return 0;
+    }
+    
+    char *mkfname( char *fname, char *path, char *base, char *ext) {
+        char    *fn;
+    
     fn = fnjoin( fname, path, base, ext);
     if (fn == NULL) {
         ERROR( "Bad filename\n");
@@ -379,8 +378,6 @@ static void do_dep(FILE *fzout) {
     sym_walk(Eqntp, dep_out, NULL );
 }
 
-#ifndef MCISIS
-
 /*
  * cross reference
  */
@@ -402,4 +399,3 @@ static void do_zrf (FILE *fzout) {
     fzzout = fzout;
     sym_walk(Stp, var_out, NULL );
 }
-#endif
