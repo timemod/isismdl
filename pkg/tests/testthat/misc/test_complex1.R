@@ -15,23 +15,23 @@ mdl_filename <- "mdl/complex1.mdl"
 mdl_subst_filename <- "mdl/complex1_subst.mdl"
 
 
-compile_options <- list(include_dirs= include_dirs)
+parse_options <- list(include_dirs= include_dirs)
 
 
 # create model
-capture_output(mdl <- isis_mdl("mdl/complex1.mdl", period,
-                               compile_options = compile_options))
+capture.output(mdl <- isis_mdl("mdl/complex1.mdl", period,
+                               parse_options = parse_options))
 data_per <- mdl$get_data_period()
 mdl$set_values(seq_len(nperiod(data_per)), names = paste0("x", 1:3))
 mdl$set_solve_options(report = "none")
 
 # convert model by using function substitution
-convert_mdl_file(mdl_filename, mdl_subst_filename,
+capture.output(convert_mdl_file(mdl_filename, mdl_subst_filename,
                  conversion_options = list(substitute = TRUE),
-                 compile_options = compile_options)
+                 parse_options = parse_options))
 
 # create model with substituted user functions
-capture_output(mdl_subst <- isis_mdl(mdl_subst_filename, period))
+capture.output(mdl_subst <- isis_mdl(mdl_subst_filename, period))
 mdl_subst$set_values(seq_len(nperiod(data_per)), names = paste0("x", 1:3))
 mdl_subst$set_solve_options(report = "none")
 
@@ -43,7 +43,7 @@ test_that("mdl_subst is correct", {
 test_that("order works correctly", {
 
   mdl_old <- mdl$copy()
-  mdl$order(orfnam = orf_name)
+  capture.output(mdl$order(orfnam = orf_name))
   expect_equal(mdl, mdl_old)
 
   # compare orf files
@@ -51,7 +51,7 @@ test_that("order works correctly", {
   expected_orf <- readLines(expected_orf_name)
   expect_identical(orf, expected_orf)
 
-  mdl_subst$order(orfnam = orf_subst_name)
+  capture.output(mdl_subst$order(orfnam = orf_subst_name))
 
   # compare orf files
   orf_subst <- readLines(orf_subst_name)

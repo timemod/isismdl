@@ -1,26 +1,22 @@
 #' Creates an \code{\link{IsisMdl}} object from a model file.
 #'
 #' This function creates an \code{\link{IsisMdl}} object.
-#' A model as defined on an external ASCII file is analysed and
-#' compiled into an internal code. This internal model code is
-#' written to a file with extension \code{mif} containing equation
-#' and variable information.
+#' A model as defined on an external ASCII file is parsed, analysed and
+#' converted into an internal code. This internal code is used to evaluate
+#' the model equations.
 #'
 #' @details
 #'
 #' The file containing the model must have an extension \code{mdl}.
-#' The compiled model is \emph{not} kept in memory. The function
-#' \code{\link{read_mdl}} should be called to load the model for immediate
-#' use.
 #'
-#' In addition, some technical information about the model and a
+#' Some technical information about the model and a
 #' cross reference of the model is written
 #' to an external file with extension \code{mrf}.
 #' For each variable its maximum lag and lead are given and a list
 #' of equations (by name) in which it occurs.
 #'
-#' The compiler also orders the equations of the model into three
-#' separate blocks
+#' The parser also orders the equations of the model into three
+#' separate blocks.
 #'
 #' \itemize{
 #' \item
@@ -43,10 +39,9 @@
 #' If a model has no feedback variables, it is a recursive model (it
 #' can be solved in one pass through the equations).
 #'
-#' If the compiler encounters errors in the model, these are written
+#' If the parser encounters errors in the model, these are written
 #' to a file with an extension \code{err}.
 #' All generated files have the same basename as the model file.
-#'
 #'
 #' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
@@ -58,8 +53,41 @@
 #' with column names
 #' @param fix_values the fix values as a  \code{\link[regts]{regts}} object
 #' with column names
-#' @param compile_options options passed to the compiler. See details.
+#' @param parse_options a named list with options passed to the model parser.
+#' See section "Parse options"
 #' @useDynLib isismdl compile_mdl_c
+#'
+#' @section Parse options:
+#'
+#' The following parse options can be specified with argument
+#' \code{parse_options}. This argument should be a named list
+#' \describe{
+#' \item{\code{"flags"}}{This flag is used for conditional compilation.
+#' Consult Section 3.11.2 "Conditional compilation" in the Isis reference
+#' manual for more information about conditional compilation}
+#' \item{\code{"include_dirs"}}{Add directory \code{include_dir} to the list of
+#'  directories to be searched for include files.
+#'  In the model file, the \code{\#include} directive (see Section
+#'  3.11.1 "File inclusion" in the Isis Reference Manual) is used
+#' to include another file in the model. The specified name of the include
+#' file can be a relative or absolute path. If the path is relative, then
+#' the model searches for the include file.
+#' It first searches in the same directory
+#' where the source file is located. If not found there,
+#' then the compiler searches in the directories specified with
+#' argument \code{include_dir}, in the order that the directories
+#' have been specified.
+#' If the include file is still not found, the parser
+#' searches in the current directory}
+#' \item{\code{"gen_dep_file"}}{Specify \code{TRUE} to generate a file with
+#' dependency information. The default is \code{FALSE}.
+#' The dependency information is written to an external file with extension
+#' \code{dep}. The file gives for each equation a list of the variables that occur
+#' in the right hand side of the equation with lags and leads included.
+#' This file may be useful for model analysis with other software.
+#' Currently this option cannot be used for models with user functions}
+#' }
+#'
 #' @examples
 #'
 #' # copy the islm.mdl file in the directory models of the package
@@ -68,6 +96,11 @@
 #' file.copy(mdl_file, "islm.mdl")
 #'
 #' mdl <- isis_mdl("islm.mdl")
+
+#'
+#' # an example with parse option "include_dirs":
+#' mdl <- isis_mdl("islm.mdl", parse_options = list(include_dirs = "mdlincl"))
+#'
 #' \dontshow{
 #' unlink("islm.*")
 #' }
@@ -80,21 +113,20 @@
 #' @importFrom regts end_period
 #' @export
 isis_mdl <- function(model_file, period, data, ca, fix_values,
-                     compile_options) {
+                     parse_options) {
 
   if (!missing(period)) {
     period <- as.period_range(period)
   }
 
 
-  default_compile_options <- list(flags = NULL,
-                                  include_dirs = NULL,
-                                  gen_dep_file = FALSE)
+  default_parse_options <- list(flags = NULL, include_dirs = NULL,
+                                gen_dep_file = FALSE)
 
-  compile_options_ <- default_compile_options
-  if (!missing(compile_options)) {
-    names <- names(compile_options)
-    compile_options_[names] <- compile_options
+  parse_options_ <- default_parse_options
+  if (!missing(parse_options)) {
+    names <- names(parse_options)
+    parse_options_[names] <- parse_options
   }
 
   # TODO: currently, compile_mdl_c generates a mif file
@@ -102,7 +134,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   # after compilation the model information can be put
   # directly in Fortran memory. Then there is no need to
   # write and read the mif file
-  with(compile_options_, {
+  with(parse_options_, {
     retval <- .Call(compile_mdl_c, model_file, flags, include_dirs,
                     gen_dep_file)
     if (!retval) {
