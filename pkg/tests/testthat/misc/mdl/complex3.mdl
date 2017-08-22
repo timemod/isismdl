@@ -1,0 +1,8 @@
+function f(x) = 2 * x;
+function g(x) = f(x);
+ident X1 = g(X1 + 1);
+
+function g1(x, y) = 0.25 * x[-1] + 2 * y[-2];
+function g2(x, y) = g1(y[1], x[-1]);
+function g3(x, y) = g2(y[-1], x[1]);
+ident X2 = g3(X1[-1], X2[2]);

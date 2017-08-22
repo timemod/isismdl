@@ -1,0 +1,27 @@
+ident x = 
+#if one 
+    1
+    #if times_10
+    * 10
+    #endif
+    ;
+#elseif two
+    2
+    #if times_10
+        * 10
+    #elseif times_100
+        * 100
+    #else
+        *1000
+    #endif
+    ;
+#else
+    3
+    #if times_10
+        * 10
+    #else
+        * 1
+    #endif
+    ;
+#endif
+ident x_copy = x;
