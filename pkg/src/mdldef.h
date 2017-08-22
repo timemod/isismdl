@@ -24,3 +24,5 @@ void new_eqn( Symbol *sp );
 void new_par( Symbol *sp );
 
 void mkvarlist();
+
+void mdldef_init(void);

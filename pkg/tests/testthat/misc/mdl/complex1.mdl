@@ -1,0 +1,11 @@
+#include "complex1_coefs.mdl"
+#include "complex1_functions_1_3.mdl";
+#include "complex1_functions_45.mdl"
+
+ident x1 = f1(x1, x2, x3[-1]);
+ident x2 = f2(x1, x2, x3);
+ident x3 = f3(x1, x2[-1], x3);
+ident x4 = f4(x1, x2, x3);
+end;
+
+ident onzin = 2 * onzin;

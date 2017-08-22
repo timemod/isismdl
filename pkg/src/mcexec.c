@@ -25,6 +25,7 @@
 
 #include "dependencies.h"
 #include "isismdl.h"
+#include "mdldef.h"
 
 #define CPUSECS(t0,t1) (((double)(t1)-(double)(t0))/(double)(CLOCKS_PER_SEC))
 
@@ -113,6 +114,9 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
      */
 
     mcinit();
+    if (output_cnt > 0) {
+        mdldef_init();
+    }
 
     strcpy(fname, mfname);
 

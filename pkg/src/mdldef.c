@@ -1,4 +1,4 @@
-/* This code is used by the model conversion utils */
+/* This code is used by the model conversion and output*/
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -47,34 +47,36 @@ size_t maxvnamelen = 0;
 
 #define VCNTSIZ 500
 
+void mdldef_init(void) {
+    ecnt = 0;
+    pcnt = 0;
+    vcnt = 0;
+    endocnt = 0;
+    exocnt = 0;
+    maxvnamelen = 0;
+    maxpnamelen = 0;
+}
 
-void new_eqn( Symbol *sp )
-{
-    if( ecnt >= ecntmax )
-    {
-            eqnp = erealloc( eqnp, (ecntmax + ECNTSIZ) * sizeof(Symbol*) );
-            ecntmax += ECNTSIZ;
+void new_eqn( Symbol *sp ) {
+    if (ecnt >= ecntmax) {
+        eqnp = erealloc( eqnp, (ecntmax + ECNTSIZ) * sizeof(Symbol*) );
+        ecntmax += ECNTSIZ;
     }
-
     eqnp[ecnt++] = sp;
 }
 
-void new_par( Symbol *sp )
-{
-    if( pcnt >= pcntmax )
-    {
-            parp = erealloc( parp, (pcntmax + PCNTSIZ) * sizeof(Symbol*) );
-            pcntmax += PCNTSIZ;
+void new_par( Symbol *sp ) {
+    if (pcnt >= pcntmax) {
+        parp = erealloc( parp, (pcntmax + PCNTSIZ) * sizeof(Symbol*) );
+        pcntmax += PCNTSIZ;
     }
 
     parp[pcnt++] = sp;
     maxpnamelen = max(strlen(sp->name), maxpnamelen);
 }
 
-static void new_var( Symbol *sp )
-{
-    if( vcnt >= vcntmax )
-    {
+static void new_var( Symbol *sp) {
+    if (vcnt >= vcntmax) {
             varp = erealloc( varp, (vcntmax + VCNTSIZ) * sizeof(Symbol*) );
             vcntmax += VCNTSIZ;
     }
@@ -82,15 +84,14 @@ static void new_var( Symbol *sp )
     varp[vcnt++] = sp;
 }
 
-static int collectvar( Symbol *sp )
-{
+static int collectvar(Symbol *sp) {
     /*
      * collect variables in array
      * for later sorting
      */
 
-    if( sp->xpctype == XP_ENDO || sp->xpctype == XP_EXO )
-    {
+    if (sp->xpctype == XP_ENDO || sp->xpctype == XP_EXO ) {
+
         new_var(sp);
 
         if( sp->xpctype == XP_ENDO )
@@ -108,8 +109,7 @@ static int collectvar( Symbol *sp )
  * name comparison function for qsort
  */
 
-static int varcmp( const void *v1, const void *v2)
-{
+static int varcmp( const void *v1, const void *v2) {
     Symbol *sp1 = *(Symbol **) v1;
     Symbol *sp2 = *(Symbol **) v2;
 
@@ -124,8 +124,7 @@ static int varcmp( const void *v1, const void *v2)
     return  k;
 }
 
-void mkvarlist()
-{
+void mkvarlist() {
     sym_walk(Stp, &collectvar, NULL );
 #if DBG
     printf("Before qsort: [0]     :%s\n", varp[0]->name);

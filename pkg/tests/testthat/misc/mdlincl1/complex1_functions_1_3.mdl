@@ -1,0 +1,5 @@
+function f1(x, y, z) = 2 * sum(j = -2, -1 : coef[j] * x[j+1]) 
+                       + del(1 : sum(j = -4, -2 : y[j])) 
+                       + 2 * z * coef[-1];
+function f2(x, y, z)  = 2 * f1(x, y, z);
+function f3(x, y, z)  = 2 * f2(x[-2], y[-3], z);

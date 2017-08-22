@@ -19,8 +19,8 @@ get_solve_opts_c.o : get_option_utils.h init_get_options.h \
                     solve_options.h
 include_paths.o : futils.h include_paths.h util.h
 mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h \
-          include_paths.h ipcode.h isismdl.h mchdr.h mcinit.h mcopt.h outecode.h \
-          outmdl.h symbol.h util.h xpcdef.h
+          include_paths.h ipcode.h isismdl.h mchdr.h mcinit.h mcopt.h mdldef.h \
+          outecode.h outmdl.h symbol.h util.h xpcdef.h
 mchdr.o : include_paths.h mcopt.h
 mcinit.o : dependencies.h ecode.h ipcode.h mcinit.h symbol.h util.h \
           xpcdef.h xpctab.h
@@ -38,6 +38,9 @@ outipcode.o : dependencies.h ecode.h include_paths.h ipcode.h \
 outomdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
            mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outotmdl.h \
            outovtmdl.h symbol.h util.h xpcdef.h
+outovtmdl.o : dependencies.h ecode.h include_paths.h ipcode.h \
+             isismdl.h mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h \
+             symbol.h util.h xpcdef.h
 outtmdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
            mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outotmdl.h \
            outovtmdl.h outvtmdl.h symbol.h util.h xpcdef.h
