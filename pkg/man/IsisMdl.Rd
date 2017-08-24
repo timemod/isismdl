@@ -143,6 +143,8 @@ data from identities}
 
 \item{\code{\link{write_mdl}}}{Serializes the model object and writes it
 to an RDS file}
+
+\item{\code{\link{order}}}{Orders the equations of the model}
 }
 }
 

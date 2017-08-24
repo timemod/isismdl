@@ -6,7 +6,7 @@ PKGDIR=pkg
 INSTALL_FLAGS=--no-multiarch --with-keep.source
 RCHECKARG=--no-multiarch
 PKG_FFLAGS=-fimplicit-none -cpp -J $(PKGDIR)/src/mod -I $(PKGDIR)/src/include
-PKG_CFLAGS=-DMCISIS
+PKG_CFLAGS=
 R_HOME=$(shell R RHOME)
 
 # Package name, Version and date from DESCIPTION

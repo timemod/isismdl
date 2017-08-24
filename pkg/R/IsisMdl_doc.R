@@ -764,7 +764,7 @@ NULL
 #' how the timeseries are updated: \code{"upd"} (standard update, default) or
 #' \code{"updval"} (update only with valid numbers). See details.}
 #' \item{\code{fun}}{a function used to update the model data. This should
-#' be function with two arguments. The original model data is passed to the first
+#' be a function with two arguments. The original model data is passed to the first
 #' argument of the function and \code{data} to the second argument.
 #' See the examples.}
 #' }
@@ -822,15 +822,19 @@ NULL
 #'
 #' # update with update mode updval (ignore NA)
 #' # note that here we have to specify argument names,
-#' # because md does not have column names
+#' # because ms does not have column names
 #' mdl$set_data(ms, names = "ms", upd_mode = "updval")
 #' print(mdl$get_data())
 #'
 #' # in the next example, we use argument fun to apply an additive shock to the
-#' # exogenous variables g and ms
+#' # exogenous variables g and ms.
 #' shock <- regts(matrix(c(-5, -10, -15, 3 , 6, 6), ncol = 2),
 #'              start = "2017Q1", names = c("g", "ms"))
+#' mdl$set_data(shock, fun = function(x1, x2) {x1 + x2})
+#'
+#' # the statement above can be more concisely written as
 #' mdl$set_data(shock, fun = `+`)
+#' #`+` is a primitive function that adds its two arguments.
 #'
 #' @seealso \code{\link{get_data-methods}}, \code{\link{set_values-methods}},
 #' \code{\link{change_data-methods}}, \code{\link{fix_variables}},
@@ -1655,4 +1659,31 @@ NULL
 #'
 #' print(mdl$get_debug_eqn())
 NULL
+
+#' \code{\link{IsisMdl}} method: orders the equations of a model
+
+#' @name order
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} orders the equations of a model.
+#' This can be useful after (de)activation equations.
+#' By specifying argument \code{orfnam} it is also possible to write ordering
+#' information to a file.
+#' @section Usage:
+#' \preformatted{
+#' mdl$order(orfnam)
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{orfnam}}{Name of file on which to print ordering information.
+#'   If no output file is specified no ordering information will
+#'   be written}
+#' }
+#'
+NULL
+
 

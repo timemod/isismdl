@@ -58,6 +58,7 @@ setOldClass("period_range")
 #' @useDynLib isismdl get_solve_status_c
 #' @useDynLib isismdl set_dbgeqn
 #' @useDynLib isismdl get_dbgeqn
+#' @useDynLib isismdl order_mdl_c
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -205,6 +206,8 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{write_mdl}}}{Serializes the model object and writes it
 #' to an RDS file}
+#'
+#' \item{\code{\link{order}}}{Orders the equations of the model}
 #' }
 #' @seealso \code{\link{isis_mdl}}, \code{\link{islm_mdl}}
 #' and \code{\link{ifn_mdl}}
@@ -761,6 +764,18 @@ IsisMdl <- R6Class("IsisMdl",
     },
     clear_fix = function() {
       .Fortran("clear_fix_fortran", model_index = private$model_index)
+      return(invisible(self))
+    },
+    order = function(orfnam = NULL) {
+      if (!is.null(orfnam)) {
+        if (!is.character(orfnam)) {
+          stop("orfnam is not an character string")
+        }
+        if (file.exists(orfnam)) {
+          file.remove(orfnam)
+        }
+      }
+      .Call(order_mdl_c, model_index = private$model_index, orfnam = orfnam)
       return(invisible(self))
     },
     copy = function() {

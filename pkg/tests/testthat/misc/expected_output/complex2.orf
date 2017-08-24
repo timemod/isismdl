@@ -1,0 +1,26 @@
+ ISIS model ordering information: complex2
+       1 equations of which
+              1 in prologue
+              0 in simultaneous block
+              0 in epilogue
+
+       0 feedback variables
+
+
+ *** Equations (in solution order) ***
+
+     1 Prologue equations
+
+ x1  
+
+     0 Simultaneous equations
+
+
+     0 Epilogue equations
+
+
+ *** Feedback variables ***
+
+     0 Feedback variables
+
+

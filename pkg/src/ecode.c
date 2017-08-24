@@ -44,24 +44,22 @@ void    open_enode( void )
         curep = 1;
 }
 
-Enode   *close_enode( void )
-{
+Enode   *close_enode(void) {
         Enode   *rep;
 
         new_enode();
 
         ep->operator = E_STOP;
 
-#ifdef MCISIS
-        curep = 0;
-        rep = enbase;
-#else
-        rep = erealloc( enbase, curep * sizeof(Enode) );
-
-        emax  = 0;
-        curep = 0;
-        enbase= NULL;
-#endif
+        if (options.McIsisMdl) {
+            curep = 0;
+            rep = enbase;
+        } else {
+            rep = erealloc( enbase, curep * sizeof(Enode) );
+            emax  = 0;
+            curep = 0;
+            enbase= NULL;
+        }
 
         return rep;
 }

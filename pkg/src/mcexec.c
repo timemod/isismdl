@@ -19,15 +19,13 @@
 #include "mchdr.h"
 #include "flags.h"
 
-#ifndef MCISIS
 #include "outecode.h"
-#endif
 #include "outmdl.h"
-/* futils.h is located in libc */
 #include "futils.h"
 
 #include "dependencies.h"
 #include "isismdl.h"
+#include "mdldef.h"
 
 #define CPUSECS(t0,t1) (((double)(t1)-(double)(t0))/(double)(CLOCKS_PER_SEC))
 
@@ -49,27 +47,13 @@ Mcopt options; /* compilation options */
 char    path [FILENAME_MAX + 1];
 char    base [FILENAME_MAX + 1];
 char    ext  [FILENAME_MAX + 1];
-#ifndef MCISIS
 char    xtra [FILENAME_MAX + 1];
-#endif
 
 char    *mkfname(char *fname, char *path, char *base, char *ext);
 
-FILE    *feco = NULL;                   /* for ecode output */
-char    econame[FILENAME_MAX + 1];
-
 static void do_dep(FILE *);               /* for dependency output   */
 
-#ifndef MCISIS
-FILE    *foco = NULL;                   /* for model output */
-char    oconame[FILENAME_MAX + 1];
-
-FILE    *fxtr = NULL;                   /* additional file */
-char    xtrname[FILENAME_MAX + 1];
-
 static void do_zrf(FILE *);               /* for zrf output   */
-
-#endif
 
 /*
  * warnings and errors
@@ -98,29 +82,41 @@ static void reset(void) {
     free_symtab(Eqntp);
     Eqntp = NULL;
     free_enodes();
-#ifdef MCISIS
-    free_polish();
-#endif
+    if (options.McIsisMdl) {
+        free_polish();
+    }
     clear_flags();
 }
 
-int mcexec(char *mfname, Mcopt options_in) {
+int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
     FILE    *mp;
     char    *fnmdl;
     char    fname[FILENAME_MAX + 1];
 
-#ifndef MCISIS
     clock_t tb, te;
     double  cpusecs;
-#endif
 
     options = options_in;
+
+    /* check output options */
+    int output_cnt = options.Showecode + options.Showocode +
+                     options.MakeTroll + options.MakeEviews;
+    if (output_cnt > 1) {
+        ERROR("Only a single output type can be selected");
+    } else if (output_cnt != 0 && options.McIsisMdl) {
+        ERROR("Options McIsisMdl is incompatible with output options");
+    } else if (output_cnt == 1 && outputfile == NULL) {
+        ERROR("Argument outputfile should not be NULL");
+    }
 
     /*
      * declares and initializes Stp, the symbol table
      */
 
     mcinit();
+    if (output_cnt > 0) {
+        mdldef_init();
+    }
 
     strcpy(fname, mfname);
 
@@ -137,12 +133,8 @@ int mcexec(char *mfname, Mcopt options_in) {
         fnsplit(options.outputname, path, base, ext);
     }
 
-
-#ifndef MCISIS
-    mkfname( econame, path, base, "eco" );   /* for ecode           */
-    mkfname( oconame, path, base, "oco" );   /* for inorder output  */
-#endif
-    mkfname( msgname, path, base, "err" );   /* for errors and warnings */
+    /* create error file */
+    mkfname(msgname, path, base, "err" );   /* for errors and warnings */
 
     /*
      * delete message file if present
@@ -165,25 +157,24 @@ int mcexec(char *mfname, Mcopt options_in) {
 
 
     if (!file_exists(fnmdl)) {
-#ifndef MCISIS
-        fprintf( stderr, "File %s does not exist\n", fnmdl);
-#endif
+        if (!options.McIsisMdl) {
+            ERROR("File %s does not exist\n", fnmdl);
+        }
         return FILE_ERROR;
     }
 
     init_scanner(fnmdl);
 
-    if (!options.Strict) 
+    if (!options.Strict) {
          /* non-strict compilation: parameters may be used before
           * they have been specified. Therefore first scan model
           * for parameters
           */
-    {
 
-#ifndef MCISIS
-        fprintf( stderr, "Scanning model for parameters ...\n" );
-        tb = clock();
-#endif
+        if (!options.McIsisMdl) {
+            Rprintf("Scanning model for parameters ...\n" );
+            tb = clock();
+        }
         scanning = 1;
         mc_scan_params();
         scanning = 0;
@@ -191,16 +182,19 @@ int mcexec(char *mfname, Mcopt options_in) {
         init_scanner(fnmdl);
         mcrestart(NULL);
 
-#ifndef     MCISIS
-        te = clock();
-        cpusecs = CPUSECS(tb,te);
-        fprintf(stderr,"Scaning used %.2f seconds\n", cpusecs);
+        if (!options.McIsisMdl) {
+            te = clock();
+            cpusecs = CPUSECS(tb,te);
+            Rprintf("Scanning used %.2f seconds\n", cpusecs);
 
-        fprintf( stderr, "Parsing model ...\n" );
-        tb = clock();
-#endif
+            Rprintf("Parsing model ...\n" );
+            tb = clock();
+        }
     }
 
+    if (!options.McIsisMdl) {
+       tb = clock();
+    }
 
     /* initialise parser (needed when mcexec is called more than once)
      */
@@ -208,16 +202,16 @@ int mcexec(char *mfname, Mcopt options_in) {
 
     mcparse();
 
-#ifndef MCISIS
-    te = clock();
-    cpusecs = CPUSECS(tb,te);
-    fprintf(stderr,"Parse used %.2f seconds\n", cpusecs);
-#endif
+    if (!options.McIsisMdl) {
+        te = clock();
+        cpusecs = CPUSECS(tb,te);
+        Rprintf("Parse used %.2f seconds\n", cpusecs);
+    }
 
     if( warncnt || errcnt ) {
-#ifndef MCISIS
-        fprintf(stderr, "Warnings and/or errors written to .err file\n");
-#endif
+        if (!options.McIsisMdl) {
+            ERROR("Warnings and/or errors written to .err file\n");
+        }
         reset();
         return SYNTAX_ERROR;
     }
@@ -230,11 +224,8 @@ int mcexec(char *mfname, Mcopt options_in) {
      * output a legible listing of internal binary code
      */
 
-#ifndef MCISIS
-
-    if( options.Showecode )
-    {
-        feco = efopen( econame, "w" );
+    if (options.Showecode) {
+        FILE *feco = efopen(outputfile, "w" );
         out_ecode(feco);
         fclose(feco);
     }
@@ -243,21 +234,20 @@ int mcexec(char *mfname, Mcopt options_in) {
      * output model code in some form
      */
 
-    if( options.Showocode )
-    {
-        foco = efopen( oconame, "w" );
+    if (options.Showocode) {
+        FILE *foco = efopen(outputfile,  "w" );
         out_omdl(foco, options.Substufunc);
         fclose(foco);
     }
 
-    if( options.MakeTroll )
-    {
-        /*
-         * reuse oconame
-         */
+    if (options.MakeTroll) {
+    
+        ERROR("It is not yet possible to generate Troll output");
 
-        mkfname( oconame, path, base, "inp" ); 
-        foco = efopen( oconame, "w" );
+        /*
+
+        mkfname(outputfile, path, base, "inp" ); 
+        foco = efopen(outputfile, "w" );
 
         strcpy(xtra, base);
         strcat(xtra, "param");
@@ -267,63 +257,54 @@ int mcexec(char *mfname, Mcopt options_in) {
 
         out_tmdl(foco, fxtr);
         fclose(foco);
+        */
     }
 
-    if( options.MakeEviews )
-    {
-        /*
-         * reuse oconame
-         */
-
-        mkfname( oconame, path, base, "prg" ); 
-        foco = efopen( oconame, "w" );
-
+    if( options.MakeEviews) {
+        FILE *foco = efopen(outputfile, "w" );
         out_vmdl(foco, options.mdlname);
         fclose(foco);
     }
-#endif
 
-if (options.gen_dep) {
-    /* reuse variables econame and feco */
-    mkfname(econame, path, base, "dep");   
-    feco = efopen(econame, "w" );
-    do_dep(feco);
-    fclose(feco);
-}
-
-    
-#ifdef MCISIS
-    /* export the symbol table to the fortran subroutines */
-    export_symtab();
-#else
-    /*
-     * write cross reference
-     *
-     * reuse econame
-     */
-
-     mkfname( econame, path, base, "zrf" );   
-     feco = efopen( econame, "w" );
-     do_zrf( feco );
-     fclose(feco);
-
-    if( options.Showhash ) {
-        fprintf( stdout, "Statistics for Equation table\n");
-        sym_stat( Eqntp, stdout);
-
-        fprintf( stdout, "Statistics for Symbol table\n");
-        sym_stat( Stp, stdout);
+    if (options.gen_dep) {
+        char depfilename[FILENAME_MAX + 1];
+        mkfname(depfilename, path, base, "dep");   
+        FILE *fdep = efopen(depfilename, "w" );
+        do_dep(fdep);
+        fclose(fdep);
     }
-#endif
 
-reset();
-return 0;
-}
-
-char    *mkfname( char *fname, char *path, char *base, char *ext)
-{
-    char    *fn;
-
+    if (options.McIsisMdl) {
+        /* export the symbol table to the fortran subroutines */
+        export_symtab();
+    } else {
+         if( options.Makezrf) {
+            /*
+             * write cross reference
+             */
+             char zrfname[FILENAME_MAX + 1];
+             mkfname(zrfname, path, base, "zrf" );
+             FILE *fzrf = efopen(zrfname, "w");
+             do_zrf(fzrf);
+             fclose(fzrf);
+         }
+    
+        if( options.Showhash ) {
+            PRINTF("Statistics for Equation table\n");
+            sym_stat(Eqntp);
+    
+            PRINTF("Statistics for Symbol table\n");
+            sym_stat(Stp);
+        }
+    }
+    
+    reset();
+    return 0;
+    }
+    
+    char *mkfname( char *fname, char *path, char *base, char *ext) {
+        char    *fn;
+    
     fn = fnjoin( fname, path, base, ext);
     if (fn == NULL) {
         ERROR( "Bad filename\n");
@@ -396,8 +377,6 @@ static void do_dep(FILE *fzout) {
     sym_walk(Eqntp, dep_out, NULL );
 }
 
-#ifndef MCISIS
-
 /*
  * cross reference
  */
@@ -419,4 +398,3 @@ static void do_zrf (FILE *fzout) {
     fzzout = fzout;
     sym_walk(Stp, var_out, NULL );
 }
-#endif

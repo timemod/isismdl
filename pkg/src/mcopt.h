@@ -2,10 +2,12 @@
 #define MCOPT_H
 
 typedef struct _mcopt {
+    int McIsisMdl; /* 1 to generate equation code */
     int Showecode;
     int Showocode;
     int Substufunc;
     int Showhash;
+    int Makezrf;
     int MakeTroll;
     int MakeEviews;
     int Debug;

@@ -9,13 +9,13 @@
 #define HASHSIZE 101
 
 struct nlist {
-    char *flag;
+    const char *flag;
     struct nlist *next;
 };
 
-static struct nlist *hashtab[HASHSIZE];
+static struct nlist *hashtab[HASHSIZE] = {NULL};
 
-static unsigned char hash(char *s) {
+static unsigned char hash(const char *s) {
 
     /* Form hash value for string s */
 
@@ -26,7 +26,7 @@ static unsigned char hash(char *s) {
     return hashval % HASHSIZE;
 }
 
-static struct nlist *lookup(char *s)  {
+static struct nlist *lookup(const char *s)  {
 
     /* look for s in hashtab. The function returns a pointer to the 
      * element containing string s */
@@ -40,7 +40,7 @@ static struct nlist *lookup(char *s)  {
     return NULL;       /* not found */
 }
 
-int add_flag(char *flag) {
+int add_flag(const char *flag) {
 
     /* adds a flag to the hash table. Returns 0 on succes, and
      * 1 if there is not enough memory to add the flag to the table */
@@ -62,7 +62,7 @@ int add_flag(char *flag) {
     return 0;
 }
 
-int flag_present(char *flag) {
+int flag_present(const char *flag) {
 
     /* Returns 1 if flag is present in the table, and 0 if not */
 
@@ -83,7 +83,6 @@ void clear_flags(void) {
            while (head != NULL) {
                to_free = head;
                head = head->next;
-               free(to_free->flag);
                free(to_free);
            }
            hashtab[hashval] = NULL;

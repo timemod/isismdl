@@ -1,0 +1,29 @@
+ ISIS model ordering information: complex1
+       4 equations of which
+              0 in prologue
+              2 in simultaneous block
+              2 in epilogue
+
+       2 feedback variables
+                 2 (50.0%) structural non zero's in jacobian
+
+
+ *** Equations (in solution order) ***
+
+     0 Prologue equations
+
+
+     2 Simultaneous equations
+
+ x3   x1  
+
+     2 Epilogue equations
+
+ x4   x2  
+
+ *** Feedback variables ***
+
+     2 Feedback variables
+
+ x1   x3  
+

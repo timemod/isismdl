@@ -3,7 +3,7 @@
 #include<stdlib.h>
 #include<string.h>
 
-#include "mchdr.h"
+#include "include_paths.h"
 #include "util.h"
 
 /* futils.h is located in libc */
@@ -37,8 +37,7 @@ void init_include_dirs(void)
     }
 }
 
-void add_include_path(char *dirname)
-{
+void add_include_path(const char *dirname) {
     /*
      * Add a path to the search path
      */

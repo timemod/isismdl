@@ -1,9 +1,12 @@
 by.o : isismdl_types.h
 c_calls.o : c_calls.h get_info.h init_set_get_options.h option_utils.h \
            set_fit_options.h set_solve_options.h
+compile_mdl_c.o : prepare_compiler.h
+convert_mdl_file_c.o : include_paths.h mchdr.h mcopt.h \
+                      prepare_compiler.h
 dependencies.o : dependencies.h util.h
-ecode.o : dependencies.h ecode.h ipcode.h mchdr.h mcinit.h mcopt.h \
-         symbol.h util.h xpcdef.h xpctab.h
+ecode.o : dependencies.h ecode.h include_paths.h ipcode.h mchdr.h \
+         mcinit.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
 expsymtab.o : dependencies.h isismdl_types.h mcinit.h symbol.h \
              xpcdef.h
 fit_options.o : fit_options.h option_utils.h solve_options.h
@@ -14,22 +17,41 @@ get_fit_opts_c.o : fit_options.h get_option_utils.h \
 get_option_utils.o : get_option_utils.h
 get_solve_opts_c.o : get_option_utils.h init_get_options.h \
                     solve_options.h
-include_paths.o : futils.h mchdr.h mcopt.h util.h
-mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h ipcode.h \
-          isismdl.h mchdr.h mcinit.h mcopt.h outecode.h outmdl.h symbol.h util.h \
-          xpcdef.h
+include_paths.o : futils.h include_paths.h util.h
+mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h \
+          include_paths.h ipcode.h isismdl.h mchdr.h mcinit.h mcopt.h mdldef.h \
+          outecode.h outmdl.h symbol.h util.h xpcdef.h
+mchdr.o : include_paths.h mcopt.h
 mcinit.o : dependencies.h ecode.h ipcode.h mcinit.h symbol.h util.h \
           xpcdef.h xpctab.h
-mcip.o : flags.h mchdr.h mcopt.h util.h
+mcip.o : flags.h include_paths.h mchdr.h mcopt.h util.h
 mcopt_init.o : mcopt.h
+mdldef.o : dependencies.h mcinit.h mdldef.h symbol.h util.h xpcdef.h
+oprintf.o : isismdl.h oprintf.h util.h
 option_utils.o : option_utils.h
-outipcode.o : dependencies.h ecode.h ipcode.h isismdl.h \
-             isismdl_types.h mchdr.h mcinit.h mcopt.h outmdl.h symbol.h util.h \
-             xpcdef.h
-scan.o : dependencies.h ecode.h flags.h fname.h ipcode.h mchdr.h \
-        mcinit.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
-scan_params.o : dependencies.h ecode.h ipcode.h isismdl.h mchdr.h \
-               mcopt.h symbol.h util.h xpcdef.h xpctab.h
+outecode.o : dependencies.h ecode.h include_paths.h ipcode.h mchdr.h \
+            mcinit.h mcopt.h mdldef.h oprintf.h outecode.h symbol.h util.h \
+            xpcdef.h
+outipcode.o : dependencies.h ecode.h include_paths.h ipcode.h \
+             isismdl.h isismdl_types.h mchdr.h mcinit.h mcopt.h outmdl.h symbol.h \
+             util.h xpcdef.h
+outomdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
+           mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outotmdl.h \
+           outovtmdl.h symbol.h util.h xpcdef.h
+outovtmdl.o : dependencies.h ecode.h include_paths.h ipcode.h \
+             isismdl.h mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h \
+             symbol.h util.h xpcdef.h
+outtmdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
+           mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outotmdl.h \
+           outovtmdl.h outvtmdl.h symbol.h util.h xpcdef.h
+outvmdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
+           mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outovtmdl.h \
+           outvtmdl.h symbol.h util.h xpcdef.h
+prepare_compiler.o : flags.h include_paths.h prepare_compiler.h
+scan.o : dependencies.h ecode.h flags.h fname.h include_paths.h \
+        ipcode.h mchdr.h mcinit.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
+scan_params.o : dependencies.h ecode.h include_paths.h ipcode.h \
+               isismdl.h mchdr.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
 set_fit_opts_c.o : fit_options.h init_set_get_options.h \
                   set_fit_options.h set_option_utils.h
 set_option_utils.o : set_option_utils.h
@@ -37,6 +59,8 @@ set_solve_opts_c.o : init_set_get_options.h set_option_utils.h \
                     set_solve_options.h set_solve_opts.h solve_options.h
 solve_options.o : option_utils.h solve_options.h
 symbol.o : dependencies.h isismdl.h symbol.h util.h xpcdef.h
+symbol.o : dependencies.h
 util.o : isismdl.h util.h
-xpctab.o : dependencies.h ecode.h ipcode.h isismdl_types.h mchdr.h \
-          mcinit.h mcopt.h outmdl.h symbol.h util.h xpcdef.h
+xpctab.o : dependencies.h ecode.h include_paths.h ipcode.h \
+          isismdl_types.h mchdr.h mcinit.h mcopt.h mdldef.h outmdl.h symbol.h \
+          util.h xpcdef.h

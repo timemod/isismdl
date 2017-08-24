@@ -23,12 +23,12 @@ module output_utils
 
         subroutine isismdl_warn(string)
             character(len = *), intent(in) :: string
-            call rwarn(string)
+            call rwarn(trim(string))
         end subroutine isismdl_warn
 
         subroutine isismdl_error(string)
             character(len = *), intent(in) :: string
-            call rexit(string)
+            call rexit(trim(string))
         end subroutine isismdl_error
 
 end module output_utils
