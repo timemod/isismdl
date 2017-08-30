@@ -17,7 +17,7 @@ test_that("set_data update mode upd", {
 
   mdl3 <- mdl$clone(deep = TRUE)
   mdl3$set_data(new_data, upd_mode = "upd")
-  expect_equal(mdl2$get_data(), new_data)
+  expect_equal(mdl3$get_data(), new_data)
 })
 
 test_that("set_data update mode updval", {

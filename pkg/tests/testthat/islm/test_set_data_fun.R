@@ -45,6 +45,7 @@ test_that("name error", {
   MS <-  regts(1.2, period = "2015Q2")
   shock <- cbind(G, MS)
   mdl2 <- mdl$copy()
+  mdl2$set_data(shock)
   expect_equal(mdl$get_data(), mdl2$get_data())
 })
 
