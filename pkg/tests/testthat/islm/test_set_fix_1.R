@@ -27,9 +27,6 @@ fix_mdl$set_fix(fix)
 test_that("set_fix update mode upd", {
 
   new_data <- update_ts(old_data, fix_ordered, method = "updval")
-  # update_ts does not handle labels correctly.
-  # this should be fixed in the future
-  new_data <- update_ts_labels(new_data, ts_labels(old_data))
 
   # get_fix currently does not return labels
   expect_equal(fix_mdl$get_fix(), fix_ordered)
@@ -46,17 +43,10 @@ test_that("set_fix for update mode upd, second test", {
   fix_mdl2$set_fix(fix2, upd_mode = "upd")
 
   fix_combi <- update_ts(fix, fix2, method = "upd")[, "c", drop = FALSE]
-  # update labels (update_ts does not handle labels correctly yet)
-  fix_combi <- update_ts_labels(fix_combi, ts_labels(fix))
 
-  upd1<- update_ts(fix, fix2, method = "updval")[, c("c", "i")]
-  # update labels (update_ts does not handle labels correctly yet)
-  upd1 <- update_ts_labels(upd1, ts_labels(fix))
+  upd1 <- update_ts(fix, fix2, method = "updval")[, c("c", "i")]
 
   new_data <- update_ts(old_data, upd1, method = "updval")
-  # update_ts does not handle labels correctly.
-  # this should be fixed in the future
-  new_data <- update_ts_labels(new_data, ts_labels(old_data))
 
   expect_equal(fix_mdl2$get_fix(), fix_combi)
   expect_equal(fix_mdl2$get_data(), new_data)
@@ -68,13 +58,8 @@ test_that("set_fix for update mode updval", {
   fix_mdl2$set_fix(fix2, upd_mode = "updval")
 
   fix_combi <- update_ts(fix, fix2, method = "updval")[, c("c", "i")]
-  # update labels (update_ts does not handle labels correctly yet)
-  fix_combi <- update_ts_labels(fix_combi, ts_labels(fix))
 
   new_data <- update_ts(old_data, fix_combi, method = "updval")
-  # update_ts does not handle labels correctly.
-  # this should be fixed in the future
-  new_data <- update_ts_labels(new_data, ts_labels(old_data))
 
   expect_equal(fix_mdl2$get_fix(), fix_combi)
   expect_equal(fix_mdl2$get_data(), new_data)

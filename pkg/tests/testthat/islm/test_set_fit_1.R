@@ -20,7 +20,7 @@ fit2["2015q2", "i"] <- NA
 fit2["2015q3", "c"] <- 650
 
 fit_mdl <- mdl$copy()
-fit_mdl <- mdl$set_fit(fit)
+fit_mdl$set_fit(fit)
 
 test_that("set_fit update mode upd", {
 
@@ -43,9 +43,7 @@ test_that("set_fit for update mode upd (second test)", {
   fit_mdl2 <- fit_mdl$clone(deep = TRUE)
   fit_mdl2$set_fit(fit2, upd_mode = "upd")
 
-  fit_combi <- update_ts(fit, fit2, method = "upd")[, c("c", "y")]
-  # update labels (update_ts does not handle labels correctly yet)
-  fit_combi <- update_ts_labels(fit_combi, ts_labels(fit))
+  fit_combi <- update_ts(fit, fit2, method = "upd")[ ,  c("c", "y")]
 
   expect_equal(fit_mdl2$get_fit(), fit_combi)
   expect_equal(fit_mdl2$get_data(), mdl$get_data())
@@ -53,19 +51,17 @@ test_that("set_fit for update mode upd (second test)", {
 
 
 test_that("set_fit for update mode updval", {
-  fit_mdl2 <- fit_mdl$clone(deep = TRUE)
+  fit_mdl2 <- fit_mdl$copy()
   fit_mdl2$set_fit(fit2, upd_mode = "updval")
 
   fit_combi <- update_ts(fit, fit2, method = "updval")[, c("c", "i", "y")]
-  # update labels (update_ts does not handle labels correctly yet)
-  fit_combi <- update_ts_labels(fit_combi, ts_labels(fit))
 
   expect_equal(fit_mdl2$get_fit(), fit_combi)
   expect_equal(fit_mdl2$get_data(), mdl$get_data())
 })
 
 test_that("set_fit_values", {
-  fit_mdl2 <- fit_mdl$clone(deep = TRUE)
+  fit_mdl2 <- fit_mdl$copy()
   fit_mdl2$set_fit_values(NA, names = c("c", "y"), period = "2015Q4")
   expect_equal(fit_mdl2$get_fit(), fit_ordered["2015Q2", , drop = FALSE])
 
