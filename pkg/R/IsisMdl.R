@@ -1042,14 +1042,17 @@ IsisMdl <- R6Class("IsisMdl",
 
         data <- self$get_data()
         # remove columns /rows with only NA from data
-        # todo: skip leading/trailing rows with only NA
         data <- data[ , ! apply(is.na(data) , 2 , all), drop = FALSE]
+        # remove leading and trailing rows with only NAs
+        data <- na_trim(data)
 
         ca   <- self$get_ca()
-        # remove columns with only 0 from ca
-        # todo: skip leading/trailing columns with only 0
+
         if (!is.null(ca)) {
+          # remove columns with only 0 from ca
           ca <- ca[, !apply(ca == 0, 2, all), drop = FALSE]
+          # remove leading and trailing rows with only zero
+          if (ncol(ca) > 0) ca <- zero_trim(ca)
         }
 
       } else {
