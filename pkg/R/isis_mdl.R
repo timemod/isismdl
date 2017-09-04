@@ -119,6 +119,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
     period <- as.period_range(period)
   }
 
+  mif_file <- tempfile(pattern = "isismdl_", fileext = ".mif")
 
   default_parse_options <- list(flags = NULL, include_dirs = NULL,
                                 gen_dep_file = FALSE)
@@ -135,15 +136,13 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   # directly in Fortran memory. Then there is no need to
   # write and read the mif file
   with(parse_options_, {
-    retval <- .Call(compile_mdl_c, model_file, flags, include_dirs,
+    retval <- .Call(compile_mdl_c, model_file, mif_file, flags, include_dirs,
                     gen_dep_file)
     if (!retval) {
       stop("Compilation was not succesfull")
     }
   })
 
-  base_name <- file_path_sans_ext(model_file)
-  mif_file <- paste(base_name, "mif", sep = ".")
   mdl <- IsisMdl$new(mif_file = mif_file)
   unlink(mif_file)
 

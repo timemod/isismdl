@@ -232,7 +232,7 @@ IsisMdl <- R6Class("IsisMdl",
         writeBin(serialized_mdl$mif_data, con = mif_file)
       }
 
-      cat(paste("Reading mif file", mif_file, "...\n"))
+      cat("Reading mif file...\n")
       private$model_index <- .Call(read_mdl_c, mif_file)
 
       if (!missing(serialized_mdl)) {
