@@ -28,19 +28,16 @@ use msufstack
 use mcedef
 use mcstak
 
-!     checks equation coded in ebytes starting at ipequb ending at
+!     Checks equation coded in ebytes starting at ipequb ending at
 !     ipequl for semantic errors and such which cannot be checked
 !     during compilation. It also checks if the value stack and the
 !     user function stack are large enough. This is NOT checked
 !     in mscalc. Therefore, elements should be pushed and popped
 !     from the stack exactly as in mscalc!
 
-!     The new xpc compiler can detect more errors during compilation
-!     than the original model compiler of Isis. For example,
-!     it can detect nested SUM or DEL. However, since this subroutine
-!     is used in procedure read_mdl, it is possible that the current
-!     model has been compiled with the old model compiler. It is
-!     therefore still necessary that chkequ checks for these errors.
+!     Some checks may be redundant because the model compiler can 
+!     detect syntax errors. For example, the compiler can detect
+!     nested SUM or DEL. 
 
 !     Assumes that user function and equation code are in the same
 !     array with user functions at start
@@ -441,11 +438,11 @@ contains
     case (6)
         str = 'Arithmetic operand instead of logical operand'
     case (7)
-        str = 'Missing SUM'
+        str = 'Missing sum'
     case (8)
         str = 'Missing DEL'
     case (9)
-        str = 'Nested DEL or SUM not allowed'
+        str = 'Nested del or sum not allowed'
     case (10)
         str = 'Missing E_STOP opcode (internal error)'
     case (11)
