@@ -1,0 +1,7 @@
+ident z1 = y1 + x1;
+ident x1 = 2.0001 * x1 + z1 + y1 * 0.999 + 2;
+ident y1 = 0 * y1 + z1 * 0.999 + y1 - 2;
+ident z2 = y2 + x2 * 0.99999;
+ident x2 = 2 * x2 + z2 + y2 + 2;
+ident y2 = 0 * y2 + z2 + y2 - 2;
+ident p1 = 0 * p1 + 1.999 * y1;

@@ -1,0 +1,1 @@
+ident EQ1 X1 = Sum(J = 3, 4 : J * Sum(J = -2, -1 : J * Y ) );

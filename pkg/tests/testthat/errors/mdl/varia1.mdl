@@ -1,0 +1,37 @@
+ident a = c1;
+param c1  3;
+param c1  3 coef1 2 3 coef2 *;
+param c2 1 2 3 ;
+param c3 1 2 q;
+param c4;
+param caaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 1;
+function f1(x) = 2 * x;
+function f2(x) = 2 * x &;
+function f3(x) = 2 * F3(x);  ? recursion is not allowed
+
+function g(x) = f(x);
+function f(x) = g(x);
+
+ident foute_f1_aanroep = f1(x, y) + c1[-3];
+
+x1 = 2;
+ident x = y;
+ident eq1 x = y;
+ident eq1 z = 1;
+aap p = 1;
+frml x = @3;
+
+ident a = 1    ? notice the missing ;
+ident b = 2;
+ident h1 = del(7);
+ident h2 = del(x);
+ident h3 = del(x : 7);
+ident 3h = 2;
+ident h4 = x[7];
+ident h6 = x(7) [ % ;
+ident c1 = 2;
+ident f1 = 2;
+ident f2 = 3;
+ident 0(f3) = 3;
+ident if = 3;
+ident k1 = if;

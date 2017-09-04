@@ -5,13 +5,14 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, ier)
     use modelworkspaces
     use msvars
     use output_utils
+    use mcheck
 
     integer, intent(in)               :: modelnmlen
     integer, dimension(*), intent(in) :: modelnm
     integer, intent(out)              :: model_index, ier
     character(len = 80)               :: str
 
-    integer :: fstat
+    integer :: fstat, nerr
 
     model_index = create_mws()
     if (model_index < 0) return
@@ -24,6 +25,18 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, ier)
     str = "Model with       equations read"
     write(str(12:16), '(I5)') mws_array(model_index)%mdl%neq
     call isismdl_out(str)
+
+    !
+    ! check model for syntactic erros
+    !
+    call isismdl_out("Checking Model-code...")
+    call chkmdl(mws_array(model_index)%mdl, nerr)
+    if (nerr == 0) then
+        call isismdl_out("Model is ok...")
+    else
+        ier = 1
+        call isismdl_error("Errors encountered in model...")
+    endif
 
     if (ier == 0) call mwsinit(mws_array(model_index), ier)
 

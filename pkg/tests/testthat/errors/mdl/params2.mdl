@@ -1,0 +1,6 @@
+ident x = c2;
+param c1  3;
+param c1  3 coef1 2 3 coef2 *;
+param c2 1 2 3 ;
+param c3 1 2 q;
+param c4;

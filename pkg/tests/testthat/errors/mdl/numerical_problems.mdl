@@ -1,0 +1,14 @@
+ident x1 = x / y;
+ident x2 = sqrt(-x);
+ident x3 = sqrt(-x*1e-12);
+ident dum = 1/0;
+ident x4 = x + dum;
+ident x5 = dum + x;
+ident x6 = (-1.123345)**4.0;
+ident x7 = (-1.123345)**4.0001;
+ident x8 = x / dum;
+ident x9 = dum / (x*1e-12);
+ident x10 = x * dum;
+ident x11 = dum * (x*1e12);
+ident x12 = max(x, dum);
+
