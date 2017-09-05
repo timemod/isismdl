@@ -1,0 +1,22 @@
+param c1 1;
+param c2 1 2 3;
+
+function f1(x) = sum(j = -2, -1 : x(j));
+function f2(x) = x(2);
+function f3(x, p) = p * del( 1: x);
+function f4(x) = x;
+function f5(x, y) = x;
+
+function f1(x) = 1;
+
+ident eq1 x1 = sum(k =  -1, 0: f1(x(k))) + 2 * f1(x1(-1) * 2);
+ident eq2 x2 = sum(k =  -1, 0: f2(x(k)));
+ident eq3 x3 = f3(2 * x3);
+ident eq4 x4 = f4(2 * x4);
+ident eq5 x5 = del(2: f3(2 * x3));
+ident eq6 x6 = f1(x6, 2);
+ident eq7 x7 = f6(x7, 2);
+ident eq8 x8 = f7(x8);
+
+
+

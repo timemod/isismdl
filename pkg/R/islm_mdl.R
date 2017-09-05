@@ -11,11 +11,17 @@
 #' mdl <- islm_mdl()
 #' @export
 islm_mdl <- function(period = NULL) {
-  mdl_file <- tempfile(fileext = ".mdl")
+  mdl_file <- tempfile(pattern = "isismdl_", fileext = ".mdl")
   mdl_file_orig <- system.file("models", "islm.mdl", package = "isismdl")
   file.copy(mdl_file_orig, mdl_file)
   mdl <- isis_mdl(mdl_file)
+
   unlink(mdl_file)
+
+  # remove mrf file
+  base_name <- file_path_sans_ext(mdl_file)
+  mrf_file <- paste(base_name, "mrf", sep = ".")
+  unlink(mrf_file)
 
   if (!is.null(period)) {
     period <- as.period_range(period)

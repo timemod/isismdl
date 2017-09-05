@@ -78,11 +78,17 @@ SEXP read_mdl_c(SEXP filename) {
     } else {
         switch (ier) {
         case 1:
-            error("Cannot open Mif file %s\n", modelnm);
+            error("Cannot open Mif file %s", modelnm);
             break;
-        // TODO: handle other errors
+        case 3:
+            error("Model not correct (see output)");
+            break;
+        case 4:
+            error("Out of memory");
+            break;
         default:
-            error("Unknown error reading Mif file %s\n", modelnm);
+            error("Unknown error reading Mif file %s", modelnm);
+            break;
         }
         return ScalarInteger(-1);
     }

@@ -634,12 +634,12 @@ Enodep  do_funccall( Symbol *sp, Enodep arglist)
      */
 
     if (indel && sp->u.funp->flags.use_del) {
-        xpcerrmsg( "Use of function %s implies a nested DEL",
+        xpcerrmsg( "Use of function %s implies a nested del",
                     sp->name);
     }
 
     if (insum && sp->u.funp->flags.use_sum) {
-        xpcerrmsg( "Use of function %s implies a nested SUM",
+        xpcerrmsg( "Use of function %s implies a nested sum",
                     sp->name);
     }
 
@@ -744,7 +744,7 @@ int     sum_prologue( Symbol *sp, int lo, int hi )
 
     if( insum )
     {
-        xpcerrmsg( "Nested SUM not allowed\n" );
+        xpcerrmsg( "Nested sum not allowed\n" );
         return 1;
     }
 
@@ -816,7 +816,7 @@ int     del_prologue( int delarg )
 {
     if( indel )
     {
-        xpcerrmsg( "Nested DEL not allowed\n" );
+        xpcerrmsg( "Nested del not allowed\n" );
         return 1;
     }
 

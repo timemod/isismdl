@@ -1,0 +1,12 @@
+? if statements with type mismatch (logical and reals mixed).
+? error should be detected by readmdl
+
+ident x1 = if (x) then 2 else 2;
+ident x2 = if (3 .or. 2) then 2 else 2;
+ident x3 = if (3 = 2) then 2 else 2 = 4;
+ident x4 = if (.not. 2) then 2 else 3;
+ident x5 = if (x = 2) then 2 else (3 + (2 = 1));
+
+? the next equation does not result in an error:
+? the logical value is convert to a number
+ident x6 = 3 = 2; 

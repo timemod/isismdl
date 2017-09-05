@@ -1,0 +1,4 @@
+ident x1 = if (x = 2) then 3;
+ident x2 = if (x = 2) then 3 endif;
+ident x3 = if (x = 2) else 2;
+ident x4 = if (x = 2) endif;

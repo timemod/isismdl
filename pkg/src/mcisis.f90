@@ -1,4 +1,5 @@
 subroutine mcisis(modelnaml,modelnams, &
+&                 mifnaml, mifnams, &
 &                 idofbrd, igenfbo, ifbomif, iprifbi, iprisjc, &
 &                 mrfopt, fbcopt, igen_dep_file, mcstat)
 use mcvars
@@ -70,6 +71,7 @@ end interface
 
 integer, intent(out) ::  mcstat
 integer, intent(in) ::  modelnaml, modelnams(*)
+integer, intent(in) ::  mifnaml, mifnams(*)
 integer, intent(in) ::  idofbrd, igenfbo, ifbomif, iprifbi, iprisjc,  &
                                    igen_dep_file
 integer, intent(in) ::  mrfopt(*), fbcopt(*)
@@ -139,7 +141,7 @@ call mcifig
 call mcfileadmin(modelnaml, modelnams, pathnm)
 
 ! generate names of the mif and mrf file
-call mkfnam(mifnam, mifext)
+call byasf7(mifnams, 1, mifnaml, mifnam)
 call mkfnam(xrfnam,xrfext)
 
 !  delete the mif and mrf file if they already exist

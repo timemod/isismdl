@@ -1,13 +1,5 @@
 module output_utils
 
-    interface   
-        ! interface to C function report_str
-        subroutine report_str(string) bind(C, name = "report_str")
-            use iso_c_binding, only : c_char
-            character(kind = c_char), intent(in) :: string
-        end subroutine report_str
-    end interface
-
     contains
 
         subroutine isismdl_out(string)

@@ -1,0 +1,27 @@
+param c1 1;
+param c2 1 2 3;
+
+function f1(x) = sum(j = -2, -1 : x(j));
+function f2(x) = sum(j = 1, 2 : x(j));
+function f3(x) = sum(j = 1, 2 : x(j-2));
+function f4(x) = x(-3);
+function f5(x) = f1(x);
+function f6(x, p) = p * f1(x(3));
+
+ident eq1   x1 = c2(-2);
+ident eq2   x2 = c2(-4);
+ident eq3   x3 = c2(2);
+ident eq4   x4 = c1(-1);
+ident eq5   x5 = f1(c1);
+ident eq6   x6 = f1(c2);
+ident eq7   x7 = f2(c2);
+ident eq8   x8 = f2(c2(-3));
+ident eq9   x9 = f3(c2);
+ident eq10 x10 = f4(c1);
+ident eq11 x11 = f4(c2);
+ident eq12 x12 = f5(c2(-1));
+ident eq13 x13 = f6(c1, 1) + c1(-2);
+ident eq14 x14 = f6(c2, 2);
+ident eq15 x15 = f6(c2(-3), 3);
+ident eq16 x16 = sum(j = -2, 0 : c1(j));
+ident eq17 x17 = sum(j = -2, 0 : c2(j));

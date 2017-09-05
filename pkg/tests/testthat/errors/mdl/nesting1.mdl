@@ -1,0 +1,13 @@
+? test nested sum / del and user function
+? nested user function allowed in isis version starting from ...
+
+function f1(x) = sum(j = -2, -1 : x(j));
+function f2(x) = del(2 : x);;
+
+ident eq1 x1 = sum(k =  -1, 0: f1(x));
+ident eq2 x2 = del(2: f1(x));
+ident eq3 x3 = sum(k =  -1, 0: f2(x));
+ident eq4 x4 = del(2: f2(x));
+
+
+
