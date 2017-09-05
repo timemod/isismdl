@@ -1,3 +1,5 @@
+compile_model.o : mcheck.o mcisis.o mcvars.o modelworkspaces.o \
+                 output_utils.o
 fortran_calls.o : modelworkspaces.o msfill.o msimot.o msimul.o \
                  msslvq.o msvars.o set_options.o
 get_fit_opts.o : get_options.o
@@ -27,6 +29,7 @@ mcosjc.o : mdl_name_utils.o model_params.o
 mcrmif.o : invpol.o mif_file.o model_type.o
 mcvars.o : mdl_flen.o model_type.o
 mcwmif.o : invpol.o mcpars.o model_type.o
+mcxpc.o : invpol.o kinds.o mcpars.o mcvars.o mdl_name_utils.o
 mcxref.o : kinds.o mcdep.o mcjsbl.o mcpars.o mcvars.o mdl_name_utils.o \
           model_params.o
 mdgfbo.o : mccedp.o mcfbor.o model_type.o

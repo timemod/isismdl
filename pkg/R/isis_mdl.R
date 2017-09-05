@@ -130,11 +130,11 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
     parse_options_[names] <- parse_options
   }
 
-  # TODO: currently, compile_mdl_c generates a mif file
-  # that is later read by read_mdl_c. This can be simpler:
-  # after compilation the model information can be put
-  # directly in Fortran memory. Then there is no need to
-  # write and read the mif file
+  # compile_mdl_c writes intermediate results to a so called
+  # mif file (model information file). These results are then
+  # read by read_model. This strange situation is due to the history
+  # of package isismdl. Changing this behaviour is not trivial and requires a
+  # significant reorganisation of the code.
   with(parse_options_, {
     retval <- .Call(compile_mdl_c, model_file, mif_file, flags, include_dirs,
                     gen_dep_file)
