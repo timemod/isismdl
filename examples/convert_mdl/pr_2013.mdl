@@ -1,0 +1,1719 @@
+
+  ? --------------------------
+  ?       proloogmodel
+  ? --------------------------
+
+function round(x,p)= nint(x/p)*p ;
+function ceil (x,p) = nint(x/p +.5 - 10**(-10))*p  ;
+function floor (x,p) = nint(x/p-.5 + 10**(-10))*p ;
+
+ident wimn wimn = wi_nr_mn ;
+
+  ? hieronder een aantal vergelijkingen die voorheen in het belastingmodel van ovf stonden. betreft enkele ih-zaken: winst, opbrengst ih-box2,
+  ? verrekende voorheffing dividendbelasting, woz waarde, hypotheekrenteaftrek
+ident  ovi_wr = (z_totwn - zzhu_wn) / (z_totwn(-1) - zzhu_wn(-1)) - 1 ;
+ident  wi_wr  = zzhu_wn / zzhu_wn(-1) - 1 ;
+  ? huizenprijzen 6 jaar vertraagd nodig terwijl isis er slechts 4 toestaat, hier doorschuiven. zoiets gebeurt ook bij rente pensioenfondsen in macromodel.
+ident  wh1_pr = wh_pr(-1) ;
+ident  wh2_pr = wh1_pr(-1) ;
+ident  wh3_pr = wh2_pr(-1) ;
+ident  wh4_pr = wh3_pr(-1) ;
+ident  wh5_pr = wh4_pr(-1) ;
+ident  wh6_pr = wh5_pr(-1) ;
+ident  hui_7_pr = (wh_pr + wh1_pr + wh2_pr + wh3_pr + wh4_pr + wh5_pr + wh6_pr) / 7 ;
+frml   hwz_wn = hwz_wn(-1) * (1 + hui_7_pr) * hui_aut_pr ;
+ident  lv_wdh_wd = lv_hwz_qn * (hwz_wn - hwz_wn(-1) - lv_iwo_qn * iwo_wn) ;
+ident  lv_wdk_wd = lv_wdk_1_qn * (lv_wdk_2_qn * wa_pr - lv_wdk_3_qn * wa_pr(-1)) * lv_wz_wn(-1) ;
+frml   lv_wz_wn = lv_wz_wn(-1) + lv_wdh_wd + lv_wdk_wd ;
+
+frml   lv_wg_er = (lv_wz_wn + lv_wz_wn(-1)) / (lv_wz_wn(-1) + lv_wz_wn(-2)) - 1 ;
+frml   lv_wrs_er = lv_wdh_wd / lv_wz_wn(-1) ;
+frml   gibbox2wn = gibbox2wn(-1) * (1 + ovi_wr) + gibbox2_aut_wn;
+  ? box3 verhuisd naar macromodel
+frml   gvdivwn = gvdivwn(-1) * (1 + ovi_wr) + gvdiv_aut_wn ;
+frml   fkewown = fkewown(-1) * (hypren_qn / hypren_qn(-1)) * (hwz_wn + hwz_wn(-1)) / (hwz_wn(-1) + hwz_wn(-2)) + fkewo_aut_wn ;
+frml   wi_bimbam_wn = wi_bimbam_wn(-1) * (1 + wi_wr) + wi_bimbam_aut_wn ;
+frml   woz_sprong_qn = wh2_pr ;
+
+  ? ib-plichtige winst incl maatregelen
+ident  wiwn = wi_bimbam_wn + wi_maatr_wn ;
+  ? opbrengst box2 en box4(=verrekende voorheffing dividenbelasting)
+ident  ibbox2wn = gibbox2wn * bel_b2_tn ;
+ident  vdivwn =  - gvdivwn * db_tn ;
+
+  ? ziekteverzuim wulbz en dso
+
+  ? werkloosheidspercentage prikken voorzover overgenomen uit confrontatie
+frml   wbvqn = wbvqn(-1) + wbvautqn ;
+  ? conjunctuureffect is factor maal mutatie werkloosheidspercentage. was lange tijd -0,25, tegenwoordig kleiner
+ident  zz_conjef_qn = (wbvqn - wbvqn(-1)) * zz_fact_conj_qn ;
+  ? mutatie ziekteverzuim is conjunctuur effect jaar t minus afbouw van deel van die van de voorgaande drie jaren
+ident  zz_mut_qn = zz_conjef_qn - ( zz_afb1_qn * zz_conjef_qn(-1) + zz_afb2_qn * zz_conjef_qn(-2) + zz_afb3_qn * zz_conjef_qn(-3) ) ;
+  ? ziekteverzuimpercentages loontrekkers totaal en overheid
+frml   zz_l_qn = zz_l_qn(-1) + zz_mut_qn + zz_l_aut_qn ;
+frml   zz_o_qn = zz_o_qn(-1)             + zz_o_aut_qn ;
+  ? aandeel dso in bedragen dso+wulbz. in nr-jaren berekenen uit bedragen jaar t: bedrag dso gedeeld door bedrag dso+wulbz
+frml   zz_dso_ziek_m_qn = zz_dso_ziek_m_qn(-1) ;
+frml   zz_dso_ziek_z_qn = zz_dso_ziek_z_qn(-1) ;
+frml   zz_dso_ziek_o_qn = zz_dso_ziek_o_qn(-1) ;
+  ? volume ziekteverzuim loontrekkers totaal, overheid en bedrijven
+ident  zz_l_mn = zz_l_qn * (bl_m_aj_nn + bl_z_aj_nn + bl_o_aj_nn) ;
+ident  lodsomn = zz_o_qn * (bl_m_aj_nn * zz_dso_ziek_m_qn + bl_z_aj_nn * zz_dso_ziek_z_qn + bl_o_aj_nn * zz_dso_ziek_o_qn) ;
+ident  zzzbvmn = zz_l_mn - lodsomn ;
+  ? bedragen dso en wulbz in loonsomopbouw
+frml   dso_m_wn = dso_m_wn(-1) * lodsomn / lodsomn(-1) * (1 + bl_ctr_m_er + bl_inc_str_m_er) ;
+frml   dso_z_wn = dso_z_wn(-1) * lodsomn / lodsomn(-1) * (1 + bl_ctr_z_er + bl_inc_str_z_er) ;
+frml   dso_o_wn = dso_o_wn(-1) * lodsomn / lodsomn(-1) * (1 + bl_ctr_o_er + bl_inc_str_o_er) ;
+ident  dso_b_wn = dso_m_wn + dso_z_wn ;
+frml   wulbz_m_wn = wulbz_m_wn(-1) * zzzbvmn / zzzbvmn(-1) * (1 + bl_ctr_m_er + bl_inc_str_m_er) ;
+frml   wulbz_z_wn = wulbz_z_wn(-1) * zzzbvmn / zzzbvmn(-1) * (1 + bl_ctr_z_er + bl_inc_str_z_er) ;
+frml   wulbz_o_wn = wulbz_o_wn(-1) * zzzbvmn / zzzbvmn(-1) * (1 + bl_ctr_o_er + bl_inc_str_o_er) ;
+ident  wulbz_b_wn = wulbz_m_wn + wulbz_z_wn ;
+
+? wegingsfactoren huishoudens in replacement rate en (micro) wiggen
+ident mp_mk_qn       = (mp1k_hh_nn + mp2k_hh_nn) / (mp0k_hh_nn + mp1k_hh_nn + mp2k_hh_nn) ;
+ident av_hh_nn       = mp0k_hh_nn + mp1k_hh_nn + mp2k_hh_nn + mpov_hh_nn - tv_hh_nn ;
+ident rr_weg_aszk_qn = as0k_hh_nn / (as0k_hh_nn + mp_mk_qn * tv_hh_nn + av_hh_nn) ;
+ident rr_weg_tvmk_qn = (mp_mk_qn * tv_hh_nn) / (as0k_hh_nn + mp_mk_qn * tv_hh_nn + av_hh_nn) ;
+ident rr_weg_avmk_qn = (mp_mk_qn * av_hh_nn) / (as0k_hh_nn + mp_mk_qn * tv_hh_nn + av_hh_nn) ;
+ident rr_weg_avzk_qn = 1 - rr_weg_aszk_qn - rr_weg_tvmk_qn - rr_weg_avmk_qn ;
+
+  ? eigen bijdrage zvw: in koopkrachtjaren voor sommige jaren een correctie ivm pakketaanpassingen
+ident  zfw_eb_bj_fn  = toreal(jaartal < afschaf_cer_bn)* zfw_eb_bj_ecz_fn + toreal(jaartal >= afschaf_cer_bn)* zfw_eb_bj_icz_fn;
+ident  extra_eb2_ch_kk_fn = toreal (jaartal = afschaf_cer_bn) * (zfw_eb_bj_ecz_fn - zfw_eb_bj_icz_fn); 
+ident  zfw_eb_fn  = toreal(koopkracht_bn = 0) * zfw_eb_bj_fn  + toreal(koopkracht_bn = 1) * (zfw_eb_bj_fn + zfw_eb_corrkk_fn + extra_eb2_ch_kk_fn);
+ident  extra_eb_ch_fn  =  toreal (koopkracht_bn=1) *  extra_eb_ch_kk_fn;
+
+
+frml   t3_hypren_spec_fn  = t3_hypren_spec_fn(-1) * (1 + woz_w1_er) ;
+frml   bezit_spec_fn  = bezit_spec_fn(-1) * (1 + bezit_er) ;
+frml   woz_w1_spec_fn  = woz_w1_spec_fn(-1) * (1 + woz_w1_er) ;
+frml   huur_spec_fn  = huur_spec_fn(-1) * (1 + huur_er) ;
+
+ident  t3_hypren_spec_v_fn  = t3_hypren_spec_fn(-1) ;
+ident  bezit_spec_v_fn  = bezit_spec_fn(-1) ;
+ident  woz_w1_spec_v_fn  = woz_w1_spec_fn(-1) ;
+ident  huur_spec_v_fn  = huur_spec_fn(-1) ;
+
+  ? totaal wao - tarief
+ident  wao_wg_tn  = w1gtn + w2gtn + wkgtn + wko_wg_tn * wko_tlv_aof_bn ;
+
+  ? nominale zvw-premiem tbv micromodel en koopkracht is exogeen
+ident  zfw_n_fn  = zfw_nza_fn;
+
+  ? zfw-premie wg afronden, eerst de gewone, dan die met korting
+ident  zfw_wg_tn  = round(zfw_wg_onafg_tn, zfw_tar_afrond_tn) ;
+ident  zfw_wn_tn2  = round(zfw_wn_onafg_tn2, zfw_tar_afrond_tn) ;
+ident  aow_zfw_wg_tn  = zfw_wn_tn2 ;
+
+  ? premiegrens pensioenpremies
+frml   pen_pgr_fn  = ceil(pen_pgr_fn(-1) * (brl_1m_wml_fn/ brl_1m_wml_fn(-1)), afr_euro_qn) ;
+  ? premiegrens werknemersverzekeringen
+frml   wnv_pgr_onaf_fn  = floor((brl_1m_wml_fn / brl_1m_wml_fn(-1)) * wnv_pgr_onaf_fn(-1), afr_cent_qn) ;
+frml   wnv_pgr_fn  = floor(wnv_pgr_onaf_fn, afr_euro_qn) ;
+frml   wnv_pgr_dag_fn  = floor((wnv_pgr_fn / loon_dagpj_bn), afr_cent_qn) ;
+
+  ? premiegrens zfw/zvw
+frml   zfw_pgr_fn  = toreal(zfw_pgr_is_wnv_pgr_bn = 0) * (floor(zfw_pgr_fn(-1) * (1 + (bl_ctr_m_er(-1) + bl_ctr_m_er(-2)) / 2), afr_euro_qn))  +
+					toreal(zfw_pgr_is_wnv_pgr_bn = 1) * (wnv_pgr_fn) ;
+frml   zfw_pgr_w_fn  = zfw_pgr_fn ;
+frml   zfw_pgr_65_fn  = zfw_pgr_fn ;
+
+  ? nb drempelgrens laag/hoog pecentage bu-aftrek, indexeren conform sheet fin: wet ib 2001 obv tabelcorrectiefactor
+frml   a_ziek_vzi_hooggr_fn  = ceil(a_ziek_vzi_hooggr_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) ;
+
+  ? vermenigvuldigingsfactor van de buitengewone uitgaven
+frml   a_ziek_fact_qn  = a_ziek_fact_qn(-1);
+frml   a_ziek_fact_65_qn  = a_ziek_fact_65_qn(-1);
+
+ident  a_ziek_eruit_bn  = toreal (koopkracht_bn=0) * a_ziek_eruit_bj_bn + toreal(koopkracht_bn=1) * a_ziek_eruit_kk_bn;
+
+
+  ? compensatie ivm afschaffen bu voor chronisch zieken en gehandicapten
+frml   chff_maxvzi_gr_as_fn  = round((1 + tcf_tn * tcf_ih_bn) * chff_maxvzi_gr_as_fn(-1),afr_cent_qn);
+frml   chff_maxvzi_gr_pr_fn  = round((1 + tcf_tn * tcf_ih_bn) * chff_maxvzi_gr_pr_fn(-1),afr_cent_qn);
+
+frml   chff64_gem_fn  =  toreal(koopkracht_bn = 0) * chff_factor_bj_bn *round((1 + tcf_tn * tcf_ih_bn * chff64_gem_index_bn) * chff64_gem_fn(-1),afr_cent_qn) +
+						toreal(koopkracht_bn = 1) * chff_factor_pj_bn *round((1 + tcf_tn * tcf_ih_bn * chff64_gem_index_bn) * chff64_gem_fn(-1),afr_cent_qn);
+frml   chff64_hoog_fn  = toreal(koopkracht_bn = 0) * chff_factor_bj_bn * round((1 + tcf_tn * tcf_ih_bn * chff64_hoog_index_bn) * chff64_hoog_fn(-1),afr_cent_qn) +
+						toreal(koopkracht_bn = 1) * chff_factor_pj_bn * round((1 + tcf_tn * tcf_ih_bn * chff64_hoog_index_bn) * chff64_hoog_fn(-1),afr_cent_qn);
+frml   chff65_gem_fn  =  toreal(koopkracht_bn = 0) * chff_factor_bj_bn * round((1 + tcf_tn * tcf_ih_bn * chff65_gem_index_bn) * chff65_gem_fn(-1),afr_cent_qn) +
+						toreal(koopkracht_bn = 1) * chff_factor_pj_bn * round((1 + tcf_tn * tcf_ih_bn * chff65_gem_index_bn) * chff65_gem_fn(-1),afr_cent_qn);
+frml   chff65_hoog_fn  = toreal(koopkracht_bn = 0) * chff_factor_bj_bn *round((1 + tcf_tn * tcf_ih_bn * chff65_hoog_index_bn) * chff65_hoog_fn(-1),afr_cent_qn) +
+						toreal(koopkracht_bn = 1) * chff_factor_pj_bn *round((1 + tcf_tn * tcf_ih_bn * chff65_hoog_index_bn) * chff65_hoog_fn(-1),afr_cent_qn);
+
+  ? percentages voor zorgtoeslag
+frml   nrm_pr_zp_qn  = nrm_pr_zp_qn(-1) + nrm_pr_zp_mut_qn;
+frml   nrm_pr_mp_qn  = nrm_pr_mp_qn(-1) + nrm_pr_mp_mut_qn;
+frml   nrm_pr_qn  = nrm_pr_qn(-1) + nrm_pr_mut_qn;
+
+  ? franchises pensioen en bip
+frml   pen_fr_m_fn = round (pen_fr_m_fn(-1) * (1 + bl_ctr_m_er), afr_euro_qn) ;
+frml   pen_fr_z_fn = round (pen_fr_z_fn(-1) * (1 + bl_ctr_z_er), afr_euro_qn) ;
+frml   pen_fr_o_fn = round (pen_fr_o_fn(-1) * (1 + bl_ctr_o_er), afr_euro_qn) ;
+frml   bip_fr_m_fn = round (bip_fr_m_fn(-1) * (1 + bl_ctr_m_er), afr_euro_qn) ;
+frml   bip_fr_z_fn = round (bip_fr_z_fn(-1) * (1 + bl_ctr_z_er), afr_euro_qn) ;
+frml   bip_fr_o_fn = round (bip_fr_o_fn(-1) * (1 + bl_ctr_o_er), afr_euro_qn) ;
+
+
+  ? deel loonvoeten / loonsommen
+
+  ? structuureffect frml   voor scheef prikken
+frml   bl_inc_str_m_er  = 0 ;
+frml   bl_inc_str_z_er  = 0 ;
+frml   bl_inc_str_o_er  = 0 ;
+
+  ? volume mutatie, in proloog
+ident  bl_m_aj_nr  = bl_m_aj_nn / bl_m_aj_nn(-1) - 1 ;
+ident  bl_z_aj_nr  = bl_z_aj_nn / bl_z_aj_nn(-1) - 1 ;
+ident  bl_o_aj_nr  = bl_o_aj_nn / bl_o_aj_nn(-1) - 1 ;
+
+ident  bl_m_ur_nr  = bl_m_ur_nn / bl_m_ur_nn(-1) - 1 ;
+ident  bl_z_ur_nr  = bl_z_ur_nn / bl_z_ur_nn(-1) - 1 ;
+ident  bl_o_ur_nr  = bl_o_ur_nn / bl_o_ur_nn(-1) - 1 ;
+
+  ? volume mutatie bedrijven gewogen met loonkosten vorig jaar
+ident  bl_b_aj_nr  = ( (bl_m_aj_nn / bl_m_aj_nn(-1)) * lns_nr_m_wn(-1) + (bl_z_aj_nn / bl_z_aj_nn(-1)) * lns_nr_z_wn(-1) ) / lns_nr_b_wn(-1) - 1 ;
+
+ident  bl_b_ur_nr  = ( (bl_m_ur_nn / bl_m_ur_nn(-1)) * lns_nr_m_wn(-1) + (bl_z_ur_nn / bl_z_ur_nn(-1)) * lns_nr_z_wn(-1) ) / lns_nr_b_wn(-1) - 1 ;
+
+ident  inh_m_pr  = inh_m_wn / max(0.00001,inh_m_wn(-1)) / (1 + bl_m_ur_nr) - 1 ;
+ident  inh_o_pr  = inh_o_wn / max(0.00001,inh_o_wn(-1)) / (1 + bl_o_ur_nr) - 1 ;
+ident  inh_z_pr  = inh_z_wn / max(0.00001,inh_z_wn(-1)) / (1 + bl_z_ur_nr) - 1 ;
+
+  ? schaalloon
+ident  bl_m_wn  = bl_m_wn(-1) * (1 + sl_m_er) * (1 + bl_m_ur_nr) ;
+ident  bl_z_wn  = bl_z_wn(-1) * (1 + sl_z_er) * (1 + bl_z_ur_nr) ;
+ident  bl_o_wn  = bl_o_wn(-1) * (1 + sl_o_er) * (1 + bl_o_ur_nr) ;
+ident  bl_b_wn  = bl_m_wn + bl_z_wn ;
+ident  bl_b_er  = (bl_b_wn / bl_b_wn(-1)) / (1 + bl_b_ur_nr) - 1 ;
+
+  ? inhouding (laten bestaan: werknemerspremie awf is nul vanaf 2009, maar kan zomaar terugkeren)
+frml   inh_m_wn  = inh_m_wn(-1) / awf_wn_tn(-1) * (1 + bl_m_ur_nr) * (1 + sl_m_er)  * awf_wn_tn ;
+frml   inh_z_wn  = inh_z_wn(-1) / awf_wn_tn(-1) * (1 + bl_z_ur_nr) * (1 + sl_z_er)  * awf_wn_tn ;
+frml   inh_o_wn  = inh_o_wn(-1) / awf_wn_tn(-1) * (1 + bl_o_ur_nr) * (1 + sl_o_er)  * awf_wn_tn ;
+ident  inh_b_wn  = inh_m_wn + inh_z_wn ;
+ident  inh_b_pr  = (inh_b_wn / inh_b_wn(-1)) / (1 + bl_b_ur_nr) - 1 ;
+
+  ? brutoloon (cf cpb)
+ident  bl_cpb_m_wn  = bl_m_wn - inh_m_wn ;
+ident  bl_cpb_z_wn  = bl_z_wn - inh_z_wn ;
+ident  bl_cpb_o_wn  = bl_o_wn - inh_o_wn ;
+ident  bl_cpb_b_wn  = bl_cpb_m_wn + bl_cpb_z_wn ;
+ident  bl_cpb_m_pr  = (bl_cpb_m_wn / bl_cpb_m_wn(-1)) / (1 + bl_m_ur_nr) - 1 ;
+ident  bl_cpb_z_pr  = (bl_cpb_z_wn / bl_cpb_z_wn(-1)) / (1 + bl_z_ur_nr) - 1 ;
+ident  bl_cpb_o_pr  = (bl_cpb_o_wn / bl_cpb_o_wn(-1)) / (1 + bl_o_ur_nr) - 1 ;
+ident  bl_cpb_b_pr  = (bl_cpb_b_wn / bl_cpb_b_wn(-1)) / (1 + bl_b_ur_nr) - 1 ;
+
+  ? arbeidsproductiviteit sector en bedrijfstak overheid
+frml   arbprod_o_pr  = toreal(laatste_draaijaar_kk_bn = 0) * ((bl_inc_str_o_er(-1) + bl_inc_str_o_er + bl_inc_str_o_er(1)) / 3) +
+						toreal(laatste_draaijaar_kk_bn = 1) * ((bl_inc_str_o_er(-1) + bl_inc_str_o_er) / 2) ;
+frml   arbprod_o_sect_pr  = arbprod_o_pr ;
+  
+  ? gemiddeld loon bedrijven (gebruikt bij specials) merk op dat dit ding _bedr_ heet, maar dat wordt opgehoogd met iets van markt 
+frml   gem_loon_bedr_fn  = gem_loon_bedr_fn(-1) * (1 + bl_ctr_m_er + bl_inc_str_m_er) ;
+
+  ? zw-effecten in incidenteel loon op nul na overgang van arbeidsjaren op gewerkte uren.
+frml   bl_inc_zw_b_er  = 0 ;
+frml   bl_inc_zw_m_er  = bl_inc_zw_b_er ;
+frml   bl_inc_zw_z_er  = bl_inc_zw_b_er ;
+frml   bl_inc_zw_o_er  = 0 ;
+
+
+ident  rl_rn_5jrgem_qn  = (rl_rn_qn(-4) + rl_rn_qn(-3) + rl_rn_qn(-2) + rl_rn_qn(-1) + rl_rn_qn) / 5;
+ident  mut_rl_rn_5jrgem_qn  = rl_rn_5jrgem_qn/ rl_rn_5jrgem_qn(-1) - 1;
+ident  mut_hypren_qn  = (hypren_qn / hypren_qn(-1) -1);
+ident  spaarren_berekend_qn  = spaarren_factor_rl_rn_qn * rl_rn_qn + spaarren_const_rl_rn_bn;
+ident  spaarren_qn  = spaarren_bereken_bn *  spaarren_berekend_qn  + (1-spaarren_bereken_bn) * spaarren_fisim_qn;
+ident  mut_spaarren_qn  = (spaarren_qn / spaarren_qn(-1)-1);
+
+  ? zes-jaars vertraagde nodig voor box3 tarief op sparen
+ident  spaarren_1_qn  = spaarren_qn(-1);
+ident  spaarren_2_qn  = spaarren_1_qn(-1);
+ident  spaarren_3_qn  = spaarren_2_qn(-1);
+ident  spaarren_4_qn  = spaarren_3_qn(-1);
+ident  spaarren_5_qn  = spaarren_4_qn(-1);
+ident  spaarren_6_qn  = spaarren_5_qn(-1);
+
+  ? ib box3 tarieven sparen en beleggen
+ident  b3_sp_5jrgem_qn = (spaarren_6_qn + spaarren_5_qn + spaarren_4_qn + spaarren_3_qn + spaarren_2_qn) / 5 ;
+ident  b3_sp_reken_qn = b3_sp_fact1_qn * b3_sp_5jrgem_qn - b3_sp_fact2_qn * (b3_sp_5jrgem_qn + b3_sp_fact3_qn) ;
+frml   b3_rdmsp_qn = round(b3_rdmsp_qn(-1) * b3_sp_reken_qn / b3_sp_reken_qn(-1) , 0.0001) ;
+
+frml   b3_blg_aan_qn = ( (1 + b3_blg_aan_qn(-1))**14 * (1 + wa_pr(-2)) )**(1/15) - 1 ;
+frml   b3_blg_ozk_qn = ( (1 + b3_blg_ozk_qn(-1))**14 * (1 + wh_pr(-2)) )**(1/15) - 1 ;
+frml   b3_blg_obl_qn = ( (1 + b3_blg_obl_qn(-1))**14 * (1 + rl_rn_qn(-2)) )**(1/15) - 1 ;
+frml   b3_rdmblg_qn = round(b3_blg_gw_aan_qn * b3_blg_aan_qn + b3_blg_gw_ozk_qn * b3_blg_ozk_qn + b3_blg_gw_obl_qn * b3_blg_obl_qn , 0.0001) ;
+
+
+  ? indexatie primaire inkomensbestanddelen
+
+ident  bl_m_er   = bl_ctr_m_er + bl_inc_str_m_er + bl_m_aut_er + incid_in_kk_bn * toreal(koopkracht_bn = 1) * (bl_inc_conj_er + bl_inc_str_er) ;
+ident  bl_z_er   = bl_ctr_z_er + bl_inc_str_z_er + bl_z_aut_er + incid_in_kk_bn * toreal(koopkracht_bn = 1) * (bl_inc_conj_er + bl_inc_str_er) ;
+ident  bl_o_er   = bl_ctr_o_er + bl_inc_str_o_er + bl_o_aut_er + incid_in_kk_bn * toreal(koopkracht_bn = 1) * (bl_inc_conj_er + bl_inc_str_er) ;
+ident  sl_m_er   = bl_m_er + bl_inc_zw_m_er - bl_m_aut_er ;
+ident  sl_z_er   = bl_z_er + bl_inc_zw_z_er ;
+ident  sl_o_er   = bl_o_er + bl_inc_zw_o_er ;
+
+ident  buiink_er = bl_ctr_m_er + buiink_aut_er ;
+ident  t1_dgn_er = bl_ctr_m_er + t1_dgn_aut_er ;
+
+frml   dgn_gl_fn = floor(dgn_gl_fn(-1) * (1 + tcf_tn), 1) ;
+
+frml   vmgrensschijf1_fn  = floor(vmgrensschijf1_fn(-1) * (1 + tcf_tn), 1) ;
+frml   vmgrensschijf2_fn  = floor(vmgrensschijf2_fn(-1) * (1 + tcf_tn), 1) ;
+
+ident  t2_win_er = toreal(koopkracht_bn = 0) * ((wiwn / wiwn(-1)) * (t2_win_ln(-1) / t2_win_ln) - 1 + t2_win_aut_er) + toreal(koopkracht_bn = 1) * bl_ctr_m_er;
+ident  ovink_er = toreal(koopkracht_bn = 0) * (t2_win_er + ovink_aut_er) + toreal(koopkracht_bn = 1) * bl_ctr_m_er;
+ident  bli_b2_er = toreal(koopkracht_bn = 0) * ( (gibbox2wn / gibbox2wn(-1)) * (bli_b2_ln(-1) / bli_b2_ln) - 1 + bli_b2_aut_er) + toreal(koopkracht_bn = 1) * cpi_er;
+ident  t3_hypren_er = toreal(koopkracht_bn = 0) * ((fkewown / fkewown(-1)) * (ew_hh_nn(-1) / ew_hh_nn) - 1 + t3_hypren_aut_er) + toreal(koopkracht_bn = 1) * mut_hypren_qn;
+ident  t3_iew_er = huur_qn + t3_iew_aut_er ;
+
+
+ident  t3_dab_er = toreal(koopkracht_bn = 0) * (bli_b2_er + t3_dab_aut_er) + toreal(koopkracht_bn = 1) * ((1+cpi_er) * (1 + t3_div_con_er) - 1);
+ident  db_div_wn = - vdivwn ;
+ident  t3_div_wn = gvdivwn ;
+ident  t3_div_er = toreal(koopkracht_bn = 0) * ((t3_div_wn / t3_div_wn(-1)) * (t3_div_ln(-1) / (t3_div_ln + t3_div_eruit_bn + draai_mic_als_spec_bn)) - 1 + t3_div_aut_er)
+				  + toreal(koopkracht_bn = 1) * ((1 + cpi_er) * (1 + t3_div_con_er) - 1);
+ident  t3_div_con_er = (t3_div_con_wn / t3_div_con_wn(-1)) - 1;
+
+  ? itt overgang bij bezit_er van lv_wrs naar lv_wg blijft lv_wrs de aanpassing voor t3_ovi_er
+ident  t3_ovi_er = toreal(koopkracht_bn = 0) * ((1 + lv_wrs_er) * (mut_rl_rn_5jrgem_qn + 1) * (t3_ovi_ln(-1) / (t3_ovi_ln + t3_ovi_eruit_bn + draai_mic_als_spec_bn)) - 1 + t3_ovi_aut_er)
+				  + toreal(koopkracht_bn = 1) * ((1 + cpi_er) * (1 +  mut_spaarren_qn) - 1);
+
+  ? consumptie auto's in lopende prijzen en prijzen t - 1 uit bimbam
+ident  autowg_er = cpa_wn / cpa_vn - 1 + autowg_aut_er ;
+
+  ? lv_wg_er (lv_wg) is de met bimbam geraamde groei van het liquide financieel bezit inclusief aandelen, gem. gedurende het jaar. dit wordt
+  ? gecorrigeerd voor de ontwikkeling van het aantal micro - bezitters
+  ? let op: bezit_xxx_er staat voor de groei van vermogen door rendement en door extra inleg. dus niet hetzelfde als bv spaarren_qn.
+ident  bezit_er = toreal(koopkracht_bn = 0) * ((lv_wg_er / (bezit_01jan_ln / bezit_01jan_ln(-1))) + bezit_aut_er )
+				+ toreal(koopkracht_bn = 1) * cpi_er;  
+ident  bezit_spaar_er= toreal(koopkracht_bn = 0) * lv_wg_er / (bezit_01jan_ln / bezit_01jan_ln(-1))  +  toreal(koopkracht_bn = 1) * cpi_er;	
+ident  bezit_oblg_er = toreal(koopkracht_bn = 0) * lv_wg_er / (bezit_01jan_ln / bezit_01jan_ln(-1))  +  toreal(koopkracht_bn = 1) * cpi_er;
+ident  bezit_aand_er = toreal(koopkracht_bn = 0) * lv_wg_er / (bezit_01jan_ln / bezit_01jan_ln(-1))  +  toreal(koopkracht_bn = 1) * cpi_er;
+ident  bezit_ogo_er  = toreal(koopkracht_bn = 0) * lv_wg_er / (bezit_01jan_ln / bezit_01jan_ln(-1))  +  toreal(koopkracht_bn = 1) * cpi_er;
+ident  bezit_roer_er = toreal(koopkracht_bn = 0) * lv_wg_er / (bezit_01jan_ln / bezit_01jan_ln(-1))  +  toreal(koopkracht_bn = 1) * cpi_er;					
+ident  schuld_er 	 = cpi_er ;
+
+  ? woz_sprong_qn is wozaanpas uit bimbam (/100)
+ident  woz_w1_er = woz_sprong_qn + woz_w1_aut_er ;
+
+  ? correctie nbi microdata voor koopkracht
+ident  nbi_corr_alleen_micro_er  = nbi_corr_lesg_er + nbi_corr_kov_ryk_er + nbi_corr_kov_wgb_er ;
+
+  ? indexatie secundaire inkomensbestanddelen
+
+  ? ontslag ww
+frml   buk_ww_mac_wn = afwlhwn + wfwlhwn + ufwldwn ;
+ident  buk_ww_pr = buk_ww_mac_wn / (buk_ww_mac_wn(-1) * buk_ww_mac_nn / buk_ww_mac_nn(-1)) - 1 ;
+ident  buk_ww_wka_er = (brl_wml_fn / brl_wml_fn(-1)) - 1 ;
+frml   buk_ww_inc_er = (1 + buk_ww_pr) / (1 + buk_ww_wka_er) - 1 ;
+ident  buk_ww_er = (buk_ww_wka_er + buk_ww_inc_er + buk_ww_aut_er) ;
+
+  ? vangnet zw
+ident  t5_zw_mac_mn = afvntmn + wfvntmn + ufvntmn + w11mn + w12mn + w14mn ;
+ident  t5_zw_mac_wn = afvntwn + wfvntwn + ufvntwn + w11wn + w12wn + w14wn ;
+ident  t5_zw_pr = t5_zw_mac_wn / (t5_zw_mac_wn(-1) * t5_zw_mac_mn / t5_zw_mac_mn(-1)) - 1 ;
+ident  t5_zw_wka_er = (brl_wml_fn / brl_wml_fn(-1)) - 1 ;
+frml   t5_zw_inc_er = (1 + t5_zw_pr) / (1 + t5_zw_wka_er) - 1 ;
+ident  t5_zw_er = (t5_zw_wka_er + t5_zw_inc_er + t5_zw_aut_er) ;
+
+  ? wao/wia
+ident  ao_wao_pr = (wo_mic_wn / wo_mic_wn(-1)) * (ao_wao_nn(-1) / ao_wao_nn) - 1 ;
+ident  ao_wao_wka_er = (brl_wml_fn / brl_wml_fn(-1)) - 1 ;
+frml   ao_wao_inc_er = (1 + ao_wao_pr) / (1 + ao_wao_wka_er) - 1 ;
+ident  ao_wao_er = ao_wao_wka_er + ao_wao_inc_er + ao_wao_aut_er ;
+
+  ? aow gehuwd
+frml  t5_aow1_er = aow1_fr + t5_aow1_aut_er ;
+
+  ? aow toeslag jongere partner (als bij gehuwd, met extra aanpasmogelijkheid)
+ident  t5_aow_tjp_er = t5_aow1_er ;
+
+  ? aow alleenstaande
+frml  t5_aow2_er = aow2_fr + t5_aow2_aut_er ;
+
+  ? anw
+ident  t5_anw_er = brl_wml_fn / brl_wml_fn(-1) - 1 + t5_anw_aut_er ;
+
+  ? pensioenen
+ident  t5_pen64_er = (pen_uitk_wn / pen_uitk_wn(-1)) * (t5_pen64_nn(-1) / t5_pen64_nn) - 1 + t5_pen64_aut_er ;
+ident  t5_pen65_er = ( (pen_uitk_wn-vut_uitk_wn) / (pen_uitk_wn(-1)-vut_uitk_wn(-1)) ) * (t5_pen65_ln(-1) / t5_pen65_ln) - 1 + t5_pen65_aut_er ;
+
+ident  t5_pen65_gen_aanp_er = (t5_pen65_clm_qn + t5_pen65_cpi_qn) * t5_pen65_gen_aanp_mkt_qn + t5_pen65_clo_qn * t5_pen65_gen_aanp_ovh_qn +t5_pen65_clz_qn * t5_pen65_gen_aanp_zrg_qn ;
+frml   t5_pen65_ap_er = t5_pen65_index_qn * (t5_pen65_clm_qn * bl_ctr_m_er(-1) + t5_pen65_cpi_qn * cpi_er(-1)) +
+					t5_pen65_index_ovh_qn * t5_pen65_clo_qn * (bl_ctr_o_er(-1) + bl_ctr_o_ap_er(-1)) + t5_pen65_index_zrg_qn * t5_pen65_clz_qn * bl_ctr_z_er(-1) + t5_pen65_gen_aanp_er;
+frml   t5_pen64_ap_er = t5_pen65_ap_er ;
+frml   t5_pen65_inc_er = t5_pen65_er - t5_pen65_ap_er ;
+frml   t5_pen64_inc_er = t5_pen64_er - t5_pen64_ap_er ;
+
+  ? overig
+ident  buk_div_er = brl_wml_fn / brl_wml_fn(-1) - 1 + buk_div_aut_er ;
+ident  nuk_b_er =  nl_bij_wml_fn / nl_bij_wml_fn(-1) - 1 + nuk_b_aut_er ;
+ident  t6_stu_er =  cpi_er(-2) + t6_stu_aut_er ;
+ident  t7_rew_er = tcf_tn + t7_rew_aut_er ;
+ident  t7_tsk_er =  wtos_bn * (cpi_er(-2) + t7_tsk_aut_er) ;
+frml   t8_ont_er = bl_ctr_t_er(-1) + t8_ont_aut_er ;
+
+  ? indexatie betaalde overdrachten, belastingen en premies
+frml   vo_bet_er = bl_ctr_t_er(-1) + vo_bet_aut_er ;
+ident  ph_oup_er = tcf_tn + ph_oup_aut_er ;
+ident  ph_zwp_er = tcf_tn + ph_zwp_aut_er ;
+
+  ? indexatie persoonsgebonden aftrekposten
+frml   a_gift_er = tcf_tn + a_gift_aut_er ;
+ident  a_kind_er = tcf_tn + a_kind_aut_er ;
+ident  a_leve_er = tcf_tn + a_leve_aut_er ;
+ident  a_stud_er = tcf_tn + a_stud_aut_er ;
+frml   ziekplus_er = ziekplus_aut_er ;
+ident  a_wuo_ov_er 		= tcf_tn + a_wuo_ov_aut_er ;
+ident  a_staking_er		= tcf_tn + a_staking_aut_er ;
+ident  a_speur_er 		= tcf_tn + a_speur_aut_er ;
+ident  a_speurstart_er	= tcf_tn + a_speurstart_aut_er ;
+ident  a_invest_er 		= t2_win_er + a_invest_aut_er ;
+
+  ? indexatie overige bestanddelen
+ident  huur_er = huur_qn + huur_aut_er ;
+
+frml   huur_ink1_n_j_bj_er = ((1 + huur_ink1_jul_bj_er) * (1 + cpi_er) -1);
+ident  huur_ink1_er = toreal (jaartal < huur_inkafh_sj_bn) * huur_er +
+					  toreal (jaartal >= huur_inkafh_sj_bn) * (toreal(koopkracht_bn = 0) * (huur_ink1_n_j_bj_er(-1) + huur_ink1_n_j_bj_er)/2 + toreal(koopkracht_bn = 1 )* cpi_er) ;
+frml   huur_ink2_n_j_bj_er = ((1 + huur_ink2_jul_bj_er) * (1 + cpi_er) -1);
+ident  huur_ink2_er = toreal (jaartal < huur_inkafh_sj_bn) * huur_er +
+					  toreal (jaartal >= huur_inkafh_sj_bn) * (toreal(koopkracht_bn = 0) * (huur_ink2_n_j_bj_er(-1) + huur_ink2_n_j_bj_er)/2 + toreal(koopkracht_bn = 1 )* cpi_er) ;
+frml   huur_ink3_n_j_bj_er = ((1 + huur_ink3_jul_bj_er) * (1 + cpi_er) -1);
+ident  huur_ink3_er = toreal (jaartal < huur_inkafh_sj_bn) * huur_er +
+					  toreal (jaartal >= huur_inkafh_sj_bn) * (toreal(koopkracht_bn = 0) * (huur_ink3_n_j_bj_er(-1) + huur_ink3_n_j_bj_er)/2 + toreal(koopkracht_bn = 1 )* cpi_er) ;
+
+
+  ? randtotalen herweging
+
+  ? aantal arbeidsjaren en gewerkte uren naar bedrijfstak (markt, zorg en overheid zijn exogeen)
+  ? arbeidsjaren werknemers markt is inclusief expl og en delfstoffenwinning
+ident  bl_b_aj_nn  = bl_m_aj_nn + bl_z_aj_nn ;
+ident  bl_b_ur_nn  = bl_m_ur_nn + bl_z_ur_nn ;
+
+  ? aantal personen met loon, gemiddeld gedurende het jaar, naar bedrijfstak, arbeidsvolume en pa-ratio zijn exogeen
+  ? markt
+ident  bl_m_nn  = bl_m_ur_nn * bl_m_pu_qn ;
+  ? zorg
+ident  bl_z_nn  = bl_z_ur_nn * bl_z_pu_qn ;
+  ? bedrijven (markt + zorg)
+ident  bl_b_nn  = bl_m_nn + bl_z_nn ;
+  ? overheid
+ident  bl_o_nn  = bl_o_ur_nn * bl_o_pu_qn ;
+
+frml  bl_m_aw_nn  = bl_m_nn ;
+frml  bl_z_aw_nn  = bl_z_nn ;
+frml  bl_o_aw_nn  = bl_o_nn ;
+
+  ? zelfstandigen
+  ? personen met winst uit onderneming en/of overig arbeidsinkomen
+ident  zelfst_nn  = wi_ur_nn * zelfst_pu_qn ;
+  ? wimn (mosi-variabele) is exogeen arbeidsvolume zelfstandigen in arbeidsjaren.
+  ? kan in toekomst worden vervangen door zelfst_aj_nn.
+  ?zelfstandigen met winst
+frml   zelfstwin_nn  = zelfstwin_qn * zelfst_nn;
+
+  ? ontslag-ww-uitkering      nb microaantallen zijn veel hoger door kortdurende uitkeringen!! vandaar buk_ww_hlf_qn
+frml   buk_ww_hlf_qn  = buk_ww_hlf_qn(-1) ;
+ident  buk_ww_mac_nn  =  ((wwvwmn + afatvmn + afkoumn + wfatvmn + wfkoumn + ufwldmn) * wwpaqn) / buk_ww_hlf_qn ;
+ident  buk_ww_nn  = buk_ww_mac_nn ;
+
+  ? wao-uitkering
+  ? tbv micro-macro excl alle vangnet
+ident  wo_mic_nn  = w1nn + i3nn + w8nn + w2nn + i1nn + w4nn + w9nn + w10nn + w13nn + (wfvwgamn + ufvwgamn) / wgahlfqn + w5nn ;
+ident  wo_mic_mn  = w1mn + i3mn + w8mn + w2mn + i1mn + w4mn + w9mn + w10mn + w13mn + wfvwgamn + ufvwgamn + w5mn  ;
+ident  wo_mic_wn  = w1wn + i3wn + w8wn + w2wn + i1wn + w4wn + w9wn + w10wn + w13wn + wfvwgawn + ufvwgawn + w5wn  ;
+frml   ao_wao_totgem_qn  = ao_wao_totgem_qn(-1) ;
+frml   ao_wao_nn  = ao_wao_totgem_qn * wo_mic_nn ;
+
+  ? bijstand
+frml   nuk_b_totgem_qn  = nuk_b_totgem_qn (-1) ;
+frml   nuk_b_nn  = nuk_b_totgem_qn * bw64nn ;
+
+  ? vut-/prepensioen
+frml   t5_pen64_nn    = t5_pen64_nn(-1)    * (lft_60_64_nn / lft_60_64_nn(-1) + t5_pen64_bev_qn) ;
+frml   t5_pen64_50_nn = t5_pen64_50_nn(-1) * (lft_60_64_nn / lft_60_64_nn(-1) + t5_pen64_bev_qn) ;
+
+  ? anw
+frml  t5_anw_nn  = wdnn ;
+
+  ? aow bruto toeslag
+frml   aow_br_ts_fn  = aow_br_ts_fn(-1) * (1 + tcf_tn * aow_br_ts_index_bn) + aow_br_ts_fnx ;
+  ? aow bruto toeslag uit het voorgaande jaar nodig in micromodel
+frml   aow_br_ts_v_fn  = aow_br_ts_fn(-1);
+
+  ? anw bruto toeslag
+frml   anw_br_ts_fn  = anw_br_ts_fn(-1) * (1 + tcf_tn * anw_br_ts_index_bn) + anw_br_ts_fnx ;
+
+  ? huishoudentoeslag
+frml   hhts_aowkop_fn  = hhts_aowkop_fn (-1)* (1+tcf_tn * hhts_aowkop_index_bn) + hhts_aowkop_fnx;
+frml   hhts_vmgr_fn  = hhts_vmgr_fn (-1) * (1+tcf_tn * hhts_vmgr_index_bn) + hhts_vmgr_fnx;
+
+
+  ? kinderbijslag
+
+  frml   kib_1kw_fn1 = round((kib_4kw_fn1(-1) * (1 + pc1_tn * kib_1hj_index_bn )), afr_cent_qn) + kib_1kw_fn1x ;
+frml   kib_1kw_fn2 = round((kib_4kw_fn2(-1) * (1 + pc1_tn * kib_1hj_index_bn )), afr_cent_qn) + kib_1kw_fn2x ;
+frml   kib_1kw_fn3 = round((kib_4kw_fn3(-1) * (1 + pc1_tn * kib_1hj_index_bn )), afr_cent_qn) + kib_1kw_fn3x ;
+frml   kib_1kw_fn4 = round((kib_4kw_fn4(-1) * (1 + pc1_tn * kib_1hj_index_bn )), afr_cent_qn) + kib_1kw_fn4x ;
+frml   kib_1kw_fn5 = round((kib_4kw_fn5(-1) * (1 + pc1_tn * kib_1hj_index_bn )), afr_cent_qn) + kib_1kw_fn5x ;
+frml   kib_1kw_fn6 = round((kib_4kw_fn6(-1) * (1 + pc1_tn * kib_1hj_index_bn )), afr_cent_qn) + kib_1kw_fn6x ;
+
+frml   kib_2kw_fn1 =  kib_1kw_fn1 + kib_2kw_fn1x ;
+frml   kib_2kw_fn2 =  kib_1kw_fn2 + kib_2kw_fn2x ;
+frml   kib_2kw_fn3 =  kib_1kw_fn3 + kib_2kw_fn3x ;
+frml   kib_2kw_fn4 =  kib_1kw_fn4 + kib_2kw_fn4x ;
+frml   kib_2kw_fn5 =  kib_1kw_fn5 + kib_2kw_fn5x ;
+frml   kib_2kw_fn6 =  kib_1kw_fn6 + kib_2kw_fn6x ;
+
+frml   kib_3kw_fn1 = round((kib_2kw_fn1 * (1 + pc2_tn * kib_2hj_index_bn )), afr_cent_qn) + kib_3kw_fn1x ;
+frml   kib_3kw_fn2 = round((kib_2kw_fn2 * (1 + pc2_tn * kib_2hj_index_bn )), afr_cent_qn) + kib_3kw_fn2x ;
+frml   kib_3kw_fn3 = round((kib_2kw_fn3 * (1 + pc2_tn * kib_2hj_index_bn )), afr_cent_qn) + kib_3kw_fn3x ;
+frml   kib_3kw_fn4 = round((kib_2kw_fn4 * (1 + pc2_tn * kib_2hj_index_bn )), afr_cent_qn) + kib_3kw_fn4x ;
+frml   kib_3kw_fn5 = round((kib_2kw_fn5 * (1 + pc2_tn * kib_2hj_index_bn )), afr_cent_qn) + kib_3kw_fn5x ;
+frml   kib_3kw_fn6 = round((kib_2kw_fn6 * (1 + pc2_tn * kib_2hj_index_bn )), afr_cent_qn) + kib_3kw_fn6x ;
+
+frml   kib_4kw_fn1 =  kib_3kw_fn1 + kib_4kw_fn1x ;
+frml   kib_4kw_fn2 =  kib_3kw_fn2 + kib_4kw_fn2x ;
+frml   kib_4kw_fn3 =  kib_3kw_fn3 + kib_4kw_fn3x ;
+frml   kib_4kw_fn4 =  kib_3kw_fn4 + kib_4kw_fn4x ;
+frml   kib_4kw_fn5 =  kib_3kw_fn5 + kib_4kw_fn5x ;
+frml   kib_4kw_fn6 =  kib_3kw_fn6 + kib_4kw_fn6x ;
+
+ident  kib_fn1 = kib_1kw_fn1 + kib_2kw_fn1 + kib_3kw_fn1 + kib_4kw_fn1 ;
+ident  kib_fn2 = kib_1kw_fn2 + kib_2kw_fn2 + kib_3kw_fn2 + kib_4kw_fn2 ;
+ident  kib_fn3 = kib_1kw_fn3 + kib_2kw_fn3 + kib_3kw_fn3 + kib_4kw_fn3 ;
+ident  kib_fn4 = kib_1kw_fn4 + kib_2kw_fn4 + kib_3kw_fn4 + kib_4kw_fn4 ;
+ident  kib_fn5 = kib_1kw_fn5 + kib_2kw_fn5 + kib_3kw_fn5 + kib_4kw_fn5 ;
+ident  kib_fn6 = kib_1kw_fn6 + kib_2kw_fn6 + kib_3kw_fn6 + kib_4kw_fn6 ;
+
+ident  kib_spec_fn = kib_fn1 * 2 * kib_gr2_qn ;
+
+ident  kib_opl_gebjaar_bn = kib_opl_gebjaar_bj_bn + toreal(koopkracht_bn=1);
+ident  kib_opl_lftgr_bn = min ( jaartal - kib_opl_gebjaar_bn, kib_lft_max_bn + 1);
+
+  ?kindgebonden budget
+frml   kndgb1_fn = ceil((kndgb1_fn(-1) + kndgb1_fny) * (1 + tcf_tn * kndgb_index_bn ), afr_euro_qn) + kndgb1_fnx ;
+frml   kndgb2_fn = ceil((kndgb2_fn(-1) + kndgb2_fny) * (1 + tcf_tn * kndgb_index_bn), afr_euro_qn) + kndgb2_fnx ;
+frml   kndgb3_fn = ceil((kndgb3_fn(-1) + kndgb3_fny) * (1 + tcf_tn * kndgb_index_bn), afr_euro_qn) + kndgb3_fnx ;
+frml   kndgb4_fn = ceil((kndgb4_fn(-1) + kndgb4_fny) * (1 + tcf_tn * kndgb_index_bn), afr_euro_qn) + kndgb4_fnx ;
+frml   kndgb5_fn = ceil((kndgb5_fn(-1) + kndgb5_fny) * (1 + tcf_tn * kndgb_index_bn), afr_euro_qn) + kndgb5_fnx ;
+frml   kndgb6_fn = ceil((kndgb6_fn(-1) + kndgb6_fny) * (1 + tcf_tn * kndgb_index_bn), afr_euro_qn) + kndgb6_fnx ;
+
+frml   kndgb_inkgr_fn = toreal(kndgb_inkgr_zts_bn = 0) * ceil(kndgb_inkgr_fn(-1) * (1 + tcf_tn * kndgb_inkgr_index_bn), afr_euro_qn) + kndgb_inkgr_fnx + toreal(kndgb_inkgr_zts_bn = 1) * dmp_ink_zts_fn;
+frml   kndgb_kop1_fn = ceil((kndgb_kop1_fn(-1) + kndgb_kop1_fny) * (1 + tcf_tn * kndgb_index_bn), afr_euro_qn) + kndgb_kop1_fnx ;
+frml   kndgb_kop2_fn = ceil((kndgb_kop2_fn(-1) + kndgb_kop2_fny) * (1 + tcf_tn * kndgb_index_bn), afr_euro_qn) + kndgb_kop2_fnx ;
+
+  ? voor berekening prijs- en volumemutatie kindgebonden budget wordt als maatstaf gekozen voor budget met 2 kinderen, van 8 en van 13 jaar
+ident  kndgb_uit_2k_fn = kndgb1_fn + kndgb2_fn + kndgb_kop1_fn ;
+
+  ?kinderopvang
+  ?indexatie van de vergoede uurprijs
+frml   kov_uren_bj_qn = kov_uren_bj_qn(-1) + kov_uren_bj_aut_qn ;
+frml   kov_uren_qn = toreal(koopkracht_bn=0)*(kov_uren_bj_qn) + toreal(koopkracht_bn=1)* kov_uren_bj_qn(-1) ;
+frml   kov_index_qn = kov_ind_cpi_lb_qn *cpi_er + (1 - kov_ind_cpi_lb_qn) * lns_nr_b_pr(-1);
+
+frml   kov_l1_maxpr_do_fn = kov_l1_maxpr_do_fn(-1) * (1 + kov_index_qn + kov_ind_corr_qn + kov_maxpr_do_indcorr_qn);
+frml   kov_l2_maxpr_bo_fn = kov_l2_maxpr_bo_fn(-1) * (1 + kov_index_qn + kov_ind_corr_qn + kov_maxpr_bo_indcorr_qn);
+frml   kov_l1_maxpr_go_fn = kov_l1_maxpr_go_fn(-1) * (1 + kov_index_qn + kov_ind_corr_qn + kov_maxpr_go_l1_indcorr_qn);
+frml   kov_l2_maxpr_go_fn = kov_l2_maxpr_go_fn(-1) * (1 + kov_index_qn + kov_ind_corr_qn + kov_maxpr_go_l2_indcorr_qn);
+
+frml   kov_l1_pr_do_fn = min (kov_l1_pr_do_fn(-1) * (1 + kov_index_qn + kov_ind_corr_qn + kov_pr_do_indcorr_qn), kov_l1_maxpr_do_fn);
+frml   kov_l2_pr_bo_fn = min (kov_l2_pr_bo_fn(-1) * (1 + kov_index_qn + kov_ind_corr_qn + kov_pr_bo_indcorr_qn), kov_l2_maxpr_bo_fn);
+frml   kov_l1_pr_go_fn = min (kov_l1_pr_go_fn(-1) * (1 + kov_index_qn + kov_ind_corr_qn + kov_pr_go_l1_indcorr_qn), kov_l1_maxpr_go_fn);
+frml   kov_l2_pr_go_fn = min (kov_l2_pr_go_fn(-1) * (1 + kov_index_qn + kov_ind_corr_qn + kov_pr_go_l2_indcorr_qn), kov_l2_maxpr_go_fn);
+
+  ?indexatie van de werkelijke uurprijs
+frml   kov_l1_wpr_do_fn = kov_l1_wpr_do_fn(-1) * (1 + kov_index_qn + kov_wpr_do_indcorr_qn);
+frml   kov_l2_wpr_bo_fn = kov_l2_wpr_bo_fn(-1) * (1 + kov_index_qn + kov_wpr_bo_indcorr_qn);
+frml   kov_l1_wpr_go_fn = kov_l1_wpr_go_fn(-1) * (1 + kov_index_qn + kov_wpr_go_l1_indcorr_qn);
+frml   kov_l2_wpr_go_fn = kov_l2_wpr_go_fn(-1) * (1 + kov_index_qn + kov_wpr_go_l2_indcorr_qn);
+
+  ?indexatie van de inkomensgrenzen in de kinderopvangtabel
+  ?om te kunnen prikken op waarde uit cep nieuwe variabele toegevoegd die voor latere jaren gelijk is aan totale contractloon
+frml   kov_index_ink_qn  = round (bl_ctr_t_er, 0.0001);
+
+frml   kov_ink_0_fn = kov_ink_0_fn(-1) * (1 + kov_index_ink_qn) + kov_ink_0_fnx ;
+frml   kov_ink_1_fn = round(kov_ink_1_fn(-1) * (1 + kov_index_ink_qn),afr_euro_qn) + kov_ink_1_fnx ;
+frml   kov_ink_2_fn = round(kov_ink_2_fn(-1) * (1 + kov_index_ink_qn),afr_euro_qn) + kov_ink_2_fnx ;
+frml   kov_ink_3_fn = round (kov_ink_3_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_3_fnx ;
+frml   kov_ink_4_fn = round (kov_ink_4_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_4_fnx;
+frml   kov_ink_5_fn = round (kov_ink_5_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_5_fnx;
+frml   kov_ink_6_fn = round (kov_ink_6_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_6_fnx;
+frml   kov_ink_7_fn = round (kov_ink_7_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_7_fnx;
+frml   kov_ink_8_fn = round (kov_ink_8_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_8_fnx;
+frml   kov_ink_9_fn = round (kov_ink_9_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_9_fnx;
+frml   kov_ink_10_fn = round (kov_ink_10_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_10_fnx ;
+frml   kov_ink_11_fn = round (kov_ink_11_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_11_fnx;
+frml   kov_ink_12_fn = round (kov_ink_12_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_12_fnx;
+frml   kov_ink_13_fn = round (kov_ink_13_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_13_fnx;
+frml   kov_ink_14_fn = round (kov_ink_14_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_14_fnx;
+frml   kov_ink_15_fn = round (kov_ink_15_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_15_fnx;
+frml   kov_ink_16_fn = round (kov_ink_16_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_16_fnx;
+frml   kov_ink_17_fn = round (kov_ink_17_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_17_fnx;
+frml   kov_ink_18_fn = round (kov_ink_18_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_18_fnx;
+frml   kov_ink_19_fn = round (kov_ink_19_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_19_fnx;
+frml   kov_ink_20_fn = round (kov_ink_20_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_20_fnx;
+frml   kov_ink_21_fn = round (kov_ink_21_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_21_fnx;
+frml   kov_ink_22_fn = round (kov_ink_22_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_22_fnx;
+frml   kov_ink_23_fn = round (kov_ink_23_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_23_fnx;
+frml   kov_ink_24_fn = round (kov_ink_24_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_24_fnx;
+frml   kov_ink_25_fn = round (kov_ink_25_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_25_fnx;
+frml   kov_ink_26_fn = round (kov_ink_26_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_26_fnx;
+frml   kov_ink_27_fn = round (kov_ink_27_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_27_fnx;
+frml   kov_ink_28_fn = round (kov_ink_28_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_28_fnx;
+frml   kov_ink_29_fn = round (kov_ink_29_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_29_fnx;
+frml   kov_ink_30_fn = round (kov_ink_30_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_30_fnx;
+frml   kov_ink_31_fn = round (kov_ink_31_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_31_fnx;
+frml   kov_ink_32_fn = round (kov_ink_32_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_32_fnx;
+frml   kov_ink_33_fn = round (kov_ink_33_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_33_fnx;
+frml   kov_ink_34_fn = round (kov_ink_34_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_34_fnx;
+frml   kov_ink_35_fn = round (kov_ink_35_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_35_fnx;
+frml   kov_ink_36_fn = round (kov_ink_36_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_36_fnx;
+frml   kov_ink_37_fn = round (kov_ink_37_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_37_fnx;
+frml   kov_ink_38_fn = round (kov_ink_38_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_38_fnx;
+frml   kov_ink_39_fn = round (kov_ink_39_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_39_fnx;
+frml   kov_ink_40_fn = round (kov_ink_40_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_40_fnx;
+frml   kov_ink_41_fn = round (kov_ink_41_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_41_fnx;
+frml   kov_ink_42_fn = round (kov_ink_42_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_42_fnx;
+frml   kov_ink_43_fn = round (kov_ink_43_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_43_fnx;
+frml   kov_ink_44_fn = round (kov_ink_44_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_44_fnx;
+frml   kov_ink_45_fn = round (kov_ink_45_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_45_fnx;
+frml   kov_ink_46_fn = round (kov_ink_46_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_46_fnx;
+frml   kov_ink_47_fn = round (kov_ink_47_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_47_fnx;
+frml   kov_ink_48_fn = round (kov_ink_48_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_48_fnx;
+frml   kov_ink_49_fn = round (kov_ink_49_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_49_fnx;
+frml   kov_ink_50_fn = round (kov_ink_50_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_50_fnx;
+frml   kov_ink_51_fn = round (kov_ink_51_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_51_fnx;
+frml   kov_ink_52_fn = round (kov_ink_52_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_52_fnx;
+frml   kov_ink_53_fn = round (kov_ink_53_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_53_fnx;
+frml   kov_ink_54_fn = round (kov_ink_54_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_54_fnx;
+frml   kov_ink_55_fn = round (kov_ink_55_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_55_fnx;
+frml   kov_ink_56_fn = round (kov_ink_56_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_56_fnx;
+frml   kov_ink_57_fn = round (kov_ink_57_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_57_fnx;
+frml   kov_ink_58_fn = round (kov_ink_58_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_58_fnx;
+frml   kov_ink_59_fn = round (kov_ink_59_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_59_fnx;
+frml   kov_ink_60_fn = round (kov_ink_60_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_60_fnx;
+frml   kov_ink_61_fn = round (kov_ink_61_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_61_fnx;
+frml   kov_ink_62_fn = round (kov_ink_62_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_62_fnx;
+frml   kov_ink_63_fn = round (kov_ink_63_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_63_fnx;
+frml   kov_ink_64_fn = round (kov_ink_64_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_64_fnx;
+frml   kov_ink_65_fn = round (kov_ink_65_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_65_fnx;
+frml   kov_ink_66_fn = round (kov_ink_66_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_66_fnx;
+frml   kov_ink_67_fn = round (kov_ink_67_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_67_fnx;
+frml   kov_ink_68_fn = round (kov_ink_68_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_68_fnx;
+frml   kov_ink_69_fn = round (kov_ink_69_fn(-1) * (1 + kov_index_ink_qn) , afr_euro_qn) + kov_ink_69_fnx;
+
+frml   kov_eb_fn = round (kov_eb_fn (-1) * (1 + kov_index_qn + kov_ind_corr_qn) , afr_cent_qn);
+
+
+  ? ihs huurtoeslag
+
+  ?verwachte huur
+frml   huur_verw_qn  = huur_er;
+  ?gerealiseerde huur
+frml   huur_real_qn  = huur_verw_qn;
+
+  ? teruglegfactoren voor grondslag voor belasting box3 tbv ihs
+ident  ihs_b3_g_qn1  = (ihs_b3_g_nlv_qn / ihs_b3_g_nlv_qn(-1)) - 1 ;
+ident  ihs_b3_g_qn2  = (ihs_b3_g_nlv_qn(-1) / ihs_b3_g_nlv_qn(-2)) - 1 ;
+
+frml   huur_inkafh_gr_ink1_fn  = huur_inkafh_gr_ink1_fn (-1) * ihs_ink_ref_mp_65_onafg_fn/ ihs_ink_ref_mp_65_onafg_fn (-1);
+frml   huur_inkafh_gr_ink2_fn  = huur_inkafh_gr_ink2_fn (-1) * ihs_ink_ref_mp_65_onafg_fn/ ihs_ink_ref_mp_65_onafg_fn (-1);
+
+frml   ihs_dmp_h_fn  = ihs_dmp_h_fn(-1) ;
+frml   ihs_ts_knd2_h_fn  = ihs_ts_knd2_h_fn(-1) ;
+frml   ihs_ts_knd3_h_fn  = ihs_ts_knd3_h_fn(-1) ;
+frml   ihs_corr_ink_fn  = ihs_corr_ink_fn(-1) ;
+frml   ihs_corr_as_65_ink_fn  = ihs_corr_as_65_ink_fn(-1) ;
+frml   ihs_corr_mp_65_ink_fn  = ihs_corr_mp_65_ink_fn(-1) ;
+frml   ihs_ts_as_65_fn  = ihs_ts_as_65_fn(-1) ;
+frml   ihs_ts_mp_65_fn  = ihs_ts_mp_65_fn(-1) ;
+frml   ihs_stap_fn  = ihs_stap_fn(-1) ;
+frml   ihs_kkts_mp_65_nh_ref_fn  = ihs_kkts_mp_65_nh_ref_fn(-1) ;
+frml   ihs_arm_mp_64_nh_ref_fn  = ihs_arm_mp_64_nh_ref_fn(-1) ;
+frml   ihs_kkts_as_65_nh_ref_fn  = ihs_kkts_as_65_nh_ref_fn(-1) ;
+frml   ihs_arm_as_64_nh_ref_fn  = ihs_arm_as_64_nh_ref_fn(-1) ;
+frml   ihs_kkts_mp_65_nh_min_fn  = ihs_kkts_mp_65_nh_min_fn(-1) ;
+frml   ihs_kkts_as_65_nh_min_fn  = ihs_kkts_as_65_nh_min_fn(-1) ;
+
+  ? huidige periode
+
+frml   ihs_ink_max_as_64_onafg_fn  = (ihs_ink_max_as_64_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn) *     (toreal(ihs_new_bn = 0) * (1 + cpi_er(-1)) + toreal(ihs_new_bn > 0) * (1 + tcf_ah_tn)) ;
+frml   ihs_ink_max_as_65_onafg_fn  = (ihs_ink_max_as_65_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn) *     (toreal(ihs_new_bn = 0) * (1 + cpi_er(-1)) + toreal(ihs_new_bn > 0) * (1 + tcf_ah_tn)) ;
+frml   ihs_ink_max_mp_64_onafg_fn  = (ihs_ink_max_mp_64_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn * 2) * (toreal(ihs_new_bn = 0) * (1 + cpi_er(-1)) + toreal(ihs_new_bn > 0) * (1 + tcf_ah_tn)) ;
+frml   ihs_ink_max_mp_65_onafg_fn  = (ihs_ink_max_mp_65_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn * 2) * (toreal(ihs_new_bn = 0) * (1 + cpi_er(-1)) + toreal(ihs_new_bn > 0) * (1 + tcf_ah_tn)) ;
+
+frml   ihs_ink_min_as_64_onafg_fn  = (toreal(ihs_new_bn = 0) * ((bi_bij2_fn(-1) - ihs_corr_ink_fn)) + toreal(ihs_new_bn = 1) * bi_bij2_fn + toreal(ihs_new_bn = 2) * (ihs_bi_wml_as_64_qn/ bi_t_qn) * 12 * bi_1t_wml_fn) + ihs_ink_min_as_64_onafg_fnx ;
+frml   ihs_ink_min_as_65_onafg_fn  = (toreal(ihs_new_bn = 0) * ((aow2_fn(-1) + aow_br_ts_fn(-1) - ihs_corr_ink_fn)) + toreal(ihs_new_bn > 0) * (aow2_fn + aow_br_ts_fn) )  ;
+frml   ihs_ink_min_mp_64_onafg_fn  = (toreal(ihs_new_bn = 0) * ((bi_bij1_fn(-1) * 2 - ihs_corr_ink_fn * 2)) + toreal(ihs_new_bn = 1) * bi_bij1_fn * 2 + toreal(ihs_new_bn = 2) *(ihs_bi_wml_mp_64_qn / bi_t_qn)* 12 * bi_1t_wml_fn ) + ihs_ink_min_mp_64_onafg_fnx ;
+frml   ihs_ink_min_mp_65_onafg_fn  = (toreal(ihs_new_bn = 0) * ((aow1_fn(-1) + aow_br_ts_fn(-1) - ihs_corr_ink_fn) * 2) + toreal(ihs_new_bn > 0) * (aow1_fn + aow_br_ts_fn) * 2 ) ;
+
+frml   ihs_ink_ref_as_64_onafg_fn  = (ihs_ink_ref_as_64_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn) * (ihs_ink_min_as_64_onafg_fn / (ihs_ink_min_as_64_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn)) + ihs_ink_ref_as_64_onafg_fnx ;
+frml   ihs_ink_ref_as_65_onafg_fn  = (ihs_ink_ref_as_65_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn) * (ihs_ink_min_as_65_onafg_fn / (ihs_ink_min_as_65_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn)) ;
+frml   ihs_ink_ref_mp_64_onafg_fn  = (ihs_ink_ref_mp_64_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn * 2) * (ihs_ink_min_mp_64_onafg_fn / (ihs_ink_min_mp_64_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn * 2)) + ihs_ink_ref_mp_64_onafg_fnx ;
+frml   ihs_ink_ref_mp_65_onafg_fn  = (ihs_ink_ref_mp_65_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn * 2) * (ihs_ink_min_mp_65_onafg_fn / (ihs_ink_min_mp_65_onafg_fn(-1) + toreal(ihs_new_bn > 0) * ihs_corr_ink_fn * 2)) ;
+
+frml   ihs_ink_max_as_64_h_fn   = ceil(ihs_ink_max_as_64_onafg_fn, ihs_afr_ink_qn) ;
+frml   ihs_ink_max_as_65_h_fn   = ceil(ihs_ink_max_as_65_onafg_fn + toreal(ihs_new_bn > 0) * (aow_br_ts_fn + ihs_corr_as_65_ink_fn), ihs_afr_ink_qn);
+frml   ihs_ink_max_mp_64_h_fn   = ceil(ihs_ink_max_mp_64_onafg_fn, ihs_afr_ink_qn) ;
+frml   ihs_ink_max_mp_65_h_fn   = ceil(ihs_ink_max_mp_65_onafg_fn + toreal(ihs_new_bn > 0) * (aow_br_ts_fn * 2 + ihs_corr_mp_65_ink_fn), ihs_afr_ink_qn) ;
+
+ident  ihs_ink_min_as_64_h_fn  = ceil(ihs_ink_min_as_64_onafg_fn, ihs_afr_ink_qn) ;
+ident  ihs_ink_min_as_65_h_fn  = ceil(ihs_ink_min_as_65_onafg_fn + ihs_ts_as_65_fn + ihs_corr_as_65_ink_fn, ihs_afr_ink_qn) ;
+ident  ihs_ink_min_mp_64_h_fn  = ceil(ihs_ink_min_mp_64_onafg_fn, ihs_afr_ink_qn) ;
+ident  ihs_ink_min_mp_65_h_fn  = ceil(ihs_ink_min_mp_65_onafg_fn + ihs_ts_mp_65_fn + ihs_corr_mp_65_ink_fn, ihs_afr_ink_qn) ;
+
+ident  ihs_ink_ref_as_64_h_fn  = ceil(ihs_ink_ref_as_64_onafg_fn, ihs_afr_ink_qn) ;
+ident  ihs_ink_ref_as_65_h_fn  = ceil(ihs_ink_ref_as_65_onafg_fn + ihs_corr_as_65_ink_fn, ihs_afr_ink_qn) ;
+ident  ihs_ink_ref_mp_64_h_fn  = ceil(ihs_ink_ref_mp_64_onafg_fn, ihs_afr_ink_qn) ;
+ident  ihs_ink_ref_mp_65_h_fn  = ceil(ihs_ink_ref_mp_65_onafg_fn + ihs_corr_mp_65_ink_fn, ihs_afr_ink_qn) ;
+
+  ? mutatie netto bijstand = mutatie netto wml
+
+  ? huurgerelateerde bedragen zijn maandbedragen
+frml   ihs_minref_nh_bij_hlp_qn  =  toreal(ihs_corr_bij_bn=0) * round(nl_bij_wml_fr,0.0001) +toreal(ihs_corr_bij_bn=1)* ihs_minref_nh_bij_met_afb_qn;
+
+ident  ihs_minref_nh_hlp_qn  = min(ihs_minref_nh_bij_hlp_qn + ihs_minref_nh_hlp_aut_qn,huur_verw_qn) ;
+ident  ihs_minref_nh_qn  = ihs_minref_nh_hlp_qn + (toreal(ihs_minref_nh_hlp_qn(-1) =  huur_verw_qn(-1)) +
+							toreal(ihs_minref_nh_hlp_qn(-1) ^= huur_verw_qn(-1)) * ihs_minref_nh_force_bn) * (huur_real_qn(-1) - huur_verw_qn(-1)) ;
+
+frml   ihs_nh_min_h_fn  = ceil( ihs_nh_min_h_fn(-1) * (1 + ihs_minref_nh_qn), ihs_afr_bedr_qn) ;
+frml   ihs_nh_ref_h_fn  = ceil( ihs_nh_ref_h_fn(-1) * (1 + ihs_minref_nh_qn), ihs_afr_bedr_qn) ;
+
+  ? afronding is bij minhuur en refhuur eigenlijk overbodig, want onderliggende bedragen zijn al afgerond
+frml   ihs_nh_min_as_64_h_fn   = ceil ( ihs_nh_min_h_fn,  ihs_afr_bedr_qn ) ;
+frml   ihs_nh_min_as_65_h_fn   = ceil ( ihs_nh_min_h_fn - ihs_kkts_as_65_nh_min_fn, ihs_afr_bedr_qn ) ;
+frml   ihs_nh_min_mp_64_h_fn   = ceil ( ihs_nh_min_h_fn,  ihs_afr_bedr_qn ) ;
+frml   ihs_nh_min_mp_65_h_fn   = ceil ( ihs_nh_min_h_fn - ihs_kkts_mp_65_nh_min_fn, ihs_afr_bedr_qn ) ;
+
+
+frml   ihs_nh_ref_as_64_h_fn  = ceil ( ihs_nh_ref_h_fn - ihs_arm_as_64_nh_ref_fn,  ihs_afr_bedr_qn ) ;
+frml   ihs_nh_ref_as_65_h_fn  = ceil ( ihs_nh_ref_h_fn - ihs_kkts_as_65_nh_ref_fn, ihs_afr_bedr_qn ) ;
+frml   ihs_nh_ref_mp_64_h_fn  = ceil ( ihs_nh_ref_h_fn - ihs_arm_mp_64_nh_ref_fn,  ihs_afr_bedr_qn ) ;
+frml   ihs_nh_ref_mp_65_h_fn  = ceil ( ihs_nh_ref_h_fn - ihs_kkts_mp_65_nh_ref_fn, ihs_afr_bedr_qn ) ;
+
+  ? niet meer relevant, staat op 9999.
+frml   ihs_nh_max_as_64_h_fn  = ihs_nh_max_as_64_h_fn (-1) ;
+frml   ihs_nh_max_as_65_h_fn  = ihs_nh_max_as_65_h_fn (-1);
+frml   ihs_nh_max_mp_64_h_fn  = ihs_nh_max_mp_64_h_fn (-1) ;
+frml   ihs_nh_max_mp_65_h_fn  = ihs_nh_max_mp_65_h_fn (-1) ;
+
+frml   ihs_verh_nh_1_fn  = ihs_verh_nh_2_fn(-1) + ihs_verh_nh_1_fnx ;
+frml   ihs_verh_nh_2_fn  = ihs_verh_nh_1_fn ;
+
+  ? factoren a en b om normhuur te bepalen
+frml   ihs_factor_a_as_64_2_fn  = ((ihs_nh_ref_as_64_h_fn      / ihs_ink_ref_as_64_h_fn - ihs_nh_min_as_64_h_fn       / ihs_ink_min_as_64_h_fn) /
+							(ihs_ink_ref_as_64_h_fn - ihs_ink_min_as_64_h_fn))/1000;
+frml   ihs_factor_a_as_64_1_fn  = toreal(jaartal >= ihs_vereenv_sj_bn) * ihs_factor_a_as_64_2_fn + toreal(jaartal < ihs_vereenv_sj_bn) *
+							(((ihs_nh_ref_as_64_h_fn (-1) / ihs_ink_ref_as_64_h_fn - ihs_nh_min_as_64_h_fn (-1)  / ihs_ink_min_as_64_h_fn) /
+							(ihs_ink_ref_as_64_h_fn - ihs_ink_min_as_64_h_fn))/1000);
+
+frml   ihs_factor_a_as_65_2_fn  = ((ihs_nh_ref_as_65_h_fn      / ihs_ink_ref_as_65_h_fn - ihs_nh_min_as_65_h_fn       / ihs_ink_min_as_65_h_fn) /
+							(ihs_ink_ref_as_65_h_fn - ihs_ink_min_as_65_h_fn))/1000;
+frml   ihs_factor_a_as_65_1_fn  = toreal(jaartal >= ihs_vereenv_sj_bn) * ihs_factor_a_as_65_2_fn + toreal(jaartal < ihs_vereenv_sj_bn) *
+							(((ihs_nh_ref_as_65_h_fn (-1) / ihs_ink_ref_as_65_h_fn - ihs_nh_min_as_65_h_fn (-1)  / ihs_ink_min_as_65_h_fn) /
+							(ihs_ink_ref_as_65_h_fn - ihs_ink_min_as_65_h_fn))/1000);
+
+frml   ihs_factor_a_mp_64_2_fn  = ((ihs_nh_ref_mp_64_h_fn      / ihs_ink_ref_mp_64_h_fn - ihs_nh_min_mp_64_h_fn       / ihs_ink_min_mp_64_h_fn) /
+							(ihs_ink_ref_mp_64_h_fn - ihs_ink_min_mp_64_h_fn))/1000;
+frml   ihs_factor_a_mp_64_1_fn  = toreal(jaartal >= ihs_vereenv_sj_bn) * ihs_factor_a_mp_64_2_fn + toreal(jaartal < ihs_vereenv_sj_bn) *
+							(((ihs_nh_ref_mp_64_h_fn (-1) / ihs_ink_ref_mp_64_h_fn - ihs_nh_min_mp_64_h_fn (-1)  / ihs_ink_min_mp_64_h_fn) /
+							(ihs_ink_ref_mp_64_h_fn - ihs_ink_min_mp_64_h_fn))/1000);
+
+frml   ihs_factor_a_mp_65_2_fn  = ((ihs_nh_ref_mp_65_h_fn      / ihs_ink_ref_mp_65_h_fn - ihs_nh_min_mp_65_h_fn       / ihs_ink_min_mp_65_h_fn) /
+							(ihs_ink_ref_mp_65_h_fn - ihs_ink_min_mp_65_h_fn))/1000;
+
+frml   ihs_factor_a_mp_65_1_fn  = toreal(jaartal >= ihs_vereenv_sj_bn) * ihs_factor_a_mp_65_2_fn + toreal(jaartal < ihs_vereenv_sj_bn) *
+							(((ihs_nh_ref_mp_65_h_fn (-1) / ihs_ink_ref_mp_65_h_fn - ihs_nh_min_mp_65_h_fn (-1)  / ihs_ink_min_mp_65_h_fn) /
+							(ihs_ink_ref_mp_65_h_fn - ihs_ink_min_mp_65_h_fn))/1000);
+
+frml   ihs_factor_b_as_64_2_fn   = round ( ihs_nh_min_as_64_h_fn       / ihs_ink_min_as_64_h_fn - ihs_factor_a_as_64_2_fn * ihs_ink_min_as_64_h_fn * 1000, 10**(-12));
+frml   ihs_factor_b_as_64_1_fn   = toreal(jaartal >= ihs_vereenv_sj_bn) * ihs_factor_b_as_64_2_fn + toreal(jaartal < ihs_vereenv_sj_bn) *
+								round ( ihs_nh_min_as_64_h_fn (-1)  / ihs_ink_min_as_64_h_fn - ihs_factor_a_as_64_1_fn * ihs_ink_min_as_64_h_fn * 1000, 10**(-12));
+
+frml   ihs_factor_b_as_65_2_fn   = round ( ihs_nh_min_as_65_h_fn       / ihs_ink_min_as_65_h_fn - ihs_factor_a_as_65_2_fn * ihs_ink_min_as_65_h_fn * 1000, 10**(-12));
+frml   ihs_factor_b_as_65_1_fn   = toreal(jaartal >= ihs_vereenv_sj_bn) * ihs_factor_b_as_65_2_fn + toreal(jaartal < ihs_vereenv_sj_bn) *
+								round ( ihs_nh_min_as_65_h_fn (-1)  / ihs_ink_min_as_65_h_fn - ihs_factor_a_as_65_1_fn * ihs_ink_min_as_65_h_fn * 1000, 10**(-12));
+
+frml   ihs_factor_b_mp_64_2_fn   = round ( ihs_nh_min_mp_64_h_fn       / ihs_ink_min_mp_64_h_fn - ihs_factor_a_mp_64_2_fn * ihs_ink_min_mp_64_h_fn * 1000, 10**(-12));
+frml   ihs_factor_b_mp_64_1_fn   = toreal(jaartal >= ihs_vereenv_sj_bn) * ihs_factor_b_mp_64_2_fn + toreal(jaartal < ihs_vereenv_sj_bn) *
+								round ( ihs_nh_min_mp_64_h_fn (-1)  / ihs_ink_min_mp_64_h_fn - ihs_factor_a_mp_64_1_fn * ihs_ink_min_mp_64_h_fn * 1000, 10**(-12));
+
+frml   ihs_factor_b_mp_65_2_fn   = round ( ihs_nh_min_mp_65_h_fn       / ihs_ink_min_mp_65_h_fn - ihs_factor_a_mp_65_2_fn * ihs_ink_min_mp_65_h_fn * 1000, 10**(-12));
+frml   ihs_factor_b_mp_65_1_fn   = toreal(jaartal >= ihs_vereenv_sj_bn) * ihs_factor_b_mp_65_2_fn + toreal(jaartal < ihs_vereenv_sj_bn) *
+								round ( ihs_nh_min_mp_65_h_fn (-1)  / ihs_ink_min_mp_65_h_fn - ihs_factor_a_mp_65_1_fn * ihs_ink_min_mp_65_h_fn * 1000, 10**(-12));
+
+  ? indexeren normhuurgrenzen
+frml   ihs_atp_gr_2_h_fn   = ceil (ihs_atp_gr_2_h_fn(-1)  * (1 + huur_verw_qn + huur_real_qn(-1) - huur_verw_qn(-1)), ihs_afr_bedr_qn) ;
+frml   ihs_atp_gr_3_h_fn   = ceil (ihs_atp_gr_3_h_fn(-1)  * (1 + huur_verw_qn + huur_real_qn(-1) - huur_verw_qn(-1)), ihs_afr_bedr_qn);
+frml   ihs_kwk_gr_h_fn     = ceil (ihs_kwk_gr_h_fn(-1)    * (1 + huur_verw_qn + huur_real_qn(-1) - huur_verw_qn(-1)), ihs_afr_bedr_qn) ;
+frml   ihs_max_hu_23_h_fn  = ceil (ihs_max_hu_23_h_fn(-1) * (1 + cpi_er(-1)), ihs_afr_bedr_qn) ;
+ident  ihs_max_hu_22_h_fn  = ihs_kwk_gr_h_fn ;
+
+frml   vmg_gr_mp64_onafg_fn  = 2 * b3_hvv_fn(-1) ;
+
+ident  ihs_vmg_gr_as_64_h_fn  = ceil(ihs_vmg_gr_as_64_onafg_fn, ihs_afr_ink_qn) ;
+ident  ihs_vmg_gr_as_65_h_fn  = ceil(ihs_vmg_gr_as_65_onafg_fn, ihs_afr_ink_qn) ;
+ident  ihs_vmg_gr_mp_65_h_fn  = ceil(ihs_vmg_gr_mp_65_onafg_fn, ihs_afr_ink_qn) ;
+ident  ihs_vmg_gr_mp_64_h_fn  = vmg_gr_mp64_onafg_fn ;
+
+  ? nog verwijderen, bevat slechts nullen
+frml   ihs_vmg_gr_as_64_onafg_fn  = ihs_vmg_gr_as_64_onafg_fn(-1) * (1 + cpi_er(-1)) ;
+frml   ihs_vmg_gr_as_65_onafg_fn  = ihs_vmg_gr_as_65_onafg_fn(-1) * (1 + cpi_er(-1)) ;
+frml   ihs_vmg_gr_mp_65_onafg_fn  = ihs_vmg_gr_mp_65_onafg_fn(-1) * (1 + cpi_er(-1)) ;
+
+  ?reiskostenforfait
+frml   rkf_fn1 = ceil(rkf_fn1(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+frml   rkf_fn2 = ceil(rkf_fn2(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+frml   rkf_fn3 = ceil(rkf_fn3(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+frml   rkf_fn4 = ceil(rkf_fn4(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+frml   rkf_fn5 = ceil(rkf_fn5(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+frml   rkf_fn6 = ceil(rkf_fn6(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+frml   rkf_fn7 = ceil(rkf_fn7(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+frml   rkf_fn8 = ceil(rkf_fn8(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+frml   rkf_fn9 = ceil(rkf_fn9(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+frml   rkf_fn10 = ceil(rkf_fn10(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+frml   rkf_fn11 = ceil(rkf_fn11(-1) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) ;
+
+frml   km_aft_onafg_fn = km_aft_onafg_fn (-1) * ( 1 + tcf_tn * tcf_ih_bn);
+frml   km_aft_fn = ceil (km_aft_onafg_fn, afr_cent_qn);
+
+  ? buitengewone uitgaven
+frml   a_ziek_mindmp_fn = ceil (a_ziek_mindmp_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) ;
+frml   aoff_fn = aoff_fn(-1) * (1 + tcf_tn * aoff_index_bn) ;
+
+  ? wtos
+frml   wtos_inkgr_fn = wtos_inkgr_fn(-1) * (1 + bl_ctr_t_er(-2)) ;
+frml   wtos_dir_mhbo_fn = wtos_dir_mhbo_fn(-1) * (1 + cpi_er(-2) * wtos_dir_mhbo_index_bn) ;
+frml   wtos_dir_vo_on_fn = wtos_dir_vo_on_fn(-1) * (1 + cpi_er(-2)) + wtos_dir_vo_on_fnx ;
+frml   wtos_dir_vo_bo_fn = wtos_dir_vo_bo_fn(-1) * (1 + cpi_er(-2)) + wtos_dir_vo_bo_fnx ;
+ident  wtos_dir_vo_bo_mhbo_fn = wtos_vo_qn * wtos_dir_vo_bo_fn + wtos_mhbo_qn * wtos_dir_mhbo_fn ;
+frml   wtos_lesg_fn = wtos_lesg_fn(-1) * (1 + cpi_er(-2)) ;
+  ? vorige periode wtos
+ident  wtos_inkgr_v_fn = wtos_inkgr_fn(-1) ;
+frml   wtos_dir_mhbo_v_fn = wtos_dir_mhbo_fn(-1) ;
+frml   wtos_dir_vo_on_v_fn = wtos_dir_vo_on_fn(-1) ;
+frml   wtos_dir_vo_bo_v_fn = wtos_dir_vo_bo_fn(-1) ;
+ident  wtos_dir_vo_bo_mhbo_v_fn = wtos_vo_qn(-1) * wtos_dir_vo_bo_fn(-1) + wtos_mhbo_qn(-1) * wtos_dir_mhbo_fn(-1) ;
+ident  wtos_lesg_v_fn = wtos_lesg_fn(-1) ;
+ident  wtos_lesg_hv_fn = wtos_mnd_bn/12 * wtos_lesg_fn + (1 - wtos_mnd_bn/12) * wtos_lesg_v_fn;
+ident  wtos_t_vo_hv_fn = (wtos_mnd_bn  +  wtos_extra_mnd_bn)/12 * wtos_dir_vo_on_fn + (1 - (wtos_mnd_bn + wtos_extra_mnd_bn (-1))/12) * wtos_dir_vo_on_v_fn;
+ident  wtos_t_vb_mh_hv_fn = (wtos_mnd_bn + wtos_extra_mnd_bn)/12 * wtos_dir_vo_bo_mhbo_fn + (1 - (wtos_mnd_bn + wtos_extra_mnd_bn (-1))/12) * wtos_dir_vo_bo_mhbo_v_fn;
+
+  ? bijstandspercentagetarief bpt
+ident  tar_bpt_tn = tar_sch1_tn * (1 + zfw_wg_bijtel_bn * zfw_wg_tn) / (1 - zfw_wn_tn - tar_sch1_tn * (1 + zfw_wg_bijtel_bn * zfw_wg_tn)) ;
+frml   bwbud_zvw_tn = bwbud_zvw_tn(-1) * (zfw_wg_tn / zfw_wg_tn(-1)) ;
+frml   bwbud_bpt_tn = bwbud_bpt_tn(-1) ;
+
+  ? franchises
+frml   wnv_fr_onaf_fn = floor((brl_1m_wml_fn / brl_1m_wml_fn(-1)) * wnv_fr_onaf_fn(-1), afr_cent_qn) ;
+frml   wnv_fr_fn = ceil(wnv_fr_onaf_fn, afr_euro_qn) ;
+frml   wnv_fr_dag_fn = ceil((wnv_fr_fn / loon_dagpj_bn), afr_cent_qn) ;
+
+  ? franchise awf
+frml   awf_fr_wn_dag_fn = awf_fr_wn_bn * wnv_fr_dag_fn ;
+frml   awf_fr_wg_dag_fn = awf_fr_wg_bn * wnv_fr_dag_fn ;
+ident  awf_fr_wn_fn = loon_dagpj_bn * awf_fr_wn_dag_fn ;
+ident  awf_fr_wg_fn = loon_dagpj_bn * awf_fr_wg_dag_fn ;
+ident  awf_fr_wn_u_fn = loon_dagpj_u_bn * awf_fr_wn_dag_fn ;
+ident  awf_fr_wg_u_fn = loon_dagpj_u_bn * awf_fr_wg_dag_fn ;
+ident  wka_awf_fr_wn_fn = wka_dagpj_bn * awf_fr_wn_dag_fn / 12 ;
+ident  wka_awf_fr_wg_fn = wka_dagpj_bn * awf_fr_wg_dag_fn / 12 ;
+
+  ? franchise wgf
+frml   wgf_fr_wn_dag_fn = wgf_fr_wn_bn * wnv_fr_dag_fn ;
+frml   wgf_fr_wg_dag_fn = wgf_fr_wg_bn * wnv_fr_dag_fn ;
+ident  wgf_fr_wn_fn = loon_dagpj_bn * wgf_fr_wn_dag_fn ;
+ident  wgf_fr_wg_fn = loon_dagpj_bn * wgf_fr_wg_dag_fn ;
+ident  wka_wgf_fr_wn_fn = wka_dagpj_bn * wgf_fr_wn_dag_fn / 12 ;
+ident  wka_wgf_fr_wg_fn = wka_dagpj_bn * wgf_fr_wg_dag_fn / 12 ;
+
+ident  ink_gr_t1_fn = hkt_ahk_fn / tar_sch1_tn ;
+
+  ? tarieven voor iedereen
+ident  tar_sch3_tn = bel_b1_sch3_tn ;
+ident  tar_sch4_tn = bel_b1_sch4_tn ;
+
+  ? tarieven 64 -
+ident  prvv_sch_tn = anw_sch_tn + aow_sch_tn + awbz_sch_tn ;
+frml   awbz_sch_jan_tn = awbz_sch_tn ;
+frml   awbz_sch_jul_tn = awbz_sch_tn ;
+ident  prvv_sch_jan_tn = anw_sch_tn + aow_sch_tn + awbz_sch_jan_tn ;
+ident  prvv_sch_jul_tn = anw_sch_tn + aow_sch_tn + awbz_sch_jul_tn ;
+ident  tar_sch1_tn = bel_b1_sch1_tn + prvv_sch_tn ;
+ident  tar_sch1_jan_tn = bel_b1_sch1_tn + prvv_sch_jan_tn ;
+ident  tar_sch1_jul_tn = bel_b1_sch1_tn + prvv_sch_jul_tn ;
+ident  tar_sch2_tn = bel_b1_sch2_tn + prvv_sch_tn ;
+ident  tar_sch2_jan_tn = bel_b1_sch2_tn + prvv_sch_jan_tn ;
+ident  tar_sch2_jul_tn = bel_b1_sch2_tn + prvv_sch_jul_tn ;
+
+  ? tarieven 65 +
+ident  prvv_65_sch_tn     = anw_pp65_bn * anw_sch_tn + aow_pp65_bn * aow_sch_tn + awbz_pp65_bn * awbz_sch_tn ;
+ident  prvv_65_sch_jan_tn = anw_pp65_bn * anw_sch_tn + aow_pp65_bn * aow_sch_tn + awbz_pp65_bn * awbz_sch_jan_tn ;
+ident  prvv_65_sch_jul_tn = anw_pp65_bn * anw_sch_tn + aow_pp65_bn * aow_sch_tn + awbz_pp65_bn * awbz_sch_jul_tn ;
+ident  tar_sch1_65_tn     = bel_b1_sch1_tn + prvv_65_sch_tn ;
+ident  tar_sch1_65_jan_tn = bel_b1_sch1_tn + prvv_65_sch_jan_tn ;
+ident  tar_sch1_65_jul_tn = bel_b1_sch1_tn + prvv_65_sch_jul_tn ;
+ident  tar_sch2_65_tn     = bel_b1_sch2_tn + prvv_65_sch_tn ;
+ident  tar_sch2_65_jan_tn = bel_b1_sch2_tn + prvv_65_sch_jan_tn ;
+ident  tar_sch2_65_jul_tn = bel_b1_sch2_tn + prvv_65_sch_jul_tn ;
+
+  ? aow jongere partner inkomensgrens
+frml   max_ink_gr_tjp_fn = ceil(max_ink_gr_tjp_fn(-1) * (1 + tcf_tn), afr_euro_qn);
+
+  ? fiscale tariefparameters
+
+  ? aanpassing schijflengtes
+frml   sch1_cum_fn = ceil(sch1_cum_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + sch1_cum_fnx ;
+frml   sch2_cum_fn = ceil(sch2_cum_fn(-1) * (1 + tcf_tn * tcf_ih_bn * sch2_cum_index_bn), afr_euro_qn) + sch2_cum_fnx  ;
+frml   sch2_cum_1946_fn = ceil(sch2_cum_1946_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + sch2_cum_1946_fnx  ;
+frml   sch3_cum_fnx = ((sch3_cum_fnx(-1)+ sch3_cumfnx_fny) * (1 + tcf_tn * tcf_ih_bn)  ) * (1 + vhx_sch3_tn) + sch3_cumfnx_fnx ;
+frml   sch3_cum_fny = sch3_cum_fny(-1) * (1 + tcf_tn(-1)) ;
+frml   sch3_cum_fn = ceil((sch3_cum_fn(-1) + sch3_cum_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + ceil(sch3_cum_fnx, afr_euro_qn)  ;
+
+ident  sch1_fn  = sch1_cum_fn ;
+ident  sch2_fn  = sch2_cum_fn - sch1_cum_fn ;
+ident  sch3_fn  = sch3_cum_fn - sch2_cum_fn ;
+ident  sch2_1946_fn  = sch2_cum_1946_fn - sch1_cum_fn ;
+ident  sch3_1946_fn  = sch3_cum_fn - sch2_cum_1946_fn ;
+
+
+  ? heffingskortingen
+
+frml   hkt_ahk_fnx  = hkt_ahk_fnx(-1) * (1 + tcf_tn * tcf_ih_bn) ;
+frml   hkt_ahk_fn  = ceil((hkt_ahk_fn(-1) + hkt_ahk_fny) * (1 + tcf_tn * tcf_ih_bn * hkt_ahk_index_bn) + hkt_ahk_fnx , afr_euro_qn)  ;
+ident  thk_ahk_vgp_gebjaar_bn  = thk_ahk_vgp_gebjaar_bj_bn + toreal (koopkracht_bn = 1);
+ident  thk_ahk_vgp_gebjaar1_bn  = thk_ahk_vgp_gebjaar1_bj_bn + toreal (koopkracht_bn = 1);
+frml   thk_ahk_vgp_qn  = toreal (jaartal >= thk_ahk_vgp_sj_bn) * min(1, (jaartal - thk_ahk_vgp_sj_bn + 1) * (1 / thk_ahk_vgp_aant_jaren_bn));
+frml   thk_ahk_vgp_lgr_bn  = toreal(jaartal >= thk_ahk_vgp_sj_bn) * (jaartal - thk_ahk_vgp_gebjaar_bn);
+frml   thk_ahk_vgp_lgr1_bn  = toreal(jaartal >= thk_ahk_vgp_sj1_bn) * (jaartal - thk_ahk_vgp_gebjaar1_bn);
+
+frml   afb_ahk_in_wml_pj_bn  = tot_afb_ahk_wml_bn/ afb_ahk_wml_aant_jaren_bn;
+
+  ? afbouw ahk in wml temporiseren door afbouw met 1/4 van het jaarbedrag ipv helft
+frml   ahk_in_wml_1_bn  = max (ahk_in_wml_min_bn,
+		ahk_in_wml_2_bn(-1) - toreal (jaartal >=afb_ahk_sj_bn) * (afb_ahk_in_wml_pj_bn / 2) * (toreal (jaartal >afb_ahk_vertraagd_ej_bn) + toreal (jaartal < afb_ahk_vertraagd_sj_bn))
+		- (afb_ahk_in_wml_pj_bn / 4) * toreal (jaartal >=afb_ahk_vertraagd_sj_bn) * toreal (jaartal <= afb_ahk_vertraagd_ej_bn) );
+  ? afbouw ahk in wml temporiseren door ahk in wml 2 af te bouwen met 1/4 van het jaarbedrag ipv helft
+frml   ahk_in_wml_2_bn  = max(ahk_in_wml_min_bn,
+		ahk_in_wml_1_bn - toreal (jaartal >=afb_ahk_sj_bn) * (afb_ahk_in_wml_pj_bn / 2) * (toreal (jaartal >afb_ahk_vertraagd_ej_bn) + toreal (jaartal < afb_ahk_vertraagd_sj_bn))
+		- (afb_ahk_in_wml_pj_bn / 4) * (toreal (jaartal >=afb_ahk_vertraagd_sj_bn) * toreal (jaartal <= afb_ahk_vertraagd_ej_bn)) );
+
+frml   hkt_jgk_fn  = ceil(hkt_jgk_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_jgk_fnx ;
+frml   hkt_ouk_fn  = ceil((hkt_ouk_fn(-1)+ hkt_ouk_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_ouk_fnx ;
+frml   hkt_ouk2_fn  = ceil(hkt_ouk2_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_ouk2_fnx ;
+frml   hkt_avouk_fn  = ceil(hkt_avouk_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_avouk_fnx ;
+frml   hkt_asouk_fn  = ceil(hkt_asouk_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_asouk_fnx ;
+frml   hkt_com_fn  = ceil(hkt_com_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_com_fnx ;
+frml   hkt_avcom_fn  = ceil(hkt_avcom_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_avcom_fnx ;
+frml   hkt_iacom_max_fn  = ceil(hkt_iacom_max_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_iacom_max_fnx ;
+ident  hkt_iacom_fn  = hkt_iacom_max_fn - hkt_avcom_fn ;
+frml   hkt_aok_fn  = ceil(hkt_aok_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_aok_fnx ;
+frml   hkt_avaok_fn  = ceil(hkt_avaok_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_avaok_fnx ;
+frml   hkt_kik_fn  = ceil(hkt_kik_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_kik_fnx ;
+frml   hkt_avkik_1_fn  = ceil(hkt_avkik_1_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_avkik_1_fnx ;
+frml   hkt_avkik_2_fn  = ceil(hkt_avkik_2_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_avkik_2_fnx ;
+frml   hkt_avkik_3_fn  = ceil(hkt_avkik_3_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_avkik_3_fnx ;
+frml   hkt_gskik_fn  = ceil(hkt_gskik_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_gskik_fnx ;
+frml   kndts_fn  = ceil(kndts_fn(-1) * (1 + tcf_tn), afr_euro_qn) + kndts_fnx ;
+
+frml   kndgb_kop_as_fn  = ceil(kndgb_kop_as_fn(-1) * (1 + tcf_tn), afr_euro_qn) ;
+
+  ? kortingsgrenzen, arbeidskortingsgrenzen verderop
+frml   hkt_ouk_gr_fn  = ceil(hkt_ouk_gr_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_ouk_gr_fnx ;
+frml   hkt_com_gr_fn  = floor(hkt_com_gr_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) ;
+frml   hkt_kik_gr_fn  = ceil(hkt_kik_gr_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) ;
+frml   hkt_avkik_gr1_fn  = ceil(hkt_avkik_gr1_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) ;
+frml   hkt_avkik_gr2_fn  = ceil(hkt_avkik_gr2_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) ;
+frml   hkt_gskik_gr_fn  = ceil(hkt_gskik_gr_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + hkt_gskik_gr_fnx ;
+frml   kndts_gr_fn  = ceil(kndts_gr_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + kndts_gr_fnx ;
+
+  ? afgeleide oploop/aflooppercentage
+
+frml   hkt_iacom_tn  = hkt_iacom_tn(-1);
+frml   hkt_iacom_65_tn  = round((tar_sch1_65_tn / tar_sch1_tn) * hkt_iacom_tn, afr_cent_qn) ;
+
+
+  ? arbeidskorting en eitc
+
+  ? 1e grens gebaseerd op half wml januari excl.vt hieronder berekend
+  ? 2e grens gebaseerd op wml januari excl.vt, vanaf 2004 inclusief vt
+  ? 3e en volgende grenzen eitc, inclusief vt
+
+  ? knik in arbeidskorting (= 1e grens)
+ident  brl_1m_hwml_fn  = hkt_ark_ogr_qn * brl_1m_wml_fn ;
+ident  zfw_1m_hwml_wg_fn  = zfw_wg_tn * brl_1m_hwml_fn ;
+ident  awf_1m_hwml_wn_fn  = awf_wn_tn * max(0, (brl_1m_hwml_fn - awf_fr_wn_fn * wka_loon_dag_qn)) ;
+ident  wgf_1m_hwml_wn_fn  = wgf_wml_tn * max(0, (brl_1m_hwml_fn - wgf_fr_wn_fn * wka_loon_dag_qn)) ;
+ident  ww_1m_hwml_wn_fn  = awf_1m_hwml_wn_fn + wgf_1m_hwml_wn_fn ;
+ident  bi_1m_hwml_fn  = brl_1m_hwml_fn - ww_1m_hwml_wn_fn + zfw_wg_bijtel_bn * zfw_1m_hwml_wg_fn ;
+
+  ? fin heeft vanaf 2012 de afrondingsregels voor de eitc-grenzen aangepast ten voordele van de belastingbetaler
+frml   hkt_ark_gr1_fn  = toreal(eitc_gr_bn = 0) * (round(12 * bi_1m_hwml_fn, afr_euro_qn)  + hkt_ark_gr1_fnx) +
+					toreal(eitc_gr_bn = 1) * (floor(12 * bi_1m_hwml_fn, afr_euro_qn)  + hkt_ark_gr1_fnx) ;
+
+					? verhoging 2e grens arbeidskorting (artikel 10.7 lid 3a)
+frml   hkt_ark_gr2_verhoging_fn  = toreal(eitc_gr_bn = 0) * ( ceil(( hkt_ark_gr2_verhoging_fn(-1) + hkt_ark_gr2_verhoging_fny) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) + hkt_ark_gr2_verhoging_fnx) +
+					toreal(eitc_gr_bn = 1) * (floor(( hkt_ark_gr2_verhoging_fn(-1) + hkt_ark_gr2_verhoging_fny) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) + hkt_ark_gr2_verhoging_fnx) ;
+
+  ? knik in arbeidskorting (= 2e grens)
+frml   hkt_ark_gr2_fn  = toreal(eitc_gr_bn = 0) * (round((12 * bi_1m_wml_fn + hkt_ark_gr_vt_bn * 12 * bi_1v_wml_fn), afr_euro_qn) + hkt_ark_gr2_verhoging_bn * hkt_ark_gr2_verhoging_fn) +
+					toreal(eitc_gr_bn = 1) * (floor((12 * bi_1m_wml_fn + hkt_ark_gr_vt_bn * 12 * bi_1v_wml_fn), afr_euro_qn) + hkt_ark_gr2_verhoging_bn * hkt_ark_gr2_verhoging_fn) ;
+
+  ? eitc-grenzen
+frml   hkt_eitc_gr1_fn  = hkt_ark_gr1_fn ;
+frml   hkt_eitc_gr2_fn  = hkt_ark_gr2_fn ;
+
+  ? verhoging 3e grens arbeidskorting (nav ulb)
+frml   hkt_eitc_gr3_verhoging_fn   = ceil((hkt_eitc_gr3_verhoging_fn(-1) + hkt_eitc_gr3_verhoging_fny) * (1 + tcf_tn * tcf_ih_bn),afr_euro_qn) + hkt_eitc_gr3_verhoging_fnx ;
+
+ident  brl_1m_wmlgr3_fn  = hkt_eitc_wmlgr3_qn * brl_1m_wml_fn ;
+ident  brl_1v_wmlgr3_fn  = hkt_eitc_wmlgr3_qn * brl_1v_wml_fn ;
+ident  brl_1t_wmlgr3_fn   = brl_1m_wmlgr3_fn + brl_1v_wmlgr3_fn ;
+
+ident  awf_1t_wmlgr3_wn_fn  = floor(awf_wn_tn * max(0, (brl_1t_wmlgr3_fn   - wka_awf_fr_wn_fn)), afr_cent_qn) ;
+ident  wgf_1t_wmlgr3_wn_fn  = round(wgf_wml_tn * max(0, (brl_1t_wmlgr3_fn - wka_wgf_fr_wn_fn)), afr_cent_qn) ;
+ident  ww_1t_wmlgr3_wn_fn  = round((awf_1t_wmlgr3_wn_fn + wgf_1t_wmlgr3_wn_fn), afr_cent_qn) ;
+ident  zfw_1t_wmlgr3_wg_fn  = floor(zfw_wg_tn * (max(min(brl_1t_wmlgr3_fn - ww_1t_wmlgr3_wn_fn,zfw_pgr_fn / 12),0)), afr_cent_qn) ;
+ident  bi_1t_wmlgr3_fn  = round((brl_1t_wmlgr3_fn - ww_1t_wmlgr3_wn_fn + zfw_wg_bijtel_bn * zfw_1t_wmlgr3_wg_fn), afr_cent_qn) ;
+
+frml   hkt_eitc_gr3_fn  = ceil(12 * bi_1t_wmlgr3_fn, afr_euro_qn)  + hkt_eitc_gr3_verhoging_fn ;
+frml   hkt_eitc_gr4_fn  = hkt_eitc_gr3_fn + (hkt_eitc_4a_fn - hkt_eitc_3a_fn) / hkt_eitc_4a_tn ;
+
+frml   hkt_ark_1_fn  = ceil((hkt_ark_1_fn(-1) + hkt_ark_1_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_ark_1_fnx ;
+ident  hkt_ark_1_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_ark_1_fn, afr_euro_qn)  ;
+frml   hkt_ark_2a_fn  = ceil((hkt_ark_2a_fn(-1) + hkt_ark_2a_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_ark_2a_fnx ;
+frml   hkt_ark_2b_fn  = ceil((hkt_ark_2b_fn(-1) + hkt_ark_2b_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_ark_2b_fnx ;
+frml   hkt_ark_2c_fn  = ceil((hkt_ark_2c_fn(-1) + hkt_ark_2c_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_ark_2c_fnx ;
+frml   hkt_ark_2d_fn  = ceil((hkt_ark_2d_fn(-1) + hkt_ark_2d_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_ark_2d_fnx ;
+ident  hkt_ark_2e_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_ark_2d_fn, afr_euro_qn)  ;
+
+frml   hkt_ark_1_tn  = round(hkt_ark_1_fn / hkt_ark_gr1_fn, afr_cent_qn) ;
+frml   hkt_ark_1_65_tn  = round(hkt_ark_1_65_fn / hkt_ark_gr1_fn, afr_cent_qn) ;
+frml   hkt_ark_2a_tn  = round((hkt_ark_2a_fn - hkt_ark_1_fn) / (hkt_ark_gr2_fn - hkt_ark_gr1_fn), afr_cent_qn) ;
+frml   hkt_ark_2b_tn  = round((hkt_ark_2b_fn - hkt_ark_1_fn) / (hkt_ark_gr2_fn - hkt_ark_gr1_fn), afr_cent_qn) ;
+frml   hkt_ark_2c_tn  = round((hkt_ark_2c_fn - hkt_ark_1_fn) / (hkt_ark_gr2_fn - hkt_ark_gr1_fn), afr_cent_qn) ;
+frml   hkt_ark_2d_tn  = round((hkt_ark_2d_fn - hkt_ark_1_fn) / (hkt_ark_gr2_fn - hkt_ark_gr1_fn), afr_cent_qn) ;
+frml   hkt_ark_2e_tn  = round((hkt_ark_2e_fn - hkt_ark_1_65_fn) / (hkt_ark_gr2_fn - hkt_ark_gr1_fn), afr_cent_qn) ;
+
+
+frml   hkt_eitc_1_fn  = ceil((hkt_eitc_1_fn(-1) + hkt_eitc_1_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_1_fnx ;
+frml   hkt_eitc_1_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_eitc_1_fn, afr_euro_qn)  ;
+
+frml   hkt_eitc_2a_fnx  = hkt_eitc_2a_fnx(-1) * (1 + tcf_tn * tcf_ih_bn) ;
+frml   hkt_eitc_2a_fn  = ceil((hkt_eitc_2a_fn(-1) + hkt_eitc_2a_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + ceil(hkt_eitc_2a_fnx, afr_euro_qn);
+frml   hkt_eitc_2b_fn  = toreal(jaartal < eitc_jr_afsch_57plus_bn) * (ceil((hkt_eitc_2b_fn(-1) + hkt_eitc_2b_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_2b_fnx )
+					+ toreal(jaartal >= eitc_jr_afsch_57plus_bn) * hkt_eitc_2a_fn ;
+frml   hkt_eitc_2c_fn  = toreal(jaartal < eitc_jr_afsch_57plus_bn) * (ceil((hkt_eitc_2c_fn(-1) + hkt_eitc_2c_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_2c_fnx )
+					+ toreal(jaartal >= eitc_jr_afsch_57plus_bn) * hkt_eitc_2a_fn ;
+frml   hkt_eitc_2d_fn  = toreal(jaartal < eitc_jr_afsch_57plus_bn) * (ceil((hkt_eitc_2d_fn(-1) + hkt_eitc_2d_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_2d_fnx )
+					+ toreal(jaartal >= eitc_jr_afsch_57plus_bn) * hkt_eitc_2a_fn ;
+frml   hkt_eitc_2_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_eitc_2d_fn, afr_euro_qn)  ;
+
+frml   hkt_eitc_3a_fnx  = hkt_eitc_2a_fnx ;
+
+frml   hkt_eitc_3a_fn  =  ceil((hkt_eitc_3a_fn(-1) + hkt_eitc_3a_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + ceil(hkt_eitc_3a_fnx, afr_euro_qn);
+frml   hkt_eitc_3b_fn  = toreal(jaartal < eitc_jr_afsch_57plus_bn) * ( ceil((hkt_eitc_3b_fn(-1) + hkt_eitc_3b_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_3b_fnx )
+					+ toreal(jaartal >= eitc_jr_afsch_57plus_bn) * hkt_eitc_3a_fn ;
+frml   hkt_eitc_3c_fn  = toreal(jaartal < eitc_jr_afsch_57plus_bn) * (ceil((hkt_eitc_3c_fn(-1) + hkt_eitc_3c_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_3c_fnx  )
+					+ toreal(jaartal >= eitc_jr_afsch_57plus_bn) * hkt_eitc_3a_fn ;
+frml   hkt_eitc_3d_fn  = toreal(jaartal < eitc_jr_afsch_57plus_bn) * (ceil((hkt_eitc_3d_fn(-1) + hkt_eitc_3d_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_3d_fnx )
+					+ toreal(jaartal >= eitc_jr_afsch_57plus_bn) * hkt_eitc_3a_fn ;
+frml   hkt_eitc_3_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_eitc_3d_fn, afr_euro_qn)  ;
+
+frml   hkt_eitc_4a_vsl3_fn  = toreal(jaartal < eitc_vsl_floor_jaar_bn) * (ceil((hkt_eitc_4a_vsl3_fn(-1) + hkt_eitc_4a_vsl3_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_4a_vsl3_fnx) +
+							  toreal(jaartal >= eitc_vsl_floor_jaar_bn) * (floor((hkt_eitc_4a_vsl3_fn(-1) + hkt_eitc_4a_vsl3_fny) * (1 + tcf_tn), afr_euro_qn)  + hkt_eitc_4a_vsl3_fnx) ;
+frml   hkt_eitc_4b_vsl3_fn  = toreal(jaartal < eitc_jr_afsch_57plus_bn) * (ceil((hkt_eitc_4b_vsl3_fn(-1) + hkt_eitc_4b_vsl3_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_4b_vsl3_fnx)
+							+ toreal(jaartal >= eitc_jr_afsch_57plus_bn) * hkt_eitc_4a_vsl3_fn ;
+frml   hkt_eitc_4c_vsl3_fn  = toreal(jaartal < eitc_jr_afsch_57plus_bn) * (ceil((hkt_eitc_4c_vsl3_fn(-1) + hkt_eitc_4c_vsl3_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_4c_vsl3_fnx)
+							+ toreal(jaartal >= eitc_jr_afsch_57plus_bn) * hkt_eitc_4a_vsl3_fn ;
+frml   hkt_eitc_4d_vsl3_fn  = toreal(jaartal < eitc_jr_afsch_57plus_bn) * (ceil((hkt_eitc_4d_vsl3_fn(-1) + hkt_eitc_4d_vsl3_fny) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  + hkt_eitc_4d_vsl3_fnx )
+							+ toreal(jaartal >= eitc_jr_afsch_57plus_bn) * hkt_eitc_4a_vsl3_fn ;
+
+frml   hkt_eitc_4a_fn  = hkt_eitc_3a_fn - hkt_eitc_4a_vsl3_fn ;
+frml   hkt_eitc_4b_fn  = hkt_eitc_3b_fn - hkt_eitc_4b_vsl3_fn ;
+frml   hkt_eitc_4c_fn  = hkt_eitc_3c_fn - hkt_eitc_4c_vsl3_fn ;
+frml   hkt_eitc_4d_fn  = hkt_eitc_3d_fn - hkt_eitc_4d_vsl3_fn ;
+frml   hkt_eitc_4_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_eitc_4d_fn, afr_euro_qn)  ;
+
+frml   hkt_eitc_1_tn  = round(hkt_eitc_1_fn / hkt_eitc_gr1_fn, afr_cent_qn) ;
+frml   hkt_eitc_1_65_tn  = round(hkt_eitc_1_65_fn / hkt_eitc_gr1_fn, afr_cent_qn) ;
+
+frml   hkt_eitc_2a_tn  = round((hkt_eitc_2a_fn - hkt_eitc_1_fn) / max(hkt_eitc_gr2_fn - hkt_eitc_gr1_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_2b_tn  = round((hkt_eitc_2b_fn - hkt_eitc_1_fn) / max(hkt_eitc_gr2_fn - hkt_eitc_gr1_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_2c_tn  = round((hkt_eitc_2c_fn - hkt_eitc_1_fn) / max(hkt_eitc_gr2_fn - hkt_eitc_gr1_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_2d_tn  = round((hkt_eitc_2d_fn - hkt_eitc_1_fn) / max(hkt_eitc_gr2_fn - hkt_eitc_gr1_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_2_65_tn  = round((hkt_eitc_2_65_fn - hkt_eitc_1_65_fn) / max(hkt_eitc_gr2_fn - hkt_eitc_gr1_fn, 0.001), afr_cent_qn) ;
+
+frml   hkt_eitc_3a_tn  = round((hkt_eitc_3a_fn - hkt_eitc_2a_fn) / max(hkt_eitc_gr3_fn - hkt_eitc_gr2_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_3b_tn  = round((hkt_eitc_3b_fn - hkt_eitc_2b_fn) / max(hkt_eitc_gr3_fn - hkt_eitc_gr2_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_3c_tn  = round((hkt_eitc_3c_fn - hkt_eitc_2c_fn) / max(hkt_eitc_gr3_fn - hkt_eitc_gr2_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_3d_tn  = round((hkt_eitc_3d_fn - hkt_eitc_2d_fn) / max(hkt_eitc_gr3_fn - hkt_eitc_gr2_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_3_65_tn  = round((hkt_eitc_3_65_fn - hkt_eitc_2_65_fn) / max(hkt_eitc_gr3_fn - hkt_eitc_gr2_fn, 0.001), afr_cent_qn) ;
+
+? formule hieronder verwijderd, de variabele is hiermee exogeen geworden (werd toch al geprikt in alle jaren)
+?    frml   hkt_eitc_4a_tn  = round((hkt_eitc_4a_fn - hkt_eitc_3a_fn) / max(hkt_eitc_gr4_fn - hkt_eitc_gr3_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_4b_tn  = round((hkt_eitc_4b_fn - hkt_eitc_3b_fn) / max(hkt_eitc_gr4_fn - hkt_eitc_gr3_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_4c_tn  = round((hkt_eitc_4c_fn - hkt_eitc_3c_fn) / max(hkt_eitc_gr4_fn - hkt_eitc_gr3_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_4d_tn  = round((hkt_eitc_4d_fn - hkt_eitc_3d_fn) / max(hkt_eitc_gr4_fn - hkt_eitc_gr3_fn, 0.001), afr_cent_qn) ;
+frml   hkt_eitc_4_65_tn  = round((hkt_eitc_4_65_fn - hkt_eitc_3_65_fn) / max(hkt_eitc_gr4_fn - hkt_eitc_gr3_fn, 0.001), afr_cent_qn) ;
+
+  ? werkbonus
+  ?indexeren met mutatie aow alleenstaand, januari, zonder mkob en zonder vakantietoeslag
+frml   hkt_wbon_max_fn  = ceil((hkt_wbon_max_fn(-1) + hkt_wbon_max_fny) * (1 + (hkt_wbon_index_bn*((aow2_1m_fn-aow2_1m_fn(-1))/aow2_1m_fn(-1)))), afr_euro_qn)  + hkt_wbon_max_fnx ;
+frml   hkt_wbon_gr1_fn  =  floor(hkt_wbon_gr1_wml_qn * 12 * (bi_1m_wml_fn + bi_1v_wml_fn), afr_euro_qn) ;
+frml   hkt_wbon_gr2_fn  = floor(hkt_wbon_gr2_wml_qn * 12 * (bi_1m_wml_fn + bi_1v_wml_fn), afr_euro_qn) ;
+frml   hkt_wbon_gr3_fn  = floor(hkt_wbon_gr3_wml_qn * 12 * (bi_1m_wml_fn + bi_1v_wml_fn), afr_euro_qn) ;
+frml   hkt_wbon_gr4_fn  = floor(hkt_wbon_gr4_wml_qn * 12 * (bi_1m_wml_fn + bi_1v_wml_fn), afr_euro_qn) ;
+frml   hkt_wbon1_tn  = round((hkt_wbon_max_fn - 0) / max(hkt_wbon_gr2_fn - hkt_wbon_gr1_fn, 0.001), afr_cent_qn) ;
+frml   hkt_wbon2_tn  = round((0 - hkt_wbon_max_fn) / max(hkt_wbon_gr4_fn - hkt_wbon_gr3_fn, 0.001), afr_cent_qn) ;
+ident  hkt_wbon_lftgr1_bn  =  toreal(koopkracht_bn=0) * hkt_wbon_lftgr1_bj_bn + toreal(koopkracht_bn=1) * hkt_wbon_lftgr1_bj_bn(-1) ;
+
+  ? participatiebonus kan weg? bestaat niet meer vanaf 2013 (proloog, micromodel, macromodel)
+  ? leeftijdsgrenzen participatiebonus
+frml   hkt_pbon_lftgr1_bn  = hkt_pbon_lftgr1_bn (-1);
+frml   hkt_pbon_lftgr2_bn  = hkt_pbon_lftgr2_bn (-1);
+frml   hkt_pbon_lftgr3_bn  = hkt_pbon_lftgr3_bn (-1);
+frml   hkt_pbon_lftgr4_bn  = hkt_pbon_lftgr4_bn (-1);
+frml   hkt_pbon_lftgr5_bn  = hkt_pbon_lftgr5_bn (-1);
+
+frml   hkt_pbon_lftgr1_tn  = hkt_pbon_lftgr1_tn (-1);
+frml   hkt_pbon_lftgr2_tn  = hkt_pbon_lftgr2_tn (-1);
+frml   hkt_pbon_lftgr3_tn  = hkt_pbon_lftgr3_tn (-1);
+frml   hkt_pbon_lftgr4_tn  = hkt_pbon_lftgr4_tn (-1);
+frml   hkt_pbon_lftgr5_tn  = hkt_pbon_lftgr5_tn (-1);
+  ? nb bovengrens indexeren conform sheet fin: wet ib 2001 obv tabelcorrectiefactor
+  ? deze bovengrens komt bovenop de arbeidskortingsgrondslag (hkt_eitc_gr1_fn)
+frml   hkt_pbon_gr_fn  = ceil(hkt_pbon_gr_fn(-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn)  ;
+
+  ? maximum tarief hypotheekrenteaftrek aangepast - default is negatieve aanpassing van elk jaar een half procentpunt meer 
+? tar_max_tn geheel onafhankelijk van tarief 4e schijf, maar: ondergrens is tarief 3e schijf, bovengrens is tarief 4e schijf.
+frml  tar_max_tn  = max( min(tar_max_tn(-1) + tar_max_aanp_pj_tn, bel_b1_sch4_tn) , bel_b1_sch3_tn) ;
+
+
+
+  ? heffingvrij vermogen
+frml   b3_hvv_fn  = ceil(b3_hvv_fn(-1) * (1 + tcf_tn * tcf_ih_bn * b3_hvv_index_bn), afr_euro_qn) + b3_hvv_fnx ;
+frml   b3_hvv_knd_fn  = ceil(b3_hvv_knd_fn(-1) * (1 + tcf_tn * tcf_ih_bn * b3_hvv_knd_index_bn ), afr_euro_qn) + b3_hvv_knd_fnx ;
+frml   b3_ink_65_gr1_fn  = ceil(b3_ink_65_gr1_fn(-1) * (1 + tcf_tn * tcf_ih_bn * b3_ink_65_gr1_index_bn), afr_euro_qn) + b3_ink_65_gr1_fnx ;
+frml   b3_ink_65_gr2_fn  = ceil(b3_ink_65_gr2_fn(-1) * (1 + tcf_tn * tcf_ih_bn * b3_ink_65_gr2_index_bn), afr_euro_qn) + b3_ink_65_gr2_fnx ;
+frml   b3_out_gr2_fn  = ceil(b3_out_gr2_fn(-1) * (1 + tcf_tn * tcf_ih_bn * b3_out_gr2_index_bn), afr_euro_qn) + b3_out_gr2_fnx ;
+frml   b3_sch_dmp_onafg_fn  = b3_sch_dmp_onafg_fn(-1) * (1 + tcf_tn * tcf_ih_bn * b3_sch_dmp_onafg_index_bn) + b3_sch_dmp_onafg_fnx ;
+frml   b3_sch_dmp_fn  = floor(b3_sch_dmp_onafg_fn, afr_euro_qn * 100);
+frml   b3_vmg_65_gr_fn  = ceil(b3_vmg_65_gr_fn(-1) * (1 + tcf_tn * tcf_ih_bn * b3_vmg_65_gr_index_bn), afr_euro_qn) + b3_vmg_65_gr_fnx ;
+frml   vm_gr_kndgb_zts_fn  = vm_gr_kndgb_zts_fn (-1) * (1 + tcf_tn);
+
+  ? eigen woning
+frml   huur_index_juli_bn  = huur_index_juli_bn(-1) * (1 + huur_jul_qn) ;
+frml   huur_factor_ih_qn  = huur_index_juli_bn(-1) / huur_index_juli_bn(-2) ;
+frml   ewf_onafg_4_qn  = huur_factor_ih_qn * ewf_onafg_4_qn(-1) * (1 / (1 + woz_w1_er)) ;
+frml   ewf_onafg_5_qn  = ewf_onafg_5_qn(-1) + ewf_onafg_5_qn_fnx ;
+frml   ewf_afg_5_qn  = floor(ewf_onafg_5_qn, afr_ewf_perc_qn) ;
+frml   ewf_afg_4_qn  = floor(ewf_onafg_4_qn, ihs_afr1_qn) ;
+frml   ewf_afg_3_qn  = floor(ewf_q3_q4_qn * ewf_afg_4_qn, ihs_afr1_qn) ;
+frml   ewf_afg_2_qn  = floor(ewf_q2_q4_qn * ewf_afg_4_qn, ihs_afr1_qn) ;
+frml   ewf_afg_1_qn  = floor(ewf_q1_q4_qn * ewf_afg_4_qn, ihs_afr1_qn) ;
+  ? ewf grens 5
+frml   ewf_gr_5_onafg_fn  = ewf_gr_5_onafg_fn (-1) * (1 + tcf_tn * tcf_ih_bn);
+frml   ewf_gr_5_fn  = floor(ewf_gr_5_onafg_fn, afr_ewf_gr_qn);
+
+  ? zelfstandigenaftrek
+frml   tcf_zelfst_tn  	= tcf_tn * tcf_ih_bn + corr_tcf_zelfst_tn;
+frml   zstarter_fn  	= ceil(zstarter_fn(-1)    * (1 + tcf_zelfst_tn * zstarter_index_bn ), afr_euro_qn) ;
+frml   a_zelf_bed_fn1  	= ceil(a_zelf_bed_fn1(-1) * (1 + tcf_zelfst_tn * a_zelf_bed_index_bn), afr_euro_qn) ;
+
+  ? maximale afbouw algemene heffingskorting (vanaf 2016 volledig afbouw)
+frml   max_afbouw_ahk_fn  = toreal(jaartal < ahk_afb_nul_va_jaar_bn) * (floor(max_afbouw_ahk_fn (-1) * (1 + tcf_tn * tcf_ih_bn), afr_euro_qn) + max_afbouw_ahk_fnx) +
+						toreal(jaartal >= ahk_afb_nul_va_jaar_bn) * hkt_ahk_fn;
+frml   max_afbouw_ahk_65_fn  =  toreal(jaartal < ahk_afb_nul_va_jaar_bn) * (max_afbouw_ahk_fn * (tar_sch1_65_tn / tar_sch1_tn)) +
+						toreal(jaartal >= ahk_afb_nul_va_jaar_bn) * hkt_ahk_65_fn;
+frml   afbouw_ahk_tn = round(hkt_ahk_fn /(sch3_cum_fn- sch1_cum_fn), afr_afb_ahk_qn) ;
+
+frml   hkt_ahk_65_fn  = toreal(jaartal < ahk65_opdelen_va_jaar_bn) * ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_ahk_fn, afr_euro_qn) +
+			toreal(jaartal >= ahk65_opdelen_va_jaar_bn)* (ceil((bel_b1_sch1_tn / tar_sch1_tn) * hkt_ahk_fn, afr_euro_qn) + ceil((prvv_65_sch_tn / tar_sch1_tn) * hkt_ahk_fn, afr_euro_qn)) ;
+frml   afbouw_ahk_65_tn  = afbouw_ahk_tn * (hkt_ahk_65_fn / hkt_ahk_fn) ;
+ident  hkt_com_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_com_fn, afr_euro_qn) ;
+ident  hkt_avcom_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_avcom_fn, afr_euro_qn) ;
+ident  hkt_iacom_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_iacom_fn, afr_euro_qn) ;
+ident  hkt_aok_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_aok_fn, afr_euro_qn) ;
+ident  hkt_avaok_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_avaok_fn, afr_euro_qn) ;
+ident  hkt_kik_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_kik_fn, afr_euro_qn) ;
+ident  hkt_avkik_1_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_avkik_1_fn, afr_euro_qn) ;
+ident  hkt_avkik_2_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_avkik_2_fn, afr_euro_qn) ;
+ident  hkt_avkik_3_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_avkik_3_fn, afr_euro_qn) ;
+ident  hkt_gskik_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * hkt_gskik_fn, afr_euro_qn) ;
+ident  kndts_65_fn  = ceil((tar_sch1_65_tn / tar_sch1_tn) * kndts_fn, afr_euro_qn) ;
+frml   b3_out_gr1_fn  = 2 * b3_out_gr2_fn ;
+
+  ? spak indexering (gaan we wellicht nog eens gebruiken)
+ident  spak_brutoloon_15_fn  = spak_gr_wmlj_qn * brl_15_wml_qn * 12 * brl_1m_wml_fn ;
+ident  spak_brutoloon_16_fn  = spak_gr_wmlj_qn * brl_16_wml_qn * 12 * brl_1m_wml_fn ;
+ident  spak_brutoloon_17_fn  = spak_gr_wmlj_qn * brl_17_wml_qn * 12 * brl_1m_wml_fn ;
+ident  spak_brutoloon_18_fn  = spak_gr_wmlj_qn * brl_18_wml_qn * 12 * brl_1m_wml_fn ;
+ident  spak_brutoloon_19_fn  = spak_gr_wmlj_qn * brl_19_wml_qn * 12 * brl_1m_wml_fn ;
+ident  spak_brutoloon_20_fn  = spak_gr_wmlj_qn * brl_20_wml_qn * 12 * brl_1m_wml_fn ;
+ident  spak_brutoloon_21_fn  = spak_gr_wmlj_qn * brl_21_wml_qn * 12 * brl_1m_wml_fn ;
+ident  spak_brutoloon_22_fn  = spak_gr_wmlj_qn * brl_22_wml_qn * 12 * brl_1m_wml_fn ;
+ident  spak_brutoloon_23_fn  = spak_gr_wmlv_qn * brl_23_wml_qn * 12 * brl_1m_wml_fn ;
+ident  spak_tloon_15_fn  = ceil((spak_brutoloon_15_fn + zfw_wg_bijtel_bn * zfw_wg_tn * spak_brutoloon_15_fn - awf_wn_tn * max(0, spak_brutoloon_15_fn - wka_awf_fr_wn_fn)), afr_euro_qn) ;
+ident  spak_tloon_16_fn  = ceil((spak_brutoloon_16_fn + zfw_wg_bijtel_bn * zfw_wg_tn * spak_brutoloon_16_fn - awf_wn_tn * max(0, spak_brutoloon_16_fn - wka_awf_fr_wn_fn)), afr_euro_qn) ;
+ident  spak_tloon_17_fn  = ceil((spak_brutoloon_17_fn + zfw_wg_bijtel_bn * zfw_wg_tn * spak_brutoloon_17_fn - awf_wn_tn * max(0, spak_brutoloon_17_fn - wka_awf_fr_wn_fn)), afr_euro_qn) ;
+ident  spak_tloon_18_fn  = ceil((spak_brutoloon_18_fn + zfw_wg_bijtel_bn * zfw_wg_tn * spak_brutoloon_18_fn - awf_wn_tn * max(0, spak_brutoloon_18_fn - wka_awf_fr_wn_fn)), afr_euro_qn) ;
+ident  spak_tloon_19_fn  = ceil((spak_brutoloon_19_fn + zfw_wg_bijtel_bn * zfw_wg_tn * spak_brutoloon_19_fn - awf_wn_tn * max(0, spak_brutoloon_19_fn - wka_awf_fr_wn_fn)), afr_euro_qn) ;
+ident  spak_tloon_20_fn  = ceil((spak_brutoloon_20_fn + zfw_wg_bijtel_bn * zfw_wg_tn * spak_brutoloon_20_fn - awf_wn_tn * max(0, spak_brutoloon_20_fn - wka_awf_fr_wn_fn)), afr_euro_qn) ;
+ident  spak_tloon_21_fn  = ceil((spak_brutoloon_21_fn + zfw_wg_bijtel_bn * zfw_wg_tn * spak_brutoloon_21_fn - awf_wn_tn * max(0, spak_brutoloon_21_fn - wka_awf_fr_wn_fn)), afr_euro_qn) ;
+ident  spak_tloon_22_fn  = ceil((spak_brutoloon_22_fn + zfw_wg_bijtel_bn * zfw_wg_tn * spak_brutoloon_22_fn - awf_wn_tn * max(0, spak_brutoloon_22_fn - wka_awf_fr_wn_fn)), afr_euro_qn) ;
+ident  spak_tloon_23_fn  = ceil((spak_brutoloon_23_fn + zfw_wg_bijtel_bn * zfw_wg_tn * spak_brutoloon_23_fn - awf_wn_tn * max(0, spak_brutoloon_23_fn - wka_awf_fr_wn_fn)), afr_euro_qn) ;
+
+  ? minimumloon
+  ? m: reguliere maandbedragen ; v: vakantiegeld
+  ? 1: eerste halfjaar ; 2: tweede halfjaar
+
+  ? indexering wka maandbedragen
+  ? gewogen contractloonmutatie volgens achtereenvolgens huidige inzichten (lopend jaar),
+  ? mevjaartal over jaartal,
+  ? cepjaartal over jaartal en
+  ? mevjaartal + 1 over jaartal
+frml   bl_ctr_t_er  = (bl_m_ur_nn * bl_ctr_m_er + bl_z_ur_nn * bl_ctr_z_er + bl_o_ur_nn * bl_ctr_o_er) / (bl_m_ur_nn + bl_z_ur_nn + bl_o_ur_nn ) + bl_ctr_t_aut_ageing_er ;
+frml   bl_ctr_t_mt_er  = bl_ctr_t_er ;
+frml   bl_ctr_t_ct_er  = bl_ctr_t_er ;
+frml   bl_ctr_t_m1t_er  = bl_ctr_t_er ;
+
+  ? aanpassing minimumloon volgens wka (achtereenvolgens contractloon, mogelijke negatieve
+  ? ontwikkeling, de cumulatieve nog te verwerken, aanpassing rekening houdende met arbeidsmarkt,
+  ? onafgerond en afgerond op veelvouden van 60 eurocent per maand)
+
+  ? januari
+ident  wka_jan_cl_pr  = bl_ctr_t_er / 2 + wka_jul_bn(-1) * (bl_ctr_t_mt_er(-1) - bl_ctr_t_ct_er(-1)) ;
+ident  wka_jan_nneg_pr  = max(0, wka_jan_cl_pr + wka_cum_jul_pr(-1)) ;
+frml   wka_jan_pr  = wka_jan_bn * wka_jan_nneg_pr ;
+ident  wka_cum_jan_pr  = wka_jan_bn * (wka_cum_jul_pr(-1) + wka_jan_cl_pr - wka_jan_nneg_pr) ;
+frml   brl_1m_wml_onafg_fn  = (1 + wka_jan_pr) * brl_2m_wml_onafg_fn(-1) ;
+frml   brl_1m_wml_fn  = round(brl_1m_wml_onafg_fn, afr_wml_fn) ;
+  ? juli
+ident  wka_jul_cl_pr  = bl_ctr_t_ct_er - wka_jan_bn * bl_ctr_t_m1t_er / 2 - (1 - wka_jan_bn) * wka_jan_pr ;
+ident  wka_jul_nneg_pr  = max(0, wka_jul_cl_pr + wka_cum_jan_pr) ;
+frml   wka_jul_pr  = wka_jul_bn * wka_jul_nneg_pr ;
+ident  wka_cum_jul_pr  = wka_jul_bn * (wka_cum_jan_pr + wka_jul_cl_pr - wka_jul_nneg_pr) ;
+frml   brl_2m_wml_onafg_fn  = (1 + wka_jul_pr) * brl_1m_wml_onafg_fn ;
+frml   brl_2m_wml_fn  = round(brl_2m_wml_onafg_fn, afr_wml_fn) ;
+
+  ? berekening netto minimumloon
+
+ ? berekening hoogte ahk in minimumloon  
+frml hkt_ahk_1m_fn  = hkt_ahk_fn - max(0,(afbouw_ahk_tn)* (bi_1mj_wml_fn - sch1_fn));
+ 
+  ? eerste halfjaar
+  ? regulier maandbedrag
+ident  awf_1m_wml_wn_fn  = floor(awf_wn_tn * max(0, (brl_1m_wml_fn - wka_awf_fr_wn_fn)), afr_cent_qn) ;
+ident  wgf_1m_wml_wn_fn  = round(wgf_wml_tn * max(0, (brl_1m_wml_fn - wka_wgf_fr_wn_fn)), afr_cent_qn) ;
+ident  ww_1m_wml_wn_fn  = round((awf_1m_wml_wn_fn + wgf_1m_wml_wn_fn), afr_cent_qn) ;
+ident  zfw_1m_wml_wg_fn  = floor(zfw_wg_tn * (brl_1m_wml_fn - ww_1m_wml_wn_fn), afr_cent_qn) ;
+ident  bi_1m_wml_fn  = round((brl_1m_wml_fn - ww_1m_wml_wn_fn + zfw_wg_bijtel_bn * zfw_1m_wml_wg_fn), afr_cent_qn) ;
+ident  bi_1mj_wml_fn  = floor(12 * bi_1m_wml_fn, afr_lb_fn) ;
+ident  lhv_1mj_wml_fn  = floor((floor(tar_sch1_jan_tn * min(bi_1mj_wml_fn, sch1_fn), afr_euro_qn)  + tar_sch2_jan_tn * max(0, bi_1mj_wml_fn - sch1_fn)), afr_euro_qn)  ;
+ident  lhv_1m_wml_fn  = floor((lhv_1mj_wml_fn / 12), afr_cent_qn) ;
+ident  hkt_1m_wml_fn  = round((min(lhv_1mj_wml_fn, 2 * hkt_ahk_1m_fn) / 12), afr_cent_qn) ;
+ident  lhn_1m_wml_fn  = round((lhv_1m_wml_fn - hkt_1m_wml_fn), afr_cent_qn) ;
+ident  zfw_1m_wml_wn_fn  = floor(zfw_wn_tn * max(0, brl_1m_wml_fn - wka_zfw_fr_wn_fn), afr_cent_qn) ;
+frml   nl_1m_wml_fn  = round((brl_1m_wml_fn - ww_1m_wml_wn_fn - lhn_1m_wml_fn - zfw_1m_wml_wn_fn), afr_cent_qn) ;
+
+  ? voor bijstand
+ident  hkt_1m_bij_wml_fn  = round((min(lhv_1mj_wml_fn, ahk_in_wml_1_bn * hkt_ahk_1m_fn) / 12), afr_cent_qn) ;
+ident  lhn_1m_bij_wml_fn  = round((lhv_1m_wml_fn - hkt_1m_bij_wml_fn), afr_cent_qn) ;
+frml   nl_1m_bij_wml_fn  = round((brl_1m_wml_fn - ww_1m_wml_wn_fn - lhn_1m_bij_wml_fn - zfw_1m_wml_wn_fn), afr_cent_qn) ;
+
+  ? berekening vakantietoeslag aangepast vanaf 2012 om aan te sluiten bij fin
+ident  brl_1v_wml_fn  = toreal(eitc_gr_bn = 0) * (floor(wvt_tn * brl_1m_wml_fn, afr_cent_qn)) + toreal(eitc_gr_bn = 1) * (round(wvt_tn * brl_1m_wml_fn, afr_cent_qn)) ;
+
+  ? regulier maandbedrag + vakantiegeld
+ident  brl_1t_wml_fn  = brl_1m_wml_fn + brl_1v_wml_fn ;
+
+ ? berekening hoogte ahk in minimumloon + vakantiegeld 
+frml   hkt_ahk_1t_fn  = hkt_ahk_fn - max(0,(afbouw_ahk_tn)* (bi_1tj_wml_fn - sch1_fn));
+
+ident  awf_1t_wml_wn_fn  = floor(awf_wn_tn * max(0, (brl_1t_wml_fn - wka_awf_fr_wn_fn)), afr_cent_qn) ;
+ident  wgf_1t_wml_wn_fn  = round(wgf_wml_tn * max(0, (brl_1t_wml_fn - wka_wgf_fr_wn_fn)), afr_cent_qn) ;
+ident  ww_1t_wml_wn_fn  = round((awf_1t_wml_wn_fn + wgf_1t_wml_wn_fn), afr_cent_qn) ;
+ident  zfw_1t_wml_wg_fn  = floor(zfw_wg_tn * (brl_1t_wml_fn - ww_1t_wml_wn_fn), afr_cent_qn) ;
+ident  bi_1t_wml_fn  = round((brl_1t_wml_fn - ww_1t_wml_wn_fn + zfw_wg_bijtel_bn * zfw_1t_wml_wg_fn), afr_cent_qn) ;
+ident  bi_1tj_wml_fn  = floor(12 * bi_1t_wml_fn, afr_lb_fn) ;
+ident  lhv_1tj_wml_fn  = floor((floor(tar_sch1_jan_tn * min(bi_1tj_wml_fn, sch1_fn), afr_euro_qn)  + tar_sch2_jan_tn * max(0, bi_1tj_wml_fn - sch1_fn)), afr_euro_qn)  ;
+ident  lhv_1t_wml_fn  = floor((lhv_1tj_wml_fn / 12), afr_cent_qn) ;
+ident  hkt_1t_wml_fn  = round((min(lhv_1tj_wml_fn, 2 * hkt_ahk_1t_fn) / 12), afr_cent_qn) ;
+ident  lhn_1t_wml_fn  = round((lhv_1t_wml_fn - hkt_1t_wml_fn), afr_cent_qn) ;
+ident  zfw_1t_wml_wn_fn  = floor(zfw_wn_tn * max(0, brl_1t_wml_fn - wka_zfw_fr_wn_fn), afr_cent_qn) ;
+frml   nl_1t_wml_fn  = round((brl_1t_wml_fn - ww_1t_wml_wn_fn - lhn_1t_wml_fn - zfw_1t_wml_wn_fn), afr_cent_qn) ;
+
+  ? voor bijstand
+ident  hkt_1t_bij_wml_fn  = round((min(lhv_1tj_wml_fn, ahk_in_wml_1_bn * hkt_ahk_1t_fn) / 12), afr_cent_qn) ;
+ident  lhn_1t_bij_wml_fn  = round((lhv_1t_wml_fn - hkt_1t_bij_wml_fn), afr_cent_qn) ;
+frml   nl_1t_bij_wml_fn  = round((brl_1t_wml_fn - ww_1t_wml_wn_fn - lhn_1t_bij_wml_fn - zfw_1t_wml_wn_fn), afr_cent_qn) ;
+
+  ? vakantiegeld
+ident  zfw_1v_wml_wg_fn  = round((zfw_1t_wml_wg_fn - zfw_1m_wml_wg_fn), afr_cent_qn) ;
+ident  awf_1v_wml_wn_fn  = round((awf_1t_wml_wn_fn - awf_1m_wml_wn_fn), afr_cent_qn) ;
+ident  wgf_1v_wml_wn_fn  = round((wgf_1t_wml_wn_fn - wgf_1m_wml_wn_fn), afr_cent_qn) ;
+ident  ww_1v_wml_wn_fn  = round((awf_1v_wml_wn_fn + wgf_1v_wml_wn_fn), afr_cent_qn) ;
+ident  bi_1v_wml_fn  = round ((bi_1t_wml_fn - bi_1m_wml_fn), afr_cent_qn);
+ident  lhv_1v_wml_fn  = round((lhv_1t_wml_fn - lhv_1m_wml_fn), afr_cent_qn) ;
+ident  hkt_1v_wml_fn  = round((hkt_1t_wml_fn - hkt_1m_wml_fn), afr_cent_qn) ;
+ident  lhn_1v_wml_fn  = round((lhn_1t_wml_fn - lhn_1m_wml_fn), afr_cent_qn) ;
+ident  zfw_1v_wml_wn_fn  = round((zfw_1t_wml_wn_fn - zfw_1m_wml_wn_fn), afr_cent_qn) ;
+frml   nl_1v_wml_fn   = round((nl_1t_wml_fn  - nl_1m_wml_fn), afr_cent_qn) ;
+
+  ? voor bijstand
+ident  hkt_1v_bij_wml_fn  = round((hkt_1t_bij_wml_fn - hkt_1m_bij_wml_fn), afr_cent_qn) ;
+ident  lhn_1v_bij_wml_fn  = round((lhn_1t_bij_wml_fn - lhn_1m_bij_wml_fn), afr_cent_qn) ;
+frml   nl_1v_bij_wml_fn   = round((nl_1t_bij_wml_fn  - nl_1m_bij_wml_fn), afr_cent_qn) ;
+
+  ? tweede halfjaar
+
+ ? berekening hoogte ahk in minimumloon  
+frml   hkt_ahk_2m_fn  = hkt_ahk_fn - max(0, (afbouw_ahk_tn)* (bi_2mj_wml_fn - sch1_fn));
+ 
+  ? regulier maandbedrag
+ident  awf_2m_wml_wn_fn  = floor(awf_wn_tn * max(0, (brl_2m_wml_fn - wka_awf_fr_wn_fn)), afr_cent_qn) ;
+ident  wgf_2m_wml_wn_fn  = round(wgf_wml_tn * max(0, (brl_2m_wml_fn - wka_wgf_fr_wn_fn)), afr_cent_qn) ;
+ident  ww_2m_wml_wn_fn  = round((awf_2m_wml_wn_fn + wgf_2m_wml_wn_fn), afr_cent_qn) ;
+ident  zfw_2m_wml_wg_fn  = floor(zfw_wg_tn * (brl_2m_wml_fn - ww_2m_wml_wn_fn), afr_cent_qn) ;
+ident  bi_2m_wml_fn  = round((brl_2m_wml_fn - ww_2m_wml_wn_fn + zfw_wg_bijtel_bn * zfw_2m_wml_wg_fn), afr_cent_qn) ;
+ident  bi_2mj_wml_fn  = floor(12 * bi_2m_wml_fn, afr_lb_fn) ;
+ident  lhv_2mj_wml_fn  = floor((floor(tar_sch1_jan_tn * min(bi_2mj_wml_fn, sch1_fn), afr_euro_qn)  + tar_sch2_jan_tn * max(0, bi_2mj_wml_fn - sch1_fn)), afr_euro_qn)  ;
+ident  lhv_2m_wml_fn  = floor((lhv_2mj_wml_fn / 12), afr_cent_qn) ;
+ident  hkt_2m_wml_fn  = round((min(lhv_2mj_wml_fn, 2 * hkt_ahk_2m_fn) / 12), afr_cent_qn) ;
+ident  lhn_2m_wml_fn  = round((lhv_2m_wml_fn - hkt_2m_wml_fn), afr_cent_qn) ;
+ident  zfw_2m_wml_wn_fn  = floor(zfw_wn_tn * max(0, brl_2m_wml_fn - wka_zfw_fr_wn_fn), afr_cent_qn) ;
+frml   nl_2m_wml_fn  = round((brl_2m_wml_fn - ww_2m_wml_wn_fn - lhn_2m_wml_fn - zfw_2m_wml_wn_fn), afr_cent_qn) ;
+
+  ? voor bijstand
+ident  hkt_2m_bij_wml_fn  = round((min(lhv_2mj_wml_fn, ahk_in_wml_2_bn * hkt_ahk_2m_fn) / 12), afr_cent_qn) ;
+ident  lhn_2m_bij_wml_fn  = round((lhv_2m_wml_fn - hkt_2m_bij_wml_fn), afr_cent_qn) ;
+
+frml   nl_2m_bij_wml_fn  = round((brl_2m_wml_fn - ww_2m_wml_wn_fn - lhn_2m_bij_wml_fn - zfw_2m_wml_wn_fn), afr_cent_qn) ;
+
+  ? regulier maandbedrag + vakantiegeld
+ident  brl_2v_wml_fn  = floor(wvt_tn * brl_2m_wml_fn, afr_cent_qn) ;
+ident  brl_2t_wml_fn  = brl_2m_wml_fn + brl_2v_wml_fn ;
+
+?  berekening hoogte ahk in minimumloon + vakantiegeld
+frml hkt_ahk_2t_fn  = hkt_ahk_fn - max(0, (afbouw_ahk_tn) * (bi_2tj_wml_fn - sch1_fn));
+
+ident  awf_2t_wml_wn_fn  = floor(awf_wn_tn * max(0, (brl_2t_wml_fn - wka_awf_fr_wn_fn)), afr_cent_qn) ;
+ident  wgf_2t_wml_wn_fn  = round(wgf_wml_tn * max(0, (brl_2t_wml_fn - wka_wgf_fr_wn_fn)), afr_cent_qn) ;
+ident  ww_2t_wml_wn_fn  = round((awf_2t_wml_wn_fn + wgf_2t_wml_wn_fn), afr_cent_qn) ;
+ident  zfw_2t_wml_wg_fn  = floor(zfw_wg_tn * (brl_2t_wml_fn - ww_2t_wml_wn_fn), afr_cent_qn) ;
+ident  bi_2t_wml_fn  = round((brl_2t_wml_fn - ww_2t_wml_wn_fn + zfw_wg_bijtel_bn * zfw_2t_wml_wg_fn), afr_cent_qn) ;
+ident  bi_2tj_wml_fn  = floor(12 * bi_2t_wml_fn, afr_lb_fn) ;
+ident  lhv_2tj_wml_fn  = floor((floor(tar_sch1_jan_tn * min(bi_2tj_wml_fn, sch1_fn), afr_euro_qn)  + tar_sch2_jan_tn * max(0, bi_2tj_wml_fn - sch1_fn)), afr_euro_qn)  ;
+ident  lhv_2t_wml_fn  = floor((lhv_2tj_wml_fn / 12), afr_cent_qn) ;
+ident  hkt_2t_wml_fn  = round((min(lhv_2tj_wml_fn, 2 * hkt_ahk_2t_fn) / 12), afr_cent_qn) ;
+ident  lhn_2t_wml_fn  = round((lhv_2t_wml_fn - hkt_2t_wml_fn), afr_cent_qn) ;
+ident  zfw_2t_wml_wn_fn  = floor(zfw_wn_tn * max(0, brl_2t_wml_fn - wka_zfw_fr_wn_fn), afr_cent_qn) ;
+frml   nl_2t_wml_fn  = round((brl_2t_wml_fn - ww_2t_wml_wn_fn - lhn_2t_wml_fn - zfw_2t_wml_wn_fn), afr_cent_qn) ;
+
+  ? voor bijstand
+ident  hkt_2t_bij_wml_fn  = round((min(lhv_2tj_wml_fn, ahk_in_wml_2_bn * hkt_ahk_2t_fn) / 12), afr_cent_qn) + hkt_2t_bij_wml_extra_fn ;
+ident  lhn_2t_bij_wml_fn  = round((lhv_2t_wml_fn - hkt_2t_bij_wml_fn), afr_cent_qn) ;
+frml   nl_2t_bij_wml_fn  = round((brl_2t_wml_fn - ww_2t_wml_wn_fn - lhn_2t_bij_wml_fn - zfw_2t_wml_wn_fn), afr_cent_qn) ;
+
+  ? vakantiegeld
+ident  zfw_2v_wml_wg_fn  = round((zfw_2t_wml_wg_fn - zfw_2m_wml_wg_fn), afr_cent_qn) ;
+ident  awf_2v_wml_wn_fn  = round((awf_2t_wml_wn_fn - awf_2m_wml_wn_fn), afr_cent_qn) ;
+ident  wgf_2v_wml_wn_fn  = round((wgf_2t_wml_wn_fn - wgf_2m_wml_wn_fn), afr_cent_qn) ;
+ident  ww_2v_wml_wn_fn  = round((awf_2v_wml_wn_fn + wgf_2v_wml_wn_fn), afr_cent_qn) ;
+ident  lhv_2v_wml_fn  = round((lhv_2t_wml_fn - lhv_2m_wml_fn), afr_cent_qn) ;
+ident  hkt_2v_wml_fn  = round((hkt_2t_wml_fn - hkt_2m_wml_fn), afr_cent_qn) ;
+ident  lhn_2v_wml_fn  = round((lhn_2t_wml_fn - lhn_2m_wml_fn), afr_cent_qn) ;
+ident  zfw_2v_wml_wn_fn  = round((zfw_2t_wml_wn_fn - zfw_2m_wml_wn_fn), afr_cent_qn) ;
+frml   nl_2v_wml_fn   = round((nl_2t_wml_fn  - nl_2m_wml_fn), afr_cent_qn) ;
+
+  ? voor bijstand
+ident  hkt_2v_bij_wml_fn  = round((hkt_2t_bij_wml_fn - hkt_2m_bij_wml_fn), afr_cent_qn) ;
+ident  lhn_2v_bij_wml_fn  = round((lhn_2t_bij_wml_fn - lhn_2m_bij_wml_fn), afr_cent_qn) ;
+frml   nl_2v_bij_wml_fn   = round((nl_2t_bij_wml_fn  - nl_2m_bij_wml_fn), afr_cent_qn) ;
+
+  ? jaarbedragen
+frml   brl_wml_fn  = round((6 * brl_1t_wml_fn + 6 * brl_2t_wml_fn), afr_cent_qn) ;
+ident  zfw_wml_wg_fn  = round((6 * zfw_1t_wml_wg_fn + 6 * zfw_2t_wml_wg_fn), afr_cent_qn) ;
+ident  awf_wml_wn_fn  = round((6 * awf_1t_wml_wn_fn + 6 * awf_2t_wml_wn_fn), afr_cent_qn) ;
+ident  wgf_wml_wn_fn  = round((6 * wgf_1t_wml_wn_fn + 6 * wgf_2t_wml_wn_fn), afr_cent_qn) ;
+ident  ww_wml_wn_fn  = round((6 * ww_1t_wml_wn_fn + 6 * ww_2t_wml_wn_fn), afr_cent_qn) ;
+ident  bi_wml_fn  = round((6 * bi_1t_wml_fn + 6 * bi_2t_wml_fn), afr_cent_qn) ;
+ident  lhv_wml_fn  = round((6 * lhv_1t_wml_fn + 6 * lhv_2t_wml_fn), afr_cent_qn) ;
+ident  hkt_wml_fn  = round((6 * hkt_1t_wml_fn + 6 * hkt_2t_wml_fn), afr_cent_qn) ;
+ident  lhn_wml_fn  = round((6 * lhn_1t_wml_fn + 6 * lhn_2t_wml_fn), afr_cent_qn) ;
+ident  zfw_wml_wn_fn  = round((6 * zfw_1t_wml_wn_fn + 6 * zfw_2t_wml_wn_fn), afr_cent_qn) ;
+ident  nl_wml_fn  = round((6 * nl_1t_wml_fn + 6 * nl_2t_wml_fn), afr_cent_qn) ;
+ident  brl_wml_fr  = brl_wml_fn / brl_wml_fn(-1) - 1 ;
+ident  nl_wml_fr  = nl_wml_fn / nl_wml_fn(-1) - 1 ;
+
+  ? bijstand
+ident  hkt_wml_bij_fn  = round((6 * hkt_1t_bij_wml_fn + 6 * hkt_2t_bij_wml_fn), afr_cent_qn) ;
+ident  lhn_wml_bij_fn  = round((6 * lhn_1t_bij_wml_fn + 6 * lhn_2t_bij_wml_fn), afr_cent_qn) ;
+ident  nl_bij_wml_fn  = round((6 * nl_1t_bij_wml_fn + 6 * nl_2t_bij_wml_fn), afr_cent_qn) ;
+ident  nl_bij_wml_fr  = nl_bij_wml_fn / nl_bij_wml_fn(-1) - 1 ;
+
+  ? tbv macromodel
+ident  mbrpr  = brl_wml_fr ;
+
+  ? minimale vakantietoeslag overheid
+frml   mvt_o_fn  = (toreal(mvt_bn = 0) * mvt_o_fn(-1) + toreal(mvt_bn = 1) * mvt_o_tmp_fn(-1)) * (1 + bl_ctr_o_er) ;
+  ? minimumloon overheid
+ident  brl_oml_fn   = ((brl_wml_fn / (1 + wvt_tn)) + 12 * mvt_o_fn) ;
+
+  ? zorgtoeslag drempelinkomen
+ident  dmp_ink_zts_fn  = 12 * bi_1t_wml_fn ;
+
+
+  ? netto - netto koppeling: aow gehuwd p.p. (50%),
+
+  ? eerste halfjaar
+  ? regulier maandbedrag
+ident  zfw_1m_aow1_wn_fn  = floor(zfw_wn_tn * max(0, aow1_1m_fn - wka_zfw_fr_wn_fn), afr_cent_qn) ;
+ident  zfw_1m_aow1_wg_fn  = floor(aow_zfw_wg_tn * aow1_1m_fn, afr_cent_qn) ;
+ident  zfw_1m_aow1_fn  = round((zfw_1m_aow1_wn_fn + zfw_1m_aow1_wg_fn), afr_cent_qn) ;
+ident  bi_1m_aow1_fn  = aow1_1m_fn ;
+ident  bi_1mj_aow1_fn  = floor(12 * bi_1m_aow1_fn, afr_lb_fn) ;
+ident  lhv_1mj_aow1_fn  = floor((floor(tar_sch1_65_jan_tn * min(bi_1mj_aow1_fn , sch1_fn), afr_euro_qn)  + tar_sch2_65_jan_tn * max(0, bi_1mj_aow1_fn  - sch1_fn)), afr_euro_qn)  ;
+ident  lhv_1m_aow1_fn  = floor((lhv_1mj_aow1_fn / 12), afr_cent_qn) ;
+ident  hkt_1m_aow1_fn  = round(min(lhv_1m_aow1_fn, hkt_ahk_65_fn / 12), afr_cent_qn) ;
+ident  lhn_1m_aow1_fn  = round((lhv_1m_aow1_fn - hkt_1m_aow1_fn), afr_cent_qn) ;
+frml   aow1_1m_fn  = round((nu_aow1_1m_fn + zfw_1m_aow1_fn + lhv_1m_aow1_fn - hkt_1m_aow1_fn), afr_cent_qn) ;
+ident  nu_aow1_1m_fn  = round((nu_aow1_nl_wml_qn * nl_1m_wml_fn), afr_cent_qn) ;
+
+  ? vakantiegeld
+ident  zfw_1v_aow1_wn_fn  = floor(zfw_wn_tn * max(0, aow1_1t_fn - wka_zfw_fr_wn_fn), afr_cent_qn) - zfw_1m_aow1_wn_fn ;
+ident  zfw_1v_aow1_wg_fn  = floor(aow_zfw_wg_tn * aow1_1v_fn, afr_cent_qn) ;
+ident  zfw_1v_aow1_fn  = round((zfw_1v_aow1_wn_fn + zfw_1v_aow1_wg_fn), afr_cent_qn) ;
+ident  bi_1v_aow1_fn  = aow1_1v_fn ;
+ident  bi_1vj_aow1_fn  = floor(12 * bi_1v_aow1_fn, afr_cent_qn) ;
+ident  lhv_1vj_aow1_fn  = floor(tar_sch1_65_jan_tn * min(bi_1vj_aow1_fn , sch1_fn), afr_cent_qn)  ;
+ident  lhv_1v_aow1_fn  = floor(lhv_1vj_aow1_fn / 12, afr_cent_qn) ;
+ident  hkt_1v_aow1_fn  = 0 ;
+ident  lhn_1v_aow1_fn  = round((lhv_1v_aow1_fn - hkt_1v_aow1_fn), afr_cent_qn) ;
+frml   aow1_1v_fn  = round((nu_aow1_1v_fn + zfw_1v_aow1_fn + lhv_1v_aow1_fn - hkt_1v_aow1_fn), afr_cent_qn) ;
+ident  nu_aow1_1v_fn  = round((nu_aow1_nl_wml_qn * nl_1v_wml_fn), afr_cent_qn) ;
+
+  ? regulier maandbedrag plus vakantiegeld
+ident  zfw_1t_aow1_wn_fn   = round((zfw_1m_aow1_wn_fn + zfw_1v_aow1_wn_fn), afr_cent_qn) ;
+ident  zfw_1t_aow1_wg_fn  = round((zfw_1m_aow1_wg_fn + zfw_1v_aow1_wg_fn), afr_cent_qn) ;
+ident  zfw_1t_aow1_fn  = round((zfw_1m_aow1_fn + zfw_1v_aow1_fn), afr_cent_qn) ;
+ident  bi_1t_aow1_fn  = round((bi_1m_aow1_fn + bi_1v_aow1_fn), afr_cent_qn) ;
+ident  lhv_1t_aow1_fn  = round((lhv_1m_aow1_fn + lhv_1v_aow1_fn), afr_cent_qn) ;
+ident  hkt_1t_aow1_fn  = round((hkt_1m_aow1_fn + hkt_1v_aow1_fn), afr_cent_qn) ;
+ident  lhn_1t_aow1_fn  = round((lhn_1m_aow1_fn + lhn_1v_aow1_fn), afr_cent_qn) ;
+frml   aow1_1t_fn  = round((aow1_1m_fn + aow1_1v_fn), afr_cent_qn) ;
+ident  nu_aow1_1t_fn  = round((nu_aow1_1m_fn + nu_aow1_1v_fn), afr_cent_qn) ;
+
+  ? tweede halfjaar
+  ? regulier maandbedrag
+ident  zfw_2m_aow1_wn_fn  = floor(zfw_wn_tn * max(0, aow1_2m_fn - wka_zfw_fr_wn_fn), afr_cent_qn) ;
+ident  zfw_2m_aow1_wg_fn  = floor(aow_zfw_wg_tn * aow1_2m_fn, afr_cent_qn) ;
+ident  zfw_2m_aow1_fn  = round((zfw_2m_aow1_wn_fn + zfw_2m_aow1_wg_fn), afr_cent_qn) ;
+ident  bi_2m_aow1_fn  = aow1_2m_fn ;
+ident  bi_2mj_aow1_fn  = floor(12 * bi_2m_aow1_fn, afr_lb_fn) ;
+ident  lhv_2mj_aow1_fn  = floor((floor(tar_sch1_65_jan_tn * min(bi_2mj_aow1_fn , sch1_fn), afr_euro_qn)  + tar_sch2_65_jan_tn * max(0, bi_2mj_aow1_fn  - sch1_fn)), afr_euro_qn)  ;
+ident  lhv_2m_aow1_fn  = floor((lhv_2mj_aow1_fn / 12), afr_cent_qn) ;
+ident  hkt_2m_aow1_fn  = round(min(lhv_2m_aow1_fn, hkt_ahk_65_fn / 12), afr_cent_qn) ;
+ident  lhn_2m_aow1_fn  = round((lhv_2m_aow1_fn - hkt_2m_aow1_fn), afr_cent_qn) ;
+frml   aow1_2m_fn  = round((nu_aow1_2m_fn + zfw_2m_aow1_fn + lhv_2m_aow1_fn - hkt_2m_aow1_fn), afr_cent_qn) ;
+ident  nu_aow1_2m_fn  = round((nu_aow1_nl_wml_qn * nl_2m_wml_fn), afr_cent_qn) ;
+
+  ? vakantiegeld
+ident  zfw_2v_aow1_wn_fn  = floor(zfw_wn_tn * max(0, aow1_2t_fn - wka_zfw_fr_wn_fn), afr_cent_qn) - zfw_2m_aow1_wn_fn ;
+ident  zfw_2v_aow1_wg_fn  = floor(aow_zfw_wg_tn * aow1_2v_fn, afr_cent_qn) ;
+ident  zfw_2v_aow1_fn  = round((zfw_2v_aow1_wn_fn + zfw_2v_aow1_wg_fn), afr_cent_qn) ;
+ident  bi_2v_aow1_fn  = aow1_2v_fn ;
+ident  bi_2vj_aow1_fn  = floor(12 * bi_2v_aow1_fn, afr_cent_qn) ;
+ident  lhv_2vj_aow1_fn  = floor(tar_sch1_65_jan_tn * min(bi_2vj_aow1_fn , sch1_fn), afr_cent_qn) ;
+ident  lhv_2v_aow1_fn  = floor(lhv_2vj_aow1_fn / 12, afr_cent_qn) ;
+ident  hkt_2v_aow1_fn  = 0 ;
+ident  lhn_2v_aow1_fn  = round((lhv_2v_aow1_fn - hkt_2v_aow1_fn), afr_cent_qn) ;
+frml   aow1_2v_fn  = round((nu_aow1_2v_fn + zfw_2v_aow1_fn + lhv_2v_aow1_fn - hkt_2v_aow1_fn), afr_cent_qn) ;
+ident  nu_aow1_2v_fn  = round((nu_aow1_nl_wml_qn * nl_2v_wml_fn), afr_cent_qn) ;
+
+  ? regulier maandbedrag + vakantiegeld
+ident  zfw_2t_aow1_wn_fn   = round((zfw_2m_aow1_wn_fn + zfw_2v_aow1_wn_fn), afr_cent_qn) ;
+ident  zfw_2t_aow1_wg_fn  = round((zfw_2m_aow1_wg_fn + zfw_2v_aow1_wg_fn), afr_cent_qn) ;
+ident  zfw_2t_aow1_fn  = round((zfw_2m_aow1_fn + zfw_2v_aow1_fn), afr_cent_qn) ;
+ident  bi_2t_aow1_fn  = round((bi_2m_aow1_fn + bi_2v_aow1_fn), afr_cent_qn) ;
+ident  lhv_2t_aow1_fn  = round((lhv_2m_aow1_fn + lhv_2v_aow1_fn), afr_cent_qn) ;
+ident  hkt_2t_aow1_fn  = round((hkt_2m_aow1_fn + hkt_2v_aow1_fn), afr_cent_qn) ;
+ident  lhn_2t_aow1_fn  = round((lhn_2m_aow1_fn + lhn_2v_aow1_fn), afr_cent_qn) ;
+frml   aow1_2t_fn  = round((aow1_2m_fn + aow1_2v_fn), afr_cent_qn) ;
+ident  nu_aow1_2t_fn  = round((nu_aow1_2m_fn + nu_aow1_2v_fn), afr_cent_qn) ;
+
+  ? jaarbedragen
+ident  aow1_plus_ts_fn  = aow1_fn + aow_br_ts_fn ;
+
+frml   aow1_fn  = round((6 * aow1_1t_fn + 6 * aow1_2t_fn), afr_cent_qn) ;
+ident  zfw_aow1_fn  = round((6 * zfw_1t_aow1_fn + 6 * zfw_2t_aow1_fn), afr_cent_qn) ;
+ident  lhv_aow1_fn  = round((6 * lhv_1t_aow1_fn + 6 * lhv_2t_aow1_fn), afr_cent_qn) ;
+ident  hkt_aow1_fn  = round((6 * hkt_1t_aow1_fn + 6 * hkt_2t_aow1_fn), afr_cent_qn) ;
+ident  lhn_aow1_fn  = round((6 * lhn_1t_aow1_fn + 6 * lhn_2t_aow1_fn), afr_cent_qn) ;
+frml   nu_aow1_fn  = round((6 * nu_aow1_1t_fn + 6 * nu_aow1_2t_fn), afr_cent_qn) ;
+ident  aow1_fr  = aow1_fn / aow1_fn(-1) - 1 ;
+ident  nu_aow1_fr  = nu_aow1_fn / nu_aow1_fn(-1) - 1 ;
+
+
+  ? netto - netto koppeling: aow alleenstaande
+
+  ? eerste halfjaar
+  ? regulier maandbedrag
+ident  zfw_1m_aow2_wn_fn  = floor(zfw_wn_tn * max(0, aow2_1m_fn - wka_zfw_fr_wn_fn), afr_cent_qn) ;
+ident  zfw_1m_aow2_wg_fn  = floor(aow_zfw_wg_tn * aow2_1m_fn, afr_cent_qn) ;
+ident  zfw_1m_aow2_fn  = round((zfw_1m_aow2_wn_fn + zfw_1m_aow2_wg_fn), afr_cent_qn) ;
+ident  bi_1m_aow2_fn  = aow2_1m_fn ;
+ident  bi_1mj_aow2_fn  = floor(12 * bi_1m_aow2_fn, afr_lb_fn) ;
+ident  lhv_1mj_aow2_fn  = floor((floor(tar_sch1_65_jan_tn * min(bi_1mj_aow2_fn , sch1_fn), afr_euro_qn)  + tar_sch2_65_jan_tn * max(0, bi_1mj_aow2_fn  - sch1_fn)), afr_euro_qn)  ;
+ident  lhv_1m_aow2_fn  = floor((lhv_1mj_aow2_fn / 12), afr_cent_qn) ;
+ident  hkt_1m_aow2_fn  = round(min(lhv_1m_aow2_fn, hkt_ahk_65_fn / 12), afr_cent_qn) ;
+ident  lhn_1m_aow2_fn  = round((lhv_1m_aow2_fn - hkt_1m_aow2_fn), afr_cent_qn) ;
+frml   aow2_1m_fn  = round((nu_aow2_1m_fn + zfw_1m_aow2_fn + lhv_1m_aow2_fn - hkt_1m_aow2_fn), afr_cent_qn) ;
+ident  nu_aow2_1m_fn  = round((nu_aow2_nl_wml_qn * nl_1m_wml_fn), afr_cent_qn) ;
+
+  ? vakantiegeld
+ident  zfw_1v_aow2_wn_fn  = floor(zfw_wn_tn * max(0, aow2_1t_fn - wka_zfw_fr_wn_fn), afr_cent_qn) - zfw_1m_aow2_wn_fn ;
+ident  zfw_1v_aow2_wg_fn  = floor(aow_zfw_wg_tn * aow2_1v_fn, afr_cent_qn) ;
+ident  zfw_1v_aow2_fn  = round((zfw_1v_aow2_wn_fn + zfw_1v_aow2_wg_fn), afr_cent_qn) ;
+ident  bi_1v_aow2_fn  = aow2_1v_fn ;
+ident  bi_1vj_aow2_fn  = floor(12 * bi_1v_aow2_fn, afr_cent_qn) ;
+ident  lhv_1vj_aow2_fn  = floor(tar_sch1_65_jan_tn * min(bi_1vj_aow2_fn , sch1_fn), afr_cent_qn)  ;
+ident  lhv_1v_aow2_fn  = floor(lhv_1vj_aow2_fn / 12, afr_cent_qn) ;
+ident  hkt_1v_aow2_fn  = 0 ;
+ident  lhn_1v_aow2_fn  = round((lhv_1v_aow2_fn - hkt_1v_aow2_fn), afr_cent_qn) ;
+frml   aow2_1v_fn  = round((nu_aow2_1v_fn + zfw_1v_aow2_fn + lhv_1v_aow2_fn - hkt_1v_aow2_fn), afr_cent_qn) ;
+ident  nu_aow2_1v_fn  = round((nu_aow2_nl_wml_qn * nl_1v_wml_fn), afr_cent_qn) ;
+
+  ? regulier maandbedrag + vakantiegeld
+ident  zfw_1t_aow2_wn_fn   = round((zfw_1m_aow2_wn_fn + zfw_1v_aow2_wn_fn), afr_cent_qn) ;
+ident  zfw_1t_aow2_wg_fn  = round((zfw_1m_aow2_wg_fn + zfw_1v_aow2_wg_fn), afr_cent_qn) ;
+ident  zfw_1t_aow2_fn  = round((zfw_1m_aow2_fn + zfw_1v_aow2_fn), afr_cent_qn) ;
+ident  bi_1t_aow2_fn  = round((bi_1m_aow2_fn + bi_1v_aow2_fn), afr_cent_qn) ;
+ident  lhv_1t_aow2_fn  = round((lhv_1m_aow2_fn + lhv_1v_aow2_fn), afr_cent_qn) ;
+ident  hkt_1t_aow2_fn  = round((hkt_1m_aow2_fn + hkt_1v_aow2_fn), afr_cent_qn) ;
+ident  lhn_1t_aow2_fn  = round((lhn_1m_aow2_fn + lhn_1v_aow2_fn), afr_cent_qn) ;
+frml   aow2_1t_fn  = round((aow2_1m_fn + aow2_1v_fn), afr_cent_qn) ;
+ident  nu_aow2_1t_fn  = round((nu_aow2_1m_fn + nu_aow2_1v_fn), afr_cent_qn) ;
+
+  ? tweede halfjaar
+  ? regulier maandbedrag
+ident  zfw_2m_aow2_wn_fn  = floor(zfw_wn_tn * max(0, aow2_2m_fn - wka_zfw_fr_wn_fn), afr_cent_qn) ;
+ident  zfw_2m_aow2_wg_fn  = floor(aow_zfw_wg_tn * aow2_2m_fn, afr_cent_qn) ;
+ident  zfw_2m_aow2_fn  = round((zfw_2m_aow2_wn_fn + zfw_2m_aow2_wg_fn), afr_cent_qn) ;
+ident  bi_2m_aow2_fn  = aow2_2m_fn ;
+ident  bi_2mj_aow2_fn  = floor(12 * bi_2m_aow2_fn, afr_lb_fn) ;
+ident  lhv_2mj_aow2_fn  = floor((floor(tar_sch1_65_jan_tn * min(bi_2mj_aow2_fn , sch1_fn), afr_euro_qn)  + tar_sch2_65_jan_tn * max(0, bi_2mj_aow2_fn  - sch1_fn)), afr_euro_qn)  ;
+ident  lhv_2m_aow2_fn  = floor((lhv_2mj_aow2_fn / 12), afr_cent_qn) ;
+ident  hkt_2m_aow2_fn  = round(min(lhv_2m_aow2_fn, hkt_ahk_65_fn / 12), afr_cent_qn) ;
+ident  lhn_2m_aow2_fn  = round((lhv_2m_aow2_fn - hkt_2m_aow2_fn), afr_cent_qn) ;
+frml   aow2_2m_fn  = round((nu_aow2_2m_fn + zfw_2m_aow2_fn + lhv_2m_aow2_fn - hkt_2m_aow2_fn), afr_cent_qn) ;
+ident  nu_aow2_2m_fn  = round((nu_aow2_nl_wml_qn * nl_2m_wml_fn), afr_cent_qn) ;
+
+  ? vakantiegeld
+ident  zfw_2v_aow2_wn_fn  = floor(zfw_wn_tn * max(0, aow2_2t_fn - wka_zfw_fr_wn_fn), afr_cent_qn) - zfw_2m_aow2_wn_fn ;
+ident  zfw_2v_aow2_wg_fn  = floor(aow_zfw_wg_tn * aow2_2v_fn, afr_cent_qn) ;
+ident  zfw_2v_aow2_fn  = round((zfw_2v_aow2_wn_fn + zfw_2v_aow2_wg_fn), afr_cent_qn) ;
+ident  bi_2v_aow2_fn  = aow2_2v_fn ;
+ident  bi_2vj_aow2_fn  = floor(12 * bi_2v_aow2_fn, afr_cent_qn) ;
+ident  lhv_2vj_aow2_fn  = floor(tar_sch1_65_jan_tn * min(bi_2vj_aow2_fn , sch1_fn), afr_cent_qn)  ;
+ident  lhv_2v_aow2_fn  = floor(lhv_2vj_aow2_fn / 12, afr_cent_qn) ;
+ident  hkt_2v_aow2_fn  = 0 ;
+ident  lhn_2v_aow2_fn  = round((lhv_2v_aow2_fn - hkt_2v_aow2_fn), afr_cent_qn) ;
+frml   aow2_2v_fn  = round((nu_aow2_2v_fn + zfw_2v_aow2_fn + lhv_2v_aow2_fn - hkt_2v_aow2_fn), afr_cent_qn) ;
+ident  nu_aow2_2v_fn  = round((nu_aow2_nl_wml_qn * nl_2v_wml_fn), afr_cent_qn) ;
+
+  ? regulier maandbedrag + vakantiegeld
+ident  zfw_2t_aow2_wn_fn   = round((zfw_2m_aow2_wn_fn + zfw_2v_aow2_wn_fn), afr_cent_qn) ;
+ident  zfw_2t_aow2_wg_fn  = round((zfw_2m_aow2_wg_fn + zfw_2v_aow2_wg_fn), afr_cent_qn) ;
+ident  zfw_2t_aow2_fn  = round((zfw_2m_aow2_fn + zfw_2v_aow2_fn), afr_cent_qn) ;
+ident  bi_2t_aow2_fn  = round((bi_2m_aow2_fn + bi_2v_aow2_fn), afr_cent_qn) ;
+ident  lhv_2t_aow2_fn  = round((lhv_2m_aow2_fn + lhv_2v_aow2_fn), afr_cent_qn) ;
+ident  hkt_2t_aow2_fn  = round((hkt_2m_aow2_fn + hkt_2v_aow2_fn), afr_cent_qn) ;
+ident  lhn_2t_aow2_fn  = round((lhn_2m_aow2_fn + lhn_2v_aow2_fn), afr_cent_qn) ;
+frml   aow2_2t_fn  = round((aow2_2m_fn + aow2_2v_fn), afr_cent_qn) ;
+ident  nu_aow2_2t_fn  = round((nu_aow2_2m_fn + nu_aow2_2v_fn), afr_cent_qn) ;
+
+  ? jaarbedragen
+ident  aow2_plus_ts_fn  = aow2_fn + aow_br_ts_fn ;
+frml   aow2_fn  = round((6 * aow2_1t_fn + 6 * aow2_2t_fn), afr_cent_qn) ;
+ident  zfw_aow2_fn  = round((6 * zfw_1t_aow2_fn + 6 * zfw_2t_aow2_fn), afr_cent_qn) ;
+ident  lhv_aow2_fn  = round((6 * lhv_1t_aow2_fn + 6 * lhv_2t_aow2_fn), afr_cent_qn) ;
+ident  hkt_aow2_fn  = round((6 * hkt_1t_aow2_fn + 6 * hkt_2t_aow2_fn), afr_cent_qn) ;
+ident  lhn_aow2_fn  = round((6 * lhn_1t_aow2_fn + 6 * lhn_2t_aow2_fn), afr_cent_qn) ;
+frml   nu_aow2_fn  = round((6 * nu_aow2_1t_fn + 6 * nu_aow2_2t_fn), afr_cent_qn) ;
+ident  aow2_fr  = aow2_fn / aow2_fn(-1) - 1 ;
+ident  nu_aow2_fr  = nu_aow2_fn / nu_aow2_fn(-1) - 1 ;
+
+  ? netto - netto koppeling: aow gehuwd, alleenverdiener
+
+  ? eerste halfjaar
+  ? regulier maandbedrag
+ident  zfw_1m_aow3_wn_fn  = floor(zfw_wn_tn * max(0, aow3_1m_fn - wka_zfw_fr_wn_fn), afr_cent_qn) ;
+ident  zfw_1m_aow3_wg_fn  = floor(aow_zfw_wg_tn * aow3_1m_fn, afr_cent_qn) ;
+ident  zfw_1m_aow3_fn  = round((zfw_1m_aow3_wn_fn + zfw_1m_aow3_wg_fn), afr_cent_qn) ;
+ident  bi_1m_aow3_fn  = aow3_1m_fn ;
+ident  bi_1mj_aow3_fn  = floor(12 * bi_1m_aow3_fn, afr_lb_fn) ;
+ident  lhv_1mj_aow3_fn  = floor((floor(tar_sch1_65_jan_tn * min(bi_1mj_aow3_fn , sch1_fn), afr_euro_qn)  + tar_sch2_65_jan_tn * max(0, bi_1mj_aow3_fn  - sch1_fn)), afr_euro_qn)  ;
+ident  lhv_1m_aow3_fn  = floor((lhv_1mj_aow3_fn / 12), afr_cent_qn) ;
+ident  hkt_1m_aow3_fn  = round(min(lhv_1m_aow3_fn, 2 * hkt_ahk_65_fn / 12), afr_cent_qn) ;
+ident  lhn_1m_aow3_fn  = round((lhv_1m_aow3_fn - hkt_1m_aow3_fn), afr_cent_qn) ;
+frml   aow3_1m_fn  = round((nu_aow3_1m_fn + zfw_1m_aow3_fn + lhv_1m_aow3_fn - hkt_1m_aow3_fn), afr_cent_qn) ;
+ident  nu_aow3_1m_fn  = round((nu_aow3_nl_wml_qn * nl_1m_wml_fn), afr_cent_qn) ;
+
+  ? vakantiegeld
+ident  zfw_1v_aow3_wn_fn  = floor(zfw_wn_tn * max(0, aow3_1t_fn - wka_zfw_fr_wn_fn), afr_cent_qn) - zfw_1m_aow3_wn_fn ;
+ident  zfw_1v_aow3_wg_fn  = floor(aow_zfw_wg_tn * aow3_1v_fn, afr_cent_qn) ;
+ident  zfw_1v_aow3_fn  = round((zfw_1v_aow3_wn_fn + zfw_1v_aow3_wg_fn), afr_cent_qn) ;
+ident  bi_1v_aow3_fn  = aow3_1v_fn ;
+ident  bi_1vj_aow3_fn  = floor(12 * bi_1v_aow3_fn, afr_cent_qn) ;
+ident  lhv_1vj_aow3_fn  = floor(tar_sch1_65_jan_tn * min(bi_1vj_aow3_fn , sch1_fn), afr_cent_qn)  ;
+ident  lhv_1v_aow3_fn  = floor(lhv_1vj_aow3_fn / 12, afr_cent_qn) ;
+ident  hkt_1v_aow3_fn  = 0 ;
+ident  lhn_1v_aow3_fn  = round((lhv_1v_aow3_fn - hkt_1v_aow3_fn), afr_cent_qn) ;
+frml   aow3_1v_fn  = round((nu_aow3_1v_fn + zfw_1v_aow3_fn + lhv_1v_aow3_fn - hkt_1v_aow3_fn), afr_cent_qn) ;
+ident  nu_aow3_1v_fn  = round((nu_aow3_nl_wml_qn * nl_1v_wml_fn), afr_cent_qn) ;
+
+  ? regulier maandbedrag + vakantiegeld
+ident  zfw_1t_aow3_wn_fn   = round((zfw_1m_aow3_wn_fn + zfw_1v_aow3_wn_fn), afr_cent_qn) ;
+ident  zfw_1t_aow3_wg_fn  = round((zfw_1m_aow3_wg_fn + zfw_1v_aow3_wg_fn), afr_cent_qn) ;
+ident  zfw_1t_aow3_fn  = round((zfw_1m_aow3_fn + zfw_1v_aow3_fn), afr_cent_qn) ;
+ident  bi_1t_aow3_fn  = round((bi_1m_aow3_fn + bi_1v_aow3_fn), afr_cent_qn) ;
+ident  lhv_1t_aow3_fn  = round((lhv_1m_aow3_fn + lhv_1v_aow3_fn), afr_cent_qn) ;
+ident  hkt_1t_aow3_fn  = round((hkt_1m_aow3_fn + hkt_1v_aow3_fn), afr_cent_qn) ;
+ident  lhn_1t_aow3_fn  = round((lhn_1m_aow3_fn + lhn_1v_aow3_fn), afr_cent_qn) ;
+frml   aow3_1t_fn  = round((aow3_1m_fn + aow3_1v_fn), afr_cent_qn) ;
+ident  nu_aow3_1t_fn  = round((nu_aow3_1m_fn + nu_aow3_1v_fn), afr_cent_qn) ;
+
+  ? tweede halfjaar
+  ? regulier maandbedrag
+ident  zfw_2m_aow3_wn_fn  = floor(zfw_wn_tn * max(0, aow3_2m_fn - wka_zfw_fr_wn_fn), afr_cent_qn) ;
+ident  zfw_2m_aow3_wg_fn  = floor(aow_zfw_wg_tn * aow3_2m_fn, afr_cent_qn) ;
+ident  zfw_2m_aow3_fn  = round((zfw_2m_aow3_wn_fn + zfw_2m_aow3_wg_fn), afr_cent_qn) ;
+ident  bi_2m_aow3_fn  = aow3_2m_fn ;
+ident  bi_2mj_aow3_fn  = floor(12 * bi_2m_aow3_fn, afr_lb_fn) ;
+ident  lhv_2mj_aow3_fn  = floor((floor(tar_sch1_65_jan_tn * min(bi_2mj_aow3_fn , sch1_fn), afr_euro_qn)  + tar_sch2_65_jan_tn * max(0, bi_2mj_aow3_fn  - sch1_fn)), afr_euro_qn)  ;
+ident  lhv_2m_aow3_fn  = floor((lhv_2mj_aow3_fn / 12), afr_cent_qn) ;
+ident  hkt_2m_aow3_fn  = round(min(lhv_2m_aow3_fn, 2 * hkt_ahk_65_fn / 12), afr_cent_qn) ;
+ident  lhn_2m_aow3_fn  = round((lhv_2m_aow3_fn - hkt_2m_aow3_fn), afr_cent_qn) ;
+frml   aow3_2m_fn  = round((nu_aow3_2m_fn + zfw_2m_aow3_fn + lhv_2m_aow3_fn - hkt_2m_aow3_fn), afr_cent_qn) ;
+ident  nu_aow3_2m_fn  = round((nu_aow3_nl_wml_qn * nl_2m_wml_fn), afr_cent_qn) ;
+
+  ? vakantiegeld
+ident  zfw_2v_aow3_wn_fn  = floor(zfw_wn_tn * max(0, aow3_2t_fn - wka_zfw_fr_wn_fn), afr_cent_qn) - zfw_2m_aow3_wn_fn ;
+ident  zfw_2v_aow3_wg_fn  = floor(aow_zfw_wg_tn * aow3_2v_fn, afr_cent_qn) ;
+ident  zfw_2v_aow3_fn  = round((zfw_2v_aow3_wn_fn + zfw_2v_aow3_wg_fn), afr_cent_qn) ;
+ident  bi_2v_aow3_fn  = aow3_2v_fn ;
+ident  bi_2vj_aow3_fn  = floor(12 * bi_2v_aow3_fn, afr_cent_qn) ;
+ident  lhv_2vj_aow3_fn  = floor(tar_sch1_65_jan_tn * min(bi_2vj_aow3_fn , sch1_fn), afr_cent_qn)  ;
+ident  lhv_2v_aow3_fn  = floor(lhv_2vj_aow3_fn / 12, afr_cent_qn) ;
+ident  hkt_2v_aow3_fn  = 0 ;
+ident  lhn_2v_aow3_fn  = round((lhv_2v_aow3_fn - hkt_2v_aow3_fn), afr_cent_qn) ;
+frml   aow3_2v_fn  = round((nu_aow3_2v_fn + zfw_2v_aow3_fn + lhv_2v_aow3_fn - hkt_2v_aow3_fn), afr_cent_qn) ;
+ident  nu_aow3_2v_fn  = round((nu_aow3_nl_wml_qn * nl_2v_wml_fn), afr_cent_qn) ;
+
+  ? regulier maandbedrag + vakantiegeld
+ident  zfw_2t_aow3_wn_fn   = round((zfw_2m_aow3_wn_fn + zfw_2v_aow3_wn_fn), afr_cent_qn) ;
+ident  zfw_2t_aow3_wg_fn  = round((zfw_2m_aow3_wg_fn + zfw_2v_aow3_wg_fn), afr_cent_qn) ;
+ident  zfw_2t_aow3_fn  = round((zfw_2m_aow3_fn + zfw_2v_aow3_fn), afr_cent_qn) ;
+ident  bi_2t_aow3_fn  = round((bi_2m_aow3_fn + bi_2v_aow3_fn), afr_cent_qn) ;
+ident  lhv_2t_aow3_fn  = round((lhv_2m_aow3_fn + lhv_2v_aow3_fn), afr_cent_qn) ;
+ident  hkt_2t_aow3_fn  = round((hkt_2m_aow3_fn + hkt_2v_aow3_fn), afr_cent_qn) ;
+ident  lhn_2t_aow3_fn  = round((lhn_2m_aow3_fn + lhn_2v_aow3_fn), afr_cent_qn) ;
+frml   aow3_2t_fn  = round((aow3_2m_fn + aow3_2v_fn), afr_cent_qn) ;
+ident  nu_aow3_2t_fn  = round((nu_aow3_2m_fn + nu_aow3_2v_fn), afr_cent_qn) ;
+
+  ? jaarbedragen
+ident  aow3_plus_ts_fn  = aow3_fn + aow_br_ts_fn * 2 ;
+frml   aow3_fn  = round((6 * aow3_1t_fn + 6 * aow3_2t_fn), afr_cent_qn) ;
+ident  zfw_aow3_fn  = round((6 * zfw_1t_aow3_fn + 6 * zfw_2t_aow3_fn), afr_cent_qn) ;
+ident  lhv_aow3_fn  = round((6 * lhv_1t_aow3_fn + 6 * lhv_2t_aow3_fn), afr_cent_qn) ;
+ident  hkt_aow3_fn  = round((6 * hkt_1t_aow3_fn + 6 * hkt_2t_aow3_fn), afr_cent_qn) ;
+ident  lhn_aow3_fn  = round((6 * lhn_1t_aow3_fn + 6 * lhn_2t_aow3_fn), afr_cent_qn) ;
+frml   nu_aow3_fn  = round((6 * nu_aow3_1t_fn + 6 * nu_aow3_2t_fn), afr_cent_qn) ;
+ident  aow3_fr  = aow3_fn / aow3_fn(-1) - 1 ;
+ident  nu_aow3_fr  = nu_aow3_fn / nu_aow3_fn(-1) - 1 ;
+
+
+  ? bijstand gehuwd (50%), ook voor ihs
+
+  ? jaarbedragen
+ident  zfw_bij1_wn_fn  = zfw_wn_tn * max(0, bij1_fn - wka_zfw_fr_wn_fn *12) ;
+ident  zfw_bij1_wg_fn  = zfw_wg_tn * (bij1_fn) ;
+ident  bi_bij1_fn  = bij1_fn + zfw_wg_bijtel_bn * zfw_bij1_wg_fn ;
+ident  lh_bij1_fn  = tar_sch1_tn * min(bi_bij1_fn, sch1_fn) + tar_sch2_tn * max(0, bi_bij1_fn - sch1_fn) ;
+ident  hkt_bij1_fn  = min(lh_bij1_fn, hkt_ahk_fn) ;
+frml   bij1_fn  = nu_bij1_fn + zfw_bij1_wn_fn + lh_bij1_fn - hkt_bij1_fn ;
+frml   nu_bij1_fn  = nu_bij1_nl_wml_qn * nl_bij_wml_fn;
+ident  bij1_fr  = bij1_fn / bij1_fn(-1) - 1 ;
+ident  bi_bij1_fr  = bi_bij1_fn / bi_bij1_fn(-1) - 1 ;
+ident  nu_bij1_fr  = nu_bij1_fn / nu_bij1_fn(-1) - 1 ;
+ident  buk_b1_er  = bij1_fr + buk_b1_aut_er;
+
+  ? bijstand alleenstaand (70%),  ook voor ihs
+
+  ? jaarbedragen
+ident  zfw_bij2_wn_fn  = zfw_wn_tn * max(0, bij2_fn - wka_zfw_fr_wn_fn *12) ;
+ident  zfw_bij2_wg_fn  = zfw_wg_tn * (bij2_fn) ;
+ident  bi_bij2_fn  = bij2_fn + zfw_wg_bijtel_bn * zfw_bij2_wg_fn ;
+ident  lh_bij2_fn  = tar_sch1_tn * min(bi_bij2_fn, sch1_fn) + tar_sch2_tn * max(0, bi_bij2_fn - sch1_fn) ;
+ident  hkt_bij2_fn  = min(lh_bij2_fn, hkt_ahk_fn) ;
+frml   bij2_fn  = nu_bij2_fn + zfw_bij2_wn_fn + lh_bij2_fn - hkt_bij2_fn ;
+ident  nu_bij2_fn  = nu_bij2_nl_wml_qn * nl_bij_wml_fn;
+ident  bij2_fr  = bij2_fn / bij2_fn(-1) - 1 ;
+ident  bi_bij2_fr  = bi_bij2_fn / bi_bij2_fn(-1) - 1 ;
+ident  nu_bij2_fr  = nu_bij2_fn / nu_bij2_fn(-1) - 1 ;
+ident  buk_b2_er  = bij2_fr + buk_b2_aut_er;
+
+  ? bijstand alleenstaand (90%), wordt niet bij ihs gebruikt
+
+  ? jaarbedragen
+ident  zfw_bij3_wn_fn  = zfw_wn_tn * max(0, bij3_fn - wka_zfw_fr_wn_fn *12) ;
+ident  zfw_bij3_wg_fn  = zfw_wg_tn * (bij3_fn) ;
+ident  bi_bij3_fn  = bij3_fn + zfw_wg_bijtel_bn * zfw_bij3_wg_fn ;
+ident  lh_bij3_fn  = tar_sch1_tn * min(bi_bij3_fn, sch1_fn) + tar_sch2_tn * max(0, bi_bij3_fn - sch1_fn) ;
+ident  hkt_bij3_fn  = min(lh_bij3_fn, hkt_ahk_fn + hkt_aok_fn) ;
+frml   bij3_fn  = nu_bij3_fn + zfw_bij3_wn_fn + lh_bij3_fn - hkt_bij3_fn ;
+ident  nu_bij3_fn  = nu_bij3_nl_wml_qn * nl_bij_wml_fn;
+ident  bij3_fr  = bij3_fn / bij3_fn(-1) - 1 ;
+ident  bi_bij3_fr  = bi_bij3_fn / bi_bij3_fn(-1) - 1 ;
+ident  nu_bij3_fr  = nu_bij3_fn / nu_bij3_fn(-1) - 1 ;
+ident  buk_b3_er  = bij3_fr + buk_b3_aut_er;
+
+ident  nu_bij3_nl_wml_mut_qn  =   nu_bij3_nl_wml_qn/nu_bij3_nl_wml_qn(-1);
+
+
+
+  ? hier klopt werkelijk helemaal niets van!!! als de rente daalt van 4,0 naar 3,6 dan daalt de uitstaande schuld met 10% zeker?
+ident  sch_hyp_er  = (1 + t3_hypren_er)/(1 + mut_rl_rn_5jrgem_qn) - 1 + sch_hyp_aut_er ;
+
+
+  ? enkele koopkrachtdingen
+
+  ? gebruik kinderopvang in kk-jaar gelijk aan gebruik in voorgaand basisjaar, zodat gebruik in kk-jaar en bijbehorend basisjaar gelijk is
+ident  geb_l1_do_eo_qn  = toreal (koopkracht_bn=0) * geb_l1_do_eo_bj_qn + toreal(koopkracht_bn=1) * geb_l1_do_eo_bj_qn(-1);
+ident  geb_l1_go_eo_qn  = toreal (koopkracht_bn=0) * geb_l1_go_eo_bj_qn + toreal(koopkracht_bn=1) * geb_l1_go_eo_bj_qn(-1);
+ident  geb_l1_do_tv_qn  = toreal (koopkracht_bn=0) * geb_l1_do_tv_bj_qn + toreal(koopkracht_bn=1) * geb_l1_do_tv_bj_qn(-1);
+ident  geb_l1_go_tv_qn  = toreal (koopkracht_bn=0) * geb_l1_go_tv_bj_qn + toreal(koopkracht_bn=1) * geb_l1_go_tv_bj_qn(-1);
+ident  geb_l2_bo_eo_qn  = toreal (koopkracht_bn=0) * geb_l2_bo_eo_bj_qn + toreal(koopkracht_bn=1) * geb_l2_bo_eo_bj_qn(-1);
+ident  geb_l2_go_eo_qn  = toreal (koopkracht_bn=0) * geb_l2_go_eo_bj_qn + toreal(koopkracht_bn=1) * geb_l2_go_eo_bj_qn(-1);
+ident  geb_l2_bo_tv_qn  = toreal (koopkracht_bn=0) * geb_l2_bo_tv_bj_qn + toreal(koopkracht_bn=1) * geb_l2_bo_tv_bj_qn(-1);
+ident  geb_l2_go_tv_qn  = toreal (koopkracht_bn=0) * geb_l2_go_tv_bj_qn + toreal(koopkracht_bn=1) * geb_l2_go_tv_bj_qn(-1);
+
+  ? voor kk-draai moet geboortejaar 1 worden opgehoogd
+ident  hhbijdrage_gebjaar_bn  = hhbijdrage_gebjaar_bj_bn  + toreal (koopkracht_bn = 1);
+ident  t5_aow_tjp_afs_gebjaar_bn  = t5_aow_tjp_afs_gebjaar_bj_bn + toreal (koopkracht_bn = 1);
+
+  ? modaal inkomen
+frml   prolo_1 = round( (bl_m_wn + bl_z_wn + bl_o_wn)/(bl_m_aw_nn + bl_z_aw_nn + bl_o_aw_nn), afr_mod_fn);
+
+frml   prolo_2 = round( (bl_m_wn + bl_z_wn + bl_o_wn)/(bl_m_aw_nn + bl_z_aw_nn + bl_o_aw_nn), afr_mod_fn);
+
+frml   prolo_3 = round( (bl_m_wn + bl_z_wn + bl_o_wn)/(bl_m_aw_nn + bl_z_aw_nn + bl_o_aw_nn), afr_mod_fn);
+
+frml   brl_mod_fn = round( (bl_m_wn + bl_z_wn + bl_o_wn)/(bl_m_aw_nn + bl_z_aw_nn + bl_o_aw_nn), afr_mod_fn);

@@ -29,6 +29,9 @@ mcopt_init.o : mcopt.h
 mdldef.o : dependencies.h mcinit.h mdldef.h symbol.h util.h xpcdef.h
 oprintf.o : isismdl.h oprintf.h util.h
 option_utils.o : option_utils.h
+outdmdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
+           mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outotmdl.h \
+           outovtmdl.h outvtmdl.h symbol.h util.h xpcdef.h
 outecode.o : dependencies.h ecode.h include_paths.h ipcode.h mchdr.h \
             mcinit.h mcopt.h mdldef.h oprintf.h outecode.h symbol.h util.h \
             xpcdef.h

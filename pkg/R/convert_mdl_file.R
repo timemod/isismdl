@@ -24,8 +24,8 @@ convert_mdl_file <- function(model_file, output_file,
                              parse_options = list()) {
 
   default_parse_options <- list(flags = NULL,
-                                  include_dirs = NULL,
-                                  gen_dep_file = FALSE)
+                                include_dirs = NULL,
+                                gen_dep_file = FALSE)
 
   if (!missing(conversion_options) && !is.list(conversion_options)) {
     stop("Argument conversion_options is not a list")

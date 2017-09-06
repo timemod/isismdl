@@ -20,10 +20,13 @@ SEXP convert_mdl_file_c(SEXP filename, SEXP outputfile_, SEXP flags,
     if (!Rf_isNull(subst_)) {
        mc_options.Substufunc = asInteger(subst_);
     }
+    SEXP mk_dyn_ = getListElement(options, "make_dynare");
+    if (!Rf_isNull(mk_dyn_)) {
+       mc_options.MakeDynare = asInteger(subst_);
+    }
 
     prepare_compiler(flags, include_dirs);
 
-    Rprintf("outputfile %s\n", outputfile);
     int mcstat =  mcexec(modelnm, outputfile, mc_options);
 
     if (mcstat != 0) {

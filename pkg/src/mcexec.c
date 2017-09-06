@@ -260,6 +260,12 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
         */
     }
 
+    if (options.MakeDynare) {
+        FILE *foco = efopen(outputfile, "w" );
+        out_dmdl(foco);
+        fclose(foco);
+    }
+
     if( options.MakeEviews) {
         FILE *foco = efopen(outputfile, "w" );
         out_vmdl(foco, options.mdlname);
