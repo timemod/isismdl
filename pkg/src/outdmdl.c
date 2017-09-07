@@ -101,7 +101,7 @@ static char *get_opname(int opcode)
         case E_EQ :
             opname = "=="; break;
         case E_NE :
-            opname = "<>"; break;
+            opname = "!="; break;
         case E_AND :
             opname = "and"; break;
         case E_OR :
@@ -110,6 +110,23 @@ static char *get_opname(int opcode)
             opname = "not"; break;
      }
     return opname;
+}
+
+static  void out_arglist( Enode *ebase, Enode *ep ) {
+    /* 
+     * Print list of actual arguments in a user function call
+     */
+    out_arglistbuiltin(ebase, ep);
+}
+
+static void out_call( Enode *ebase, Enode *ep) {
+    if (subst) {
+        out_call_subst(ebase, ep);
+    } else { 
+        oprintf( "%s(" , ep->first.sp->name );
+        out_arglist(ebase, ep);
+        oprintf( ")" );
+    }
 }
 
 static  void out_enode( Enode *ebase, Enodep estart )
@@ -156,7 +173,7 @@ static  void out_enode( Enode *ebase, Enodep estart )
                         break;
 
         case E_CALL   : /* call user function */
-                        out_call_subst(ebase, ep);
+                        out_call(ebase, ep);
                         break;
 
         case E_ARGLIST: /* arglist operator for ufuncs
@@ -196,9 +213,9 @@ static  void out_enode( Enode *ebase, Enodep estart )
                 /* builtin funcs 1 arg */
 
         case E_TOREAL :
-                        oprintf( "if(" );
+                        oprintf("(");
                         out_arglistbuiltin(ebase, ep);
-                        oprintf( ") then (1) else (0)" );
+                        oprintf(")");
                         break;
 
         case E_ABS    : oprintf( "absv(");
@@ -264,7 +281,7 @@ static  void out_enode( Enode *ebase, Enodep estart )
     }
 }
 
-static void out_dyncode(FILE *fp, Symbol *sp) {
+static void out_equat(FILE *fp, Symbol *sp) {
 
     setfpout(fp);
 
@@ -297,6 +314,17 @@ static void out_dyncode(FILE *fp, Symbol *sp) {
     }
 }
 
+static void out_func(FILE *fp, Symbol *sp) {
+
+    setfpout(fp);
+
+    if (sp->xpctype == XP_FUNC) {
+        Funcdef *fnp = sp->u.funp;
+        oprintf("external_function(name = %s, nargs = %d, first_deriv_provided);\n",
+                sp->name, fnp->argcnt);
+    }
+}
+
 static void out_dynpar(FILE *fp, Symbol *sp) {
     Param *p = sp->u.parp;
     size_t  i;
@@ -323,6 +351,8 @@ static void xprnlsp(size_t k, int nindent) {
 
 void out_dmdl(FILE *fp) {
     size_t i, k;
+
+    subst = 0;
 
     mkvarlist();
 
@@ -394,10 +424,15 @@ void out_dmdl(FILE *fp) {
         xprintf("\n\n");
     }
 
-    xprintf("model;\n");
+    for (i = 0; i < ecnt; i++) {
+        out_func(fp, eqnp[i]);
+    }
+
+
+    xprintf("\nmodel;\n");
 
     for (i = 0; i < ecnt; i++) {
-        out_dyncode(fp, eqnp[i]);
+        out_equat(fp, eqnp[i]);
     }
     xprintf("end;\n");
 }
