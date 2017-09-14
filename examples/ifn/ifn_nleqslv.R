@@ -11,12 +11,12 @@ ifn <- read_mdl(rds_file)
 
 
 get_endoleads <- function() {
-    return (ifn$get_data(names = ifn$get_var_names(vtype = "all_endolead"),
+    return (ifn$get_data(names = ifn$get_endo_names(type = "endolead"),
                          period = ifn$get_period()))
 }
 
 fun <- function(x) {
-    vnames <- ifn$get_var_names(vtype = "all_endolead")
+    vnames <- ifn$get_endo_names(type = "endolead")
     endoleads <- regts(matrix(x, ncol = length(vnames)), names = vnames,
                                start = start_period(ifn$get_period()))
     ifn$set_data(endoleads)
