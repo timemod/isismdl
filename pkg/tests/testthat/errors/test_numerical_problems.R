@@ -11,5 +11,8 @@ mdl$set_debug_eqn(TRUE)
 test_that("output is correct", {
   report <- capture_output(mdl$solve())
   #cat(report)
-  expect_equal_to_reference(report, "expected_output/numerical_problems.rds")
+  expected_report_file <- "expected_output/numerical_problems.rds"
+  expect_equal_to_reference(report, expected_report_file)
+  #old_report <- readRDS(expected_report_file)
+  #cat(old_report)
 })

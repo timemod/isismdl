@@ -1,0 +1,7 @@
+cmpmdl("../mdl/numerical_problems");
+readmdl("../mdl/numerical_problems");
+setmdp(2011y);
+x = 1;
+y = 1;
+setsdbg(dbgon);
+solve;

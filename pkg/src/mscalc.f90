@@ -1316,9 +1316,9 @@ contains
       if (errcod == 4) then
           !  exponentation error. (negative_number)**(pow), if pow is a
           !  non-integer
-          write(str,'(a, g20.3)') '** ---> Base:           ', rop1
+          write(str,'(a, g20.3)') '** ---> Base:           ', rop2
           call strout(O_ERRF)
-          write(str,'(a, g20.3)') '** ---> Exponent:       ', rop2
+          write(str,'(a, g20.3)') '** ---> Exponent:       ', rop1
           call strout(O_ERRF)
       elseif (errcod <= 5 .and. errcod /= 3) then
           ! unitary operators

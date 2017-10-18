@@ -50,8 +50,8 @@ test_that("debug statements for solve", {
   expect_equal(mdl2$get_data(), expected_data)
 
   #cat(paste(report, collapse = "\n"))
-  expect_equal_to_reference(convert_report(report),
-                            file.path("data/debug_report1.rds"))
+  expected_report_file <- "data/debug_report1.rds"
+  expect_equal_to_reference(convert_report(report), expected_report_file)
 })
 
 test_that("debug statements for run_eqn", {
@@ -66,6 +66,7 @@ test_that("debug statements for run_eqn", {
   expect_equal(mdl2$get_data(), expected_data)
 
   #cat(paste(report, collapse = "\n"))
-  expect_equal_to_reference(convert_report(report),
-                            file.path("data/debug_report2.rds"))
+  expected_report_file <- "data/debug_report2.rds"
+  expect_equal_to_reference(convert_report(report), expected_report_file)
+  #print(readRDS(expected_report_file))
 })
