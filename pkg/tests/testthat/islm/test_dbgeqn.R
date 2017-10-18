@@ -4,6 +4,8 @@ library(testthat)
 
 context("equation debugging for the ISLM model")
 
+source("../tools/convert_report.R")
+
 capture_output(mdl <- read_mdl("islm_model_solved.rds"))
 
 test_that("set/get debug_eqn", {
@@ -28,15 +30,6 @@ test_that("reading/writing model", {
   expect_true(mdl2$get_debug_eqn())
   expect_equal(mdl, mdl2)
 })
-
-# Replace CPU seconds with xxx in a Taxus report, to make comparison with a
-# reference report possible
-convert_report <- function(report) {
-  cpu_line_number <- grep("CPU secs$", report)
-  cpu_line  <- report[cpu_line_number]
-  report[cpu_line_number] <- gsub("\\d+\\.\\d+", "xxx", report[cpu_line_number])
-  return(report)
-}
 
 test_that("debug statements for solve", {
   mdl2 <- mdl$copy()
