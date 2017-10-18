@@ -13,6 +13,9 @@ test_that("output is correct", {
   #cat(report)
   expected_report_file <- "expected_output/numerical_problems.rds"
   expect_equal_to_reference(report, expected_report_file)
-  #old_report <- readRDS(expected_report_file)
+  old_report <- readRDS(expected_report_file)
+  #cat("old report\n")
   #cat(old_report)
+  #writeLines(old_report, "test1.txt")
+  #writeLines(report, "test2.txt")
 })
