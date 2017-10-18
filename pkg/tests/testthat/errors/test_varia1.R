@@ -11,6 +11,9 @@ test_that("error given", {
 
 test_that("error file correct", {
   error_txt <- read_file("mdl/varia1.err")
+  if (.Platform$OS.type == "windows") {
+    error_txt <- gsub("\r", "", error_txt)
+  }
   #cat(error_txt)
   expect_equal_to_reference(error_txt, "expected_output/varia1.rds")
 })
