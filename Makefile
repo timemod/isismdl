@@ -88,7 +88,6 @@ check: cleanx syntax
 	@echo "Checked package description date: $(PKGDATE)"
 # 	@Rscript -e 'cat("Installed version date          :",packageDescription("nleqslv", fields="Date"))'
 	@echo ""
-	./drat.sh pkg=$(PKGTAR)
 
 
 syntax: bin

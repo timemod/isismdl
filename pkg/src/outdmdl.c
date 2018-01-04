@@ -327,7 +327,6 @@ static void out_func(FILE *fp, Symbol *sp) {
 
 static void out_dynpar(FILE *fp, Symbol *sp) {
     Param *p = sp->u.parp;
-    size_t  i;
 
     /*
      * use xprintf and not oprintf
