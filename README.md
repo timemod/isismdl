@@ -1,5 +1,6 @@
-[![Build Status](https://travis-ci.org/cpbsoft/isismdl.svg?branch=master)](https://travis-ci.org/cbsoft/isismdl)
+[![Build Status](https://travis-ci.org/timemod/isismdl.svg?branch=master)](https://travis-ci.org/timemod/isismdl)
 
 ## isismdl
 
-An R package for solving non-linear simultaneous economtric models.
+An R package for solving non-linear econometric models. This is the R version of
+program Isis.
