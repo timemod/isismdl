@@ -36,7 +36,7 @@ help:
 	@echo "   syntax    - check syntax .f and .c files"
 	@echo "   document  - run roxygen to generate Rd files and make pdf Reference manual"
 	@echo "   data      - generate data"
-	@echo "   mkpkg     - builds source package and checks with --as-cran"
+	@echo "   mkpkg     - builds source package, add to drat and checks with --as-cran"
 	@echo "   bin       - builds binary package in ./tmp"
 	@echo "   install   - install package in .libPaths()[1]"
 	@echo "   installv  - install package with vignettes in .libPaths()[1]"
@@ -88,6 +88,8 @@ check: cleanx syntax
 	@echo "Checked package description date: $(PKGDATE)"
 # 	@Rscript -e 'cat("Installed version date          :",packageDescription("nleqslv", fields="Date"))'
 	@echo ""
+	./drat.sh pkg=$(PKGTAR)
+
 
 syntax: bin
 	# To make sure that all Fortran module files (.mod) files are present,
@@ -107,13 +109,18 @@ endif
 # build source package for submission to CRAN
 # after building do a check as CRAN does it
 mkpkg: cleanx syntax
-	R CMD build $(PKG)
-	R CMD check --as-cran $(RCHECKARG) $(PKGTAR)
+ifeq ($(OSTYPE), windows) 
+	@echo Please run mkpkg on Linux or MAC OSX
+else
+	R CMD build $(PKGDIR)
+	#R CMD check --as-cran $(RCHECKARG) $(PKGTAR)
 	@cp -nv $(PKGTAR) archive
 	@echo "Today                           : $(TODAY)"
 	@echo "Checked package description date: $(PKGDATE)"
-# 	@Rscript -e 'cat("Installed version date          :",packageDescription("nleqslv", fields="Date"))'
+	@echo "Checked package description date: $(PKGDATE)"
 	@echo ""
+	./drat.sh --pkg=$(PKGTAR)
+endif
 
 bin: install_deps
 	$(MAKE) -f Makedeps
