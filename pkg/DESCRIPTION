@@ -1,14 +1,16 @@
 Package: isismdl
 Type: Package
 Title: Solve macroeconomic models
-Version: 0.1
+Version: 1.0
 Date: 2016-02-18
 Author: Rob van Harrevelt [aut, cre]
 Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
 Description: Solve macroeconomic models.
 Depends:
     regts,
-    R6
+    R6,
+    readr,
+    tools
 SystemRequirements: GNU make
 License: GPL-3
 LazyData: TRUE

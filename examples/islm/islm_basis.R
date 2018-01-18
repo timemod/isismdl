@@ -17,6 +17,8 @@ mdl <- isis_mdl("islm.mdl", data = islm_input);
 mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
                  t = "tax"))
 
-mdl$solve()
 
-mdl$write_mdl("islm_basis.rds")
+mdl$solve()
+mdl$order(orfnam = 'aap.orf')
+
+mdl$write_mdl("islm_basis.ismdl")

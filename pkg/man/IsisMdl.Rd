@@ -41,6 +41,8 @@ For example, method \code{solve} is described in section
 
 \item{\code{\link{copy}}}{Returns a deep copy of the \code{IsisMdl} object}
 
+\item{\code{\link{get_text}}}{Returns the textual representation of the model}
+
 \item{\code{\link{get_maxlag}}}{Returns the maximum lag}
 
 \item{\code{\link{get_maxlead}}}{Returns the maximum lead}

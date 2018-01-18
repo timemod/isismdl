@@ -111,6 +111,8 @@
 #' @importFrom regts as.period_range
 #' @importFrom regts start_period
 #' @importFrom regts end_period
+#' @importFrom readr read_file
+#' @importFrom tools file_ext
 #' @export
 isis_mdl <- function(model_file, period, data, ca, fix_values,
                      parse_options) {
@@ -143,7 +145,16 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
     }
   })
 
-  mdl <- IsisMdl$new(mif_file = mif_file)
+  # TODO: if the model contains preprocessor directives (#if, #include),
+  # the text should actually be preprocessed
+  model_filename = if (file_ext(model_file) == "mdl") {
+                              model_file
+                    } else {
+                      paste0(model_file, ".mdl")
+                    }
+  model_text <- read_file(model_filename)
+
+  mdl <- IsisMdl$new(mif_file = mif_file, model_text = model_text)
   unlink(mif_file)
 
   if (!missing(data)) {

@@ -104,6 +104,8 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{copy}}}{Returns a deep copy of the \code{IsisMdl} object}
 #'
+#' \item{\code{\link{get_text}}}{Returns the textual representation of the model}
+#'
 #' \item{\code{\link{get_maxlag}}}{Returns the maximum lag}
 #'
 #' \item{\code{\link{get_maxlead}}}{Returns the maximum lead}
@@ -215,7 +217,7 @@ setOldClass("period_range")
 IsisMdl <- R6Class("IsisMdl",
   public = list(
 
-    initialize = function(serialized_mdl, mif_file) {
+    initialize = function(serialized_mdl, mif_file, model_text) {
 
       if (!missing(mif_file) && !missing(serialized_mdl)) {
         stop("Specify either argument mif_name or serialized_mdl, but not both")
@@ -257,6 +259,9 @@ IsisMdl <- R6Class("IsisMdl",
 
       if (!missing(serialized_mdl)) {
         private$init_mws(serialized_mdl$mws)
+        private$model_text <- serialized_mdl$model_text
+      } else {
+        private$model_text <- model_text
       }
     },
     print = function(...) {
@@ -271,6 +276,9 @@ IsisMdl <- R6Class("IsisMdl",
         cat(sprintf("%-60s%s\n", "Model data period:",
                     as.character(private$data_period)))
       }
+    },
+    get_text = function() {
+      return(private$model_text)
     },
     get_maxlag = function() {
       return(private$maxlag)
@@ -755,6 +763,7 @@ IsisMdl <- R6Class("IsisMdl",
       mif_data <- readBin(mif_file, what = "raw", n = size)
       unlink(mif_file)
       return(structure(list(version = packageVersion("isismdl"),
+                            model_text = private$model_text,
                             mif_data = mif_data, mws = private$get_mws()),
                        class = "serialized_isismdl"))
     },
@@ -783,6 +792,7 @@ IsisMdl <- R6Class("IsisMdl",
     }
   ),
   private = list(
+    model_text = NA_character_,
     maxlag = NA_integer_,
     maxlead = NA_integer_,
     model_period = NULL,
