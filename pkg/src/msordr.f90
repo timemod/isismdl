@@ -23,7 +23,7 @@ subroutine msordr(model_index, genfbo_specified, genfbo, &
 
     integer :: ier, errflg
     integer :: fbrdcnt, fbor_err
-    character(len = 40) :: msg
+    character(len = 80) :: msg
     type(model), pointer :: mdl
 
     mdl => mws_array(model_index)%mdl
@@ -72,7 +72,8 @@ subroutine msordr(model_index, genfbo_specified, genfbo, &
     call isismdl_out(msg)
     if (fbrdcnt > 0) then
         write(msg, '(a, i5, a)') "       ", fbrdcnt, &
-                                 "redundant feedback variables removed"
+                                 " redundant feedback variables removed"
+        call isismdl_out(msg)
     endif
     if (mdl%fboflg > 0 .and. fbor_err == 0) then
         call isismdl_out("Feedback ordering installed")
