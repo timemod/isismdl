@@ -24,6 +24,9 @@ test_that("get_data works correctly", {
   expect_equal(mdl$get_data(period = "2016Q1/2016Q3", pattern = "^y",
                             names = c("y")),
                data["2016Q1/2016Q3", c("y", "yd")])
+
+  expect_equal(mdl$get_data(period = "2016"), data["2016Q1/2016Q4", ])
+  expect_equal(mdl$get_data(period = "2015M6"), data["2015Q2", ])
 })
 
 test_that("get_data handles errors correctly", {

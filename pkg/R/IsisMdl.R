@@ -746,6 +746,7 @@ IsisMdl <- R6Class("IsisMdl",
     mdlpas = function(period = private$model_period) {
       "Run all equations of the model in solution order forwards in time"
       if (is.null(private$model_period)) stop(private$period_error_msg)
+      period <- private$convert_period_arg(period)
       js <- private$get_period_indices(period)
       ret <- .Fortran("mdlpas_fortran",
                       model_index = private$model_index,
@@ -819,17 +820,9 @@ IsisMdl <- R6Class("IsisMdl",
       }
     },
     get_period_indices = function(period, extended = TRUE) {
-      period <- as.period_range(period)
-      mdl_period_start <- start_period(private$fortran_period)
-
       startp <- start_period(period)
       endp <- end_period(period)
-      if (is.null(startp)) {
-        startp <- start_period(private$data_period)
-      }
-      if (is.null(endp)) {
-        endp <- end_period(private$data_period)
-      }
+      mdl_period_start <- start_period(private$fortran_period)
       startp <- as.integer(startp - mdl_period_start + 1)
       endp   <- as.integer(endp   - mdl_period_start + 1)
       return(list(startp = startp, endp = endp))
@@ -1162,15 +1155,14 @@ IsisMdl <- R6Class("IsisMdl",
         stop(private$period_error_msg)
       }
       period <- as.period_range(period)
-      if (frequency(period) != frequency(private$data_period)) {
-        stop(paste0("Period ", period, " has a different frequency than ",
-                    "the model period ", private$model_period, "."))
-      }
+      period <- change_frequency(period, frequency(private$data_period))
+
       if (data_period) {
         defaultp <- private$data_period
       } else {
         defaultp <- private$model_period
       }
+
       startp <- start_period(period)
       if (is.null(startp)) {
         startp <- start_period(defaultp)

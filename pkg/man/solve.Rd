@@ -75,6 +75,9 @@ mdl$solve(options = list(report = "fullrep"))
 
 # solve the model for all periods before 2018Q1
 mdl$solve(period = "/2017Q4")
+
+# solve the model for all quarters in 2017 (2017Q1/2017Q4)
+mdl$solve(period = "2017")
 }
 \seealso{
 \code{\link{set_solve_options}},

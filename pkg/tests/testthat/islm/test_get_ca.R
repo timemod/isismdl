@@ -21,6 +21,8 @@ test_that("get_ca works correctly", {
                ca["2015Q1/2016Q1", c("c", "i")])
   expect_equal(mdl$get_ca(period = "2016Q1/2016Q3", pattern = "^t"),
                ca["2016Q1/2016Q3", "t", drop = FALSE])
+  expect_equal(mdl$get_ca(period = "2015"), ca["2015Q1/2015Q4", ])
+  expect_equal(mdl$get_ca(period = "2016M1/2016M2"), ca["2016Q1", ])
 })
 
 test_that("get_ca handles errors correctly", {

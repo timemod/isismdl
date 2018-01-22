@@ -6,21 +6,38 @@ context("set_values for the ISLM model")
 
 capture_output(mdl <- read_mdl("islm_model_solved.rds"))
 
-new_ca <- mdl$get_ca()
-new_ca[ , "c" ] <- 10
-new_ca["2015Q3/2016Q2", c("t", "i")] <- 1:4
-new_ca["2016Q2", "t"] <- sin(new_ca["2016Q2", "t"]) + 8
-
-test_that("set_values works correctly", {
+test_that("change_ca works correctly (1)", {
   mdl2 <- mdl$clone(deep = TRUE)
   mdl2$change_ca(function(x) {x + 10}, names = "c")
   mdl2$change_ca(function(x, dx) {x + dx}, names = c("t", "i"),
                  period = "2015Q3/2016Q2", dx = 1:4)
   mdl2$change_ca(function(x) {sin(x) +8}, pattern = "^t$", period = "2016Q2")
-  expect_equal(mdl2$get_ca(), new_ca)
+
+  expected <- mdl$get_ca()
+  expected[ , "c" ] <- 10
+  expected["2015Q3/2016Q2", c("t", "i")] <- 1:4
+  expected["2016Q2", "t"] <- sin(expected["2016Q2", "t"]) + 8
+
+  expect_equal(mdl2$get_ca(), expected)
 })
 
-test_that("set_ca_values handles errors correctly", {
+test_that("change_ca works correctly (2)", {
+  mdl2 <- mdl$clone(deep = TRUE)
+  mdl2$change_ca(function(x) {x + 10}, names = "c", period = "2015")
+  mdl2$change_ca(function(x, dx) {x + dx}, names = c("t", "i"),
+                 period = "2016M7", dx = 1:1)
+  mdl2$change_ca(function(x) {sin(x) + 8}, pattern = "^t$", period = "/2016M3")
+
+  expected <- mdl$get_ca()
+  expected["2015Q1/2015Q4" , "c" ] <- 10
+  expected["2016Q3", c("t", "i")] <- 1:1
+  expected["2015Q1/2016Q1", "t"] <- sin(expected["2015Q1/2016Q1", "t"]) + 8
+
+  expect_equal(mdl2$get_ca(), expected)
+})
+
+
+test_that("change_ca handles errors correctly", {
   f <- function(x) {x}
   mdl2 <- mdl$clone(deep = TRUE)
   msg <- "y is not a stochastic model variable"

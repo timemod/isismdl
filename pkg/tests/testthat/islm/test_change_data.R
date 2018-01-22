@@ -43,6 +43,17 @@ test_that("change_data works correctly with timeseries input (2)", {
   expect_equal(mdl2$get_data(), new_data)
 })
 
+test_that("change_data works correctly with timeseries input (3)", {
+  mdl2 <- mdl$copy()
+  mdl2$change_data(function(x, fac) {x * fac}, names = "c", fac = c_multipliers,
+                   period = "2015/")
+  m_ts <- regts(c(-999, m_additions, 999), period = "2015Q2/2016Q2")
+  mdl2$change_data(function(x) {x + m_ts}, names = c("ms", "md"),
+                   period = "2015Q3/2016Q2")
+  mdl2$change_data(function(x) {x * 1.1}, pattern = "^y", period = "2016Q2")
+  expect_equal(mdl2$get_data(), new_data)
+})
+
 test_that("change_data handles errors correctly", {
   f <- function(x) {x}
   mdl2 <- mdl$clone(deep = TRUE)
@@ -50,9 +61,6 @@ test_that("change_data handles errors correctly", {
   expect_error(mdl2$change_data(f, names = c("y", "xxx")), msg)
   msg <- "The variables p xxx are no model variables"
   expect_error(mdl2$change_data(f, names = c("p", "xxx")), msg)
-  msg <- paste("Period 2012 has a different frequency than the model",
-               "period 2015Q2/2016Q3.")
-  expect_error(mdl2$change_data(f, names = "c", period = "2012Y"), msg)
   msg <- "argument fun is not a function"
   expect_error(mdl2$change_data(2, names), msg)
 })

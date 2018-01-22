@@ -533,6 +533,9 @@ NULL
 #'
 #' # solve the model for all periods before 2018Q1
 #' mdl$solve(period = "/2017Q4")
+#'
+#' # solve the model for all quarters in 2017 (2017Q1/2017Q4)
+#' mdl$solve(period = "2017")
 NULL
 
 #' \code{\link{IsisMdl}} method: Returns the solve status of the last model solve.
@@ -715,12 +718,15 @@ NULL
 #'}
 #'
 #' @examples
-#' mdl <- islm_mdl(period = "2017Q1/2017Q4")
+#' mdl <- islm_mdl(period = "2016Q1/2017Q4")
 #'
 #' print(mdl$get_data())
 #'
 #' # print data for 2017Q2 and later
 #' print(mdl$get_data(names = c("g", "y"), period = "2017Q2/"))
+#'
+#' # print data for all quarters in 2017 (2017Q1/2017Q4)
+#' print(mdl$get_data(names = c("g", "y"), period = "2017"))
 #'
 #' print(mdl$get_data(pattern = "^ymdl"))
 #'
@@ -902,6 +908,9 @@ NULL
 #' # set the values of ms and md in 2017Q1 and 2017Q2
 #' mdl$set_values(c(205,206), pattern = "^m.$", period = "2017Q1/2017Q2")
 #'
+#' # set the values of ms and md in all quarters of 2017 (2017Q1/2017Q4)
+#' mdl$set_values(c(205, 206, 207, 208), pattern = "^m.$", period = "2017")
+#
 #' print(mdl$get_data())
 #'
 #' @examples
@@ -1684,6 +1693,35 @@ NULL
 #'   be written}
 #' }
 #'
+NULL
+
+#' \code{\link{IsisMdl}} method: Returns the model text file
+
+#' @name get_text
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the model text,
+#' i.e. the contents of the model file passed to function \code{\link{isis_mdl}}.
+#' \cr
+#' In principle, it is possible to remove the original model file after
+#' the \code{IsisMdl} object has been created and saved to a file with method
+#' \code{\link{write_mdl}}, since the model text used to create the model
+#' is stored in this file. However, this is not a good idea if the
+#' model contains preprocessor directives
+#' (\code{#include} or \code{#if}). The current version of \code{isismdl}
+#' does not handle preprocessor directives yet, but in future
+#' versions \code{isismdl} will store the preprocessed model text (the model
+#' text obtained by evaluating the preprocessor directives). \emph{Therefore,
+#' we recomment to always keep the original model file}.
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_text()
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @examples
+#' mdl <- islm_mdl()
+#' cat(mdl$get_text())
 NULL
 
 

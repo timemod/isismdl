@@ -22,3 +22,5 @@ mdl$solve()
 mdl$order(orfnam = 'aap.orf')
 
 mdl$write_mdl("islm_basis.ismdl")
+
+print(mdl$get_data(period = "2015"))
