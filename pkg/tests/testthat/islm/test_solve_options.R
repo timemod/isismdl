@@ -4,12 +4,12 @@ library(utils)
 
 context("solve options for ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model.rds"))
+capture_output(mdl <- read_mdl("islm_model.ismdl"))
 
 default_opts <- mdl$get_solve_options()
 
 test_that("default option the same as before", {
-  expect_equal_to_reference(default_opts, file = "data/default_solve_opts.Rds")
+  expect_equal_to_reference(default_opts, file = "data/default_solve_opts.ismdl")
 })
 
 test_that("the default options not overwritten by method solve", {
@@ -40,9 +40,9 @@ test_that("get_solve_options / set_solve_options", {
   do.call(mdl3$set_solve_options, opts)
   expect_identical(mdl3$get_solve_options(), opts)
 
-  mdl2$write_mdl("temp.rds")
-  capture_output(mdl4 <- read_mdl("temp.rds"))
-  unlink("temp.rds")
+  mdl2$write_mdl("temp.ismdl")
+  capture_output(mdl4 <- read_mdl("temp.ismdl"))
+  unlink("temp.ismdl")
   expect_identical(mdl4$get_solve_options(), opts)
 
   msg <- "The minimum of xtfac is 2"

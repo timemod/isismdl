@@ -4,7 +4,7 @@ library(testthat)
 
 context("set_fix (1) for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
 i <- regts(200, start = '2015Q2')
 c <- regts(c(600, NA, 600), start = '2015Q2')

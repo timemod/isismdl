@@ -1490,14 +1490,18 @@ NULL
 #' \code{\link{set_param}}
 NULL
 
-#' Writes the model to an RDS file
+#' Writes an \code{IsisMdl} object to  a file
 #' @name write_mdl
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}}
-#' serializes the model object and writes it
-#' to an RDS file. The model can be read back by function
+#' serializes the model object and writes it to a binary file.
+#' The model can be read back by function
 #' \code{\link{read_mdl}}.
+#'
+#' @details
+#' \code{write_mdl} employs the serialization interface provided
+#' by base R function \code{\link[base]{saveRDS}}.
 #'
 #' @section Usage:
 #' \preformatted{
@@ -1507,11 +1511,13 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{file}}{the name of the RDS file}
+#' \item{\code{file}}{the filename. Preferably use the extension
+#' \code{.ismdl} so that it is obvious that the written file
+#' contains a serialized \code{IsisMdl} object.}
 #' }
 #' @examples
 #' mdl <- islm_mdl("2017Q1/2019Q2")
-#' mdl$write_mdl("islm_mdl.rds")
+#' mdl$write_mdl("islm_mdl.ismdl")
 #' @seealso \code{\link{read_mdl}}
 NULL
 
@@ -1692,7 +1698,6 @@ NULL
 #'   If no output file is specified no ordering information will
 #'   be written}
 #' }
-#'
 NULL
 
 #' \code{\link{IsisMdl}} method: Returns the model text file
@@ -1723,5 +1728,3 @@ NULL
 #' mdl <- islm_mdl()
 #' cat(mdl$get_text())
 NULL
-
-

@@ -4,7 +4,7 @@ library(testthat)
 
 context("set_data argument fun for the  ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
 old_data <- mdl$get_data()
 old_ca <- mdl$get_ca()

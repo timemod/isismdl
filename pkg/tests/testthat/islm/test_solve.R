@@ -4,8 +4,8 @@ library(testthat)
 
 context("solve ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model.rds"))
-capture_output(mdl_solved <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model.ismdl"))
+capture_output(mdl_solved <- read_mdl("islm_model_solved.ismdl"))
 
 test_that("mdl is not equal to mdl_solved", {
   expect_false(isTRUE(all.equal(mdl, mdl_solved)))

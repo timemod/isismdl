@@ -4,7 +4,7 @@ library(testthat)
 
 context("set_data for the  ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
 new_data <-  mdl$get_data()
 new_data["2015Q3", "g"] <- NA

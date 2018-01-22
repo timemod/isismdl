@@ -3,7 +3,7 @@ library(isismdl)
 
 context("fit for ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 all_eqs <- mdl$get_eq_names()
 frml_names <- c("c", "i", "md", "t")
 endo_names <- mdl$get_endo_names()
@@ -39,9 +39,9 @@ test_that("pattern argument works correctly", {
 test_that("Testing equation status after reading the model", {
   mdl2 <<- mdl$clone(deep = TRUE)
   mdl2$set_eq_status("inactive", names = "c")
-  mdl2$write_mdl("temp.rds")
-  capture.output(mdl3 <- read_mdl("temp.rds"))
-  unlink("temp.rds")
+  mdl2$write_mdl("temp.ismdl")
+  capture.output(mdl3 <- read_mdl("temp.ismdl"))
+  unlink("temp.ismdl")
   expect_identical(mdl3$get_eq_names(status = "inactive"), "c")
 })
 

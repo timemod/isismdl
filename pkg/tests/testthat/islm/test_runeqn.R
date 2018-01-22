@@ -4,7 +4,7 @@ library(testthat)
 
 context("run_eqn for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
 test_that("run_eqn for a small sample period", {
   mdl2 <- mdl$clone(deep = TRUE)

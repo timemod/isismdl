@@ -4,7 +4,7 @@ library(testthat)
 
 context("set_ca for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
 new_ca <-  mdl$get_ca()
 new_ca["2015Q3", "c"] <- NA

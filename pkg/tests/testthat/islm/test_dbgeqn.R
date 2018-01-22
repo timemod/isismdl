@@ -6,7 +6,7 @@ context("equation debugging for the ISLM model")
 
 source("../tools/convert_report.R")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
 test_that("set/get debug_eqn", {
   expect_false(mdl$get_debug_eqn())
@@ -24,9 +24,9 @@ test_that("comparing models", {
 })
 
 test_that("reading/writing model", {
-  mdl$write_mdl("temp.rds")
-  dum <- capture.output(mdl2 <- read_mdl("temp.rds"))
-  unlink("temp.rds")
+  mdl$write_mdl("temp.ismdl")
+  dum <- capture.output(mdl2 <- read_mdl("temp.ismdl"))
+  unlink("temp.ismdl")
   expect_true(mdl2$get_debug_eqn())
   expect_equal(mdl, mdl2)
 })

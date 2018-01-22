@@ -7,16 +7,16 @@ context("fit for ISLM model")
 rms_values <- c(c = 5.0, t = 2, i = 21, md = 2)
 rms_values_sorted <- rms_values[order(names(rms_values))]
 
-capture_output(mdl <- read_mdl("islm_model.rds"))
+capture_output(mdl <- read_mdl("islm_model.ismdl"))
 mdl2 <- mdl$clone(deep = TRUE)
 mdl2$set_rms(rms_values)
 
 test_that("get_rms with all positive numbers", {
   expect_identical(mdl$get_rms(), numeric(0))
   expect_identical(mdl2$get_rms(), rms_values_sorted)
-  mdl2$write_mdl("tmp.rds")
-  capture.output(mdl3 <- read_mdl("tmp.rds"))
-  unlink("tmp.rds")
+  mdl2$write_mdl("tmp.ismdl")
+  capture.output(mdl3 <- read_mdl("tmp.ismdl"))
+  unlink("tmp.ismdl")
   expect_identical(mdl3$get_rms(), rms_values_sorted)
 })
 
@@ -33,9 +33,9 @@ mdl4$set_rms(rms_values2)
 
 test_that("get_rms with NA and 0 values", {
   expect_identical(mdl4$get_rms(), rms_values2[c("c", "md")])
-  mdl4$write_mdl("tmp.rds")
-  capture.output(mdl5 <- read_mdl("tmp.rds"))
-  unlink("tmp.rds")
+  mdl4$write_mdl("tmp.ismdl")
+  capture.output(mdl5 <- read_mdl("tmp.ismdl"))
+  unlink("tmp.ismdl")
   expect_identical(mdl5$get_rms(), rms_values2[c("c", "md")])
 })
 
@@ -46,9 +46,9 @@ mdl6$set_rms(rms_values3)
 
 test_that("get_rms with NA and 0 values", {
   expect_identical(mdl6$get_rms(), numeric(0))
-  mdl6$write_mdl("tmp.rds")
-  capture.output(mdl7 <- read_mdl("tmp.rds"))
-  unlink("tmp.rds")
+  mdl6$write_mdl("tmp.ismdl")
+  capture.output(mdl7 <- read_mdl("tmp.ismdl"))
+  unlink("tmp.ismdl")
   expect_identical(mdl7$get_rms(), numeric(0))
 })
 

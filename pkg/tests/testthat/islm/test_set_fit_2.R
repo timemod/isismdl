@@ -11,7 +11,7 @@ ts_labels(fit_targets) <- c("income", "investment")
 
 fit_targets_sorted <- fit_targets[, c("i", "y")]
 
-capture_output(mdl <- read_mdl("islm_model.rds"))
+capture_output(mdl <- read_mdl("islm_model.ismdl"))
 
 mdl$set_fit(fit_targets)
 
@@ -35,9 +35,9 @@ test_that("Testing get_fit after cloning", {
 })
 
 test_that("Testing fit_targets after reading the model", {
-  mdl$write_mdl("temp.rds")
-  capture.output(mdl4 <- read_mdl("temp.rds"))
-  unlink("temp.rds")
+  mdl$write_mdl("temp.ismdl")
+  capture.output(mdl4 <- read_mdl("temp.ismdl"))
+  unlink("temp.ismdl")
   expect_identical(mdl4$get_fit(), fit_targets_sorted)
 })
 

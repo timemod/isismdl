@@ -194,15 +194,15 @@ mdl$get_data()
 
 # Writing and reading `IsisMdl` objects
 
-To write an `IsisMdl`object to a file, use
+To write an `IsisMdl`object to a file, use for example
 ```{r}
-mdl$write_mdl(file = "islm_mdl.rds")
+mdl$write_mdl(file = "islm_mdl.ismdl")
 ```
 
 This methods serializes the model equations, parameters, model data, solve options, etc.
 You can read this model back with the command
 ```{r, results = "hide"}
-mdl <- read_mdl("islm_mdl.rds")
+mdl <- read_mdl("islm_mdl.ismdl")
 ```
 
 ```{r, echo = FALSE, results = "hide"}

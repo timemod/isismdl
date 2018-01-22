@@ -4,7 +4,7 @@ library(testthat)
 
 context("fix_variables for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
 test_that("fix_values works correctly", {
   mdl2 <- mdl$copy()

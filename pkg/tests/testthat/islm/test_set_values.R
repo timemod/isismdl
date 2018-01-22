@@ -4,7 +4,7 @@ library(testthat)
 
 context("set_values for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
 test_that("set_values works correctly (1)" , {
   mdl2 <- mdl$clone(deep = TRUE)

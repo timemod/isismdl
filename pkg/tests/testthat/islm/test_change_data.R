@@ -4,7 +4,7 @@ library(testthat)
 
 context("change_data for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
 c_multipliers <- seq(0.8, 1.0, length.out = nperiod(mdl$get_data_period()))
 m_additions <- seq(10, 40, length.out = 4)

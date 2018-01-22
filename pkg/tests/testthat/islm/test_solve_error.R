@@ -4,7 +4,7 @@ library(testthat)
 
 context("solve errors ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.rds"))
+capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 mdl$set_solve_options(report = "none")
 
 test_that("get_solve_status for a fresh model", {

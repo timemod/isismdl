@@ -2,12 +2,16 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{write_mdl}
 \alias{write_mdl}
-\title{Writes the model to an RDS file}
+\title{Writes an \code{IsisMdl} object to  a file}
 \description{
 This method of R6 class \code{\link{IsisMdl}}
-serializes the model object and writes it
-to an RDS file. The model can be read back by function
+serializes the model object and writes it to a binary file.
+The model can be read back by function
 \code{\link{read_mdl}}.
+}
+\details{
+\code{write_mdl} employs the serialization interface provided
+by base R function \code{\link[base]{saveRDS}}.
 }
 \section{Usage}{
 
@@ -21,13 +25,15 @@ mdl$write_mdl(file)
 
 
 \describe{
-\item{\code{file}}{the name of the RDS file}
+\item{\code{file}}{the filename. Preferably use the extension
+\code{.ismdl} so that it is obvious that the written file
+contains a serialized \code{IsisMdl} object.}
 }
 }
 
 \examples{
 mdl <- islm_mdl("2017Q1/2019Q2")
-mdl$write_mdl("islm_mdl.rds")
+mdl$write_mdl("islm_mdl.ismdl")
 }
 \seealso{
 \code{\link{read_mdl}}

@@ -2,24 +2,28 @@
 % Please edit documentation in R/read_mdl.R
 \name{read_mdl}
 \alias{read_mdl}
-\title{Reads a model from an RDS file}
+\title{Reads an \code{IsisMdl} object from a file}
 \usage{
 read_mdl(file)
 }
 \arguments{
-\item{file}{the name of the RDS file}
+\item{file}{filename (typically with extension \code{.ismdl})}
 }
 \value{
-a \code{\link{IsisMdl}} object
+an \code{\link{IsisMdl}} object
 }
 \description{
-This function reads a model from an RDS file that has been written
-by method \code{\link{write_mdl}} of an \code{\link{IsisMdl}} object.
+This function reads a model from a file that has been written
+by \code{\link{IsisMdl}} method \code{\link{write_mdl}}
+}
+\details{
+\code{read_mdl} employs the serialization interface provided
+by base R function \code{\link[base]{readRDS}}.
 }
 \examples{
 mdl <- islm_mdl("2017Q1/2019Q2")
-mdl$write_mdl("islm_mdl.rds")
-mdl2 <- read_mdl("islm_mdl.rds")
+mdl$write_mdl("islm_mdl.ismdl")
+mdl2 <- read_mdl("islm_mdl.ismdl")
 }
 \seealso{
 \code{\link{write_mdl}}

@@ -4,7 +4,7 @@ library(testthat)
 
 context("get_data for the  ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model.rds"))
+capture_output(mdl <- read_mdl("islm_model.ismdl"))
 
 names <- mdl$get_var_names()
 nperiod <- nperiod(mdl$get_data_period())
