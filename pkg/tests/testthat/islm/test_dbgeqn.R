@@ -2,6 +2,8 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("equation debugging for the ISLM model")
 
 source("../tools/convert_report.R")
@@ -43,8 +45,8 @@ test_that("debug statements for solve", {
   expect_equal(mdl2$get_data(), expected_data)
 
   #cat(paste(report, collapse = "\n"))
-  expected_report_file <- "data/debug_report1.rds"
-  expect_equal_to_reference(convert_report(report), expected_report_file)
+  expected_report_file <- "expected_output/debug_report1.rds"
+  expect_known_value(convert_report(report), expected_report_file)
 })
 
 test_that("debug statements for run_eqn", {
@@ -59,7 +61,7 @@ test_that("debug statements for run_eqn", {
   expect_equal(mdl2$get_data(), expected_data)
 
   #cat(paste(report, collapse = "\n"))
-  expected_report_file <- "data/debug_report2.rds"
-  expect_equal_to_reference(convert_report(report), expected_report_file)
+  expected_report_file <- "expected_output/debug_report2.rds"
+  expect_known_value(convert_report(report), expected_report_file)
   #print(readRDS(expected_report_file))
 })

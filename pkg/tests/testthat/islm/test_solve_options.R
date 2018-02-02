@@ -9,7 +9,8 @@ capture_output(mdl <- read_mdl("islm_model.ismdl"))
 default_opts <- mdl$get_solve_options()
 
 test_that("default option the same as before", {
-  expect_equal_to_reference(default_opts, file = "data/default_solve_opts.ismdl")
+  expect_known_value(default_opts,
+                      file = "expected_output/default_solve_opts.rds")
 })
 
 test_that("the default options not overwritten by method solve", {
