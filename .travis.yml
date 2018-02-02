@@ -13,7 +13,6 @@ before_install:
   - R -e "devtools::install_deps('./pkg')"
   - R -e "devtools::document('./pkg')"
   - cd ./pkg
-  - chmod a+w tests/testthat/misc/output
 
 r_packages:
   - rmarkdown
