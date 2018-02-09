@@ -63,3 +63,22 @@ double get_positive_number(const char *name, SEXP value) {
     return x;
 }
 
+int get_logical(const char *name, SEXP value) {
+    /* INPUT:
+     * name  : the name of the option
+     * value : the value of the options as specified to the user
+     *
+     * Assuming that value is a logical, this function converts it 
+     * to an int. If gives an error in value is not a logical or ifi
+     * it has value NA.
+     */
+
+    if (!isLogical(value)) {
+        error("%s should be a logical", name); 
+    }
+    int i = asInteger(value);
+    if (i == NA_INTEGER) {
+        error("%s should not be NA", name); 
+    }
+    return i;
+}
