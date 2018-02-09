@@ -10,6 +10,8 @@ extern void F77_SUB(init_get_solve_opts)(int *mws_index);
 extern void F77_SUB(set_fit_maxit)(int *);
 extern void F77_SUB(set_fit_cvgabs)(double *);
 extern void F77_SUB(set_fit_mkdcrt)(double *);
+extern void F77_SUB(set_fit_zero_ca)(int *);
+extern void F77_SUB(set_fit_warn_ca)(int *);
 extern void F77_CALL(get_fit_dbgopts)(int *, int *, int *);
 extern void F77_SUB(set_fit_dbgopts)(int *, int *, int *);
 extern void F77_SUB(set_fit_repopt)(int *);
@@ -55,6 +57,14 @@ static void set_fit_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         x = get_positive_number(name, value);
         F77_CALL(set_fit_mkdcrt)(&x);
+    } else if (!strcmp(name, "zero_ca")) {
+        CHECK_LENGTH(name, value);
+        i = get_logical(name, value);
+        F77_CALL(set_fit_zero_ca)(&i);
+    } else if (!strcmp(name, "warn_ca")) {
+        CHECK_LENGTH(name, value);
+        i = get_logical(name, value);
+        F77_CALL(set_fit_warn_ca)(&i);
     } else if (!strcmp(name, "dbgopt")) {
         set_fit_debug_opts(value);
     } else if (!strcmp(name, "report")) {

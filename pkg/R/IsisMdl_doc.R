@@ -1256,7 +1256,8 @@ NULL
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, report, dbgopt)
+#' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, zero_ca, warn_ca,
+#'                     report, dbgopt)
 #'
 #' mdl$get_fit_options()
 #'
@@ -1281,6 +1282,12 @@ NULL
 #' larger than \code{mkdcrt} a new fit jacobian will be calculated
 #' in the next iteration. Any value specified must lie between 0.05
 #' and 0.95. The default value is 0.5.}
+#' \item{\code{zero_ca}}{A logical. If \code{TRUE}, then the initial values
+#' of the constant adjustments used in the fit procedure are initialised to 0.
+#' The default is \code{FALSE}}
+#' \item{\code{warn_ca}}{A logical. If \code{TRUE} (default), then warnings
+#' are given for possibly too large constant adjustments at the end of the fit
+#' procedure for each period.}
 #' \item{\code{report}}{A character string specifying the the
 #' type of report of the fit procedure for each period.
 #' Possible values are \code{"fullrep"}

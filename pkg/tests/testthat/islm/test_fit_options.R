@@ -30,6 +30,8 @@ test_that("get_fit_options / set_fit_options", {
   opts <- default_opts
   opts["maxiter"] <- 20L
   opts["report"] <- "minimal"
+  opts["warn_ca"] <- FALSE
+  opts["zero_ca"] <- TRUE
 
   expect_identical(do.call(mdl2$set_fit_options, opts), mdl2)
   expect_identical(mdl2$get_fit_options(), opts)
@@ -38,6 +40,8 @@ test_that("get_fit_options / set_fit_options", {
   mdl2$set_fit_options(dbgopt = c("prica", "nosupsot"))
   expect_identical(mdl2$get_fit_options()[["dbgopt"]],
                    c("prica", "noprijac", "nosupsot"))
+  expect_false(mdl2$get_fit_options()[["warn_ca"]])
+  expect_true(mdl2$get_fit_options()[["zero_ca"]])
 
   opts <- mdl2$get_fit_options()
   mdl3 <- mdl2$clone(deep = TRUE)
@@ -73,4 +77,10 @@ test_that("errors", {
 
   msg <- "maxiter should not be NA"
   expect_error(mdl2$set_fit_options(maxiter = NA), msg)
+
+  msg <- "zero_ca should be a logical"
+  expect_error(mdl2$set_fit_options(zero_ca = 4), msg)
+
+  msg <- "warn_ca should not be NA"
+  expect_error(mdl2$set_fit_options(warn_ca = NA), msg)
 })

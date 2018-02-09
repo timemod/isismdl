@@ -601,7 +601,8 @@ IsisMdl <- R6Class("IsisMdl",
       .Call("set_solve_opts_c", private$model_index, options)
       return(invisible(self))
     },
-    set_fit_options = function(maxiter, cvgabs, mkdcrt, report, dbgopt) {
+    set_fit_options = function(maxiter, cvgabs, mkdcrt, zero_ca, warn_ca,
+                               report, dbgopt) {
       names <- names(match.call()[-1])
       options <- lapply(names, FUN = function(x) {eval(parse(text = x))})
       names(options) <- names
