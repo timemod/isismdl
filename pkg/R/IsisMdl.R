@@ -1128,6 +1128,13 @@ IsisMdl <- R6Class("IsisMdl",
                freq  = as.integer(private$fortran_period[3]), ier = 1L)
     },
     check_model_period = function(period) {
+
+      if (frequency(period) != frequency(private$data_period)) {
+        stop(paste0("The specified period (", period,
+                    ") has a different frequency than the data period (",
+                    private$data_period, ")."))
+      }
+
       if ((start_period(period) < start_period(private$fortran_period))  ||
           (end_period(period)   > end_period(private$fortran_period))) {
         stop(paste0("The specified period (", period,
