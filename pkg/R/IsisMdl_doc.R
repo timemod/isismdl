@@ -1508,7 +1508,7 @@ NULL
 #'
 #' @details
 #' \code{write_mdl} employs the serialization interface provided
-#' by base R function \code{\link[base]{saveRDS}}.
+#' by base R function \code{\link[base:readRDS]{saveRDS}}.
 #'
 #' @section Usage:
 #' \preformatted{
