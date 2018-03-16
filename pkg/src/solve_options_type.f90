@@ -120,6 +120,7 @@ contains
         options%rlxspeed = 0.5_ISIS_RKIND
         options%njacpd = 0
         options%scalmd = NORMBAL
+        options%svdtest_tol = -1.0_ISIS_RKIND;
 
         ! debug options
         options%priter = .false.

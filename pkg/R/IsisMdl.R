@@ -592,7 +592,8 @@ IsisMdl <- R6Class("IsisMdl",
                                  rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
                                  xmaxiter, xupdate, dbgopt, erropt,
                                  report, ratreport, ratreport_rep,
-                                 ratfullreport_rep, bktmax, xtfac) {
+                                 ratfullreport_rep, bktmax, xtfac,
+                                 svdtest_tol) {
 
       # create a list of supplied options
       names <- names(match.call()[-1])

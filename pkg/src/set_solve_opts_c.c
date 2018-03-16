@@ -28,6 +28,7 @@ extern void F77_SUB(set_ratreport_rep)(int *);
 extern void F77_SUB(set_ratfullreport_rep)(int *);
 extern void F77_SUB(set_bktmax)(int *);
 extern void F77_SUB(set_xtfac)(double *);
+extern void F77_SUB(set_svdtest_tol)(double *);
 
 extern void F77_SUB(check_options)(void);
 
@@ -167,6 +168,10 @@ static void set_option(const char *name, SEXP value) {
             warning("The minimum value of xtfac is 2\n");
         }
         F77_CALL(set_xtfac)(&x);
+    } else if (!strcmp(name, "svdtest_tol")) {
+        CHECK_LENGTH(name, value);
+        x = get_finite_number(name, value);
+        F77_CALL(set_svdtest_tol)(&x);
     } else {
        error("Unknown solve option %s\n", name);
     }

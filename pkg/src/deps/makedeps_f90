@@ -41,7 +41,7 @@ mif_file.o : mdl_flen.o
 model_type.o : mdl_name_utils.o model_params.o utils.o
 modelworkspaces.o : mws_type.o output_utils.o
 msbrdn.o : kinds.o liqrco.o liqrup.o msjcot.o msnwut.o msvars.o \
-          nucnst.o nuv.o
+          nucnst.o nuv.o svd_anal.o
 mscalc.o : include/mspushf.inc include/mspushv.inc include/msshift.inc \
           kinds.o mcedef.o mcstak.o model_params.o msimot.o msufstack.o msvars.o \
           mws_type.o nuna.o nuv.o
@@ -89,5 +89,7 @@ set_options.o : kinds.o modelworkspaces.o mws_type.o \
                solve_options_type.o
 set_solve_opts.o : output_utils.o set_options.o
 solve_options_type.o : kinds.o model_type.o nucnst.o nuna.o scalemat.o
+svd_anal.o : kinds.o mdl_name_utils.o model_params.o msimot.o msvars.o \
+            nucnst.o nuna.o nuv.o output_utils.o
 utils.o : model_params.o
 write_model.o : mdl_flen.o modelworkspaces.o

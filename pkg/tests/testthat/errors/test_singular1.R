@@ -1,17 +1,15 @@
 library(isismdl)
 library(testthat)
 
-# cmpmdl("../mdl/singular1");
-# readmdl("../mdl/singular1");
+# rm(list = ls())
 #
-# setmdp(2011y);
-# x1 = 0.0;
-# y1 = 0.0;
-# z1 = 0.0;
-# x2 = 0.0;
-# y2 = 0.0;
-# z2 = 0.0;
-# p1 = 0.0;
-#
-# solve(method = broyden; dbgopt = prifb, prijac; svdtest_tol = 1e-10);
-#
+# mdl <- isis_mdl("mdl/singular1.mdl", period = "2011")
+# print(mdl$get_solve_options())
+# mdl$set_values(0)
+# mdl$set_solve_options(dbgopt = c("prifb", "prijac"), maxiter = 1,
+#                       svdtest_tol = 1e-10)
+# mdl$solve()
+
+
+ # solve(method = broyden; dbgopt = prifb, prijac; svdtest_tol = 1e-10);
+

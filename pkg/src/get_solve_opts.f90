@@ -1,6 +1,7 @@
 subroutine get_solve_options(imode, istart, maxit, maxmat, rlxspeed, rlxmin, &
            rlxmax, cstpbk, cnmtrx, xrelax, mratex, uplead, erropt, &
-           repopt, ratrepopt, ratreport_rep, ratfullreport_rep, bktmax, xtfac)
+           repopt, ratrepopt, ratreport_rep, ratfullreport_rep, bktmax, xtfac, &
+           svdtest_tol)
 
     use get_options
     use iso_c_binding, only : c_int, c_double
@@ -8,7 +9,7 @@ subroutine get_solve_options(imode, istart, maxit, maxmat, rlxspeed, rlxmin, &
                                   uplead,  erropt, repopt, ratrepopt, &
                                   ratreport_rep, ratfullreport_rep, bktmax
     real(c_double), intent(out):: rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, &
-                                  xrelax, xtfac
+                                  xrelax, xtfac, svdtest_tol
     
     imode = get_imode()
     istart = get_istart()
@@ -29,6 +30,7 @@ subroutine get_solve_options(imode, istart, maxit, maxmat, rlxspeed, rlxmin, &
     ratfullreport_rep = options%ratfullreport_rep
     bktmax = options%bktmax
     xtfac = options%xtfac
+    svdtest_tol = options%svdtest_tol
 end subroutine get_solve_options
 
 subroutine get_solve_dbgopts(priter, prexen, jacprt, suptst, xsuptt, prscal)
