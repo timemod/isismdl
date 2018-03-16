@@ -91,7 +91,6 @@ integer ::  fbcpar(2)
 !   maxnrp = maximum no of names of parameters + constants in tsp input
 !   maxnrc = ditto, counting numbers rather than names
 
-!   mdl%maxarc = maximum no of arcs in graph model structure
 !   maxnfb = maximum no of feedback variables in ordering
 
 

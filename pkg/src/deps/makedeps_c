@@ -35,9 +35,9 @@ outdmdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
 outecode.o : dependencies.h ecode.h include_paths.h ipcode.h mchdr.h \
             mcinit.h mcopt.h mdldef.h oprintf.h outecode.h symbol.h util.h \
             xpcdef.h
-outipcode.o : dependencies.h ecode.h ipcode.h isismdl.h \
-             isismdl_types.h mchdr.h mcinit.h mcopt.h outmdl.h symbol.h util.h \
-             xpcdef.h
+outipcode.o : dependencies.h ecode.h include_paths.h ipcode.h \
+             isismdl.h isismdl_types.h mchdr.h mcinit.h mcopt.h outmdl.h symbol.h \
+             util.h xpcdef.h
 outomdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
            mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outotmdl.h \
            outovtmdl.h symbol.h util.h xpcdef.h
@@ -51,10 +51,10 @@ outvmdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
            mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outovtmdl.h \
            outvtmdl.h symbol.h util.h xpcdef.h
 prepare_compiler.o : flags.h include_paths.h prepare_compiler.h
-scan.o : dependencies.h ecode.h flags.h fname.h ipcode.h mchdr.h \
-        mcinit.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
-scan_params.o : dependencies.h ecode.h ipcode.h isismdl.h mchdr.h \
-               mcopt.h symbol.h util.h xpcdef.h xpctab.h
+scan.o : dependencies.h ecode.h flags.h fname.h include_paths.h \
+        ipcode.h mchdr.h mcinit.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
+scan_params.o : dependencies.h ecode.h include_paths.h ipcode.h \
+               isismdl.h mchdr.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
 set_fit_opts_c.o : fit_options.h init_set_get_options.h \
                   set_fit_options.h set_option_utils.h
 set_option_utils.o : set_option_utils.h

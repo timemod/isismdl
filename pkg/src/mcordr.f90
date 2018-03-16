@@ -62,7 +62,8 @@ subroutine order_equations(ier, errpar, mdl, usinac, fixepi, &
 !      4  equations still unordered
 !      5  error ordering feedback variables
 !      6  two or more equations for same left hand side variable
-!         (errpar contains variable number)
+!         (errpar contains variable number). This error cannot
+!         occur any more because now the model parser checks it.
 !      7  too many arc's in model (maxarc exhausted)
 !      8  error reading scratch file (errpar contains error number)
 !      9  end of file on scratch file
