@@ -222,7 +222,7 @@ contains
         use msnwut
         use mssolve
         use msfito
-        !use svd_anal
+        use svd_anal
         
         !     Solves the model for current period jc with constraints
         !     on some endogenous variables.
@@ -258,9 +258,9 @@ contains
         integer ::  i
         integer ::  fiscod,fiter,wmxidx,wmxtyp,djcnt
         integer ::  xcod
-        real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond !, svd_tol
+        real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, svd_tol 
         real(kind = ISIS_RKIND), dimension(:,:), allocatable :: dj_copy
-        ! integer :: svd_err
+        integer :: svd_err, stat
         logical :: memory_error
 
         !     fiscod is fit iteration status
@@ -329,31 +329,32 @@ contains
                ! compute D*u = trans(Dj)*u
                if (.not. is_square) call mkdu0(ca, delu)
         
-        !       if (svdtest_tol_fit >= 0 .or. svdtest) then
-        !            Save a copy of matrix dj for the svdtest in cause of problems
-        !           if (.not. allocated(dj_copy)) then
-        !               allocate(dj_copy(nu, nw), stat = stat)
-        !               if (stat /= 0) then
-        !                   call fitot15
-        !                   retcod = 2
-        !                   goto 9999
-        !               endif
-        !           endif
-        !           dj_copy = dj(:nu, :nw)
-        !       endif
-        
+               if (opts%fit%svdtest_tol >= 0) then
+                   ! Save a copy of matrix dj for the svdtest in cause of problems
+                   if (.not. allocated(dj_copy)) then
+                       allocate(dj_copy(nu, nw), stat = stat)
+                       if (stat /= 0) then
+                           call fitot15
+                           retcod = 2
+                           goto 9999
+                       endif
+                   endif
+                   dj_copy = dj(:nu, :nw)
+               endif
+       
                ! QR factorize Dj
                call mkdqr(dcond, opts%fit%nochkjac, xcod)
         
-        !       if ((dcond <= svdtest_tol_fit) .or. (xcod .ne. 0 .and. svdtest)) then
-        !               svd_tol = max(svdtest_tol_fit, sqrt(Rmeps))
-        !               call svd_analysis(dj_copy, nu,  nw, numw, numu, &
-        !&                               .true., svd_tol, svd_err)
-        !               if (svd_err /= 0) then
-        !                   retcod = 2
-        !                   goto 9999
-        !               endif
-        !       endif
+               if (dcond <= opts%fit%svdtest_tol) then
+                   svd_tol = max(opts%fit%svdtest_tol, sqrt(Rmeps))
+                   call svd_analysis(dj_copy, nu,  nw, numw, numu, &
+                                     .true., svd_tol, svd_err)
+                   if (svd_err /= 0) then
+                       retcod = 2
+                       goto 9999
+                   endif
+               endif
+
                if (xcod /= 0) goto 9000
             endif
         

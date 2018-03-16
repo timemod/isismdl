@@ -1,0 +1,24 @@
+param r1 0.277 0.065 0.881 0.907 0.482 0.204 0.062 0.125
+      r2 0.001 0.955 0.123 0.851 0.331 0.680 0.483 0.398
+      r3 0.511 0.086 0.175 0.734 0.158 0.364 0.399 0.505
+      r4 0.014 0.290 0.441 0.574 0.480 0.350 0.016 0.328;
+
+? variabelen met residuen voor de waarnemimgenprocedure
+frml x1_eqr x1 = 0;
+frml x2_eqr x2 = 0;
+frml x3_eqr x3 = 0;
+frml x4_eqr x4 = 0;
+frml x5_eqr x5 = 0;
+frml x6_eqr x6 = 0;
+frml x7_eqr x7 = 0;
+frml x8_eqr x8 = 0;
+
+? vergelijkingen voor de waarnemingen
+ident w1_eqr w1 = r1     * x1  + r1(-1) * x2 + r1(-2) * x3 + r1(-3) * x4
+                + r1(-4) * x5  + r1(-5) * x6 + r1(-6) * x7 + r1(-7) * x8;
+ident w2_eqr w2 = r2     * x1  + r2(-1) * x2 + r2(-2) * x3 + r2(-3) * x4
+                + r2(-4) * x5  + r2(-5) * x6 + r2(-6) * x7 + r2(-7) * x8;
+ident w3_eqr w3 = r3     * x1  + r3(-1) * x2 + r3(-2) * x3 + r3(-3) * x4
+                + r3(-4) * x5  + r3(-5) * x6 + r3(-6) * x7 + r3(-7) * x8;
+ident w4_eqr w4 = r4     * x1  + r4(-1) * x2 + r4(-2) * x3 + r4(-3) * x4
+                + r4(-4) * x5  + r4(-5) * x6 + r4(-6) * x7 + r4(-7) * x8;

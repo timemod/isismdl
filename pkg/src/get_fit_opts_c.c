@@ -7,10 +7,11 @@
 #include "get_option_utils.h"
 #include "init_set_get_options.h"
 
-#define N_OPTS 7
+#define N_OPTS 8
 
 extern void F77_CALL(get_fit_options)(int *maxiter, double *cvgabs, 
-              double *mkdcrt, int *zero_ca, int *warn_ca, int *repopt);
+              double *mkdcrt, int *zero_ca, int *warn_ca, int *repopt,
+              double *svdtest_tol);
 extern void F77_CALL(get_fit_dbgopts)(int *, int *, int *);
 
 static SEXP get_debug_option(void);
@@ -24,9 +25,9 @@ SEXP get_fit_opts_c(SEXP mws_index_) {
     init_options(N_OPTS);
 
     int maxiter, repopt, zero_ca, warn_ca;
-    double cvgabs, mkdcrt;
+    double cvgabs, mkdcrt, svdtest_tol;
     F77_CALL(get_fit_options)(&maxiter, &cvgabs, &mkdcrt, &zero_ca, &warn_ca,
-                              &repopt);
+                              &repopt, &svdtest_tol);
 
     add_option("maxiter",  PROTECT(ScalarInteger(maxiter)));
     add_option("cvgabs",   PROTECT(ScalarReal(cvgabs)));
@@ -34,8 +35,8 @@ SEXP get_fit_opts_c(SEXP mws_index_) {
     add_option("zero_ca",  PROTECT(ScalarLogical(zero_ca)));
     add_option("warn_ca",  PROTECT(ScalarLogical(warn_ca)));
     add_option("report",   PROTECT(mkString(get_fit_repopt_text(repopt))));
-
     add_option("dbgopt", get_debug_option());
+    add_option("svdtest_tol",   PROTECT(ScalarReal(svdtest_tol)));
 
     UNPROTECT(N_OPTS);
     return get_options();

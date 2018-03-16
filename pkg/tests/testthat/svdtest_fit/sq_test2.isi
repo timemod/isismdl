@@ -1,0 +1,45 @@
+setgo(output=hdoff);
+
+per = 1000y;
+waarnemingen = [0.412 0.202 0.813 0.642 0.123 0.245];
+aantal_waarnemingen = length(waarnemingen);
+aantal_rms_en = 6;
+
+cmpmdl("square");
+readmdl("square");
+
+setmdp(1000y);
+
+(* maak waarnemingen aan *)
+for w = waarnemingen; i = 1 .. aantal_waarnemingen do
+    (~("w" // i // "_fit"))[per] = w;
+endfor;
+
+put_mdl_param;
+
+r3[2] = 1e9 * r3[2];
+
+get_mdl_param;
+
+(* maak de rms-en gelijk aan 1 *)
+for i = 1 .. aantal_rms_en do
+    ~"x" // i // "_rms" = 1;
+endfor;
+
+getfit;
+getrms;
+
+setca(ft = "*"; val = 0);
+setfopt(options = prijac; svdtest_tol = 1e-8; scalemethod = none);
+prifopt;
+solve;
+
+setfopt(options = nochkjac);
+solve;
+
+prica;
+
+setfopt(options = zeroca; scalemethod = row);
+solve;
+
+prica;

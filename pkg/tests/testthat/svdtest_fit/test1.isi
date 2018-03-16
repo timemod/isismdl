@@ -1,0 +1,30 @@
+setgo(output=hdoff);
+
+per = 1000y;
+waarnemingen = [0.412 0.202 0.813 0.642];
+aantal_waarnemingen = length(waarnemingen);
+aantal_rms_en = 8;
+
+cmpmdl("non_square");
+readmdl("non_square");
+
+setmdp(1000y);
+
+(* maak waarnemingen aan *)
+for w = waarnemingen; i = 1 .. aantal_waarnemingen do
+    (~("w" // i // "_fit"))[per] = w;
+endfor;
+
+(* maak de rms-en gelijk aan 1 *)
+for i = 1 .. aantal_rms_en do
+    ~"x" // i // "_rms" = 1;
+endfor;
+
+getfit;
+getrms;
+
+setfopt(options = prijac, svdtest, nowarnca);
+prifopt;
+solve;
+
+prica;
