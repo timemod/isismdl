@@ -126,6 +126,7 @@ contains
         ! debug options
         options%priter = .false.
         options%prexen = .false.
+        options%jacprt = .false.
         options%suptst = .true.
         options%xsuptt = .true.
         options%prscal = .false.
