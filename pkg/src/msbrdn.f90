@@ -75,7 +75,7 @@ subroutine msbjac(retcod, itr)
 use msnwut
 use msjcot
 use liqrco
-!use svd_anal
+use svd_anal
 integer, intent(out) :: retcod
 integer, intent(in) :: itr
 
@@ -145,8 +145,8 @@ endif
 call jacot2(matitr, itr, rcond)
 
 if (rcond <= opts%svdtest_tol) then
-!    call svd_analysis(jac, mdl%nfb, mdl%nfb, mdl%numfb, &
-!&                     mdl%numfb, .false., opts%svdtest_tol, svd_err)
+    call svd_analysis(jac, mdl%nfb, mdl%nfb, mdl%numfb, &
+                      mdl%numfb, .false., opts%svdtest_tol, svd_err)
     svd_err = 0
 else
     svd_err = 0

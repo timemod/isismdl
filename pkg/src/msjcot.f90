@@ -61,6 +61,8 @@ integer ::  itr
 
 character(len = 80) :: jachdr
 
+if (repopt == REP_NONE) return
+
 write(jachdr,'(a,i4,2a)') 'Newton Jacobian matrix at iteration ',itr, &
 &           ' in period ',perstr
 

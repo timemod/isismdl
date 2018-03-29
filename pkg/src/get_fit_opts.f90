@@ -1,8 +1,9 @@
-subroutine get_fit_options(maxiter, cvgabs, mkdcrt, zero_ca, warn_ca, repopt)
+subroutine get_fit_options(maxiter, cvgabs, mkdcrt, zero_ca, warn_ca, repopt, &
+                           svdtest_tol)
     use get_options
     use iso_c_binding, only : c_int, c_double
     integer(c_int), intent(out):: maxiter, repopt, zero_ca, warn_ca
-    real(c_double), intent(out):: cvgabs, mkdcrt
+    real(c_double), intent(out):: cvgabs, mkdcrt, svdtest_tol
 
     maxiter = options%fit%maxiter
     cvgabs = options%fit%cvgabs
@@ -10,6 +11,7 @@ subroutine get_fit_options(maxiter, cvgabs, mkdcrt, zero_ca, warn_ca, repopt)
     repopt = options%fit%repopt
     zero_ca = logical2int(options%fit%zeroca)
     warn_ca = logical2int(options%fit%warnca)
+    svdtest_tol = options%fit%svdtest_tol
 
 end subroutine get_fit_options
 

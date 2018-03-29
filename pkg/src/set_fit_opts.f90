@@ -51,3 +51,10 @@ subroutine set_fit_dbgopts(prica, prijac, supsot)
     options_set%fit%prijac = prijac /= 0
     options_set%fit%supsot = supsot /= 0
 end subroutine set_fit_dbgopts
+
+subroutine set_fit_svdtest_tol(tol)
+    use set_options
+    use iso_c_binding, only : c_double
+    real(c_double), intent(in) :: tol
+    options_set%fit%svdtest_tol = tol
+end subroutine set_fit_svdtest_tol

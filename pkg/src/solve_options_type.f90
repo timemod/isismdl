@@ -48,6 +48,7 @@ module solve_options_type
         logical(kind = ISIS_IKIND) :: nochkjac
         logical(kind = ISIS_IKIND) :: accurate_jac
         integer(kind = ISIS_IKIND) :: repopt
+        real(kind = ISIS_RKIND)    :: svdtest_tol
     end type fit_options
 
     type solve_options
@@ -120,10 +121,12 @@ contains
         options%rlxspeed = 0.5_ISIS_RKIND
         options%njacpd = 0
         options%scalmd = NORMBAL
+        options%svdtest_tol = -1.0_ISIS_RKIND;
 
         ! debug options
         options%priter = .false.
         options%prexen = .false.
+        options%jacprt = .false.
         options%suptst = .true.
         options%xsuptt = .true.
         options%prscal = .false.
@@ -156,6 +159,7 @@ contains
         options%fit%supsot = .true.
         options%fit%nochkjac = .false.
         options%fit%repopt = FITREP_FULLREP
+        options%fit%svdtest_tol = -1.0_ISIS_RKIND
 
     end subroutine set_default_options
 

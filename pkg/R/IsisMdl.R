@@ -592,7 +592,8 @@ IsisMdl <- R6Class("IsisMdl",
                                  rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
                                  xmaxiter, xupdate, dbgopt, erropt,
                                  report, ratreport, ratreport_rep,
-                                 ratfullreport_rep, bktmax, xtfac) {
+                                 ratfullreport_rep, bktmax, xtfac,
+                                 svdtest_tol) {
 
       # create a list of supplied options
       names <- names(match.call()[-1])
@@ -602,7 +603,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     set_fit_options = function(maxiter, cvgabs, mkdcrt, zero_ca, warn_ca,
-                               report, dbgopt) {
+                               report, dbgopt, svdtest_tol) {
       names <- names(match.call()[-1])
       options <- lapply(names, FUN = function(x) {eval(parse(text = x))})
       names(options) <- names

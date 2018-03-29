@@ -1,17 +1,19 @@
 library(isismdl)
 library(testthat)
 
-# cmpmdl("../mdl/singular1");
-# readmdl("../mdl/singular1");
-#
-# setmdp(2011y);
-# x1 = 0.0;
-# y1 = 0.0;
-# z1 = 0.0;
-# x2 = 0.0;
-# y2 = 0.0;
-# z2 = 0.0;
-# p1 = 0.0;
-#
-# solve(method = broyden; dbgopt = prifb, prijac; svdtest_tol = 1e-10);
-#
+rm(list = ls())
+
+capture_output(mdl <- isis_mdl("mdl/singular1.mdl", period = "2011"))
+mdl$set_values(0)
+mdl$set_solve_options(dbgopt = c("prifb", "prijac"), maxiter = 1,
+                       svdtest_tol = 1e-10)
+
+test_that("solve", {
+  expect_warning(expect_output(mdl$solve(options = list(report = "none"))),
+               "Simulation stopped")
+  mdl$set_values(0)
+  expect_silent(expect_warning(mdl$solve(options = list(report = "none",
+                                                        svdtest_tol = -1)),
+                 "Simulation stopped"))
+  expect_identical(mdl$get_solve_status(), "Simulation stopped")
+})
