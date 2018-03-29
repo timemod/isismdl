@@ -18,7 +18,7 @@ mdl$set_solve_options(mode, fbstart, maxiter, maxjacupd, rlxspeed,
                       rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
                       xmaxiter, xupdate, dbgopt, erropt,
                       report, ratreport, ratreport_rep, ratfullreport_rep,
-                      bktmax, xtfac)
+                      bktmax, xtfac, svdtest_tol)
 
 mdl$get_solve_options()
 }

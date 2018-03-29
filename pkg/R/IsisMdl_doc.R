@@ -1028,7 +1028,7 @@ NULL
 #'                       rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
 #'                       xmaxiter, xupdate, dbgopt, erropt,
 #'                       report, ratreport, ratreport_rep, ratfullreport_rep,
-#'                       bktmax, xtfac)
+#'                       bktmax, xtfac, svdtest_tol)
 #'
 #' mdl$get_solve_options()
 #' }
@@ -1269,7 +1269,7 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, zero_ca, warn_ca,
-#'                     report, dbgopt)
+#'                     report, dbgopt, svdtest_tol)
 #'
 #' mdl$get_fit_options()
 #'
@@ -1307,6 +1307,18 @@ NULL
 #' and  \code{"minimal"} (for a one line summary).}
 #' \item{\code{dbgopt}}{A character vector specifying one or more
 #' debugging options. See section "Debugging options" below}
+#' \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
+#' parameter.
+#' If the inverse condition of the fit Jacobian is smaller than this parameter,
+#' then an SVD analysis of the Jacobian is performed. This may help to
+#' find the equations that cause (near) singularity of the Jacobian.
+#' The default value is \code{-1}, which implies that the SVD test is never
+#' performed. Specify a number between 0 and 1 to enable an SVD analysis depending
+#' on the inverse condition of the Jacobian.
+#' When this option has been specified a copy of the fit Jacobian is kept in memory,
+#' even if the Jacobian is not ill-conditioned.
+#' This option should therefore only be used during testing. It should be turned
+#' off in production calculations}
 #' }
 #'
 #' @section Debugging options:
