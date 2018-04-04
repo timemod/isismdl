@@ -240,7 +240,7 @@ static  void out_enode( Enode *ebase, Enodep estart )
                         oprintf( ")" );
                         break;
 
-        case E_NINT   : oprintf( "Round(", ep->first.sp->name );
+        case E_NINT   : oprintf( "nint(", ep->first.sp->name );
                         out_arglistbuiltin(ebase, ep);
                         oprintf( ")" );
                         break;
@@ -383,9 +383,8 @@ void out_dmdl(FILE *fp) {
     xprintf(";\n\n");
 
     // constant adjustments
-    xprintf("%% constant adjustments\n");
-    xprintf("varexo");
     k = 1;
+    int first = 0;
     for (i = 0; i < ecnt; i++) {
         Symbol *sp = eqnp[i];
         if (sp->xpctype != XP_EQN) {
@@ -393,12 +392,17 @@ void out_dmdl(FILE *fp) {
         }
         Equation *eqnp = sp->u.eqnp;
         if (Is_Frmleqn(eqnp)) {
+            if (first) {
+                xprintf("%% constant adjustments\n");
+                xprintf("varexo");
+            }
+            first = 0;
             xprnlsp(k, 6);
             oprintf(" %s_ca", eqnp->lhs->name);
             k = k + 1;
         }
     }
-    xprintf(";\n\n");
+    if (k > 1) xprintf(";\n\n");
 
 
     // parameters
