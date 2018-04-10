@@ -384,7 +384,7 @@ void out_dmdl(FILE *fp) {
 
     // constant adjustments
     k = 1;
-    int first = 0;
+    int first = 1;
     for (i = 0; i < ecnt; i++) {
         Symbol *sp = eqnp[i];
         if (sp->xpctype != XP_EQN) {
