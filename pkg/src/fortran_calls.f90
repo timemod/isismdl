@@ -306,6 +306,24 @@ subroutine set_ftrelax(mws_index, ivar, value)
     mws_array(mws_index)%ftrelax(ivar) = value
 end subroutine set_ftrelax
 
+subroutine has_free_mws(result)
+    ! 
+    ! finds the index of  the model from the file
+    !
+    use modelworkspaces
+    integer, intent(out)              :: result
+
+    integer i
+    i = find_free_mws()
+
+    if (i >= 1) then
+        result =  1
+    else 
+        result =  0
+    endif
+
+end subroutine has_free_mws
+
 subroutine clone_mws_fortran(model_index, model_index_clone)
     ! 
     ! read the model from the file

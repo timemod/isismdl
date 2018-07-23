@@ -59,6 +59,7 @@ setOldClass("period_range")
 #' @useDynLib isismdl set_dbgeqn
 #' @useDynLib isismdl get_dbgeqn
 #' @useDynLib isismdl order_mdl_c
+#' @useDynLib isismdl has_free_mws
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -234,6 +235,9 @@ IsisMdl <- R6Class("IsisMdl",
         writeBin(serialized_mdl$mif_data, con = mif_file)
       }
 
+      has_free_mws <- .Fortran("has_free_mws", result = 1L)$result
+      if (!has_free_mws) gc(verbose = FALSE)
+
       cat("Reading mif file...\n")
       private$model_index <- .Call(read_mdl_c, mif_file)
 
@@ -252,11 +256,6 @@ IsisMdl <- R6Class("IsisMdl",
       private$var_count <- length(private$var_names)
       private$labels    <- character(0)
       names(private$labels) <- character(0)
-      reg.finalizer(self,
-                    function(e) {.Fortran("remove_mws_fortran",
-                                          model_index = private$model_index)},
-                    onexit = TRUE)
-
       if (!missing(serialized_mdl)) {
         private$init_mws(serialized_mdl$mws)
         private$model_text <- serialized_mdl$model_text
@@ -276,6 +275,9 @@ IsisMdl <- R6Class("IsisMdl",
         cat(sprintf("%-60s%s\n", "Model data period:",
                     as.character(private$data_period)))
       }
+    },
+    finalize = function() {
+      .Fortran("remove_mws_fortran", model_index = private$model_index)
     },
     get_text = function() {
       return(private$model_text)
@@ -814,6 +816,8 @@ IsisMdl <- R6Class("IsisMdl",
     fit_type = 4L,
     deep_clone = function(name, value) {
       if (name == "model_index") {
+        has_free_mws <- .Fortran("has_free_mws", result = 1L)$result
+        if (!has_free_mws) gc(verbose = FALSE)
         retval <- .Fortran("clone_mws_fortran", model_index = value,
                            model_index_clone = 1L)
         return(retval$model_index_clone)
