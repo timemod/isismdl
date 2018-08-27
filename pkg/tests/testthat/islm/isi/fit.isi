@@ -29,7 +29,7 @@ t_rms = 2;
 getrms;
 
 setmva(ft = "*"; cvgcrit = sqrt(NU_EPS));
-setfopt(cvgabs = 100 * sqrt(NU_EPS));
+setfopt(cvgabs = 100 * sqrt(NU_EPS); options = accurate_jac);
 solve;
 primdt(dec = 6);
 write_ts_csv("fit.csv"; per = mdl_per; input_from = mws;

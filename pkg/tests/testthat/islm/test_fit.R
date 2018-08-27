@@ -23,8 +23,8 @@ test_that("Testing get_fit", {
 
 test_that("Comparing the results of solve", {
   islm_model$solve(options = list(report = "none"))
-  dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result, tol = 1e-6,
-               fun = cvgdif)
+  dif <- tsdif(islm_model$get_data()["2015Q2/2016Q3", ], isis_result,
+               tol = 1e-8, fun = cvgdif)
   expect_identical(dif$missing_names1, character(0))
   expect_identical(dif$missing_names2, character(0))
   expect_identical(dif$difnames, character(0))

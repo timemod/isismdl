@@ -150,7 +150,7 @@ contains
         options%fit%cvgabs = 100 * sqrt(Rmeps)
         options%fit%mkdcrt =  0.5_ISIS_RKIND
         options%fit%scale_method = FIT_SCALE_ROW
-        options%fit%accurate_jac = .false.
+        options%fit%accurate_jac = .true.
         options%fit%prica  = .false.
         options%fit%prijac = .false.
         options%fit%zeroca = .false.
