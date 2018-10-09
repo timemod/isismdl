@@ -24,6 +24,10 @@ test_that("Testing equation status after clone", {
                    setdiff(endo_names, "c"))
   expect_identical(mdl2$get_endo_names(status = "inactive"), "c")
   expect_identical(mdl2$get_exo_names(), c("c", "g", "ms"))
+  expect_identical(mdl2$get_var_names(type = "lags"), c("r", "y", "yd"))
+  expect_identical(mdl2$get_var_names(type = "lags", pattern = "^y"),
+                   c("y", "yd"))
+  expect_identical(mdl2$get_var_names(type = "lead"), character(0))
 })
 
 test_that("pattern argument works correctly", {

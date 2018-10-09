@@ -9,9 +9,11 @@
 #include "init_set_get_options.h"
 
 #define MAX_NAME_LEN 32
-#define ALL     1
+#define ALL  1
 #define FRML 2
-#define ENDOLEAD 3
+#define ENDOLEADS 3
+#define LAGS 4
+#define LEADS 5
 
 #define DATA    1
 #define CA     2
@@ -65,6 +67,11 @@ extern void F77_NAME(set_ftrelax)(int *mws_index, int *var_index, double *value)
 extern double F77_NAME(get_ftrelax)(int *mws_index, int *var_index);
 extern void F77_SUB(init_set_options)(int *mws_index, int *use_mws);
 extern int F77_NAME(get_simerr)(int *mws_index);
+extern int F77_NAME(has_lag)(int *mws_index, int *iv);
+extern int F77_NAME(has_lead)(int *mws_index, int *iv);
+
+SEXP get_lags_or_leads(int model_index, int type);
+
 
 SEXP read_mdl_c(SEXP filename) {
 
@@ -136,11 +143,21 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
     } else if (strcmp(type_str, "frml") == 0) {
         type = FRML;
     } else  if (strcmp(type_str, "endolead") == 0) {
-        type = ENDOLEAD;
+        type = ENDOLEADS;
+    } else  if (strcmp(type_str, "lags") == 0) {
+        type = LAGS;
+    } else  if (strcmp(type_str, "leads") == 0) {
+        type = LEADS;
     } else {
         error("Illegal parameter vtype %s\n", type_str);
     }
     int model_index = asInteger(model_index_);
+
+
+    if (type == LAGS || type == LEADS) {
+        return get_lags_or_leads(model_index, type);
+    }
+
     int alpha = 1;
 
     int nvar;
@@ -151,7 +168,7 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
     case FRML:     nvar = F77_CALL(get_ca_count)(&model_index);
                    get_name = F77_CALL(get_ca_name);
                    break;
-    case ENDOLEAD: nvar = F77_CALL(get_endex_count)(&model_index);
+    case ENDOLEADS: nvar = F77_CALL(get_endex_count)(&model_index);
                    get_name = F77_CALL(get_endex_name);
                    break;
     }
@@ -169,6 +186,43 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
         }
         name[len] = '\0';
         SET_STRING_ELT(names, ivar - 1, mkChar(name));
+    }
+    UNPROTECT(1);
+    return names;
+}
+
+SEXP get_lags_or_leads(int model_index, int type) {
+
+    /* returns a character vector with the names of lags or leads */
+
+    int nv = F77_CALL(get_variable_count)(&model_index);
+    int *ivars = (int *) R_alloc(nv, sizeof(int));
+
+    int (*has_lag_or_lead)(int *, int *);
+    if (type == LAGS) {
+        has_lag_or_lead = F77_CALL(has_lag);
+    } else {
+        has_lag_or_lead = F77_CALL(has_lead);
+    }
+
+    // get indices of variables
+    int iv, ok, cnt = 0;
+    for (iv = 1; iv <= nv; iv++) {
+      ok = (*has_lag_or_lead)(&model_index, &iv);
+      if (ok) {
+          ivars[cnt++] = iv;
+      }
+    }
+
+    /* now create character vector with the variable names */
+    int len, alphabet = 0, i;
+    char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
+    SEXP names = PROTECT(allocVector(STRSXP, cnt));
+    for (i = 0; i < cnt; i++) {
+        F77_CALL(get_variable_name)(&model_index, &ivars[i], name, &len,
+                                    &alphabet);
+        name[len] = '\0';
+        SET_STRING_ELT(names, i, mkChar(name));
     }
     UNPROTECT(1);
     return names;

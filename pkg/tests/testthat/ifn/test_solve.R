@@ -13,6 +13,13 @@ test_that("ftrelax correctly read from file", {
   expect_identical(ifn_mdl$get_ftrelax(), res_correct)
 })
 
+test_that("get_var_names with type = \"lead\" gives correct results", {
+  res_correct <- c("a", "eta", "gpx", "groei", "lambda", "mzk", "px", "rho",
+                   "tc")
+  expect_identical(ifn_mdl$get_var_names(type = "leads"), res_correct)
+})
+
+
 test_that("solve options read from file", {
   options_set <- list(xmaxiter = 1500, ratreport = "iter",
                       report = "minimal", ratreport_rep = 10,

@@ -7,11 +7,19 @@ variables}
 \description{
 This method of R6 class \code{\link{IsisMdl}} returns the names of
 the model variables, both exogenous and endogenous.
+
+Argument \code{type} can be specified to select variables with a specific type.
+The following types are supported
+\describe{
+\item{\code{"all"}}{All model variables}
+\item{\code{"lags"}}{Model variables with lags}
+\item{\code{"leads"}}{Model variables with leads}
+}
 }
 \section{Usage}{
 
 \preformatted{
-mdl$get_var_names(pattern = ".*")
+mdl$get_var_names(pattern = ".*", type = c("all", "lags", "leads"))
 }
 
 \code{mdl} is an \code{IsisMdl} object
@@ -22,6 +30,8 @@ mdl$get_var_names(pattern = ".*")
 
 \describe{
 \item{\code{pattern}}{a regular expression specifying variable names}
+\item{\code{type}}{a character string specifying the variable type. See
+the description above}
 }
 }
 
@@ -33,6 +43,9 @@ mdl$get_var_names()
 
 # get all variables with names starting with "m":
 mdl$get_var_names(pattern = "^y.*")
+
+# get the names of all lagged variables
+mdl$get_var_names(type = "lags")
 }
 \seealso{
 \code{\link{get_endo_names}} and \code{\link{get_exo_names}}

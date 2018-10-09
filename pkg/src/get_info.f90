@@ -297,3 +297,29 @@ function get_simerr(model_index)
     integer(c_int), intent(in) :: model_index
     get_simerr = mws_array(model_index)%simerr
 end function get_simerr
+
+function has_lag(model_index, iv)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: has_lag
+    integer(c_int), intent(in) :: model_index, iv
+    if (mws_array(model_index)%mdl%ibx1(iv + 1) > &
+        mws_array(model_index)%mdl%ibx1(iv)) then
+        has_lag = 1
+    else 
+        has_lag = 0
+    endif
+end function has_lag
+
+function has_lead(model_index, iv)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: has_lead
+    integer(c_int), intent(in) :: model_index, iv
+    if (mws_array(model_index)%mdl%ibx2(iv + 1) > &
+        mws_array(model_index)%mdl%ibx2(iv)) then
+        has_lead = 1
+    else 
+        has_lead = 0
+    endif
+end function has_lead

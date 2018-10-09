@@ -288,8 +288,9 @@ IsisMdl <- R6Class("IsisMdl",
     get_maxlead = function() {
       return(private$maxlead)
     },
-    get_var_names = function(pattern = ".*") {
-      names <- .Call(get_var_names_c, "all", private$model_index)
+    get_var_names = function(pattern = ".*", type = c("all", "lags", "leads")) {
+      type <- match.arg(type)
+      names <- .Call(get_var_names_c, type, private$model_index)
       if (!missing(pattern)) {
         sel <- grep(pattern, names)
         names <- names[sel]
