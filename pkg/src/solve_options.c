@@ -11,7 +11,7 @@ static const char *START_OPTIONS[] = {"previous", "current", "curifok",
 static const char *XUPDATE_OPTIONS[] = {"fixed", "lastval"};
 const char *DBG_ALL  = "allinfo";
 const char *DBG_NONE = "noinfo";
-static const char *ERROPT_OPTIONS[] = {"stop", "cont"};
+static const char *ERROPT_OPTIONS[] = {"stop", "cont", "silent"};
 static const char *REP_OPTIONS[] = {"none", "minimal", "period", "fullrep"};
 static const char *RATREP_OPTIONS[] = {"minimal", "iter", "fullrep"};
 

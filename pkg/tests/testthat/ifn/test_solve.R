@@ -56,6 +56,6 @@ test_that("warning when Fair-Taylor has not converged", {
 
 test_that("errors", {
  ifn_mdl2 <- ifn_mdl$copy()
- expect_error(ifn_mdl2$solve(options = list(xmaxiter = 0)),
+ expect_error(ifn_mdl2$solve(options = list(xmaxiter = 0, report = "none")),
               "xmaxiter should be larger than 0")
 })

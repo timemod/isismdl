@@ -5,6 +5,7 @@ module solve_options_type
     ! the ERROPT_OPTIONS in solve_options.c (first option should be 1)!
     integer, parameter :: ERROPT_STOP  = 1
     integer, parameter :: ERROPT_CONT  = 2
+    integer, parameter :: ERROPT_SILENT = 3
 
     ! reopt option
     integer, parameter :: REP_NONE    = 1    ! no report at all

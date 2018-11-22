@@ -479,14 +479,17 @@ module msimul
         ! 3. print messages about the number of missing lags and leads
     
         integer :: nonval_lag, nonval_lead
+        logical :: chk
     
         quit = .false.
+
+        chk = opts%erropt /= ERROPT_SILENT
     
         if (.not. update_lags) then
             ! for the static and residual check modes,
             ! the new lags should be updated BEFORE mdl_data
             ! has been updated
-            call getnlg(jt, forwards, .true., nonval_lag)
+            call getnlg(jt, forwards, chk, nonval_lag)
         endif
     
         ! put results for current period in the mws
@@ -494,15 +497,18 @@ module msimul
     
         ! for all modes except static and residual check, the new lags should
         ! be based on the updated model worksspace
-        if (update_lags) call getnlg(jt, forwards, .true., nonval_lag)
+        if (update_lags) call getnlg(jt, forwards, chk, nonval_lag)
     
         ! get new leads. for the backward mode the updated values of
         ! the leads are used
-        call getnld(jt, forwards, chklead, nonval_lead)
+        chk = chklead .and. opts%erropt /= ERROPT_SILENT 
+        call getnld(jt, forwards, chk, nonval_lead)
     
         if (nonval_lag  > 0) call simob2(nonval_lag)
         if (nonval_lead > 0) call simob4(nonval_lead)
-        if (nonval_lag > 0 .or. nonval_lead > 0) quit = opts%erropt == ERROPT_STOP
+        if (nonval_lag > 0 .or. nonval_lead > 0) then
+            quit = opts%erropt == ERROPT_STOP
+        endif
     
     end subroutine store_solution_prepare_next
     

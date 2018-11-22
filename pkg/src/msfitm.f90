@@ -975,8 +975,9 @@ contains
     end do
     
     if (nonval > 0) then
+       ! nonval is the number of fit targets that are exogenous
        call fitot2(nonval)
-       quit = opts%erropt == ERROPT_STOP
+       quit = .true.
        fiterr = 1
     else if( nw .eq. 0 ) then
        fiterr = 2

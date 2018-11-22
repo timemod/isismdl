@@ -1,0 +1,15 @@
+? a simple model illustrating models with unused exos and leads
+
+	
+ident y1 = 1;
+
+ident y2 = if (switch = 1) then
+	     z1 
+	   else 
+             z1[1]
+           endif;
+		
+ident y3 = if (switch = 1) then
+	      y2[-1] * 2 
+	   else 
+	     y2 * 3;

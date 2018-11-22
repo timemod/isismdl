@@ -16,11 +16,12 @@ subroutine reschk(retcod)
 
     ! check exo's and ca's for validity
     ! no real need to check feedback values (will not propagate here)
-
-    call chkxa(quit)
-    if (quit) then
-        retcod = 1
-        goto 100
+    if (opts%erropt /= ERROPT_SILENT) then    
+        call chkxa(quit)
+        if (quit) then
+            retcod = 1
+            goto 100
+        endif
     endif
 
     ! store starting values ( yp(*) = curvars(*) )

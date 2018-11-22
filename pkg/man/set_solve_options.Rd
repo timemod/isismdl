@@ -83,9 +83,11 @@ the solution period take on the values from the last solution date}
 \item{\code{dbgopt}}{A character vector specifying one more
 debugging options. See section "Debugging options" below}
 \item{\code{erropt}}{Character string defining the error handling when
-invalid lags, leads and/or exogenous variables are detected.
-Possible values are \code{"stop"} (stop on errors)
-and \code{cont} (continue on errors). The default is \code{"stop"}}
+invalid lags, leads, constant adjustments  and/or exogenous variables are detected.
+Possible values are \code{"stop"} (stop on errors),
+\code{"cont"} (continue on errors but write a message to the output)
+and \code{"silent"} (also continue but without message).
+The default is \code{"stop"}}
 \item{\code{report}}{A character string defining the type of
 computation progress report. Possible values are
 \code{"period"} (for a report per period),

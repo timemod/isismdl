@@ -131,7 +131,9 @@ contains
 
        integer :: nonval
 
-       call chkxa(quit)
+       quit = .false.
+    
+       if (opts%erropt /= ERROPT_SILENT) call chkxa(quit)
 
        ! test for invalid numbers in feedback variables
        call chkvfb(nonval)
@@ -176,7 +178,7 @@ contains
         ! check constant adjustments for validity and/or missing
 
         integer :: canum, i
-
+        
         do i = 1, mdl%nca
             canum = mdl%ica(i)
             if (canum <= 0) cycle
@@ -278,7 +280,7 @@ do i = 1, mdl%nrv
        ! jlag is the time period for which we want data
        jlag = jstart - (1 + j - mdl%ibx1(i))
        call get_var_value(mws, i, jlag, lags_leads(j), error)
-       if (nuifna(lags_leads(j))) then
+       if (opts%erropt /= ERROPT_SILENT .and. nuifna(lags_leads(j))) then
            call simod1(i, 1 + j - mdl%ibx1(i))
            nonval = nonval + 1
        endif
@@ -308,13 +310,15 @@ do i = 1, mdl%nrv
        enddo
 
    endif
-
-   do j = mdl%ibx2(i), mdl%ibx2(i + 1) - 1
-       if (nuifna(lags_leads(j)) ) then
-           call simod2(i, 1 + j - mdl%ibx2(i))
-           nonval = nonval + 1
-       endif
-   enddo
+    
+   if (opts%erropt /= ERROPT_SILENT) then
+       do j = mdl%ibx2(i), mdl%ibx2(i + 1) - 1
+           if (nuifna(lags_leads(j)) ) then
+               call simod2(i, 1 + j - mdl%ibx2(i))
+               nonval = nonval + 1
+           endif
+       enddo
+   endif
 
 enddo
 

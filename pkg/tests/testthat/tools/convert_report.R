@@ -7,3 +7,7 @@ convert_report <- function(report) {
                                   report[cpu_line_number])
   return(report)
 }
+
+cat_report <- function(report) {
+  return(cat(paste(report, collapse = "\n")))
+}
