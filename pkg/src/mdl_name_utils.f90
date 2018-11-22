@@ -242,48 +242,46 @@ end function maxnln
 
 !-----------------------------------------------------------------------
 
-integer function maxnli(inames, nidx, ib,ie)
+integer function maxnli(inames, nidx, ib, ie, skip_deactivated)
 
-!        return maximum length of names referenced by inames pointer array
-!        for entries nidx(ib) .. nidx(ie)
+   ! Return maximum length of names referenced by inames pointer array
+   ! for entries nidx(ib) .. nidx(ie)
+   ! If an equation is deactivated, then nidx may be negative (for
+   ! iendex or ica). If skip_deactivated == .true. then these names are 
+   ! skipped.
 
-   integer(kind = MC_IKIND) :: inames(*), nidx(*)
-   integer(kind = MC_IKIND) :: ib, ie
+   integer(kind = MC_IKIND), intent(in) :: inames(*), nidx(*)
+   integer(kind = MC_IKIND), intent(in) :: ib, ie
+   logical, intent(in), optional :: skip_deactivated
 
-   integer(kind = MC_IKIND) :: nlen, i
+   integer(kind = MC_IKIND) :: nlen, i, idx
+   logical :: skip_deact
+
+   if (present(skip_deactivated)) then
+       skip_deact = skip_deactivated
+   else 
+       skip_deact = .false.
+   endif
 
    nlen = 0
    do i = ib, ie
-      nlen = max( nlen , 1 + mod(inames(nidx(i)),64) )
+       idx = nidx(i)
+       if (idx < 0) then
+           if (skip_deact) then
+               cycle
+           else 
+               idx = - idx
+           endif
+       elseif (idx == 0) then
+           cycle
+       endif
+      nlen = max( nlen , 1 + mod(inames(idx),64))
    end do
 
    maxnli = nlen
 
    return
 end function maxnli
-
-!-----------------------------------------------------------------------
-
-integer function maxnlz(inames, nidx, ib,ie)
-
-!        same as maxnli but skip entries <= 0 in nidx
-
-   integer(kind = MC_IKIND) :: inames(*), nidx(*)
-   integer(kind = MC_IKIND) :: ib, ie
-
-   integer(kind = MC_IKIND) :: nlen, i
-
-   nlen = 0
-   do i = ib, ie
-       if (nidx(i) .gt. 0 ) then
-           nlen = max( nlen , 1 + mod(inames(nidx(i)),64) )
-       endif
-   end do
-
-   maxnlz = nlen
-
-   return
-end function maxnlz
 
 !----------------------------------------------------------
 

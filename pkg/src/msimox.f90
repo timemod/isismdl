@@ -20,7 +20,7 @@ integer ::   maxlen, colwid
 
 if (opts%repopt == REP_NONE) return
 
-maxlen = maxnlz(mdl%ivnames, mdl%iendex, 1_MC_IKIND, mdl%nendex)
+maxlen = maxnli(mdl%ivnames, mdl%iendex, 1_MC_IKIND, mdl%nendex)
 colwid = max(maxlen, NUMWID )
 
 write(str, '(a,i4)') 'Expectation Guesses before round ',iratex
@@ -287,7 +287,6 @@ use msvars
 ! print a report of all remaining discrepancies in a
 ! rational expectations simulation
 
-
 character(len = 3) :: cdum
 character(len = 8) :: target
 logical ::        split, first
@@ -301,7 +300,36 @@ if (opts%repopt == REP_NONE) return
 str = 'All remaining discrepancies'
 call strout(O_OUTB)
 
-mxnlen = maxnli(mdl%ivnames, mdl%iendex, 1_MC_IKIND, mdl%nendex)
+!
+! first determine the maximum length of the endogenous variable 
+! that will be printed
+!
+mxnlen = 0
+do k = 1, mdl%nendex
+
+   i = mdl%iendex(k)
+   if (i .le. 0) cycle
+   if (.not. mdl%lik(i)) cycle
+
+   do j = jf + 1, jl
+
+       xold   = endo_leads(k, j)
+       xnew   = mws%mdl_data(i, j + mdl%mxlag)
+       absdif = abs(xnew - xold)
+       if (abs(xold) > 1.0_SOLVE_RKIND) then
+           absdif = absdif / abs(xold)
+       endif
+
+       cvgtst = opts%xtfac * mws%test(i)
+       if (absdif > cvgtst) then
+          call mcf7ex(name, nlen, mdl%ivnames(i), mdl%vnames)
+          mxnlen = max(nlen, mxnlen)
+          exit
+       endif
+
+   end do
+end do
+
 call rtxhdr(split, mxnlen, len(target))
 
 do k = 1, mdl%nendex
@@ -316,16 +344,16 @@ do k = 1, mdl%nendex
 
        xold   = endo_leads(k, j)
        xnew   = mws%mdl_data(i, j + mdl%mxlag)
-       absdif = abs(xnew-xold)
+       absdif = abs(xnew - xold)
        cdum   = 'Abs'
        if (abs(xold) > 1.0_SOLVE_RKIND) then
-           absdif = absdif/abs(xold)
+           absdif = absdif / abs(xold)
            cdum   = 'Rel'
        endif
 
        cvgtst = opts%xtfac * mws%test(i)
-       if (absdif .gt. cvgtst) then
-          if (first ) then
+       if (absdif > cvgtst) then
+          if (first) then
               call mcf7ex(name, nlen, mdl%ivnames(i), mdl%vnames)
           endif
           call sjttmp(target,j)
