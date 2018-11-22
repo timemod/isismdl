@@ -13,12 +13,16 @@ test_that("ftrelax correctly read from file", {
   expect_identical(ifn_mdl$get_ftrelax(), res_correct)
 })
 
-test_that("get_var_names with type = \"lead\" gives correct results", {
-  res_correct <- c("a", "eta", "gpx", "groei", "lambda", "mzk", "px", "rho",
-                   "tc")
-  expect_identical(ifn_mdl$get_var_names(type = "leads"), res_correct)
-})
+test_that("get_var_names/get_endo_names for (endogenous) leads", {
 
+  all_leads <- c("a", "eta", "gpx", "groei", "lambda", "mzk", "px", "rho",
+                 "tc")
+  endo_leads <- c("a", "eta", "lambda", "mzk", "px", "rho")
+
+  expect_identical(ifn_mdl$get_var_names(type = "leads"), all_leads)
+  expect_identical(ifn_mdl$get_endo_names(type = "endolead"), endo_leads)
+  expect_identical(intersect(all_leads, ifn_mdl$get_endo_names()), endo_leads)
+})
 
 test_that("solve options read from file", {
   options_set <- list(xmaxiter = 1500, ratreport = "iter",
@@ -50,4 +54,8 @@ test_that("warning when Fair-Taylor has not converged", {
                            "Fair-Taylor has not converged")
 })
 
-
+test_that("errors", {
+ ifn_mdl2 <- ifn_mdl$copy()
+ expect_error(ifn_mdl2$solve(options = list(xmaxiter = 0)),
+              "xmaxiter should be larger than 0")
+})

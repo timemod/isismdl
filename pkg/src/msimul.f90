@@ -139,6 +139,7 @@ module msimul
     use msutil
     use msimox
     use msratop
+    use output_utils
     
     ! simulates the model under current settings
     ! with rational expectations
@@ -168,9 +169,15 @@ module msimul
     else
         ratfullrep = opts%ratfullreport_rep
     endif
-    
+
+    if (opts%mratex <= 0) then
+        call isismdl_error('xmaxiter should be larger than 0')
+        return
+    endif
+
+
     do iratex = 1, opts%mratex
-        
+
        if (opts%prexen) then
            ! print expectation guesses
            call simox1(iratex)
