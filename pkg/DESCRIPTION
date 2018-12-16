@@ -14,7 +14,7 @@ Depends:
 SystemRequirements: GNU make
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Imports:
     methods
 Suggests:

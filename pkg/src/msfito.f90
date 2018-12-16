@@ -93,36 +93,65 @@ subroutine fitot3(errcode)
     
 end subroutine fitot3
 
-subroutine fitot4(fiter,newjac,dcond,delwmx,dlwmxp,iv, wmxtyp,prihdr)
+subroutine fitot4(fiter, newjac, dcond, delwmx, dlwmxp, wmxidx, &
+                  wmxtyp, delsmx, delsmxp, smxidx, smxtyp, deltyp, prihdr)
     use mdl_name_utils
     
     ! print progress of current fit
-    integer ::  fiter,iv,wmxtyp
-    logical ::  newjac,prihdr
-    real(kind = SOLVE_RKIND) :: dcond, delwmx, dlwmxp
+    integer, intent(in) :: fiter, wmxidx, smxidx, wmxtyp, smxtyp, deltyp
+    logical, intent(in) :: newjac, prihdr
+    real(kind = SOLVE_RKIND), intent(in) :: dcond, delwmx, dlwmxp, delsmx, &
+                                            delsmxp
     
-    integer ::       clen, hdrlen, rpos
-    character(len = 6) :: chdr(6)
-    integer ::       chln(6), cwid(6)
-    integer ::       k
+    integer :: clen, hdrlen, rpos
+    character(len = 6), target:: chdr_z(8), chdr_lazy(6)
+    integer, target :: chln_z(8), cwid_z(8), chln_lazy(6), cwid_lazy(6)
+    
+    character(len = 6), dimension(:), pointer:: chdr
+    integer, dimension(:), pointer :: chln, cwid
+    
+    integer :: k, mxtyp, mxidx
+    logical :: zealous
     
     save chdr, chln, cwid, hdrlen
     
-    data chdr / 'Fiter' , 'Icond', 'Ratio', 'Delwmx', 'Type' , 'Name'/
-    data chln /    5    ,    5   ,    5   ,    6    ,   4    ,   4   /
-    data cwid /    6    ,    9   , NUMWID , NUMWID  ,   4    ,   0   /
+    ! headers for the zealous fit procedure
+    data chdr_z / 'Fiter' , 'Icond' , 'Delwmx' , 'Delsmx' , 'Deltyp' , 'Ratio' , 'Type' , 'Name' /
+    data chln_z /    5    ,    5    ,    6     ,   6      ,   6      ,   5     ,   4    ,   4    /
+    data cwid_z /    6    ,    9    ,  NUMWID  ,  NUMWID  ,   6      , NUMWID  ,   4    ,   0    /
     
+    ! headers for the lazy fit procedure
+    data chdr_lazy / 'Fiter' , 'Icond' , 'Ratio'  , 'Delwmx' , 'Type' , 'Name' /
+    data chln_lazy /    5    ,    5    ,    5     ,    6     ,   4    ,   4    /
+    data cwid_lazy /    6    ,    9    ,  NUMWID  ,   NUMWID ,   4    ,   0    /
+
     if (opts%repopt == REP_NONE) return
+
+    zealous = opts%fit%zealous
     
-    if( prihdr ) then
+    mxidx = wmxidx
+    mxtyp = wmxtyp
+    if (deltyp == 2) then
+        mxidx = smxidx
+        mxtyp = smxtyp
+    endif
+    
+    if (prihdr) then
        call strini(' ', 1)
-       do  k=1,6
+       if (zealous) then
+           chdr => chdr_z
+           chln => chln_z
+           cwid => cwid_z
+       else 
+           chdr => chdr_lazy
+           chln => chln_lazy
+           cwid => cwid_lazy
+       endif
+       do  k = 1, size(chdr)
            clen = chln(k)
            rpos = spos + max(cwid(k) - clen, 0)
            str(rpos : rpos + clen - 1) = chdr(k)(:clen)
-           if( cwid(k) .ne. 0 ) then
-               spos = spos + cwid(k) + ICSPAC
-           endif
+           if (cwid(k) /= 0) spos = spos + cwid(k) + ICSPAC
        enddo
        hdrlen = spos
        call strout(O_OUTN)
@@ -140,23 +169,56 @@ subroutine fitot4(fiter,newjac,dcond,delwmx,dlwmxp,iv, wmxtyp,prihdr)
     endif
     spos = spos + 9 + ICSPAC
     
-    if( dlwmxp .ne. 0.0 ) then
-       call nvlfmt(delwmx/dlwmxp, str(spos : spos + NUMWID - 1))
+    ! ratio for lazt
+    if (.not. zealous) then
+        if (dlwmxp /= 0.0 ) then
+            call nvlfmt(delwmx / dlwmxp, str(spos : spos + NUMWID - 1))
+        endif
+        spos = spos + NUMWID + ICSPAC
     endif
-    spos = spos + NUMWID + ICSPAC
     
+    ! delwmx
     call nvlfmt(delwmx, str(spos : spos + NUMWID - 1))
     spos = spos + NUMWID + ICSPAC
     
-    if( wmxtyp .eq. 1 ) then
+    if (zealous) then
+        ! delsmx
+        if (delsmx .ge. 0_ISIS_RKIND) then
+           ! maximum change of residual
+           call nvlfmt(delsmx, str(spos : spos + NUMWID - 1))
+        endif
+        spos = spos + NUMWID + ICSPAC
+        
+        ! deltyp
+        if (deltyp == 1) then
+            str(spos : spos) = 'w'
+        else
+            str(spos : spos) = 's'
+        endif
+        spos = spos + 6 + ICSPAC
+    endif
+    
+    ! ratio for zealous
+    if (zealous) then
+        if (deltyp == 1 .and. dlwmxp /= 0_ISIS_RKIND)  then
+            call nvlfmt(delwmx / dlwmxp, str(spos : spos + NUMWID - 1))
+        elseif (deltyp == 2 .and. delsmxp /= 0_ISIS_RKIND)  then
+            call nvlfmt(delsmx / delsmxp, str(spos : spos + NUMWID - 1))
+        endif
+        spos = spos + NUMWID + ICSPAC
+    endif
+    
+    
+    ! type
+    if (mxtyp == 1) then
         str(spos : spos + 3 - 1 ) = 'Abs'
-    elseif( wmxtyp .eq. 2 ) then
+    elseif (mxtyp == 2) then
         str(spos : spos + 3 - 1 ) = 'Rel'
     endif
     spos = spos + 4 + ICSPAC
     
-    if (iv .ne. 0 ) then
-        call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
+    if (mxidx .ne. 0 ) then
+        call mcf7ex(name, nlen, mdl%ivnames(mxidx), mdl%vnames)
         if( hdrlen + nlen .gt. lwidth ) then
             call strout(O_OUTN)
             call strini( ' ', lwidth - nlen - 1)
@@ -166,6 +228,7 @@ subroutine fitot4(fiter,newjac,dcond,delwmx,dlwmxp,iv, wmxtyp,prihdr)
     
     call strout(O_OUTN)
     
+        
     return
 end subroutine fitot4
 
@@ -242,13 +305,15 @@ subroutine fitot8(ier,dcond)
     return
 end subroutine fitot8
 
-subroutine fitot9(fiter,fcvgd,djcnt,maxiter)
-    integer ::  fiter, djcnt, maxiter
-    logical ::  fcvgd
-    
+subroutine fitot9(fiter, fcvgd, djcnt, maxiter, matitr, nu)
+    use kinds
+    integer, intent(in) ::  fiter, djcnt, maxiter, matitr
+    logical, intent(in) ::  fcvgd
+    integer(kind = SOLVE_IKIND), intent(in) :: nu
+
     if (opts%repopt == REP_NONE) return
     
-    if( fcvgd ) then
+    if (fcvgd) then
        write(str,'(3a,i4,2a,i4,a)' ) 'Fit convergence in ',perstr , &
                                     ' after ',fiter,' iterations', &
                                     ' and '  ,djcnt,' jacobians'
@@ -263,6 +328,18 @@ subroutine fitot9(fiter,fcvgd,djcnt,maxiter)
           call strout(O_OUTN)
        endif
     endif
+
+    if (matitr > 0) then
+        write(str, '(a,i6)') 'Total number of iterations for accurate ' // &
+                             'calculation fit Jacobian ', matitr
+        call strout(O_OUTN)
+
+        write(str, '(a,g4.1)', round = 'compatible') &
+          'Average number of iterations per column ', matitr / (nu * djcnt)
+       call strout(O_OUTN)
+
+    endif
+
     
     return
 end subroutine fitot9
@@ -294,24 +371,6 @@ subroutine fitot11
     call strout(O_ERRM)
     return
 end subroutine fitot11
-
-subroutine fitot12(matitr, nu)
-    ! Output the number of iterations required to calculate the Jacobian
-    use kinds
-    integer, intent(in) :: matitr
-    integer(kind = SOLVE_IKIND), intent(in) :: nu
-    
-    if (opts%repopt == REP_NONE) return
-    
-    write(str, '(a,i4)') 'Total number of iterations for accurate calculation fit' // &
-    &  ' Jacobian', matitr
-    call strout(O_OUTN)
-    write(str, '(a,g4.1)', round = 'compatible') &
-    &  'Average number of iterations per column', matitr / nu
-    call strout(O_OUTN)
-    
-    return
-end subroutine fitot12
 
 subroutine fitot13
     

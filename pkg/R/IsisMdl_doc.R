@@ -1287,7 +1287,7 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, zero_ca, warn_ca,
-#'                     report, dbgopt, svdtest_tol)
+#'                    accurate_jac, zealous, report, dbgopt, svdtest_tol)
 #'
 #' mdl$get_fit_options()
 #'
@@ -1318,6 +1318,13 @@ NULL
 #' \item{\code{warn_ca}}{A logical. If \code{TRUE} (default), then warnings
 #' are given for possibly too large constant adjustments at the end of the fit
 #' procedure for each period.}
+#' \item{\code{accurate_jac}}{A logical. If \code{TRUE} (default), then the
+#' fit jacobian is calculated accurately, otherwise the jacobian
+#' is calculated approximately. See Details}
+#' \item{\code{zealous}}{A logical. If \code{TRUE} (default), then a zealous
+#' version of the fit procedure is used, otherwise a lazy version is used
+#' (see Details). The recommended option is to use the zealous version,
+#' although this may require much more CPU time.}
 #' \item{\code{report}}{A character string specifying the the
 #' type of report of the fit procedure for each period.
 #' Possible values are \code{"fullrep"}

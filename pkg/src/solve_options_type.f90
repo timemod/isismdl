@@ -50,6 +50,7 @@ module solve_options_type
         logical(kind = ISIS_IKIND) :: accurate_jac
         integer(kind = ISIS_IKIND) :: repopt
         real(kind = ISIS_RKIND)    :: svdtest_tol
+        logical(kind = ISIS_IKIND) :: zealous
     end type fit_options
 
     type solve_options
@@ -161,6 +162,7 @@ contains
         options%fit%nochkjac = .false.
         options%fit%repopt = FITREP_FULLREP
         options%fit%svdtest_tol = -1.0_ISIS_RKIND
+        options%fit%zealous = .true.
 
     end subroutine set_default_options
 

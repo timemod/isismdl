@@ -254,13 +254,14 @@ contains
         parameter(RESTHD = 2.0_SOLVE_RKIND )
         parameter(Qzero = 0.0_SOLVE_RKIND)
         
-        logical ::  deval,fcvgd,prihdr
+        logical ::  deval, devalp, fcvgd,prihdr, zealous
         integer ::  i
-        integer ::  fiscod,fiter,wmxidx,wmxtyp,djcnt
+        integer ::  fiscod,fiter,wmxidx,wmxtyp,djcnt, smxidx, smxtyp
         integer ::  xcod
-        real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, svd_tol 
+        real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, svd_tol, delsmx, &
+                                   delsmxp
         real(kind = ISIS_RKIND), dimension(:,:), allocatable :: dj_copy
-        integer :: svd_err, stat
+        integer :: svd_err, stat, matitr, deltyp
         logical :: memory_error
 
         !     fiscod is fit iteration status
@@ -274,16 +275,22 @@ contains
         fcvgd  = .false.
         prihdr = opts%fit%prica .or. (.not. opts%fit%supsot)
         djcnt  = 0
+        matitr = 0
+        deltyp = 1
+
+        zealous = opts%fit%zealous
         
         if (allocated(dj_copy)) deallocate(dj_copy)
         
         ! compute discrepancies delw, and largest delw
         call mkdelw(delwmx, curvars, wmxidx, wmxtyp)
         if (opts%fit%repopt == FITREP_FULLREP) then
-            call fitot4(fiter,.false.,Qzero,delwmx,Qzero,wmxidx, wmxtyp,.true.)
+            call fitot4(fiter, .false., Qzero, delwmx, Qzero, wmxidx, wmxtyp, &
+                        -1.0_SOLVE_RKIND, 0.0_SOLVE_RKIND, -1, -1, deltyp, .true.)
+
         endif
         
-        if (delwmx <= opts%fit%cvgabs .and. is_square) then
+        if (.not. zealous .and. delwmx <= opts%fit%cvgabs) then
             fiscod = 1
             goto 900
         endif
@@ -299,6 +306,8 @@ contains
         endif
         
         deval  = .true.
+        devalp = .false.
+        delsmx = 0.0_SOLVE_RKIND
         
         do
             fiter = fiter + 1
@@ -316,7 +325,7 @@ contains
                !  The array Dj should be the transpose of D
                !  in the mathematical paper.
         
-               call mkdjac(xcod, fiter, memory_error)
+               call mkdjac(xcod, fiter, memory_error, matitr)
                if (memory_error) then
                    retcod = 2
                    goto 9999
@@ -399,14 +408,46 @@ contains
             dddelw(:nw) = delw(:nw)
         
             call mkdelw(delwmx, curvars, wmxidx, wmxtyp)
+
+            delsmxp = delsmx
+            call mkdelsmx(delsmx, smxidx, smxtyp)
+
+            if (.not. zealous .or. delwmx > opts%fit%cvgabs) then
+                deltyp = 1
+            else 
+                deltyp = 2
+            endif
+
             if (opts%fit%repopt == FITREP_FULLREP) then
-                call fitot4(fiter,deval,dcond,delwmx,dlwmxp,wmxidx, &
-                            wmxtyp, prihdr .or. (deval .and. opts%fit%prijac))
+                call fitot4(fiter, deval, dcond, delwmx, dlwmxp, wmxidx, &
+                            wmxtyp, delsmx, delsmxp, smxidx, smxtyp, deltyp, &
+                            prihdr .or. (deval .and. opts%fit%prijac))
+
             endif
         
             if (delwmx <= opts%fit%cvgabs) then
                 ! absolute convergence
-                fiscod = 1
+                if (.not. zealous .or. (delsmx <= opts%fit%cvgabs .and. & 
+                     (deval .or. is_square))) then
+                    ! Square jacobian or lazy fit procedure: stop when fit targets
+                    ! have converged. Otherwise: only stop if the model
+                    ! variables have converged.
+                    fiscod = 1
+                else if (deval .and. devalp .and. delsmx > CVGREL * delsmxp) then
+                    ! cannot locate a better point when converging the residuals
+                    fiscod = 3
+                else if (fiter >= opts%fit%maxiter) then
+                    ! too many iterations : no convergence
+                    fiscod = 2
+                else
+                    ! if slow convergence then generate new jacobian
+                    ! for non-square system always generate a new jacobian
+                    devalp = deval
+                    deval = .not. is_square .or. &
+                           (fiter > 1 .and. delsmx > opts%fit%mkdcrt * delsmxp)
+                endif
+
+
             elseif ((delwmx > CVGREL * dlwmxp) .and. &
         &           (is_square .or. fiter > 1)) then
         
@@ -426,14 +467,19 @@ contains
                    fiscod = 3
                 else 
                    ! try with fresh jacobian
+                   devalp = deval
                    deval = .true.
                 endif
             elseif (fiter >= opts%fit%maxiter) then
                 !  too many iterations : no convergence
                 fiscod = 2
             else 
-                ! if slow convergence then generate new jacobian
-                deval = delwmx > opts%fit%mkdcrt * dlwmxp
+                ! If slow convergence then generate new jacobian.
+                ! For the zealous non square fit procedure always generate a new
+                ! jacobian.
+                devalp = deval
+                deval = (zealous .and. .not. is_square) .or. &
+                         delwmx > opts%fit%mkdcrt * dlwmxp
             endif
         
             if (fiscod /= 0 ) exit
@@ -450,7 +496,7 @@ contains
         if (opts%fit%warnca) then
             call msfuck(ca)
         endif
-        call fitot9(fiter,fcvgd,djcnt,opts%fit%maxiter)
+        call fitot9(fiter, fcvgd, djcnt, opts%fit%maxiter, matitr, nu)
         if (.not. fcvgd) then
             retcod = 2
             goto 9999
@@ -510,6 +556,52 @@ contains
     
     return
     end subroutine mkdelw
+
+    !-----------------------------------------------------------------------
+
+    subroutine mkdelsmx(delsmx, smxidx, smxtyp)
+    
+       use msvars
+    
+       ! compute the maximum step (change in model variables)
+    
+       real(kind = SOLVE_RKIND), intent(out) :: delsmx
+       integer, intent(out) ::  smxidx, smxtyp
+    
+       real(kind = SOLVE_RKIND) :: dif
+       integer :: i, wtyp
+    
+       delsmx = -1.0_SOLVE_RKIND
+    
+       do i = 1, mdl%nrv
+    
+           if (.not. mdl%lik(i)) cycle
+           if (nuifna(zsav(i))) cycle
+    
+           ! see comments in tstcvg in module msutil.
+    
+           if (nuifna(curvars(i))) then
+              delsmx = curvars(i)
+              smxtyp = 1
+              smxidx = i
+           endif
+    
+    
+           dif = abs(curvars(i) - zsav(i))
+           wtyp  = 1
+           if (abs(zsav(i)) > 1.0_SOLVE_RKIND) then
+               dif = dif / abs(zsav(i))
+               wtyp = 2
+           endif
+           if (dif > delsmx) then
+              delsmx = dif
+              smxtyp = wtyp
+              smxidx = i
+           endif
+        enddo
+    
+    end subroutine mkdelsmx
+
     
     !-----------------------------------------------------------------------
     
@@ -594,7 +686,7 @@ contains
     
     !-----------------------------------------------------------------------
     
-    subroutine mkdjac(xcod, fiter, memory_error)
+    subroutine mkdjac(xcod, fiter, memory_error, matitr)
     use msvars
     use msutil
     use nuv
@@ -611,13 +703,14 @@ contains
     integer, intent(out) :: xcod
     integer, intent(in)  :: fiter
     logical, intent(out) :: memory_error
+    integer, intent(inout)  :: matitr
     
     real(kind = ISIS_RKIND) :: oldca
     real(kind = ISIS_RKIND), parameter :: RMSDEL = 0.1_SOLVE_RKIND
     real(kind = ISIS_RKIND) :: t, mat_norm, rowcnd, colcnd, amax
     integer(kind = LAPACK_IKIND) :: info
     
-    integer ::  i, j, ires, idum, itr0, matitr, stat
+    integer ::  i, j, ires, idum, itr0, stat
 
     itr0 = 0
     
@@ -680,9 +773,7 @@ contains
     end do
     
     if (opts%fit%accurate_jac) then
-        matitr = itrtot - itr0
-        call fitot12(matitr, nu)
-        itrtot = itrtot - matitr
+        matitr = matitr + itrtot - itr0
     endif
     
     ! output the transpose of the dj matrix

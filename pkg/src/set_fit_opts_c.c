@@ -12,6 +12,8 @@ extern void F77_SUB(set_fit_cvgabs)(double *);
 extern void F77_SUB(set_fit_mkdcrt)(double *);
 extern void F77_SUB(set_fit_zero_ca)(int *);
 extern void F77_SUB(set_fit_warn_ca)(int *);
+extern void F77_SUB(set_fit_accurate_jac)(int *);
+extern void F77_SUB(set_fit_zealous)(int *);
 extern void F77_SUB(get_fit_dbgopts)(int *, int *, int *);
 extern void F77_SUB(set_fit_dbgopts)(int *, int *, int *);
 extern void F77_SUB(set_fit_repopt)(int *);
@@ -66,6 +68,14 @@ static void set_fit_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         i = get_logical(name, value);
         F77_CALL(set_fit_warn_ca)(&i);
+    } else if (!strcmp(name, "accurate_jac")) {
+        CHECK_LENGTH(name, value);
+        i = get_logical(name, value);
+        F77_CALL(set_fit_accurate_jac)(&i);
+    } else if (!strcmp(name, "zealous")) {
+        CHECK_LENGTH(name, value);
+        i = get_logical(name, value);
+        F77_CALL(set_fit_zealous)(&i);
     } else if (!strcmp(name, "dbgopt")) {
         set_fit_debug_opts(value);
     } else if (!strcmp(name, "report")) {

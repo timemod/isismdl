@@ -33,6 +33,19 @@ subroutine set_fit_warn_ca(warn_ca)
     options_set%fit%warnca  = warn_ca /= 0
 end subroutine set_fit_warn_ca
 
+subroutine set_fit_accurate_jac(acc_jac)
+    use set_options
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: acc_jac
+    options_set%fit%accurate_jac  = acc_jac /= 0
+end subroutine set_fit_accurate_jac
+
+subroutine set_fit_zealous(zealous)
+    use set_options
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: zealous
+    options_set%fit%zealous  = zealous /= 0
+end subroutine set_fit_zealous
 
 subroutine set_fit_repopt(repopt)
     use set_options
