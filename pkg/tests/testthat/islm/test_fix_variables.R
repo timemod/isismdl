@@ -4,7 +4,7 @@ library(testthat)
 
 context("fix_variables for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+x <- capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
 test_that("fix_values works correctly", {
   mdl2 <- mdl$copy()
@@ -26,6 +26,10 @@ test_that("errors", {
   mdl2$set_values(NA, names = "c", period = "2015Q3")
   msg <- paste0("Can't fix variable\\(s\\) c.\n",
        "The model variables contain\\(s\\) NA values in period 2015Q3/2015Q4")
+
+  msg <- paste0("The following variables can't be fixed in 2015Q3/2015Q4\n",
+                "because of NA values in the model data:\n",
+                "c.")
   expect_error(mdl2$fix_variables(names = "c", period = "2015Q3/2015Q4"),
                msg)
 

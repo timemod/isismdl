@@ -585,8 +585,12 @@ IsisMdl <- R6Class("IsisMdl",
       if (any(is.na(fix_data))) {
         na_names <- colnames(fix_data)[apply(fix_data,
                                 FUN = function(x) {any(is.na(x))}, MARGIN = 2)]
-        stop(paste0("Can't fix variable(s) ", paste(na_names, collapse = " "),
-             ".\nThe model variables contain(s) NA values in period ", period))
+        na_names_text <- paste(na_names, collapse = " ")
+        na_names_lines <- strwrap(na_names_text, width = 80)
+        na_names_text <- paste(na_names_lines, collapse = "\n")
+        stop(paste0("The following variables can't be fixed in ", period,
+                   "\nbecause of NA values in the model data:\n",
+                   na_names_text), ".")
       }
       self$set_fix(fix_data)
       return(invisible(NULL))
