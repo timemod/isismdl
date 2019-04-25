@@ -373,7 +373,7 @@ IsisMdl <- R6Class("IsisMdl",
     init_data = function(data_period, data, ca) {
 
       if (missing(data_period)) {
-        if (!missing(data)) {
+        if (!missing(data) && !is.null(data)) {
           data_period <- get_period_range(data)
         } else {
           stop(paste("Argument data_period is mandatory if",
@@ -399,10 +399,10 @@ IsisMdl <- R6Class("IsisMdl",
                    private$maxlag + private$maxlead + 1, "periods"))
       }
 
-      if (!missing(data)) {
+      if (!missing(data) && !is.null(data)) {
         self$set_data(data)
       }
-      if (!missing(ca)) {
+      if (!missing(ca) && !is.null(ca)) {
         self$set_ca(ca)
       }
       return(invisible(self))
