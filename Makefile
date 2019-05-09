@@ -7,7 +7,6 @@ INSTALL_FLAGS=--no-multiarch --with-keep.source
 RCHECKARG=--no-multiarch
 PKG_FFLAGS=-fimplicit-none -cpp -J $(PKGDIR)/src/mod -I $(PKGDIR)/src/include
 PKG_CFLAGS=
-R_HOME=$(shell R RHOME)
 
 # Package name, Version and date from DESCIPTION
 PKG=$(shell grep 'Package:' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
@@ -15,16 +14,7 @@ PKGTAR=$(PKG)_$(shell grep 'Version' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2).t
 PKGDATE=$(shell grep 'Date' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
 TODAY=$(shell date "+%Y-%m-%d")
 
-OSNAME := $(shell uname | tr A-Z a-z)
-ifeq ($(findstring windows, $(OSNAME)), windows) 
-    OSTYPE = windows
-else
-    # Linux or MAC OSX
-    OSTYPE = unix
-endif
-
-DATA_SCRIPTS = $(wildcard $(PKGDIR)/data-raw/*.R)
-DATA_RDAS = $(addsuffix .rda, $(basename $(notdir $(DATA_SCRIPTS))))
+OSTYPE=$(shell Rscript -e "cat(.Platform[['OS.type']])")
 
 help:
 	@echo
@@ -56,20 +46,14 @@ CPP_FLAGS=$(shell R CMD config --cppflags)
 
 flags:
 	@echo "OSTYPE=$(OSTYPE)"
-	@echo "R_HOME=$(R_HOME)"
-	@echo "SHELL=$(SHELL) "
-	@echo "CPP_FLAGS=$(CPP_FLAGS)"
 	@echo "PKGDIR=$(PKGDIR)"
 	@echo "PKG=$(PKG)"
 	@echo "PKGTAR=$(PKGTAR)"
 	@echo "PKGDATE=$(PKGDATE)"
-	@echo "DATA_SCRIPTS=$(DATA_SCRIPTS)"
-	@echo "R .libPaths()"
 	@echo "FC=$(FC)"
 	@echo "F77=$(F77)"
 	@echo "CC=$(CC)"
-	@echo "CPP=$(CPP)"
-	@echo "CPP_FLAGS=$(CPP_FLAGS)"
+	@echo ".libPaths():"
 	@R --no-save --quiet --slave -e '.libPaths()'
 
 test:
@@ -98,7 +82,7 @@ syntax: bin
 
 cleanx:
 # Apple Finder rubbish
-ifneq ($(findstring windows, $(OSNAME)), windows)
+ifneq ($(OSTYPE), windows) 
 	@find . -name '.DS_Store' -delete
 endif
 	@rm -f $(PKGTAR)
@@ -145,15 +129,6 @@ installv: install_deps
 
 install_deps:
 	R --slave -f install_deps.R
-
-data: clean_data data_
-
-clean_data:
-	rm -f $(PKGDIR)/data/*rda
-
-data_: $(addprefix $(PKGDIR)/data/, $(DATA_RDAS))
-$(PKGDIR)/data/%.rda : $(PKGDIR)/data-raw/%.R
-	cd $(PKGDIR)/data-raw; R --slave -f $(*F).R
 
 uninstall:
 	R CMD REMOVE $(PKG)
