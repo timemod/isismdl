@@ -163,12 +163,13 @@ static  void out_enode( Enode *ebase, Enodep estart )
                         break;
 
         case E_IF     : /* condition then else */
-                        oprintf( "if( " );
-                        out_enode(ebase, ep->first.ep);
-                        oprintf( " ) then (" );
-                        out_enode(ebase, ep->second.ep);
-                        oprintf( ") else (" );
-                        out_enode(ebase, ep->third.ep);
+                        out_oper(E_MUL, ebase, ep->first.ep, 1);
+                        oprintf( " *  " );
+                        out_oper(E_MUL, ebase, ep->second.ep, 0);
+                        oprintf( " + ((1 -  " );
+                        out_oper(E_SUB, ebase, ep->first.ep, 1);
+                        oprintf( ") *  " );
+                        out_oper(E_MUL, ebase, ep->third.ep, 0);
                         oprintf(")");
                         break;
 
@@ -196,18 +197,28 @@ static  void out_enode( Enode *ebase, Enodep estart )
         case E_GE     :
         case E_EQ     :
         case E_NE     :
-        case E_AND    :
-        case E_OR     :
                         out_oper(ep->operator, ebase, ep->first.ep, 1);
                         oprintf( " %s ", get_opname(ep->operator));
                         out_oper(ep->operator, ebase, ep->second.ep, 0);
                         break;
-
+        case E_OR     :
+                        oprintf("((");
+                        out_oper(E_ADD, ebase, ep->first.ep, 1);
+                        oprintf( " + ");
+                        out_oper(E_ADD, ebase, ep->second.ep, 0);
+                        oprintf(") > 0)");
+                        break;
+        case E_AND    :
+                        out_oper(E_MUL, ebase, ep->first.ep, 1);
+                        oprintf( " * ");
+                        out_oper(E_MUL, ebase, ep->second.ep, 0);
+                        break;
                 /* unary */
         case E_NOT    :
         case E_NEG    :
-                        oprintf( " %s ", get_opname(ep->operator));
-                        out_oper(ep->operator, ebase, ep->first.ep, 1);
+                        oprintf( "(");
+                        out_oper(E_EQ, ebase, ep->first.ep, 1);
+                        oprintf( " == 0)");
                         break;
 
                 /* builtin funcs 1 arg */
