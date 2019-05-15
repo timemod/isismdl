@@ -4,7 +4,7 @@
 #' An extension \code{mdl} is appended to the specified name if the filename
 #' does not already have an extension
 #' @param output_file The name of the output file.
-#' @param conversion_options conversion options. See details.
+#' @param conversion_options conversion options. See section Conversion options.
 #' @param parse_options a named list with options passed to the model parser.
 #' See section "Parse option" in the description of function
 #' \code{\link{isis_mdl}}.
@@ -15,9 +15,12 @@
 #'
 #' The following conversion options can be specified with argument
 #' \code{conversion_options}. This argument should be a named list
+#' (for example, \code{list(substitute = TRUE)}).
 #' \describe{
-#' \item{\code{"substitute"}}{Specify \code{TRUE} to substitute user functions.
-#' The default is \code{FALSE}}
+#' \item{\code{substitute}}{Specify \code{TRUE} to substitute user functions.
+#' The default is \code{FALSE}.}
+#' \item{\code{make_dynare}}{Specify \code{TRUE} to convert the model
+#' to a Dynare mod file.The default is \code{FALSE}.}
 #' }
 convert_mdl_file <- function(model_file, output_file,
                              conversion_options = list(),

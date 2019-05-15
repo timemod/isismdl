@@ -14,7 +14,7 @@ does not already have an extension}
 
 \item{output_file}{The name of the output file.}
 
-\item{conversion_options}{conversion options. See details.}
+\item{conversion_options}{conversion options. See section Conversion options.}
 
 \item{parse_options}{a named list with options passed to the model parser.
 See section "Parse option" in the description of function
@@ -28,9 +28,12 @@ Converts an \code{\link{IsisMdl}} a model file.
 
 The following conversion options can be specified with argument
 \code{conversion_options}. This argument should be a named list
+(for example, \code{list(substitute = TRUE)}).
 \describe{
-\item{\code{"substitute"}}{Specify \code{TRUE} to substitute user functions.
-The default is \code{FALSE}}
+\item{\code{substitute}}{Specify \code{TRUE} to substitute user functions.
+The default is \code{FALSE}.}
+\item{\code{make_dynare}}{Specify \code{TRUE} to convert the model
+to a Dynare mod file.The default is \code{FALSE}.}
 }
 }
 
