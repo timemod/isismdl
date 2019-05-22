@@ -215,10 +215,13 @@ static  void out_enode( Enode *ebase, Enodep estart )
                         break;
                 /* unary */
         case E_NOT    :
-        case E_NEG    :
                         oprintf( "(");
                         out_oper(E_EQ, ebase, ep->first.ep, 1);
                         oprintf( " == 0)");
+                        break;
+        case E_NEG    :
+                        oprintf( " %s ", get_opname(ep->operator));
+                        out_oper(ep->operator, ebase, ep->first.ep, 1);
                         break;
 
                 /* builtin funcs 1 arg */
