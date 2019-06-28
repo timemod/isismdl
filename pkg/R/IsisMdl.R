@@ -1103,9 +1103,11 @@ IsisMdl <- R6Class("IsisMdl",
       do.call(self$set_fit_options, x$fit_options)
       .Call("set_cvgcrit_init_mws", private$model_index, x$cvgcrit)
       .Call("set_ftrelax_init_mws", private$model_index, x$ftrelax)
-      if (!is.null(x$data)) {
-        self$init_data(data = x$data, ca = x$ca)
+      if (!is.null(x$model_period)) {
         self$set_period(x$model_period)
+        if (!is.null(x$data)) {
+          self$init_data(data = x$data, ca = x$ca)
+        }
         if (!is.null(x$fix)) {
           self$set_fix(x$fix)
         }
