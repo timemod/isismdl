@@ -1058,9 +1058,12 @@ IsisMdl <- R6Class("IsisMdl",
         data <- self$get_data()
         # remove columns /rows with only NA from data
         data <- data[ , ! apply(is.na(data) , 2 , all), drop = FALSE]
-        # remove leading and trailing rows with only NAs
-        data <- na_trim(data)
-
+        if (ncol(data) > 0) {
+          # remove leading and trailing rows with only NAs
+          data <- na_trim(data)
+        } else {
+          data <- NULL
+        }
         ca   <- self$get_ca()
 
         if (!is.null(ca)) {
