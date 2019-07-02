@@ -5,7 +5,7 @@ module msorpr
     contains
 
     ! print ordering information to a file
-    subroutine print_orf(mdl, orfnmlen, orfnm)
+    subroutine print_orf(mdl, orfnmlen, orfnm, prifbi, prisjc, usinac)
         use model_type
         use mcjsbl
         use mcxref
@@ -16,10 +16,10 @@ module msorpr
             
         type(model), intent(inout) :: mdl
         integer, intent(in) :: orfnmlen, orfnm(*)
+        logical, intent(in) :: prifbi, prisjc, usinac
         
         integer, parameter, dimension(2) :: mrfopt = (/128, 1 /)
         integer, parameter, dimension(2) :: fbcopt = (/0, 200/)
-        logical ::    prifbi,prisjc,usinac
         integer ::    inactv
         integer ::    i, j, ios, ldum, npro, nepi, nsim
         integer ::    p, leadsp, cnt, tcnt, ier
@@ -44,6 +44,7 @@ module msorpr
         integer(kind = MC_IKIND), dimension(:,:), allocatable :: sjac
         integer(kind = MC_IKIND), dimension(:), allocatable :: work
         integer ::  nzrcnt
+
         
         orfnam = ' '
         call byasf7(orfnm, 1, orfnmlen, orfnam)
@@ -79,14 +80,15 @@ module msorpr
         write(xrfunt,'(6a/)',err=990,iostat=ios) ' ISIS model ordering information: ', &
         & mdl%cname(:mdl%cnamelen)
         
-        !     count number of inactive equations
+        ! count number of inactive equations
         inactv = 0
+
         
-        if( usinac ) then
+        if (usinac) then
             do i = 1, mdl%neq
                eqtyp = char(bysget(mdl%etype, i))
                if( ichar(eqtyp) .gt. 96 ) then
-        !               skip inactive equation
+                  ! skip inactive equation
                   inactv  = inactv + 1
                endif
             enddo
