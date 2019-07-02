@@ -22,7 +22,7 @@ SEXP convert_mdl_file_c(SEXP filename, SEXP outputfile_, SEXP flags,
     }
     SEXP mk_dyn_ = getListElement(options, "make_dynare");
     if (!Rf_isNull(mk_dyn_)) {
-       mc_options.MakeDynare = asInteger(subst_);
+       mc_options.MakeDynare = asInteger(mk_dyn_);
     }
 
     prepare_compiler(flags, include_dirs);

@@ -13,47 +13,31 @@
 #include "outvtmdl.h"
 #include "outotmdl.h"
 #include "isismdl.h"
+#include "string.h"
 
-static  void out_simplev(char *name, int lagtype, int offset)
-{
-    if( lagtype == 0 )
+
+static int sumval; /* current value of sum variable */
+
+static  void out_simplev(char *name, int lagtype, int offset) {
+    if (lagtype == 0) {
         oprintf("%s", name);
-    else if( lagtype == 1 )
+    } else if (lagtype == 1) {
         oprintf( "%s(%d)", name, offset);
-    else if( lagtype == 2 )
-    {
-        if( offset )
-            oprintf( "%s(%s%+d)", name, sumsp->name, offset);
-        else
-            oprintf( "%s(%s)"   , name, sumsp->name);
+    } else if (lagtype == 2) {
+        int k = sumval + offset;
+        k = sumval + offset;
+        if (k) {
+            oprintf( "%s(%d)", name, k);
+        } else {
+            oprintf( "%s", name);
+        }
     }
 }
-/*
- * Troll requires parameter indexing to use []
- * in addition parameters must be index with positive values
- */
 
-static  void out_simplepar(Symbol *sp, int lagtype, int offset)
-{
+//  Dynare does not support parameter indexing, so parameters are always scalars
+static void out_simplepar(Symbol *sp, int lagtype, int offset) {
     char    *name = sp->name;
-    Param   *parm = sp->u.parp;
-
-    if( lagtype == 0 )
-    {
-        if(parm->cnt == 1)
-            oprintf("%s", name);
-        else
-            oprintf("%s[1]", name);
-    }
-    else if( lagtype == 1 )
-        oprintf( "%s[%d]", name, 1-offset);
-    else if( lagtype == 2 )
-    {
-        if( offset )
-            oprintf( "%s[1-(%s%+d)]", name, sumsp->name, offset);
-        else
-            oprintf( "%s[1-%s]"   , name, sumsp->name);
-    }
+    oprintf("%s", name);
 }
 
 static  void out_hypot( Enode *ebase, Enode *ep )
@@ -108,6 +92,8 @@ static char *get_opname(int opcode)
             opname = "or"; break;
         case E_NOT :
             opname = "not"; break;
+        default:
+            opname = "?";
      }
     return opname;
 }
@@ -147,14 +133,22 @@ static  void out_enode( Enode *ebase, Enodep estart )
                         break;
 
         case E_SUM    : /* sum(..) */
+                        // TODO: parentheses may be needed if the expression
+                        // in the summation contains an operator with lower
+                        // precedence than +.
                         sumsp = ep->first.sp;
-                        oprintf( "Sum(%s = %d to %d : ",
-                                sumsp->name,
-                                sumsp->u.sumvarp->low,
-                                sumsp->u.sumvarp->high);
-                        out_enode(ebase, ep->second.ep);
-                        oprintf( " )" );
+                        oprintf("(");
+                        for( sumval =  sumsp->u.sumvarp->low;
+                             sumval <= sumsp->u.sumvarp->high;
+                             sumval++) {
+                            out_enode(ebase, ep->second.ep);
+                            if(sumval != sumsp->u.sumvarp->high) {
+                                oprintf(" + ");
+                            }
+                        }
+                        oprintf( ")" );
                         break;
+
 
         case E_DEL    : /* del(..) */
                         oprintf( "Del(%d : ", ep->first.offset);
@@ -232,7 +226,7 @@ static  void out_enode( Enode *ebase, Enodep estart )
                         oprintf(")");
                         break;
 
-        case E_ABS    : oprintf( "absv(");
+        case E_ABS    : oprintf( "abs(");
                         out_arglistbuiltin(ebase, ep);
                         oprintf( ")" );
                         break;
@@ -362,10 +356,10 @@ static void xprnlsp(size_t k, int nindent) {
     }
 }
 
-void out_dmdl(FILE *fp) {
+void out_dmdl(FILE *fp, int subst_in) {
     size_t i, k;
 
-    subst = 0;
+    subst = subst_in;
 
     mkvarlist();
 
@@ -407,16 +401,21 @@ void out_dmdl(FILE *fp) {
         Equation *eqnp = sp->u.eqnp;
         if (Is_Frmleqn(eqnp)) {
             if (first) {
-                xprintf("%% constant adjustments\n");
+                xprintf("\n\n%% fit instruments\n");
+                xprintf("%%$fit$\n");
                 xprintf("varexo");
             }
             first = 0;
             xprnlsp(k, 6);
-            oprintf(" %s_ca", eqnp->lhs->name);
+            int nmlen = strlen(eqnp->lhs->name);
+            char *ca_name = emalloc(nmlen + 3 + 1);
+            strcpy(ca_name, eqnp->lhs->name);
+            strcat(ca_name, "_ca");
+            xprintf(" %*s", -(maxvnamelen + 3), ca_name);
             k = k + 1;
         }
     }
-    if (k > 1) xprintf(";\n\n");
+    if (k > 1) xprintf(";\n%%$endfit$\n\n");
 
 
     // parameters
@@ -441,8 +440,11 @@ void out_dmdl(FILE *fp) {
         xprintf("\n\n");
     }
 
-    for (i = 0; i < ecnt; i++) {
-        out_func(fp, eqnp[i]);
+    // external function
+    if (!subst) {
+        for (i = 0; i < ecnt; i++) {
+            out_func(fp, eqnp[i]);
+        }
     }
 
 

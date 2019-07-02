@@ -262,7 +262,7 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
 
     if (options.MakeDynare) {
         FILE *foco = efopen(outputfile, "w" );
-        out_dmdl(foco);
+        out_dmdl(foco, options.Substufunc);
         fclose(foco);
     }
 

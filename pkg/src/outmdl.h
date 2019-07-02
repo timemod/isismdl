@@ -7,7 +7,7 @@ void out_omdl (FILE *fp, int subst);  /* mdl output with
                                        * or without substitution of ufuncs */
 void out_tmdl(FILE *fp, FILE *fparam);  /* troll */
 void out_vmdl(FILE *fp, char *mdlname); /* eviews model with ufuncs substitued */
-void out_dmdl(FILE *fp);                /* Dynare */
+void out_dmdl(FILE *fp, int subst);    /* Dynare */
 
 /*
  * Functions used for the model compilation in Isis
