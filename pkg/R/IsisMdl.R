@@ -264,7 +264,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
     },
     print = function(...) {
-      cat("IsisModel object\n")
+      cat(paste(class(self)[1], "object\n"))
       cat(sprintf("%-60s%d\n", "Model index:", private$model_index))
       cat(sprintf("%-60s%d\n", "Number of variables:", private$var_count))
       cat(sprintf("%-60s%d\n", "Maximum lag:", private$maxlag))

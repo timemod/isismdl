@@ -12,6 +12,7 @@ islm_input <- cbind(r, y, yd, g, ms)
 
 # create the model
 mdl <- isis_mdl("islm.mdl", data = islm_input);
+print(mdl)
 
 # add labels for model variables not in the input data
 mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
