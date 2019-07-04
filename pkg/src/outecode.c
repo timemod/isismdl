@@ -132,7 +132,7 @@ static  void print_enodes( Enode *epbase )
 
                 switch( ep->operator )
                 {
-                        case E_RCONST : xprintf( "E_RCONST %g",
+                        case E_RCONST : xprintf( "E_RCONST %.15g",
                                                 ep->first.rval); break;
 
                         case E_MVAR   : xprintf( "E_MVAR %s" ,

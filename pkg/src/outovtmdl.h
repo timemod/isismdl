@@ -108,7 +108,7 @@ static  void out_arg_subst(Enode *ep)
 
 static  void out_const( real rval )
 {
-    oprintf( "%g", rval);
+    oprintf( "%.15g", rval);
 }
 
 static  void out_arglistbuiltin( Enode *ebase, Enode *ep )

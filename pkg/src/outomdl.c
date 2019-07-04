@@ -347,14 +347,14 @@ static void out_upar(FILE *fp, Symbol *sp)
     setfpout(fp);
 
     if( p->cnt == 1 )
-            oprintf("param %s %g;\n", sp->name, p->u.dval);
+            oprintf("param %s %.15g;\n", sp->name, p->u.dval);
     else
     {
         oprintf("param %s", sp->name);
         setoleader();
 
         for( i = 0; i < p->cnt ; i++ )
-            oprintf(" %g", p->u.dp[i] );
+            oprintf(" %.15g", p->u.dp[i] );
 
         oprintf(";\n");
     }

@@ -310,17 +310,17 @@ static void out_trollpar(FILE *fp, Symbol *sp)
     setfpout(fp);
 
     if( p->cnt == 1 )
-            xprintf("  %s = %g,\n", sp->name, p->u.dval);
+            xprintf("  %s = %.15g,\n", sp->name, p->u.dval);
     else
     {
         xprintf("  %s = combine(", sp->name);
         setoleader();
 
         for( i = 0; i < p->cnt-1 ; i++ )
-            xprintf(" %g,", p->u.dp[i] );
+            xprintf(" %.15g,", p->u.dp[i] );
 
         if( p->cnt-1 )
-            xprintf(" %g)", p->u.dp[p->cnt-1] );
+            xprintf(" %.15g)", p->u.dp[p->cnt-1] );
 
         xprintf(",\n");
     }

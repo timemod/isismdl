@@ -376,7 +376,7 @@ static void out_eviewspar(FILE *fp, Symbol *sp)
     setfpout(fp);
 
     if( p->cnt == 1 )
-            xprintf("coef %s=%g\n", sp->name, p->u.dval);
+            xprintf("coef %s=%.15g\n", sp->name, p->u.dval);
     else
     {
         xprintf("coef(%d) %s\n", p->cnt, sp->name);
@@ -384,7 +384,7 @@ static void out_eviewspar(FILE *fp, Symbol *sp)
         xprintf("param ");
 
         for( i = 0; i < p->cnt ; i++ )
-            xprintf("%s(%d) %g ", sp->name, i+1, p->u.dp[i] );
+            xprintf("%s(%d) %.15g ", sp->name, i+1, p->u.dp[i] );
 
         xprintf("\n");
     }

@@ -344,7 +344,7 @@ static void out_dynpar(FILE *fp, Symbol *sp) {
     setfpout(fp);
 
     if (p->cnt == 1 )
-        xprintf("%s = %g;", sp->name, p->u.dval);
+        xprintf("%s = %.15g;", sp->name, p->u.dval);
     else {
         mcerror("Dynare cannot handle vector parameters");
     }
