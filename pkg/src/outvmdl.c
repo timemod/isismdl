@@ -16,7 +16,7 @@
 
 static int sumval; /* current value of sum variable */
 
-static char *get_opname(int opcode) 
+static char *get_opname(int opcode)
 {
     /*
      * Returns the operator name for EViews models
@@ -24,11 +24,11 @@ static char *get_opname(int opcode)
     char* opname;
 
     switch(opcode) {
-        case E_ADD : 
+        case E_ADD :
             opname = "+"; break;
         case E_SUB :
             opname = "-"; break;
-        case E_MUL : 
+        case E_MUL :
             opname = "*"; break;
         case E_DIV :
             opname = "/"; break;
@@ -54,6 +54,8 @@ static char *get_opname(int opcode)
             opname = "or"; break;
         case E_NOT :
             opname = "not"; break;
+        default:
+            opname = "?";
      }
     return opname;
 }
@@ -90,7 +92,7 @@ static  void out_simplev(char *name, int lagtype, int offset) {
                 " too long for EViews (max = 24)\n", name);
     }
 
-    if( lagtype == 0 ) 
+    if( lagtype == 0 )
         oprintf("%s", name);
     else if( lagtype == 1 )
         oprintf( "%s(%d)", name, offset);
@@ -290,7 +292,7 @@ static  void out_enode( Enode *ebase, Enodep estart )
 
         case E_SINH   :
         case E_COSH   :
-        case E_TANH   : 
+        case E_TANH   :
                         ERROR("EViews does not support hyperbolic functions\n");
                         break;
 
@@ -307,7 +309,7 @@ static  void out_enode( Enode *ebase, Enodep estart )
 
                 /* builtin with 2 or more args */
         case E_MIN    :
-        case E_MAX    : 
+        case E_MAX    :
                         if (out_min_max(ebase, ep, ep->operator == E_MAX)) {
                             ERROR("Conversion to EViews cannot handle "
                                   "min and max with more than two arguments.\n");

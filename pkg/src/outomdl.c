@@ -30,9 +30,9 @@ static  void out_simplev(char *name, int lagtype, int offset)
     }
 }
 
-static void out_arg(Enode *ep) 
+static void out_arg(Enode *ep)
 
-    /* 
+    /*
      * Output a formal argument of a user function
      */
 {
@@ -45,7 +45,7 @@ static void out_arg(Enode *ep)
 
 static  void out_arglist( Enode *ebase, Enode *ep )
 {
-    /* 
+    /*
      * Print list of actual arguments in a user function call
      */
     out_arglistbuiltin(ebase, ep);
@@ -55,7 +55,7 @@ static  void out_call( Enode *ebase, Enode *ep )
 {
     if (subst) {
         out_call_subst(ebase, ep);
-    } else { 
+    } else {
         oprintf( "%s(" , ep->first.sp->name );
         out_arglist(ebase, ep);
         oprintf( ")" );
@@ -69,7 +69,7 @@ static void out_if(Enode *ebase, Enode *ep) {
     out_enode(ebase, ep->first.ep);
     oprintf( " then " );
     out_enode(ebase, ep->second.ep);
-    
+
     Enodep else_nodep = ep->third.ep;
     Enode *else_node = ebase + else_nodep;
 
@@ -90,10 +90,10 @@ static void out_if(Enode *ebase, Enode *ep) {
 }
 
 
-static int get_oprec(int opcode) 
+static int get_oprec(int opcode)
 {
     /*
-     * Returns the precedence of the operator 
+     * Returns the precedence of the operator
      */
     int oprec;
 
@@ -121,7 +121,7 @@ static int get_oprec(int opcode)
     return oprec;
 }
 
-static char *get_opname(int opcode) 
+static char *get_opname(int opcode)
 {
     /*
      * Returns the operator name
@@ -129,11 +129,11 @@ static char *get_opname(int opcode)
     char* opname;
 
     switch(opcode) {
-        case E_ADD : 
+        case E_ADD :
             opname = "+"; break;
         case E_SUB :
             opname = "-"; break;
-        case E_MUL : 
+        case E_MUL :
             opname = "*"; break;
         case E_DIV :
             opname = "/"; break;
@@ -159,6 +159,8 @@ static char *get_opname(int opcode)
             opname = ".or."; break;
         case E_NOT :
             opname = ".not."; break;
+        default:
+            opname = "?";
      }
     return opname;
 }
@@ -289,7 +291,7 @@ static void out_mcode( FILE *fp, Symbol *sp )
         char     *eqid = Is_Frmleqn(eqnp) ? "frml " : "ident";
         int     eqimplicit = Is_Impleqn(eqnp);
         int     need_eqname = strcmp(sp->name, eqnp->lhs->name) != 0;
-            
+
         if (need_eqname) {
             if( eqimplicit )
                 oprintf( "%s %s 0(%s) = ", eqid,
@@ -320,7 +322,7 @@ static void out_mcode( FILE *fp, Symbol *sp )
         char *type_name = fnp->flags.is_ulfunc ? "ul_function" : "function";
 
         oprintf( "%s %s(" , type_name, sp->name);
-       
+
         for( i = 0; i < fnp->argcnt ; i++)
         {
             oprintf( "%s", fnp->argnames[i] );

@@ -70,7 +70,7 @@ static  void out_hypot( Enode *ebase, Enode *ep )
     oprintf("^2) ");
 }
 
-static char *get_opname(int opcode) 
+static char *get_opname(int opcode)
 {
     /*
      * Returns the operator name for Eviews models
@@ -78,11 +78,11 @@ static char *get_opname(int opcode)
     char* opname;
 
     switch(opcode) {
-        case E_ADD : 
+        case E_ADD :
             opname = "+"; break;
         case E_SUB :
             opname = "-"; break;
-        case E_MUL : 
+        case E_MUL :
             opname = "*"; break;
         case E_DIV :
             opname = "/"; break;
@@ -108,6 +108,8 @@ static char *get_opname(int opcode)
             opname = "or"; break;
         case E_NOT :
             opname = "not"; break;
+        default:
+            opname = "?";
      }
     return opname;
 }
@@ -250,7 +252,7 @@ static  void out_enode( Enode *ebase, Enodep estart )
                         break;
 
 
-                       
+
 
         case E_GOTO   :
         case E_STOP   :
