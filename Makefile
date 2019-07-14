@@ -82,7 +82,7 @@ syntax: bin
 
 cleanx:
 # Apple Finder rubbish
-ifneq ($(OSTYPE), windows) 
+ifneq ($(OSTYPE), windows)
 	@find . -name '.DS_Store' -delete
 endif
 	@rm -f $(PKGTAR)
@@ -92,7 +92,7 @@ endif
 # build source package for submission to CRAN
 # after building do a check as CRAN does it
 mkpkg: cleanx syntax
-ifeq ($(OSTYPE), windows) 
+ifeq ($(OSTYPE), windows)
 	@echo Please run mkpkg on Linux or MAC OSX
 else
 	R CMD build $(PKGDIR)
@@ -114,9 +114,9 @@ bin: install_deps
 
 document: install_deps
 	$(MAKE) -f Makedeps
-	-@rm -f $(PKGDIR).pdf
+	-@rm -f isismdl.pdf
 	R -e "devtools::document('"$(PKGDIR)"')"
-	R CMD Rd2pdf --batch $(PKGDIR) 2>$(PKGDIR).log
+	R CMD Rd2pdf --batch $(PKGDIR) -o isismdl.pdf 2>isismdl.log
 
 install: install_deps
 	$(MAKE) -f Makedeps
