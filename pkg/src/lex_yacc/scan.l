@@ -38,14 +38,14 @@ typedef struct _selem {
     size_t line_number;
 } include_stack_elem ;
 
-static include_stack_elem include_stack[MAX_INCLUDE_DEPTH];
+static include_stack_elem include_stack[MAX_INCLUDE_DEPTH + 1];
 
 static  FILE *fin  = NULL;              /* input  stream */
 static char *filename;
 static char *dirname;
 static char *buf;
 static char *bufp;
-static int include_stack_p = -1;
+static int include_level = -1;
 static unsigned int line_number;
 static size_t if_nest_cnt; /* number of nested #if constructs within a #if */
 
@@ -155,7 +155,7 @@ endif    "#ENDIF"
 <goto_endif>\n        /* skip newline */
 
 <<EOF>> { close_buffer();
-          if (include_stack_p < 0) yyterminate();}
+          if (include_level < 0) yyterminate();}
 
 {inum}  { mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
 {fnum}  { mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
@@ -212,71 +212,66 @@ int mcwrap( void )
     return 1;
 }
 
-void init_scanner(char *filenm) 
-{
+void init_scanner(char *filenm) {
     /*
      * Initialise the scanner for the specified filename 
      */
 
-    include_stack_p = -1;
+    include_level = -1;
 
     open_buffer(filenm);
 }
 
-void reset_scanner(void) 
-{
+void reset_scanner(void) {
     /*
      * Close all buffers. This function should be called when an
      * end; statement has occurred in the model
-    */
+     */
 
+    /* first close current buffer (the current buffer is not stored on 
+     * the stack) */
+    close_buffer();
+
+    if (include_level == -1) return;
+
+    /* close buffers on the stack */
     int i;
-    for (i = 0; i <= include_stack_p; i++) {
-        fin         = include_stack[include_stack_p].fin;
-        filename    = include_stack[include_stack_p].filename;
-        dirname     = include_stack[include_stack_p].dirname;
- 	
-        fclose(fin);
-	if (i > 0) {
-            /* if i = 0, filename is the original model filename.
-            * this filename has not been allocated with malloc */
-	    free(filename);
-        }
-        free(dirname);
+    for (i = 0; i <= include_level; i++) {
+        fclose(include_stack[include_level].fin);
+        free(include_stack[include_level].filename);
+        free(include_stack[include_level].dirname);
+        free(include_stack[include_level].buf);
     }
 
-    include_stack_p = -1;
+    include_level = -1;
 }
 
 
-void open_buffer(char *new_filename) 
-{   
+void open_buffer(char *new_filename) {   
 
     /*
      * open a new buffer for reading from the specified filename
      */
 
-    if (include_stack_p >= MAX_INCLUDE_DEPTH) {
+    if (include_level >= 0) {
+	/*
+         * save current buffer information on stack
+         */
+        include_stack[include_level].fin         = fin;
+        include_stack[include_level].filename    = filename;
+        include_stack[include_level].dirname     = dirname;
+        include_stack[include_level].buf         = buf;
+        include_stack[include_level].bufp        = bufp;
+        include_stack[include_level].line_number = line_number;
+    }
+
+    if (++include_level > MAX_INCLUDE_DEPTH) {
         mcerror("Includes nested too deeply. Maximum include depth %d.", 
                 MAX_INCLUDE_DEPTH);
         return;
     }
 
-
-    if (include_stack_p >= 0) {
-	/*
-         * save current buffer information on stack
-         */
-        include_stack[include_stack_p].fin         = fin;
-        include_stack[include_stack_p].filename    = filename;
-        include_stack[include_stack_p].dirname     = dirname;
-        include_stack[include_stack_p].buf         = buf;
-        include_stack[include_stack_p].bufp        = bufp;
-        include_stack[include_stack_p].line_number = line_number;
-    }
-
-    include_stack_p++;
-
+    /* create a new buffer */
     filename = new_filename;
     dirname = get_path_name(filename);
     fin = efopen( filename, "r" );
@@ -288,38 +283,35 @@ void open_buffer(char *new_filename)
     /* The first path to be searched for include files should be the
      * directory of the current include file */
     set_standard_path(dirname);
-
 }
 
-static void close_buffer(void)
-{
+static void close_buffer(void) {
 
    /* Closes the current buffer */
 
-    free(dirname);
     fclose(fin);
     free(buf);
     bufp = NULL;
-    
-    if (--include_stack_p >= 0) {	
-
-	/* filename was allocated with malloc in get_includefile().
-         * if include_stack_p = 0, then the filename was NOT allocated 
-         * with malloc and should therefore not be freed */
+    if (include_level > 0) {
+        /* filename was allocated with malloc in get_includefile(). */
 	free(filename);
+    }
+    free(dirname);
+    
+    if (--include_level >= 0) {	
+        /* restore previous buffer information */
 
-        fin         = include_stack[include_stack_p].fin;
-        filename    = include_stack[include_stack_p].filename;
-        dirname     = include_stack[include_stack_p].dirname;
-        buf         = include_stack[include_stack_p].buf;
-        bufp        = include_stack[include_stack_p].bufp;
-        line_number = include_stack[include_stack_p].line_number;
+        fin         = include_stack[include_level].fin;
+        filename    = include_stack[include_level].filename;
+        dirname     = include_stack[include_level].dirname;
+        buf         = include_stack[include_level].buf;
+        bufp        = include_stack[include_level].bufp;
+        line_number = include_stack[include_level].line_number;
 
 	/* make directory of current file the first directory to be searched
-         * for include files */
+         * for include files */ 
         set_standard_path(dirname);
     } 
-
 }
 
 static int mcgetc(void)
