@@ -229,8 +229,9 @@ void reset_scanner(void)
      * Close all buffers. This function should be called when an
      * end; statement has occurred in the model
     */
+
     int i;
-    for (i = 0; i < include_stack_p; i++) {
+    for (i = 0; i <= include_stack_p; i++) {
         fin         = include_stack[include_stack_p].fin;
         filename    = include_stack[include_stack_p].filename;
         dirname     = include_stack[include_stack_p].dirname;
@@ -405,6 +406,7 @@ static char * get_includefile(void)
 
    /* search for the include file based on the include search paths */
    includefile = get_includefilename(includename);
+   free(includename);
    if (includefile == NULL) {
        mcerror("Include file %s not found", includename);
    }

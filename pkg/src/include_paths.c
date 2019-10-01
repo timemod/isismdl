@@ -95,7 +95,9 @@ char * get_includefilename(char *includename)
      * includename may also be an absolute path.
      */
     if (file_exists(includename)) {
-        return includename;
+        char *filename = malloc(strlen(includename) + 1);
+        strcpy(filename, includename);
+        return filename;
     } else {
         return NULL;
     }
