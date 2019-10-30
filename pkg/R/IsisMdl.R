@@ -275,6 +275,7 @@ IsisMdl <- R6Class("IsisMdl",
         cat(sprintf("%-60s%s\n", "Model data period:",
                     as.character(private$data_period)))
       }
+      return(invisible(self))
     },
     finalize = function() {
       .Fortran("remove_mws_fortran", model_index = private$model_index)
