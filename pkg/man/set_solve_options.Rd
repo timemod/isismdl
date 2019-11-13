@@ -43,11 +43,11 @@ The default is \code{"current"}. See section "Feedback initialisation
 methods" below}
 \item{\code{maxiter}}{the maximum number of iterations per period (default 50)}
 \item{\code{maxjacupd}}{the maximum number of Newton Jacobian updates per period
- (default 10)}
- \item{\code{rlxspeed}}{Newton relaxation shrinkage (default is 0.5)}
- \item{\code{rlxmin}}{Minimum Newton relaxation factor (default is 0.05)}
- \item{\code{rlxmax}}{Maximum Newton relaxation factor (default is 1.0)}
- \item{\code{cstpbk}}{Stepback criterion (default is 1.3).
+(default 10)}
+\item{\code{rlxspeed}}{Newton relaxation shrinkage (default is 0.5)}
+\item{\code{rlxmin}}{Minimum Newton relaxation factor (default is 0.05)}
+\item{\code{rlxmax}}{Maximum Newton relaxation factor (default is 1.0)}
+\item{\code{cstpbk}}{Stepback criterion (default is 1.3).
 If the convergence criterium \code{Fcrit} is larger
 than \code{cstpbk} or invalid feedback variables
 have been obtained then the Newton step
@@ -63,7 +63,7 @@ In each linesearch step the current relaxation factor is shrunk by
 The relaxation factor is set to its maximum value
 \code{rlxmax}) when a new Jacobian has been calculated.
 }
- \item{\code{cnmtrx}}{Recalculate matrix criterion (default is 0.9).
+\item{\code{cnmtrx}}{Recalculate matrix criterion (default is 0.9).
 If the convergence criterium \code{Fcrit} is larger
 than \code{cnmtrx} but smaller than \code{cstpbk},
 the Newton step is accepted but a new Jacobian is computed
@@ -72,10 +72,10 @@ and the relaxation factor is set to its maximum value
 The new Jacobian is used in the next step. However, the
 Jacobian will not be recalculated if the number of Jacobian updates
 in a period is larger than \code{maxjacupd}}
- \item{\code{xrelax}}{Rational expectations relaxation factor (default is 1)}
- \item{\code{xmaxiter}}{Maximum number of rational expectation iterations
+\item{\code{xrelax}}{Rational expectations relaxation factor (default is 1)}
+\item{\code{xmaxiter}}{Maximum number of rational expectation iterations
 (default is 10)}
- \item{\code{xupdate}}{Character string defining the method of updating
+\item{\code{xupdate}}{Character string defining the method of updating
 leads. Possible values are \code{"fixed"} (the default) and \code{"lastval"}.
 For \code{"fixed"} the leads beyond the solution period
 are fixed at the initial values. For \code{"lastval"} leads beyond
@@ -94,7 +94,7 @@ computation progress report. Possible values are
 \code{"fullrep"} (for a full report),
 \code{"minimal"}  (for a minimal report), and
 \code{"none"}  (for no report). The default is \code{"period"}}
- The report options \code{"none"} also suppresses all output
+The report options \code{"none"} also suppresses all output
 of the fit procedure and the Fair-Taylor progress report.
 \item{\code{ratreport}}{Defines the type of rational expectations progress
 report. See section "Ratex report options" below}
@@ -240,7 +240,7 @@ expectation values every \code{ratreport_rep} Fair Taylor iteration
 (the default)}
 \item{\code{"fullrep"}}{full report. The number of not converged
 expectation values is printed every \code{ratreport_rep} Fair Taylor
- iteration and the largest remaining discrepancy every
+iteration and the largest remaining discrepancy every
 \code{ratfullreport_rep} Fair Taylor iteration}
 \item{\code{"minimal"}}{for a full report only after the last Fair Taylor
 iteration}

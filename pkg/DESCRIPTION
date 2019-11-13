@@ -11,7 +11,8 @@ Depends:
 SystemRequirements: GNU make
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.0
+Roxygen: list(markdown = TRUE, r6 = FALSE)
 Imports:
     methods,
     R6,

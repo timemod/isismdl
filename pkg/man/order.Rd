@@ -23,8 +23,8 @@ mdl$order(orfnam)
 
 \describe{
 \item{\code{orfnam}}{Name of file on which to print ordering information.
-  If no output file is specified no ordering information will
-  be written}
+If no output file is specified no ordering information will
+be written}
 }
 }
 

@@ -78,9 +78,9 @@ The following parse options can be specified with argument
 Consult Section 3.11.2 "Conditional compilation" in the Isis reference
 manual for more information about conditional compilation}
 \item{\code{"include_dirs"}}{Add directory \code{include_dir} to the list of
- directories to be searched for include files.
- In the model file, the \code{\#include} directive (see Section
- 3.11.1 "File inclusion" in the Isis Reference Manual) is used
+directories to be searched for include files.
+In the model file, the \code{\#include} directive (see Section
+3.11.1 "File inclusion" in the Isis Reference Manual) is used
 to include another file in the model. The specified name of the include
 file can be a relative or absolute path. If the path is relative, then
 the model searches for the include file.

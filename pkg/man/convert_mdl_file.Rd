@@ -4,8 +4,12 @@
 \alias{convert_mdl_file}
 \title{Converts an \code{\link{IsisMdl}} a model file.}
 \usage{
-convert_mdl_file(model_file, output_file, conversion_options = list(),
-  parse_options = list())
+convert_mdl_file(
+  model_file,
+  output_file,
+  conversion_options = list(),
+  parse_options = list()
+)
 }
 \arguments{
 \item{model_file}{The name of the model file.

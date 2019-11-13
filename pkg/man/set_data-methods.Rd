@@ -35,7 +35,7 @@ mdl$set_fit(data, names = colnames(data), upd_mode = c("upd", "updval"))
 
 \describe{
 \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
- timeseries object}
+timeseries object}
 \item{\code{names}}{a character vector with variable names, with the
 same length as the number of timeseries in \code{data}. Defaults to the
 column names of \code{data}. If \code{data} does not have column names,
