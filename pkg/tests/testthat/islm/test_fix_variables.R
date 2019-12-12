@@ -34,7 +34,7 @@ test_that("errors", {
                msg)
 
   capture.output(mdl2 <- islm_mdl())
-  msg <- paste("The model period is not set.",
+  msg <- paste("The model period has not been set.",
                "Set the model period with set_period\\(\\) or init_data\\(\\).")
   expect_error(mdl2$fix_variables(names = "c"), msg)
 })
