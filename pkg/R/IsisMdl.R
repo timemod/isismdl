@@ -374,31 +374,59 @@ IsisMdl <- R6Class("IsisMdl",
     init_data = function(data_period, data, ca) {
 
       if (missing(data_period)) {
-        if (!missing(data) && !is.null(data)) {
+        # data_period not specified: determine data_period from data and
+        # model_period
+        if (missing(data)) {
+          if (is.null(private$model_period)) {
+            stop(paste("If neither data_period nor data have been specified",
+                       "then model_period should be known"))
+          } else {
+            p <- private$model_period
+            data_period <- period_range(
+              start_period(p) - private$maxlag,
+              end_period(p)   + private$maxlead)
+          }
+        } else if (is.null(private$model_period)) {
           data_period <- get_period_range(data)
         } else {
-          stop(paste("Argument data_period is mandatory if",
-                     "argument data has not been specified"))
+          p <- private$model_period
+          p_data <- get_period_range(data)
+          data_period <- period_range(
+            min(start_period(p) - private$maxlag, start_period(p_data)),
+            max(end_period(p)  + private$maxlead, end_period(p_data)))
         }
       } else {
+        # data period specified
         data_period <- as.period_range(data_period)
-        if (is.na(data_period[1]) || is.na(data_period[2])) {
-          stop("data_period should have a lower and upper bound")
+        if (!is.null(private$model_period)) {
+          mp <- private$model_period
+          startp <- start_period(mp) - private$maxlag
+          endp <- end_period(mp) + private$maxlead
+          if (start_period(data_period) > startp ||
+              end_period(data_period)  < endp) {
+            stop(paste("The data period should include the range",
+                       as.character(mp), "."))
+          }
         }
       }
 
       private$init_data_(data_period)
 
-      # update the model period
-      startp <- start_period(data_period) + private$maxlag
-      endp <- end_period(data_period) - private$maxlead
-      if (endp >= startp) {
+      # if the model period has not been set, then determine the model
+      # period from the data period
+      if (is.null(private$model_period)) {
+        startp <- start_period(data_period) + private$maxlag
+        endp <- end_period(data_period) - private$maxlead
+        if (endp < startp) {
+          stop(paste("The data period is too short. It should contain at least",
+                     private$maxlag + private$maxlead + 1, "periods"))
+        }
         private$model_period <- period_range(startp, endp)
-      } else {
-        stop(paste("The data period is too short. It should contain at least",
-                   private$maxlag + private$maxlead + 1, "periods"))
       }
 
+      #
+      # now update data and ca
+      #
       if (!missing(data) && !is.null(data)) {
         if (is.null(colnames(data))) {
           stop("data should be a timeseries with colnames")
@@ -418,12 +446,10 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     set_period = function(period) {
-
       period <- as.period_range(period)
       if (is.na(period[1]) || is.na(period[2])) {
         stop("period should have a lower and upper bound")
       }
-
       if (is.null(private$data_period)) {
         data_period <- period_range(
           start_period(period) - private$maxlag,
@@ -1111,8 +1137,7 @@ IsisMdl <- R6Class("IsisMdl",
         stop(paste("The data period is too short. It should contain at least",
                    private$maxlag + private$maxlead + 1, "periods"))
       }
-      # fortran_period is the data period without
-      # lag and lead periods.
+      # fortran_period is the data period without lag and lead periods.
       start <- as.integer(c(get_year(startp), get_subperiod(startp)))
       end   <- as.integer(c(get_year(endp), get_subperiod(endp)))
       .Fortran("set_period_fortran",

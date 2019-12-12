@@ -403,28 +403,21 @@ NULL
 #' @name init_data
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}} initializes the
-#' model data.
+#' This method of R6 class \code{\link{IsisMdl}} sets the data period and
+#' initializes the model variables and constant adjustmemts.
 #'
-#' This method sets the model data period and initializes
-#'  the model variables and constant adjustmemts.
-#'
-#' You have to specify one of the two arguments \code{data_period}
-#' and \code{data}. If \code{data_period}  has not been specified,
-#'  then the model data period is set to the period range of
-#' \code{data}. If \code{data} has not been specified,
-#' then argument \code{data_period} is mandatory.
-#'
-#' The method first initializes all model timeseries with \code{NA}
-#' and all constant adjustments with 0 for the data period.
-#' If arguments \code{data} or \code{ca} have been specified,
-#'  then the model variables or constant adjustments are
-#' subsequently updated with the timeseries \code{data} or \code{ca},
-#' respectively.
-#'
-#' This methods also sets the model period, the standard period
+#' If the model period has not yet been specified (in function
+#' \code{\link{isis_mdl}} or method \code{\link{set_period}}), then
+#' this method also sets the model period, the standard period
 #' for which the model will be solved. The model period
 #' is obtained from the data period by subtracting the lag and lead periods.
+#'
+#' The method initializes all model timeseries with \code{NA}
+#' and all constant adjustments with 0 for the data period.
+#' If arguments \code{data} or \code{ca} have been specified,
+#' then the model variables or constant adjustments are
+#' subsequently updated with the timeseries in \code{data} or \code{ca},
+#' respectively.
 #' @section Usage:
 #' \preformatted{
 #' mdl$init_data(data_period, data, ca)
@@ -438,9 +431,13 @@ NULL
 #' \describe{
 #' \item{\code{data_period}}{\code{\link[regts]{period_range}}
 #' object, or an object that can be coerced to
-#' \code{\link[regts]{period_range}}}
+#' \code{\link[regts]{period_range}}.  If not specified then the data period
+#' is based on the period range of argument \code{data} (if this argument 
+#' has been specified) and  the model period.}
 #' \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
-#'  object}
+#'  object with model variables}
+#' \item{\code{ca}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
+#'  object with constant adjustments}
 #' }
 NULL
 
