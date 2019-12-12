@@ -22,7 +22,13 @@ test_that("set_ca update mode upd", {
 
 test_that("set_ca update mode updval", {
   mdl2 <- mdl$clone(deep = TRUE)
-  mdl2$set_ca(new_ca, upd_mode = "updval")
+  # create a data with duplicate names
+  new_ca[, c("x1", "x2", "x3")] <- 999
+  colnames(new_ca)[5:7] <- c("c", "md", "c")
+
+  expect_warning(mdl2$set_ca(new_ca, upd_mode = "updval"),
+                 paste("Data contains duplicate names. The first column is",
+                       "used.\nThe duplicated names are: c, md\\."))
   expect_equal(mdl2$get_ca(), mdl$get_ca())
 })
 

@@ -387,7 +387,6 @@ IsisMdl <- R6Class("IsisMdl",
         }
       }
 
-
       private$init_data_(data_period)
 
       # update the model period
@@ -401,10 +400,20 @@ IsisMdl <- R6Class("IsisMdl",
       }
 
       if (!missing(data) && !is.null(data)) {
-        self$set_data(data)
+        if (is.null(colnames(data))) {
+          stop("data should be a timeseries with colnames")
+        }
+        data <- private$convert_data_internal(data)
+        if (is.null(data)) return(invisible(self))
+        private$set_data_(private$data_type, data)
       }
-      if (!missing(ca) && !is.null(ca)) {
-        self$set_ca(ca)
+      if (!missing(ca) && !is.null(ca) && NCOL(ca) > 0) {
+        if (is.null(colnames(ca))) {
+          stop("ca should be a timeseries with colnames")
+        }
+        ca <- private$convert_data_internal(ca)
+        if (is.null(ca)) return(invisible(self))
+        private$set_data_(private$ca_type, ca)
       }
       return(invisible(self))
     },
@@ -468,34 +477,29 @@ IsisMdl <- R6Class("IsisMdl",
       return(.Call("get_param_c", model_index = private$model_index,
                     names = names))
     },
-    set_data = function(data, names = colnames(data),
-                        upd_mode = c("upd", "updval"), fun) {
+    set_data = function(data, names, upd_mode = c("upd", "updval"), fun) {
       upd_mode <- match.arg(upd_mode)
-      if (is.null(private$data_period)) {
-        stop(paste("The data period has not been set yet.",
-                   "Please initialize the with model data with init_data().",
-                   "E.g.: init_data(data)"))
-      }
-      return(private$set_data_(private$data_type, data, names, missing(names),
-                               upd_mode, fun))
+      data <- private$convert_data_internal(data, names)
+      if (is.null(data)) return(invisible(self))
+      return(private$set_data_(private$data_type, data, upd_mode, fun))
     },
-    set_ca = function(data, names = colnames(data),
-                      upd_mode = c("upd", "updval"), fun) {
+    set_ca = function(data, names, upd_mode = c("upd", "updval"), fun) {
       upd_mode <- match.arg(upd_mode)
-      return(private$set_data_(private$ca_type, data, names, missing(names),
-                             upd_mode, fun))
+      data <- private$convert_data_internal(data, names)
+      if (is.null(data)) return(invisible(self))
+      return(private$set_data_(private$ca_type, data, upd_mode, fun))
     },
-    set_fix = function(data, names = colnames(data),
-                       upd_mode = c("upd", "updval")) {
+    set_fix = function(data, names, upd_mode = c("upd", "updval")) {
       upd_mode <- match.arg(upd_mode)
-      return(private$set_data_(private$fix_type, data, names, missing(names),
-                             upd_mode))
+      data <- private$convert_data_internal(data, names)
+      if (is.null(data)) return(invisible(self))
+      return(private$set_data_(private$fix_type, data, upd_mode))
     },
-    set_fit = function(data, names = colnames(data),
-                       upd_mode = c("upd", "updval")) {
+    set_fit = function(data, names, upd_mode = c("upd", "updval")) {
       upd_mode <- match.arg(upd_mode)
-      return(private$set_data_(private$fit_type, data, names, missing(names),
-                             upd_mode))
+      data <- private$convert_data_internal(data, names)
+      if (is.null(data)) return(invisible(self))
+      return(private$set_data_(private$fit_type, data, upd_mode))
     },
     get_data = function(pattern = NULL, names = NULL,
                         period = private$data_period) {
@@ -814,7 +818,7 @@ IsisMdl <- R6Class("IsisMdl",
     var_names = NULL,
     var_count = NA_integer_,
     labels = NULL,
-    period_error_msg = paste("The model period is not set.",
+    period_error_msg = paste("The model period has not been set.",
                              "Set the model period with set_period() or",
                              "init_data()."),
     data_type = 1L,
@@ -862,44 +866,13 @@ IsisMdl <- R6Class("IsisMdl",
       }
       return(ret)
     },
-    set_data_ = function(set_type, data, names, names_missing,
-                       upd_mode = "upd", fun) {
+    set_data_ = function(set_type, data, upd_mode = "upd", fun) {
+      # internal function to transform data to the model workspace. This function
+      # assume that data is already in the correct from:
+      # 1) A multivariate ts with colnames.
+      # 2) Numerical values
 
-      if (is.null(private$model_period)) stop(private$period_error_msg)
-      if (!inherits(data, "ts")) {
-         # we use inherits and not is.ts, because is.ts returns FALSE if
-         # length(x) == 0
-         stop("Argument data is not a timeseries object")
-      }
-      if (frequency(data) != frequency(private$data_period)) {
-        stop(paste0("The frequency of data does not agree with the data",
-                    " period ", as.character(private$data_period), "."))
-      }
-      if (NCOL(data) == 0) {
-        return(invisible(NULL))
-      }
-      if (is.null(names)) {
-        if (names_missing) {
-          stop(paste("Argument data has no colnames.",
-                     "In that case, argument names should be specified"))
-        } else {
-          stop("names is null")
-        }
-      }  else if (length(names) < NCOL(data)) {
-          stop(paste("The length of arument names is less than the number of ",
-                    "columns of data"))
-      }
-      if (is.null(private$model_period)) stop(private$period_error_msg)
-      data <- as.regts(data)
-      shift <- private$get_period_indices(get_period_range(data))$startp
-      if (!is.matrix(data)) {
-        dim(data) <- c(length(data), 1)
-      }
-      if (is.integer(data) || !is.numeric(data)) {
-        # make sure that data is a matrix of numeric values
-        data <- apply(data, MARGIN = c(1,2), FUN = as.numeric)
-      }
-      colnames(data) <- names
+      names <- colnames(data)
 
       if (set_type == private$data_type) {
         lbls <- ts_labels(data)
@@ -956,8 +929,12 @@ IsisMdl <- R6Class("IsisMdl",
           warning("Numerical problem when evaluating fun")
         }
       }
+
+      # finally transfer new data to the model workspace
+      shift <- private$get_period_indices(get_period_range(data))$startp
       .Call(set_data_c, set_type, private$model_index, data, names, shift,
             upd_mode)
+
       return(invisible(self))
     },
     get_names_ = function(type, names, pattern) {
@@ -998,7 +975,6 @@ IsisMdl <- R6Class("IsisMdl",
       return(names)
     },
     set_values_ = function(set_type, value, names, pattern, period) {
-      if (is.null(private$model_period)) stop(private$period_error_msg)
       value <- as.numeric(value)
       period <- private$convert_period_arg(period)
       nper <- nperiod(period)
@@ -1011,7 +987,8 @@ IsisMdl <- R6Class("IsisMdl",
       nvar <- length(names)
       data <- regts(matrix(value, nrow = nper, ncol = nvar), period = period,
                     names = names)
-      private$set_data_(set_type, data, names, FALSE)
+      private$set_data_(set_type, data)
+      return()
     },
     change_data_ = function(set_type, fun, names, pattern, period, ...) {
       period <- private$convert_period_arg(period)
@@ -1028,9 +1005,8 @@ IsisMdl <- R6Class("IsisMdl",
       for (c in seq_len(ncol(data))) {
         data[, c] <- fun(data[, c], ...)
       }
-      private$set_data_(set_type, data, names, FALSE)
+      private$set_data_(set_type, data)
     },
-
     get_fix_fit = function(type) {
       # general function for getting fix or fit values
       ret <- .Call("get_fix_fit_c", type = type,
@@ -1197,6 +1173,68 @@ IsisMdl <- R6Class("IsisMdl",
         endp <- end_period(defaultp)
       }
       return(period_range(startp, endp))
+    },
+    convert_data_internal = function(data, names) {
+      # Used by set_data and set_fit: checks the period range of data and
+      # selects the appropriate period. Also converts data to a matrix ts with
+      # colnames if necessary.
+
+      if (is.null(private$model_period)) stop(private$period_error_msg)
+
+      if (!inherits(data, "ts")) {
+        # we use inherits and not is.ts, because is.ts returns FALSE if
+        # length(x) == 0
+        stop("Argument data is not a timeseries object")
+      }
+
+      if (NCOL(data) == 0) return(NULL)
+
+      data <- as.regts(data)
+
+      if (frequency(data) != frequency(private$data_period)) {
+        stop(paste0("The frequency of data does not agree with the data",
+                    " period ", as.character(private$data_period), "."))
+      }
+
+      per <- range_intersect(get_period_range(data), private$data_period)
+      if (is.null(per)) return(NULL)
+      data <- data[per]
+
+      # convert data to a matrix if necessary
+      if (!is.matrix(data)) {
+        dim(data) <- c(length(data), 1)
+      }
+
+      if (!missing(names)) {
+        if (is.null(names)) {
+          stop("names is null")
+        } else if (length(names) < NCOL(data)) {
+          stop(paste("The length of argument names is less than the number of",
+                     "columns of data"))
+        }
+        colnames(data) <- names
+      } else if (is.null(colnames(data))) {
+        stop(paste("Argument data has no colnames.",
+                   "In that case, argument names should be specified"))
+      } else {
+        names <- colnames(data)
+      }
+
+      # check for duplicate names
+      if (anyDuplicated(names)) {
+        dupl <- duplicated(names)
+        data <- data[  , !dupl, drop = FALSE]
+        warning(sprintf(paste("Data contains duplicate names. The first column",
+                              "is used.\nThe duplicated names are: %s."),
+                        paste(unique(names[dupl]), collapse = ", ")))
+      }
+
+      if (is.integer(data) || !is.numeric(data)) {
+        # make sure that data is a matrix of numeric values
+        data <- apply(data, MARGIN = c(1,2), FUN = as.numeric)
+      }
+
+      return(data)
     }
   )
 )
