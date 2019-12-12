@@ -1004,7 +1004,7 @@ IsisMdl <- R6Class("IsisMdl",
       value <- as.numeric(value)
       period <- private$convert_period_arg(period)
       if (is.null(range_intersect(period, private$data_period))) {
-        warning(sprintf(paste("Specified period (%s) is complete outside the",
+        warning(sprintf(paste("Specified period (%s) is completely outside the",
                               "data period (%s)."), period,
                         private$data_period))
         return(invisible(self))
@@ -1026,13 +1026,13 @@ IsisMdl <- R6Class("IsisMdl",
     change_data_ = function(set_type, fun, names, pattern, period, ...) {
       period <- private$convert_period_arg(period)
       if (is.null(range_intersect(period, private$data_period))) {
-        warning(sprintf(paste("Specified period (%s) is complete outside the",
+        warning(sprintf(paste("Specified period (%s) is completely outside the",
                               "data period (%s)."), period,
                         private$data_period))
         return(invisible(self))
       }
       if (!is.function(fun)) {
-        stop("Argument 'fun' is not a function")
+        stop("Argument 'fun' is not a function.")
       }
       nper <- nperiod(period)
       names <- private$get_names_(set_type, names, pattern)

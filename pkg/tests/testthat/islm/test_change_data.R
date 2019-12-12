@@ -68,7 +68,7 @@ test_that("change_data works correctly with timeseries input (3)", {
   mdl2$change_data(function(x) {x * 1.1}, pattern = "^y", period = "2016Q2")
 
 
-  msg <- paste("Specified period \\(11Q1/11Q4\\) is complete outside the",
+  msg <- paste("Specified period \\(11Q1/11Q4\\) is completely outside the",
               "data period \\(2015Q1/2016Q3\\)\\.")
   expect_warning(mdl2$change_data(function(x) {x * 1.1}, pattern = "^y",
                                   period = "11"),

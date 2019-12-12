@@ -31,7 +31,7 @@ test_that("set_fix_values works correctly", {
   mdl2$set_fix_values(NA, period = "2016Q1/")
 
 
-  msg <- paste("Specified period \\(3200Q1/3200Q4\\) is complete outside the",
+  msg <- paste("Specified period \\(3200Q1/3200Q4\\) is completely outside the",
                       "data period \\(2015Q1/2016Q3\\)\\.")
   expect_warning(mdl2$set_fix_values(888, period = 3200), msg)
 
