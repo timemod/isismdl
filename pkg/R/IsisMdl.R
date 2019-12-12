@@ -916,7 +916,7 @@ IsisMdl <- R6Class("IsisMdl",
           old_data <- self$get_data(period = p, names = names)
         } else {
           names <- intersect(names,
-                             self$get_endo_names(type = "frml"))
+                             self$get_endo_names(type = "frml", status = "all"))
           old_data <- self$get_ca(period = p, names = names)
         }
         if (length(names) == 0) {
