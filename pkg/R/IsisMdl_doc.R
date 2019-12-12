@@ -963,6 +963,34 @@ NULL
 #' object that can be coerced to a \code{period_range}}
 #' \item{\code{...}}{arguments passed to \code{fun}}
 #' }
+#'
+#' @section Details:
+#'
+#' The function specified with argument `fun` should be a function
+#' with at least one argument, for example `fun = function(x) {x + 0.1}`.
+#' The first argument (named `x` in the example) will be the model
+#' variable. The function is evaluated for each model variable separately.
+#' The values of the model variables for period range `period` are passed as a
+#' normal numeric vector (not a timeseries) to the first argument.
+#'
+#' An example may help to clarify this. Consider the following statement
+#'  ```
+#'  mdl$change_endo_data(fun = myfun, names = c("c", "y"),
+#'                       period = "2017q1/2017q2"),
+#'  ```
+#'
+#'  where `mdl` is a `DynMdl` object and `myfun` some function whose details
+#'  are not relevant here. Method  \code{change_endo_data} evaluates this as
+#'  ```
+#'  data <- mdl$get_endo_data(names = c("c", "y"), period = "2017q1/2017q2")
+#'  data[, "c"] <- myfun(as.numeric(data[, "c"])
+#'  data[, "y"] <- myfun(as.numeric(data[, "y"])
+#'  mdl$set_data(data)
+#'  ```
+#'
+#'  The function result must be a vector (or timeseries) of length one or with
+#'  the same length as the number of periods in the period range \code{period}.
+#'
 #' @section Methods:
 #' \describe{
 #' \item{\code{changes_data}}{Changes the model data}

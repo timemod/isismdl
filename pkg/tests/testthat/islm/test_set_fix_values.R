@@ -29,6 +29,13 @@ test_that("set_fix_values works correctly", {
   mdl2$set_fix_values(NA, names = "t")
   expect_equal(mdl2$get_fix(), new_fix[, c("c", "i")])
   mdl2$set_fix_values(NA, period = "2016Q1/")
+
+
+  msg <- paste("Specified period \\(3200Q1/3200Q4\\) is complete outside the",
+                      "data period \\(2015Q1/2016Q3\\)\\.")
+  expect_warning(mdl2$set_fix_values(888, period = 3200), msg)
+
+
   expect_equal(mdl2$get_fix(), new_fix["2015Q1/2015Q4" , c("c", "i")])
 })
 
