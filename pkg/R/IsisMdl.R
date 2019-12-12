@@ -624,7 +624,7 @@ IsisMdl <- R6Class("IsisMdl",
                    na_names_text), ".")
       }
       self$set_fix(fix_data)
-      return(invisible(NULL))
+      return(invisible(self))
     },
     set_solve_options = function(mode, fbstart, maxiter, maxjacupd, rlxspeed,
                                  rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
@@ -734,7 +734,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
       .Call("set_cvgcrit_c", private$model_index, names,
             as.numeric(value))
-      return (invisible(self))
+      return(invisible(self))
     },
     set_ftrelax = function(value, pattern, names) {
       "Sets the Fair-Taylor relaxation criterion."
@@ -942,7 +942,7 @@ IsisMdl <- R6Class("IsisMdl",
           old_data <- self$get_data(period = p, names = names)
         } else {
           names <- intersect(names,
-                             self$get_endo_names(type = "frml"))
+                             self$get_endo_names(type = "frml", status = "all"))
           old_data <- self$get_ca(period = p, names = names)
         }
         if (length(names) == 0) {
@@ -963,7 +963,7 @@ IsisMdl <- R6Class("IsisMdl",
 
       return(invisible(self))
     },
-    get_names_ = function(type, names, pattern) {
+    get_names_ = function(type, names = NULL, pattern = NULL) {
       if (type == private$ca_type || type == private$fix_type) {
         type <- "frml"
         vnames <- self$get_endo_names(type = "frml", status = "all")
@@ -1003,35 +1003,56 @@ IsisMdl <- R6Class("IsisMdl",
     set_values_ = function(set_type, value, names, pattern, period) {
       value <- as.numeric(value)
       period <- private$convert_period_arg(period)
+      if (is.null(range_intersect(period, private$data_period))) {
+        warning(sprintf(paste("Specified period (%s) is complete outside the",
+                              "data period (%s)."), period,
+                        private$data_period))
+        return(invisible(self))
+      }
       nper <- nperiod(period)
       vlen <- length(value)
       if (vlen != 1 && vlen != nper) {
         stop(paste("Argument value should have length 1 or the same",
-                   "length  as the number of periods"))
+                   "length as the number of periods"))
       }
       names <- private$get_names_(set_type, names, pattern)
+      names <- unique(names)
       nvar <- length(names)
       data <- regts(matrix(value, nrow = nper, ncol = nvar), period = period,
                     names = names)
       private$set_data_(set_type, data)
-      return()
+      return(invisible(self))
     },
     change_data_ = function(set_type, fun, names, pattern, period, ...) {
       period <- private$convert_period_arg(period)
+      if (is.null(range_intersect(period, private$data_period))) {
+        warning(sprintf(paste("Specified period (%s) is complete outside the",
+                              "data period (%s)."), period,
+                        private$data_period))
+        return(invisible(self))
+      }
       if (!is.function(fun)) {
-        stop("argument fun is not a function")
+        stop("Argument 'fun' is not a function")
       }
       nper <- nperiod(period)
       names <- private$get_names_(set_type, names, pattern)
+      names <- unique(names)
       if (set_type == private$data_type) {
         data <- self$get_data(names = names, period = period)
       } else if (set_type == private$ca_type) {
         data <- self$get_ca(names = names, period = period)
       }
       for (c in seq_len(ncol(data))) {
-        data[, c] <- fun(data[, c], ...)
+        fun_result <- fun(as.numeric(data[ , c]), ...)
+        result_len <- length(fun_result)
+        if (result_len != 1 && result_len != nper) {
+          stop(sprintf(paste("The function result has length %d but should have",
+                             "length 1 or %d."), result_len, nper))
+        }
+        data[, c] <- fun_result
       }
       private$set_data_(set_type, data)
+      return(invisible(self))
     },
     get_fix_fit = function(type) {
       # general function for getting fix or fit values
