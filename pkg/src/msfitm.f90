@@ -261,7 +261,7 @@ contains
         real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, svd_tol, delsmx, &
                                    delsmxp
         real(kind = ISIS_RKIND), dimension(:,:), allocatable :: dj_copy
-        integer :: svd_err, stat, matitr, deltyp
+        integer :: svd_err, stat, matitr, deltyp, deltypp
         logical :: memory_error
 
         !     fiscod is fit iteration status
@@ -324,6 +324,7 @@ contains
                !  what is happening
                !  The array Dj should be the transpose of D
                !  in the mathematical paper.
+        
         
                call mkdjac(xcod, fiter, memory_error, matitr)
                if (memory_error) then
@@ -412,10 +413,11 @@ contains
             delsmxp = delsmx
             call mkdelsmx(delsmx, smxidx, smxtyp)
 
+            deltypp = deltyp ! save old deltyp
             if (.not. zealous .or. delwmx > opts%fit%cvgabs) then
-                deltyp = 1
+                deltyp = 1   ! check difference fit targets with endos
             else 
-                deltyp = 2
+                deltyp = 2   ! check step size
             endif
 
             if (opts%fit%repopt == FITREP_FULLREP) then
@@ -433,7 +435,8 @@ contains
                     ! have converged. Otherwise: only stop if the model
                     ! variables have converged.
                     fiscod = 1
-                else if (deval .and. devalp .and. delsmx > CVGREL * delsmxp) then
+                else if (deval .and. devalp .and. delsmx > CVGREL * delsmxp &
+                         .and. deltypp == 2) then
                     ! cannot locate a better point when converging the residuals
                     fiscod = 3
                 else if (fiter >= opts%fit%maxiter) then
@@ -1064,7 +1067,7 @@ contains
         fit_tar => fit_tar%next
         if (.not. associated(fit_tar)) exit
     end do
-    
+
     if (nonval > 0) then
        ! nonval is the number of fit targets that are exogenous
        call fitot2(nonval)
