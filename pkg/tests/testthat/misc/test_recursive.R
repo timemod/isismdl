@@ -39,6 +39,7 @@ test_that("run_eqn with solve ordering", {
   mdl2 <- mdl$copy()
   mdl2$run_eqn(names = mdl$get_eq_names(order = "solve"))
   expect_equal(mdl2$get_data(), expected_result)
+  mdl2$solve(options = list(maxiter = 0))
   expect_equal(mdl2, mdl_solved)
 })
 

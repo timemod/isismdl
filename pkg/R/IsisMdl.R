@@ -58,6 +58,7 @@ setOldClass("period_range")
 #' @useDynLib isismdl get_solve_status_c
 #' @useDynLib isismdl set_dbgeqn
 #' @useDynLib isismdl get_dbgeqn
+#' @useDynLib isismdl get_jc
 #' @useDynLib isismdl order_mdl_c
 #' @useDynLib isismdl has_free_mws
 #' @import regts
@@ -421,7 +422,7 @@ IsisMdl <- R6Class("IsisMdl",
           stop(paste("The data period is too short. It should contain at least",
                      private$maxlag + private$maxlead + 1, "periods"))
         }
-        private$model_period <- period_range(startp, endp)
+        private$set_period_internal(period_range(startp, endp))
       }
 
       #
@@ -458,8 +459,7 @@ IsisMdl <- R6Class("IsisMdl",
       } else  {
         private$check_model_period(period)
       }
-      private$model_period <- period
-      return(invisible(self))
+      return(private$set_period_internal(period))
     },
     get_period = function() {
       return(private$model_period)
@@ -784,6 +784,14 @@ IsisMdl <- R6Class("IsisMdl",
       .Call("set_eq_status_c", private$model_index, names, status);
       return(invisible(self))
     },
+    get_last_solve_period = function() {
+      jc <- .Fortran("get_jc", private$model_index, jc = 1L)$jc
+      if (jc != -1) {
+        return(start_period(private$model_period)  + jc  - 1)
+      } else {
+        return(NULL)
+      }
+    },
     mdlpas = function(period = private$model_period) {
       "Run all equations of the model in solution order forwards in time"
       if (is.null(private$model_period)) stop(private$period_error_msg)
@@ -851,6 +859,21 @@ IsisMdl <- R6Class("IsisMdl",
     ca_type = 2L,
     fix_type = 3L,
     fit_type = 4L,
+    set_period_internal = function(period) {
+      if (!is.null(private$model_period)) {
+        # update jc (index of last solve period) in modelworkspace
+        shift <- start_period(period) - start_period(private$model_period)
+        old_jc <- .Fortran("get_jc", private$model_index, jc = 1L)$jc
+        new_jc <- as.integer(old_jc - shift)
+        if (new_jc < 1 || new_jc > nperiod(period)) {
+          # last solve period outside range of new model period.
+          new_jc <- -1L
+        }
+        .Fortran("set_jc", mws_index = private$model_index, jc = new_jc)
+      }
+      private$model_period <- period
+      return(invisible(self))
+    },
     deep_clone = function(name, value) {
       if (name == "model_index") {
         has_free_mws <- .Fortran("has_free_mws", result = 1L)$result
@@ -1108,6 +1131,7 @@ IsisMdl <- R6Class("IsisMdl",
                 fit_options = self$get_fit_options(),
                 cvgcrit = .Call("get_cvgcrit_c", private$model_index, 0L),
                 ftrelax = .Call("get_ftrelax_c", private$model_index),
+                jc = .Fortran("get_jc", private$model_index, jc = 1L)$jc,
                 data = data, ca = ca,
                 fix = self$get_fix(), fit = self$get_fit(),
                 rms = self$get_rms())
@@ -1128,10 +1152,8 @@ IsisMdl <- R6Class("IsisMdl",
       .Call("set_cvgcrit_init_mws", private$model_index, x$cvgcrit)
       .Call("set_ftrelax_init_mws", private$model_index, x$ftrelax)
       if (!is.null(x$model_period)) {
-        self$set_period(x$model_period)
-        if (!is.null(x$data)) {
-          self$init_data(data = x$data, ca = x$ca)
-        }
+        private$set_period_internal(x$model_period)
+        self$init_data(data = x$data, ca = x$ca)
         if (!is.null(x$fix)) {
           self$set_fix(x$fix)
         }
@@ -1140,6 +1162,12 @@ IsisMdl <- R6Class("IsisMdl",
         }
         if (length(x$rms) > 0) {
           self$set_rms(x$rms)
+        }
+
+        # jc (last period solved, part of the mws since version 1.4)
+        if (!is.null(x$jc)) {
+          .Fortran("set_jc", mws_index = private$model_index,
+                   jc = x$jc)
         }
       }
       return(invisible(self))

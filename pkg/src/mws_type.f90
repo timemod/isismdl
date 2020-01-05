@@ -22,6 +22,8 @@ module mws_type
         logical :: dbgeqn
         real(kind = SOLVE_RKIND), dimension(:), allocatable :: rmsu
         integer :: simerr = -1
+        integer :: jc = -1 ! index of current solve period relative to model
+                           ! period
 
     end type modelworkspace
 
@@ -39,7 +41,7 @@ module mws_type
             integer, intent(out) :: error
         
             integer :: stat
-            
+
             error = 0
 
             if (stat == 0) allocate(mws%test(mws%mdl%nrv), stat = stat)
@@ -52,6 +54,7 @@ module mws_type
             mws%test = sqrt(Rmeps)
             mws%ftrelax = NA
             mws%dbgeqn = .false.
+            mws%jc = -1
             call set_default_options(mws%solve_opts)
         
         end subroutine mwsinit
@@ -63,6 +66,7 @@ module mws_type
             mws%data_perlen = 0
             mws%simerr = -1
             mws%dbgeqn = .false.
+            mws%jc = -1
             deallocate(mws%mdl_data, stat = stat)
             deallocate(mws%constant_adjustments, stat = stat)
             deallocate(mws%test, stat = stat)

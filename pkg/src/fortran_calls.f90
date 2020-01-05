@@ -366,3 +366,22 @@ subroutine get_dbgeqn(mws_index, dbgeqn_)
         dbgeqn_ = 0
     endif
 end subroutine get_dbgeqn
+
+subroutine set_jc(mws_index, jc)
+    ! set jc (index of last solve period relative to the model period)
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: mws_index, jc
+    mws_array(mws_index)%jc = jc
+end subroutine set_jc
+
+subroutine get_jc(mws_index, jc)
+    ! get the index of the current period just solved
+    ! relative to the start of the solve period.
+    ! is -1 before the first solve
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: mws_index
+    integer(c_int), intent(out) :: jc
+    jc = mws_array(mws_index)%jc
+end subroutine get_jc

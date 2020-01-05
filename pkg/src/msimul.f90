@@ -51,7 +51,7 @@ module msimul
     
     call chkpar(quit)
     if (quit) then
-        jc = jf
+        mws%jc = jf
         mws%simerr = 4
         call report_solve_error
         goto 999
@@ -59,7 +59,7 @@ module msimul
     
     call init_lags_leads_check(quit)
     if (quit) then
-        jc = jf
+        mws%jc = jf
         mws%simerr = 3
         call report_solve_error
         goto 999
@@ -383,9 +383,9 @@ module msimul
        step   = -1
     endif
     
-    jc = jstart
-    ! generate string with period  for output system
-    call sjcstr(jc)
+    mws%jc = jstart
+    ! generate string with period for output system
+    call sjcstr(mws%jc)
     
     do jt = jstart, jend, step
     
@@ -435,8 +435,8 @@ module msimul
        else
     
           ! update period indicators for messages
-          jc = jt + step
-          call sjcstr(jc)
+          mws%jc = jt + step
+          call sjcstr(mws%jc)
     
           call store_solution_prepare_next(jt, quit)
           if (quit) then
@@ -521,7 +521,7 @@ module msimul
     use msfitm
     use msolot
     
-    ! solves the model for the current period targetc (jc)
+    ! solves the model for the current period jt
     ! calls required solving subroutine depending on mode
     
     ! at call, curvars contains starting values

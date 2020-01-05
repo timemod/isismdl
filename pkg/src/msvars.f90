@@ -19,7 +19,6 @@ module msvars
 
     logical, save :: matrix = .false.
     integer, save :: jf, jl  ! first and last period to solve
-    integer, save :: jc  ! current period
     integer, save :: itrtot, njcmat
     logical, save :: change  ! ??
     real(kind = MWS_RKIND) :: relax

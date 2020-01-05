@@ -4,7 +4,7 @@ subroutine reschk(retcod)
     use msolot
     integer, intent(out) :: retcod
  
-    ! solves the model for the current period targetc (jc)
+    ! solves the model for the current period targetc (mws%jc)
     ! by performing a residual check
  
     ! at call, curvars contains starting values

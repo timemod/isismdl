@@ -432,7 +432,7 @@ NULL
 #' \item{\code{data_period}}{\code{\link[regts]{period_range}}
 #' object, or an object that can be coerced to
 #' \code{\link[regts]{period_range}}.  If not specified then the data period
-#' is based on the period range of argument \code{data} (if this argument 
+#' is based on the period range of argument \code{data} (if this argument
 #' has been specified) and  the model period.}
 #' \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
 #'  object with model variables}
@@ -1809,3 +1809,25 @@ NULL
 #' mdl <- islm_mdl()
 #' cat(mdl$get_text())
 NULL
+
+#' \code{\link{IsisMdl}} method: Returns the last solve period
+
+#' @name get_last_solve_period
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the last solve period,
+#' i.e. the last period for which method \code{\link{solve}} attemted to
+#' find a solution (whether succesful or not). The period is returned as a
+#' \code{\link[regts]{period}} object. The function returns \code{NULL} when
+#' method \code{solve} has not yet been used fot this \code{IsisMdl} object.
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_last_solve_period()
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @examples
+#' mdl <- islm_mdl(period = "2018q1/2018q4")$solve()
+#' mdl$get_last_solve_period()
+NULL
+
