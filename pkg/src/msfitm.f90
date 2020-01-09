@@ -435,10 +435,12 @@ contains
                     ! have converged. Otherwise: only stop if the model
                     ! variables have converged.
                     fiscod = 1
-                else if (deval .and. devalp .and. delsmx > CVGREL * delsmxp &
-                         .and. deltypp == 2) then
+                ! when converging the residuals, it is sometimes not bad
+                ! if the step size increases.
+                !else if (deval .and. devalp .and. delsmx > CVGREL * delsmxp &
+                !         .and. deltypp == 2) then
                     ! cannot locate a better point when converging the residuals
-                    fiscod = 3
+                !    fiscod = 3
                 else if (fiter >= opts%fit%maxiter) then
                     ! too many iterations : no convergence
                     fiscod = 2
