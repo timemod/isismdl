@@ -1082,7 +1082,7 @@ IsisMdl <- R6Class("IsisMdl",
       ret <- .Call("get_fix_fit_c", type = type,
                    model_index = private$model_index)
       if (!is.null(ret)) {
-        ret <- regts(ret[[2]], start = start_period(private$model_period)
+        ret <- regts(ret[[2]], start = start_period(private$fortran_period)
                      + ret[[1]] - 1, names = ret[[3]])
         ret <- ret[ , sort(colnames(ret)), drop = FALSE]
         if (length(private$labels) > 0) {

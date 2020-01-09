@@ -59,3 +59,15 @@ test_that("Comparing solve after removing fit targets and setting the
   expect_identical(dif$missing_names2, character(0))
   expect_identical(dif$difnames, character(0))
 })
+
+test_that("reduced model period", {
+  per <- period_range("2015q4/2016q3")
+  mdl <- islm_model$copy()$set_period(per)
+  fit <- lag(fit_targets, -2)
+  mdl$set_fit(fit)
+  expect_equal(mdl$get_fit(), fit[ , c("i", "y")])
+  mdl$solve(options = list(report = "none"))
+  data <- mdl$get_data(period = per, names = c("i", "y"))
+  expected_data <- update_ts(data, fit, method = "updval")
+  expect_equal(data, expected_data)
+})
