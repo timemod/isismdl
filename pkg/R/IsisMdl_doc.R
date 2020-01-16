@@ -972,16 +972,16 @@ NULL
 #'
 #' An example may help to clarify this. Consider the following statement
 #'  ```
-#'  mdl$change_endo_data(fun = myfun, names = c("c", "y"),
+#'  mdl$change_data(fun = myfun, names = c("c", "y"),
 #'                       period = "2017q1/2017q2"),
 #'  ```
 #'
 #'  where `mdl` is a `DynMdl` object and `myfun` some function whose details
-#'  are not relevant here. Method  \code{change_endo_data} evaluates this as
+#'  are not relevant here. Method  \code{change_data} evaluates this as
 #'  ```
-#'  data <- mdl$get_endo_data(names = c("c", "y"), period = "2017q1/2017q2")
-#'  data[, "c"] <- myfun(as.numeric(data[, "c"])
-#'  data[, "y"] <- myfun(as.numeric(data[, "y"])
+#'  data <- mdl$get_data(names = c("c", "y"), period = "2017q1/2017q2")
+#'  data[, "c"] <- myfun(as.numeric(data[, "c"]))
+#'  data[, "y"] <- myfun(as.numeric(data[, "y"]))
 #'  mdl$set_data(data)
 #'  ```
 #'
