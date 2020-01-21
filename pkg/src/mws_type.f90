@@ -23,7 +23,7 @@ module mws_type
         real(kind = SOLVE_RKIND), dimension(:), allocatable :: rmsu
         integer :: simerr = -1
         integer :: jc = -1 ! index of current solve period relative to model
-                           ! period
+                           ! period in fortran (fortran period)
 
     end type modelworkspace
 
