@@ -547,8 +547,10 @@ void set_rms_c(SEXP mws_index_, SEXP values) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
         int iv = F77_CALL(get_var_index)(&mws_index, name, &namelen);
-        double value = REAL(values)[i];
-        F77_NAME(set_rms_fortran)(&mws_index, &iv, &value);
+        if (iv > 0) {
+            double value = REAL(values)[i];
+            F77_NAME(set_rms_fortran)(&mws_index, &iv, &value);
+        }
     }
 }
 
