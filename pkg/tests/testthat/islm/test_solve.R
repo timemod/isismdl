@@ -4,6 +4,8 @@ library(testthat)
 
 context("solve ISLM model")
 
+rm(list = ls())
+
 capture_output(mdl <- read_mdl("islm_model.ismdl"))
 capture_output(mdl_solved <- read_mdl("islm_model_solved.ismdl"))
 

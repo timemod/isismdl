@@ -637,7 +637,7 @@ void set_cvgcrit_c(SEXP mws_index_, SEXP names, SEXP value_) {
 void set_cvgcrit_init_mws(SEXP mws_index_, SEXP values) {
     int mws_index = asInteger(mws_index_);
     int i;
-    for (i = 1; i <- length(values); i++) {
+    for (i = 1; i <= length(values); i++) {
         double value = REAL(values)[i - 1];
         F77_CALL(set_test)(&mws_index, &i, &value);
     }
