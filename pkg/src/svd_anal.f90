@@ -243,7 +243,7 @@ logical ::  fit
 
        str = ''
        call strout(O_OUTN)
-       str = 'Matrix contains invalid numbers...'
+       str = 'Matrix contains invalid numbers'
        call strout(O_OUTN)
        str = 'Not possible to perform SVD analysis'
        call strout(O_OUTN)

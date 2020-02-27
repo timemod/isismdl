@@ -733,19 +733,19 @@ case (1)
     str = 'Isis Model Compiler 3.00'
 
 case (2) 
-    str = 'Scanning model...'
+    str = 'Scanning model ...'
 
 case (3) 
-    str = 'Compiling model...'
+    str = 'Compiling model ...'
 
 case (4)
-    str = 'Ordering equations...'
+    str = 'Ordering equations ...'
 
 case(5)
-    str = 'Writing MIF file...'
+    str = 'Writing MIF file ...'
 
 case (6)
-    str = 'Writing cross-reference file...'
+    str = 'Writing cross-reference file ...'
 
 case (7)
     str = 'End compilation'

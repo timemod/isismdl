@@ -42,18 +42,18 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, ier)
     !
     ! check model for syntactic erros
     !
-    call isismdl_out("Checking Model-code...")
+    call isismdl_out("Checking Model-code ...")
     call chkmdl(mws_array(model_index)%mdl, nerr)
     if (nerr == 0) then
-        call isismdl_out("Model is ok...")
+        call isismdl_out("Model is ok ...")
     else
         ier = 3
-        call isismdl_out("Errors encountered in model...")
+        call isismdl_out("Errors encountered in model ...")
         goto 999
     endif
 
     if (.not. has_fb_order(mws_array(model_index)%mdl)) then
-        call isismdl_out("No feedback ordering for this model...")
+        call isismdl_out("No feedback ordering for this model ...")
     else if (mws_array(model_index)%mdl%fboflg == 2) then
         call mdgfbo(mws_array(model_index)%mdl, fbo_err)
         if (fbo_err == 0) then
@@ -62,7 +62,7 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, ier)
             call isismdl_out("Feedback ordering NOT generated ...")
         endif
     elseif (mws_array(model_index)%mdl%fboflg == 1) then
-        call isismdl_out("Feedback ordering read from mif file...")
+        call isismdl_out("Feedback ordering read from mif file ...")
     endif
 
     call mwsinit(mws_array(model_index), ier)
