@@ -1767,7 +1767,7 @@ NULL
 #' information to a file.
 #' @section Usage:
 #' \preformatted{
-#' mdl$order(orfnam)
+#' mdl$order(orfnam, silent = FALSE)
 #'
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -1778,6 +1778,8 @@ NULL
 #' \item{\code{orfnam}}{Name of file on which to print ordering information.
 #'   If no output file is specified no ordering information will
 #'   be written}
+#' \item{\code{silent}}{A logical (default \code{FALSE}). If \code{TRUE}, then
+#' output is suppressed.}
 #' }
 NULL
 

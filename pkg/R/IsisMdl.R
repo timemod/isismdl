@@ -219,7 +219,8 @@ setOldClass("period_range")
 IsisMdl <- R6Class("IsisMdl",
   public = list(
 
-    initialize = function(serialized_mdl, mif_file, model_text) {
+    initialize = function(serialized_mdl, mif_file, model_text,
+                          silent = FALSE) {
 
       if (!missing(mif_file) && !missing(serialized_mdl)) {
         stop("Specify either argument mif_name or serialized_mdl, but not both")
@@ -239,9 +240,15 @@ IsisMdl <- R6Class("IsisMdl",
       has_free_mws <- .Fortran("has_free_mws", result = 1L)$result
       if (!has_free_mws) gc(verbose = FALSE)
 
-      cat("Reading mif file...\n")
-      private$model_index <- .Call(read_mdl_c, mif_file)
-
+      if (!silent) {
+        cat("Reading mif file...\n")
+        private$model_index <- .Call(read_mdl_c, mif_file)
+        cat("\n")
+      } else {
+        output <- capture.output({
+          private$model_index <- .Call(read_mdl_c, mif_file)
+       })
+      }
       if (!missing(serialized_mdl)) {
         unlink(mif_file)
       }
@@ -826,7 +833,7 @@ IsisMdl <- R6Class("IsisMdl",
       .Fortran("clear_fix_fortran", model_index = private$model_index)
       return(invisible(self))
     },
-    order = function(orfnam = NULL) {
+    order = function(orfnam = NULL, silent = FALSE) {
       if (!is.null(orfnam)) {
         if (!is.character(orfnam)) {
           stop("orfnam is not an character string")
@@ -835,7 +842,19 @@ IsisMdl <- R6Class("IsisMdl",
           file.remove(orfnam)
         }
       }
-      .Call(order_mdl_c, model_index = private$model_index, orfnam = orfnam)
+      call_order_mdl_c <-function() {
+        .Call(order_mdl_c, model_index = private$model_index,
+              orfnam = orfnam)
+        return(invisible())
+      }
+      if (silent) {
+        output <- capture.output({
+          call_order_mdl_c()
+        })
+      } else {
+        call_order_mdl_c()
+        cat("\n")
+      }
       return(invisible(self))
     },
     copy = function() {

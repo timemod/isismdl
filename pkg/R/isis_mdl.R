@@ -55,6 +55,8 @@
 #' with column names
 #' @param parse_options a named list with options passed to the model parser.
 #' See section "Parse options"
+#' @param silent A logical (default \code{FALSE}). If \code{TRUE}, then
+#' output of the model parser is suppressed.
 #' @useDynLib isismdl compile_mdl_c
 #'
 #' @section Parse options:
@@ -85,9 +87,8 @@
 #' \code{dep}. The file gives for each equation a list of the variables that occur
 #' in the right hand side of the equation with lags and leads included.
 #' This file may be useful for model analysis with other software.
-#' Currently this option cannot be used for models with user functions}
-#' }
-#'
+#' Currently this option cannot be used for models with user functions.
+#' }}
 #' @examples
 #'
 #' # copy the islm.mdl file in the directory models of the package
@@ -113,9 +114,10 @@
 #' @importFrom regts end_period
 #' @importFrom readr read_file
 #' @importFrom tools file_ext
+#' @importFrom utils capture.output
 #' @export
 isis_mdl <- function(model_file, period, data, ca, fix_values,
-                     parse_options) {
+                     parse_options, silent = FALSE) {
 
   if (!missing(period)) {
     period <- as.period_range(period)
@@ -137,13 +139,25 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   # read by read_model. This strange situation is due to the history
   # of package isismdl. Changing this behaviour is not trivial and requires a
   # significant reorganisation of the code.
-  with(parse_options_, {
-    retval <- .Call(compile_mdl_c, model_file, mif_file, flags, include_dirs,
-                    gen_dep_file)
-    if (!retval) {
-      stop("Compilation was not succesfull")
-    }
-  })
+
+  call_compile_mdl_c <-function() {
+    with(parse_options_, {
+      return(.Call(compile_mdl_c, model_file, mif_file, flags, include_dirs,
+                   gen_dep_file))
+
+    })
+  }
+  if (silent) {
+    output <- capture.output({
+      retval <- call_compile_mdl_c()
+    })
+  } else {
+    retval <- call_compile_mdl_c()
+  }
+
+  if (!retval) {
+    stop("Compilation was not succesfull")
+  }
 
   # TODO: if the model contains preprocessor directives (#if, #include),
   # the text should actually be preprocessed
@@ -154,7 +168,8 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
                     }
   model_text <- read_file(model_filename)
 
-  mdl <- IsisMdl$new(mif_file = mif_file, model_text = model_text)
+  mdl <- IsisMdl$new(mif_file = mif_file, model_text = model_text,
+                     silent = silent)
   unlink(mif_file)
 
   if (!missing(data)) {

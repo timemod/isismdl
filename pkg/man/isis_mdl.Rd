@@ -4,7 +4,15 @@
 \alias{isis_mdl}
 \title{Creates an \code{\link{IsisMdl}} object from a model file.}
 \usage{
-isis_mdl(model_file, period, data, ca, fix_values, parse_options)
+isis_mdl(
+  model_file,
+  period,
+  data,
+  ca,
+  fix_values,
+  parse_options,
+  silent = FALSE
+)
 }
 \arguments{
 \item{model_file}{The name of the model file.
@@ -24,6 +32,9 @@ with column names}
 
 \item{parse_options}{a named list with options passed to the model parser.
 See section "Parse options"}
+
+\item{silent}{A logical (default \code{FALSE}). If \code{TRUE}, then
+output of the model parser is suppressed.}
 }
 \description{
 This function creates an \code{\link{IsisMdl}} object.
@@ -97,8 +108,8 @@ The dependency information is written to an external file with extension
 \code{dep}. The file gives for each equation a list of the variables that occur
 in the right hand side of the equation with lags and leads included.
 This file may be useful for model analysis with other software.
-Currently this option cannot be used for models with user functions}
-}
+Currently this option cannot be used for models with user functions.
+}}
 }
 
 \examples{

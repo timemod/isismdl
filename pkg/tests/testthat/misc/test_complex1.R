@@ -43,7 +43,7 @@ test_that("mdl_subst is correct", {
 test_that("order works correctly", {
 
   mdl_old <- mdl$copy()
-  capture.output(mdl$order(orfnam = orf_name))
+  mdl$order(orfnam = orf_name, silent = TRUE)
   expect_equal(mdl, mdl_old)
 
   # compare orf files
@@ -51,7 +51,7 @@ test_that("order works correctly", {
   expected_orf <- readLines(expected_orf_name)
   expect_identical(orf, expected_orf)
 
-  capture.output(mdl_subst$order(orfnam = orf_subst_name))
+  mdl_subst$order(orfnam = orf_subst_name, silent = TRUE)
 
   # compare orf files
   orf_subst <- readLines(orf_subst_name)

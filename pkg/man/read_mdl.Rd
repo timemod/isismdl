@@ -4,10 +4,13 @@
 \alias{read_mdl}
 \title{Reads an \code{IsisMdl} object from a file}
 \usage{
-read_mdl(file)
+read_mdl(file, silent = FALSE)
 }
 \arguments{
 \item{file}{filename (typically with extension \code{.ismdl})}
+
+\item{silent}{A logical (default \code{FALSE}). If \code{TRUE}, then
+output is suppressed.}
 }
 \value{
 an \code{\link{IsisMdl}} object
