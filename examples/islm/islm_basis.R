@@ -11,7 +11,7 @@ ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2015Q2",
 islm_input <- cbind(r, y, yd, g, ms)
 
 # create the model
-mdl <- isis_mdl("islm.mdl", data = islm_input);
+mdl <- isis_mdl("islm.mdl", data = islm_input, silent = FALSE)
 print(mdl)
 
 # add labels for model variables not in the input data
@@ -20,8 +20,10 @@ mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
 
 
 mdl$solve()
-mdl$order(orfnam = 'aap.orf')
+mdl$order(orfnam = 'aap.orf', silent = FALSE)
 
 mdl$write_mdl("islm_basis.ismdl")
+
+x <- read_mdl("islm_basis.ismdl", silent = TRUE)
 
 print(mdl$get_data(period = "2015"))

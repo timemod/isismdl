@@ -12,7 +12,7 @@ ts_labels(fit_targets) <- c("income", "investment")
 
 isis_result <- as.regts(read.csv("isi/fit_zealous.csv"), time_column = 1)
 
-capture_output(islm_model <- read_mdl("islm_model.ismdl"))
+islm_model <- read_mdl("islm_model.ismdl", silent = TRUE)
 
 islm_model$set_fit(fit_targets)
 islm_model$set_rms(rms_values)

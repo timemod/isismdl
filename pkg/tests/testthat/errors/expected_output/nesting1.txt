@@ -1,0 +1,10 @@
+Use of function f1 implies a nested sum
+Line: 7 of file mdl/nesting1.mdl
+ident eq1 x1 = sum(k =  -1, 0: f1(x));
+                                   ^
+
+Use of function f2 implies a nested del
+Line: 10 of file mdl/nesting1.mdl
+ident eq4 x4 = del(2: f2(x));
+                          ^
+

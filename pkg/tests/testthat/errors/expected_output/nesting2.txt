@@ -1,0 +1,6 @@
+Nested sum not allowed
+
+Line: 1 of file mdl/nesting2.mdl
+ident EQ1 X1 = sum(J = 3, 4 : J * sum(J = -2, -1 : J * Y ) );
+                                                ^
+

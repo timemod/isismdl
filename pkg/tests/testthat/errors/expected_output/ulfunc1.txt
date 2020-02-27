@@ -1,0 +1,45 @@
+Name f1 already used as user function name
+Line: 10 of file mdl/ufunc1.mdl
+function f1(x) = 1;
+           ^
+
+Use of function f1 implies a nested sum
+Line: 12 of file mdl/ufunc1.mdl
+ident eq1 x1 = sum(k =  -1, 0: f1(x(k))) + 2 * f1(x1(-1) * 2);
+                                      ^
+
+Type mismatch in argument x in call of f1
+Line: 12 of file mdl/ufunc1.mdl
+ident eq1 x1 = sum(k =  -1, 0: f1(x(k))) + 2 * f1(x1(-1) * 2);
+                                                            ^
+
+Function f3 requires 2 arguments but 1 passed
+Line: 14 of file mdl/ufunc1.mdl
+ident eq3 x3 = f3(2 * x3);
+                        ^
+
+Use of function f3 implies a nested del
+Line: 16 of file mdl/ufunc1.mdl
+ident eq5 x5 = del(2: f3(2 * x3));
+                               ^
+
+Function f3 requires 2 arguments but 1 passed
+Line: 16 of file mdl/ufunc1.mdl
+ident eq5 x5 = del(2: f3(2 * x3));
+                               ^
+
+Function f1 requires 1 arguments but 2 passed
+Line: 17 of file mdl/ufunc1.mdl
+ident eq6 x6 = f1(x6, 2);
+                       ^
+
+syntax error, unexpected ',', expecting '-' or '+' or ')'
+Line: 18 of file mdl/ufunc1.mdl
+ident eq7 x7 = f6(x7, 2);
+                    ^
+
+Unknown function f7
+Line: 19 of file mdl/ufunc1.mdl
+ident eq8 x8 = f7(x8);
+                    ^
+

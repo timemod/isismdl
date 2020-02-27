@@ -5,11 +5,11 @@ library(testthat)
 context("get_last_solve_period")
 
 test_that("new compiled moel", {
-  capture.output(mdl <- isis_mdl("mdl/islm.mdl"))
+  mdl <- isis_mdl("mdl/islm.mdl", silent = TRUE)
   expect_null(mdl$get_last_solve_period())
 })
 
-rep <- capture.output(mdl <- read_mdl("islm_model.ismdl"))
+mdl <- read_mdl("islm_model.ismdl", silent = TRUE)
 
 rds_file <- tempfile()
 

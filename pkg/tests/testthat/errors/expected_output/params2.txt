@@ -1,0 +1,25 @@
+Duplicate parameter name c1
+Line: 3 of file mdl/params2.mdl
+param c1  3 coef1 2 3 coef2 *;
+        ^
+
+syntax error, unexpected '*', expecting number or integer
+Line: 3 of file mdl/params2.mdl
+param c1  3 coef1 2 3 coef2 *;
+                             ^
+
+Name c2 already used as exogenous variable name
+Line: 4 of file mdl/params2.mdl
+param c2 1 2 3 ;
+        ^
+
+syntax error, unexpected ';', expecting number or integer
+Line: 5 of file mdl/params2.mdl
+param c3 1 2 q;
+              ^
+
+syntax error, unexpected ';', expecting number or integer
+Line: 6 of file mdl/params2.mdl
+param c4;
+        ^
+

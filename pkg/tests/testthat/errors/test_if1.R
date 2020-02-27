@@ -15,5 +15,5 @@ test_that("error file correct", {
     error_txt <- gsub("\r", "", error_txt)
   }
   #cat(error_txt)
-  expect_equal_to_reference(error_txt, "expected_output/if1.rds")
+  expect_known_output(cat(error_txt), "expected_output/if1.txt")
 })
