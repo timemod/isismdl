@@ -1,0 +1,72 @@
+Invalid index (-4) on param c2
+The index should obey -2 <= index <= 0
+Line: 12 of file mdl/params1.mdl
+ident eq2   x2 = c2(-4);
+                      ^
+
+Invalid index (2) on param c2
+The index should obey -2 <= index <= 0
+Line: 13 of file mdl/params1.mdl
+ident eq3   x3 = c2(2);
+                     ^
+
+Invalid index (-1) on param c1
+The index should obey 0 <= index <= 0
+Line: 14 of file mdl/params1.mdl
+ident eq4   x4 = c1(-1);
+                      ^
+
+Invalid index range (-2:-1) on param c1 due to function call 
+The index should obey 0 <= index <= 0
+Line: 15 of file mdl/params1.mdl
+ident eq5   x5 = f1(c1);
+                      ^
+
+Invalid index range (1:2) on param c2 due to function call 
+The index should obey -2 <= index <= 0
+Line: 17 of file mdl/params1.mdl
+ident eq7   x7 = f2(c2);
+                      ^
+
+Invalid index (-3) on param c1 due to function call 
+The index should obey 0 <= index <= 0
+Line: 20 of file mdl/params1.mdl
+ident eq10 x10 = f4(c1);
+                      ^
+
+Invalid index (-3) on param c2 due to function call 
+The index should obey -2 <= index <= 0
+Line: 21 of file mdl/params1.mdl
+ident eq11 x11 = f4(c2);
+                      ^
+
+Invalid index range (-3:-2) on param c2 due to function call 
+The index should obey -2 <= index <= 0
+Line: 22 of file mdl/params1.mdl
+ident eq12 x12 = f5(c2(-1));
+                          ^
+
+Invalid index range (1:2) on param c1 due to function call 
+The index should obey 0 <= index <= 0
+Line: 23 of file mdl/params1.mdl
+ident eq13 x13 = f6(c1, 1) + c1(-2);
+                         ^
+
+Invalid index (-2) on param c1
+The index should obey 0 <= index <= 0
+Line: 23 of file mdl/params1.mdl
+ident eq13 x13 = f6(c1, 1) + c1(-2);
+                                  ^
+
+Invalid index range (1:2) on param c2 due to function call 
+The index should obey -2 <= index <= 0
+Line: 24 of file mdl/params1.mdl
+ident eq14 x14 = f6(c2, 2);
+                         ^
+
+Invalid index range (-2:0) on param c1
+The index should obey 0 <= index <= 0
+Line: 26 of file mdl/params1.mdl
+ident eq16 x16 = sum(j = -2, 0 : c1(j));
+                                     ^
+

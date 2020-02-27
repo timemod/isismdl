@@ -1,0 +1,20 @@
+syntax error, unexpected ';', expecting else
+Line: 1 of file mdl/if1.mdl
+ident x1 = if (x = 2) then 3;
+                            ^
+
+syntax error, unexpected endif, expecting else
+Line: 2 of file mdl/if1.mdl
+ident x2 = if (x = 2) then 3 endif;
+                                  ^
+
+syntax error, unexpected else
+Line: 3 of file mdl/if1.mdl
+ident x3 = if (x = 2) else 2;
+                          ^
+
+syntax error, unexpected endif
+Line: 4 of file mdl/if1.mdl
+ident x4 = if (x = 2) endif;
+                           ^
+
