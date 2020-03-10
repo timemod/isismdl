@@ -1,4 +1,3 @@
-fbwork_type.o : kinds.o
 fortran_calls.o : modelworkspaces.o msfill.o msimot.o msimul.o \
                  msslvq.o msvars.o set_options.o
 get_fit_opts.o : get_options.o
@@ -12,7 +11,6 @@ liqrco.o : kinds.o
 liqrmn.o : kinds.o nucnst.o
 liqrsq.o : kinds.o
 liqrup.o : kinds.o nuv.o
-loopwork_type.o : kinds.o msvars.o
 mccedp.o : invpol.o kinds.o mcdep.o mcodep.o mcpars.o mcvars.o \
           model_type.o
 mcfbor.o : mccedp.o model_type.o
@@ -45,7 +43,6 @@ mscalc.o : include/mspushf.inc include/mspushv.inc include/msshift.inc \
           kinds.o mcedef.o mcstak.o model_params.o msimot.o msufstack.o msvars.o \
           mws_type.o nuna.o nuv.o
 msfbvl.o : kinds.o mdl_name_utils.o mscalc.o msimot.o msvars.o nuna.o
-msfbwork.o : kinds.o msvars.o
 msfill.o : msimot.o mssneq.o msvars.o
 msfitm.o : kinds.o liqrco.o liqrmn.o mdlvars.o msbrdn.o msfbvl.o \
           msfito.o msnwut.o mssolve.o msutil.o msvars.o nucnst.o nuna.o nuv.o \
@@ -60,7 +57,6 @@ msimox.o : kinds.o mdl_name_utils.o msimot.o msratop.o msvars.o
 msimul.o : msfitm.o msfix.o msimob.o msimot.o msimox.o msolot.o \
           msratop.o mssolve.o msutil.o msvars.o nucnst.o nuna.o output_utils.o
 msjcot.o : mdl_name_utils.o msimot.o msvars.o
-msloop_work.o : kinds.o msvars.o
 msnothing.o : kinds.o
 msnwut.o : kinds.o mdl_name_utils.o msfbvl.o msimot.o msjcot.o \
           msolot.o msutil.o msvars.o nucnst.o nuna.o nuv.o scalemat.o
