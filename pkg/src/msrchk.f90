@@ -20,7 +20,7 @@ subroutine reschk(retcod)
         call chkxa(quit)
         if (quit) then
             retcod = 1
-            goto 100
+            return
         endif
     endif
 
@@ -37,8 +37,6 @@ subroutine reschk(retcod)
     call msprlg(retcod)
     call msloop(retcod)
     call mseplg(retcod)
-
-100 continue
 
     call solotf(0)
     return
