@@ -4,7 +4,9 @@
 \name{IsisMdl}
 \alias{IsisMdl}
 \title{An R6 class class representing an Isis model}
-\format{\code{\link{R6Class}} object.}
+\format{
+\code{\link{R6Class}} object.
+}
 \value{
 Object of \code{\link{R6Class}} representing an Isis model.
 }
