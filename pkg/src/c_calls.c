@@ -187,6 +187,7 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
     void (*get_name)(int *, int *, char *, int *);
     switch (type) {
     case ALL:      nvar = F77_CALL(get_variable_count)(&model_index);
+                   get_name = NULL;
                    break;
     case FRML:     nvar = F77_CALL(get_ca_count)(&model_index);
                    get_name = F77_CALL(get_ca_name);
