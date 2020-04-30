@@ -24,11 +24,11 @@ setOldClass("period_range")
 #' @importFrom R6 R6Class
 #' @useDynLib isismdl read_mdl_c
 #' @useDynLib isismdl write_mdl_c
-#' @useDynLib isismdl get_max_lag_lead_fortran
+#' @useDynLib isismdl get_max_lag_lead
 #' @useDynLib isismdl get_var_names_c
 #' @useDynLib isismdl get_eq_names_c
 #' @useDynLib isismdl get_par_names_c
-#' @useDynLib isismdl set_period_fortran
+#' @useDynLib isismdl set_period
 #' @useDynLib isismdl get_param_c
 #' @useDynLib isismdl get_data_c
 #' @useDynLib isismdl get_fix_fit_c
@@ -42,9 +42,9 @@ setOldClass("period_range")
 #' @useDynLib isismdl get_fit_opts_c
 #' @useDynLib isismdl solve_c
 #' @useDynLib isismdl filmdt_c
-#' @useDynLib isismdl remove_mws_fortran
-#' @useDynLib isismdl clear_fit_fortran
-#' @useDynLib isismdl clear_fix_fortran
+#' @useDynLib isismdl remove_mws_c
+#' @useDynLib isismdl clear_fit
+#' @useDynLib isismdl clear_fix
 #' @useDynLib isismdl set_cvgcrit_c
 #' @useDynLib isismdl set_cvgcrit_init_mws
 #' @useDynLib isismdl get_cvgcrit_c
@@ -52,9 +52,9 @@ setOldClass("period_range")
 #' @useDynLib isismdl set_ftrelax_init_mws
 #' @useDynLib isismdl get_ftrelax_c
 #' @useDynLib isismdl set_eq_status_c
-#' @useDynLib isismdl mdlpas_fortran
-#' @useDynLib isismdl clone_mws_fortran
-#' @useDynLib isismdl run_eqn_fortran
+#' @useDynLib isismdl mdlpas
+#' @useDynLib isismdl clone_mws
+#' @useDynLib isismdl run_eqn
 #' @useDynLib isismdl get_solve_status_c
 #' @useDynLib isismdl set_dbgeqn
 #' @useDynLib isismdl get_dbgeqn
@@ -237,7 +237,7 @@ IsisMdl <- R6Class("IsisMdl",
         writeBin(serialized_mdl$mif_data, con = mif_file)
       }
 
-      has_free_mws <- .Fortran("has_free_mws", result = 1L)$result
+      has_free_mws <- .Call("has_free_mws")
       if (!has_free_mws) gc(verbose = FALSE)
 
       if (!silent) {
@@ -254,11 +254,9 @@ IsisMdl <- R6Class("IsisMdl",
       }
 
       # get maximum lag and lead
-      ret <- .Fortran("get_max_lag_lead_fortran",
-                      model_index = private$model_index, maxlag = 1L,
-                      maxlead = 1L)
-      private$maxlag <- ret$maxlag
-      private$maxlead <- ret$maxlead
+      ret <- .Call("get_max_lag_lead", model_index = private$model_index)
+      private$maxlag <- ret[1]
+      private$maxlead <- ret[2]
       private$var_names <- sort(.Call(get_var_names_c, "all",
                                  private$model_index))
       private$var_count <- length(private$var_names)
@@ -286,7 +284,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     finalize = function() {
-      .Fortran("remove_mws_fortran", model_index = private$model_index)
+      .Call("remove_mws_c", model_index = private$model_index)
     },
     get_text = function() {
       return(private$model_text)
@@ -365,19 +363,11 @@ IsisMdl <- R6Class("IsisMdl",
       if (!is.logical(value)) {
         stop("value should be logical")
       }
-      if (value) {
-        dbgeqn_ <- 1L
-      } else {
-        dbgeqn_ <- 0L
-      }
-      .Fortran("set_dbgeqn", mws_index = private$model_index,
-               dbgeqn_ = dbgeqn_[1])
+      .Call("set_dbgeqn", private$model_index, value)
       return(invisible(self))
     },
     get_debug_eqn = function() {
-      retval <- .Fortran("get_dbgeqn", mws_index = private$model_index,
-                         dbgeqn_ = 1L)
-      return(retval$dbgeqn_ == 1L)
+      return(.Call("get_dbgeqn", private$model_index))
     },
     init_data = function(data_period, data, ca) {
 
@@ -702,12 +692,11 @@ IsisMdl <- R6Class("IsisMdl",
         stop(paste("Only one of arguments pattern and names can  be",
                    "specified"))
       }
-      eqnums <- as.integer(match(eq_names, self$get_eq_names(order = "natural")))
-      neq <- as.integer(length(eqnums))
+      eqnums <- match(eq_names, self$get_eq_names(order = "natural"))
       if (is.null(private$model_period)) stop(private$period_error_msg)
       js <- private$get_period_indices(period)
-      .Fortran("run_eqn_fortran", model_index = private$model_index,
-               neq = neq, eqnums = eqnums, jtb = js$startp, jte = js$end)
+      .Call("run_eqn", private$model_index, eqnums = as.integer(eqnums), 
+            jtb = js$startp, jte = js$end)
       return(invisible(self))
     },
     get_solve_options = function() {
@@ -793,7 +782,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     get_last_solve_period = function() {
-      jc <- .Fortran("get_jc", private$model_index, jc = 1L)$jc
+      jc <- .Call("get_jc", private$model_index)
       if (jc != -1) {
         return(start_period(private$fortran_period)  + jc  - 1)
       } else {
@@ -805,9 +794,8 @@ IsisMdl <- R6Class("IsisMdl",
       if (is.null(private$model_period)) stop(private$period_error_msg)
       period <- private$convert_period_arg(period)
       js <- private$get_period_indices(period)
-      ret <- .Fortran("mdlpas_fortran",
-                      model_index = private$model_index,
-                      jtb = js$startp, jte = js$end)
+      .Call("mdlpas", model_index = private$model_index,
+            jtb = js$startp, jte = js$end)
       return(invisible(self))
     },
     write_mdl = function(file) {
@@ -826,11 +814,11 @@ IsisMdl <- R6Class("IsisMdl",
                        class = "serialized_isismdl"))
     },
     clear_fit = function() {
-      .Fortran("clear_fit_fortran", model_index = private$model_index)
+      .Call("clear_fit", model_index = private$model_index)
       return(invisible(self))
     },
     clear_fix = function() {
-      .Fortran("clear_fix_fortran", model_index = private$model_index)
+      .Call("clear_fix", model_index = private$model_index)
       return(invisible(self))
     },
     order = function(orfnam = NULL, silent = FALSE) {
@@ -881,11 +869,9 @@ IsisMdl <- R6Class("IsisMdl",
     fit_type = 4L,
     deep_clone = function(name, value) {
       if (name == "model_index") {
-        has_free_mws <- .Fortran("has_free_mws", result = 1L)$result
+        has_free_mws <- .Call("has_free_mws")
         if (!has_free_mws) gc(verbose = FALSE)
-        retval <- .Fortran("clone_mws_fortran", model_index = value,
-                           model_index_clone = 1L)
-        return(retval$model_index_clone)
+        return(.Call("clone_mws", model_index = value))
       } else {
         return(value)
       }
@@ -1136,7 +1122,7 @@ IsisMdl <- R6Class("IsisMdl",
                 fit_options = self$get_fit_options(),
                 cvgcrit = .Call("get_cvgcrit_c", private$model_index, 0L),
                 ftrelax = .Call("get_ftrelax_c", private$model_index),
-                jc = .Fortran("get_jc", private$model_index, jc = 1L)$jc,
+                jc = .Call("get_jc", private$model_index),
                 data = data, ca = ca,
                 fix = self$get_fix(), fit = self$get_fit(),
                 rms = self$get_rms())
@@ -1171,8 +1157,8 @@ IsisMdl <- R6Class("IsisMdl",
 
         # jc (last period solved, part of the mws since version 1.4)
         if (!is.null(x$jc)) {
-          .Fortran("set_jc", mws_index = private$model_index,
-                   jc = x$jc)
+          .Call("set_jc", model_index = private$model_index,
+                jc = x$jc)
         }
       }
       return(invisible(self))
@@ -1195,13 +1181,13 @@ IsisMdl <- R6Class("IsisMdl",
       if (!is.null(private$fortran_period)) {
         shift <- start_period(new_fortran_period) -
                  start_period(private$fortran_period)
-        old_jc <- .Fortran("get_jc", private$model_index, jc = 1L)$jc
+        old_jc <- .Call("get_jc", private$model_index)
         new_jc <- as.integer(old_jc - shift)
         if (new_jc < 1 || new_jc > nperiod(new_fortran_period)) {
           # last solve period outside range of fortran period.
           new_jc <- -1L
         }
-        .Fortran("set_jc", mws_index = private$model_index, jc = new_jc)
+        .Call("set_jc", model_index = private$model_index, jc = new_jc)
       }
 
       private$fortran_period <- new_fortran_period
@@ -1209,10 +1195,12 @@ IsisMdl <- R6Class("IsisMdl",
       # fortran_period is the data period without lag and lead periods.
       start <- as.integer(c(get_year(startp), get_subperiod(startp)))
       end   <- as.integer(c(get_year(endp), get_subperiod(endp)))
-      .Fortran("set_period_fortran",
+      ierr <- .Call("set_period",
                model_index = private$model_index,
                start = start, end = end,
-               freq  = as.integer(private$fortran_period[3]), ier = 1L)
+               freq  = as.integer(private$fortran_period[3]))
+
+      return(invisible(NULL))
     },
     check_model_period = function(period) {
 
