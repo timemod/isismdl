@@ -36,7 +36,7 @@ extern void F77_SUB(check_options)(void);
 static void set_option(const char *name, SEXP value);
 static void set_debug_opts(SEXP option);
 
-void set_solve_opts_c(SEXP model_index_, SEXP options) {
+SEXP set_solve_opts_c(SEXP model_index_, SEXP options) {
     int model_index = asInteger(model_index_);
     int opts_present = length(options) > 0;
     if (opts_present) {
@@ -44,6 +44,7 @@ void set_solve_opts_c(SEXP model_index_, SEXP options) {
         F77_CALL(init_set_options)(&model_index, &use_mws);
         set_solve_options(&model_index, options);
     }
+    return R_NilValue;
 }
 
 void set_solve_options(int *model_index, SEXP options) {

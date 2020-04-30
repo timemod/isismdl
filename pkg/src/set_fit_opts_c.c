@@ -23,7 +23,7 @@ extern void F77_SUB(set_fit_svdtest_tol)(double *);
 static void set_fit_option(const char *name, SEXP value);
 static void set_fit_debug_opts(SEXP option);
 
-void set_fit_opts_c(SEXP model_index_, SEXP options) {
+SEXP set_fit_opts_c(SEXP model_index_, SEXP options) {
     int model_index = asInteger(model_index_);
     int opts_present = length(options) > 0;
     if (opts_present) {
@@ -31,6 +31,7 @@ void set_fit_opts_c(SEXP model_index_, SEXP options) {
         F77_CALL(init_set_options)(&model_index, &use_mws);
         set_fit_options(&model_index, options);
     }
+    return R_NilValue;
 }
 
 void set_fit_options(int *model_index, SEXP options) {

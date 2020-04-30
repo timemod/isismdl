@@ -90,8 +90,9 @@ extern void F77_NAME(remove_mws_fortran)(int *model_index);
 SEXP get_lags_or_leads(int model_index, int type);
 
 
-void init_modules_c(void) {
+SEXP init_modules_c(void) {
     F77_CALL(init_modules_fortran)();	
+    return R_NilValue;
 }
 
 SEXP read_mdl_c(SEXP filename) {
@@ -122,7 +123,7 @@ SEXP read_mdl_c(SEXP filename) {
     }
 }
 
-void write_mdl_c(SEXP filename, SEXP model_index_) {
+SEXP write_mdl_c(SEXP filename, SEXP model_index_) {
 
     int model_index = asInteger(model_index_);
     const char *modelnm = CHAR(STRING_ELT(filename, 0));
@@ -135,6 +136,7 @@ void write_mdl_c(SEXP filename, SEXP model_index_) {
     if (ier != 0) {
         error("Unknown error writing Mif file %s\n", modelnm);
     }
+    return R_NilValue;
 }
 
 /* Returns the names of the model parameters */
@@ -449,7 +451,7 @@ SEXP set_param_c(SEXP model_index_, SEXP param_list) {
 
 /* General function for setting model data, constant adjustments,
  * fix value or fit values */
-void set_data_c(SEXP set_type_, SEXP model_index_, SEXP mat, SEXP names,
+SEXP set_data_c(SEXP set_type_, SEXP model_index_, SEXP mat, SEXP names,
                 SEXP shift_, SEXP upd_mode_) {
 
     int set_type = asInteger(set_type_);
@@ -510,6 +512,7 @@ void set_data_c(SEXP set_type_, SEXP model_index_, SEXP mat, SEXP names,
                                           &upd_mode);
             break;
     }
+    return R_NilValue;
 }
 
 /* General function for getting fix value or fit values */
@@ -560,7 +563,7 @@ SEXP get_fix_fit_c(SEXP type_, SEXP model_index_) {
     return list;
 }
 
-void set_rms_c(SEXP model_index_, SEXP values) {
+SEXP set_rms_c(SEXP model_index_, SEXP values) {
     int model_index = asInteger(model_index_);
     SEXP names = getAttrib(values, R_NamesSymbol);
     int n_names = length(values);
@@ -574,6 +577,7 @@ void set_rms_c(SEXP model_index_, SEXP values) {
             F77_NAME(set_rms_fortran)(&model_index, &iv, &value);
         }
     }
+    return R_NilValue;
 }
 
 SEXP get_rms_c(SEXP model_index_) {
@@ -589,7 +593,7 @@ SEXP get_rms_c(SEXP model_index_) {
     }
 }
 
-void solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
+SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
              SEXP fit_options) {
 
     // process arguments
@@ -615,10 +619,11 @@ void solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
     }
     int error;
     F77_CALL(solve_fortran)(&model_index, &startp, &endp, &opts_present, &error);
+    return R_NilValue;
 }
 
 
-void filmdt_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP report_) {
+SEXP filmdt_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP report_) {
     const char *REPORT_OPTIONS[] = {"no", "minimal", "period"};
     const char *report = CHAR(STRING_ELT(report_, 0));
     int model_index = asInteger(model_index_);
@@ -627,10 +632,11 @@ void filmdt_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP report_) {
     int report_type = get_i_option("report", report, REPORT_OPTIONS,
                                    NO_ELM(REPORT_OPTIONS));
     F77_CALL(filmdt_fortran)(&model_index, &startp, &endp, &report_type);
+    return R_NilValue;
 }
 
 /* Sets convergence criterium for some model variables */
-void set_cvgcrit_c(SEXP model_index_, SEXP names, SEXP value_) {
+SEXP set_cvgcrit_c(SEXP model_index_, SEXP names, SEXP value_) {
     int model_index = asInteger(model_index_);
     double value = asReal(value_);
     int i, cnt = 0;
@@ -651,18 +657,20 @@ void set_cvgcrit_c(SEXP model_index_, SEXP names, SEXP value_) {
         error("%d incorrect variable name(s) encountered. See warning(s).\n",
               n_names - cnt);
     }
+    return R_NilValue;
 }
 
 /* Sets convergence criterium for all model variables, used in init_mws.
  * values is a vector with convergence criteria for the model variables
  * in natural (i.e. non-alphabetical) order */
-void set_cvgcrit_init_mws_c(SEXP model_index_, SEXP values) {
+SEXP set_cvgcrit_init_mws_c(SEXP model_index_, SEXP values) {
     int model_index = asInteger(model_index_);
     int i;
     for (i = 1; i <= length(values); i++) {
         double value = REAL(values)[i - 1];
         F77_CALL(set_test)(&model_index, &i, &value);
     }
+    return R_NilValue;
 }
 
 /* Returns the convergence criteria for all model variables */
@@ -680,7 +688,7 @@ SEXP get_cvgcrit_c(SEXP model_index_, SEXP alphabet_) {
 }
 
 /* Sets Fair-Taylor relaxtion factors */
-void set_ftrelax_c(SEXP model_index_, SEXP names, SEXP value_) {
+SEXP set_ftrelax_c(SEXP model_index_, SEXP names, SEXP value_) {
     int model_index = asInteger(model_index_);
     double value = asReal(value_);
     int i, cnt = 0;
@@ -701,17 +709,19 @@ void set_ftrelax_c(SEXP model_index_, SEXP names, SEXP value_) {
         error("%d incorrect variable name(s) encountered. See warning(s).\n",
               n_names - cnt);
     }
+    return R_NilValue;
 }
 
 /* Sets Fair-Taylor relaxation factors for all endogenous leads.
  * in natural (i.e. non-alphabetical) order */
-void set_ftrelax_init_mws_c(SEXP model_index_, SEXP values) {
+SEXP set_ftrelax_init_mws_c(SEXP model_index_, SEXP values) {
     int model_index = asInteger(model_index_);
     int i;
     for (i = 1; i <= length(values); i++) {
         double value = REAL(values)[i - 1];
         F77_CALL(set_ftrelax)(&model_index, &i, &value);
     }
+    return R_NilValue;
 }
 
 /* Returns the convergence criteria for all model variables */
@@ -732,7 +742,7 @@ SEXP get_ftrelax_c(SEXP model_index_) {
 
 
 /* Activate/deactive equation */
-void set_eq_status_c(SEXP model_index_, SEXP names, SEXP status) {
+SEXP set_eq_status_c(SEXP model_index_, SEXP names, SEXP status) {
     int model_index = asInteger(model_index_);
     const char *status_str = CHAR(asChar(status));
 
@@ -762,16 +772,18 @@ void set_eq_status_c(SEXP model_index_, SEXP names, SEXP status) {
             fun(&model_index, &ieq);
         }
     }
+    return R_NilValue;
 }
 
 /* Activate all equations */
-void activate_all_equations_c(SEXP mdl_index_) {
+SEXP activate_all_equations_c(SEXP mdl_index_) {
     int mdl_index = asInteger(mdl_index_);
     int neq  = F77_CALL(get_eq_count)(&mdl_index);
     int ieq;
     for (ieq = 0; ieq < neq; ieq++) {
         F77_CALL(activate_equation)(&mdl_index, &ieq);
     }
+    return R_NilValue;
 }
 
 SEXP get_solve_status_c(SEXP model_index_) {
@@ -830,15 +842,17 @@ SEXP get_max_lag_lead_c(SEXP model_index_) {
     return ret;
 }
 
-void remove_mws_c(SEXP model_index_) {
+SEXP remove_mws_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     F77_CALL(remove_mws_fortran)(&model_index);
+    return R_NilValue;
 }
 
-void set_dbgeqn_c(SEXP model_index_, SEXP dbgeqn_) {
+SEXP set_dbgeqn_c(SEXP model_index_, SEXP dbgeqn_) {
     int model_index = asInteger(model_index_);
     int dbgeqn = asLogical(dbgeqn_);
     F77_CALL(set_dbgeqn_fortran)(&model_index, &dbgeqn);
+    return R_NilValue;
 }
 
 SEXP get_dbgeqn_c(SEXP model_index_) {
@@ -847,18 +861,20 @@ SEXP get_dbgeqn_c(SEXP model_index_) {
     return(ScalarLogical(dbgeqn));
 }
 
-void run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_) {
+SEXP run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_) {
     int model_index = asInteger(model_index_);
     int jtb = asInteger(jtb_);
     int jte = asInteger(jte_);
     int neq = length(eqnums);
     F77_CALL(run_eqn_fortran)(&model_index, &neq, INTEGER(eqnums), &jtb, &jte);
+    return R_NilValue;
 }
 
-void set_jc_c(SEXP model_index_, SEXP jc_) {
+SEXP set_jc_c(SEXP model_index_, SEXP jc_) {
     int model_index = asInteger(model_index_);
     int jc  = asInteger(jc_);
     F77_CALL(set_jc_fortran)(&model_index, &jc);
+    return R_NilValue;
 }
 
 SEXP get_jc_c(SEXP model_index_) {
@@ -867,21 +883,24 @@ SEXP get_jc_c(SEXP model_index_) {
     return(ScalarInteger(jc));
 }
 
-void mdlpas_c(SEXP model_index_, SEXP jtb_, SEXP jte_) {
+SEXP mdlpas_c(SEXP model_index_, SEXP jtb_, SEXP jte_) {
     int model_index = asInteger(model_index_);
     int jtb = asInteger(jtb_);
     int jte = asInteger(jte_);
     F77_CALL(mdlpas_fortran)(&model_index, &jtb, &jte);
+    return R_NilValue;
 }
 
-void clear_fit_c(SEXP model_index_) {
+SEXP clear_fit_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     F77_CALL(clear_fit_fortran)(&model_index);
+    return R_NilValue;
 }
 
-void clear_fix_c(SEXP model_index_) {
+SEXP clear_fix_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     F77_CALL(clear_fix_fortran)(&model_index);
+    return R_NilValue;
 }
 
 SEXP clone_mws_c(SEXP model_index_) {
