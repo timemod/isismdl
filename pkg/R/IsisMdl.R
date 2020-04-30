@@ -24,11 +24,11 @@ setOldClass("period_range")
 #' @importFrom R6 R6Class
 #' @useDynLib isismdl read_mdl_c
 #' @useDynLib isismdl write_mdl_c
-#' @useDynLib isismdl get_max_lag_lead
+#' @useDynLib isismdl get_max_lag_lead_c
 #' @useDynLib isismdl get_var_names_c
 #' @useDynLib isismdl get_eq_names_c
 #' @useDynLib isismdl get_par_names_c
-#' @useDynLib isismdl set_period
+#' @useDynLib isismdl set_period_c
 #' @useDynLib isismdl get_param_c
 #' @useDynLib isismdl get_data_c
 #' @useDynLib isismdl get_fix_fit_c
@@ -43,24 +43,24 @@ setOldClass("period_range")
 #' @useDynLib isismdl solve_c
 #' @useDynLib isismdl filmdt_c
 #' @useDynLib isismdl remove_mws_c
-#' @useDynLib isismdl clear_fit
-#' @useDynLib isismdl clear_fix
+#' @useDynLib isismdl clear_fit_c
+#' @useDynLib isismdl clear_fix_c
 #' @useDynLib isismdl set_cvgcrit_c
-#' @useDynLib isismdl set_cvgcrit_init_mws
+#' @useDynLib isismdl set_cvgcrit_init_mws_c
 #' @useDynLib isismdl get_cvgcrit_c
 #' @useDynLib isismdl set_ftrelax_c
-#' @useDynLib isismdl set_ftrelax_init_mws
+#' @useDynLib isismdl set_ftrelax_init_mws_c
 #' @useDynLib isismdl get_ftrelax_c
 #' @useDynLib isismdl set_eq_status_c
-#' @useDynLib isismdl mdlpas
-#' @useDynLib isismdl clone_mws
-#' @useDynLib isismdl run_eqn
+#' @useDynLib isismdl mdlpas_c
+#' @useDynLib isismdl clone_mws_c
+#' @useDynLib isismdl run_eqn_c
 #' @useDynLib isismdl get_solve_status_c
-#' @useDynLib isismdl set_dbgeqn
-#' @useDynLib isismdl get_dbgeqn
-#' @useDynLib isismdl get_jc
+#' @useDynLib isismdl set_dbgeqn_c
+#' @useDynLib isismdl get_dbgeqn_c
+#' @useDynLib isismdl get_jc_c
 #' @useDynLib isismdl order_mdl_c
-#' @useDynLib isismdl has_free_mws
+#' @useDynLib isismdl has_free_mws_c
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -237,7 +237,7 @@ IsisMdl <- R6Class("IsisMdl",
         writeBin(serialized_mdl$mif_data, con = mif_file)
       }
 
-      has_free_mws <- .Call("has_free_mws")
+      has_free_mws <- .Call(has_free_mws_c)
       if (!has_free_mws) gc(verbose = FALSE)
 
       if (!silent) {
@@ -254,7 +254,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
 
       # get maximum lag and lead
-      ret <- .Call("get_max_lag_lead", model_index = private$model_index)
+      ret <- .Call(get_max_lag_lead_c, model_index = private$model_index)
       private$maxlag <- ret[1]
       private$maxlead <- ret[2]
       private$var_names <- sort(.Call(get_var_names_c, "all",
@@ -315,7 +315,7 @@ IsisMdl <- R6Class("IsisMdl",
       status <- match.arg(status)
 
       if (type == "all") {
-        names <- .Call("get_eq_names_c", private$model_index, status, order, 1L)
+        names <- .Call(get_eq_names_c, private$model_index, status, order, 1L)
       } else {
         names <- .Call(get_var_names_c, type, private$model_index)
         if (status != "all") {
@@ -363,11 +363,11 @@ IsisMdl <- R6Class("IsisMdl",
       if (!is.logical(value)) {
         stop("value should be logical")
       }
-      .Call("set_dbgeqn", private$model_index, value)
+      .Call("set_dbgeqn_c", private$model_index, value)
       return(invisible(self))
     },
     get_debug_eqn = function() {
-      return(.Call("get_dbgeqn", private$model_index))
+      return(.Call("get_dbgeqn_c", private$model_index))
     },
     init_data = function(data_period, data, ca) {
 
@@ -695,7 +695,7 @@ IsisMdl <- R6Class("IsisMdl",
       eqnums <- match(eq_names, self$get_eq_names(order = "natural"))
       if (is.null(private$model_period)) stop(private$period_error_msg)
       js <- private$get_period_indices(period)
-      .Call("run_eqn", private$model_index, eqnums = as.integer(eqnums), 
+      .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums), 
             jtb = js$startp, jte = js$end)
       return(invisible(self))
     },
@@ -782,7 +782,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     get_last_solve_period = function() {
-      jc <- .Call("get_jc", private$model_index)
+      jc <- .Call("get_jc_c", private$model_index)
       if (jc != -1) {
         return(start_period(private$fortran_period)  + jc  - 1)
       } else {
@@ -794,7 +794,7 @@ IsisMdl <- R6Class("IsisMdl",
       if (is.null(private$model_period)) stop(private$period_error_msg)
       period <- private$convert_period_arg(period)
       js <- private$get_period_indices(period)
-      .Call("mdlpas", model_index = private$model_index,
+      .Call("mdlpas_c", model_index = private$model_index,
             jtb = js$startp, jte = js$end)
       return(invisible(self))
     },
@@ -814,11 +814,11 @@ IsisMdl <- R6Class("IsisMdl",
                        class = "serialized_isismdl"))
     },
     clear_fit = function() {
-      .Call("clear_fit", model_index = private$model_index)
+      .Call("clear_fit_c", model_index = private$model_index)
       return(invisible(self))
     },
     clear_fix = function() {
-      .Call("clear_fix", model_index = private$model_index)
+      .Call("clear_fix_c", model_index = private$model_index)
       return(invisible(self))
     },
     order = function(orfnam = NULL, silent = FALSE) {
@@ -869,9 +869,9 @@ IsisMdl <- R6Class("IsisMdl",
     fit_type = 4L,
     deep_clone = function(name, value) {
       if (name == "model_index") {
-        has_free_mws <- .Call("has_free_mws")
+        has_free_mws <- .Call("has_free_mws_c")
         if (!has_free_mws) gc(verbose = FALSE)
-        return(.Call("clone_mws", model_index = value))
+        return(.Call("clone_mws_c", model_index = value))
       } else {
         return(value)
       }
@@ -1122,7 +1122,7 @@ IsisMdl <- R6Class("IsisMdl",
                 fit_options = self$get_fit_options(),
                 cvgcrit = .Call("get_cvgcrit_c", private$model_index, 0L),
                 ftrelax = .Call("get_ftrelax_c", private$model_index),
-                jc = .Call("get_jc", private$model_index),
+                jc = .Call("get_jc_c", private$model_index),
                 data = data, ca = ca,
                 fix = self$get_fix(), fit = self$get_fit(),
                 rms = self$get_rms())
@@ -1140,8 +1140,8 @@ IsisMdl <- R6Class("IsisMdl",
       self$set_debug_eqn(x$debug_eqn)
       do.call(self$set_solve_options, x$solve_options)
       do.call(self$set_fit_options, x$fit_options)
-      .Call("set_cvgcrit_init_mws", private$model_index, x$cvgcrit)
-      .Call("set_ftrelax_init_mws", private$model_index, x$ftrelax)
+      .Call("set_cvgcrit_init_mws_c", private$model_index, x$cvgcrit)
+      .Call("set_ftrelax_init_mws_c", private$model_index, x$ftrelax)
       if (!is.null(x$model_period)) {
         private$model_period <- x$model_period
         self$init_data(data = x$data, ca = x$ca)
@@ -1157,7 +1157,7 @@ IsisMdl <- R6Class("IsisMdl",
 
         # jc (last period solved, part of the mws since version 1.4)
         if (!is.null(x$jc)) {
-          .Call("set_jc", model_index = private$model_index,
+          .Call("set_jc_c", model_index = private$model_index,
                 jc = x$jc)
         }
       }
@@ -1181,13 +1181,13 @@ IsisMdl <- R6Class("IsisMdl",
       if (!is.null(private$fortran_period)) {
         shift <- start_period(new_fortran_period) -
                  start_period(private$fortran_period)
-        old_jc <- .Call("get_jc", private$model_index)
+        old_jc <- .Call("get_jc_c", private$model_index)
         new_jc <- as.integer(old_jc - shift)
         if (new_jc < 1 || new_jc > nperiod(new_fortran_period)) {
           # last solve period outside range of fortran period.
           new_jc <- -1L
         }
-        .Call("set_jc", model_index = private$model_index, jc = new_jc)
+        .Call("set_jc_c", model_index = private$model_index, jc = new_jc)
       }
 
       private$fortran_period <- new_fortran_period
@@ -1195,7 +1195,7 @@ IsisMdl <- R6Class("IsisMdl",
       # fortran_period is the data period without lag and lead periods.
       start <- as.integer(c(get_year(startp), get_subperiod(startp)))
       end   <- as.integer(c(get_year(endp), get_subperiod(endp)))
-      ierr <- .Call("set_period",
+      ierr <- .Call("set_period_c",
                model_index = private$model_index,
                start = start, end = end,
                freq  = as.integer(private$fortran_period[3]))

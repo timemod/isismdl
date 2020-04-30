@@ -90,7 +90,7 @@ extern void F77_NAME(remove_mws_fortran)(int *model_index);
 SEXP get_lags_or_leads(int model_index, int type);
 
 
-void init_modules(void) {
+void init_modules_c(void) {
     F77_CALL(init_modules_fortran)();	
 }
 
@@ -656,7 +656,7 @@ void set_cvgcrit_c(SEXP model_index_, SEXP names, SEXP value_) {
 /* Sets convergence criterium for all model variables, used in init_mws.
  * values is a vector with convergence criteria for the model variables
  * in natural (i.e. non-alphabetical) order */
-void set_cvgcrit_init_mws(SEXP model_index_, SEXP values) {
+void set_cvgcrit_init_mws_c(SEXP model_index_, SEXP values) {
     int model_index = asInteger(model_index_);
     int i;
     for (i = 1; i <= length(values); i++) {
@@ -705,7 +705,7 @@ void set_ftrelax_c(SEXP model_index_, SEXP names, SEXP value_) {
 
 /* Sets Fair-Taylor relaxation factors for all endogenous leads.
  * in natural (i.e. non-alphabetical) order */
-void set_ftrelax_init_mws(SEXP model_index_, SEXP values) {
+void set_ftrelax_init_mws_c(SEXP model_index_, SEXP values) {
     int model_index = asInteger(model_index_);
     int i;
     for (i = 1; i <= length(values); i++) {
@@ -765,7 +765,7 @@ void set_eq_status_c(SEXP model_index_, SEXP names, SEXP status) {
 }
 
 /* Activate all equations */
-void activate_all_equations(SEXP mdl_index_) {
+void activate_all_equations_c(SEXP mdl_index_) {
     int mdl_index = asInteger(mdl_index_);
     int neq  = F77_CALL(get_eq_count)(&mdl_index);
     int ieq;
@@ -814,12 +814,12 @@ SEXP get_solve_status_c(SEXP model_index_) {
     return(mkString(err_txt));
 }
 
-SEXP has_free_mws(void) {
+SEXP has_free_mws_c(void) {
     int has_free_mws = F77_CALL(has_free_mws_fortran)();
     return ScalarLogical(has_free_mws);
 }
 
-SEXP get_max_lag_lead(SEXP model_index_) {
+SEXP get_max_lag_lead_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     int maxlag, maxlead;
     F77_CALL(get_max_lag_lead_fortran)(&model_index, &maxlag, &maxlead);
@@ -830,24 +830,24 @@ SEXP get_max_lag_lead(SEXP model_index_) {
     return ret;
 }
 
-void remove_mws(SEXP model_index_) {
+void remove_mws_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     F77_CALL(remove_mws_fortran)(&model_index);
 }
 
-void set_dbgeqn(SEXP model_index_, SEXP dbgeqn_) {
+void set_dbgeqn_c(SEXP model_index_, SEXP dbgeqn_) {
     int model_index = asInteger(model_index_);
     int dbgeqn = asLogical(dbgeqn_);
     F77_CALL(set_dbgeqn_fortran)(&model_index, &dbgeqn);
 }
 
-SEXP get_dbgeqn(SEXP model_index_) {
+SEXP get_dbgeqn_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     int dbgeqn = F77_CALL(get_dbgeqn_fortran)(&model_index);	
     return(ScalarLogical(dbgeqn));
 }
 
-void run_eqn(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_) {
+void run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_) {
     int model_index = asInteger(model_index_);
     int jtb = asInteger(jtb_);
     int jte = asInteger(jte_);
@@ -855,51 +855,45 @@ void run_eqn(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_) {
     F77_CALL(run_eqn_fortran)(&model_index, &neq, INTEGER(eqnums), &jtb, &jte);
 }
 
-void set_jc(SEXP model_index_, SEXP jc_) {
+void set_jc_c(SEXP model_index_, SEXP jc_) {
     int model_index = asInteger(model_index_);
     int jc  = asInteger(jc_);
     F77_CALL(set_jc_fortran)(&model_index, &jc);
 }
 
-SEXP get_jc(SEXP model_index_) {
+SEXP get_jc_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     int jc = F77_CALL(get_jc_fortran)(&model_index);	
     return(ScalarInteger(jc));
 }
 
-void mdlpas(SEXP model_index_, SEXP jtb_, SEXP jte_) {
+void mdlpas_c(SEXP model_index_, SEXP jtb_, SEXP jte_) {
     int model_index = asInteger(model_index_);
     int jtb = asInteger(jtb_);
     int jte = asInteger(jte_);
     F77_CALL(mdlpas_fortran)(&model_index, &jtb, &jte);
 }
 
-void clear_fit(SEXP model_index_) {
+void clear_fit_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     F77_CALL(clear_fit_fortran)(&model_index);
 }
 
-void clear_fix(SEXP model_index_) {
+void clear_fix_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     F77_CALL(clear_fix_fortran)(&model_index);
 }
 
-SEXP clone_mws(SEXP model_index_) {
+SEXP clone_mws_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     int model_index_clone = F77_CALL(clone_mws_fortran)(&model_index);	
     return(ScalarInteger(model_index_clone));
 }
 
-SEXP set_period(SEXP model_index_, SEXP start, SEXP end, SEXP freq_) {
+SEXP set_period_c(SEXP model_index_, SEXP start, SEXP end, SEXP freq_) {
     int model_index = asInteger(model_index_);
     int freq = asInteger(freq_);
     int ierr = F77_CALL(set_period_fortran)(&model_index, INTEGER(start),
                                            INTEGER(end), &freq);	
     return(ScalarInteger(ierr));
 }
-
-void remove_mws_c(SEXP model_index_) {
-    int model_index = asInteger(model_index_);
-    F77_CALL(remove_mws_fortran)(&model_index);	
-}
-
