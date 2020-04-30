@@ -35,21 +35,21 @@ extern void F77_SUB(check_options)(void);
 static void set_option(const char *name, SEXP value);
 static void set_debug_opts(SEXP option);
 
-void set_solve_opts_c(SEXP mws_index_, SEXP options) {
-    int mws_index = asInteger(mws_index_);
+void set_solve_opts_c(SEXP model_index_, SEXP options) {
+    int model_index = asInteger(model_index_);
     int opts_present = length(options) > 0;
     if (opts_present) {
         int use_mws = 1;
-        F77_CALL(init_set_options)(&mws_index, &use_mws);
-        set_solve_options(&mws_index, options);
+        F77_CALL(init_set_options)(&model_index, &use_mws);
+        set_solve_options(&model_index, options);
     }
 }
 
-void set_solve_options(int *mws_index, SEXP options) {
+void set_solve_options(int *model_index, SEXP options) {
 
     /* call init_get_solve_opts, we need this because 
      * of the call of get_solve_dbgopts */
-    F77_CALL(init_get_options)(mws_index);
+    F77_CALL(init_get_options)(model_index);
 
     SEXP names = getAttrib(options, R_NamesSymbol);
     int i;

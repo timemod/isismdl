@@ -1,1 +1,1 @@
-void set_solve_options(int *mws_index, SEXP options);
+void set_solve_options(int *model_index, SEXP options);

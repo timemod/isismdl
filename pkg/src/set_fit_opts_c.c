@@ -5,8 +5,8 @@
 #include "set_option_utils.h"
 #include "init_set_get_options.h"
 
-extern void F77_SUB(init_set_solve_opts)(int *mws_index, int *use_mws);
-extern void F77_SUB(init_get_solve_opts)(int *mws_index);
+extern void F77_SUB(init_set_solve_opts)(int *model_index, int *use_mws);
+extern void F77_SUB(init_get_solve_opts)(int *model_index);
 extern void F77_SUB(set_fit_maxit)(int *);
 extern void F77_SUB(set_fit_cvgabs)(double *);
 extern void F77_SUB(set_fit_mkdcrt)(double *);
@@ -22,21 +22,21 @@ extern void F77_SUB(set_fit_svdtest_tol)(double *);
 static void set_fit_option(const char *name, SEXP value);
 static void set_fit_debug_opts(SEXP option);
 
-void set_fit_opts_c(SEXP mws_index_, SEXP options) {
-    int mws_index = asInteger(mws_index_);
+void set_fit_opts_c(SEXP model_index_, SEXP options) {
+    int model_index = asInteger(model_index_);
     int opts_present = length(options) > 0;
     if (opts_present) {
         int use_mws = 1;
-        F77_CALL(init_set_options)(&mws_index, &use_mws);
-        set_fit_options(&mws_index, options);
+        F77_CALL(init_set_options)(&model_index, &use_mws);
+        set_fit_options(&model_index, options);
     }
 }
 
-void set_fit_options(int *mws_index, SEXP options) {
+void set_fit_options(int *model_index, SEXP options) {
 
     /* call init_get_solve_opts, we need this because 
      * of the call of get_fit_dbgopts */
-    F77_CALL(init_get_options)(mws_index);
+    F77_CALL(init_get_options)(model_index);
 
     SEXP names = getAttrib(options, R_NamesSymbol);
     int i;

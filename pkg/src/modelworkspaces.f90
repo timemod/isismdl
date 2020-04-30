@@ -52,9 +52,9 @@ module modelworkspaces
             return
         end function create_mws
 
-        subroutine remove_mws(mws_index)
-            integer, intent(in) :: mws_index
-            mws_used(mws_index) = .false.
+        subroutine remove_mws(model_index)
+            integer, intent(in) :: model_index
+            mws_used(model_index) = .false.
         end subroutine remove_mws
 
 end module modelworkspaces
