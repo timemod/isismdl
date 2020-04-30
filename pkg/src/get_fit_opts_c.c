@@ -6,6 +6,7 @@
 #include "fit_options.h"
 #include "get_option_utils.h"
 #include "init_set_get_options.h"
+#include "get_fit_opts_c.h"
 
 #define N_OPTS 10
 

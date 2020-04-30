@@ -5,6 +5,7 @@
 #include "set_solve_options.h"
 #include "set_option_utils.h"
 #include "init_set_get_options.h"
+#include "set_solve_opts_c.h"
 
 extern void F77_SUB(set_mode)(int *);
 extern void F77_SUB(set_start)(int *);

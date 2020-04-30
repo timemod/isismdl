@@ -4,6 +4,7 @@
 #include "set_fit_options.h"
 #include "set_option_utils.h"
 #include "init_set_get_options.h"
+#include "set_fit_opts_c.h"
 
 extern void F77_SUB(init_set_solve_opts)(int *model_index, int *use_mws);
 extern void F77_SUB(init_get_solve_opts)(int *model_index);

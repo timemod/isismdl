@@ -6,6 +6,7 @@
 #include "solve_options.h"
 #include "init_get_options.h"
 #include "get_option_utils.h"
+#include "get_solve_opts_c.h"
 
 #define N_OPTS 21
 
