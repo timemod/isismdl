@@ -24,54 +24,76 @@
 #define ACTIVE   2
 #define INACTIVE 3
 
+extern void F77_NAME(init_modules_fortran)(void);
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
                                        int *model_index, int *ier);
 extern void F77_NAME(write_model_fortran)(int *modelnmlen, const char *modelnm,
                                           int *model_index, int *ier);
-extern void F77_NAME(get_data_fortran)(int *mws_index, int *nvar, int *ivar,
+extern void F77_NAME(get_data_fortran)(int *model_index, int *nvar, int *ivar,
                                        int *ntime, int *jtb,
                                        int *jte, double *data);
-extern void F77_NAME(get_ca_fortran)(int *mws_index, int *nca, int *ica,
+extern void F77_NAME(get_ca_fortran)(int *model_index, int *nca, int *ica,
                                      int *ntime, int *jtb,
                                      int *jte, double *data);
-extern void F77_NAME(get_fix_fit_fortran)(int *mws_index, int *nvar, int *ivar,
+extern void F77_NAME(get_fix_fit_fortran)(int *model_index, int *nvar, int *ivar,
                                           int *ntime, int *jtb, double *mat,
                                           int *fix_);
-extern void F77_NAME(get_param_fortran)(int *mws_index, int *ip, double *value,
+extern void F77_NAME(get_param_fortran)(int *model_index, int *ip, double *value,
                                         int *par_len);
-extern int F77_NAME(set_param_fortran)(int *mws_index, int *ipar, double *data,
+extern int F77_NAME(set_param_fortran)(int *model_index, int *ipar, double *data,
                                         int *len);
-extern void F77_NAME(set_data_fortran)(int *mws_index, int *nvar, int *ivar,
+extern void F77_NAME(set_data_fortran)(int *model_index, int *nvar, int *ivar,
                                        int *ntime, int *jtb, int *jte,
                                        double *data, int *icol, int *upd_mode);
-extern void F77_NAME(set_ca_fortran)(int *mws_index, int *, int *ivar,
+extern void F77_NAME(set_ca_fortran)(int *model_index, int *, int *ivar,
                                        int *ntime, int *jtb, int *jte,
                                        double *data, int *icol, int *upd_mode);
-extern void F77_NAME(set_fix_fit_fortran)(int *mws_index, int *, int *ivar,
+extern void F77_NAME(set_fix_fit_fortran)(int *model_index, int *, int *ivar,
                                       int *ntime, int *jtb, int *jte,
                                       double *data, int *icol, int *fix,
                                       int *upd_mode);
-extern void F77_NAME(solve_fortran)(int *mws_index, int *startp, int *endp,
+extern void F77_NAME(solve_fortran)(int *model_index, int *startp, int *endp,
                                     int *opts_present, int *error);
-extern void F77_NAME(filmdt_fortran)(int *mws_index, int *startp, int *endp,
+extern void F77_NAME(filmdt_fortran)(int *model_index, int *startp, int *endp,
                                      int *report_type);
-extern void F77_NAME(set_rms_fortran)(int *mws_index, int *var_index,
+extern void F77_NAME(set_rms_fortran)(int *model_index, int *var_index,
                                       double *value);
-extern int F77_NAME(has_rms_fortran)(int *mws_index);
-extern void F77_NAME(get_rms_fortran)(int *mws_index, double *values);
-extern void F77_NAME(set_test)(int *mws_index, int *var_index, double *value);
-extern double F77_NAME(get_test)(int *mws_index, int *var_index, int *alphabet);
-extern void F77_NAME(activate_equation)(int *mws_index, int *var_index);
-extern void F77_NAME(deactivate_equation)(int *mws_index, int *var_index);
-extern void F77_NAME(set_ftrelax)(int *mws_index, int *var_index, double *value);
-extern double F77_NAME(get_ftrelax)(int *mws_index, int *var_index);
-extern void F77_SUB(init_set_options)(int *mws_index, int *use_mws);
-extern int F77_NAME(get_simerr)(int *mws_index);
-extern int F77_NAME(has_lag)(int *mws_index, int *iv);
-extern int F77_NAME(has_lead)(int *mws_index, int *iv);
+extern int F77_NAME(has_rms_fortran)(int *model_index);
+extern void F77_NAME(get_rms_fortran)(int *model_index, double *values);
+extern void F77_NAME(set_test)(int *model_index, int *var_index, double *value);
+extern double F77_NAME(get_test)(int *model_index, int *var_index, int *alphabet);
+extern void F77_NAME(activate_equation)(int *model_index, int *var_index);
+extern void F77_NAME(deactivate_equation)(int *model_index, int *var_index);
+extern void F77_NAME(set_ftrelax)(int *model_index, int *var_index, double *value);
+extern double F77_NAME(get_ftrelax)(int *model_index, int *var_index);
+extern void F77_SUB(init_set_options)(int *model_index, int *use_mws);
+extern int F77_NAME(get_simerr)(int *model_index);
+extern int F77_NAME(has_lag)(int *model_index, int *iv);
+extern int F77_NAME(has_lead)(int *model_index, int *iv);
+extern int F77_NAME(has_free_mws_fortran)(void);
+extern void F77_NAME(get_max_lag_lead_fortran)(int *model_index, int *maxlag, int *maxlead);
+extern void F77_NAME(remove_mws_fortran)(int *model_index);
+extern void F77_NAME(set_dbgeqn_fortran)(int *model_index, int *dbgeqn);	
+extern int F77_NAME(get_dbgeqn_fortran)(int *model_index);	
+extern void F77_NAME(run_eqn_fortran)(int *model_index, int *neq, int *eqnums,
+                                       int *jtb, int *jte);	
+extern int F77_NAME(get_jc_fortran)(int * model_index);	
+extern void F77_NAME(set_jc_fortran)(int *model_index, int *jc);
+extern void F77_NAME(mdlpas_fortran)(int *model_index, int *jtb, int *jte);
+extern void F77_NAME(clear_fit_fortran)(int *model_index);
+extern void F77_NAME(clear_fix_fortran)(int *model_index);
+extern int F77_NAME(clone_mws_fortran)(int *model_index);
+extern int F77_NAME(set_period_fortran)(int *model_index, int *start, int *end, 
+                                        int *freq);
+extern void F77_NAME(remove_mws_fortran)(int *model_index);
 
 SEXP get_lags_or_leads(int model_index, int type);
 
+
+SEXP init_modules_c(void) {
+    F77_CALL(init_modules_fortran)();	
+    return R_NilValue;
+}
 
 SEXP read_mdl_c(SEXP filename) {
 
@@ -101,7 +123,7 @@ SEXP read_mdl_c(SEXP filename) {
     }
 }
 
-void write_mdl_c(SEXP filename, SEXP model_index_) {
+SEXP write_mdl_c(SEXP filename, SEXP model_index_) {
 
     int model_index = asInteger(model_index_);
     const char *modelnm = CHAR(STRING_ELT(filename, 0));
@@ -114,6 +136,7 @@ void write_mdl_c(SEXP filename, SEXP model_index_) {
     if (ier != 0) {
         error("Unknown error writing Mif file %s\n", modelnm);
     }
+    return R_NilValue;
 }
 
 /* Returns the names of the model parameters */
@@ -164,6 +187,7 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
     void (*get_name)(int *, int *, char *, int *);
     switch (type) {
     case ALL:      nvar = F77_CALL(get_variable_count)(&model_index);
+                   get_name = NULL;
                    break;
     case FRML:     nvar = F77_CALL(get_ca_count)(&model_index);
                    get_name = F77_CALL(get_ca_name);
@@ -303,15 +327,15 @@ SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP order_,
 
 
 /* Get the model parameters */
-SEXP get_param_c(SEXP mws_index_, SEXP names) {
-    int mws_index = asInteger(mws_index_);
+SEXP get_param_c(SEXP model_index_, SEXP names) {
+    int model_index = asInteger(model_index_);
     int npar = length(names);
     int *ipar = (int *) R_alloc(npar, sizeof(int));
     int cnt = 0;
     for (int i = 0; i < npar; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
-        int ip = F77_CALL(get_par_index)(&mws_index, name, &namelen);
+        int ip = F77_CALL(get_par_index)(&model_index, name, &namelen);
         if (ip > 0) {
             ipar[cnt++] = ip;
         } else {
@@ -324,9 +348,9 @@ SEXP get_param_c(SEXP mws_index_, SEXP names) {
     }
     SEXP retval = PROTECT(allocVector(VECSXP, cnt));
     for (int i = 0; i < cnt; i++) {
-        int par_len = F77_CALL(get_param_length)(&mws_index, ipar + i);
+        int par_len = F77_CALL(get_param_length)(&model_index, ipar + i);
         SEXP value = PROTECT(allocVector(REALSXP,  par_len));
-        F77_CALL(get_param_fortran)(&mws_index, ipar + i, REAL(value), &par_len);
+        F77_CALL(get_param_fortran)(&model_index, ipar + i, REAL(value), &par_len);
         SET_VECTOR_ELT(retval,  i, value);
     }
 
@@ -337,11 +361,11 @@ SEXP get_param_c(SEXP mws_index_, SEXP names) {
 
 
 /* General function for getting model data or constant adjustments */
-SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
+SEXP get_data_c(SEXP type_, SEXP model_index_, SEXP names, SEXP jtb_, SEXP jte_) {
 
     int type = asInteger(type_);
 
-    int mws_index = asInteger(mws_index_);
+    int model_index = asInteger(model_index_);
     int jtb = asInteger(jtb_);
     int jte = asInteger(jte_);
     int ntime = jte - jtb + 1;
@@ -364,9 +388,9 @@ SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
     for (int i = 0; i < nvar; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
-        int idx = (*get_index)(&mws_index, name, &namelen);
+        int idx = (*get_index)(&model_index, name, &namelen);
         if (idx > 0) {
-            ivar[cnt++] = (*get_index)(&mws_index, name, &namelen);
+            ivar[cnt++] = (*get_index)(&model_index, name, &namelen);
         } else {
             warning("\"%s\" is not a %s\n", name, desc);
         }
@@ -387,7 +411,7 @@ SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
 
     /* get the data */
     SEXP data = PROTECT(allocVector(REALSXP, ntime * cnt));
-    (*get_dat)(&mws_index, &cnt, ivar, &ntime, &jtb, &jte, REAL(data));
+    (*get_dat)(&model_index, &cnt, ivar, &ntime, &jtb, &jte, REAL(data));
 
     /* set the dimension of the matrix */
     SEXP dim = PROTECT(allocVector(INTSXP, 2));
@@ -401,8 +425,8 @@ SEXP get_data_c(SEXP type_, SEXP mws_index_, SEXP names, SEXP jtb_, SEXP jte_) {
 }
 
 /* Sets the model parameters. Returns the number of parameters actually set */
-SEXP set_param_c(SEXP mws_index_, SEXP param_list) {
-    int mws_index = asInteger(mws_index_);
+SEXP set_param_c(SEXP model_index_, SEXP param_list) {
+    int model_index = asInteger(model_index_);
     SEXP names = getAttrib(param_list, R_NamesSymbol);
     int n_names = length(names);
     int i;
@@ -410,15 +434,16 @@ SEXP set_param_c(SEXP mws_index_, SEXP param_list) {
     for (i = 0; i < n_names; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
-        int ip = F77_CALL(get_par_index)(&mws_index, name, &namelen);
+        int ip = F77_CALL(get_par_index)(&model_index, name, &namelen);
         if (ip > 0) {
             cnt++;
             SEXP value = VECTOR_ELT(param_list, i);
             int len = length(value);
-            int ret = F77_CALL(set_param_fortran)(&mws_index, &ip, REAL(value),
+            int ret = F77_CALL(set_param_fortran)(&model_index, &ip, REAL(value),
                                &len);
             if (ret == 1) {
-                error("Value for parameter %s has an incorrect length. Required length: %d. Actual length: %d", name, F77_CALL(get_param_length)(&mws_index, &ip), len);
+                error("Value for parameter %s has an incorrect length. Required length: %d. Actual length: %d", 
+                      name, F77_CALL(get_param_length)(&model_index, &ip), len);
             }
         }
     }
@@ -427,11 +452,11 @@ SEXP set_param_c(SEXP mws_index_, SEXP param_list) {
 
 /* General function for setting model data, constant adjustments,
  * fix value or fit values */
-void set_data_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names,
+SEXP set_data_c(SEXP set_type_, SEXP model_index_, SEXP mat, SEXP names,
                 SEXP shift_, SEXP upd_mode_) {
 
     int set_type = asInteger(set_type_);
-    int mws_index = asInteger(mws_index_);
+    int model_index = asInteger(model_index_);
     int shift = asInteger(shift_);
     const char *upd_mode_str = CHAR(asChar(upd_mode_));
 
@@ -457,7 +482,7 @@ void set_data_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names,
     for (ic = 0; ic < n_names; ic++) {
         const char *name = CHAR(STRING_ELT(names, ic));
         int namelen = strlen(name);
-        int iv = F77_CALL(get_var_index)(&mws_index, name, &namelen);
+        int iv = F77_CALL(get_var_index)(&model_index, name, &namelen);
         if (iv > 0) {
             /* add 1 because 1 based indexing in Fortr. */
             icol[nvar]   = ic + 1;
@@ -473,34 +498,35 @@ void set_data_c(SEXP set_type_, SEXP mws_index_, SEXP mat, SEXP names,
 
     switch (set_type) {
         case SET_DATA:
-            F77_CALL(set_data_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb,
+            F77_CALL(set_data_fortran)(&model_index, &nvar, ivar, &ntime, &jtb,
                                        &jte, REAL(mat), icol, &upd_mode);
             break;
         case SET_CA:
-            F77_CALL(set_ca_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb,
+            F77_CALL(set_ca_fortran)(&model_index, &nvar, ivar, &ntime, &jtb,
                                      &jte, REAL(mat), icol, &upd_mode);
             break;
         case SET_FIX:
         case SET_FIT:
             fix = set_type == SET_FIX;
-            F77_CALL(set_fix_fit_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb,
+            F77_CALL(set_fix_fit_fortran)(&model_index, &nvar, ivar, &ntime, &jtb,
                                           &jte, REAL(mat), icol, &fix,
                                           &upd_mode);
             break;
     }
+    return R_NilValue;
 }
 
 /* General function for getting fix value or fit values */
-SEXP get_fix_fit_c(SEXP type_, SEXP mws_index_) {
+SEXP get_fix_fit_c(SEXP type_, SEXP model_index_) {
     const char *type_str = CHAR(STRING_ELT(type_, 0));
     int fix = strcmp(type_str, "fix") == 0 ? 1 : 0;
-    int mws_index = asInteger(mws_index_);
+    int model_index = asInteger(model_index_);
     int nvar, jtb, jte;
 
     if (fix) {
-        F77_CALL(get_fix_info)(&mws_index, &nvar, &jtb, &jte);
+        F77_CALL(get_fix_info)(&model_index, &nvar, &jtb, &jte);
     } else  {
-        F77_CALL(get_fit_info)(&mws_index, &nvar, &jtb, &jte);
+        F77_CALL(get_fit_info)(&model_index, &nvar, &jtb, &jte);
     }
 
     if (nvar == 0) {
@@ -510,7 +536,7 @@ SEXP get_fix_fit_c(SEXP type_, SEXP mws_index_) {
     int ntime = jte - jtb + 1;
     SEXP mat = PROTECT(allocVector(REALSXP, ntime * nvar));
     int *ivar = (int *) R_alloc(nvar, sizeof(int));
-    F77_CALL(get_fix_fit_fortran)(&mws_index, &nvar, ivar, &ntime, &jtb,
+    F77_CALL(get_fix_fit_fortran)(&model_index, &nvar, ivar, &ntime, &jtb,
                                   REAL(mat), &fix);
 
     /* set the dimension of the matrix */
@@ -523,7 +549,7 @@ SEXP get_fix_fit_c(SEXP type_, SEXP mws_index_) {
     SEXP names = PROTECT(allocVector(STRSXP, nvar));
     int i, len, alpha = 0;
     for (i = 0; i < nvar; i++) {
-        F77_CALL(get_variable_name)(&mws_index, &ivar[i], name, &len, &alpha);
+        F77_CALL(get_variable_name)(&model_index, &ivar[i], name, &len, &alpha);
         name[len] = '\0';
         SET_STRING_ELT(names, i, mkChar(name));
     }
@@ -538,40 +564,41 @@ SEXP get_fix_fit_c(SEXP type_, SEXP mws_index_) {
     return list;
 }
 
-void set_rms_c(SEXP mws_index_, SEXP values) {
-    int mws_index = asInteger(mws_index_);
+SEXP set_rms_c(SEXP model_index_, SEXP values) {
+    int model_index = asInteger(model_index_);
     SEXP names = getAttrib(values, R_NamesSymbol);
     int n_names = length(values);
     int i;
     for (i = 0; i < n_names; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
-        int iv = F77_CALL(get_var_index)(&mws_index, name, &namelen);
+        int iv = F77_CALL(get_var_index)(&model_index, name, &namelen);
         if (iv > 0) {
             double value = REAL(values)[i];
-            F77_NAME(set_rms_fortran)(&mws_index, &iv, &value);
+            F77_NAME(set_rms_fortran)(&model_index, &iv, &value);
         }
     }
+    return R_NilValue;
 }
 
-SEXP get_rms_c(SEXP mws_index_) {
-    int mws_index = asInteger(mws_index_);
-    if (!F77_CALL(has_rms_fortran)(&mws_index)) {
+SEXP get_rms_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    if (!F77_CALL(has_rms_fortran)(&model_index)) {
         return R_NilValue;
     } else {
-        int n = F77_CALL(get_ca_count)(&mws_index);
+        int n = F77_CALL(get_ca_count)(&model_index);
         SEXP ret = PROTECT(allocVector(REALSXP, n));
-        F77_CALL(get_rms_fortran)(&mws_index, REAL(ret));
+        F77_CALL(get_rms_fortran)(&model_index, REAL(ret));
         UNPROTECT(1);
         return ret;
     }
 }
 
-void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,
+SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
              SEXP fit_options) {
 
     // process arguments
-    int mws_index = asInteger(mws_index_);
+    int model_index = asInteger(model_index_);
     int startp = asInteger(startp_);
     int endp= asInteger(endp_);
 
@@ -582,44 +609,46 @@ void solve_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP options,
 
     if (opts_present) {
         int use_mws = 0;
-        F77_CALL(init_set_options)(&mws_index, &use_mws);
+        F77_CALL(init_set_options)(&model_index, &use_mws);
     }
 
     if (opts_present) {
-        set_solve_options(&mws_index, options);
+        set_solve_options(&model_index, options);
     }
     if (fit_opts_present) {
-        set_fit_options(&mws_index, fit_options);
+        set_fit_options(&model_index, fit_options);
     }
     int error;
-    F77_CALL(solve_fortran)(&mws_index, &startp, &endp, &opts_present, &error);
+    F77_CALL(solve_fortran)(&model_index, &startp, &endp, &opts_present, &error);
+    return R_NilValue;
 }
 
 
-void filmdt_c(SEXP mws_index_, SEXP startp_, SEXP endp_, SEXP report_) {
+SEXP filmdt_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP report_) {
     const char *REPORT_OPTIONS[] = {"no", "minimal", "period"};
     const char *report = CHAR(STRING_ELT(report_, 0));
-    int mws_index = asInteger(mws_index_);
+    int model_index = asInteger(model_index_);
     int startp = asInteger(startp_);
     int endp= asInteger(endp_);
     int report_type = get_i_option("report", report, REPORT_OPTIONS,
                                    NO_ELM(REPORT_OPTIONS));
-    F77_CALL(filmdt_fortran)(&mws_index, &startp, &endp, &report_type);
+    F77_CALL(filmdt_fortran)(&model_index, &startp, &endp, &report_type);
+    return R_NilValue;
 }
 
 /* Sets convergence criterium for some model variables */
-void set_cvgcrit_c(SEXP mws_index_, SEXP names, SEXP value_) {
-    int mws_index = asInteger(mws_index_);
+SEXP set_cvgcrit_c(SEXP model_index_, SEXP names, SEXP value_) {
+    int model_index = asInteger(model_index_);
     double value = asReal(value_);
     int i, cnt = 0;
     int n_names =  length(names);
     for (i = 0; i < n_names; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
-        int iv = F77_CALL(get_var_index)(&mws_index, name, &namelen);
+        int iv = F77_CALL(get_var_index)(&model_index, name, &namelen);
         if (iv > 0) {
             cnt++;
-            F77_CALL(set_test)(&mws_index, &iv, &value);
+            F77_CALL(set_test)(&model_index, &iv, &value);
         } else {
            warning("\"%s\" is not a model variable\n", name);
         }
@@ -629,47 +658,49 @@ void set_cvgcrit_c(SEXP mws_index_, SEXP names, SEXP value_) {
         error("%d incorrect variable name(s) encountered. See warning(s).\n",
               n_names - cnt);
     }
+    return R_NilValue;
 }
 
 /* Sets convergence criterium for all model variables, used in init_mws.
  * values is a vector with convergence criteria for the model variables
  * in natural (i.e. non-alphabetical) order */
-void set_cvgcrit_init_mws(SEXP mws_index_, SEXP values) {
-    int mws_index = asInteger(mws_index_);
+SEXP set_cvgcrit_init_mws_c(SEXP model_index_, SEXP values) {
+    int model_index = asInteger(model_index_);
     int i;
     for (i = 1; i <= length(values); i++) {
         double value = REAL(values)[i - 1];
-        F77_CALL(set_test)(&mws_index, &i, &value);
+        F77_CALL(set_test)(&model_index, &i, &value);
     }
+    return R_NilValue;
 }
 
 /* Returns the convergence criteria for all model variables */
-SEXP get_cvgcrit_c(SEXP mws_index_, SEXP alphabet_) {
-    int mws_index = asInteger(mws_index_);
+SEXP get_cvgcrit_c(SEXP model_index_, SEXP alphabet_) {
+    int model_index = asInteger(model_index_);
     int alphabet = asInteger(alphabet_);
-    int nvar = F77_CALL(get_variable_count)(&mws_index);
+    int nvar = F77_CALL(get_variable_count)(&model_index);
     SEXP ret = PROTECT(allocVector(REALSXP, nvar));
     int iv;
     for (iv = 1; iv <= nvar; iv++) {
-        REAL(ret)[iv - 1] = F77_CALL(get_test)(&mws_index, &iv, &alphabet);
+        REAL(ret)[iv - 1] = F77_CALL(get_test)(&model_index, &iv, &alphabet);
     }
     UNPROTECT(1);
     return ret;
 }
 
 /* Sets Fair-Taylor relaxtion factors */
-void set_ftrelax_c(SEXP mws_index_, SEXP names, SEXP value_) {
-    int mws_index = asInteger(mws_index_);
+SEXP set_ftrelax_c(SEXP model_index_, SEXP names, SEXP value_) {
+    int model_index = asInteger(model_index_);
     double value = asReal(value_);
     int i, cnt = 0;
     int n_names =  length(names);
     for (i = 0; i < n_names; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
-        int iendex = F77_CALL(get_iendex)(&mws_index, name, &namelen);
+        int iendex = F77_CALL(get_iendex)(&model_index, name, &namelen);
         if (iendex > 0) {
             cnt++;
-            F77_CALL(set_ftrelax)(&mws_index, &iendex, &value);
+            F77_CALL(set_ftrelax)(&model_index, &iendex, &value);
         } else {
            warning("\"%s\" is not an endogenous lead.\n", name);
         }
@@ -679,30 +710,32 @@ void set_ftrelax_c(SEXP mws_index_, SEXP names, SEXP value_) {
         error("%d incorrect variable name(s) encountered. See warning(s).\n",
               n_names - cnt);
     }
+    return R_NilValue;
 }
 
 /* Sets Fair-Taylor relaxation factors for all endogenous leads.
  * in natural (i.e. non-alphabetical) order */
-void set_ftrelax_init_mws(SEXP mws_index_, SEXP values) {
-    int mws_index = asInteger(mws_index_);
+SEXP set_ftrelax_init_mws_c(SEXP model_index_, SEXP values) {
+    int model_index = asInteger(model_index_);
     int i;
     for (i = 1; i <= length(values); i++) {
         double value = REAL(values)[i - 1];
-        F77_CALL(set_ftrelax)(&mws_index, &i, &value);
+        F77_CALL(set_ftrelax)(&model_index, &i, &value);
     }
+    return R_NilValue;
 }
 
 /* Returns the convergence criteria for all model variables */
 
 /* Returns the Fair-Taylor relaxation factors for all endogenous
  * leads (not in alphabetical order). */
-SEXP get_ftrelax_c(SEXP mws_index_) {
-    int mws_index = asInteger(mws_index_);
-    int nendex = F77_CALL(get_endex_count)(&mws_index);
+SEXP get_ftrelax_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    int nendex = F77_CALL(get_endex_count)(&model_index);
     SEXP ret = PROTECT(allocVector(REALSXP, nendex));
     int iendex;
     for (iendex = 1; iendex <= nendex; iendex++) {
-        REAL(ret)[iendex - 1] = F77_CALL(get_ftrelax)(&mws_index, &iendex);
+        REAL(ret)[iendex - 1] = F77_CALL(get_ftrelax)(&model_index, &iendex);
     }
     UNPROTECT(1);
     return ret;
@@ -710,8 +743,8 @@ SEXP get_ftrelax_c(SEXP mws_index_) {
 
 
 /* Activate/deactive equation */
-void set_eq_status_c(SEXP mws_index_, SEXP names, SEXP status) {
-    int mws_index = asInteger(mws_index_);
+SEXP set_eq_status_c(SEXP model_index_, SEXP names, SEXP status) {
+    int model_index = asInteger(model_index_);
     const char *status_str = CHAR(asChar(status));
 
     int activate;
@@ -735,26 +768,28 @@ void set_eq_status_c(SEXP mws_index_, SEXP names, SEXP status) {
     for (i = 0; i < n_names; i++) {
         const char *name = CHAR(STRING_ELT(names, i));
         int namelen = strlen(name);
-        int ieq = F77_CALL(get_eq_index)(&mws_index, name, &namelen);
+        int ieq = F77_CALL(get_eq_index)(&model_index, name, &namelen);
         if (ieq > 0) {
-            fun(&mws_index, &ieq);
+            fun(&model_index, &ieq);
         }
     }
+    return R_NilValue;
 }
 
 /* Activate all equations */
-void activate_all_equations(SEXP mdl_index_) {
+SEXP activate_all_equations_c(SEXP mdl_index_) {
     int mdl_index = asInteger(mdl_index_);
     int neq  = F77_CALL(get_eq_count)(&mdl_index);
     int ieq;
     for (ieq = 0; ieq < neq; ieq++) {
         F77_CALL(activate_equation)(&mdl_index, &ieq);
     }
+    return R_NilValue;
 }
 
-SEXP get_solve_status_c(SEXP mws_index_) {
-    int mws_index = asInteger(mws_index_);
-    int simerr = F77_CALL(get_simerr)(&mws_index);
+SEXP get_solve_status_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    int simerr = F77_CALL(get_simerr)(&model_index);
 
     char *err_txt;
 
@@ -792,3 +827,93 @@ SEXP get_solve_status_c(SEXP mws_index_) {
     return(mkString(err_txt));
 }
 
+SEXP has_free_mws_c(void) {
+    int has_free_mws = F77_CALL(has_free_mws_fortran)();
+    return ScalarLogical(has_free_mws);
+}
+
+SEXP get_max_lag_lead_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    int maxlag, maxlead;
+    F77_CALL(get_max_lag_lead_fortran)(&model_index, &maxlag, &maxlead);
+    SEXP ret = PROTECT(allocVector(INTSXP, 2));
+    INTEGER(ret)[0] = maxlag;
+    INTEGER(ret)[1] = maxlead;
+    UNPROTECT(1);
+    return ret;
+}
+
+SEXP remove_mws_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    F77_CALL(remove_mws_fortran)(&model_index);
+    return R_NilValue;
+}
+
+SEXP set_dbgeqn_c(SEXP model_index_, SEXP dbgeqn_) {
+    int model_index = asInteger(model_index_);
+    int dbgeqn = asLogical(dbgeqn_);
+    F77_CALL(set_dbgeqn_fortran)(&model_index, &dbgeqn);
+    return R_NilValue;
+}
+
+SEXP get_dbgeqn_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    int dbgeqn = F77_CALL(get_dbgeqn_fortran)(&model_index);	
+    return(ScalarLogical(dbgeqn));
+}
+
+SEXP run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_) {
+    int model_index = asInteger(model_index_);
+    int jtb = asInteger(jtb_);
+    int jte = asInteger(jte_);
+    int neq = length(eqnums);
+    F77_CALL(run_eqn_fortran)(&model_index, &neq, INTEGER(eqnums), &jtb, &jte);
+    return R_NilValue;
+}
+
+SEXP set_jc_c(SEXP model_index_, SEXP jc_) {
+    int model_index = asInteger(model_index_);
+    int jc  = asInteger(jc_);
+    F77_CALL(set_jc_fortran)(&model_index, &jc);
+    return R_NilValue;
+}
+
+SEXP get_jc_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    int jc = F77_CALL(get_jc_fortran)(&model_index);	
+    return(ScalarInteger(jc));
+}
+
+SEXP mdlpas_c(SEXP model_index_, SEXP jtb_, SEXP jte_) {
+    int model_index = asInteger(model_index_);
+    int jtb = asInteger(jtb_);
+    int jte = asInteger(jte_);
+    F77_CALL(mdlpas_fortran)(&model_index, &jtb, &jte);
+    return R_NilValue;
+}
+
+SEXP clear_fit_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    F77_CALL(clear_fit_fortran)(&model_index);
+    return R_NilValue;
+}
+
+SEXP clear_fix_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    F77_CALL(clear_fix_fortran)(&model_index);
+    return R_NilValue;
+}
+
+SEXP clone_mws_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    int model_index_clone = F77_CALL(clone_mws_fortran)(&model_index);	
+    return(ScalarInteger(model_index_clone));
+}
+
+SEXP set_period_c(SEXP model_index_, SEXP start, SEXP end, SEXP freq_) {
+    int model_index = asInteger(model_index_);
+    int freq = asInteger(freq_);
+    int ierr = F77_CALL(set_period_fortran)(&model_index, INTEGER(start),
+                                           INTEGER(end), &freq);	
+    return(ScalarInteger(ierr));
+}

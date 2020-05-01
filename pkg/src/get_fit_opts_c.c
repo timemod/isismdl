@@ -6,6 +6,7 @@
 #include "fit_options.h"
 #include "get_option_utils.h"
 #include "init_set_get_options.h"
+#include "get_fit_opts_c.h"
 
 #define N_OPTS 10
 
@@ -16,11 +17,11 @@ extern void F77_CALL(get_fit_dbgopts)(int *, int *, int *);
 
 static SEXP get_debug_option(void);
 
-SEXP get_fit_opts_c(SEXP mws_index_) {
+SEXP get_fit_opts_c(SEXP model_index_) {
 
-    int mws_index = asInteger(mws_index_);
+    int model_index = asInteger(model_index_);
 
-    F77_CALL(init_get_options)(&mws_index);
+    F77_CALL(init_get_options)(&model_index);
 
     init_options(N_OPTS);
 

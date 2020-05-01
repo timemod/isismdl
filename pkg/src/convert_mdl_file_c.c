@@ -2,6 +2,7 @@
 #include <Rdefines.h>
 #include "prepare_compiler.h"
 #include "mchdr.h"
+#include "convert_mdl_file_c.h"
 
 static SEXP getListElement(SEXP list, const char *str);
 

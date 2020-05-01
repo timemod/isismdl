@@ -1,6 +1,7 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
 #include "prepare_compiler.h"
+#include "compile_mdl_c.h"
 
 extern void F77_NAME(mcisis)(int *modelnmlen, const char *modelnm,
                              int *mifnmlen, const char *mifnm,

@@ -1,6 +1,8 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
 
+#include "order_mdl_c.h"
+
 extern void F77_NAME(msordr)(int *model_index, int *genfbo_specified,
                              int *genfbo, int *orfnmlen, const char *orfnm);
 

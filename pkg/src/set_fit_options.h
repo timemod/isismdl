@@ -1,1 +1,1 @@
-void set_fit_options(int *mws_index, SEXP options);
+void set_fit_options(int *model_index, SEXP options);

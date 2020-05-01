@@ -44,7 +44,7 @@ module mws_type
 
             error = 0
 
-            if (stat == 0) allocate(mws%test(mws%mdl%nrv), stat = stat)
+            allocate(mws%test(mws%mdl%nrv), stat = stat)
             if (stat == 0) allocate(mws%ftrelax(mws%mdl%nendex), stat = stat)
             if (stat /= 0) then
                 call isismdl_error("Not enough memory to allocate the mws")

@@ -6,6 +6,7 @@
 #include "solve_options.h"
 #include "init_get_options.h"
 #include "get_option_utils.h"
+#include "get_solve_opts_c.h"
 
 #define N_OPTS 21
 
@@ -19,11 +20,11 @@ extern void F77_CALL(get_solve_dbgopts)(int *, int *, int *,  int *, int *,
                                       int *);
 static SEXP get_debug_option(void);
 
-SEXP get_solve_opts_c(SEXP mws_index_) {
+SEXP get_solve_opts_c(SEXP model_index_) {
 
-    int mws_index = asInteger(mws_index_);
+    int model_index = asInteger(model_index_);
 
-    F77_CALL(init_get_options)(&mws_index);
+    F77_CALL(init_get_options)(&model_index);
 
     init_options(N_OPTS);
 

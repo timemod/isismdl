@@ -1,7 +1,7 @@
 ! initialise the modules
 ! this should be called only once, to initialise the modules
 
-subroutine init_modules
+subroutine init_modules_fortran
     use nuna
     use mcedef
     
@@ -11,4 +11,4 @@ subroutine init_modules
     ! initialise operator definition
     call mceini
     
-end subroutine init_modules
+end subroutine init_modules_fortran
