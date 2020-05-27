@@ -16,16 +16,18 @@ The following types are supported
 \item{\code{"frml"}}{stochastic variables.
 Stochastic variables are variables that occur on the left hand side
 of frml equations}
-\item{\code{"endolead"}}{all variables with endogenous leads}
+\item{\code{"lags"}}{all endogenous variables with lags}
+\item{\code{"leads"}}{all endogenous variables with leads}
+\item{\code{"feedback"}}{all feedback variables}
 \item{\code{"all"}}{all endogenous variables, the default}
 }
 
-If some equation have been deactivated (see \code{\link{set_eq_status}},
+If some equation have been deactivated (see \code{\link{set_eq_status}}),
 then argument \code{status} may be useful.
 By default, the function only returns the names of the active
 endogenous variables, i.e. the variables that occur on the
 left hand side of active equation. This behaviour can be modified
-by specifying the status\code{status}. The following options
+by specifying \code{status}. The following options
 for argument \code{status} are recognized:
 \describe{
 \item{\code{"active"}}{active endogenous variables, the default}
@@ -37,7 +39,7 @@ for argument \code{status} are recognized:
 
 \preformatted{
 mdl$get_endo_names(pattern = ".*",
-                  type =  c("all", "frml", "endolead"),
+                  type =  c("all", "frml", "lags", "leads", "feedback"),
                   status = c("active", "inactive", "all"))
 
 }

@@ -309,19 +309,32 @@ IsisMdl <- R6Class("IsisMdl",
       return(sort(names))
     },
     get_endo_names = function(pattern = ".*",
-                              type = c("all", "frml", "endolead"),
+                              type = c("all", "frml", "lags", "leads",
+                                       "feedback", "endolead"),
                               status = c("active", "inactive", "all")) {
       type <- match.arg(type)
       status <- match.arg(status)
 
-      if (type == "all") {
+      if (type == "endolead") {
+        warning(paste("Type 'endolead' is obsolete and has been ",
+                      "replaced by 'leads'."))
+        type <- "leads"
+      }
+
+      if (type == "all" || type == "lags") {
         names <- .Call(get_eq_names_c, private$model_index, status, order, 1L)
+        if (type == "lags") {
+          names <- intersect(names, self$get_var_names(type = "lags"))
+        }
       } else {
-        names <- .Call(get_var_names_c, type, private$model_index)
+        # Types 'frml', 'leads' and 'feedback'
+        type_ <- if (type == "leads") "endolead" else type
+        names <- .Call(get_var_names_c, type_, private$model_index)
         if (status != "all") {
-          names <- intersect(names,
-                             .Call("get_eq_names_c", private$model_index,
-                                   status, order, 1L))
+          # If status != "all", select only activated or deactivated equations.
+          endo_names_status <- .Call("get_eq_names_c", private$model_index,
+                              status, order, 1L)
+          names <- intersect(names, endo_names_status)
         }
       }
       if (!missing(pattern)) {
@@ -695,7 +708,7 @@ IsisMdl <- R6Class("IsisMdl",
       eqnums <- match(eq_names, self$get_eq_names(order = "natural"))
       if (is.null(private$model_period)) stop(private$period_error_msg)
       js <- private$get_period_indices(period)
-      .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums), 
+      .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums),
             jtb = js$startp, jte = js$end)
       return(invisible(self))
     },

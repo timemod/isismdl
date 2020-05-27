@@ -18,9 +18,11 @@ test_that("get_var_names/get_endo_names for (endogenous) leads", {
   all_leads <- c("a", "eta", "gpx", "groei", "lambda", "mzk", "px", "rho",
                  "tc")
   endo_leads <- c("a", "eta", "lambda", "mzk", "px", "rho")
-
   expect_identical(ifn_mdl$get_var_names(type = "leads"), all_leads)
-  expect_identical(ifn_mdl$get_endo_names(type = "endolead"), endo_leads)
+  expect_identical(ifn_mdl$get_endo_names(type = "leads"), endo_leads)
+  expect_warning(
+    expect_identical(ifn_mdl$get_endo_names(type = "endolead"), endo_leads),
+    "Type 'endolead' is obsolete and has been  replaced by 'leads'\\.")
   expect_identical(intersect(all_leads, ifn_mdl$get_endo_names()), endo_leads)
 })
 
@@ -58,4 +60,20 @@ test_that("errors", {
  ifn_mdl2 <- ifn_mdl$copy()
  expect_error(ifn_mdl2$solve(options = list(xmaxiter = 0, report = "none")),
               "xmaxiter should be larger than 0")
+})
+
+test_that("get_endo_names with inactive equations", {
+  ifn_mdl2 <- ifn_mdl$copy()
+  ifn_mdl2$set_eq_status("inactive", names = c("eta", "px"))
+  all_leads <- c("a", "eta", "gpx", "groei", "lambda", "mzk", "px", "rho",
+                 "tc")
+  endo_leads <- c("a", "eta", "lambda", "mzk", "px", "rho")
+  expect_identical(ifn_mdl2$get_var_names(type = "leads"), all_leads)
+  expect_identical(ifn_mdl2$get_endo_names(type = "leads"), setdiff(endo_leads,
+                                                                   c("eta", "px")))
+  expect_identical(ifn_mdl2$get_endo_names(type = "leads", status = "all"),
+                   endo_leads)
+  expect_identical(ifn_mdl2$get_endo_names(type = "leads", status = "inactive"),
+                   c("eta", "px"))
+
 })

@@ -35,6 +35,14 @@ function get_endex_count(model_index)
     get_endex_count = mws_array(model_index)%mdl%nendex
 end function get_endex_count
 
+function get_fb_count(model_index)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: get_fb_count
+    integer(c_int), intent(in) :: model_index
+    get_fb_count = mws_array(model_index)%mdl%nfb
+end function get_fb_count
+
 function get_eq_count(model_index)
     use modelworkspaces
     use iso_c_binding
@@ -94,6 +102,22 @@ subroutine get_endex_name(model_index, i, nam, nlen)
     ivar = abs(mws_array(model_index)%mdl%iendex(i))
     call get_var_name(mws_array(model_index)%mdl, ivar, .false., nam, nlen);
 end subroutine get_endex_name
+
+subroutine get_fb_name(model_index, i, nam, nlen)
+    ! returns the name of the i'th feedback variabel (active and inactive) 
+    ! (NOT in alphabetical order!!!)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in)   :: model_index, i
+    integer(c_int), intent(out)  :: nlen
+    integer, dimension(*), intent(out) :: nam
+
+    integer :: ivar
+
+    ivar = mws_array(model_index)%mdl%numfb(i)
+    call get_var_name(mws_array(model_index)%mdl, ivar, .false., nam, nlen);
+end subroutine get_fb_name
+
 
 subroutine get_equation_name(model_index, ieq, nam, nlen, alpha)
     ! returns the name of the i'th equation
