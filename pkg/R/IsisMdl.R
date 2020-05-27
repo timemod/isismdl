@@ -321,27 +321,20 @@ IsisMdl <- R6Class("IsisMdl",
         type <- "leads"
       }
 
-      if (type == "all") {
+      if (type == "all" || type == "lags") {
         names <- .Call(get_eq_names_c, private$model_index, status, order, 1L)
-      } else {
-        if (type == "leads") {
-          type_ <- "endolead"
-        } else if (type == "lags") {
-          type_ <- "all"
-        } else {
-          type_ <- type
-        }
-        names <- .Call(get_var_names_c, type_, private$model_index)
         if (type == "lags") {
           names <- intersect(names, self$get_var_names(type = "lags"))
         }
-        if (status != "all" || type == "lags") {
+      } else {
+        # Types 'frml', 'leads' and 'feedback'
+        type_ <- if (type == "leads") "endolead" else type
+        names <- .Call(get_var_names_c, type_, private$model_index)
+        if (status != "all") {
           # If status != "all", select only activated or deactivated equations.
-          # Tf type == "lags", then names include exogenous variables with lags,
-          # thefore take the intersection with all endogenous variables.
-          names <- intersect(names,
-                             .Call("get_eq_names_c", private$model_index,
-                                   status, order, 1L))
+          endo_names_status <- .Call("get_eq_names_c", private$model_index,
+                              status, order, 1L)
+          names <- intersect(names, endo_names_status)
         }
       }
       if (!missing(pattern)) {
