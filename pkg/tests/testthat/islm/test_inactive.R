@@ -34,10 +34,35 @@ test_that("pattern argument works correctly", {
   mdl2 <<- mdl$clone(deep = TRUE)
   mdl2$set_eq_status("inactive")
   expect_identical(mdl2$get_eq_names(status = "inactive"), all_eqs)
+
+  expect_identical(mdl2$get_endo_names(type = "feedback"), character(0))
+  expect_identical(mdl2$get_endo_names(type = "feedback", status = "active"),
+                   character(0))
+  expect_identical(mdl2$get_endo_names(type = "feedback", status = "inactive"),
+                   c("r", "y"))
+  expect_identical(mdl2$get_endo_names(type = "feedback", status = "all"),
+                   c("r", "y"))
+
+  expect_identical(mdl2$get_endo_names(type = "lags"), character(0))
+  expect_identical(mdl2$get_endo_names(type = "lags", status = "active"),
+                   character(0))
+  expect_identical(mdl2$get_endo_names(type = "lags", status = "inactive"),
+                   c("r", "y", "yd"))
+  expect_identical(mdl2$get_endo_names(type = "lags", status = "all"),
+                   c("r", "y", "yd"))
+
+  expect_identical(mdl2$get_endo_names(type = "leads", status = "all"),
+                   character(0))
+
   mdl2$set_eq_status("active", pattern = "^y")
   expect_identical(mdl2$get_eq_names(status = "active"), c("y", "yd"))
   expect_identical(mdl2$get_eq_names(status = "inactive"),
                                     setdiff(all_eqs, c("y", "yd")))
+  expect_identical(mdl2$get_endo_names(type = "feedback"), "y")
+  expect_identical(mdl2$get_endo_names(type = "feedback", status = "all"),
+                   c("r", "y"))
+  expect_identical(mdl2$get_endo_names(type = "feedback", status = "inactive"),
+                   c("r"))
 })
 
 test_that("Testing equation status after reading the model", {

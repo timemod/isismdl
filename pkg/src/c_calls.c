@@ -14,6 +14,7 @@
 #define ENDOLEADS 3
 #define LAGS 4
 #define LEADS 5
+#define FEEDBACK 6
 
 #define DATA    1
 #define CA     2
@@ -171,6 +172,8 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
         type = LAGS;
     } else  if (strcmp(type_str, "leads") == 0) {
         type = LEADS;
+    } else  if (strcmp(type_str, "feedback") == 0) {
+        type = FEEDBACK;
     } else {
         error("Illegal parameter vtype %s\n", type_str);
     }
@@ -194,6 +197,9 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
                    break;
     case ENDOLEADS: nvar = F77_CALL(get_endex_count)(&model_index);
                    get_name = F77_CALL(get_endex_name);
+                   break;
+    case FEEDBACK: nvar = F77_CALL(get_fb_count)(&model_index);
+                   get_name = F77_CALL(get_fb_name);
                    break;
     }
 
