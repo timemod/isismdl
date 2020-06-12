@@ -8,10 +8,10 @@
 #include "init_set_get_options.h"
 #include "get_fit_opts_c.h"
 
-#define N_OPTS 10
+#define N_OPTS 11
 
 extern void F77_CALL(get_fit_options)(int *maxiter, double *cvgabs, 
-              double *mkdcrt, int *zero_ca, int *warn_ca, int *repopt,
+              double *mkdcrt, double *cvgrel, int *zero_ca, int *warn_ca, int *repopt,
               double *svdtest_tol, int *acc_jac, int *zealous);
 extern void F77_CALL(get_fit_dbgopts)(int *, int *, int *);
 
@@ -26,13 +26,14 @@ SEXP get_fit_opts_c(SEXP model_index_) {
     init_options(N_OPTS);
 
     int maxiter, repopt, zero_ca, warn_ca, acc_jac, zealous;
-    double cvgabs, mkdcrt, svdtest_tol;
-    F77_CALL(get_fit_options)(&maxiter, &cvgabs, &mkdcrt, &zero_ca, &warn_ca,
-                              &repopt, &svdtest_tol, &acc_jac, &zealous);
+    double cvgabs, mkdcrt, cvgrel, svdtest_tol;
+    F77_CALL(get_fit_options)(&maxiter, &cvgabs, &mkdcrt, &cvgrel, &zero_ca, 
+                              &warn_ca, &repopt, &svdtest_tol, &acc_jac, &zealous);
 
     add_option("maxiter",  PROTECT(ScalarInteger(maxiter)));
     add_option("cvgabs",   PROTECT(ScalarReal(cvgabs)));
     add_option("mkdcrt",   PROTECT(ScalarReal(mkdcrt)));
+    add_option("cvgrel",   PROTECT(ScalarReal(cvgrel)));
     add_option("zero_ca",  PROTECT(ScalarLogical(zero_ca)));
     add_option("warn_ca",  PROTECT(ScalarLogical(warn_ca)));
     add_option("accurate_jac",  PROTECT(ScalarLogical(acc_jac)));

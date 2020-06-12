@@ -19,6 +19,14 @@ subroutine set_fit_mkdcrt(mkdcrt)
     options_set%fit%mkdcrt =  mkdcrt
 end subroutine set_fit_mkdcrt
 
+subroutine set_fit_cvgrel(cvgrel)
+    use set_options
+    use iso_c_binding, only : c_double
+    real(c_double), intent(in) :: cvgrel
+    options_set%fit%cvgrel = cvgrel
+end subroutine set_fit_cvgrel
+
+
 subroutine set_fit_zero_ca(zero_ca)
     use set_options
     use iso_c_binding, only : c_int

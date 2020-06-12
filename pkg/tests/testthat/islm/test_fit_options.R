@@ -32,6 +32,7 @@ test_that("get_fit_options / set_fit_options", {
   opts["report"] <- "minimal"
   opts["warn_ca"] <- FALSE
   opts["zero_ca"] <- TRUE
+  opts["cvgrel"] <- 666
 
   expect_identical(do.call(mdl2$set_fit_options, opts), mdl2)
   expect_identical(mdl2$get_fit_options(), opts)

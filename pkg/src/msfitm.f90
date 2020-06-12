@@ -248,10 +248,7 @@ contains
         !                   absolute convergence
         !                   residual threshold
         
-        real(kind = ISIS_RKIND)  :: CVGREL, RESTHD
         real(kind = SOLVE_RKIND) ::    Qzero
-        parameter(CVGREL = 0.95_SOLVE_RKIND)
-        parameter(RESTHD = 2.0_SOLVE_RKIND )
         parameter(Qzero = 0.0_SOLVE_RKIND)
         
         logical ::  deval, devalp, fcvgd,prihdr, zealous
@@ -437,7 +434,7 @@ contains
                     fiscod = 1
                 ! when converging the residuals, it is sometimes not bad
                 ! if the step size increases.
-                !else if (deval .and. devalp .and. delsmx > CVGREL * delsmxp &
+                !else if (deval .and. devalp .and. delsmx > opts%fit%cvgrel * delsmxp &
                 !         .and. deltypp == 2) then
                     ! cannot locate a better point when converging the residuals
                 !    fiscod = 3
@@ -453,9 +450,10 @@ contains
                 endif
 
 
-            elseif ((delwmx > CVGREL * dlwmxp) .and. &
+            elseif ((delwmx > opts%fit%cvgrel * dlwmxp) .and. &
         &           (is_square .or. fiter > 1)) then
-        
+ 
+ 
                 ! if relative convergence is poor undo step.
                 ! for non square jacobian then at least 1 
                 ! iteration should be performed before the step is undone
@@ -494,7 +492,7 @@ contains
         900 continue
         
         if (fiscod == 3) then
-            call fitot5(CVGREL)
+            call fitot5(opts%fit%cvgrel)
         elseif (fiscod == 1) then
            fcvgd = .true.
         endif

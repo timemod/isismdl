@@ -15,7 +15,7 @@ list
 \section{Usage}{
 
 \preformatted{
-mdl$set_fit_options(maxiter, cvgabs, mkdcrt, zero_ca, warn_ca,
+mdl$set_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca,
                    accurate_jac, zealous, report, dbgopt, svdtest_tol)
 
 mdl$get_fit_options()
@@ -43,6 +43,17 @@ the fit target values is
 larger than \code{mkdcrt} a new fit jacobian will be calculated
 in the next iteration. Any value specified must lie between 0.05
 and 0.95. The default value is 0.5.}
+\item{\code{cvgrel}}{Criterion for accepting the result of a fit
+iteration.
+When the ratio of two successive largest scaled discrepancies of
+the fit target values is
+larger than \code{cvgrel},  then the result of the iteration is rejected.
+If the iteration employed an old fit jacobian (i.e. a jacobian
+computed in  an earlier iteration), then a second attempt with
+a  new Jacobian is made. If the iteration already used a new
+Jacobian, then the fit procedure will be terminated.
+The default value is 10. In many cases a large ratio in a single iteration
+is not problematic,  so \code{cvgrel} can typically be set to a large value.}
 \item{\code{zero_ca}}{A logical. If \code{TRUE}, then the initial values
 of the constant adjustments used in the fit procedure are initialised to 0.
 The default is \code{FALSE}}

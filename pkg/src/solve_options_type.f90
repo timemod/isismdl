@@ -39,6 +39,7 @@ module solve_options_type
         integer(kind = ISIS_IKIND) :: maxiter
         real(kind = ISIS_RKIND)    :: cvgabs
         real(kind = ISIS_RKIND)    :: mkdcrt
+        real(kind = ISIS_RKIND)    :: cvgrel
         integer(kind = ISIS_IKIND) :: scale_method
         logical(kind = ISIS_IKIND) :: prica
         logical(kind = ISIS_IKIND) :: prijac
@@ -151,6 +152,7 @@ contains
         options%fit%maxiter = 10
         options%fit%cvgabs = 100 * sqrt(Rmeps)
         options%fit%mkdcrt =  0.5_ISIS_RKIND
+        options%fit%cvgrel =  10_ISIS_RKIND
         options%fit%scale_method = FIT_SCALE_ROW
         options%fit%accurate_jac = .true.
         options%fit%prica  = .false.

@@ -32,7 +32,14 @@ mdl$set_fit(fit_targets)
 mdl$set_fit(regts(177.84782, start = "1993Q2"), names = "ybfexvk")
 mdl$set_fit(regts(0.00489, start = "1993Q2"), names = "c____pr")
 
+
 mdl$set_rms(rms_values)
+
+mdl$set_fit_options(cvgrel = 0.0001, cvgabs = 1e-6)
+expect_warning(mdl$solve(options = list(report = "none")),
+               "Simulation stopped")
+
+mdl$set_fit_options(cvgrel = 10)
 # TODO: options = list(report = "none") does not work yet for the fit procedure
 report <- capture_output(mdl$solve(options = list(report = "none")))
 

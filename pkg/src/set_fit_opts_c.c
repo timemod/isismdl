@@ -11,6 +11,7 @@ extern void F77_SUB(init_get_solve_opts)(int *model_index);
 extern void F77_SUB(set_fit_maxit)(int *);
 extern void F77_SUB(set_fit_cvgabs)(double *);
 extern void F77_SUB(set_fit_mkdcrt)(double *);
+extern void F77_SUB(set_fit_cvgrel)(double *);
 extern void F77_SUB(set_fit_zero_ca)(int *);
 extern void F77_SUB(set_fit_warn_ca)(int *);
 extern void F77_SUB(set_fit_accurate_jac)(int *);
@@ -62,6 +63,10 @@ static void set_fit_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         x = get_positive_number(name, value);
         F77_CALL(set_fit_mkdcrt)(&x);
+    } else if (!strcmp(name, "cvgrel")) {
+        CHECK_LENGTH(name, value);
+        x = get_positive_number(name, value);
+        F77_CALL(set_fit_cvgrel)(&x);
     } else if (!strcmp(name, "zero_ca")) {
         CHECK_LENGTH(name, value);
         i = get_logical(name, value);
