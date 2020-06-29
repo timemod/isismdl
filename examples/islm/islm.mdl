@@ -10,6 +10,6 @@ frml md = m0 + m1 * y - m2 * r + m3 * r**2;
 frml t = t0 + t1 * y;
 
 ? ident equations
-ident yd = y - t;
-ident y = c + i + g;
-ident r = r + (ms - md) / ms;
+yd = y - t;
+y = c + i + g;
+r = r + (ms - md) / ms;

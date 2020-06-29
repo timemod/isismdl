@@ -9,7 +9,7 @@ mdl_file <- "mdl/dslnex.mdl"
 input_data <- regts(matrix(c(2, 0.5), ncol = 2), names = c("x1", "x2"))
 correct_result <- regts(matrix(c(1, 1), ncol = 2), names = c("x1", "x2"))
 
-capture.output(model <- isis_mdl(model_file = mdl_file, data = input_data))
+model <- isis_mdl(model_file = mdl_file, data = input_data, silent = TRUE)
 
 model$set_solve_options(report = "none")
 

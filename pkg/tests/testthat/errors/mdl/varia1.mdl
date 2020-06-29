@@ -35,3 +35,6 @@ ident f2 = 3;
 ident 0(f3) = 3;
 ident if = 3;
 ident k1 = if;
+then = 3;
+else pp = 3;
+sum sin = 3;

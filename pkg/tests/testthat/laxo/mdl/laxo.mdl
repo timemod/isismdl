@@ -122,7 +122,7 @@ function g30(x) = sum(j=-3,0:wg30(j)*x(j)) ;
 ?
 ?                   LOONINKOMEN
 ?
-ident ldlwn ldlwn=lb___wn+lo_wn+akpwn-(pb_wn+po_wn+tllwn);
+ldlwn=lb___wn+lo_wn+akpwn-(pb_wn+po_wn+tllwn);
 ident ldzwn ldzwn=lz_wn-pz_wn-tzlwnk;
 ident ldawn ldawn=ldlwn+ldzwn-akpwn;
 ident ldapi ldapi=1+ca_pr;
