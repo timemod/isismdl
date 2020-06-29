@@ -144,3 +144,13 @@ Line: 37 of file mdl/varia1.mdl
 ident k1 = if;
              ^
 
+error: then is a reserved word
+Line: 38 of file mdl/varia1.mdl
+then = 3;
+     ^
+
+error: sin is a reserved word
+Line: 40 of file mdl/varia1.mdl
+sum sin = 3;
+       ^
+
