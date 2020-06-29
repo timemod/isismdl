@@ -93,7 +93,7 @@ void FNAME(save_parameter)(FINT *, FREAL8 *);
 %token   <ival>  T_INTNUM "integer"
 
 %token   <ival>  T_GE ">=" T_GT ">" T_LT "<"
-%token   <ival>  T_LE "<=" T_EQ ".eq." NE "^=" 
+%token   <ival>  T_LE "<=" T_EQ ".eq." T_NE "^=" 
 %token   T_NOT "^ or .not." T_AND "& or .and." T_OR "| or .or."
 
 /*

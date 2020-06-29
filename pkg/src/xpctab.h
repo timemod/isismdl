@@ -69,13 +69,12 @@ extern int mcdebug;
     T_LT = 279,
     T_LE = 280,
     T_EQ = 281,
-    NE = 282,
+    T_NE = 282,
     T_NOT = 283,
     T_AND = 284,
     T_OR = 285,
-    T_NE = 286,
-    UNARYMINUS = 287,
-    T_POW = 288
+    UNARYMINUS = 286,
+    T_POW = 287
   };
 #endif
 /* Tokens.  */
@@ -103,13 +102,12 @@ extern int mcdebug;
 #define T_LT 279
 #define T_LE 280
 #define T_EQ 281
-#define NE 282
+#define T_NE 282
 #define T_NOT 283
 #define T_AND 284
 #define T_OR 285
-#define T_NE 286
-#define UNARYMINUS 287
-#define T_POW 288
+#define UNARYMINUS 286
+#define T_POW 287
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -123,7 +121,7 @@ union YYSTYPE
         Symbol  *sp;
         Enodep  ep;
 
-#line 127 "xpctab.h" /* yacc.c:1909  */
+#line 125 "xpctab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
