@@ -6,7 +6,7 @@ context("syntax error varia")
 
 test_that("error given", {
   msg <- "Error detected in compilation of model mdl/varia1\nCheck the .err file"
-  expect_error(capture_output(mdl <- isis_mdl("mdl/varia1")), msg)
+  expect_error(mdl <- isis_mdl("mdl/varia1", silent = TRUE), msg)
 })
 
 test_that("error file correct", {
@@ -14,7 +14,6 @@ test_that("error file correct", {
   if (.Platform$OS.type == "windows") {
     error_txt <- gsub("\r", "", error_txt)
   }
-  #cat(error_txt)
-  expect_equal_to_reference(error_txt, "expected_output/varia1.rds")
+  expect_known_output(cat(error_txt), "expected_output/varia1.err")
 })
 

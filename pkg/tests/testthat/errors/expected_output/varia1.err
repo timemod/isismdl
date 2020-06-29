@@ -1,0 +1,161 @@
+Name c1 already used as exogenous variable name
+Line: 2 of file mdl/varia1.mdl
+param c1  3;
+        ^
+
+Duplicate parameter name c1
+Line: 3 of file mdl/varia1.mdl
+param c1  3 coef1 2 3 coef2 *;
+        ^
+
+syntax error, unexpected '*', expecting number or integer
+Line: 3 of file mdl/varia1.mdl
+param c1  3 coef1 2 3 coef2 *;
+                             ^
+
+syntax error, unexpected ';', expecting number or integer
+Line: 5 of file mdl/varia1.mdl
+param c3 1 2 q;
+              ^
+
+syntax error, unexpected ';', expecting number or integer
+Line: 6 of file mdl/varia1.mdl
+param c4;
+        ^
+
+Parameter name caaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa too long (max 60 chars)
+Line: 7 of file mdl/varia1.mdl
+param caaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 1;
+                                                                                                              ^
+
+syntax error, unexpected ';'
+Line: 9 of file mdl/varia1.mdl
+function f2(x) = 2 * x &;
+                        ^
+
+Unknown function F3
+Line: 10 of file mdl/varia1.mdl
+function f3(x) = 2 * F3(x);  ? recursion is not allowed
+                         ^
+
+Unknown function f
+Line: 12 of file mdl/varia1.mdl
+function g(x) = f(x);
+                   ^
+
+Name f already used as exogenous variable name
+Line: 13 of file mdl/varia1.mdl
+function f(x) = g(x);
+          ^
+
+Function f1 requires 1 arguments but 2 passed
+Line: 15 of file mdl/varia1.mdl
+ident foute_f1_aanroep = f1(x, y) + c1[-3];
+                                ^
+
+Invalid index (-3) on param c1
+The index should obey 0 <= index <= 0
+Line: 15 of file mdl/varia1.mdl
+ident foute_f1_aanroep = f1(x, y) + c1[-3];
+                                         ^
+
+Illegal equation type x1
+Line: 17 of file mdl/varia1.mdl
+x1 = 2;
+  ^
+
+syntax error, unexpected '='
+Line: 17 of file mdl/varia1.mdl
+x1 = 2;
+   ^
+
+Variable x used more than once in left hand side
+Line: 19 of file mdl/varia1.mdl
+ident eq1 x = y;
+           ^
+
+Duplicate equation eq1
+Line: 20 of file mdl/varia1.mdl
+ident eq1 z = 1;
+               ^
+
+Illegal equation type aap
+Line: 21 of file mdl/varia1.mdl
+aap p = 1;
+   ^
+
+Variable x used more than once in left hand side
+Line: 22 of file mdl/varia1.mdl
+frml x = @3;
+       ^
+
+Illegal character in input
+Line: 22 of file mdl/varia1.mdl
+frml x = @3;
+         ^
+
+Duplicate equation x
+Line: 22 of file mdl/varia1.mdl
+frml x = @3;
+           ^
+
+Variable a used more than once in left hand side
+Line: 24 of file mdl/varia1.mdl
+ident a = 1    ? notice the missing ;
+        ^
+
+syntax error, unexpected ident
+Line: 25 of file mdl/varia1.mdl
+ident b = 2;
+     ^
+
+syntax error, unexpected ')', expecting ':'
+Line: 26 of file mdl/varia1.mdl
+ident h1 = del(7);
+                ^
+
+syntax error, unexpected name, expecting integer
+Line: 27 of file mdl/varia1.mdl
+ident h2 = del(x);
+                ^
+
+syntax error, unexpected name, expecting integer
+Line: 28 of file mdl/varia1.mdl
+ident h3 = del(x : 7);
+                ^
+
+syntax error, unexpected name, expecting '('
+Line: 29 of file mdl/varia1.mdl
+ident 3h = 2;
+        ^
+
+syntax error, unexpected '['
+Line: 31 of file mdl/varia1.mdl
+ident h6 = x(7) [ % ;
+                ^
+
+Illegal character in input
+Line: 31 of file mdl/varia1.mdl
+ident h6 = x(7) [ % ;
+                  ^
+
+Name c1 already used as parameter name
+Line: 32 of file mdl/varia1.mdl
+ident c1 = 2;
+         ^
+
+Name f1 already used as user function name
+Line: 33 of file mdl/varia1.mdl
+ident f1 = 2;
+         ^
+
+error: if is a reserved word
+Line: 36 of file mdl/varia1.mdl
+ident if = 3;
+         ^
+
+syntax error, unexpected ';'
+Line: 37 of file mdl/varia1.mdl
+ident k1 = if;
+             ^
+
