@@ -69,8 +69,7 @@ void FNAME(save_parameter)(FINT *, FREAL8 *);
 }
 
 %type    <sp>    eqname pname funcname
-%type    <sp>    eqtyp_error
-%type    <ival>  eqtyp
+%type    <ival>  eqtyp 
 %type    <ival>  opt_sign '-' '+' sinteger
 %type    <dval>  snumber
 
@@ -136,7 +135,6 @@ stmtlist: stmt
 stmt    : T_FUNCTION fstmt    
         | T_UL_FUNCTION ulfstmt
         | T_PARAM    plist  ';'
-
         | eqtyp 
           lhsexpl '=' expr  ';'   { eqn_epilogue(NULL, $1, $2, $4, 0);}
 
@@ -156,15 +154,8 @@ stmt    : T_FUNCTION fstmt
 
 eqtyp   : T_FRML        { eqn_prologue(); $$ = 1;}
         | T_IDENT       { eqn_prologue(); $$ = 0;}
-        | eqtyp_error   { /* error: illegal equation type */
-                          eqtyp_err($1); $$ = 0;}
+        | /*nix */      { eqn_prologue(); $$ = 0;}
         ;
-
-eqtyp_error : T_NAME   {$$ = $1;}
-            | keywd    {$$ = $1;}
-            | T_UFUNC  {$$ = $1;}
-            | T_ULFUNC {$$ = $1;}
-            ;
 
 eqname  : T_NAME  
         | keywd     /* the equation name may be a key word (e.g. "IF")
@@ -210,11 +201,11 @@ sinteger : opt_sign T_INTNUM { $$ = ($1 == '-') ? -$2 : $2; }
  */
 
 lhsexpl : T_NAME                  { check_lhs($1); }
-        | T_UFUNC  /* ERROR; call check_lhs for nice error message */  
+        | T_UFUNC   /* ERROR; call check_lhs for nice error message */  
                                   { check_lhs($1); }  
         | T_ULFUNC  /* ERROR; call check_lhs for nice error message */  
                                   { check_lhs($1); }  
-        | keywd   /* ERROR: call check_lhs for nice error message */
+        | keywd     /* ERROR: call check_lhs for nice error message */
                                   { check_lhs($1); }  
         ;
 
@@ -223,6 +214,9 @@ lhsimpl : T_INTNUM '(' T_NAME ')'  { $$ = $3; if(check_implicit($1, $3)) YYERROR
                               /* ERROR; call check_lhs for nice error message */  
                                 { $$ = $3; if(check_implicit($1, $3)) YYERROR; }
         | T_INTNUM '(' T_ULFUNC ')'
+                              /* ERROR; call check_lhs for nice error message */  
+                                { $$ = $3; if(check_implicit($1, $3)) YYERROR; }
+        | T_INTNUM '(' keywd ')'
                               /* ERROR; call check_lhs for nice error message */  
                                 { $$ = $3; if(check_implicit($1, $3)) YYERROR; }
         ;

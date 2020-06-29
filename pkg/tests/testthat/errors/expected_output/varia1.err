@@ -59,16 +59,6 @@ Line: 15 of file mdl/varia1.mdl
 ident foute_f1_aanroep = f1(x, y) + c1[-3];
                                          ^
 
-Illegal equation type x1
-Line: 17 of file mdl/varia1.mdl
-x1 = 2;
-  ^
-
-syntax error, unexpected '='
-Line: 17 of file mdl/varia1.mdl
-x1 = 2;
-   ^
-
 Variable x used more than once in left hand side
 Line: 19 of file mdl/varia1.mdl
 ident eq1 x = y;
@@ -78,11 +68,6 @@ Duplicate equation eq1
 Line: 20 of file mdl/varia1.mdl
 ident eq1 z = 1;
                ^
-
-Illegal equation type aap
-Line: 21 of file mdl/varia1.mdl
-aap p = 1;
-   ^
 
 Variable x used more than once in left hand side
 Line: 22 of file mdl/varia1.mdl
