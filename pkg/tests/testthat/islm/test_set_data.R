@@ -42,3 +42,21 @@ test_that("errors", {
   msg <- "Argument data is not a timeseries object"
   expect_error(mdl$set_data(3), msg)
 })
+
+test_that("set_data integer / logical values", {
+  mdl2 <- mdl$copy()
+
+  per <- mdl$get_period()
+  mdl2$set_data(regts(1L, period = per), names = "y")
+
+  expected_result1 <- regts(matrix(1, ncol = 1), period = per, names = "y")
+  expect_equal(mdl2$get_data(names = "y", period = per), expected_result1,
+               check.attributes = FALSE)
+
+  mdl2$set_data(regts(NA, period = per), names = "y")
+  expected_result2 <- regts(matrix(NA_real_, ncol = 1), period = per,
+                            names = "y")
+  expect_equal(mdl2$get_data(names = "y", period = per), expected_result2,
+               check.attributes = FALSE)
+
+})

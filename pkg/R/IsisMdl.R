@@ -1326,7 +1326,7 @@ IsisMdl <- R6Class("IsisMdl",
 
       if (is.integer(data) || !is.numeric(data)) {
         # make sure that data is a matrix of numeric values
-        data <- apply(data, MARGIN = c(1,2), FUN = as.numeric)
+        data[] <- apply(data, MARGIN = c(1,2), FUN = as.numeric)
       }
 
       return(data)
