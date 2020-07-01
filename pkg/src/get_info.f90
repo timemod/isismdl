@@ -259,14 +259,14 @@ subroutine get_fit_info(model_index, nfit,  jtb, jte)
 
     jtb = - mws%mdl%mxlag
     jte = - mws%mdl%mxlag
-    do jt = 1 - mws%mdl%mxlag, mws%perlen
+    do jt = 1 - mws%mdl%mxlag, mws%perlen + mws%mdl%mxlead
         if (isfitp(mws, jt)) then
             jtb = jt
             exit
         endif
     end do
     if (jtb > -mws%mdl%mxlag) then
-        do jt = mws%perlen, jtb, -1
+        do jt = mws%perlen + mws%mdl%mxlead, jtb, -1
             if (isfitp(mws, jt)) then
                 jte = jt
                 exit
