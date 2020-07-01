@@ -259,7 +259,7 @@ contains
                                    delsmxp
         real(kind = ISIS_RKIND), dimension(:,:), allocatable :: dj_copy
         integer :: svd_err, stat, matitr, deltyp, deltypp
-        logical :: memory_error, has_zero_row
+        logical :: memory_error, has_zero_col
 
         !     fiscod is fit iteration status
         !        0    continue
@@ -323,11 +323,11 @@ contains
                !  in the mathematical paper.
         
         
-               call mkdjac(xcod, fiter, has_zero_row, memory_error, matitr)
+               call mkdjac(xcod, fiter, has_zero_col, memory_error, matitr)
                if (memory_error) then
                    retcod = 2
                    goto 9999
-               else if (has_zero_row) then
+               else if (has_zero_col) then
                    xcod = 1
                    goto 9000
                endif
@@ -692,7 +692,7 @@ contains
     
     !-----------------------------------------------------------------------
     
-    subroutine mkdjac(xcod, fiter, has_zero_row, memory_error, matitr)
+    subroutine mkdjac(xcod, fiter, has_zero_col, memory_error, matitr)
     use msvars
     use msutil
     use nuv
@@ -708,7 +708,7 @@ contains
     
     integer, intent(out) :: xcod
     integer, intent(in)  :: fiter
-    logical, intent(out) :: memory_error, has_zero_row
+    logical, intent(out) :: memory_error, has_zero_col
     integer, intent(inout)  :: matitr
     
     real(kind = ISIS_RKIND) :: oldca
@@ -722,7 +722,7 @@ contains
     
     ! RMSDEL is constant for calculation of derivative
     
-    has_zero_row = .false.
+    has_zero_col = .false.
     memory_error = .false.
     
     ! allocate fit matrix Dj.
@@ -808,10 +808,12 @@ contains
             t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
             if (t <= mat_norm * sqrt(Rmeps) ) then
                 call fitotc(numw(j), t)
-                if (.not. has_zero_row .and. t == 0) has_zero_row = .true.
+                if (.not. has_zero_col .and. t == 0) has_zero_col = .true.
             endif
         enddo
     endif
+
+    if (has_zero_col) return
     
     ! scale the matrix
     if (opts%fit%scale_method == SCALE_BOTH .and. is_square) then
@@ -821,7 +823,8 @@ contains
         scale_u = scale_w
     else if (opts%fit%scale_method /= SCALE_NONE) then
         call dgeequ_col(nu, nw, dj, nu_max, w_scale, colcnd, amax, info)
-        scale_w = colcnd < 0.1
+        ! info != 0 if columns of dj only contain zero values
+        scale_w = info == 0 .and. colcnd < 0.1
         scale_u = .false.
     else
         scale_w = .false.
@@ -842,8 +845,7 @@ contains
             end do
         end do
     endif
-    
-    
+
     return
     end subroutine mkdjac
     
