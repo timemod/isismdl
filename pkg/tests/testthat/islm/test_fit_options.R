@@ -3,11 +3,17 @@ library(isismdl)
 
 library(utils)
 
+rm(list = ls())
+
 context("solve options for ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model.ismdl"))
+mdl <- read_mdl("islm_model.ismdl", silent  = TRUE)
 
 default_opts <- mdl$get_fit_options()
+
+test_that("test some default options", {
+  expect_equal(default_opts[["scale_method"]], "row")
+})
 
 test_that("the default options not overwritten by method solve", {
   rms_values <- c(c = 5.0, t = 2, i = 21, md = 2)
@@ -33,6 +39,7 @@ test_that("get_fit_options / set_fit_options", {
   opts["warn_ca"] <- FALSE
   opts["zero_ca"] <- TRUE
   opts["cvgrel"] <- 666
+  opts["scale_method"] <- "none"
 
   expect_identical(do.call(mdl2$set_fit_options, opts), mdl2)
   expect_identical(mdl2$get_fit_options(), opts)

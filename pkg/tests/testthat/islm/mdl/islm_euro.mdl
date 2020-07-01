@@ -1,0 +1,15 @@
+? version of the Islm model in Euros, used for testing scaling
+param c0 100000000 c1 0.7  c2 20000000 c3 500000;
+param i0 100000000 i1 0.2  i2 40000000 i3 1500000;
+param m0  75000000 m1 0.23 m2 35000000 m3 1500000;
+param t0 -15000000 t1 0.22;
+
+ident y = c + i + g;
+ident yd = y - t;
+
+frml t = t0 + t1 * y;
+frml c = c0 + c1* (0.9 * yd + 0.1 * yd[-1]) - c2 * r + c3 * r**2;
+frml i = i0 + i1* (0.2 * y + 0.8 * y[-1]) - i2 * r[-1] + i3 * r[-1]**2;
+frml md = m0 + m1 * y - m2 * r + m3 * r**2 ;
+
+ident r = r + (ms - md) / ms;

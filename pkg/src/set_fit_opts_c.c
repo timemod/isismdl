@@ -19,6 +19,7 @@ extern void F77_SUB(set_fit_zealous)(int *);
 extern void F77_SUB(get_fit_dbgopts)(int *, int *, int *);
 extern void F77_SUB(set_fit_dbgopts)(int *, int *, int *);
 extern void F77_SUB(set_fit_repopt)(int *);
+extern void F77_SUB(set_fit_scale_method)(int *);
 extern void F77_SUB(set_fit_svdtest_tol)(double *);
 
 static void set_fit_option(const char *name, SEXP value);
@@ -93,6 +94,10 @@ static void set_fit_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         x = get_finite_number(name, value);
         F77_CALL(set_fit_svdtest_tol)(&x);
+    } else if (!strcmp(name, "scale_method")) {
+        CHECK_LENGTH(name, value);
+        i = get_fit_scale_method(name, CHAR(STRING_ELT(value, 0)));
+        F77_CALL(set_fit_scale_method)(&i);
     } else {
        error("Unknown fit option %s\n", name);
     }

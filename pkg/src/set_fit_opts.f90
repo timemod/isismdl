@@ -62,6 +62,12 @@ subroutine set_fit_repopt(repopt)
     options_set%fit%repopt = repopt
 end subroutine set_fit_repopt
 
+subroutine set_fit_scale_method(scale_method)
+    use set_options
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: scale_method
+    options_set%fit%scale_method = scale_method
+end subroutine set_fit_scale_method
 
 subroutine set_fit_dbgopts(prica, prijac, supsot)
     use set_options

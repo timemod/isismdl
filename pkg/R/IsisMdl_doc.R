@@ -1314,7 +1314,8 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca,
-#'                    accurate_jac, zealous, report, dbgopt, svdtest_tol)
+#'                    accurate_jac, zealous, scale_method,
+#'                    report, dbgopt, svdtest_tol)
 #'
 #' mdl$get_fit_options()
 #'
@@ -1358,11 +1359,27 @@ NULL
 #' procedure for each period.}
 #' \item{\code{accurate_jac}}{A logical. If \code{TRUE} (default), then the
 #' fit jacobian is calculated accurately, otherwise the jacobian
-#' is calculated approximately. See Details}
+#' is calculated approximately. The fit jacobian `D_ij` is a matrix with the
+#' derivatives of the fit targets with respect to the scaled residuals.
+#' The scaling of the residuals is based on the rms-values. In some cases
+#' it may be beneficial for the fit method to also scale the fit targets.
+#' This is achieved by using the scale method `"row"`, which is used by
+#' default.}
 #' \item{\code{zealous}}{A logical. If \code{TRUE} (default), then a zealous
 #' version of the fit procedure is used, otherwise a lazy version is used
 #' (see Details). The recommended option is to use the zealous version,
 #' although this may require much more CPU time.}
+#' \item{\code{scale_method}}{The scaling method for the fit jacobian.
+#' Possible values are `"row"` (row scaling, the default), and `"none"` (no scaling).
+#' As explained in section Details, the fit jacobian \eqn{D_{ij}} is a matrix with the
+#' derivatives of the fit targets (\eqn{i}) with respect to the scaled residuals (\eqn{j}).
+#' It may be benificial for the fit solution method
+#' to also scale the fit targets. This is achived by using
+#' the `"row"` scaling method, which is used by default.
+#' This scaling method tries to make the largest element in each row of a
+#' \eqn{D} have absolute value 1.
+#' Row scaling often improves the condition of the matrix if the
+#' fit targets are badly scaled.}
 #' \item{\code{report}}{A character string specifying the the
 #' type of report of the fit procedure for each period.
 #' Possible values are \code{"fullrep"}
@@ -1383,6 +1400,10 @@ NULL
 #' This option should therefore only be used during testing. It should be turned
 #' off in production calculations}
 #' }
+#'
+#' @section Details:
+#'
+#' TODO
 #'
 #' @section Debugging options:
 #'
