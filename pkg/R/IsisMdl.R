@@ -415,8 +415,9 @@ IsisMdl <- R6Class("IsisMdl",
           endp <- end_period(mp) + private$maxlead
           if (start_period(data_period) > startp ||
               end_period(data_period)  < endp) {
+            p <- period_range(startp, endp)
             stop(paste("The data period should include the range",
-                       as.character(mp), "."))
+                       as.character(p), "."))
           }
         }
       }
