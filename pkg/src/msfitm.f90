@@ -259,7 +259,7 @@ contains
                                    delsmxp
         real(kind = ISIS_RKIND), dimension(:,:), allocatable :: dj_copy
         integer :: svd_err, stat, matitr, deltyp, deltypp
-        logical :: memory_error
+        logical :: memory_error, has_zero_row
 
         !     fiscod is fit iteration status
         !        0    continue
@@ -323,10 +323,13 @@ contains
                !  in the mathematical paper.
         
         
-               call mkdjac(xcod, fiter, memory_error, matitr)
+               call mkdjac(xcod, fiter, has_zero_row, memory_error, matitr)
                if (memory_error) then
                    retcod = 2
                    goto 9999
+               else if (has_zero_row) then
+                   xcod = 1
+                   goto 9000
                endif
         
                if( xcod .ne. 0 ) goto 9000
@@ -689,7 +692,7 @@ contains
     
     !-----------------------------------------------------------------------
     
-    subroutine mkdjac(xcod, fiter, memory_error, matitr)
+    subroutine mkdjac(xcod, fiter, has_zero_row, memory_error, matitr)
     use msvars
     use msutil
     use nuv
@@ -705,7 +708,7 @@ contains
     
     integer, intent(out) :: xcod
     integer, intent(in)  :: fiter
-    logical, intent(out) :: memory_error
+    logical, intent(out) :: memory_error, has_zero_row
     integer, intent(inout)  :: matitr
     
     real(kind = ISIS_RKIND) :: oldca
@@ -717,12 +720,12 @@ contains
 
     itr0 = 0
     
+    ! RMSDEL is constant for calculation of derivative
     
-    !     RMSDEL is constant for calculation of derivative
-    
+    has_zero_row = .false.
     memory_error = .false.
     
-    !     allocate fit matrix Dj.
+    ! allocate fit matrix Dj.
     if (.not. allocated(dj)) then
         allocate(dj(nu_max, mws%fit_targets%var_count), stat = stat)
         if (opts%fit%scale_method /= SCALE_NONE .and. stat == 0) then
@@ -783,6 +786,32 @@ contains
     if (opts%fit%prijac) then
         call fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
     endif
+
+    ! check for (almost) zero columns in dj matrix
+    
+    ! calculate 1-norm of matrix
+    mat_norm = 0
+    do j = 1, nw
+        mat_norm = max(dasum(int(nu, ISIS_IKIND), dj(:, j), 1), mat_norm)
+    enddo
+    
+    if (nuifna(mat_norm)) then
+        ! matrix has invalid numbers
+        call fitot10(fiter)
+        do j = 1, nw
+            t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
+            if (nuifna(t)) call fitotc_invalid(numw(j))
+         enddo
+    else
+        ! determine which columns are (almost) zero
+        do j = 1, nw
+            t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
+            if (t <= mat_norm * sqrt(Rmeps) ) then
+                call fitotc(numw(j), t)
+                if (.not. has_zero_row .and. t == 0) has_zero_row = .true.
+            endif
+        enddo
+    endif
     
     ! scale the matrix
     if (opts%fit%scale_method == SCALE_BOTH .and. is_square) then
@@ -812,31 +841,6 @@ contains
                 dj(i, j) = dj(i, j) * u_scale(i)
             end do
         end do
-    endif
-    
-    !     check for (almost) zero columns in dj matrix
-    
-    !     calculate 1-norm of matrix
-    mat_norm = 0
-    do j = 1, nw
-        mat_norm = max(dasum(int(nu, ISIS_IKIND), dj(:, j), 1), mat_norm)
-    enddo
-    
-    if (nuifna(mat_norm)) then
-        ! matrix has invalid numbers
-        call fitot10(fiter)
-        do j = 1, nw
-            t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
-            if (nuifna(t)) call fitotc_invalid(numw(j))
-         enddo
-    else
-        ! determine which columns are (almost) zero
-        do j = 1, nw
-            t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
-            if (t <= mat_norm * sqrt(Rmeps) ) then
-                call fitotc(numw(j))
-            endif
-        enddo
     endif
     
     
@@ -889,10 +893,7 @@ contains
     
     if (ier /= 0) then
         call fitot8(ier, dcond)
-        quit = .true.
-        if (quit) then
-            xcod = 1
-        endif
+        xcod = 1
     endif
     
     return

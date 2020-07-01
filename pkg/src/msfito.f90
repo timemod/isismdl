@@ -414,7 +414,7 @@ subroutine fitotc_invalid(iv)
     
     call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
     
-    write(str, '(3a)' ) 'Warning: Column of derivative for ', name(:nlen), &
+    write(str, '(3a)' ) 'Warning: Some derivatives for fit target ', name(:nlen), &
     &                   ' contains invalid values'
     
     call strout(O_WMSG)
@@ -422,19 +422,26 @@ subroutine fitotc_invalid(iv)
     return
 end subroutine fitotc_invalid
 
-subroutine fitotc(iv)
+subroutine fitotc(iv, l1_norm)
     use mdl_name_utils
+    integer(kind = SOLVE_IKIND), intent(in) :: iv
+    real(kind = SOLVE_RKIND), intent(in) :: l1_norm
 
     ! print message about zero column of derivatives in fit jacobian
 
-    integer(kind = SOLVE_IKIND) :: iv
     
     if (opts%repopt == REP_NONE) return
 
     call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
 
-    write(str, '(3a)' ) 'Warning: Column of derivative for ', name(:nlen), &
-&                   ' consists of (almost) zero entries'
+    if (l1_norm == 0) then
+        write(str, '(3a)') 'Error: All derivatives of fit target ',  &
+              name(:nlen), ' are exactly zero. Fit procedure not possible.'
+    else 
+        write(str, '(3a, g15.2)') 'Warning: Derivatives of fit target ',  &
+              name(:nlen), ' are almost zero. L1-norm of the row in the fit jacobian:', &
+                  l1_norm
+    endif
     
     call strout(O_WMSG)
     
