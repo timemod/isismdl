@@ -438,7 +438,7 @@ subroutine fitotc(iv, l1_norm)
         write(str, '(3a)') 'Error: All derivatives of fit target ',  &
               name(:nlen), ' are exactly zero. Fit procedure not possible.'
     else 
-        write(str, '(3a, g15.2)') 'Warning: Derivatives of fit target ',  &
+        write(str, '(3a, g10.2)') 'Warning: Derivatives of fit target ',  &
               name(:nlen), ' are almost zero. L1-norm of the row in the fit jacobian:', &
                   l1_norm
     endif
