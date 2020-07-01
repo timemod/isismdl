@@ -367,7 +367,7 @@ module mws_type
 
         subroutine get_fix_fit(mws, nvar, ivar, ntime, jtb, mat, fix)
             ! get fix or fit values, depending on variable fix
-            type(modelworkspace), intent(inout), target :: mws 
+            type(modelworkspace), intent(in), target :: mws 
             integer, intent(in) :: nvar, ntime, jtb
             integer, intent(out) :: ivar(nvar)
             real(kind = MWS_RKIND), dimension(ntime, *), intent(out) :: mat
