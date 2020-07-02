@@ -42,7 +42,7 @@ the method of initialising feedback values.
 The default is \code{"current"}. See section "Feedback initialisation
 methods" below}
 \item{\code{maxiter}}{the maximum number of iterations per period (default 50)}
-\item{\code{maxjacupd}}{the maximum number of Newton Jacobian updates per period
+\item{\code{maxjacupd}}{the maximum number of Newton jacobian updates per period
 (default 10)}
 \item{\code{rlxspeed}}{Newton relaxation shrinkage (default is 0.5)}
 \item{\code{rlxmin}}{Minimum Newton relaxation factor (default is 0.05)}
@@ -57,20 +57,20 @@ If the linesearching procedure failed
 after the maximum number of linesearch steps \code{bktmax}
 has been reached or if the relaxation
 factor has become smaller than \code{rlxmin}),
-a new Jacobian matrix is computed.
+a new jacobian matrix is computed.
 In each linesearch step the current relaxation factor is shrunk by
 \code{rspeed}.
 The relaxation factor is set to its maximum value
-\code{rlxmax}) when a new Jacobian has been calculated.
+\code{rlxmax}) when a new jacobian has been calculated.
 }
 \item{\code{cnmtrx}}{Recalculate matrix criterion (default is 0.9).
 If the convergence criterium \code{Fcrit} is larger
 than \code{cnmtrx} but smaller than \code{cstpbk},
-the Newton step is accepted but a new Jacobian is computed
+the Newton step is accepted but a new jacobian is computed
 and the relaxation factor is set to its maximum value
 \code{rlxmax}.
-The new Jacobian is used in the next step. However, the
-Jacobian will not be recalculated if the number of Jacobian updates
+The new jacobian is used in the next step. However, the
+jacobian will not be recalculated if the number of jacobian updates
 in a period is larger than \code{maxjacupd}}
 \item{\code{xrelax}}{Rational expectations relaxation factor (default is 1)}
 \item{\code{xmaxiter}}{Maximum number of rational expectation iterations
@@ -108,7 +108,7 @@ the Fair-Taylor full report repetition count. See Section
 with old jacobian. Sometimes it is necessary for the Broyden
 method to take a shorter step than the standard step. This is called
 backtracking linesearch. \code{bktmax} is the maximum number of
-line search steps before a new Jacobian is computed}
+line search steps before a new jacobian is computed}
 \item{\code{xtfac}}{Rational expectations convergence test multiplier
 When using the \code{"ratex"} solution mode,
 convergence of endogenous leads cannot be tested to the accuracy used in
@@ -120,14 +120,14 @@ and assume a value of 10 for the multiplier.
 Then its endogenous lead will be regarded as converged}
 \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
 parameter.
-If the inverse condition of the Jacobian is smaller than this parameter,
-then an SVD analysis of the Jacobian is performed. This may help to
-find the equations that cause (near) singularity of the Jacobian.
+If the inverse condition of the jacobian is smaller than this parameter,
+then an SVD analysis of the jacobian is performed. This may help to
+find the equations that cause (near) singularity of the jacobian.
 The default value is \code{-1}, which implies that the SVD test is never
 performed. Specify a number between 0 and 1 to enable an SVD analysis depending
-on the inverse condition of the Jacobian.
-When this option has been specified a copy of the Jacobian is kept in memory,
-even if the Jacobian is not ill-conditioned.
+on the inverse condition of the jacobian.
+When this option has been specified a copy of the jacobian is kept in memory,
+even if the jacobian is not ill-conditioned.
 This option should therefore only be used during testing. It should be turned
 off in production calculations}
 }

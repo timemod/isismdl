@@ -9,8 +9,7 @@ This method of R6 class \code{\link{IsisMdl}} can be used to set one or more
 options for the fit procedure.
 These options will be stored in the \code{IsisMdl} object.
 
-Method \code{get_fit_options} returns the solve options as a named
-list
+Method \code{get_fit_options} returns the solve options as a named list
 }
 \section{Usage}{
 
@@ -51,8 +50,8 @@ the fit target values is
 larger than \code{cvgrel},  then the result of the iteration is rejected.
 If the iteration employed an old fit jacobian (i.e. a jacobian
 computed in  an earlier iteration), then a second attempt with
-a  new Jacobian is made. If the iteration already used a new
-Jacobian, then the fit procedure will be terminated.
+a  new jacobian is made. If the iteration already used a new
+jacobian, then the fit procedure will be terminated.
 The default value is 10. In many cases a large ratio in a single iteration
 is not problematic,  so \code{cvgrel} can typically be set to a large value.}
 \item{\code{zero_ca}}{A logical. If \code{TRUE}, then the initial values
@@ -63,22 +62,18 @@ are given for possibly too large constant adjustments at the end of the fit
 procedure for each period.}
 \item{\code{accurate_jac}}{A logical. If \code{TRUE} (default), then the
 fit jacobian is calculated accurately, otherwise the jacobian
-is calculated approximately. The fit jacobian \code{D_ij} is a matrix with the
-derivatives of the fit targets with respect to the scaled residuals.
-The scaling of the residuals is based on the rms-values. In some cases
-it may be beneficial for the fit method to also scale the fit targets.
-This is achieved by using the scale method \code{"row"}, which is used by
-default.}
+is calculated approximately. See Details.}
 \item{\code{zealous}}{A logical. If \code{TRUE} (default), then a zealous
-version of the fit procedure is used, otherwise a lazy version is used
-(see Details). The recommended option is to use the zealous version,
+version of the fit procedure is used (see section The Zealous and Lazy Fit Method),
+otherwise a lazy version is used.
+The recommended option is to use the zealous version,
 although this may require much more CPU time.}
 \item{\code{scale_method}}{The scaling method for the fit jacobian.
 Possible values are \code{"row"} (row scaling, the default), and \code{"none"} (no scaling).
 As explained in section Details, the fit jacobian \eqn{D_{ij}} is a matrix with the
 derivatives of the fit targets (\eqn{i}) with respect to the scaled residuals (\eqn{j}).
 It may be benificial for the fit solution method
-to also scale the fit targets. This is achived by using
+to also scale the fit targets. This is achieved by using
 the \code{"row"} scaling method, which is used by default.
 This scaling method tries to make the largest element in each row of a
 \eqn{D} have absolute value 1.
@@ -89,18 +84,18 @@ type of report of the fit procedure for each period.
 Possible values are \code{"fullrep"}
 (the default, an iteration report is printed for each period)
 and  \code{"minimal"} (for a one line summary).}
-\item{\code{dbgopt}}{A character vector specifying one or more
-debugging options. See section "Debugging options" below}
+\item{\code{dbgopt}}{A character vector specifying one or more debugging
+options. See section "Debugging Options" below}
 \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
 parameter.
-If the inverse condition of the fit Jacobian is smaller than this parameter,
-then an SVD analysis of the Jacobian is performed. This may help to
-find the equations that cause (near) singularity of the Jacobian.
+If the inverse condition of the fit jacobian is smaller than this parameter,
+then an SVD analysis of the jacobian is performed. This may help to
+find the equations that cause (near) singularity of the jacobian.
 The default value is \code{-1}, which implies that the SVD test is never
 performed. Specify a number between 0 and 1 to enable an SVD analysis depending
-on the inverse condition of the Jacobian.
-When this option has been specified a copy of the fit Jacobian is kept in memory,
-even if the Jacobian is not ill-conditioned.
+on the inverse condition of the jacobian.
+When this option has been specified a copy of the fit jacobian is kept in memory,
+even if the jacobian is not ill-conditioned.
 This option should therefore only be used during testing. It should be turned
 off in production calculations}
 }
@@ -108,11 +103,109 @@ off in production calculations}
 
 \section{Details}{
 
+The purpose of the fit procedure is to adjust a model solution
+to a partial set of known outcomes for endogenous variables. It
+determines the minimal norm vector of specified constant
+adjustments which ensure that the specified endogenous variables
+meet the desired outcome (fit targets).
+It can be used amongst others to update a model forecast given a
+(small) set of recent observations of endogenous variables.
+It first solves the model for any period given all data and if
+fit targets have been specified then proceeds to determine a set
+of constant adjustments that will ensure that the fit targets
+are met. There must be at least as many constant adjustments as there are fit
+targets for the fit procedure to work.
 
-TODO
+After solving the model in any period for a given set of values
+of the constant adjustments (residuals), the fit problem can be
+described as follows. Find a minimum norm vector \eqn{u} such that
+
+\deqn{y = h(u) = w}
+
+where \eqn{u} is an \eqn{n}-vector of scaled residuals,
+\eqn{y} is an \eqn{m}-vector of
+endogenous variables with \eqn{n >= m},
+\eqn{h} the function \eqn{h: R^n \rightarrow R^m}
+and \eqn{w} is an \eqn{m}-vector of fit target values.
+The scaled residuals \eqn{u_i} have been scaled with the root mean square
+values specified with procedures \code{\link{set_rms}}.
+
+The fit procedure linearises the relation \eqn{y=h(u)} and
+determines a minimum norm solution for \eqn{u} to the resulting set of
+linear equations after setting \eqn{y=w}.
+It uses the QR decomposition for numerical stability.
+
+The fit jacobian \eqn{D_{ij} = \partial h_i / \partial u_j} is calculated
+numerically by a first difference approach.
+The \eqn{j}'th column is calculated by giving residual \eqn{u_j} a small
+distortion and then solving the model again.
+For numerical efficiency the model is solved with a \emph{single} iteration
+by default. This is usually a good approximation.
+Use argument \code{accurate_jac = TRUE} for a more accurate
+calculation of the fit jacobian. For this option the model is solved
+until convergence has been reached.
+
+The criterion used for testing for convergence is the largest
+scaled discrepancy of the fit target values at iteration \eqn{k}
+defined as
+\deqn{
+F_k = \max_i \left\{ | w_i - y_i |  / \max(|w_i|,1) \right\}
 }
 
-\section{Debugging options}{
+When \eqn{F_k \le \epsilon} where \eqn{0 < \epsilon < 1},
+absolute convergence has been achieved.
+The value of \eqn{epsilon} is specified with argument \code{cgvabs} (
+(the default value is 100 times the square root of
+the machine precision, which is typically \code{1.5e-6}).
+If the zealous fit method is used (see Section The Zealous
+and Lazy Fit Method), we also require for convergence that
+the relative step size for all variables is smaller then \eqn{epilon}.
+
+Since evaluating the jacobian of \eqn{h(u)} can be a time-consuming
+process, the jacobian of a previous iteration can sometimes be reused for
+a next iteration.
+As long as \eqn{F_k \le \delta  F_{k-1}} where \eqn{0 < \delta < 0.95}
+the current jacobian will not be recalculated, except when the zealous
+fit method is used and the the number
+of residuals is larger than the number of targets, see Section The Zealous
+and Lazy Fit Method.
+The default value for \eqn{\delta} is 0.5.
+When \eqn{F_k > 0.95 F_{k-1}}
+and the current jacobian is not
+up-to-date, the residuals will be reset to the values of the
+previous iteration and the jacobian will be recalculated.
+However if the current jacobian is up-to-date, the process will be
+stopped with the message \code{Cannot locate a better point}.
+
+If the zealous fit method is used (see next paragraph), then
+a new jacobian is calculated every iteration when the number
+of residuals is larger than the number of targets (\eqn{m > n}).
+}
+
+\section{The Zealous and Lazy Fit Method}{
+
+
+There are two implementations of the fit procedure: the lazy
+and zealous method. The default is the zealous method.
+For the lazy method the fit iterations is terminated when
+the largest scaled discrepancy of the fit target values
+is less than \code{cvgabs}. However,
+the other variables may not be converged yet sufficiently, particularly
+when the number of residuals is larger than the number of targets (\eqn{m > n}).
+For the zealous fit procedure continues iterating
+until the relative changes of all variables are less than \code{cvgabs}.
+These relative changes are shown
+in the output as \code{Delsmx} (maximum step size in an iteration).
+The zealous fit procedure also uses an accurate calculation
+of the jacobian (see general description).
+If \eqn{m > n} (non-square fit problem), the zealous fit procedure
+also updates the fit jacobian every iteration,
+because for non-square fit problems the results depends on the jacobian.
+For the square case \eqn{m = n} this is not necessary because the
+final results are independent on the jacobian.
+}
+
+\section{Debugging Options}{
 
 
 Argument \code{dbgopt} can be used to specify one or more
