@@ -418,8 +418,8 @@ subroutine fitotc_invalid(iv)
     
     call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
     
-    write(str, '(3a)' ) 'Warning: Some derivatives for fit target ', name(:nlen), &
-    &                   ' contains invalid values'
+    write(str, '(3a)' ) 'Derivatives of fit target ', name(:nlen), &
+    &                   ' contain invalid values'
     
     call strout(O_WMSG)
     

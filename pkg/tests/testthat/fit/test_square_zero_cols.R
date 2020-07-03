@@ -52,5 +52,20 @@ test_that("column with zeros", {
   expect_known_output(cat_report(convert_report(report)),
                       "expected_output/square_zero_cols_rep3.txt")
 
+})
+
+test_that("zero row and one less fit target", {
+  mdl2 <- mdl$copy()
+
+  # make third column exacty zero
+  param_new <- sapply(param, FUN = function(x) {x[3] <- 0; return(x)},
+                      simplify = FALSE)
+  mdl2$set_param(param_new)
+  mdl2$set_fit_values(NA, names = "w6")
+  mdl2$set_fit_options(warn_zero_col = TRUE)
+  report <- capture.output(mdl2$solve())
+  expect_known_output(cat_report(convert_report(report)),
+                      "expected_output/square_zero_cols_rep4.txt")
+  expect_equal(mdl2$get_data(pattern = "^w(12345)"), mdl2$g, tolerance = 1e-6)
 
 })

@@ -259,7 +259,7 @@ contains
                                    delsmxp
         real(kind = ISIS_RKIND), dimension(:,:), allocatable :: dj_copy
         integer :: svd_err, stat, matitr, deltyp, deltypp
-        logical :: memory_error
+        logical :: memory_error, has_invalid
 
         !     fiscod is fit iteration status
         !        0    continue
@@ -323,10 +323,13 @@ contains
                !  in the mathematical paper.
         
         
-               call mkdjac(xcod, fiter, memory_error, matitr)
+               call mkdjac(xcod, fiter, memory_error, has_invalid, matitr)
                if (memory_error) then
                    retcod = 2
                    goto 9999
+               else if (has_invalid) then
+                   xcod = 1 
+                   goto 9000
                endif
         
                if( xcod .ne. 0 ) goto 9000
@@ -689,7 +692,7 @@ contains
     
     !-----------------------------------------------------------------------
     
-    subroutine mkdjac(xcod, fiter, memory_error, matitr)
+    subroutine mkdjac(xcod, fiter, memory_error, has_invalid, matitr)
     use msvars
     use msutil
     use nuv
@@ -706,7 +709,7 @@ contains
     
     integer, intent(out) :: xcod
     integer, intent(in)  :: fiter
-    logical, intent(out) :: memory_error
+    logical, intent(out) :: memory_error, has_invalid
     integer, intent(inout)  :: matitr
     
     real(kind = ISIS_RKIND) :: oldca
@@ -786,13 +789,19 @@ contains
 
     ! check for (almost) zero columns in dj matrix
     
-    ! calculate 1-norm of matrix
+    ! calculate the maximum of the 1-norms of the columns of matrix dj
     mat_norm = 0
+    has_invalid = .false.
     do j = 1, nw
-        mat_norm = max(dasum(int(nu, ISIS_IKIND), dj(:, j), 1), mat_norm)
-    enddo
+        t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
+        if (nuifna(t)) then
+           has_invalid = .true.
+           exit
+        endif
+        mat_norm = max(t, mat_norm)
+    end do
     
-    if (nuifna(mat_norm)) then
+    if (has_invalid) then
         ! matrix has invalid numbers
         call fitot10(fiter)
         do j = 1, nw
@@ -806,19 +815,22 @@ contains
     ! determine which columns of dj (the rows of the jacobian) are (almost) zero
     do j = 1, nw
         t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
-        ! t scales with nu, mat_norm with nw * nu -> scale mat_norm with nw
-        if (t <= mat_norm * sqrt(Rmeps) / nw) call fitotc(numw(j), t)
+        if (t <= mat_norm * sqrt(Rmeps)) call fitotc(numw(j), t)
     enddo
 
     !
     ! check which rows of dj (the columns of the jacobian) are (almost) zero
     !
     if (opts%fit%warn_zero_col) then
+        ! calculate the maximum of the 1-norms of the rows of matrix dj
+        mat_norm = 0
+        do i = 1, nu
+            mat_norm = max(dasum(int(nw, ISIS_IKIND), dj(i, 1), nu), mat_norm)
+        enddo
         n_zero_row = 0
         do i = 1, nu
             t = dasum(int(nw, ISIS_IKIND), dj(i, 1), nu)
-            ! t scales with nw, mat_norm with nw * nu -> scale mat_norm with nu
-            if (t <= mat_norm * sqrt(Rmeps) / nu) then
+            if (t <= mat_norm * sqrt(Rmeps)) then
                 n_zero_row = n_zero_row + 1
                 call fitotr(numu(i), t)
             endif
@@ -866,8 +878,8 @@ contains
     use liqrco
     use msfito
      
-    !     compute QR factorization of Dj
-    !     == QR of trans(D) where D is the jacobian defined in mathematical paper.
+    ! compute QR factorization of Dj
+    !  == QR of trans(D) where D is the jacobian defined in mathematical paper.
      
     use msvars
     real(kind = SOLVE_RKIND), intent(out) :: dcond
@@ -878,8 +890,8 @@ contains
     
     xcod = 0
     
-    !     QR decomposition of Fit jacobian
-    !     estimate inverse condition of R ==> inverse condition of jacobian
+    ! QR decomposition of Fit jacobian
+    ! estimate inverse condition of R ==> inverse condition of jacobian
     call qrco(dj, nu_max, nu, nw, djtau, dcond, work_fit, lwork_fit)
 
     if (Rone + dcond == Rone) then
