@@ -55,6 +55,13 @@ subroutine set_fit_zealous(zealous)
     options_set%fit%zealous  = zealous /= 0
 end subroutine set_fit_zealous
 
+subroutine set_fit_warn_zero_col(warn_zero_col)
+    use set_options
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: warn_zero_col
+    options_set%fit%warn_zero_col  = warn_zero_col /= 0
+end subroutine set_fit_warn_zero_col
+
 subroutine set_fit_repopt(repopt)
     use set_options
     use iso_c_binding, only : c_int

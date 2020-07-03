@@ -28,7 +28,7 @@ test_that("column with zeros", {
                       simplify = FALSE)
   mdl2$set_param(param_new)
   mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE,
-                        dbgopt = "prijac")
+                      dbgopt = "prijac", warn_zero_col = TRUE)
 #  mdl2$set_solve_options(report = "none")
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
@@ -45,4 +45,12 @@ test_that("column with zeros", {
 
   expect_known_output(cat_report(convert_report(report)),
                       "expected_output/square_zero_cols_rep2.txt")
+
+  expect_warning(report <- capture.output(mdl2$solve(fit_options =
+                                                       list(warn_zero_col = FALSE))),
+                 "Simulation not possible")
+  expect_known_output(cat_report(convert_report(report)),
+                      "expected_output/square_zero_cols_rep3.txt")
+
+
 })

@@ -304,7 +304,7 @@ subroutine fitot8(ier,dcond)
     call strout(O_ERRQ)
     str = "for one or more fit targets all derivatives are (almost) zero ..."
     call strout(O_ERRF)
-    str = "Tip: try to use svd analysis. See the documentation of method set_fit_options."
+    str = "Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options."
     call strout(O_ERRF)
     return
 end subroutine fitot8
@@ -477,6 +477,24 @@ subroutine fitotr(iv, l1_norm)
     
     return
 end subroutine fitotr
+
+subroutine fitot_n_zero_row(n_zero_row, nu, nw)
+    ! print message about number of rows of dj that are almost zero, compared to the number 
+    ! of fit targets
+    integer(kind = SOLVE_IKIND), intent(in) :: n_zero_row, nu, nw
+    integer :: n_non_zero
+
+    n_non_zero = nu - n_zero_row
+    if (n_non_zero >= nw) then
+        write(str, '(a, i5, a, i5, a)') 'Number of columns with non-zero values (', n_non_zero, &
+                                     ') is >= the number of fit targets. (', nw, ' ).'
+    else
+        write(str, '(a, i5, a, i5, a)') 'Warning: Number of columns with non-zero values (', n_non_zero, &
+                                     ') is smaller than the number of fit targets (', nw, ' ).'
+    endif
+    call strout(O_OUTB)
+
+end subroutine fitot_n_zero_row
     
 subroutine fitonu(nu, numu)
     integer(kind = SOLVE_IKIND) :: nu, numu(*)

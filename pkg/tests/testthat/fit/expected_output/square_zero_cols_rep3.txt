@@ -38,8 +38,6 @@ x5      1.12300
 x6      0.35700
  
 Error: All derivatives of fit target w2 are exactly zero.
-Warning: Derivatives with respect to fit instrument x3 are almost zero. L1-norm:   0.10E-11
-Warning: Number of columns with non-zero values (    5) is smaller than the number of fit targets (    6 ).
 Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
 Derivatives of fit targets are dependent or
 for one or more fit targets all derivatives are (almost) zero ...

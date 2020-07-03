@@ -166,7 +166,7 @@ contains
         options%fit%repopt = FITREP_FULLREP
         options%fit%svdtest_tol = -1.0_ISIS_RKIND
         options%fit%zealous = .true.
-        options%fit%warn_zero_col = .true.
+        options%fit%warn_zero_col = .false.
 
     end subroutine set_default_options
 

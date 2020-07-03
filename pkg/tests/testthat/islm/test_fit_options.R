@@ -13,6 +13,9 @@ default_opts <- mdl$get_fit_options()
 
 test_that("test some default options", {
   expect_equal(default_opts[["scale_method"]], "row")
+  expect_equal(default_opts[["accurate_jac"]], TRUE)
+  expect_equal(default_opts[["zealous"]], TRUE)
+  expect_equal(default_opts[["warn_zero_col"]], FALSE)
 })
 
 test_that("the default options not overwritten by method solve", {

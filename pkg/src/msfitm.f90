@@ -814,11 +814,16 @@ contains
     ! check which rows of dj (the columns of the jacobian) are (almost) zero
     !
     if (opts%fit%warn_zero_col) then
+        n_zero_row = 0
         do i = 1, nu
             t = dasum(int(nw, ISIS_IKIND), dj(i, 1), nu)
             ! t scales with nw, mat_norm with nw * nu -> scale mat_norm with nu
-            if (t <= mat_norm * sqrt(Rmeps) / nu) call fitotr(numu(i), t)
+            if (t <= mat_norm * sqrt(Rmeps) / nu) then
+                n_zero_row = n_zero_row + 1
+                call fitotr(numu(i), t)
+            endif
         end do
+        if (n_zero_row > 0) call fitot_n_zero_row(n_zero_row, nu, nw)
     endif
 
     ! scale the matrix

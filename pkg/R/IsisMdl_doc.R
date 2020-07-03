@@ -1375,6 +1375,15 @@ NULL
 #' \eqn{D} have absolute value 1.
 #' Row scaling often improves the condition of the matrix if the
 #' fit targets are badly scaled.}
+#' \item{\code{warn_zero_col}}{A logical (default `FALSE`). IF `TRUE`, then a
+#' warning is issued for each column of the jacobian for which all values are
+#' (almost) equal to zero. A column of the fit jacobian contains the derivatives
+#' of all fit targets with respect to one particular residual. It is not
+#' necessarily a problem when a column of the jacobian contains only (almost)
+#' zero values, as long as the number of columns with non-zero values is equal
+#' to or larger than the number of fit targets. It usually *is* a problem when a *row*
+#' of the jacobian only contains (almost) zero values. Therefore a warning is always
+#' given when the row only contains zero values.}
 #' \item{\code{report}}{A character string specifying the the
 #' type of report of the fit procedure for each period.
 #' Possible values are \code{"fullrep"}
