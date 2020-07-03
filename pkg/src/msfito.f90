@@ -484,6 +484,8 @@ subroutine fitot_n_zero_row(n_zero_row, nu, nw)
     integer(kind = SOLVE_IKIND), intent(in) :: n_zero_row, nu, nw
     integer :: n_non_zero
 
+    if (opts%repopt == REP_NONE) return
+
     n_non_zero = nu - n_zero_row
     if (n_non_zero >= nw) then
         write(str, '(a, i5, a, i5, a)') 'Number of columns with non-zero values (', n_non_zero, &

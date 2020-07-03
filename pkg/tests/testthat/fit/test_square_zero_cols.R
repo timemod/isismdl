@@ -63,9 +63,6 @@ test_that("zero row and one less fit target", {
   mdl2$set_param(param_new)
   mdl2$set_fit_values(NA, names = "w6")
   mdl2$set_fit_options(warn_zero_col = TRUE)
-  report <- capture.output(mdl2$solve())
-  expect_known_output(cat_report(convert_report(report)),
-                      "expected_output/square_zero_cols_rep4.txt")
+  expect_silent(mdl2$solve(options = list(report = "none")))
   expect_equal(mdl2$get_data(pattern = "^w(12345)"), mdl2$g, tolerance = 1e-6)
-
 })
