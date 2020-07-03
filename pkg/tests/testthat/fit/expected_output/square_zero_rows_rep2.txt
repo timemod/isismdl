@@ -25,5 +25,5 @@ Derivatives of fit targets are dependent or
 for one or more fit targets all derivatives are (almost) zero ...
 Tip: try to use svd analysis. See the documentation of method set_fit_options.
 Total number of iterations    0
-Solve model used     0.00 CPU secs
+Solve model used     xxx CPU secs
  

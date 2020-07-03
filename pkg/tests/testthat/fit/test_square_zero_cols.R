@@ -3,6 +3,8 @@ library(testthat)
 
 rm(list = ls())
 
+source("../tools/convert_report.R")
+
 context("fit square mdl zero columns")
 
 mdl <- isis_mdl("mdl/square.mdl", period = 1000, silent = TRUE)
@@ -28,19 +30,19 @@ test_that("column with zeros", {
   mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE,
                         dbgopt = "prijac")
 #  mdl2$set_solve_options(report = "none")
-  expect_warning(output <- capture_output(mdl2$solve()),
+  expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 
-  expect_known_output(cat(output),
+  expect_known_output(cat_report(convert_report(report)),
                       "expected_output/square_zero_cols_rep1.txt")
 
   # make third column almost zero, and second row zero
   param_new$r3[3] <- 1e-12
   param_new$r2[] <- 0
   mdl2$set_param(param_new)
-  expect_warning(output <- capture_output(mdl2$solve()),
+  expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 
-  expect_known_output(cat(output),
+  expect_known_output(cat_report(convert_report(report)),
                       "expected_output/square_zero_cols_rep2.txt")
 })

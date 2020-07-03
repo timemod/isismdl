@@ -829,8 +829,7 @@ contains
         scale_u = scale_w
     else if (opts%fit%scale_method /= SCALE_NONE) then
         call dgeequ_col(nu, nw, dj, nu_max, w_scale, colcnd, amax, info)
-        ! info != 0 if one or more columns of dj only contain zero values
-        ! (actually in that case we never get at this point of the code)
+        ! info != 0 if one or more columns of dj only contain only zero values
         scale_w = info == 0 .and. colcnd < 0.1
         scale_u = .false.
     else
