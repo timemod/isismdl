@@ -259,7 +259,7 @@ contains
                                    delsmxp
         real(kind = ISIS_RKIND), dimension(:,:), allocatable :: dj_copy
         integer :: svd_err, stat, matitr, deltyp, deltypp
-        logical :: memory_error, has_zero_col
+        logical :: memory_error
 
         !     fiscod is fit iteration status
         !        0    continue
@@ -323,13 +323,10 @@ contains
                !  in the mathematical paper.
         
         
-               call mkdjac(xcod, fiter, has_zero_col, memory_error, matitr)
+               call mkdjac(xcod, fiter, memory_error, matitr)
                if (memory_error) then
                    retcod = 2
                    goto 9999
-               else if (has_zero_col) then
-                   xcod = 1
-                   goto 9000
                endif
         
                if( xcod .ne. 0 ) goto 9000
@@ -692,7 +689,7 @@ contains
     
     !-----------------------------------------------------------------------
     
-    subroutine mkdjac(xcod, fiter, has_zero_col, memory_error, matitr)
+    subroutine mkdjac(xcod, fiter, memory_error, matitr)
     use msvars
     use msutil
     use nuv
@@ -700,15 +697,16 @@ contains
     use msnwut
     use scalemat
     use msfito
-    
-    ! Estimates the jacobian dj = trans(D) of the "fit"variables wrt. the
-    ! residuals by means of single newton steps for small,
+   
+    ! Estimate the transpose of the jacobian, the derivatives of the fit variables
+    ! wrt. the residuals, by means of single newton steps for small,
     ! scaled differences in the residuals.
+    ! Note: dj = trans(D), where D is the jacobian.
     
     
     integer, intent(out) :: xcod
     integer, intent(in)  :: fiter
-    logical, intent(out) :: memory_error, has_zero_col
+    logical, intent(out) :: memory_error
     integer, intent(inout)  :: matitr
     
     real(kind = ISIS_RKIND) :: oldca
@@ -716,13 +714,12 @@ contains
     real(kind = ISIS_RKIND) :: t, mat_norm, rowcnd, colcnd, amax
     integer(kind = LAPACK_IKIND) :: info
     
-    integer ::  i, j, ires, idum, itr0, stat
+    integer ::  i, j, ires, idum, itr0, stat, n_zero_row
 
     itr0 = 0
     
     ! RMSDEL is constant for calculation of derivative
     
-    has_zero_col = .false.
     memory_error = .false.
     
     ! allocate fit matrix Dj.
@@ -801,20 +798,29 @@ contains
         do j = 1, nw
             t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
             if (nuifna(t)) call fitotc_invalid(numw(j))
-         enddo
-    else
-        ! determine which columns are (almost) zero
-        do j = 1, nw
-            t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
-            if (t <= mat_norm * sqrt(Rmeps) ) then
-                call fitotc(numw(j), t)
-                if (.not. has_zero_col .and. t == 0) has_zero_col = .true.
-            endif
         enddo
+        return
     endif
 
-    if (has_zero_col) return
-    
+
+    ! determine which columns of dj (the rows of the jacobian) are (almost) zero
+    do j = 1, nw
+        t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
+        ! t scales with nu, mat_norm with nw * nu -> scale mat_norm with nw
+        if (t <= mat_norm * sqrt(Rmeps) / nw) call fitotc(numw(j), t)
+    enddo
+
+    !
+    ! check which rows of dj (the columns of the jacobian) are (almost) zero
+    !
+    if (opts%fit%warn_zero_col) then
+        do i = 1, nu
+            t = dasum(int(nw, ISIS_IKIND), dj(i, 1), nu)
+            ! t scales with nw, mat_norm with nw * nu -> scale mat_norm with nu
+            if (t <= mat_norm * sqrt(Rmeps) / nu) call fitotr(numu(i), t)
+        end do
+    endif
+
     ! scale the matrix
     if (opts%fit%scale_method == SCALE_BOTH .and. is_square) then
         call dgeequ(nu, nw, dj, nu_max, u_scale, w_scale, rowcnd, colcnd,  &
@@ -872,26 +878,14 @@ contains
     !     QR decomposition of Fit jacobian
     !     estimate inverse condition of R ==> inverse condition of jacobian
     call qrco(dj, nu_max, nu, nw, djtau, dcond, work_fit, lwork_fit)
-    
-    if (nochkjac) then
-    
-        !  no strict and correct checking of square jacobian
-        !  same test as in msnwqr (Newton with QR)
-        if (Rone + dcond .eq. Rone) then
-           ier = 2
-        else
-           ier = 0
-        endif
-    
+
+    if (Rone + dcond == Rone) then
+        ! inverse condition is exactly zero 
+        ier = 2
+    elseif (.not. nochkjac .and. dcond < sqrt(Rmeps)) then
+        ier = 1
     else
-    
-         !! if comparison with sqrt(Rmeps) changes then CHANGE fitot8 !!!
-         if (dcond < sqrt(Rmeps) ) then
-             ier = 1
-         else
-             ier = 0
-         endif
-    
+        ier = 0
     endif
     
     if (ier /= 0) then

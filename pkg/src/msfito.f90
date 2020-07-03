@@ -290,18 +290,22 @@ subroutine fitot8(ier,dcond)
 
     if (opts%repopt == REP_NONE) return
     
-    if( ier .eq. 2 ) then
-       str = 'Fit Error - total loss of precision of D matrix'
+    if (ier == 2) then
+       str = 'Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).'
        call strout(O_ERRQ)
-    elseif(ier .eq. 1) then
-       str = 'Fit Warning - D matrix is ill conditioned'
+    elseif (ier == 1) then
+       str = 'Fit Warning - D matrix is ill conditioned.'
        call strout(O_ERRQ)
        write(str,'(1a,1p,e9.2,1a,1p,e9.2)', round = 'compatible') &
     &   'Inverse condition= ', dcond, ' < Machine prec**.5= ', sqrt(Rmeps)
        call strout(O_ERRQ)
-       str = 'Derivatives of fit targets are dependent ...'
-       call strout(O_ERRF)
     endif
+    str = 'Derivatives of fit targets are dependent or'
+    call strout(O_ERRQ)
+    str = "for one or more fit targets all derivatives are (almost) zero ..."
+    call strout(O_ERRF)
+    str = "Tip: try to use svd analysis. See the documentation of method set_fit_options."
+    call strout(O_ERRF)
     return
 end subroutine fitot8
 
@@ -427,7 +431,7 @@ subroutine fitotc(iv, l1_norm)
     integer(kind = SOLVE_IKIND), intent(in) :: iv
     real(kind = SOLVE_RKIND), intent(in) :: l1_norm
 
-    ! print message about zero column of derivatives in fit jacobian
+    ! print message about zero column of derivatives in dj (the transpose of the fit jacobian)
 
     
     if (opts%repopt == REP_NONE) return
@@ -436,10 +440,10 @@ subroutine fitotc(iv, l1_norm)
 
     if (l1_norm == 0) then
         write(str, '(3a)') 'Error: All derivatives of fit target ',  &
-              name(:nlen), ' are exactly zero. Fit procedure not possible.'
+              name(:nlen), ' are exactly zero.'
     else 
         write(str, '(3a, g10.2)') 'Warning: Derivatives of fit target ',  &
-              name(:nlen), ' are almost zero. L1-norm of the row in the fit jacobian:', &
+              name(:nlen), ' are almost zero. L1-norm: ', &
                   l1_norm
     endif
     
@@ -447,6 +451,32 @@ subroutine fitotc(iv, l1_norm)
     
     return
 end subroutine fitotc
+
+subroutine fitotr(iv, l1_norm)
+    use mdl_name_utils
+    integer(kind = SOLVE_IKIND), intent(in) :: iv
+    real(kind = SOLVE_RKIND), intent(in) :: l1_norm
+
+    ! print message about zero row of derivatives in dj (the transpose of the fit jacobian)
+
+    
+    if (opts%repopt == REP_NONE) return
+
+    call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
+
+    if (l1_norm == 0) then
+        write(str, '(3a)') 'Warning: All derivatives with respect to fit instrument ', &
+              name(:nlen), ' are exactly zero.'
+    else 
+        write(str, '(3a, g10.2)') 'Warning: Derivatives with respect to fit instrument ',  &
+              name(:nlen), ' are almost zero. L1-norm: ', &
+                  l1_norm
+    endif
+    
+    call strout(O_WMSG)
+    
+    return
+end subroutine fitotr
     
 subroutine fitonu(nu, numu)
     integer(kind = SOLVE_IKIND) :: nu, numu(*)

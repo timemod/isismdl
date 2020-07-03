@@ -1,0 +1,48 @@
+ 
+Model Solve Options
+Solution period               1000/1000
+Simulation mode               dynamic
+Feedback starting values      current period
+Maximum iterations per period 50
+Relaxation minimum            0.500E-01
+           maximum            1.00
+           shrinkage          0.500
+Criteria stepback             1.30
+          matrix              0.900
+Maximum updates Newton matrix per period                 10
+Maximum number of line searches with old Jacobian        5
+Criterion for line search decisions etc.                 geometric
+ 
+ 
+     6 CAs used by Fit
+     x1 x2 x3 x4 x5 x6
+Convergence for 1000 in    0 iterations
+ Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
+     0                0.81300              w                   Abs  w3
+ 
+Transpose of matrix D (scaled with rms) in period 1000         at iteration    1
+ 
+             w1           w2           w3           w4           w5
+x1      0.27700      0.00000      0.51100      0.01400      0.21100
+x2      0.06500      0.00000      0.08600      0.29000     -0.11000
+x3      0.00000      0.00000  1.00000E-12      0.00000      0.00000
+x4      0.90700      0.00000      0.73400      0.57400      0.56700
+x5      0.58200      0.00000      0.15800      0.48000     -0.12000
+x6      0.20400      0.00000      0.36400      0.35000      0.56700
+             w6
+x1      0.44400
+x2      0.33300
+x3      0.00000
+x4     -0.12300
+x5      1.12300
+x6      0.35700
+ 
+Error: All derivatives of fit target w2 are exactly zero.
+Warning: Derivatives with respect to fit instrument x3 are almost zero. L1-norm:   0.10E-11
+Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
+Derivatives of fit targets are dependent or
+for one or more fit targets all derivatives are (almost) zero ...
+Tip: try to use svd analysis. See the documentation of method set_fit_options.
+Total number of iterations    0
+Solve model used     0.00 CPU secs
+ 
