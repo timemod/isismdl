@@ -875,7 +875,6 @@ contains
     integer, intent(out) :: xcod
     
     integer ::  ier
-    logical ::  quit
     
     xcod = 0
     

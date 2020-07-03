@@ -19,7 +19,7 @@ subroutine get_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca, &
     accurate_jac = logical2int(options%fit%accurate_jac)
     zealous = logical2int(options%fit%zealous)
     scale_method = options%fit%scale_method
-    warn_zero_col = options%fit%warn_zero_col
+    warn_zero_col = logical2int(options%fit%warn_zero_col)
 
 end subroutine get_fit_options
 
