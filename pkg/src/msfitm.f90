@@ -252,12 +252,12 @@ contains
         parameter(Qzero = 0.0_SOLVE_RKIND)
         
         logical ::  deval, devalp, fcvgd,prihdr, zealous
-        integer ::  i
+        integer ::  i, j
         integer ::  fiscod,fiter,wmxidx,wmxtyp,djcnt, smxidx, smxtyp
         integer ::  xcod
         real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, svd_tol, delsmx, &
                                    delsmxp
-        real(kind = ISIS_RKIND), dimension(:,:), allocatable :: dj_copy
+        real(kind = ISIS_RKIND), dimension(:,:), allocatable :: fit_jac
         integer :: svd_err, stat, matitr, deltyp, deltypp
         logical :: memory_error, has_invalid
 
@@ -277,7 +277,7 @@ contains
 
         zealous = opts%fit%zealous
         
-        if (allocated(dj_copy)) deallocate(dj_copy)
+        if (allocated(fit_jac)) deallocate(fit_jac)
         
         ! compute discrepancies delw, and largest delw
         call mkdelw(delwmx, curvars, wmxidx, wmxtyp)
@@ -341,15 +341,19 @@ contains
         
                if (opts%fit%svdtest_tol >= 0) then
                    ! Save a copy of matrix dj for the svdtest in cause of problems
-                   if (.not. allocated(dj_copy)) then
-                       allocate(dj_copy(nu, nw), stat = stat)
+                   if (.not. allocated(fit_jac)) then
+                       allocate(fit_jac(nw, nu), stat = stat)
                        if (stat /= 0) then
                            call fitot15
                            retcod = 2
                            goto 9999
                        endif
                    endif
-                   dj_copy = dj(:nu, :nw)
+                   do i = 1, nw
+                      do j = 1, nu
+                          fit_jac(i, j) = dj(j, i)
+                      end do
+                   end do
                endif
        
                ! QR factorize Dj
@@ -357,7 +361,7 @@ contains
         
                if (dcond <= opts%fit%svdtest_tol) then
                    svd_tol = max(opts%fit%svdtest_tol, sqrt(Rmeps))
-                   call svd_analysis(dj_copy, nu,  nw, numw, numu, &
+                   call svd_analysis(fit_jac, nw,  nu, numw, numu, &
                                      .true., svd_tol, svd_err)
                    if (svd_err /= 0) then
                        retcod = 2
@@ -514,7 +518,7 @@ contains
         
         9000 retcod = xcod
         
-        9999 if (allocated(dj_copy)) deallocate(dj_copy)
+        9999 if (allocated(fit_jac)) deallocate(fit_jac)
         return
     
     end subroutine fitone
