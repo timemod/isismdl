@@ -15,6 +15,7 @@ names(rms) <- paste0("x", 1:6)
 
 mdl$set_fit(fit)
 mdl$set_rms(rms)
+mdl$set_fit_options(svdtest_tol = 1e-6)
 
 test_that("test1 (non-singular case)", {
 

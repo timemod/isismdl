@@ -42,6 +42,44 @@ Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
 Derivatives of fit targets are dependent or
 for one or more fit targets all derivatives are (almost) zero ...
 Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options.
+ 
+*** SVD analysis ***
+=======================
+The purpose of the SVD analysis is to find linearly dependent rows or columns
+of the fit jacobian.
+A left singular vector is a linear combination of the rows of the jacobian
+that is (almost) zero.
+A right singular vector is a linear combination of the columns of the jacobian
+that is (almost) zero.
+Only components >=   0.15E-07  are shown.
+ 
+Left Singular vectors:
+-----------------------
+Singular value   0.52E-17
+                              w2  -1.0
+ 
+Right Singular vectors:
+----------------------
+Singular value   0.52E-17
+                              x3  -1.0
+ 
+ 
+The singularity may also be caused by (almost) zero rows or columns.
+Therefore we print the norm of "problem rows" and "problem columns"
+(rows and columns with significant components in left and right singular vectors resp.)
+ 
+Problem rows:
+-----------------
+                        Variable     L1 norm of row
+                              w2   0.0
+ 
+Problem columns:
+-------------
+                        Variable  L1 norm of column
+                              x3  0.10E-11
+ 
+*** END SVD ANALYSIS ***
+ 
 Total number of iterations    0
 Solve model used     xxx CPU secs
  

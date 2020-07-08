@@ -28,12 +28,14 @@ test_that("column with zeros", {
                       simplify = FALSE)
   mdl2$set_param(param_new)
   mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE,
-                      dbgopt = "prijac", warn_zero_col = TRUE)
+                      dbgopt = "prijac", warn_zero_col = TRUE,
+                      svdtest_tol = 0)
 #  mdl2$set_solve_options(report = "none")
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 
-  expect_known_output(cat_report(convert_report(report)),
+  expect_known_output(cat_report(convert_report(report,
+                                                replace_all_numbers = TRUE)),
                       "expected_output/square_zero_cols_rep1.txt")
 
   # make third column almost zero, and second row zero

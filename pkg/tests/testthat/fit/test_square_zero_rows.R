@@ -21,10 +21,12 @@ mdl$set_rms(rms)
 test_that("row with almost zeros", {
   mdl2 <- mdl$copy()
   mdl2$set_param(list(r2 = c(0, 0, 1e-9, 0, 0, 0)))
-  mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE)
+  mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE,
+                       svdtest_tol = 1e-8)
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
-  expect_known_output(cat_report(convert_report(report)),
+  expect_known_output(cat_report(convert_report(report,
+                                                replace_all_numbers = TRUE)),
                       "expected_output/square_zero_rows_rep1.txt")
   mdl2$set_fit_options(scale_method = "row")
   expect_silent(mdl2$solve(options = list(report = "none")))
@@ -38,6 +40,7 @@ test_that("row with only zeros", {
   mdl2$set_param(list(r2 = c(0, 0, 0, 0, 0, 0)))
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
-  expect_known_output(cat_report(convert_report(report)),
+  expect_known_output(cat_report(convert_report(report,
+                                                replace_all_numbers = TRUE)),
                       "expected_output/square_zero_rows_rep2.txt")
 })
