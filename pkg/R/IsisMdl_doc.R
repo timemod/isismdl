@@ -1313,8 +1313,8 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca,
-#'                    accurate_jac, zealous, scale_method,
-#'                    report, dbgopt, svdtest_tol)
+#'                    accurate_jac, zealous, scale_method, warn_zero_col,
+#'                    chkjac, report, dbgopt, svdtest_tol)
 #'
 #' mdl$get_fit_options()
 #'
@@ -1384,6 +1384,14 @@ NULL
 #' to or larger than the number of fit targets. It usually *is* a problem when a *row*
 #' of the jacobian only contains (almost) zero values. Therefore a warning is always
 #' given when the row only contains zero values.}
+#' \item{\code{chkjac}}{A logical. If `TRUE` (the default), then the fit
+#' method is terminated when the inverse condition of the fit jacobian
+#' is smaller than the square root of the machine precision
+#' (typically \code{1.5e-8}).
+#' When a model is badly scaled, the inverse condition number of the
+#' jacobian may become small, which can lead to inaccurate or even unstable
+#' solutions. If `FALSE`, the fit procedure is only terminated when the
+#' inverse condition is exactly zero.}
 #' \item{\code{report}}{A character string specifying the the
 #' type of report of the fit procedure for each period.
 #' Possible values are \code{"fullrep"}
@@ -1399,10 +1407,10 @@ NULL
 #' The default value is \code{-1}, which implies that the SVD test is never
 #' performed. Specify a number between 0 and 1 to enable an SVD analysis depending
 #' on the inverse condition of the jacobian.
-#' When this option has been specified a copy of the fit jacobian is kept in memory,
+#' When this option has been specified, a copy of the fit jacobian is kept in memory,
 #' even if the jacobian is not ill-conditioned.
-#' This option should therefore only be used during testing. It should be turned
-#' off in production calculations}
+#' For large models this option should therefore only be used during testing,
+#' and should be turned off in production calculations}
 #' }
 #'
 #' @section Details:

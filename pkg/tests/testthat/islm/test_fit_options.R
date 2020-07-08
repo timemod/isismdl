@@ -5,7 +5,7 @@ library(utils)
 
 rm(list = ls())
 
-context("solve options for ISLM model")
+context("fit options for ISLM model")
 
 mdl <- read_mdl("islm_model.ismdl", silent  = TRUE)
 
@@ -16,6 +16,7 @@ test_that("test some default options", {
   expect_equal(default_opts[["accurate_jac"]], TRUE)
   expect_equal(default_opts[["zealous"]], TRUE)
   expect_equal(default_opts[["warn_zero_col"]], FALSE)
+  expect_equal(default_opts[["chkjac"]], TRUE)
 })
 
 test_that("the default options not overwritten by method solve", {
@@ -43,6 +44,7 @@ test_that("get_fit_options / set_fit_options", {
   opts["zero_ca"] <- TRUE
   opts["cvgrel"] <- 666
   opts["scale_method"] <- "none"
+  opts["chkjac"] <- FALSE
 
   expect_identical(do.call(mdl2$set_fit_options, opts), mdl2)
   expect_identical(mdl2$get_fit_options(), opts)
@@ -94,4 +96,7 @@ test_that("errors", {
 
   msg <- "warn_ca should not be NA"
   expect_error(mdl2$set_fit_options(warn_ca = NA), msg)
+
+  msg <- "chkjac should be a logical"
+  expect_error(mdl2$set_fit_options(chkjac = 1), msg)
 })

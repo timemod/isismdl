@@ -47,7 +47,7 @@ module solve_options_type
         logical(kind = ISIS_IKIND) :: warnca
         logical(kind = ISIS_IKIND) :: newjac
         logical(kind = ISIS_IKIND) :: supsot
-        logical(kind = ISIS_IKIND) :: nochkjac
+        logical(kind = ISIS_IKIND) :: chkjac
         logical(kind = ISIS_IKIND) :: accurate_jac
         integer(kind = ISIS_IKIND) :: repopt
         real(kind = ISIS_RKIND)    :: svdtest_tol
@@ -162,7 +162,7 @@ contains
         options%fit%warnca = .true.
         options%fit%newjac = .true.
         options%fit%supsot = .true.
-        options%fit%nochkjac = .false.
+        options%fit%chkjac = .true.
         options%fit%repopt = FITREP_FULLREP
         options%fit%svdtest_tol = -1.0_ISIS_RKIND
         options%fit%zealous = .true.

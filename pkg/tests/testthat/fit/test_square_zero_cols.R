@@ -30,7 +30,6 @@ test_that("column with zeros", {
   mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE,
                       dbgopt = "prijac", warn_zero_col = TRUE,
                       svdtest_tol = 1e-15)
-#  mdl2$set_solve_options(report = "none")
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 
@@ -42,6 +41,7 @@ test_that("column with zeros", {
   param_new$r3[3] <- 1e-12
   param_new$r2[] <- 0
   mdl2$set_param(param_new)
+  mdl2$set_fit_options(chkjac = FALSE)  # should have no effect in this case
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 

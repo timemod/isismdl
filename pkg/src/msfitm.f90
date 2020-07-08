@@ -357,7 +357,7 @@ contains
                endif
        
                ! QR factorize Dj
-               call mkdqr(dcond, opts%fit%nochkjac, xcod)
+               call mkdqr(dcond, opts%fit%chkjac, xcod)
         
                if (dcond <= opts%fit%svdtest_tol .and. opts%repopt /= REP_NONE) then
                    svd_tol = max(opts%fit%svdtest_tol, sqrt(Rmeps))
@@ -878,7 +878,7 @@ contains
     
     !-----------------------------------------------------------------------
     
-    subroutine mkdqr(dcond, nochkjac, xcod)
+    subroutine mkdqr(dcond, chkjac, xcod)
     use liqrco
     use msfito
      
@@ -887,7 +887,7 @@ contains
      
     use msvars
     real(kind = SOLVE_RKIND), intent(out) :: dcond
-    logical, intent(in) :: nochkjac
+    logical, intent(in) :: chkjac
     integer, intent(out) :: xcod
     
     integer ::  ier
@@ -898,15 +898,16 @@ contains
     ! estimate inverse condition of R ==> inverse condition of jacobian
     call qrco(dj, nu_max, nu, nw, djtau, dcond, work_fit, lwork_fit)
 
+
     if (Rone + dcond == Rone) then
         ! inverse condition is exactly zero 
         ier = 2
-    elseif (.not. nochkjac .and. dcond < sqrt(Rmeps)) then
+    elseif (chkjac .and. dcond < sqrt(Rmeps)) then
         ier = 1
     else
         ier = 0
     endif
-    
+
     if (ier /= 0) then
         call fitot8(ier, dcond)
         xcod = 1

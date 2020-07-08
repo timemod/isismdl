@@ -22,6 +22,8 @@ extern void F77_SUB(set_fit_dbgopts)(int *, int *, int *);
 extern void F77_SUB(set_fit_repopt)(int *);
 extern void F77_SUB(set_fit_scale_method)(int *);
 extern void F77_SUB(set_fit_svdtest_tol)(double *);
+extern void F77_SUB(set_fit_chkjac)(int *);
+
 
 static void set_fit_option(const char *name, SEXP value);
 static void set_fit_debug_opts(SEXP option);
@@ -89,6 +91,10 @@ static void set_fit_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         i = get_logical(name, value);
         F77_CALL(set_fit_warn_zero_col)(&i);
+    } else if (!strcmp(name, "chkjac")) {
+        CHECK_LENGTH(name, value);
+        i = get_logical(name, value);
+        F77_CALL(set_fit_chkjac)(&i);
     } else if (!strcmp(name, "dbgopt")) {
         set_fit_debug_opts(value);
     } else if (!strcmp(name, "report")) {

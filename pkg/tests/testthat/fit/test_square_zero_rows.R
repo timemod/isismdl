@@ -23,12 +23,22 @@ test_that("row with almost zeros", {
   mdl2$set_param(list(r2 = c(0, 0, 1e-9, 0, 0, 0)))
   mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE,
                        svdtest_tol = 1e-8)
+
+  # without row scaling simulation is not possible
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
                       "expected_output/square_zero_rows_rep1.txt")
+
+  # with row scaling simulation is possible
   mdl2$set_fit_options(scale_method = "row")
+  expect_silent(mdl2$solve(options = list(report = "none")))
+  expect_identical(mdl2$get_solve_status(), "OK")
+  expect_equal(mdl2$get_data(pattern = "^w\\d"), fit, tolerance = 1e-6)
+
+  # with chkjac = FALSE, simulation is also possible
+  mdl2$set_fit_options(scale_method = "none", chkjac = FALSE)
   expect_silent(mdl2$solve(options = list(report = "none")))
   expect_identical(mdl2$get_solve_status(), "OK")
   expect_equal(mdl2$get_data(pattern = "^w\\d"), fit, tolerance = 1e-6)

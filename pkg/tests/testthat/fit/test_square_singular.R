@@ -18,7 +18,6 @@ mdl$set_rms(rms)
 mdl$set_fit_options(svdtest_tol = 1e-6)
 
 test_that("test1 (non-singular case)", {
-
   mdl2 <- mdl$copy()
   expect_silent(mdl2$solve(options = list(report = "none")))
   expect_identical(mdl2$get_solve_status(), "OK")
@@ -60,5 +59,9 @@ test_that("test2 (severer singular case, solution not possible)", {
   expect_identical(mdl2$get_solve_status(), "Simulation not possible")
   expect_false(isTRUE(all.equal(mdl2$get_data(pattern = "^w\\d"), fit)))
 
-  # TODO: isismdl option nochkjac implementeren
+  mdl2$set_fit_options(chkjac = FALSE, maxiter = 10, svdtest_tol = -1)
+
+  expect_warning(mdl2$solve(options = list(report = "none")),
+                            "Simulation stopped")
+  expect_identical(mdl2$get_solve_status(), "Simulation stopped")
 })
