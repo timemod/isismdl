@@ -7,8 +7,13 @@ convert_report <- function(report, replace_all_numbers = FALSE) {
   cpu_line  <- report[cpu_line_number]
   report[cpu_line_number] <- sub("\\d+\\.\\d+", "xxx", report[cpu_line_number])
 
+
+  num_pattern <- "(-|\\s)\\d*\\.\\d+([Ee][+-]?\\d+)?"
   if (replace_all_numbers) {
-    report <- gsub("-?\\d*\\.\\d+([Ee][+-]?\\d+)?", "xxx", report)
+    report <- gsub(num_pattern, "xxx", report)
+  } else {
+    report <- sub(paste0("^(Singular value\\s+)", num_pattern), "\\1xxx",
+                  report)
   }
 
   return(report)

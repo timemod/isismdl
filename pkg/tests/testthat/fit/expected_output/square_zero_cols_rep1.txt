@@ -4,11 +4,11 @@ Solution period               1000/1000
 Simulation mode               dynamic
 Feedback starting values      current period
 Maximum iterations per period 50
-Relaxation minimum            xxx
-           maximum            xxx
-           shrinkage          xxx
-Criteria stepback             xxx
-          matrix              xxx
+Relaxation minimum           xxx
+           maximum           xxx
+           shrinkage         xxx
+Criteria stepback            xxx
+          matrix             xxx
 Maximum updates Newton matrix per period                 10
 Maximum number of line searches with old Jacobian        5
 Criterion for line search decisions etc.                 geometric
@@ -18,24 +18,24 @@ Criterion for line search decisions etc.                 geometric
      x1 x2 x3 x4 x5 x6
 Convergence for 1000 in    0 iterations
  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
-     0                xxx              w                   Abs  w3
+     0               xxx              w                   Abs  w3
  
 Transpose of matrix D (scaled with rms) in period 1000         at iteration    1
  
              w1           w2           w3           w4           w5
-x1      xxx      xxx      xxx      xxx      xxx
-x2      xxx      xxx      xxx      xxx     xxx
-x3      xxx      xxx      xxx      xxx      xxx
-x4      xxx      xxx      xxx      xxx      xxx
-x5      xxx      xxx      xxx      xxx     xxx
-x6      xxx      xxx      xxx      xxx      xxx
+x1     xxx     xxx     xxx     xxx     xxx
+x2     xxx     xxx     xxx     xxx     xxx
+x3     xxx     xxx     xxx     xxx     xxx
+x4     xxx     xxx     xxx     xxx     xxx
+x5     xxx     xxx     xxx     xxx     xxx
+x6     xxx     xxx     xxx     xxx     xxx
              w6
-x1      xxx
-x2      xxx
-x3      xxx
+x1     xxx
+x2     xxx
+x3     xxx
 x4     xxx
-x5      xxx
-x6      xxx
+x5     xxx
+x6     xxx
  
 Warning: All derivatives with respect to fit instrument x3 are exactly zero.
 Warning: Number of columns with non-zero values (    5) is smaller than the number of fit targets (    6 ).
@@ -52,21 +52,21 @@ A left singular vector is a linear combination of the rows of the jacobian
 that is (almost) zero.
 A right singular vector is a linear combination of the columns of the jacobian
 that is (almost) zero.
-Only components >=   xxx  are shown.
+Only components >=  xxx  are shown.
  
 Left Singular vectors:
 -----------------------
-Singular value   xxx
+Singular value  xxx
                               w1 xxx
                               w2 xxx
-                              w3  xxx
-                              w4  xxx
+                              w3 xxx
+                              w4 xxx
                               w5 xxx
                               w6 xxx
  
 Right Singular vectors:
 ----------------------
-Singular value   xxx
+Singular value  xxx
                               x3  xxx
  
  
@@ -77,17 +77,17 @@ Therefore we print the norm of "problem rows" and "problem columns"
 Problem rows:
 -----------------
                         Variable     L1 norm of row
-                              w1   xxx
-                              w2   xxx
-                              w3   xxx
-                              w4   xxx
-                              w5   xxx
-                              w6   xxx
+                              w1  xxx
+                              w2  xxx
+                              w3  xxx
+                              w4  xxx
+                              w5  xxx
+                              w6  xxx
  
 Problem columns:
 -------------
                         Variable  L1 norm of column
-                              x3   xxx
+                              x3  xxx
  
 *** END SVD ANALYSIS ***
  

@@ -55,12 +55,12 @@ Only components >=   0.15E-07  are shown.
  
 Left Singular vectors:
 -----------------------
-Singular value   0.52E-17
+Singular value  xxx
                               w2  -1.0
  
 Right Singular vectors:
 ----------------------
-Singular value   0.52E-17
+Singular value  xxx
                               x3  -1.0
  
  

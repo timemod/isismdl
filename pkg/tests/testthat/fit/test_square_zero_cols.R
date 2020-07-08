@@ -29,7 +29,7 @@ test_that("column with zeros", {
   mdl2$set_param(param_new)
   mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE,
                       dbgopt = "prijac", warn_zero_col = TRUE,
-                      svdtest_tol = 0)
+                      svdtest_tol = 1e-15)
 #  mdl2$set_solve_options(report = "none")
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
