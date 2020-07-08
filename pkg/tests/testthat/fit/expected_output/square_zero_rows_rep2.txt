@@ -4,11 +4,11 @@ Solution period               1000/1000
 Simulation mode               dynamic
 Feedback starting values      current period
 Maximum iterations per period 50
-Relaxation minimum            xxx
-           maximum            xxx
-           shrinkage          xxx
-Criteria stepback             xxx
-          matrix              xxx
+Relaxation minimum           xxx
+           maximum           xxx
+           shrinkage         xxx
+Criteria stepback            xxx
+          matrix             xxx
 Maximum updates Newton matrix per period                 10
 Maximum number of line searches with old Jacobian        5
 Criterion for line search decisions etc.                 geometric
@@ -18,7 +18,7 @@ Criterion for line search decisions etc.                 geometric
      x1 x2 x3 x4 x5 x6
 Convergence for 1000 in    0 iterations
  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
-     0                xxx              w                   Abs  w3
+     0               xxx              w                   Abs  w3
 Error: All derivatives of fit target w2 are exactly zero.
 Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
 Derivatives of fit targets are dependent or

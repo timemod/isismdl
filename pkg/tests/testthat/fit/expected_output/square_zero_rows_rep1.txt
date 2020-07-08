@@ -4,11 +4,11 @@ Solution period               1000/1000
 Simulation mode               dynamic
 Feedback starting values      current period
 Maximum iterations per period 50
-Relaxation minimum            xxx
-           maximum            xxx
-           shrinkage          xxx
-Criteria stepback             xxx
-          matrix              xxx
+Relaxation minimum           xxx
+           maximum           xxx
+           shrinkage         xxx
+Criteria stepback            xxx
+          matrix             xxx
 Maximum updates Newton matrix per period                 10
 Maximum number of line searches with old Jacobian        5
 Criterion for line search decisions etc.                 geometric
@@ -18,10 +18,10 @@ Criterion for line search decisions etc.                 geometric
      x1 x2 x3 x4 x5 x6
 Convergence for 1000 in    0 iterations
  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
-     0                xxx              w                   Abs  w3
-Warning: Derivatives of fit target w2 are almost zero. L1-norm:   xxx
+     0               xxx              w                   Abs  w3
+Warning: Derivatives of fit target w2 are almost zero. L1-norm:  xxx
 Fit Warning - D matrix is ill conditioned.
-Inverse condition=  xxx < Machine prec**xxx=  xxx
+Inverse condition= xxx < Machine prec**.5= xxx
 Derivatives of fit targets are dependent or
 for one or more fit targets all derivatives are (almost) zero ...
 Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options.
@@ -34,22 +34,22 @@ A left singular vector is a linear combination of the rows of the jacobian
 that is (almost) zero.
 A right singular vector is a linear combination of the columns of the jacobian
 that is (almost) zero.
-Only components >=   xxx  are shown.
+Only components >=  xxx  are shown.
  
 Left Singular vectors:
 -----------------------
-Singular value   xxx
-                              w2   xxx
+Singular value  xxx
+                              w2  xxx
  
 Right Singular vectors:
 ----------------------
-Singular value   xxx
-                              x1  xxx
-                              x2  xxx
-                              x3  xxx
+Singular value  xxx
+                              x1 xxx
+                              x2 xxx
+                              x3 xxx
                               x4 xxx
                               x5 xxx
-                              x6  xxx
+                              x6 xxx
  
  
 The singularity may also be caused by (almost) zero rows or columns.
@@ -59,17 +59,17 @@ Therefore we print the norm of "problem rows" and "problem columns"
 Problem rows:
 -----------------
                         Variable     L1 norm of row
-                              w2  xxx
+                              w2 xxx
  
 Problem columns:
 -------------
                         Variable  L1 norm of column
-                              x1   xxx
-                              x2  xxx
-                              x3   xxx
-                              x4   xxx
-                              x5   xxx
-                              x6   xxx
+                              x1  xxx
+                              x2 xxx
+                              x3  xxx
+                              x4  xxx
+                              x5  xxx
+                              x6  xxx
  
 *** END SVD ANALYSIS ***
  
