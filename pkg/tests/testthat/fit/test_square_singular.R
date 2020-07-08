@@ -33,7 +33,7 @@ test_that("test2 (singular case)", {
   mdl_singular$set_param(params)
 
   mdl2 <- mdl_singular$copy()
-  expect_output(mdl2$solve(options = list(report = "none"),
+  expect_silent(mdl2$solve(options = list(report = "none"),
                            fit_options = list(svdtest_tol = 1e-6)))
   expect_equal(mdl2$get_data(pattern = "^w\\d"), fit)
 
@@ -44,7 +44,7 @@ test_that("test2 (singular case)", {
 
   mdl2 <- mdl_singular$copy()
   mdl2$set_fit_options(svdtest_tol = 1e-6)
-  expect_output(mdl2$solve(options = list(report = "none")))
+  expect_silent(mdl2$solve(options = list(report = "none")))
 })
 
 test_that("test2 (severer singular case, solution not possible)", {
@@ -55,8 +55,8 @@ test_that("test2 (severer singular case, solution not possible)", {
   mdl_singular$set_param(params)
 
   mdl2 <- mdl_singular$copy()
-  expect_warning(expect_output(mdl2$solve(options = list(report = "none"),
-                           fit_options = list(svdtest_tol = 1e-6))))
+  expect_warning(mdl2$solve(options = list(report = "none"),
+                           fit_options = list(svdtest_tol = 1e-6)))
   expect_identical(mdl2$get_solve_status(), "Simulation not possible")
   expect_false(isTRUE(all.equal(mdl2$get_data(pattern = "^w\\d"), fit)))
 

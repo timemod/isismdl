@@ -339,7 +339,7 @@ contains
                ! compute D*u = trans(Dj)*u
                if (.not. is_square) call mkdu0(ca, delu)
         
-               if (opts%fit%svdtest_tol >= 0) then
+               if (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
                    ! Save a copy of matrix dj for the svdtest in cause of problems
                    if (.not. allocated(fit_jac)) then
                        allocate(fit_jac(nw, nu), stat = stat)
@@ -359,7 +359,7 @@ contains
                ! QR factorize Dj
                call mkdqr(dcond, opts%fit%nochkjac, xcod)
         
-               if (dcond <= opts%fit%svdtest_tol) then
+               if (dcond <= opts%fit%svdtest_tol .and. opts%repopt /= REP_NONE) then
                    svd_tol = max(opts%fit%svdtest_tol, sqrt(Rmeps))
                    call svd_analysis(fit_jac, nw,  nu, numw, numu, &
                                      .true., svd_tol, svd_err)

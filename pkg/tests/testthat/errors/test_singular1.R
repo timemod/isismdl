@@ -25,12 +25,7 @@ test_that("solve", {
   # No output when solve options report ="none":
   mdl$set_values(0)
   expect_silent(expect_warning(mdl$solve(options = list(report = "none",
-                                                        svdtest_tol = -1)),
+                                                        svdtest_tol = 1e-6)),
                  "Simulation stopped"))
   expect_identical(mdl$get_solve_status(), "Simulation stopped")
-
-  # There is still  some output of the SVD method when solve options report ="none":
-  mdl$set_values(0)
-  expect_output(expect_warning(mdl$solve(options = list(report = "none")),
-                               "Simulation stopped"))
 })
