@@ -1,0 +1,83 @@
+ 
+Model Solve Options
+Solution period               2011/2011
+Simulation mode               dynamic
+Feedback starting values      current period
+Maximum iterations per period 1
+Relaxation minimum            xxx
+           maximum            xxx
+           shrinkage          xxx
+Criteria stepback             xxx
+          matrix              xxx
+Maximum updates Newton matrix per period                 10
+Maximum number of line searches with old Jacobian        5
+Criterion for line search decisions etc.                 geometric
+ 
+Feedback Variables at iteration    0
+          x1           y1           x2           y2           p1
+     xxx      xxx      xxx      xxx      xxx
+ 
+Newton Jacobian matrix at iteration    0 in period 2011
+ 
+             x1           y1           x2           y2           p1
+x1     xxx     xxx      xxx      xxx      xxx
+y1     xxx     xxx      xxx      xxx      xxx
+x2      xxx      xxx     xxx     xxx      xxx
+y2      xxx      xxx     xxx     xxx      xxx
+p1     xxx     xxx      xxx      xxx      xxx
+   4 steps for Newton matrix at iteration   0 (1/condscal =  xxx)
+ 
+*** SVD analysis ***
+=======================
+The purpose of the SVD analysis is to find linearly dependent rows or columns
+in the jacobian
+A left singular vector is a linear combination of the rows of the jacobian
+that is (almost) zero.
+A right singular vector is a linear combination of the columns of the jacobian
+that is (almost) zero.
+Only components >=   xxx  are shown.
+ 
+Left Singular vectors:
+-----------------------
+Singular value   xxx
+                              x1  xxx
+                              y1 xxx
+ 
+Right Singular vectors:
+----------------------
+Singular value   xxx
+                              x1 xxx
+                              y1  xxx
+                              p1  xxx
+ 
+ 
+The singularity may also be caused by (almost) zero rows or columns.
+Therefore we print the norm of "problem rows" and "problem columns"
+(rows and columns with significant components in left and right singular vectors resp.)
+ 
+Problem rows:
+-----------------
+                        Variable     L1 norm of row
+                              x1   xxx
+                              y1   xxx
+ 
+Problem columns:
+-------------
+                        Variable  L1 norm of column
+                              x1   xxx
+                              y1   xxx
+                              p1   xxx
+ 
+*** END SVD ANALYSIS ***
+ 
+Feedback Variables at iteration    1
+          x1           y1           x2           y2           p1
+xxx  xxx     xxx      xxx  xxx
+No convergence for 2011         in     1 iterations
+Largest remaining discrepancy
+Variable    Old value    New value   Difference A/R         Test
+z1            xxx      xxx      xxx Rel  xxx
+Total number of iterations    5
+Solve model used     xxx CPU secs
+No convergence occurred in    1 periods
+ 
