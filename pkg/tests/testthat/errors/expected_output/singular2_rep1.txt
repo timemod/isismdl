@@ -60,7 +60,7 @@ No convergence for 2011         in     1 iterations
 Largest remaining discrepancy
 Variable    Old value    New value   Difference A/R         Test
 z1           xxx     xxx     xxx Rel xxx
-Total number of iterations    5
+Total number of iterations    xxx
 Solve model used     xxx CPU secs
 No convergence occurred in    1 periods
  

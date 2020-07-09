@@ -17,7 +17,7 @@ Criterion for line search decisions etc.                 geometric
      3 CAs used by Fit
      c  i  md
    1 steps for Newton matrix at iteration   0 (1/condscal = xxx)
-Convergence for 2015Q2 in    4 iterations
+Convergence for 2015Q2 in    xxx ierations
  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
      0               xxx              w                   Rel  r
 Fit Warning - D matrix is ill conditioned.
@@ -69,6 +69,6 @@ Problem columns:
  
 *** END SVD ANALYSIS ***
  
-Total number of iterations   14
+Total number of iterations   xxx
 Solve model used     xxx CPU secs
  

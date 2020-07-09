@@ -7,9 +7,11 @@ convert_report <- function(report, replace_all_numbers = FALSE) {
   cpu_line  <- report[cpu_line_number]
   report[cpu_line_number] <- sub("\\d+\\.\\d+", "xxx", report[cpu_line_number])
 
-  no_iter_line_number <- grep("^Total number of iterations", report)
-  report[no_iter_line_number] <- sub("[1-9]\\*", "xxx",
-                                     report[no_iter_line_number])
+  report <- gsub("^(Total number of iterations\\s+)[1-9]\\d*\\s*", "\\1xxx",
+                 report)
+
+  report <- gsub("^(Convergence for \\d{4}Q\\d in\\s+)[1-9]\\d*\\s+iterations\\s*",
+                 "\\1xxx ierations", report)
 
   num_pattern <- "(-|\\s)\\d*\\.\\d+([Ee][+-]?\\d+)?"
   if (replace_all_numbers) {
