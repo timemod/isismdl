@@ -66,7 +66,8 @@ if (repopt == REP_NONE) return
 write(jachdr,'(a,i4,2a)') 'Newton Jacobian matrix at iteration ',itr, &
 &           ' in period ',perstr
 
-call matotn(jacob, mdl%nfb, mdl%nfb, mdl%nfb, mdl%numfb, mdl%numfb, jachdr)
+call matotn(jacob, mdl%nfb, .false., mdl%nfb, mdl%nfb, mdl%numfb, mdl%numfb, &
+            jachdr)
 
 return
 end subroutine jacot3

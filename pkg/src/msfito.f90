@@ -545,10 +545,10 @@ subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
     
     if (opts%repopt == REP_NONE) return
     
-    write(dhdr,'(4a,i4)') 'Transpose of matrix D (scaled with rms)', &
+    write(dhdr,'(4a,i4)') 'Fit jacobian (scaled with rms)', &
     & ' in period ', perstr, ' at iteration ',fiter
     
-    call matotn(dj, nu_max, nu, nw, numu(:nu), numw(:nw), trim(dhdr))
+    call matotn(dj, nu_max, .true., nw, nu, numw(:nw), numu(:nu), trim(dhdr))
     
     call strini(' ', 1)
     call strout(O_OUTB)

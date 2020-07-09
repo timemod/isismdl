@@ -20,12 +20,11 @@ Convergence for 1000 in    0 iterations
  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
      0                1.00000              w                   Abs  w1
  
-Transpose of matrix D (scaled with rms) in period 1000         at iteration    1
+Fit jacobian (scaled with rms) in period 1000         at iteration    1
  
-             w1           w2
-x1      1.00000      1.00000
-x2      1.00000      1.00000
-x3      1.00000      1.00000
+             x1           x2           x3
+w1      1.00000      1.00000      1.00000
+w2      1.00000      1.00000      1.00000
  
 Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
 Derivatives of fit targets are dependent or

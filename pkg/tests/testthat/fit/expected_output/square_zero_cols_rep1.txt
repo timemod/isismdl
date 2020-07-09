@@ -20,22 +20,22 @@ Convergence for 1000 in    0 iterations
  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
      0               xxx              w                   Abs  w3
  
-Transpose of matrix D (scaled with rms) in period 1000         at iteration    1
+Fit jacobian (scaled with rms) in period 1000         at iteration    1
  
-             w1           w2           w3           w4           w5
-x1     xxx     xxx     xxx     xxx     xxx
-x2     xxx     xxx     xxx     xxx     xxx
-x3     xxx     xxx     xxx     xxx     xxx
-x4     xxx     xxx     xxx     xxx     xxx
-x5     xxx     xxx     xxx     xxx     xxx
-x6     xxx     xxx     xxx     xxx     xxx
-             w6
-x1     xxx
-x2     xxx
-x3     xxx
-x4     xxx
-x5     xxx
-x6     xxx
+             x1           x2           x3           x4           x5
+w1     xxx     xxx     xxx     xxx     xxx
+w2     xxx     xxx     xxx     xxx     xxx
+w3     xxx     xxx     xxx     xxx     xxx
+w4     xxx     xxx     xxx     xxx     xxx
+w5     xxx     xxx     xxx     xxx     xxx
+w6     xxx     xxx     xxx     xxx     xxx
+             x6
+w1     xxx
+w2     xxx
+w3     xxx
+w4     xxx
+w5     xxx
+w6     xxx
  
 Warning: All derivatives with respect to fit instrument x3 are exactly zero.
 Warning: Number of columns with non-zero values (    5) is smaller than the number of fit targets (    6 ).
