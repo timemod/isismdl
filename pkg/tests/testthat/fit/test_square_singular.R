@@ -59,7 +59,7 @@ test_that("test2 (severer singular case, solution not possible)", {
   expect_identical(mdl2$get_solve_status(), "Simulation not possible")
   expect_false(isTRUE(all.equal(mdl2$get_data(pattern = "^w\\d"), fit)))
 
-  mdl2$set_fit_options(chkjac = FALSE, maxiter = 10, svdtest_tol = -1)
+  mdl2$set_fit_options(chkjac = FALSE, maxiter = 2, svdtest_tol = -1)
 
   expect_warning(mdl2$solve(options = list(report = "none")),
                             "Simulation stopped")
