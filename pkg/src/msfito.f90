@@ -534,9 +534,10 @@ subroutine fitonu_fix(nu, numu)
     return
 end subroutine fitonu_fix
 
-subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
+subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max, scaled)
     integer(kind = SOLVE_IKIND), intent(in) :: numw(*), numu(*), nw, nu, nu_max
     real(kind = SOLVE_RKIND), intent(in) :: dj(nu_max, nw)
+    logical(kind = SOLVE_IKIND), intent(in) :: scaled
     integer, intent(in) :: fiter
     
     ! output of D matrix
@@ -544,9 +545,14 @@ subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
     character(len = 80) :: dhdr
     
     if (opts%repopt == REP_NONE) return
-    
-    write(dhdr,'(4a,i4)') 'Fit jacobian (scaled with rms)', &
-    & ' in period ', perstr, ' at iteration ',fiter
+   
+    if (scaled) then
+        write(dhdr,'(4a,i4)') 'Scaled fit jacobian', &
+                             ' in period ', perstr, ' at iteration ',fiter
+    else  
+        write(dhdr,'(4a,i4)') 'Fit jacobian (scaled with rms)', &
+                             ' in period ', perstr, ' at iteration ',fiter
+    endif
     
     call matotn(dj, nu_max, .true., nw, nu, numw(:nw), numu(:nu), trim(dhdr))
     

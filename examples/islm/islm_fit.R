@@ -9,7 +9,7 @@ if (!file.exists(rds_file)) {
 }
 mdl <- read_mdl(rds_file)
 y <- regts(985, start = "2015Q2")
-r <- regts(c(3.5, 3.6), start = "2015Q2")
+c <- regts(c(3.5, 3.6), start = "2015Q2")
 fit <- cbind(y, r)
 mdl$set_fit(fit)
 cat("fit targets:\n")

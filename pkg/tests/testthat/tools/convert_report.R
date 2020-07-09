@@ -7,6 +7,9 @@ convert_report <- function(report, replace_all_numbers = FALSE) {
   cpu_line  <- report[cpu_line_number]
   report[cpu_line_number] <- sub("\\d+\\.\\d+", "xxx", report[cpu_line_number])
 
+  no_iter_line_number <- grep("^Total number of iterations", report)
+  report[no_iter_line_number] <- sub("[1-9]\\*", "xxx",
+                                     report[no_iter_line_number])
 
   num_pattern <- "(-|\\s)\\d*\\.\\d+([Ee][+-]?\\d+)?"
   if (replace_all_numbers) {
@@ -15,6 +18,8 @@ convert_report <- function(report, replace_all_numbers = FALSE) {
     report <- sub(paste0("^(Singular value\\s+)", num_pattern), "\\1xxx",
                   report)
   }
+
+
 
   return(report)
 }

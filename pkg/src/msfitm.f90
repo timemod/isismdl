@@ -786,9 +786,9 @@ contains
         matitr = matitr + itrtot - itr0
     endif
     
-    ! output the transpose of the dj matrix
+    ! output the fit jacobian
     if (opts%fit%prijac) then
-        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
+        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max, .false.)
     endif
 
     ! check for (almost) zero columns in dj matrix
@@ -871,6 +871,13 @@ contains
                 dj(i, j) = dj(i, j) * u_scale(i)
             end do
         end do
+    endif
+
+    if (scale_u .or. scale_w) then
+        ! output the fit jacobian
+        if (opts%fit%prijac) then
+            call fitodj(dj, fiter, numw, numu, nw, nu, nu_max, .true.)
+        endif
     endif
 
     return

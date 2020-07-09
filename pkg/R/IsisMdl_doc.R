@@ -1366,15 +1366,7 @@ NULL
 #' although this may require much more CPU time.}
 #' \item{\code{scale_method}}{The scaling method for the fit jacobian.
 #' Possible values are `"row"` (row scaling, the default), and `"none"` (no scaling).
-#' As explained in section Details, the fit jacobian \eqn{D_{ij}} is a matrix with the
-#' derivatives of the fit targets (\eqn{i}) with respect to the scaled residuals (\eqn{j}).
-#' It may be benificial for the fit solution method
-#' to also scale the fit targets. This is achieved by using
-#' the `"row"` scaling method, which is used by default.
-#' This scaling method tries to make the largest element in each row of a
-#' \eqn{D} have absolute value 1.
-#' Row scaling often improves the condition of the matrix if the
-#' fit targets are badly scaled.}
+#' See Section "Row Scaling".}
 #' \item{\code{warn_zero_col}}{A logical (default `FALSE`). IF `TRUE`, then a
 #' warning is issued for each column of the jacobian for which all values are
 #' (almost) equal to zero. A column of the fit jacobian contains the derivatives
@@ -1515,7 +1507,25 @@ NULL
 #' because for non-square fit problems the results depends on the jacobian.
 #' For the square case \eqn{m = n} this is not necessary because the
 #' final results are independent on the jacobian.
-
+#'
+#' @section Row scaling:
+#'
+#' As explained in section Details, the fit jacobian \eqn{D_{ij}} is a matrix
+#' with the derivatives of the fit targets (\eqn{i}) with respect to the scaled
+#' residuals (\eqn{j}). If there are large scale differences between the
+#' fit targets, additional row scaling may improve the condition
+#' number of the fit jacobian.
+#'
+#' The following procedure is
+#' used to determine if row scaling is necessary. For each row \eqn{i},
+#' the maximum absolute values \eqn{R_i} is determined. If
+#' if the ratio of the largest and smallest value of vector \eqn{R} is larger
+#' than 10, then all rows are scaled so that
+#' the largest absolute value in each row is 1. If the ratio is smaller than
+#' 10, the jacobian is not scaled.
+#'
+#' Row scaling can be turned off by specifying argument `scale_method = "none"`.
+#'
 #' @section Debugging Options:
 #'
 #' Argument \code{dbgopt} can be used to specify one or more
@@ -1524,7 +1534,9 @@ NULL
 #' \item{\code{prica}}{print the fit jacobian every time it is calculated}
 #' \item{\code{noprica}}{do not print the fit jacobian every time it is
 #' calculated}
-#' \item{\code{prijac}}{print the fit jacobian every time it is calculated}
+#' \item{\code{prijac}}{print the fit jacobian every time it is calculated. If
+#' row scaling is applied (see argument `scale_method`, then both the original
+#' and scaled jacobian are printed)}
 #' \item{\code{noprijac}}{do not print the fit jacobian every time it is
 #' calculated}
 #' \item{\code{supsot}}{to suppress all output of the normal solution process}
@@ -1572,13 +1584,9 @@ NULL
 #' ````
 #'
 #' We specify fit options so that the SVD analysis is performed and the
-#' fit jacobian is printed. For this example, we disable the row scaling,
-#' because this makes it easier to compare the result of the SVD analysis
-#' with the jacobian (the SVD analysis is performed for the scaled jacobian if
-#' scaling has been applied).
+#' fit jacobian is printed.
 #' ```{r}
-#' mdl$set_fit_options(svdtest_tol = 1e-8, dbgopt = "prijac",
-#'                     scale_method = "none")
+#' mdl$set_fit_options(svdtest_tol = 1e-8, dbgopt = "prijac")
 #' ```
 #'
 #' Next solve the model. Because y and yd are related according to `y = yd - t`
@@ -1588,16 +1596,13 @@ NULL
 #' ```{r}
 #' mdl$solve()
 #' ```
+#'
 #' @examples
 #'
-#' #
-#' # Example SVD analysis for ill-conditioned fit jacobian
-#' #
 #' mdl <- islm_mdl("2020Q1")
 #'
 #' # print constant adjustment and jacobian  for each fit iteration
 #' mdl$set_fit_options(zealous = TRUE, dbgopt = c("prica", "prijac"))
-#'
 NULL
 
 #'
