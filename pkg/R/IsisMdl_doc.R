@@ -1400,13 +1400,11 @@ NULL
 #' \item{\code{dbgopt}}{A character vector specifying one or more debugging
 #' options. See section "Debugging Options" below}
 #' \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
-#' parameter.
-#' If the inverse condition of the fit jacobian is smaller than this parameter,
-#' then an SVD analysis of the jacobian is performed. This may help to
-#' find the equations that cause (near) singularity of the jacobian.
-#' The default value is \code{-1}, which implies that the SVD test is never
-#' performed. Specify a number between 0 and 1 to enable an SVD analysis depending
-#' on the inverse condition of the jacobian.
+#' parameter. The default value for argument `svdtest_tol` is \code{-1},
+#' which implies that the SVD test is never performed.
+#' Specify a number between 0 and 1
+#' to enable an SVD analysis, depending on the inverse condition of the jacobian.
+#' See section "SVD Analysis" and the Examples below.
 #' When this option has been specified, a copy of the fit jacobian is kept in memory,
 #' even if the jacobian is not ill-conditioned.
 #' For large models this option should therefore only be used during testing,
@@ -1530,6 +1528,46 @@ NULL
 #' process. Output will be a mess if this option is used}
 #' }
 #' The default debug options are \code{c("noprica", "noprijac", "supsot")}
+#'
+#' @section SVD Analysis:
+#'
+#' If the inverse condition of the fit jacobian is exactly zero,
+#' then it is impossible to solve the equations of the fit procedure,
+#' and the fit procedure is terminated. When the inverse condition
+#' is small but non-zero, the solution is often inaccurate or even unstable.
+#' In some cases the (near) singularity is caused by (almost) zero rows
+#' or columns of the fit jacobian.  It is also possible that
+#' some rows or columns are linearly dependent. The example below shows
+#' a case where the rows are dependent.
+#'
+#' The Singular Value Decomposition (SVD) (see the Wikipedia article
+#' about SVD (\url{https://en.wikipedia.org/wiki/Singular_value_decomposition})
+#' may help to find the linear dependent rows and columns. The SVD analysis can be
+#' enabled by specifying argument `svdtest_tol` of `set_fit_options`.
+#'
+#' The output of the SVD analysis are the left and right singular vectors of
+#' the jacobian. A left singular vector is a linear combination of the rows
+#' of the jacobian that is almost zero. A right singular vector is a linear
+#' combination of the columns that is almost zero. The Examples section
+#' contains a simple example of a fit jacobian with dependent rows.
+#' @examples
+#'
+#' #
+#' # Example SVD analysis for ill-conditioned fit jacobian
+#' #
+#' mdl <- islm_mdl("2020Q1")
+#' y <- regts(985, start = "2020Q1")
+#' yd <- regts(800, start = "2020Q1")
+#' fit <- cbind(y, yd)
+#' mdl$set_fit(fit)
+#' mdl$set_rms(c(c = 5.0, i = 21, md = 2))
+#'
+#' # Set fit options: print the jacobian and perform an SVD analysis
+#' mdl$set_fit_options(dbgopt = "prijac", svdtest_tol = 1e-8)
+#'
+#' # The rows of the fit jacobian are linearly dependent,
+#' # because y and yd are related according to  y = yd - t
+#' mdl$solve()
 NULL
 
 #'
