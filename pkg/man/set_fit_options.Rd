@@ -108,7 +108,11 @@ parameter. The default value for argument \code{svdtest_tol} is \code{-1},
 which implies that the SVD test is never performed.
 Specify a number between 0 and 1
 to enable an SVD analysis, depending on the inverse condition of the jacobian.
-See section "SVD Analysis" and the Examples below.
+See section "SVD Analysis'.
+If scaling has been applied (see argument \code{scale_method}), then the SVD
+analysis is performed for the scaled jacobian.
+The SVD analysis is performed using the scaled jacobian if scaling
+has been applied.
 When this option has been specified, a copy of the fit jacobian is kept in memory,
 even if the jacobian is not ill-conditioned.
 For large models this option should therefore only be used during testing,
@@ -259,8 +263,119 @@ enabled by specifying argument \code{svdtest_tol} of \code{set_fit_options}.
 The output of the SVD analysis are the left and right singular vectors of
 the jacobian. A left singular vector is a linear combination of the rows
 of the jacobian that is almost zero. A right singular vector is a linear
-combination of the columns that is almost zero. The Examples section
-contains a simple example of a fit jacobian with dependent rows.
+combination of the columns that is almost zero. An example for the ISLM model
+is shown below.
+
+First we create an Isis model and prepare fit data.\if{html}{\out{<div class="r">}}\preformatted{mdl <- islm_mdl("2020Q1")
+y <- regts(985, start = "2020q1")
+yd <- regts(800, start = "2020q1")
+r <- regts(3.5, start = "2020q1")
+fit <- cbind(y, yd, r)
+mdl$set_fit(fit)
+mdl$set_rms(c(c = 5.0, i = 21, md = 2))
+}\if{html}{\out{</div>}}
+
+So we have the following fit targets:\if{html}{\out{<div class="r">}}\preformatted{mdl$get_fit()
+}\if{html}{\out{</div>}}\preformatted{##          r   y  yd
+## 2020Q1 3.5 985 800
+}
+
+We specify fit options so that the SVD analysis is performed and the
+fit jacobian is printed. For this example, we disable the row scaling,
+because this makes it easier to compare the result of the SVD analysis
+with the jacobian (the SVD analysis is performed for the scaled jacobian if
+scaling has been applied).\if{html}{\out{<div class="r">}}\preformatted{mdl$set_fit_options(svdtest_tol = 1e-8, dbgopt = "prijac",
+                    scale_method = "none")
+}\if{html}{\out{</div>}}
+
+Next solve the model. Because y and yd are related according to \code{y = yd - t}
+(\code{t} is also linearly related to \code{y}, so there is a linear relation between
+\code{y} and \code{yd}),
+the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\preformatted{mdl$solve()
+}\if{html}{\out{</div>}}\preformatted{##  
+## Model Solve Options
+## Solution period               2020Q1/2020Q1
+## Simulation mode               dynamic
+## Feedback starting values      current period
+## Maximum iterations per period 50
+## Relaxation minimum            0.500E-01
+##            maximum            1.00
+##            shrinkage          0.500
+## Criteria stepback             1.30
+##           matrix              0.900
+## Maximum updates Newton matrix per period                 10
+## Maximum number of line searches with old Jacobian        5
+## Criterion for line search decisions etc.                 geometric
+##  
+##  
+##      3 CAs used by Fit
+##      c  i  md
+##    1 steps for Newton matrix at iteration   0 (1/condscal =  1.43E-01)
+## Convergence for 2020Q1 in    4 iterations
+##  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
+##      0                0.05523              w                   Rel  r
+##  
+## Fit jacobian (scaled with rms) in period 2020Q1       at iteration    1
+##  
+##               c            i           md
+## y       8.04217     33.77122     -2.14157
+## yd      6.27289     26.34155     -1.67042
+## r       0.07378      0.31028      0.06013
+##  
+## Fit Warning - D matrix is ill conditioned.
+## Inverse condition=  3.83E-15 < Machine prec**.5=  1.49E-08
+## Derivatives of fit targets are dependent or
+## for one or more fit targets all derivatives are (almost) zero ...
+## Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options.
+##  
+## *** SVD analysis ***
+## =======================
+## The purpose of the SVD analysis is to find linearly dependent rows or columns
+## of the fit jacobian.
+## A left singular vector is a linear combination of the rows of the jacobian
+## that is (almost) zero.
+## A right singular vector is a linear combination of the columns of the jacobian
+## that is (almost) zero.
+## Only components >=   0.15E-07  are shown.
+##  
+## Left Singular vectors:
+## -----------------------
+## Singular value   0.38E-14
+##                                y -0.62
+##                               yd  0.79
+##  
+## Right Singular vectors:
+## ----------------------
+## Singular value   0.38E-14
+##                                c -0.97
+##                                i  0.23
+##                               md -0.13E-02
+##  
+##  
+## The singularity may also be caused by (almost) zero rows or columns.
+## Therefore we print the norm of "problem rows" and "problem columns"
+## (rows and columns with significant components in left and right singular vectors resp.)
+##  
+## Problem rows:
+## -----------------
+##                         Variable     L1 norm of row
+##                                y   44.
+##                               yd   34.
+##  
+## Problem columns:
+## -------------
+##                         Variable  L1 norm of column
+##                                c   14.
+##                                i   60.
+##                               md   3.9
+##  
+## *** END SVD ANALYSIS ***
+## 
+}\preformatted{## Warning in mdl$solve(): Simulation not possible
+}\preformatted{## Total number of iterations   14
+## Solve model used     0.01 CPU secs
+## 
+}
 }
 
 \examples{
@@ -269,16 +384,8 @@ contains a simple example of a fit jacobian with dependent rows.
 # Example SVD analysis for ill-conditioned fit jacobian
 #
 mdl <- islm_mdl("2020Q1")
-y <- regts(985, start = "2020Q1")
-yd <- regts(800, start = "2020Q1")
-fit <- cbind(y, yd)
-mdl$set_fit(fit)
-mdl$set_rms(c(c = 5.0, i = 21, md = 2))
 
-# Set fit options: print the jacobian and perform an SVD analysis
-mdl$set_fit_options(dbgopt = "prijac", svdtest_tol = 1e-8)
+# print constant adjustment and jacobian  for each fit iteration
+mdl$set_fit_options(zealous = TRUE, dbgopt = c("prica", "prijac"))
 
-# The rows of the fit jacobian are linearly dependent,
-# because y and yd are related according to  y = yd - t
-mdl$solve()
 }

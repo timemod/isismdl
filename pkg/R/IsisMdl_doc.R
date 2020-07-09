@@ -1404,7 +1404,11 @@ NULL
 #' which implies that the SVD test is never performed.
 #' Specify a number between 0 and 1
 #' to enable an SVD analysis, depending on the inverse condition of the jacobian.
-#' See section "SVD Analysis" and the Examples below.
+#' See section "SVD Analysis'.
+#' If scaling has been applied (see argument `scale_method`), then the SVD
+#' analysis is performed for the scaled jacobian.
+#' The SVD analysis is performed using the scaled jacobian if scaling
+#' has been applied.
 #' When this option has been specified, a copy of the fit jacobian is kept in memory,
 #' even if the jacobian is not ill-conditioned.
 #' For large models this option should therefore only be used during testing,
@@ -1548,26 +1552,52 @@ NULL
 #' The output of the SVD analysis are the left and right singular vectors of
 #' the jacobian. A left singular vector is a linear combination of the rows
 #' of the jacobian that is almost zero. A right singular vector is a linear
-#' combination of the columns that is almost zero. The Examples section
-#' contains a simple example of a fit jacobian with dependent rows.
+#' combination of the columns that is almost zero. An example for the ISLM model
+#' is shown below.
+#'
+#' First we create an Isis model and prepare fit data.
+#' ```{r results = "hide"}
+#' mdl <- islm_mdl("2020Q1")
+#' y <- regts(985, start = "2020q1")
+#' yd <- regts(800, start = "2020q1")
+#' r <- regts(3.5, start = "2020q1")
+#' fit <- cbind(y, yd, r)
+#' mdl$set_fit(fit)
+#' mdl$set_rms(c(c = 5.0, i = 21, md = 2))
+#' ```
+#'
+#' So we have the following fit targets:
+#' ```{r}
+#' mdl$get_fit()
+#' ````
+#'
+#' We specify fit options so that the SVD analysis is performed and the
+#' fit jacobian is printed. For this example, we disable the row scaling,
+#' because this makes it easier to compare the result of the SVD analysis
+#' with the jacobian (the SVD analysis is performed for the scaled jacobian if
+#' scaling has been applied).
+#' ```{r}
+#' mdl$set_fit_options(svdtest_tol = 1e-8, dbgopt = "prijac",
+#'                     scale_method = "none")
+#' ```
+#'
+#' Next solve the model. Because y and yd are related according to `y = yd - t`
+#' (`t` is also linearly related to `y`, so there is a linear relation between
+#' `y` and `yd`),
+#' the fit jacobian contains dependent rows.
+#' ```{r}
+#' mdl$solve()
+#' ```
 #' @examples
 #'
 #' #
 #' # Example SVD analysis for ill-conditioned fit jacobian
 #' #
 #' mdl <- islm_mdl("2020Q1")
-#' y <- regts(985, start = "2020Q1")
-#' yd <- regts(800, start = "2020Q1")
-#' fit <- cbind(y, yd)
-#' mdl$set_fit(fit)
-#' mdl$set_rms(c(c = 5.0, i = 21, md = 2))
 #'
-#' # Set fit options: print the jacobian and perform an SVD analysis
-#' mdl$set_fit_options(dbgopt = "prijac", svdtest_tol = 1e-8)
+#' # print constant adjustment and jacobian  for each fit iteration
+#' mdl$set_fit_options(zealous = TRUE, dbgopt = c("prica", "prijac"))
 #'
-#' # The rows of the fit jacobian are linearly dependent,
-#' # because y and yd are related according to  y = yd - t
-#' mdl$solve()
 NULL
 
 #'
