@@ -846,7 +846,8 @@ contains
     if (opts%fit%scale_method == SCALE_BOTH .and. is_square) then
         call dgeequ(nu, nw, dj, nu_max, u_scale, w_scale, rowcnd, colcnd,  &
              amax, info)
-        scale_w = colcnd < 0.1 .or. rowcnd < 0.1
+        ! info != 0 if one or more columns or rows of dj only contain only zero values
+        scale_w = info == 0 .and. (colcnd < 0.1 .or. rowcnd < 0.1)
         scale_u = scale_w
     else if (opts%fit%scale_method /= SCALE_NONE) then
         call dgeequ_col(nu, nw, dj, nu_max, w_scale, colcnd, amax, info)
@@ -873,11 +874,9 @@ contains
         end do
     endif
 
-    if (scale_u .or. scale_w) then
-        ! output the fit jacobian
-        if (opts%fit%prijac) then
-            call fitodj(dj, fiter, numw, numu, nw, nu, nu_max, .true.)
-        endif
+    if (opts%fit%prijac .and. (scale_u .or. scale_w)) then
+        ! output the scaled fit jacobian
+        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max, .true.)
     endif
 
     return
