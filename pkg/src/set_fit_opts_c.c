@@ -57,7 +57,7 @@ static void set_fit_option(const char *name, SEXP value) {
     double x;
     if (!strcmp(name, "maxiter")) {
         CHECK_LENGTH(name, value);
-        i = get_non_negative_int(name, value);
+        i = get_positive_int(name, value);
         F77_CALL(set_fit_maxit)(&i);
     } else if (!strcmp(name, "cvgabs")) {
         CHECK_LENGTH(name, value);

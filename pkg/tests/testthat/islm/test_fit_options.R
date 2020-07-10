@@ -85,7 +85,7 @@ test_that("errors", {
   expect_error(mdl2$set_fit_options(maxiter = "xxx"), msg)
   expect_error(mdl2$set_fit_options(maxiter = 2.12), msg)
 
-  msg <- "maxiter should be a non-negative integer"
+  msg <- "maxiter should be a positive integer"
   expect_error(mdl2$set_fit_options(maxiter = -10), msg)
 
   msg <- "maxiter should not be NA"
@@ -99,4 +99,10 @@ test_that("errors", {
 
   msg <- "chkjac should be a logical"
   expect_error(mdl2$set_fit_options(chkjac = 1), msg)
+
+  msg <- "maxiter should be a positive integer"
+  expect_error(mdl2$set_fit_options(maxiter = 0), msg)
+
+  msg <- "maxiter should be an integer"
+  expect_error(mdl2$set_fit_options(maxiter = 1.2), msg)
 })

@@ -6,6 +6,7 @@
 }
 
 int get_non_negative_int(const char *name, SEXP value);
+int get_positive_int(const char *name, SEXP value);
 double get_finite_number(const char *name, SEXP value);
 double get_positive_number(const char *name, SEXP value);
 int get_logical(const char *name, SEXP value);

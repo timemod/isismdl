@@ -27,6 +27,37 @@ int get_non_negative_int(const char *name, SEXP value) {
     return i;
 }
 
+int get_positive_int(const char *name, SEXP value) {
+    /* INPUT:
+     * name  : the name of the option
+     * value : the value of the options as specified to the user
+     *
+     * This function converts value to an int, and gives
+     * an error if value is not a positive integer.
+     */
+
+    const char *msg = "%s should be an integer";
+    if (!isNumeric(value)) {
+        error(msg, name); 
+    }
+    int i = asInteger(value);
+    if (i == NA_INTEGER) {
+        error("%s should not be NA", name); 
+    } else if (i <= 0) {
+        error("%s should be a positive integer", name); 
+    } 
+    if (!isInteger(value)) {
+        if (i != asReal(value)) {
+            error(msg, name); 
+        }
+    }
+    return i;
+}
+
+
+double get_finite_number(const char *name, SEXP value) {
+    /* INPUT:
+
 double get_finite_number(const char *name, SEXP value) {
     /* INPUT:
      * name  : the name of the option
