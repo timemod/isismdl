@@ -1,4 +1,4 @@
- 
+
 Model Solve Options
 Solution period               2011/2011
 Simulation mode               dynamic
@@ -12,7 +12,7 @@ Criteria stepback             1.30
 Maximum updates Newton matrix per period                 10
 Maximum number of line searches with old Jacobian        5
 Criterion for line search decisions etc.                 geometric
- 
+
 ** Division by zero
 ** Error in equation x1
 ** Negative argument for sqrt
@@ -49,5 +49,4 @@ Criterion for line search decisions etc.                 geometric
 ** Error in equation x11
 Convergence for 2011 in    0 iterations
 Total number of iterations    0
-Solve model used     xxx CPU secs
- 
+Solve model used X CPU secs

@@ -1,4 +1,4 @@
- 
+
 Model Solve Options
 Solution period               1000/1000
 Simulation mode               dynamic
@@ -12,8 +12,8 @@ Criteria stepback             1.30
 Maximum updates Newton matrix per period                 10
 Maximum number of line searches with old Jacobian        5
 Criterion for line search decisions etc.                 geometric
- 
- 
+
+
      6 CAs used by Fit
      x1 x2 x3 x4 x5 x6
 Convergence for 1000 in    0 iterations
@@ -23,5 +23,4 @@ The fit jacobian contains invalid values at iteration   1
 ** Suggestion: use mdl$set_debug_eqn(TRUE)
 Derivatives of fit target w1 contain invalid values
 Total number of iterations    0
-Solve model used     xxx CPU secs
- 
+Solve model used X CPU secs

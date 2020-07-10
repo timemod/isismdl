@@ -1,31 +1,31 @@
- 
+
 Model Solve Options
 Solution period               2015Q2/2016Q3
 Simulation mode               dynamic
 Feedback starting values      current period
 Maximum iterations per period 50
-Relaxation minimum           xxx
-           maximum           xxx
-           shrinkage         xxx
-Criteria stepback            xxx
-          matrix             xxx
+Relaxation minimum
+           maximum
+           shrinkage
+Criteria stepback
+          matrix
 Maximum updates Newton matrix per period                 10
 Maximum number of line searches with old Jacobian        5
 Criterion for line search decisions etc.                 geometric
- 
- 
+
+
      3 CAs used by Fit
      c  i  md
-   1 steps for Newton matrix at iteration   0 (1/condscal = xxx)
-Convergence for 2015Q2 in    xxx ierations
+   1 steps for Newton matrix at iteration   0 (1/condscal =          )
+Convergence for 2015Q2 in X iterations
  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
-     0               xxx              w                   Rel  r
+     0                                     w                   Rel  r
 Fit Warning - D matrix is ill conditioned.
-Inverse condition= xxx < Machine prec**.5= xxx
+Inverse condition=           < Machine prec**  =
 Derivatives of fit targets are dependent or
 for one or more fit targets all derivatives are (almost) zero ...
 Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options.
- 
+
 *** SVD analysis ***
 =======================
 The purpose of the SVD analysis is to find linearly dependent rows or columns
@@ -34,41 +34,40 @@ A left singular vector is a linear combination of the rows of the jacobian
 that is (almost) zero.
 A right singular vector is a linear combination of the columns of the jacobian
 that is (almost) zero.
-Only components >=  xxx  are shown.
- 
+Only components >=             are shown.
+
 Left Singular vectors:
 -----------------------
-Singular value  xxx
-                               y xxx
-                              yd xxx
- 
+Singular value X
+                               y
+                              yd
+
 Right Singular vectors:
 ----------------------
-Singular value  xxx
-                               c xxx
-                               i xxx
-                              md xxx
- 
- 
+Singular value X
+                               c
+                               i
+                              md
+
+
 The singularity may also be caused by (almost) zero rows or columns.
 Therefore we print the norm of "problem rows" and "problem columns"
 (rows and columns with significant components in left and right singular vectors resp.)
- 
+
 Problem rows:
 -----------------
                         Variable     L1 norm of row
-                               y  xxx
-                              yd  xxx
- 
+                               y
+                              yd
+
 Problem columns:
 -------------
                         Variable  L1 norm of column
-                               c xxx
-                               i  xxx
-                              md xxx
- 
+                               c
+                               i
+                              md
+
 *** END SVD ANALYSIS ***
- 
-Total number of iterations   xxx
-Solve model used     xxx CPU secs
- 
+
+Total number of iterations X
+Solve model used X CPU secs

@@ -1,49 +1,49 @@
- 
+
 Model Solve Options
 Solution period               1000/1000
 Simulation mode               dynamic
 Feedback starting values      current period
 Maximum iterations per period 50
-Relaxation minimum           xxx
-           maximum           xxx
-           shrinkage         xxx
-Criteria stepback            xxx
-          matrix             xxx
+Relaxation minimum
+           maximum
+           shrinkage
+Criteria stepback
+          matrix
 Maximum updates Newton matrix per period                 10
 Maximum number of line searches with old Jacobian        5
 Criterion for line search decisions etc.                 geometric
- 
- 
+
+
      6 CAs used by Fit
      x1 x2 x3 x4 x5 x6
 Convergence for 1000 in    0 iterations
  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
-     0               xxx              w                   Abs  w3
- 
+     0                                     w                   Abs  w3
+
 Fit jacobian (scaled with rms) in period 1000         at iteration    1
- 
+
              x1           x2           x3           x4           x5
-w1     xxx     xxx     xxx     xxx     xxx
-w2     xxx     xxx     xxx     xxx     xxx
-w3     xxx     xxx     xxx     xxx     xxx
-w4     xxx     xxx     xxx     xxx     xxx
-w5     xxx     xxx     xxx     xxx     xxx
-w6     xxx     xxx     xxx     xxx     xxx
+w1
+w2
+w3
+w4
+w5
+w6
              x6
-w1     xxx
-w2     xxx
-w3     xxx
-w4     xxx
-w5     xxx
-w6     xxx
- 
+w1
+w2
+w3
+w4
+w5
+w6
+
 Warning: All derivatives with respect to fit instrument x3 are exactly zero.
 Warning: Number of columns with non-zero values (    5) is smaller than the number of fit targets (    6 ).
 Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
 Derivatives of fit targets are dependent or
 for one or more fit targets all derivatives are (almost) zero ...
 Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options.
- 
+
 *** SVD analysis ***
 =======================
 The purpose of the SVD analysis is to find linearly dependent rows or columns
@@ -52,45 +52,44 @@ A left singular vector is a linear combination of the rows of the jacobian
 that is (almost) zero.
 A right singular vector is a linear combination of the columns of the jacobian
 that is (almost) zero.
-Only components >=  xxx  are shown.
- 
+Only components >=             are shown.
+
 Left Singular vectors:
 -----------------------
-Singular value  xxx
-                              w1 xxx
-                              w2 xxx
-                              w3 xxx
-                              w4 xxx
-                              w5 xxx
-                              w6 xxx
- 
+Singular value X
+                              w1
+                              w2
+                              w3
+                              w4
+                              w5
+                              w6
+
 Right Singular vectors:
 ----------------------
-Singular value  xxx
-                              x3  xxx
- 
- 
+Singular value X
+                              x3
+
+
 The singularity may also be caused by (almost) zero rows or columns.
 Therefore we print the norm of "problem rows" and "problem columns"
 (rows and columns with significant components in left and right singular vectors resp.)
- 
+
 Problem rows:
 -----------------
                         Variable     L1 norm of row
-                              w1  xxx
-                              w2  xxx
-                              w3  xxx
-                              w4  xxx
-                              w5  xxx
-                              w6  xxx
- 
+                              w1
+                              w2
+                              w3
+                              w4
+                              w5
+                              w6
+
 Problem columns:
 -------------
                         Variable  L1 norm of column
-                              x3  xxx
- 
+                              x3
+
 *** END SVD ANALYSIS ***
- 
+
 Total number of iterations    0
-Solve model used     xxx CPU secs
- 
+Solve model used X CPU secs
