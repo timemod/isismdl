@@ -1,0 +1,4 @@
+** Division by zero
+in period 2015Q2   for equation: r
+** Division by zero
+in period 2015Q3   for equation: r
