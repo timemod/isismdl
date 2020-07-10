@@ -328,8 +328,8 @@ contains
                    retcod = 2
                    goto 9999
                else if (has_invalid) then
-                   xcod = 1 
-                   goto 9000
+                   retcod = 1 
+                   goto 9999
                endif
         
                if( xcod .ne. 0 ) goto 9000
