@@ -290,18 +290,22 @@ subroutine fitot8(ier,dcond)
 
     if (opts%repopt == REP_NONE) return
     
-    if( ier .eq. 2 ) then
-       str = 'Fit Error - total loss of precision of D matrix'
+    if (ier == 2) then
+       str = 'Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).'
        call strout(O_ERRQ)
-    elseif(ier .eq. 1) then
-       str = 'Fit Warning - D matrix is ill conditioned'
+    elseif (ier == 1) then
+       str = 'Fit Warning - D matrix is ill conditioned.'
        call strout(O_ERRQ)
        write(str,'(1a,1p,e9.2,1a,1p,e9.2)', round = 'compatible') &
     &   'Inverse condition= ', dcond, ' < Machine prec**.5= ', sqrt(Rmeps)
        call strout(O_ERRQ)
-       str = 'Derivatives of fit targets are dependent ...'
-       call strout(O_ERRF)
     endif
+    str = 'Derivatives of fit targets are dependent or'
+    call strout(O_ERRQ)
+    str = "for one or more fit targets all derivatives are (almost) zero ..."
+    call strout(O_ERRF)
+    str = "Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options."
+    call strout(O_ERRF)
     return
 end subroutine fitot8
 
@@ -414,32 +418,85 @@ subroutine fitotc_invalid(iv)
     
     call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
     
-    write(str, '(3a)' ) 'Warning: Column of derivative for ', name(:nlen), &
-    &                   ' contains invalid values'
+    write(str, '(3a)' ) 'Derivatives of fit target ', name(:nlen), &
+    &                   ' contain invalid values'
     
     call strout(O_WMSG)
     
     return
 end subroutine fitotc_invalid
 
-subroutine fitotc(iv)
+subroutine fitotc(iv, l1_norm)
     use mdl_name_utils
+    integer(kind = SOLVE_IKIND), intent(in) :: iv
+    real(kind = SOLVE_RKIND), intent(in) :: l1_norm
 
-    ! print message about zero column of derivatives in fit jacobian
+    ! print message about zero column of derivatives in dj (the transpose of the fit jacobian)
 
-    integer(kind = SOLVE_IKIND) :: iv
     
     if (opts%repopt == REP_NONE) return
 
     call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
 
-    write(str, '(3a)' ) 'Warning: Column of derivative for ', name(:nlen), &
-&                   ' consists of (almost) zero entries'
+    if (l1_norm == 0) then
+        write(str, '(3a)') 'Error: All derivatives of fit target ',  &
+              name(:nlen), ' are exactly zero.'
+    else 
+        write(str, '(3a, g10.2)') 'Warning: Derivatives of fit target ',  &
+              name(:nlen), ' are almost zero. L1-norm: ', &
+                  l1_norm
+    endif
     
     call strout(O_WMSG)
     
     return
 end subroutine fitotc
+
+subroutine fitotr(iv, l1_norm)
+    use mdl_name_utils
+    integer(kind = SOLVE_IKIND), intent(in) :: iv
+    real(kind = SOLVE_RKIND), intent(in) :: l1_norm
+
+    ! print message about zero row of derivatives in dj (the transpose of the fit jacobian)
+
+    
+    if (opts%repopt == REP_NONE) return
+
+    call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
+
+    if (l1_norm == 0) then
+        write(str, '(3a)') 'Warning: All derivatives with respect to fit instrument ', &
+              name(:nlen), ' are exactly zero.'
+    else 
+        write(str, '(3a, g10.2)') 'Warning: Derivatives with respect to fit instrument ',  &
+              name(:nlen), ' are almost zero. L1-norm: ', &
+                  l1_norm
+    endif
+    
+    call strout(O_WMSG)
+    
+    return
+end subroutine fitotr
+
+subroutine fitot_n_zero_row(n_zero_row, nu, nw)
+    ! print message about number of rows of dj that are almost zero, compared to the number 
+    ! of fit targets
+    integer(kind = SOLVE_IKIND), intent(in) :: n_zero_row, nu, nw
+    integer :: n_non_zero
+
+    if (opts%repopt == REP_NONE) return
+
+    n_non_zero = nu - n_zero_row
+    if (n_non_zero >= nw) then
+        write(str, '(a, i5, a, i5, a)') 'Number of columns with non-zero values (', n_non_zero, &
+                                     ') is >= the number of fit targets. (', nw, ' ).'
+    else
+        write(str, '(a, i5, a, i5, a)') 'Warning: Number of columns with non-zero values (', n_non_zero, &
+                                     ') is smaller than the number of fit targets (', nw, ' ).'
+    endif
+    call strout(O_OUTB)
+
+end subroutine fitot_n_zero_row
     
 subroutine fitonu(nu, numu)
     integer(kind = SOLVE_IKIND) :: nu, numu(*)
@@ -477,9 +534,10 @@ subroutine fitonu_fix(nu, numu)
     return
 end subroutine fitonu_fix
 
-subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
+subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max, scaled)
     integer(kind = SOLVE_IKIND), intent(in) :: numw(*), numu(*), nw, nu, nu_max
     real(kind = SOLVE_RKIND), intent(in) :: dj(nu_max, nw)
+    logical(kind = SOLVE_IKIND), intent(in) :: scaled
     integer, intent(in) :: fiter
     
     ! output of D matrix
@@ -487,11 +545,16 @@ subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
     character(len = 80) :: dhdr
     
     if (opts%repopt == REP_NONE) return
+   
+    if (scaled) then
+        write(dhdr,'(4a,i4)') 'Scaled fit jacobian', &
+                             ' in period ', perstr, ' at iteration ',fiter
+    else  
+        write(dhdr,'(4a,i4)') 'Fit jacobian (scaled with rms)', &
+                             ' in period ', perstr, ' at iteration ',fiter
+    endif
     
-    write(dhdr,'(4a,i4)') 'Transpose of matrix D (scaled with rms)', &
-    & ' in period ', perstr, ' at iteration ',fiter
-    
-    call matotn(dj, nu_max, nu, nw, numu(:nu), numw(:nw), trim(dhdr))
+    call matotn(dj, nu_max, .true., nw, nu, numw(:nw), numu(:nu), trim(dhdr))
     
     call strini(' ', 1)
     call strout(O_OUTB)

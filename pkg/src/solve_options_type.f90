@@ -47,11 +47,12 @@ module solve_options_type
         logical(kind = ISIS_IKIND) :: warnca
         logical(kind = ISIS_IKIND) :: newjac
         logical(kind = ISIS_IKIND) :: supsot
-        logical(kind = ISIS_IKIND) :: nochkjac
+        logical(kind = ISIS_IKIND) :: chkjac
         logical(kind = ISIS_IKIND) :: accurate_jac
         integer(kind = ISIS_IKIND) :: repopt
         real(kind = ISIS_RKIND)    :: svdtest_tol
         logical(kind = ISIS_IKIND) :: zealous
+        logical(kind = ISIS_IKIND) :: warn_zero_col
     end type fit_options
 
     type solve_options
@@ -161,10 +162,11 @@ contains
         options%fit%warnca = .true.
         options%fit%newjac = .true.
         options%fit%supsot = .true.
-        options%fit%nochkjac = .false.
+        options%fit%chkjac = .true.
         options%fit%repopt = FITREP_FULLREP
         options%fit%svdtest_tol = -1.0_ISIS_RKIND
         options%fit%zealous = .true.
+        options%fit%warn_zero_col = .false.
 
     end subroutine set_default_options
 

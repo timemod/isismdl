@@ -1093,7 +1093,7 @@ NULL
 #' The default is \code{"current"}. See section "Feedback initialisation
 #' methods" below}
 #' \item{\code{maxiter}}{the maximum number of iterations per period (default 50)}
-#' \item{\code{maxjacupd}}{the maximum number of Newton Jacobian updates per period
+#' \item{\code{maxjacupd}}{the maximum number of Newton jacobian updates per period
 #'  (default 10)}
 #'  \item{\code{rlxspeed}}{Newton relaxation shrinkage (default is 0.5)}
 #'  \item{\code{rlxmin}}{Minimum Newton relaxation factor (default is 0.05)}
@@ -1108,20 +1108,20 @@ NULL
 #' after the maximum number of linesearch steps \code{bktmax}
 #' has been reached or if the relaxation
 #' factor has become smaller than \code{rlxmin}),
-#' a new Jacobian matrix is computed.
+#' a new jacobian matrix is computed.
 #' In each linesearch step the current relaxation factor is shrunk by
 #' \code{rspeed}.
 #' The relaxation factor is set to its maximum value
-#' \code{rlxmax}) when a new Jacobian has been calculated.
+#' \code{rlxmax}) when a new jacobian has been calculated.
 #' }
 #'  \item{\code{cnmtrx}}{Recalculate matrix criterion (default is 0.9).
 #' If the convergence criterium \code{Fcrit} is larger
 #' than \code{cnmtrx} but smaller than \code{cstpbk},
-#' the Newton step is accepted but a new Jacobian is computed
+#' the Newton step is accepted but a new jacobian is computed
 #' and the relaxation factor is set to its maximum value
 #' \code{rlxmax}.
-#' The new Jacobian is used in the next step. However, the
-#' Jacobian will not be recalculated if the number of Jacobian updates
+#' The new jacobian is used in the next step. However, the
+#' jacobian will not be recalculated if the number of jacobian updates
 #' in a period is larger than \code{maxjacupd}}
 #'  \item{\code{xrelax}}{Rational expectations relaxation factor (default is 1)}
 #'  \item{\code{xmaxiter}}{Maximum number of rational expectation iterations
@@ -1159,7 +1159,7 @@ NULL
 #' with old jacobian. Sometimes it is necessary for the Broyden
 #' method to take a shorter step than the standard step. This is called
 #' backtracking linesearch. \code{bktmax} is the maximum number of
-#' line search steps before a new Jacobian is computed}
+#' line search steps before a new jacobian is computed}
 #' \item{\code{xtfac}}{Rational expectations convergence test multiplier
 #' When using the \code{"ratex"} solution mode,
 #' convergence of endogenous leads cannot be tested to the accuracy used in
@@ -1171,14 +1171,14 @@ NULL
 #' Then its endogenous lead will be regarded as converged}
 #' \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
 #' parameter.
-#' If the inverse condition of the Jacobian is smaller than this parameter,
-#' then an SVD analysis of the Jacobian is performed. This may help to
-#' find the equations that cause (near) singularity of the Jacobian.
+#' If the inverse condition of the jacobian is smaller than this parameter,
+#' then an SVD analysis of the jacobian is performed. This may help to
+#' find the equations that cause (near) singularity of the jacobian.
 #' The default value is \code{-1}, which implies that the SVD test is never
 #' performed. Specify a number between 0 and 1 to enable an SVD analysis depending
-#' on the inverse condition of the Jacobian.
-#' When this option has been specified a copy of the Jacobian is kept in memory,
-#' even if the Jacobian is not ill-conditioned.
+#' on the inverse condition of the jacobian.
+#' When this option has been specified a copy of the jacobian is kept in memory,
+#' even if the jacobian is not ill-conditioned.
 #' This option should therefore only be used during testing. It should be turned
 #' off in production calculations}
 #' }
@@ -1308,14 +1308,13 @@ NULL
 #' options for the fit procedure.
 #' These options will be stored in the \code{IsisMdl} object.
 #'
-#' Method \code{get_fit_options} returns the solve options as a named
-#' list
+#' Method \code{get_fit_options} returns the solve options as a named list
 #'
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca,
-#'                    accurate_jac, zealous, scale_method,
-#'                    report, dbgopt, svdtest_tol)
+#'                    accurate_jac, zealous, scale_method, warn_zero_col,
+#'                    chkjac, report, dbgopt, svdtest_tol)
 #'
 #' mdl$get_fit_options()
 #'
@@ -1347,8 +1346,8 @@ NULL
 #' larger than \code{cvgrel},  then the result of the iteration is rejected.
 #' If the iteration employed an old fit jacobian (i.e. a jacobian
 #' computed in  an earlier iteration), then a second attempt with
-#' a  new Jacobian is made. If the iteration already used a new
-#' Jacobian, then the fit procedure will be terminated.
+#' a  new jacobian is made. If the iteration already used a new
+#' jacobian, then the fit procedure will be terminated.
 #' The default value is 10. In many cases a large ratio in a single iteration
 #' is not problematic,  so `cvgrel` can typically be set to a large value.}
 #' \item{\code{zero_ca}}{A logical. If \code{TRUE}, then the initial values
@@ -1359,53 +1358,175 @@ NULL
 #' procedure for each period.}
 #' \item{\code{accurate_jac}}{A logical. If \code{TRUE} (default), then the
 #' fit jacobian is calculated accurately, otherwise the jacobian
-#' is calculated approximately. The fit jacobian `D_ij` is a matrix with the
-#' derivatives of the fit targets with respect to the scaled residuals.
-#' The scaling of the residuals is based on the rms-values. In some cases
-#' it may be beneficial for the fit method to also scale the fit targets.
-#' This is achieved by using the scale method `"row"`, which is used by
-#' default.}
+#' is calculated approximately. See Details.}
 #' \item{\code{zealous}}{A logical. If \code{TRUE} (default), then a zealous
-#' version of the fit procedure is used, otherwise a lazy version is used
-#' (see Details). The recommended option is to use the zealous version,
+#' version of the fit procedure is used (see section The Zealous and Lazy Fit Method),
+#' otherwise a lazy version is used.
+#' The recommended option is to use the zealous version,
 #' although this may require much more CPU time.}
 #' \item{\code{scale_method}}{The scaling method for the fit jacobian.
 #' Possible values are `"row"` (row scaling, the default), and `"none"` (no scaling).
-#' As explained in section Details, the fit jacobian \eqn{D_{ij}} is a matrix with the
-#' derivatives of the fit targets (\eqn{i}) with respect to the scaled residuals (\eqn{j}).
-#' It may be benificial for the fit solution method
-#' to also scale the fit targets. This is achived by using
-#' the `"row"` scaling method, which is used by default.
-#' This scaling method tries to make the largest element in each row of a
-#' \eqn{D} have absolute value 1.
-#' Row scaling often improves the condition of the matrix if the
-#' fit targets are badly scaled.}
+#' See Section "Row Scaling".}
+#' \item{\code{warn_zero_col}}{A logical (default `FALSE`). IF `TRUE`, then a
+#' warning is issued for each column of the jacobian for which all values are
+#' (almost) equal to zero. A column of the fit jacobian contains the derivatives
+#' of all fit targets with respect to one particular residual. It is not
+#' necessarily a problem when a column of the jacobian contains only (almost)
+#' zero values, as long as the number of columns with non-zero values is equal
+#' to or larger than the number of fit targets. It usually *is* a problem when a *row*
+#' of the jacobian only contains (almost) zero values. Therefore a warning is always
+#' given when the row only contains zero values.}
+#' \item{\code{chkjac}}{A logical. If `TRUE` (the default), then the fit
+#' method is terminated when the inverse condition of the fit jacobian
+#' is smaller than the square root of the machine precision
+#' (typically \code{1.5e-8}).
+#' When a model is badly scaled, the inverse condition number of the
+#' jacobian may become small, which can lead to inaccurate or even unstable
+#' solutions. If `FALSE`, the fit procedure is only terminated when the
+#' inverse condition is exactly zero.}
 #' \item{\code{report}}{A character string specifying the the
 #' type of report of the fit procedure for each period.
 #' Possible values are \code{"fullrep"}
 #' (the default, an iteration report is printed for each period)
 #' and  \code{"minimal"} (for a one line summary).}
-#' \item{\code{dbgopt}}{A character vector specifying one or more
-#' debugging options. See section "Debugging options" below}
+#' \item{\code{dbgopt}}{A character vector specifying one or more debugging
+#' options. See section "Debugging Options" below}
 #' \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
-#' parameter.
-#' If the inverse condition of the fit Jacobian is smaller than this parameter,
-#' then an SVD analysis of the Jacobian is performed. This may help to
-#' find the equations that cause (near) singularity of the Jacobian.
-#' The default value is \code{-1}, which implies that the SVD test is never
-#' performed. Specify a number between 0 and 1 to enable an SVD analysis depending
-#' on the inverse condition of the Jacobian.
-#' When this option has been specified a copy of the fit Jacobian is kept in memory,
-#' even if the Jacobian is not ill-conditioned.
-#' This option should therefore only be used during testing. It should be turned
-#' off in production calculations}
+#' parameter. The default value for argument `svdtest_tol` is \code{-1},
+#' which implies that the SVD test is never performed.
+#' Specify a number between 0 and 1
+#' to enable an SVD analysis, depending on the inverse condition of the jacobian.
+#' See section "SVD Analysis'.
+#' If scaling has been applied (see argument `scale_method`), then the SVD
+#' analysis is performed for the scaled jacobian.
+#' The SVD analysis is performed using the scaled jacobian if scaling
+#' has been applied.
+#' When this option has been specified, a copy of the fit jacobian is kept in memory,
+#' even if the jacobian is not ill-conditioned.
+#' For large models this option should therefore only be used during testing,
+#' and should be turned off in production calculations}
 #' }
 #'
 #' @section Details:
+#' The purpose of the fit procedure is to adjust a model solution
+#' to a partial set of known outcomes for endogenous variables. It
+#' determines the minimal norm vector of specified constant
+#' adjustments which ensure that the specified endogenous variables
+#' meet the desired outcome (fit targets).
+#' It can be used amongst others to update a model forecast given a
+#' (small) set of recent observations of endogenous variables.
+#' It first solves the model for any period given all data and if
+#' fit targets have been specified then proceeds to determine a set
+#' of constant adjustments that will ensure that the fit targets
+#' are met. There must be at least as many constant adjustments as there are fit
+#' targets for the fit procedure to work.
 #'
-#' TODO
+#' After solving the model in any period for a given set of values
+#' of the constant adjustments (residuals), the fit problem can be
+#' described as follows. Find a minimum norm vector \eqn{u} such that
 #'
-#' @section Debugging options:
+#' \deqn{y = h(u) = w}
+#'
+#' where \eqn{u} is an \eqn{n}-vector of scaled residuals,
+#' \eqn{y} is an \eqn{m}-vector of
+#' endogenous variables with \eqn{n >= m},
+#' \eqn{h} the function \eqn{h: R^n \rightarrow R^m}
+#' and \eqn{w} is an \eqn{m}-vector of fit target values.
+#' The scaled residuals \eqn{u_i} have been scaled with the root mean square
+#' values specified with procedures \code{\link{set_rms}}.
+#'
+#' The fit procedure linearises the relation \eqn{y=h(u)} and
+#' determines a minimum norm solution for \eqn{u} to the resulting set of
+#' linear equations after setting \eqn{y=w}.
+#' It uses the QR decomposition for numerical stability.
+#'
+#' The fit jacobian \eqn{D_{ij} = \partial h_i / \partial u_j} is calculated
+#' numerically by a first difference approach.
+#' The \eqn{j}'th column is calculated by giving residual \eqn{u_j} a small
+#' distortion and then solving the model again.
+#' For numerical efficiency the model is solved with a *single* iteration
+#' by default. This is usually a good approximation.
+#' Use argument `accurate_jac = TRUE` for a more accurate
+#' calculation of the fit jacobian. For this option the model is solved
+#' until convergence has been reached.
+#'
+#' The criterion used for testing for convergence is the largest
+#' scaled discrepancy of the fit target values at iteration \eqn{k}
+#' defined as
+#
+#' \deqn{
+#' F_k = \max_i \left\{ | w_i - y_i |  / \max(|w_i|,1) \right\}
+#' }
+#'
+#' When \eqn{F_k \le \epsilon} where \eqn{0 < \epsilon < 1},
+#' absolute convergence has been achieved.
+#' The value of \eqn{epsilon} is specified with argument `cgvabs` (
+#' (the default value is 100 times the square root of
+#' the machine precision, which is typically \code{1.5e-6}).
+#' If the zealous fit method is used (see Section The Zealous
+#' and Lazy Fit Method), we also require for convergence that
+#' the relative step size for all variables is smaller then \eqn{epilon}.
+#'
+#' Since evaluating the jacobian of \eqn{h(u)} can be a time-consuming
+#' process, the jacobian of a previous iteration can sometimes be reused for
+#' a next iteration.
+#' As long as \eqn{F_k \le \delta  F_{k-1}} where \eqn{0 < \delta < 0.95}
+#' the current jacobian will not be recalculated, except when the zealous
+#' fit method is used and the the number
+#' of residuals is larger than the number of targets, see Section The Zealous
+#' and Lazy Fit Method.
+#' The default value for \eqn{\delta} is 0.5.
+#' When \eqn{F_k > 0.95 F_{k-1}}
+#' and the current jacobian is not
+#' up-to-date, the residuals will be reset to the values of the
+#' previous iteration and the jacobian will be recalculated.
+#' However if the current jacobian is up-to-date, the process will be
+#' stopped with the message \code{Cannot locate a better point}.
+#'
+#' If the zealous fit method is used (see next paragraph), then
+#' a new jacobian is calculated every iteration when the number
+#' of residuals is larger than the number of targets (\eqn{m > n}).
+#'
+#' @section The Zealous and Lazy Fit Method:
+#'
+#' There are two implementations of the fit procedure: the lazy
+#' and zealous method. The default is the zealous method.
+#' For the lazy method the fit iterations is terminated when
+#' the largest scaled discrepancy of the fit target values
+#' is less than `cvgabs`. However,
+#' the other variables may not be converged yet sufficiently, particularly
+#' when the number of residuals is larger than the number of targets (\eqn{m > n}).
+#' For the zealous fit procedure continues iterating
+#' until the relative changes of all variables are less than `cvgabs`.
+#' These relative changes are shown
+#' in the output as `Delsmx` (maximum step size in an iteration).
+#' The zealous fit procedure also uses an accurate calculation
+#' of the jacobian (see general description).
+#' If \eqn{m > n} (non-square fit problem), the zealous fit procedure
+#' also updates the fit jacobian every iteration,
+#' because for non-square fit problems the results depends on the jacobian.
+#' For the square case \eqn{m = n} this is not necessary because the
+#' final results are independent on the jacobian.
+#'
+#' @section Row scaling:
+#'
+#' As explained in section Details, the fit jacobian \eqn{D_{ij}} is a matrix
+#' with the derivatives of the fit targets (\eqn{i}) with respect to the scaled
+#' residuals (\eqn{j}). If there are large scale differences between the
+#' fit targets, additional row scaling may improve the condition
+#' number of the fit jacobian.
+#'
+#' The following procedure is
+#' used to determine if row scaling is necessary. For each row \eqn{i},
+#' the maximum absolute values \eqn{R_i} is determined. If
+#' if the ratio of the largest and smallest value of vector \eqn{R} is larger
+#' than 10, then all rows are scaled so that
+#' the largest absolute value in each row is 1. If the ratio is smaller than
+#' 10, the jacobian is not scaled.
+#'
+#' Row scaling can be turned off by specifying argument `scale_method = "none"`.
+#'
+#' @section Debugging Options:
 #'
 #' Argument \code{dbgopt} can be used to specify one or more
 #' options for debugging the fit procedure.  Possible values are
@@ -1413,7 +1534,9 @@ NULL
 #' \item{\code{prica}}{print the fit jacobian every time it is calculated}
 #' \item{\code{noprica}}{do not print the fit jacobian every time it is
 #' calculated}
-#' \item{\code{prijac}}{print the fit jacobian every time it is calculated}
+#' \item{\code{prijac}}{print the fit jacobian every time it is calculated. If
+#' row scaling is applied (see argument `scale_method`, then both the original
+#' and scaled jacobian are printed)}
 #' \item{\code{noprijac}}{do not print the fit jacobian every time it is
 #' calculated}
 #' \item{\code{supsot}}{to suppress all output of the normal solution process}
@@ -1421,6 +1544,65 @@ NULL
 #' process. Output will be a mess if this option is used}
 #' }
 #' The default debug options are \code{c("noprica", "noprijac", "supsot")}
+#'
+#' @section SVD Analysis:
+#'
+#' If the inverse condition of the fit jacobian is exactly zero,
+#' then it is impossible to solve the equations of the fit procedure,
+#' and the fit procedure is terminated. When the inverse condition
+#' is small but non-zero, the solution is often inaccurate or even unstable.
+#' In some cases the (near) singularity is caused by (almost) zero rows
+#' or columns of the fit jacobian.  It is also possible that
+#' some rows or columns are linearly dependent. The example below shows
+#' a case where the rows are dependent.
+#'
+#' The Singular Value Decomposition (SVD) (see the Wikipedia article
+#' about SVD (\url{https://en.wikipedia.org/wiki/Singular_value_decomposition})
+#' may help to find the linear dependent rows and columns. The SVD analysis can be
+#' enabled by specifying argument `svdtest_tol` of `set_fit_options`.
+#'
+#' The output of the SVD analysis are the left and right singular vectors of
+#' the jacobian. A left singular vector is a linear combination of the rows
+#' of the jacobian that is almost zero. A right singular vector is a linear
+#' combination of the columns that is almost zero. An example for the ISLM model
+#' is shown below.
+#'
+#' First we create an Isis model and prepare fit data.
+#' ```{r results = "hide"}
+#' mdl <- islm_mdl("2020Q1")
+#' y <- regts(985, start = "2020q1")
+#' yd <- regts(800, start = "2020q1")
+#' r <- regts(3.5, start = "2020q1")
+#' fit <- cbind(y, yd, r)
+#' mdl$set_fit(fit)
+#' mdl$set_rms(c(c = 5.0, i = 21, md = 2))
+#' ```
+#'
+#' So we have the following fit targets:
+#' ```{r}
+#' mdl$get_fit()
+#' ````
+#'
+#' We specify fit options so that the SVD analysis is performed and the
+#' fit jacobian is printed.
+#' ```{r}
+#' mdl$set_fit_options(svdtest_tol = 1e-8, dbgopt = "prijac")
+#' ```
+#'
+#' Next solve the model. Because y and yd are related according to `y = yd - t`
+#' (`t` is also linearly related to `y`, so there is a linear relation between
+#' `y` and `yd`),
+#' the fit jacobian contains dependent rows.
+#' ```{r}
+#' mdl$solve()
+#' ```
+#'
+#' @examples
+#'
+#' mdl <- islm_mdl("2020Q1")
+#'
+#' # print constant adjustment and jacobian  for each fit iteration
+#' mdl$set_fit_options(zealous = TRUE, dbgopt = c("prica", "prijac"))
 NULL
 
 #'

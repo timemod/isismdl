@@ -26,7 +26,6 @@ subroutine set_fit_cvgrel(cvgrel)
     options_set%fit%cvgrel = cvgrel
 end subroutine set_fit_cvgrel
 
-
 subroutine set_fit_zero_ca(zero_ca)
     use set_options
     use iso_c_binding, only : c_int
@@ -54,6 +53,13 @@ subroutine set_fit_zealous(zealous)
     integer(c_int), intent(in) :: zealous
     options_set%fit%zealous  = zealous /= 0
 end subroutine set_fit_zealous
+
+subroutine set_fit_warn_zero_col(warn_zero_col)
+    use set_options
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: warn_zero_col
+    options_set%fit%warn_zero_col  = warn_zero_col /= 0
+end subroutine set_fit_warn_zero_col
 
 subroutine set_fit_repopt(repopt)
     use set_options
@@ -85,3 +91,10 @@ subroutine set_fit_svdtest_tol(tol)
     real(c_double), intent(in) :: tol
     options_set%fit%svdtest_tol = tol
 end subroutine set_fit_svdtest_tol
+
+subroutine set_fit_chkjac(chkjac)
+    use set_options
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: chkjac
+    options_set%fit%chkjac  = chkjac /= 0
+end subroutine set_fit_chkjac

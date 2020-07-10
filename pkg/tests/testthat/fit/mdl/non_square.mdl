@@ -1,0 +1,14 @@
+param r1 1 1 1
+      r2 1 1 1;
+
+
+? variabelen met residuen voor de waarnemimgenprocedure
+frml x1 = 0;
+frml x2 = 0;
+frml x3 = 0;
+
+? vergelijkingen voor de waarnemingen
+w1 = r1 * x1  + r1(-1) * x2 + r1(-2) * x3;
+
+w2 = r2 * x1  + r2(-1) * x2 + r2(-2) * x3;
+

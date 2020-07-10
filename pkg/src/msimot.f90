@@ -552,22 +552,29 @@ end subroutine nshfmt
 
 !-----------------------------------------------------------------------
 
-subroutine matotn(x, xdim, nxr, nxc, ridx, cidx, mathdr)
+subroutine matotn(x, xdim, xtrans, nr, nc, ridx, cidx, mathdr)
 use mdl_name_utils
 use nucnst
 
-! output a matrix x(nxr,nxc) nicely with a header mathdr
-! matrix x declared as x(xdim,*)
-! inames name pointer array
-! names  name string memory
+! output a matrix x nicely with a header mathdr
 
-! ridx   contains numbers of variables to print in rows
-! cidx   contains numbers of variables to print in columns
+! Arguments:
+! x        matrix declared as x(xdim, *)
+! xdim     leading dimension of x
+! xtrans   .true. if the transpose of x should be printed
+! nr       number of rows of the matrix to be printed i
+!          (N.B. if xtrans = .true. then this is the number of columns of x)
+! nc       number of columns of the matrix to be printed i
+!          (N.B. if xtrans = .true. then this is the number of rows of x)
+! ridx     contains numbers of variables to print in rows
+! cidx     contains numbers of variables to print in columns
+! mathdr   a string: a header
 
 
-integer(kind = MC_IKIND) :: xdim, nxr, nxc, ridx(*), cidx(*)
-real(kind = SOLVE_RKIND) :: x(xdim,*)
-character*(*) mathdr
+integer(kind = MC_IKIND), intent(in) :: xdim, nr, nc, ridx(*), cidx(*)
+real(kind = SOLVE_RKIND), intent(in) :: x(xdim, *)
+logical(kind = MC_IKIND), intent(in) :: xtrans
+character(len = *), intent(in) :: mathdr
 
 integer ::    colwid, maxrhl, maxchl
 integer ::    ncpb,ncpe,npcols,i,j
@@ -580,13 +587,13 @@ real(kind = SOLVE_RKIND) :: temp(20)
 !     ncpb    index of first column to print
 !     ncpe    index of last  column to print
 
-maxrhl = maxnli(mdl%ivnames, ridx, 1_MC_IKIND, nxr)
-maxchl = maxnli(mdl%ivnames, cidx, 1_MC_IKIND, nxc)
+maxrhl = maxnli(mdl%ivnames, ridx, 1_MC_IKIND, nr)
+maxchl = maxnli(mdl%ivnames, cidx, 1_MC_IKIND, nc)
 
 colwid = max(maxchl, NUMWID)
 
 npcols = max(1, (LWIDTH - maxrhl - 1) / (colwid + ICSPAC) )
-npcols = min(npcols, nxc, 20)
+npcols = min(npcols, nc, 20)
 
 !     write matrix header
 
@@ -599,28 +606,34 @@ call strout(O_OUTB)
 call strini(' ', 1)
 call strout(O_OUTB)
 
-do  ncpb = 1, nxc, npcols
+do  ncpb = 1, nc, npcols
 
-     ncpe = min(ncpb + npcols - 1, nxc)
+     ncpe = min(ncpb + npcols - 1, nc)
 
-!          write col headers (right justified)
+     ! write col headers (right justified)
 
      call strini(' ', 1 + maxrhl + ICSPAC)
      call snmfmt(mdl%vnames, mdl%ivnames, cidx, ncpb, ncpe, colwid)
      call strout(O_OUTB)
 
-     do  i=1,nxr
+     do  i=1,nr
 
-!             write row header (left justified)
+        ! write row header (left justified)
 
         call mcf7ex(name, nlen, mdl%ivnames(ridx(i)), mdl%vnames)
         call strini(name(:nlen),1 + maxrhl + ICSPAC)
 
-!             write x(i,j=ncpb..ncpe) (right justified)
+        ! write x(i,j=ncpb..ncpe) (right justified)
 
-        do  j = ncpb, ncpe
-           temp(j-ncpb+1) = x(i,j)
-        enddo
+        if (xtrans) then
+            do  j = ncpb, ncpe
+                temp(j-ncpb+1) = x(j, i)
+            enddo
+        else
+            do  j = ncpb, ncpe
+                temp(j-ncpb+1) = x(i, j)
+            enddo
+        endif
         call svlfmt(temp, 1, ncpe-ncpb+1, colwid)
         call strout(O_OUTB)
 

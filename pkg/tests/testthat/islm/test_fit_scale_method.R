@@ -34,7 +34,7 @@ mdl$set_fit(fit_targets)
 
 test_that("model cannot be solved with scale_method = 'none'", {
   mdl$set_fit_options(scale_method = "none", svdtest_tol = 1e-8)
-  expect_output(  # we expect output because of the svd test
+  expect_silent(
     expect_warning(
       mdl$solve(options = list(report = "none")),
       "Simulation not possible")

@@ -1,0 +1,22 @@
+param r1 0.277 0.065 0.881 0.907 0.582 0.204
+      r2 0.001 0.955 0.123 0.851 0.331 0.680
+      r3 0.511 0.086 0.175 0.734 0.158 0.364
+      r4 0.014 0.290 0.441 0.574 0.480 0.350
+      r5 0.211 -0.11 0.123 0.567 -0.12 0.567
+      r6 0.444 0.333 0.246 -0.123 1.123 0.357;
+
+? variabelen met residuen voor de waarnemimgenprocedure
+frml x1 = 0;
+frml x2 = 0;
+frml x3 = 0;
+frml x4 = 0;
+frml x5 = 0;
+frml x6 = 0;
+
+? vergelijkingen voor de waarnemingen
+ident w1 = r1 * x1  + r1(-1) * x2 + r1(-2) * x3 + r1(-3) * x4 / 0 + r1(-4) * x5 + r1(-5) * x6;
+ident w2 = r2 * x1  + r2(-1) * x2 + r2(-2) * x3 + r2(-3) * x4 + r2(-4) * x5 + r2(-5) * x6;
+ident w3 = r3 * x1  + r3(-1) * x2 + r3(-2) * x3 + r3(-3) * x4 + r3(-4) * x5 + r3(-5) * x6;
+ident w4 = r4 * x1  + r4(-1) * x2 + r4(-2) * x3 + r4(-3) * x4 + r4(-4) * x5 + r4(-5) * x6;
+ident w5 = r5 * x1  + r5(-1) * x2 + r5(-2) * x3 + r5(-3) * x4 + r5(-4) * x5 + r5(-5) * x6;
+ident w6 = r6 * x1  + r6(-1) * x2 + r6(-2) * x3 + r6(-3) * x4 + r6(-4) * x5 + r6(-5) * x6;

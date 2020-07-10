@@ -432,9 +432,9 @@ module mws_type
                 if (fix) then
                     ! update mdl data
                     do it = 1, vcnt
-                        itd = it + mws%mdl%mxlag
                         fix_value = mat(im + it - 1, icol(i))
                         if (.not. nuifna(fix_value)) then
+                            itd = it + mws%mdl%mxlag
                             mws%mdl_data(iv, jstart + itd - 1) = fix_value
                         endif
                      end do

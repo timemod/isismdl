@@ -654,7 +654,8 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_fit_options = function(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca,
                                warn_ca, accurate_jac, zealous, scale_method,
-                               report, dbgopt, svdtest_tol) {
+                               warn_zero_col, chkjac, report, dbgopt,
+                               svdtest_tol) {
       names <- names(match.call()[-1])
       options <- lapply(names, FUN = function(x) {eval(parse(text = x))})
       names(options) <- names

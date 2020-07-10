@@ -116,7 +116,7 @@ endif
 call msjac(retcod, itr, matitr)
 if (retcod /= 0) return
 
-if (opts%svdtest_tol >= 0) then
+if (opts%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
     !  save Jacobian for svd analysis
     allocate(jac(mdl%nfb, mdl%nfb), stat = stat)
     if (stat /= 0) then
@@ -126,7 +126,7 @@ if (opts%svdtest_tol >= 0) then
     endif
     do i = 1, mdl%nfb
         do j = 1, mdl%nfb
-            jac(i,j) = jacob(i, j)
+            jac(i, j) = jacob(i, j)
         enddo
      enddo
 endif
@@ -144,14 +144,14 @@ endif
 
 call jacot2(matitr, itr, rcond)
 
-if (rcond <= opts%svdtest_tol) then
+if (rcond <= opts%svdtest_tol .and. opts%repopt /= REP_NONE) then
     call svd_analysis(jac, mdl%nfb, mdl%nfb, mdl%numfb, &
                       mdl%numfb, .false., opts%svdtest_tol, svd_err)
     svd_err = 0
 else
     svd_err = 0
 endif
-if (opts%svdtest_tol >= 0) then
+if (opts%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
     deallocate(jac, stat = stat)
 endif
 if (svd_err == 1) then

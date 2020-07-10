@@ -252,14 +252,14 @@ contains
         parameter(Qzero = 0.0_SOLVE_RKIND)
         
         logical ::  deval, devalp, fcvgd,prihdr, zealous
-        integer ::  i
+        integer ::  i, j
         integer ::  fiscod,fiter,wmxidx,wmxtyp,djcnt, smxidx, smxtyp
         integer ::  xcod
         real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, svd_tol, delsmx, &
                                    delsmxp
-        real(kind = ISIS_RKIND), dimension(:,:), allocatable :: dj_copy
+        real(kind = ISIS_RKIND), dimension(:,:), allocatable :: fit_jac
         integer :: svd_err, stat, matitr, deltyp, deltypp
-        logical :: memory_error
+        logical :: memory_error, has_invalid
 
         !     fiscod is fit iteration status
         !        0    continue
@@ -277,7 +277,7 @@ contains
 
         zealous = opts%fit%zealous
         
-        if (allocated(dj_copy)) deallocate(dj_copy)
+        if (allocated(fit_jac)) deallocate(fit_jac)
         
         ! compute discrepancies delw, and largest delw
         call mkdelw(delwmx, curvars, wmxidx, wmxtyp)
@@ -323,9 +323,12 @@ contains
                !  in the mathematical paper.
         
         
-               call mkdjac(xcod, fiter, memory_error, matitr)
+               call mkdjac(xcod, fiter, memory_error, has_invalid, matitr)
                if (memory_error) then
                    retcod = 2
+                   goto 9999
+               else if (has_invalid) then
+                   retcod = 1 
                    goto 9999
                endif
         
@@ -336,25 +339,29 @@ contains
                ! compute D*u = trans(Dj)*u
                if (.not. is_square) call mkdu0(ca, delu)
         
-               if (opts%fit%svdtest_tol >= 0) then
+               if (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
                    ! Save a copy of matrix dj for the svdtest in cause of problems
-                   if (.not. allocated(dj_copy)) then
-                       allocate(dj_copy(nu, nw), stat = stat)
+                   if (.not. allocated(fit_jac)) then
+                       allocate(fit_jac(nw, nu), stat = stat)
                        if (stat /= 0) then
                            call fitot15
                            retcod = 2
                            goto 9999
                        endif
                    endif
-                   dj_copy = dj(:nu, :nw)
+                   do i = 1, nw
+                      do j = 1, nu
+                          fit_jac(i, j) = dj(j, i)
+                      end do
+                   end do
                endif
        
                ! QR factorize Dj
-               call mkdqr(dcond, opts%fit%nochkjac, xcod)
+               call mkdqr(dcond, opts%fit%chkjac, xcod)
         
-               if (dcond <= opts%fit%svdtest_tol) then
+               if (dcond <= opts%fit%svdtest_tol .and. opts%repopt /= REP_NONE) then
                    svd_tol = max(opts%fit%svdtest_tol, sqrt(Rmeps))
-                   call svd_analysis(dj_copy, nu,  nw, numw, numu, &
+                   call svd_analysis(fit_jac, nw,  nu, numw, numu, &
                                      .true., svd_tol, svd_err)
                    if (svd_err /= 0) then
                        retcod = 2
@@ -511,7 +518,7 @@ contains
         
         9000 retcod = xcod
         
-        9999 if (allocated(dj_copy)) deallocate(dj_copy)
+        9999 if (allocated(fit_jac)) deallocate(fit_jac)
         return
     
     end subroutine fitone
@@ -689,7 +696,7 @@ contains
     
     !-----------------------------------------------------------------------
     
-    subroutine mkdjac(xcod, fiter, memory_error, matitr)
+    subroutine mkdjac(xcod, fiter, memory_error, has_invalid, matitr)
     use msvars
     use msutil
     use nuv
@@ -697,15 +704,16 @@ contains
     use msnwut
     use scalemat
     use msfito
-    
-    ! Estimates the jacobian dj = trans(D) of the "fit"variables wrt. the
-    ! residuals by means of single newton steps for small,
+   
+    ! Estimate the transpose of the jacobian, the derivatives of the fit variables
+    ! wrt. the residuals, by means of single newton steps for small,
     ! scaled differences in the residuals.
+    ! Note: dj = trans(D), where D is the jacobian.
     
     
     integer, intent(out) :: xcod
     integer, intent(in)  :: fiter
-    logical, intent(out) :: memory_error
+    logical, intent(out) :: memory_error, has_invalid
     integer, intent(inout)  :: matitr
     
     real(kind = ISIS_RKIND) :: oldca
@@ -713,16 +721,15 @@ contains
     real(kind = ISIS_RKIND) :: t, mat_norm, rowcnd, colcnd, amax
     integer(kind = LAPACK_IKIND) :: info
     
-    integer ::  i, j, ires, idum, itr0, stat
+    integer ::  i, j, ires, idum, itr0, stat, n_zero_row
 
     itr0 = 0
     
-    
-    !     RMSDEL is constant for calculation of derivative
+    ! RMSDEL is constant for calculation of derivative
     
     memory_error = .false.
     
-    !     allocate fit matrix Dj.
+    ! allocate fit matrix Dj.
     if (.not. allocated(dj)) then
         allocate(dj(nu_max, mws%fit_targets%var_count), stat = stat)
         if (opts%fit%scale_method /= SCALE_NONE .and. stat == 0) then
@@ -779,20 +786,73 @@ contains
         matitr = matitr + itrtot - itr0
     endif
     
-    ! output the transpose of the dj matrix
+    ! output the fit jacobian
     if (opts%fit%prijac) then
-        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
+        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max, .false.)
     endif
+
+    ! check for (almost) zero columns in dj matrix
     
+    ! calculate the maximum of the 1-norms of the columns of matrix dj
+    mat_norm = 0
+    has_invalid = .false.
+    do j = 1, nw
+        t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
+        if (nuifna(t)) then
+           has_invalid = .true.
+           exit
+        endif
+        mat_norm = max(t, mat_norm)
+    end do
+    
+    if (has_invalid) then
+        ! matrix has invalid numbers
+        call fitot10(fiter)
+        do j = 1, nw
+            t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
+            if (nuifna(t)) call fitotc_invalid(numw(j))
+        enddo
+        return
+    endif
+
+
+    ! determine which columns of dj (the rows of the jacobian) are (almost) zero
+    do j = 1, nw
+        t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
+        if (t <= mat_norm * sqrt(Rmeps)) call fitotc(numw(j), t)
+    enddo
+
+    !
+    ! check which rows of dj (the columns of the jacobian) are (almost) zero
+    !
+    if (opts%fit%warn_zero_col) then
+        ! calculate the maximum of the 1-norms of the rows of matrix dj
+        mat_norm = 0
+        do i = 1, nu
+            mat_norm = max(dasum(int(nw, ISIS_IKIND), dj(i, 1), nu), mat_norm)
+        enddo
+        n_zero_row = 0
+        do i = 1, nu
+            t = dasum(int(nw, ISIS_IKIND), dj(i, 1), nu)
+            if (t <= mat_norm * sqrt(Rmeps)) then
+                n_zero_row = n_zero_row + 1
+                call fitotr(numu(i), t)
+            endif
+        end do
+        if (n_zero_row > 0) call fitot_n_zero_row(n_zero_row, nu, nw)
+    endif
+
     ! scale the matrix
     if (opts%fit%scale_method == SCALE_BOTH .and. is_square) then
         call dgeequ(nu, nw, dj, nu_max, u_scale, w_scale, rowcnd, colcnd,  &
              amax, info)
-        scale_w = colcnd < 0.1 .or. rowcnd < 0.1
+        ! info != 0 if one or more columns or rows of dj only contain only zero values
+        scale_w = info == 0 .and. (colcnd < 0.1 .or. rowcnd < 0.1)
         scale_u = scale_w
     else if (opts%fit%scale_method /= SCALE_NONE) then
         call dgeequ_col(nu, nw, dj, nu_max, w_scale, colcnd, amax, info)
-        scale_w = colcnd < 0.1
+        ! info != 0 if one or more columns of dj only contain only zero values
+        scale_w = info == 0 .and. colcnd < 0.1
         scale_u = .false.
     else
         scale_w = .false.
@@ -813,86 +873,50 @@ contains
             end do
         end do
     endif
-    
-    !     check for (almost) zero columns in dj matrix
-    
-    !     calculate 1-norm of matrix
-    mat_norm = 0
-    do j = 1, nw
-        mat_norm = max(dasum(int(nu, ISIS_IKIND), dj(:, j), 1), mat_norm)
-    enddo
-    
-    if (nuifna(mat_norm)) then
-        ! matrix has invalid numbers
-        call fitot10(fiter)
-        do j = 1, nw
-            t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
-            if (nuifna(t)) call fitotc_invalid(numw(j))
-         enddo
-    else
-        ! determine which columns are (almost) zero
-        do j = 1, nw
-            t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
-            if (t <= mat_norm * sqrt(Rmeps) ) then
-                call fitotc(numw(j))
-            endif
-        enddo
+
+    if (opts%fit%prijac .and. (scale_u .or. scale_w)) then
+        ! output the scaled fit jacobian
+        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max, .true.)
     endif
-    
-    
+
     return
     end subroutine mkdjac
     
     !-----------------------------------------------------------------------
     
-    subroutine mkdqr(dcond, nochkjac, xcod)
+    subroutine mkdqr(dcond, chkjac, xcod)
     use liqrco
     use msfito
      
-    !     compute QR factorization of Dj
-    !     == QR of trans(D) where D is the jacobian defined in mathematical paper.
+    ! compute QR factorization of Dj
+    !  == QR of trans(D) where D is the jacobian defined in mathematical paper.
      
     use msvars
     real(kind = SOLVE_RKIND), intent(out) :: dcond
-    logical, intent(in) :: nochkjac
+    logical, intent(in) :: chkjac
     integer, intent(out) :: xcod
     
     integer ::  ier
-    logical ::  quit
     
     xcod = 0
     
-    !     QR decomposition of Fit jacobian
-    !     estimate inverse condition of R ==> inverse condition of jacobian
+    ! QR decomposition of Fit jacobian
+    ! estimate inverse condition of R ==> inverse condition of jacobian
     call qrco(dj, nu_max, nu, nw, djtau, dcond, work_fit, lwork_fit)
-    
-    if (nochkjac) then
-    
-        !  no strict and correct checking of square jacobian
-        !  same test as in msnwqr (Newton with QR)
-        if (Rone + dcond .eq. Rone) then
-           ier = 2
-        else
-           ier = 0
-        endif
-    
+
+
+    if (Rone + dcond == Rone) then
+        ! inverse condition is exactly zero 
+        ier = 2
+    elseif (chkjac .and. dcond < sqrt(Rmeps)) then
+        ier = 1
     else
-    
-         !! if comparison with sqrt(Rmeps) changes then CHANGE fitot8 !!!
-         if (dcond < sqrt(Rmeps) ) then
-             ier = 1
-         else
-             ier = 0
-         endif
-    
+        ier = 0
     endif
-    
+
     if (ier /= 0) then
         call fitot8(ier, dcond)
-        quit = .true.
-        if (quit) then
-            xcod = 1
-        endif
+        xcod = 1
     endif
     
     return
