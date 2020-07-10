@@ -297,7 +297,7 @@ subroutine svdout_vector(n, sv, vector, num_col)
     use nucnst
     integer(kind = ISIS_IKIND) ::  n, num_col(*)
     real(kind = ISIS_RKIND) :: sv, vector(n)
-    real(kind = 8) :: tol, mx
+    real(kind = 8) :: tol
     
     integer ::  i
 

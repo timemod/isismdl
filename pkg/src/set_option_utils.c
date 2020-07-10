@@ -57,9 +57,6 @@ int get_positive_int(const char *name, SEXP value) {
 
 double get_finite_number(const char *name, SEXP value) {
     /* INPUT:
-
-double get_finite_number(const char *name, SEXP value) {
-    /* INPUT:
      * name  : the name of the option
      * value : the value of the options as specified to the user
      *
