@@ -721,7 +721,7 @@ contains
     real(kind = ISIS_RKIND) :: t, mat_norm, rowcnd, colcnd, amax
     integer(kind = LAPACK_IKIND) :: info
     
-    integer ::  i, j, ires, idum, itr0, stat, n_zero_row
+    integer ::  i, j, ires, idum, itr0, stat, n_zero_row, n_zero_col, n_zero_col_exact
 
     itr0 = 0
     
@@ -791,57 +791,6 @@ contains
         call fitodj(dj, fiter, numw, numu, nw, nu, nu_max, .false.)
     endif
 
-    ! check for (almost) zero columns in dj matrix
-    
-    ! calculate the maximum of the 1-norms of the columns of matrix dj
-    mat_norm = 0
-    has_invalid = .false.
-    do j = 1, nw
-        t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
-        if (nuifna(t)) then
-           has_invalid = .true.
-           exit
-        endif
-        mat_norm = max(t, mat_norm)
-    end do
-    
-    if (has_invalid) then
-        ! matrix has invalid numbers
-        call fitot10(fiter)
-        do j = 1, nw
-            t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
-            if (nuifna(t)) call fitotc_invalid(numw(j))
-        enddo
-        return
-    endif
-
-
-    ! determine which columns of dj (the rows of the jacobian) are (almost) zero
-    do j = 1, nw
-        t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
-        if (t <= mat_norm * sqrt(Rmeps)) call fitotc(numw(j), t)
-    enddo
-
-    !
-    ! check which rows of dj (the columns of the jacobian) are (almost) zero
-    !
-    if (opts%fit%warn_zero_col) then
-        ! calculate the maximum of the 1-norms of the rows of matrix dj
-        mat_norm = 0
-        do i = 1, nu
-            mat_norm = max(dasum(int(nw, ISIS_IKIND), dj(i, 1), nu), mat_norm)
-        enddo
-        n_zero_row = 0
-        do i = 1, nu
-            t = dasum(int(nw, ISIS_IKIND), dj(i, 1), nu)
-            if (t <= mat_norm * sqrt(Rmeps)) then
-                n_zero_row = n_zero_row + 1
-                call fitotr(numu(i), t)
-            endif
-        end do
-        if (n_zero_row > 0) call fitot_n_zero_row(n_zero_row, nu, nw)
-    endif
-
     ! scale the matrix
     if (opts%fit%scale_method == SCALE_BOTH .and. is_square) then
         call dgeequ(nu, nw, dj, nu_max, u_scale, w_scale, rowcnd, colcnd,  &
@@ -849,7 +798,7 @@ contains
         ! info != 0 if one or more columns or rows of dj only contain only zero values
         scale_w = info == 0 .and. (colcnd < 0.1 .or. rowcnd < 0.1)
         scale_u = scale_w
-    else if (opts%fit%scale_method /= SCALE_NONE) then
+    else if (opts%fit%scale_method == SCALE_ROW) then
         call dgeequ_col(nu, nw, dj, nu_max, w_scale, colcnd, amax, info)
         ! info != 0 if one or more columns of dj only contain only zero values
         scale_w = info == 0 .and. colcnd < 0.1
@@ -877,6 +826,67 @@ contains
     if (opts%fit%prijac .and. (scale_u .or. scale_w)) then
         ! output the scaled fit jacobian
         call fitodj(dj, fiter, numw, numu, nw, nu, nu_max, .true.)
+    endif
+
+    ! calculate the maximum of the 1-norms of the columns of matrix dj
+    ! check for invalid values
+    mat_norm = 0
+    has_invalid = .false.
+    do j = 1, nw
+        t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
+        if (nuifna(t)) then
+           has_invalid = .true.
+           exit
+        endif
+        mat_norm = max(t, mat_norm)
+    end do
+    
+    if (has_invalid) then
+        ! matrix has invalid numbers
+        call fitot10(fiter)
+        do j = 1, nw
+            t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
+            if (nuifna(t)) call fitotc_invalid(numw(j))
+        enddo
+        return
+    endif
+
+    ! Check for (almost) zero columns in dj matrix (i.e. zero rows of jacobian)
+    ! This is actually needed when scale_method == SCALE_ROW and info == 0,
+    ! but for safety we just check the norms again.
+    n_zero_col = 0
+    n_zero_col_exact = 0
+    do j = 1, nw
+        t = dasum(int(nu, ISIS_IKIND), dj(:, j), 1)
+        if (t <= mat_norm * sqrt(Rmeps)) then
+            n_zero_col = n_zero_col + 1
+            if (t == 0) n_zero_col_exact = n_zero_col_exact + 1
+            call fitotc(numw(j), t)
+        endif
+    enddo
+    if (n_zero_col > 0 .and. n_zero_col_exact == 0 .and. opts%fit%scale_method == SCALE_NONE) then
+        call fitot_tip_scale_row
+    endif
+
+    if (opts%fit%warn_zero_col) then
+
+        !
+        ! check which rows of dj (the columns of the jacobian) are (almost) zero
+        !
+        ! calculate the maximum of the 1-norms of the rows of matrix dj
+        mat_norm = 0
+        do i = 1, nu
+            mat_norm = max(dasum(int(nw, ISIS_IKIND), dj(i, 1), nu), mat_norm)
+        enddo
+        n_zero_row = 0
+        do i = 1, nu
+            t = dasum(int(nw, ISIS_IKIND), dj(i, 1), nu)
+            if (t <= mat_norm * sqrt(Rmeps)) then
+               n_zero_row = n_zero_row + 1
+               call fitotr(numu(i), t)
+            endif
+        end do
+        if (n_zero_row > 0) call fitot_n_zero_row(n_zero_row, nu, nw)
     endif
 
     return

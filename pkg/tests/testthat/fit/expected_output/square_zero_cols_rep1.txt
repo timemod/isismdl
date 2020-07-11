@@ -38,7 +38,9 @@ w5
 w6
 
 Warning: All derivatives with respect to fit instrument x3 are exactly zero.
-Warning: Number of columns with non-zero values (    5) is smaller than the number of fit targets (    6 ).
+Number of columns of the Jacobian with (almost) zero values:     1
+Number of columns with non-zero values                     :     5
+Total number of rows                                       :     6
 Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
 Derivatives of fit targets are dependent or
 for one or more fit targets all derivatives are (almost) zero ...

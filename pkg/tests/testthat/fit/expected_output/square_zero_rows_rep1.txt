@@ -20,6 +20,7 @@ Convergence for 1000 in    0 iterations
  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
      0                                     w                   Abs  w3
 Warning: Derivatives of fit target w2 are almost zero. L1-norm:
+Tip: Use fit option scale_method = "rows". See documentation of method set_fit_options.
 Fit Warning - D matrix is ill conditioned.
 Inverse condition=           < Machine prec**  =
 Derivatives of fit targets are dependent or

@@ -478,24 +478,28 @@ subroutine fitotr(iv, l1_norm)
     return
 end subroutine fitotr
 
+subroutine fitot_tip_scale_row
+    ! print message about using scale_method = "row"
+
+    if (opts%repopt == REP_NONE) return
+
+    write(str, '(a)') 'Tip: Use fit option scale_method = "rows". See documentation of method set_fit_options.'
+    call strout(O_OUTB)
+end subroutine fitot_tip_scale_row
+    
 subroutine fitot_n_zero_row(n_zero_row, nu, nw)
     ! print message about number of rows of dj that are almost zero, compared to the number 
     ! of fit targets
     integer(kind = SOLVE_IKIND), intent(in) :: n_zero_row, nu, nw
-    integer :: n_non_zero
 
     if (opts%repopt == REP_NONE) return
 
-    n_non_zero = nu - n_zero_row
-    if (n_non_zero >= nw) then
-        write(str, '(a, i5, a, i5, a)') 'Number of columns with non-zero values (', n_non_zero, &
-                                     ') is >= the number of fit targets. (', nw, ' ).'
-    else
-        write(str, '(a, i5, a, i5, a)') 'Warning: Number of columns with non-zero values (', n_non_zero, &
-                                     ') is smaller than the number of fit targets (', nw, ' ).'
-    endif
+    write(str, '(a, i5)') 'Number of columns of the Jacobian with (almost) zero values: ', n_zero_row
     call strout(O_OUTB)
-
+    write(str, '(a, i5)') 'Number of columns with non-zero values                     : ', nu - n_zero_row
+    call strout(O_OUTB)
+    write(str, '(a, i5)') 'Total number of rows                                       : ', nw
+    call strout(O_OUTB)
 end subroutine fitot_n_zero_row
     
 subroutine fitonu(nu, numu)
