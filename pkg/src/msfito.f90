@@ -304,7 +304,9 @@ subroutine fitot8(ier,dcond)
     call strout(O_ERRQ)
     str = "for one or more fit targets all derivatives are (almost) zero ..."
     call strout(O_ERRF)
-    str = "Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options."
+    str = "Tip: try to use svd analysis and/or fit option 'warn_zero_row' or warn_zero_col'."
+    call strout(O_ERRF)
+    str = 'See documentation of method set_fit_options.'
     call strout(O_ERRF)
     return
 end subroutine fitot8
@@ -380,8 +382,7 @@ subroutine fitot13
     
     if (opts%repopt == REP_NONE) return
     
-    write(str, '(a,i4)') &
-    &  'Numerical problem during the calculation of the fit Jacobian'
+    write(str, '(a)') 'Numerical problem during the calculation of the fit Jacobian'
     call strout(O_ERRQ)
     if (opts%fit%accurate_jac) then
         write(str, '(a,i4)') 'Possibly no convergence when solving the model'
@@ -410,7 +411,7 @@ end subroutine fitot15
 subroutine fitotc_invalid(iv)
     use mdl_name_utils
     
-    ! print message about invalid values in column of derivatives in fit jacobian
+    ! print message about invalid values in column of matrix dj
     
     integer(kind = SOLVE_IKIND) :: iv
     
@@ -431,7 +432,8 @@ subroutine fitotc(iv, l1_norm)
     integer(kind = SOLVE_IKIND), intent(in) :: iv
     real(kind = SOLVE_RKIND), intent(in) :: l1_norm
 
-    ! print message about zero column of derivatives in dj (the transpose of the fit jacobian)
+    ! print message about zero column of derivatives in dj (the transpose 
+    ! of the fit jacobian)
 
     
     if (opts%repopt == REP_NONE) return
@@ -459,7 +461,6 @@ subroutine fitotr(iv, l1_norm)
 
     ! print message about zero row of derivatives in dj (the transpose of the fit jacobian)
 
-    
     if (opts%repopt == REP_NONE) return
 
     call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
@@ -478,29 +479,15 @@ subroutine fitotr(iv, l1_norm)
     return
 end subroutine fitotr
 
-subroutine fitot_tip_scale_row
-    ! print message about using scale_method = "row"
-
-    if (opts%repopt == REP_NONE) return
-
-    write(str, '(a)') 'Tip: Use fit option scale_method = "rows". See documentation of method set_fit_options.'
-    call strout(O_OUTB)
-end subroutine fitot_tip_scale_row
-    
-subroutine fitot_n_zero_row(n_zero_row, nu, nw)
+subroutine fitot_error_zero_columns
     ! print message about number of rows of dj that are almost zero, compared to the number 
     ! of fit targets
-    integer(kind = SOLVE_IKIND), intent(in) :: n_zero_row, nu, nw
 
     if (opts%repopt == REP_NONE) return
 
-    write(str, '(a, i5)') 'Number of columns of the Jacobian with (almost) zero values: ', n_zero_row
-    call strout(O_OUTB)
-    write(str, '(a, i5)') 'Number of columns with non-zero values                     : ', nu - n_zero_row
-    call strout(O_OUTB)
-    write(str, '(a, i5)') 'Total number of rows                                       : ', nw
-    call strout(O_OUTB)
-end subroutine fitot_n_zero_row
+    write(str, '(a)') 'Error: too many columns of the fit jacobian are exactly zero.'
+    call strout(O_WMSG)
+end subroutine fitot_error_zero_columns
     
 subroutine fitonu(nu, numu)
     integer(kind = SOLVE_IKIND) :: nu, numu(*)

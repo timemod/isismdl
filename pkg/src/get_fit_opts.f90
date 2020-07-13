@@ -1,11 +1,11 @@
 subroutine get_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca, &
-                           repopt, svdtest_tol, accurate_jac, zealous, scale_method, &
-                           warn_zero_col, chkjac)
+                           repopt, svdtest_tol, accurate_jac, zealous, &
+                           scale_method, warn_zero_row, warn_zero_col, chkjac)
     use get_options
     use iso_c_binding, only : c_int, c_double
     integer(c_int), intent(out):: maxiter, repopt, zero_ca, warn_ca, &
                                   accurate_jac, zealous, scale_method, &
-                                  warn_zero_col, chkjac
+                                  warn_zero_row, warn_zero_col, chkjac
     real(c_double), intent(out):: cvgabs, mkdcrt, cvgrel, svdtest_tol
 
     maxiter = options%fit%maxiter
@@ -19,6 +19,7 @@ subroutine get_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca, &
     accurate_jac = logical2int(options%fit%accurate_jac)
     zealous = logical2int(options%fit%zealous)
     scale_method = options%fit%scale_method
+    warn_zero_row = logical2int(options%fit%warn_zero_row)
     warn_zero_col = logical2int(options%fit%warn_zero_col)
     chkjac = logical2int(options%fit%chkjac)
 

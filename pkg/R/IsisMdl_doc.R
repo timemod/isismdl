@@ -1313,7 +1313,8 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca,
-#'                    accurate_jac, zealous, scale_method, warn_zero_col,
+#'                    accurate_jac, zealous, scale_method,
+#'                    warn_zero_row, warn_zero_col,
 #'                    chkjac, report, dbgopt, svdtest_tol)
 #'
 #' mdl$get_fit_options()
@@ -1367,15 +1368,31 @@ NULL
 #' \item{\code{scale_method}}{The scaling method for the fit jacobian.
 #' Possible values are `"row"` (row scaling, the default), and `"none"` (no scaling).
 #' See Section "Row Scaling".}
+#' \item{\code{warn_zero_row}}{A logical (default `FALSE`). If `TRUE`, then a
+#' warning is issued for each row of the fit jacobian for which all values are
+#' almost equal to zero. A row of the fit jacobian contains the derivatives
+#' of a fit targets with respect to the residuals. A row is considered
+#' almost zero if the L1-norm of that row is smaller than a fraction \eqn{\epsilon} of
+#' the largest L1-norm of the rows. \eqn{\epsilon} is the square root of
+#' the machine precision (typically \code{1.5e-8}).
+#' If row scaling is applied (see argument `scale_method`), then a row that is
+#' almost zero is usually not problematic. However, if
+#' if all values in a row are *exactly* zero, then the fit procedure is not
+#' possible and therefore an message is always issued,
+#' even if `warn_zero_row = FALSE`.}
 #' \item{\code{warn_zero_col}}{A logical (default `FALSE`). IF `TRUE`, then a
-#' warning is issued for each column of the jacobian for which all values are
-#' (almost) equal to zero. A column of the fit jacobian contains the derivatives
-#' of all fit targets with respect to one particular residual. It is not
-#' necessarily a problem when a column of the jacobian contains only (almost)
-#' zero values, as long as the number of columns with non-zero values is equal
-#' to or larger than the number of fit targets. It usually *is* a problem when a *row*
-#' of the jacobian only contains (almost) zero values. Therefore a warning is always
-#' given when the row only contains zero values.}
+#' warning is issued for each column of the fit jacobian for which all values are
+#' almost or exactly equal to zero. A column of the fit jacobian contains the derivatives
+#' of all fit targets with respect to one particular residual. A columns is considered
+#' almost zero if the L1-norm of that column is smaller than a fraction
+#' \eqn{\epsilon} of the larget L1-norm of the columns. \eqn{\epsilon} is the
+#' square root of the machine precision (typically \code{1.5e-8}).
+#' A column that is (almost) zero is not necessarily problematic, except when
+#' the number of non-zero columns is smaller than the number of rows (the number
+#' of fit targets). In particular, if the number of columns with a norm
+#' exactly equal to zero is larger than the difference between the number of
+#' rows and the number of columns, then the fit procedure is not possible. Therefore
+#' a message about zero columns is always given in that case.}
 #' \item{\code{chkjac}}{A logical. If `TRUE` (the default), then the fit
 #' method is terminated when the inverse condition of the fit jacobian
 #' is smaller than the square root of the machine precision

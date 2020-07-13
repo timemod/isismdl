@@ -25,11 +25,19 @@ test_that("row with almost zeros", {
                        svdtest_tol = 1e-8)
 
   # without row scaling simulation is not possible
-  expect_warning(report <- capture.output(mdl2$solve()),
+  expect_warning(report1 <- capture.output(mdl2$solve()),
                  "Simulation not possible")
-  expect_known_output(cat_report(convert_report(report,
+  expect_known_output(cat_report(convert_report(report1,
                                                 replace_all_numbers = TRUE)),
                       "expected_output/square_zero_rows_rep1.txt")
+
+  # without row scaling simulation is not possible
+  expect_warning(report1a <- capture.output(
+     mdl2$solve(fit_options = list(warn_zero_row = TRUE))),
+                 "Simulation not possible")
+  expect_known_output(cat_report(convert_report(report1a,
+                                                replace_all_numbers = TRUE)),
+                      "expected_output/square_zero_rows_rep1a.txt")
 
   # with row scaling simulation is possible
   mdl2$set_fit_options(scale_method = "row")

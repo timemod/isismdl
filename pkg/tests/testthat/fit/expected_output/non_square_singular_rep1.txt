@@ -29,7 +29,8 @@ w2      1.00000      1.00000      1.00000
 Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
 Derivatives of fit targets are dependent or
 for one or more fit targets all derivatives are (almost) zero ...
-Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options.
+Tip: try to use svd analysis and/or fit option 'warn_zero_row' or warn_zero_col'.
+See documentation of method set_fit_options.
 
 *** SVD analysis ***
 =======================

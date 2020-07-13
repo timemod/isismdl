@@ -39,13 +39,11 @@ w6      0.35700
 
 Error: All derivatives of fit target w2 are exactly zero.
 Warning: Derivatives with respect to fit instrument x3 are almost zero. L1-norm:   0.10E-11
-Number of columns of the Jacobian with (almost) zero values:     1
-Number of columns with non-zero values                     :     5
-Total number of rows                                       :     6
 Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
 Derivatives of fit targets are dependent or
 for one or more fit targets all derivatives are (almost) zero ...
-Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options.
+Tip: try to use svd analysis and/or fit option 'warn_zero_row' or warn_zero_col'.
+See documentation of method set_fit_options.
 
 *** SVD analysis ***
 =======================

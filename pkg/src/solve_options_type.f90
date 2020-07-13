@@ -52,6 +52,7 @@ module solve_options_type
         integer(kind = ISIS_IKIND) :: repopt
         real(kind = ISIS_RKIND)    :: svdtest_tol
         logical(kind = ISIS_IKIND) :: zealous
+        logical(kind = ISIS_IKIND) :: warn_zero_row
         logical(kind = ISIS_IKIND) :: warn_zero_col
     end type fit_options
 
@@ -166,6 +167,7 @@ contains
         options%fit%repopt = FITREP_FULLREP
         options%fit%svdtest_tol = -1.0_ISIS_RKIND
         options%fit%zealous = .true.
+        options%fit%warn_zero_row = .false.
         options%fit%warn_zero_col = .false.
 
     end subroutine set_default_options
