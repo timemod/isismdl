@@ -705,8 +705,8 @@ contains
     use scalemat
     use msfito
    
-    ! Estimate the transpose of the jacobian, the derivatives of the fit variables
-    ! wrt. the residuals, by means of single newton steps for small,
+    ! Estimate the transpose of the jacobian, the derivatives of the fit 
+    ! variables wrt. the residuals, by means of single newton steps for small,
     ! scaled differences in the residuals.
     ! Note: dj = trans(D), where D is the jacobian.
     
@@ -721,7 +721,8 @@ contains
     real(kind = ISIS_RKIND) :: t, mat_norm, rowcnd, colcnd, amax
     integer(kind = LAPACK_IKIND) :: info
     
-    integer ::  i, j, ires, idum, itr0, stat, n_zero_row, n_zero_col, n_zero_col_exact
+    integer :: i, j, ires, idum, itr0, stat, n_zero_row, n_zero_col,  &
+               n_zero_col_exact
 
     itr0 = 0
     
@@ -788,14 +789,15 @@ contains
     
     ! output the fit jacobian
     if (opts%fit%prijac) then
-        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max, .false.)
+        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
     endif
 
     ! scale the matrix
     if (opts%fit%scale_method == SCALE_BOTH .and. is_square) then
         call dgeequ(nu, nw, dj, nu_max, u_scale, w_scale, rowcnd, colcnd,  &
              amax, info)
-        ! info != 0 if one or more columns or rows of dj only contain only zero values
+        ! info != 0 if one or more columns or rows of dj only contain only 
+        ! zero values
         scale_w = info == 0 .and. (colcnd < 0.1 .or. rowcnd < 0.1)
         scale_u = scale_w
     else if (opts%fit%scale_method == SCALE_ROW) then
@@ -821,11 +823,6 @@ contains
                 dj(i, j) = dj(i, j) * u_scale(i)
             end do
         end do
-    endif
-
-    if (opts%fit%prijac .and. (scale_u .or. scale_w)) then
-        ! output the scaled fit jacobian
-        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max, .true.)
     endif
 
     ! calculate the maximum of the 1-norms of the columns of matrix dj

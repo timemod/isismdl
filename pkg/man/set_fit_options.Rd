@@ -103,8 +103,8 @@ to enable an SVD analysis, depending on the inverse condition of the jacobian.
 See section "SVD Analysis'.
 If scaling has been applied (see argument \code{scale_method}), then the SVD
 analysis is performed for the scaled jacobian.
-The SVD analysis is performed using the scaled jacobian if scaling
-has been applied.
+Sometimes it is easier to interpret the result of the SVD analysis by turning
+off row scaling.
 When this option has been specified, a copy of the fit jacobian is kept in memory,
 even if the jacobian is not ill-conditioned.
 For large models this option should therefore only be used during testing,
@@ -242,17 +242,16 @@ Row scaling can be turned off by specifying argument \code{scale_method = "none"
 Argument \code{dbgopt} can be used to specify one or more
 options for debugging the fit procedure.  Possible values are
 \describe{
-\item{\code{prica}}{print the fit jacobian every time it is calculated}
-\item{\code{noprica}}{do not print the fit jacobian every time it is
-calculated}
-\item{\code{prijac}}{print the fit jacobian every time it is calculated. If
-row scaling is applied (see argument \code{scale_method}, then both the original
-and scaled jacobian are printed)}
+\item{\code{prica}}{print the constant adjustments values and changes
+at each fit iteration.}
+\item{\code{noprica}}{do not print the constant adjustments values and changes
+at each fit iteration.}
+\item{\code{prijac}}{print the fit jacobian every time it is calculated.}
 \item{\code{noprijac}}{do not print the fit jacobian every time it is
-calculated}
-\item{\code{supsot}}{to suppress all output of the normal solution process}
+calculated.}
+\item{\code{supsot}}{to suppress all output of the normal solution process.}
 \item{\code{nosupsot}}{to not suppress all output of the normal solution
-process. Output will be a mess if this option is used}
+process. Output will be a mess if this option is used.}
 }
 The default debug options are \code{c("noprica", "noprijac", "supsot")}
 }
@@ -283,15 +282,15 @@ is shown below.
 First we create an Isis model and prepare fit data.\if{html}{\out{<div class="r">}}\preformatted{mdl <- islm_mdl("2020Q1")
 y <- regts(985, start = "2020q1")
 yd <- regts(800, start = "2020q1")
-r <- regts(3.5, start = "2020q1")
-fit <- cbind(y, yd, r)
+c <- regts(600, start = "2020q1")
+fit <- cbind(y, yd, c)
 mdl$set_fit(fit)
 mdl$set_rms(c(c = 5.0, i = 21, md = 2))
 }\if{html}{\out{</div>}}
 
 So we have the following fit targets:\if{html}{\out{<div class="r">}}\preformatted{mdl$get_fit()
-}\if{html}{\out{</div>}}\preformatted{##          r   y  yd
-## 2020Q1 3.5 985 800
+}\if{html}{\out{</div>}}\preformatted{##          c   y  yd
+## 2020Q1 600 985 800
 }
 
 We specify fit options so that the SVD analysis is performed and the
@@ -323,25 +322,17 @@ the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\prefor
 ##    1 steps for Newton matrix at iteration   0 (1/condscal =  1.43E-01)
 ## Convergence for 2020Q1 in    4 iterations
 ##  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
-##      0                0.05523              w                   Rel  r
+##      0                0.00652              w                   Rel  c
 ##  
 ## Fit jacobian (scaled with rms) in period 2020Q1       at iteration    1
 ##  
 ##               c            i           md
 ## y       8.04217     33.77122     -2.14157
 ## yd      6.27289     26.34155     -1.67042
-## r       0.07378      0.31028      0.06013
-##  
-##  
-## Scaled fit jacobian in period 2020Q1       at iteration    1
-##  
-##               c            i           md
-## y       0.23814      1.00000     -0.06341
-## yd      0.23814      1.00000     -0.06341
-## r       0.23780      1.00000      0.19378
+## c       7.72048     11.42037     -2.05591
 ##  
 ## Fit Warning - D matrix is ill conditioned.
-## Inverse condition=  3.35E-15 < Machine prec**.5=  1.49E-08
+## Inverse condition=  6.72E-16 < Machine prec**.5=  1.49E-08
 ## Derivatives of fit targets are dependent or
 ## for one or more fit targets all derivatives are (almost) zero ...
 ## Tip: try to use svd analysis and/or fit option 'warn_zero_col'. See documentation of method set_fit_options.
@@ -358,16 +349,15 @@ the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\prefor
 ##  
 ## Left Singular vectors:
 ## -----------------------
-## Singular value   0.32E-14
-##                                y -0.71
-##                               yd  0.71
+## Singular value   0.73E-15
+##                                y -0.62
+##                               yd  0.79
 ##  
 ## Right Singular vectors:
 ## ----------------------
-## Singular value   0.32E-14
-##                                c -0.97
-##                                i  0.23
-##                               md -0.13E-02
+## Singular value   0.73E-15
+##                                c  0.26
+##                               md  0.97
 ##  
 ##  
 ## The singularity may also be caused by (almost) zero rows or columns.
@@ -377,21 +367,20 @@ the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\prefor
 ## Problem rows:
 ## -----------------
 ##                         Variable     L1 norm of row
-##                                y   1.3
-##                               yd   1.3
+##                                y   44.
+##                               yd   34.
 ##  
 ## Problem columns:
 ## -------------
 ##                         Variable  L1 norm of column
-##                                c  0.71
-##                                i   3.0
-##                               md  0.32
+##                                c   22.
+##                               md   5.9
 ##  
 ## *** END SVD ANALYSIS ***
 ## 
 }\preformatted{## Warning in mdl$solve(): Simulation not possible
 }\preformatted{## Total number of iterations   14
-## Solve model used     0.02 CPU secs
+## Solve model used     0.01 CPU secs
 ## 
 }
 }

@@ -28,14 +28,6 @@ y
 yd
 r
 
-
-Scaled fit jacobian in period 2015Q2       at iteration    1
-
-              c            i           md
-y
-yd
-r
-
 Fit Warning - D matrix is ill conditioned.
 Inverse condition=           < Machine prec**  =
 Derivatives of fit targets are dependent or

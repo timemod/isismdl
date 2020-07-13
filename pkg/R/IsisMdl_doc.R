@@ -1151,15 +1151,15 @@ NULL
 #' report. See section "Ratex report options" below}
 #' \item{\code{ratreport_rep}}{An integer number specifying
 #' the Fair-Taylor report repetition count.
-#' See Section "Ratex report options" below}
+#' See Section "Ratex report options" below.}
 #' \item{\code{ratfullreport_rep}}{An integer number, specifying
 #' the Fair-Taylor full report repetition count. See Section
-#' "Ratex report options" below}
+#' "Ratex report options" below.}
 #' \item{\code{bktmax}}{Maximum number of backtracking linesearch steps
 #' with old jacobian. Sometimes it is necessary for the Broyden
 #' method to take a shorter step than the standard step. This is called
 #' backtracking linesearch. \code{bktmax} is the maximum number of
-#' line search steps before a new jacobian is computed}
+#' line search steps before a new jacobian is computed.}
 #' \item{\code{xtfac}}{Rational expectations convergence test multiplier
 #' When using the \code{"ratex"} solution mode,
 #' convergence of endogenous leads cannot be tested to the accuracy used in
@@ -1168,7 +1168,7 @@ NULL
 #' for each endogenous variable if the variable has an endogenous lead.
 #' Suppose for example that some variable has a convergence criterion of $10^{-5}$
 #' and assume a value of 10 for the multiplier.
-#' Then its endogenous lead will be regarded as converged}
+#' Then its endogenous lead will be regarded as converged.}
 #' \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
 #' parameter.
 #' If the inverse condition of the jacobian is smaller than this parameter,
@@ -1180,7 +1180,7 @@ NULL
 #' When this option has been specified a copy of the jacobian is kept in memory,
 #' even if the jacobian is not ill-conditioned.
 #' This option should therefore only be used during testing. It should be turned
-#' off in production calculations}
+#' off in production calculations.}
 #' }
 #'
 #' @section Solution modes:
@@ -1399,8 +1399,8 @@ NULL
 #' See section "SVD Analysis'.
 #' If scaling has been applied (see argument `scale_method`), then the SVD
 #' analysis is performed for the scaled jacobian.
-#' The SVD analysis is performed using the scaled jacobian if scaling
-#' has been applied.
+#' Sometimes it is easier to interpret the result of the SVD analysis by turning
+#' off row scaling.
 #' When this option has been specified, a copy of the fit jacobian is kept in memory,
 #' even if the jacobian is not ill-conditioned.
 #' For large models this option should therefore only be used during testing,
@@ -1531,17 +1531,16 @@ NULL
 #' Argument \code{dbgopt} can be used to specify one or more
 #' options for debugging the fit procedure.  Possible values are
 #' \describe{
-#' \item{\code{prica}}{print the fit jacobian every time it is calculated}
-#' \item{\code{noprica}}{do not print the fit jacobian every time it is
-#' calculated}
-#' \item{\code{prijac}}{print the fit jacobian every time it is calculated. If
-#' row scaling is applied (see argument `scale_method`, then both the original
-#' and scaled jacobian are printed)}
+#' \item{\code{prica}}{print the constant adjustments values and changes
+#' at each fit iteration.}
+#' \item{\code{noprica}}{do not print the constant adjustments values and changes
+#' at each fit iteration.}
+#' \item{\code{prijac}}{print the fit jacobian every time it is calculated.}
 #' \item{\code{noprijac}}{do not print the fit jacobian every time it is
-#' calculated}
-#' \item{\code{supsot}}{to suppress all output of the normal solution process}
+#' calculated.}
+#' \item{\code{supsot}}{to suppress all output of the normal solution process.}
 #' \item{\code{nosupsot}}{to not suppress all output of the normal solution
-#' process. Output will be a mess if this option is used}
+#' process. Output will be a mess if this option is used.}
 #' }
 #' The default debug options are \code{c("noprica", "noprijac", "supsot")}
 #'
@@ -1572,8 +1571,8 @@ NULL
 #' mdl <- islm_mdl("2020Q1")
 #' y <- regts(985, start = "2020q1")
 #' yd <- regts(800, start = "2020q1")
-#' r <- regts(3.5, start = "2020q1")
-#' fit <- cbind(y, yd, r)
+#' c <- regts(600, start = "2020q1")
+#' fit <- cbind(y, yd, c)
 #' mdl$set_fit(fit)
 #' mdl$set_rms(c(c = 5.0, i = 21, md = 2))
 #' ```

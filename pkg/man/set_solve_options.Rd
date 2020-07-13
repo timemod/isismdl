@@ -100,15 +100,15 @@ of the fit procedure and the Fair-Taylor progress report.
 report. See section "Ratex report options" below}
 \item{\code{ratreport_rep}}{An integer number specifying
 the Fair-Taylor report repetition count.
-See Section "Ratex report options" below}
+See Section "Ratex report options" below.}
 \item{\code{ratfullreport_rep}}{An integer number, specifying
 the Fair-Taylor full report repetition count. See Section
-"Ratex report options" below}
+"Ratex report options" below.}
 \item{\code{bktmax}}{Maximum number of backtracking linesearch steps
 with old jacobian. Sometimes it is necessary for the Broyden
 method to take a shorter step than the standard step. This is called
 backtracking linesearch. \code{bktmax} is the maximum number of
-line search steps before a new jacobian is computed}
+line search steps before a new jacobian is computed.}
 \item{\code{xtfac}}{Rational expectations convergence test multiplier
 When using the \code{"ratex"} solution mode,
 convergence of endogenous leads cannot be tested to the accuracy used in
@@ -117,7 +117,7 @@ This option specifies the multiplier to apply to the convergence criterion
 for each endogenous variable if the variable has an endogenous lead.
 Suppose for example that some variable has a convergence criterion of $10^{-5}$
 and assume a value of 10 for the multiplier.
-Then its endogenous lead will be regarded as converged}
+Then its endogenous lead will be regarded as converged.}
 \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
 parameter.
 If the inverse condition of the jacobian is smaller than this parameter,
@@ -129,7 +129,7 @@ on the inverse condition of the jacobian.
 When this option has been specified a copy of the jacobian is kept in memory,
 even if the jacobian is not ill-conditioned.
 This option should therefore only be used during testing. It should be turned
-off in production calculations}
+off in production calculations.}
 }
 }
 
