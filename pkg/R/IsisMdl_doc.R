@@ -1376,7 +1376,7 @@ NULL
 #' the largest L1-norm of the rows. \eqn{\epsilon} is the square root of
 #' the machine precision (typically \code{1.5e-8}).
 #' If row scaling is applied (see argument `scale_method`), then a row that is
-#' almost zero is usually not problematic. However, if
+#' almost zero is usually not problematic. However,
 #' if all values in a row are *exactly* zero, then the fit procedure is not
 #' possible and therefore an message is always issued,
 #' even if `warn_zero_row = FALSE`.}

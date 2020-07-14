@@ -66,5 +66,6 @@ test_that("zero row and one less fit target", {
   mdl2$set_fit_values(NA, names = "w6")
   mdl2$set_fit_options(warn_zero_col = TRUE)
   expect_silent(mdl2$solve(options = list(report = "none")))
-  expect_equal(mdl2$get_data(pattern = "^w(12345)"), mdl2$g, tolerance = 1e-6)
+  expect_equal(mdl2$get_data(pattern = "^w[12345]"), mdl2$get_fit(),
+               tolerance = 1e-6)
 })

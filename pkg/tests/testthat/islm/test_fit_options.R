@@ -15,8 +15,10 @@ test_that("test some default options", {
   expect_equal(default_opts[["scale_method"]], "row")
   expect_equal(default_opts[["accurate_jac"]], TRUE)
   expect_equal(default_opts[["zealous"]], TRUE)
+  expect_equal(default_opts[["warn_zero_row"]], FALSE)
   expect_equal(default_opts[["warn_zero_col"]], FALSE)
   expect_equal(default_opts[["chkjac"]], TRUE)
+  expect_equal(default_opts[["zero_ca"]], FALSE)
 })
 
 test_that("the default options not overwritten by method solve", {
@@ -45,6 +47,8 @@ test_that("get_fit_options / set_fit_options", {
   opts["cvgrel"] <- 666
   opts["scale_method"] <- "none"
   opts["chkjac"] <- FALSE
+  opts["warn_zero_row"] <- TRUE
+  opts["warn_zero_col"] <- TRUE
 
   expect_identical(do.call(mdl2$set_fit_options, opts), mdl2)
   expect_identical(mdl2$get_fit_options(), opts)

@@ -56,9 +56,17 @@ test_that("row with only zeros", {
   mdl2 <- mdl$copy()
   mdl2$set_fit_options(scale_method = "row")
   mdl2$set_param(list(r2 = c(0, 0, 0, 0, 0, 0)))
-  expect_warning(report <- capture.output(mdl2$solve()),
+  expect_warning(report2 <- capture.output(mdl2$solve()),
                  "Simulation not possible")
-  expect_known_output(cat_report(convert_report(report,
+  expect_known_output(cat_report(convert_report(report2,
                                                 replace_all_numbers = TRUE)),
                       "expected_output/square_zero_rows_rep2.txt")
+
+  mdl2$set_param(list(r3 = c(0, 0, 1e-9, 0, 0, 0)))
+  expect_warning(report3 <- capture.output(mdl2$solve(fit_options =
+                                                        list(warn_zero_row = TRUE))),
+                 "Simulation not possible")
+  expect_known_output(cat_report(convert_report(report3,
+                                                replace_all_numbers = TRUE)),
+                      "expected_output/square_zero_rows_rep3.txt")
 })

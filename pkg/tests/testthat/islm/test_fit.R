@@ -47,7 +47,7 @@ test_that("Comparing solve after removing the fit targets", {
 
 # now also set all CAs to zero
 islm_model$set_ca_values(0)
-report <- islm_model$solve(options = list(report = "none"))
+islm_model$solve(options = list(report = "none"))
 isis_result <- as.regts(read.csv("isi/solve.csv"), time_column = 1)
 dif <- tsdif(islm_model$get_data(period = islm_model$get_period()), isis_result,
              tol = 1e-6, fun = cvgdif)
@@ -70,4 +70,17 @@ test_that("reduced model period", {
   data <- mdl$get_data(period = per, names = c("i", "y"))
   expected_data <- update_ts(data, fit, method = "updval")
   expect_equal(data, expected_data)
+})
+
+
+test_that("zero_ca", {
+  mdl <- islm_model$copy()$set_fit(fit_targets)
+  mdl$set_solve_options(report = "none")
+  mdl$solve()
+  expect_equal(mdl$get_solve_status(), "OK")
+  mdl$solve(fit_options = list(maxiter = 1, zero_ca = FALSE))
+  expect_equal(mdl$get_solve_status(), "OK")
+  expect_warning(mdl$solve(fit_options = list(maxiter = 1, zero_ca = TRUE)),
+                 "Simulation stopped")
+  expect_equal(mdl$get_solve_status(), "Simulation stopped")
 })
