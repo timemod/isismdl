@@ -2,9 +2,11 @@ library(utils)
 library(isismdl)
 library(testthat)
 
-context("set_fix_values for the ISLM model")
+rm(list = ls())
 
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+context("set_fit_values for the ISLM model")
+
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 i <- regts(200, start = '2015Q2')
 c <- regts(c(600, NA, 600), start = '2015Q2')
@@ -35,9 +37,9 @@ test_that("set_fix_values works correctly", {
 })
 
 test_that("set_fit_values handles errors correctly", {
-  mdl2 <- mdl$clone(deep = TRUE)
-  msg <- "xxx is not a model variable"
+  mdl2 <- mdl$copy()
+  msg <- "\"xxx\" is not an endogenous variable"
   expect_error(mdl2$set_fit_values(1, names = c("y", "xxx")), msg)
-  msg <- "The variables p xxx are no model variables"
+  msg <-  "The following names are no endogenous variables: \"p\", \"xxx\"."
   expect_error(mdl2$set_fit_values(1, names = c("p", "xxx")), msg)
 })

@@ -2,9 +2,11 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("change_data for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 c_multipliers <- seq(0.8, 1.0, length.out = nperiod(mdl$get_data_period()))
 m_additions <- seq(10, 40, length.out = 4)
@@ -80,9 +82,9 @@ test_that("change_data works correctly with timeseries input (3)", {
 test_that("change_data handles errors correctly", {
   f <- function(x) {x}
   mdl2 <- mdl$clone(deep = TRUE)
-  msg <- "xxx is not a model variable"
+  msg <- "\"xxx\" is not a model variable"
   expect_error(mdl2$change_data(f, names = c("y", "xxx")), msg)
-  msg <- "The variables p xxx are no model variables"
+  msg <- "The following names are no model variables: \"p\", \"xxx\"."
   expect_error(mdl2$change_data(f, names = c("p", "xxx")), msg)
   msg <- "Argument 'fun' is not a function"
   expect_error(mdl2$change_data(2, names), msg)

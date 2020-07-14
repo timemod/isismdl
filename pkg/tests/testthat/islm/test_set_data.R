@@ -2,9 +2,11 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("set_data for the  ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 new_data <-  mdl$get_data()
 new_data["2015Q3", "g"] <- NA
@@ -15,8 +17,16 @@ test_that("set_data update mode upd", {
   mdl2$set_data(new_data)
   expect_equal(mdl2$get_data(), new_data)
 
-  mdl3 <- mdl$clone(deep = TRUE)
-  mdl3$set_data(new_data, upd_mode = "upd")
+  new_data2 <- cbind(new_data, x = 2)
+  mdl3 <- mdl$copy()
+  expect_warning(mdl3$set_data(new_data2, upd_mode = "upd"),
+                 '"x" is not a model variable')
+
+  new_data3 <- cbind(new_data, x = 2, z = 2)
+  expect_error(mdl3$set_data(new_data3, upd_mode = "upd", name_err = "stop"),
+               "The following names are no model variables: \"x\", \"z\".")
+
+  expect_silent(mdl3$set_data(new_data2, upd_mode = "upd", name_err = "silent"))
   expect_equal(mdl3$get_data(), new_data)
 })
 

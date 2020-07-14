@@ -2,9 +2,11 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("set_fix_values for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 i <- regts(200, start = '2015Q2')
 c <- regts(c(600, NA, 600), start = '2015Q2')
@@ -41,8 +43,8 @@ test_that("set_fix_values works correctly", {
 
 test_that("set_fix_values handles errors correctly", {
   mdl2 <- mdl$clone(deep = TRUE)
-  msg <- "y is not a stochastic model variable"
+  msg <- "\"y\" is not a frml variable"
   expect_error(mdl2$set_fix_values(1, names = "y"), msg)
-  msg <- "The variables y xxx are no stochastic model variables"
+  msg <-  "The following names are no frml variables: \"y\", \"xxx\"."
   expect_error(mdl2$set_fix_values(1, names = c("y", "xxx", "c")), msg)
 })

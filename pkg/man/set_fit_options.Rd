@@ -398,7 +398,7 @@ the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\prefor
 ## 
 }\preformatted{## Warning in mdl$solve(): Simulation not possible
 }\preformatted{## Total number of iterations   14
-## Solve model used     0.01 CPU secs
+## Solve model used     0.02 CPU secs
 ## 
 }
 }

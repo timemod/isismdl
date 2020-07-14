@@ -33,7 +33,13 @@ test_that("Comparing the results of solve for the lazy fit procedure", {
 #  now remove fit targets and solve again
 fit <- islm_model$get_data()[islm_model$get_period(), ]
 fit[] <- NA
-islm_model$set_fit(fit)
+
+test_that("set_fit", {
+  msg <- "The following names are no endogenous variables: \"g\", \"ms\"\\."
+  expect_error(islm_model$set_fit(fit, name_err = "stop"), msg)
+  expect_warning(islm_model$set_fit(fit, name_err = "warn"), msg)
+  expect_silent(islm_model$set_fit(fit, name_err = "silent"))
+})
 
 islm_model$solve(options = list(report = "none"))
 dif <- tsdif(islm_model$get_data(period = "2015Q2/2016Q3"), isis_result,

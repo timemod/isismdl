@@ -17,14 +17,15 @@ constant adjusments, fix values or fit targets.
 
 \preformatted{
 mdl$set_data(data, names = colnames(data), upd_mode = c("upd", "updval"),
-             fun)
+             fun, name_err = c("warn", "stop", "silent"))
 
 mdl$set_ca(data, names = colnames(data), upd_mode = c("upd", "updval"),
-           fun)
+           fun, name_err = c("warn", "stop", "silent"))
 
 mdl$set_fix(data, names = colnames(data), upd_mode = c("upd", "updval"))
 
-mdl$set_fit(data, names = colnames(data), upd_mode = c("upd", "updval"))
+mdl$set_fit(data, names = colnames(data), upd_mode = c("upd", "updval"),
+            name_err = c("warn", "stop", "silent"))
 }
 
 \code{mdl} is an \code{\link{IsisMdl}} object
@@ -47,6 +48,11 @@ how the timeseries are updated: \code{"upd"} (standard update, default) or
 be a function with two arguments. The original model data is passed to the first
 argument of the function and \code{data} to the second argument.
 See the examples.}
+\item{\code{name_err}}{a character (default \code{"warn"}) that specifies the
+action that should be taken when a variable name is not a model variable of
+the required type. For \code{"stop"} the function exits with an  an error.
+For \code{"warn"} and \code{"silent"} the timeseries that are no model
+variables are skipped. \code{"warn"} does however give a warning.}
 }
 }
 

@@ -1,6 +1,8 @@
 library(testthat)
 library(isismdl)
 
+rm(list = ls())
+
 context("lazy fit for ISLM model")
 
 # prepare rms values and fit targets
@@ -12,7 +14,7 @@ ts_labels(fit_targets) <- c("income", "investment")
 
 isis_result <- as.regts(read.csv("isi/fit_lazy.csv"), time_column = 1)
 
-capture_output(islm_model <- read_mdl("islm_model.ismdl"))
+islm_model <- read_mdl("islm_model.ismdl", silent = TRUE)
 islm_model$set_fit_options(zealous = FALSE, accurate_jac = FALSE)
 islm_model$set_fit(fit_targets)
 islm_model$set_rms(rms_values)
@@ -42,7 +44,7 @@ test_that("Comparing the results of solve for the zealous procedure", {
 #  now remove fit targets and solve again
 fit <- islm_model$get_data()[islm_model$get_period(), ]
 fit[] <- NA
-islm_model$set_fit(fit)
+islm_model$set_fit(fit, name_err = "silent")
 
 islm_model$solve(options = list(report = "none"))
 dif <- tsdif(islm_model$get_data(period = "2015Q2/2016Q3"), isis_result,

@@ -515,28 +515,48 @@ IsisMdl <- R6Class("IsisMdl",
       return(.Call("get_param_c", model_index = private$model_index,
                     names = names))
     },
-    set_data = function(data, names, upd_mode = c("upd", "updval"), fun) {
+    set_data = function(data, names, upd_mode = c("upd", "updval"), fun,
+                        name_err = "warn") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
       if (is.null(data)) return(invisible(self))
+      names <- private$get_names_(private$data_type, names = colnames(data),
+                                  name_err = name_err)
+      if (length(names) == 0) return(invisible(self))
+      data <- data[ , names, drop = FALSE]
       return(private$set_data_(private$data_type, data, upd_mode, fun))
     },
-    set_ca = function(data, names, upd_mode = c("upd", "updval"), fun) {
+    set_ca = function(data, names, upd_mode = c("upd", "updval"), fun,
+                      name_err = "warn") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
       if (is.null(data)) return(invisible(self))
+      names <- private$get_names_(private$ca_type, names = colnames(data),
+                                  name_err = name_err)
+      if (length(names) == 0) return(invisible(self))
+      data <- data[ , names, drop = FALSE]
       return(private$set_data_(private$ca_type, data, upd_mode, fun))
     },
-    set_fix = function(data, names, upd_mode = c("upd", "updval")) {
+    set_fix = function(data, names, upd_mode = c("upd", "updval"),
+                       name_err = "warn") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
       if (is.null(data)) return(invisible(self))
+      names <- private$get_names_(private$fix_type, names = colnames(data),
+                                  name_err = name_err)
+      if (length(names) == 0) return(invisible(self))
+      data <- data[ , names, drop = FALSE]
       return(private$set_data_(private$fix_type, data, upd_mode))
     },
-    set_fit = function(data, names, upd_mode = c("upd", "updval")) {
+    set_fit = function(data, names, upd_mode = c("upd", "updval"),
+                       name_err = "warn") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
       if (is.null(data)) return(invisible(self))
+      names <- private$get_names_(private$fit_type, names = colnames(data),
+                                  name_err = name_err)
+      if (length(names) == 0) return(invisible(self))
+      data <- data[ , names, drop = FALSE]
       return(private$set_data_(private$fit_type, data, upd_mode))
     },
     get_data = function(pattern = NULL, names = NULL,
@@ -583,7 +603,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(private$change_data_(private$ca_type, fun, names, pattern,
                                  period, ...))
     },
-    set_rms = function(values) {
+    set_rms = function(values, name_err = "warn") {
       if (is.integer(values) || (is.logical(values) && all(is.na(values)))) {
         values[] <- as.numeric(values)
       } else if (!is.numeric(values)) {
@@ -592,6 +612,10 @@ IsisMdl <- R6Class("IsisMdl",
       if (is.null(names(values))) {
         stop("Argument values is not a named numeric vector")
       }
+      names <- private$get_names_(private$rms_type, names = names(values),
+                                  name_err = name_err)
+      if (length(names) == 0) return(invisible(self))
+      values <- values[names]
       .Call(set_rms_c, private$model_index, values)
       return(invisible(self))
     },
@@ -882,6 +906,8 @@ IsisMdl <- R6Class("IsisMdl",
     ca_type = 2L,
     fix_type = 3L,
     fit_type = 4L,
+    rms_type = 5L,
+
     deep_clone = function(name, value) {
       if (name == "model_index") {
         has_free_mws <- .Call("has_free_mws_c")
@@ -992,28 +1018,48 @@ IsisMdl <- R6Class("IsisMdl",
 
       return(invisible(self))
     },
-    get_names_ = function(type, names = NULL, pattern = NULL) {
-      if (type == private$ca_type || type == private$fix_type) {
-        type <- "frml"
+    get_names_ = function(type, names = NULL,
+                          pattern = NULL,
+                          name_err = c("stop", "warn", "silent")) {
+      # This function selects model variable names from names and pattern.
+      # It gives an error if names contain any invalid name for the
+      # specified type of model variable.
+      name_err <- match.arg(name_err)
+      if (type %in% c(private$fix_type, private$ca_type, private$rms_type)) {
+        var_type <- "frml"
         vnames <- self$get_endo_names(type = "frml", status = "all")
+      } else if (type == private$fit_type) {
+        var_type <- "endo"
+        vnames <- self$get_endo_names(status = "all")
       } else {
-        type <- "all"
+        var_type <- "endo_exo"
         vnames <- self$get_var_names()
       }
       if (!is.null(names)) {
         error_vars <- setdiff(names, vnames)
         if (length(error_vars) > 0) {
-          if (type == "frml") {
-            type_txt <- "stochastic "
-          } else {
-            type_txt <- ""
+          if (name_err != "silent") {
+            error_vars <- paste0("\"", error_vars, "\"")
+            type_texts <- c(endo = "endogenous",
+                            frml = "frml",
+                            endo_exo  = "model")
+            type_text <- type_texts[var_type]
+            if (length(error_vars) == 1) {
+              a_word <- if (var_type %in% c("endo")) "an" else "a"
+              msg <- paste0(error_vars, " is not ", a_word, " ", type_text,
+                            " variable.")
+            } else {
+              msg <- paste0("The following names are no ", type_text,
+                            " variables: ",
+                            paste(error_vars, collapse = ", "), ".")
+            }
+            if (name_err == "warn") {
+              warning(msg)
+            } else {
+              stop(msg)
+            }
           }
-          if (length(error_vars) == 1) {
-            stop(paste0(error_vars, " is not a ", type_txt, "model variable"))
-          } else {
-            stop(paste0("The variables ", paste(error_vars, collapse = " "),
-                       " are no ", type_txt, "model variables"))
-          }
+          names <- intersect(names, vnames)
         }
       }
       if (is.null(pattern) && is.null(names)) {

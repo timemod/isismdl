@@ -2,9 +2,11 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("set_values for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 test_that("set_values works correctly (1)" , {
   mdl2 <- mdl$clone(deep = TRUE)
@@ -38,8 +40,8 @@ test_that("set_values works correctly (2)", {
 
 test_that("set_values handles errors correctly", {
   mdl2 <- mdl$clone(deep = TRUE)
-  msg <- "xxx is not a model variable"
+  msg <- "\"xxx\" is not a model variable"
   expect_error(mdl2$set_values(1, names = c("y", "xxx")), msg)
-  msg <- "The variables p xxx are no model variables"
+  msg <-  "The following names are no model variables: \"p\", \"xxx\"."
   expect_error(mdl2$set_values(1, names = c("p", "xxx")), msg)
 })

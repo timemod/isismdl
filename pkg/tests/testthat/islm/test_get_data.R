@@ -2,9 +2,11 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("get_data for the  ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model.ismdl"))
+mdl <- read_mdl("islm_model.ismdl", silent = TRUE)
 
 names <- mdl$get_var_names()
 nperiod <- nperiod(mdl$get_data_period())
@@ -30,12 +32,12 @@ test_that("get_data works correctly", {
 })
 
 test_that("get_data handles errors correctly", {
-  msg <- "xxx is not a model variable"
+  msg <- "\"xxx\" is not a model variable"
   expect_error(mdl$get_data(names = "xxx"), msg)
-  msg <- "xxx is not a model variable"
+  msg <- "\"xxx\" is not a model variable"
   expect_error(mdl$get_data(names = c("c", "xxx")), msg)
-  msg <- "xxx is not a model variable"
+  msg <- "\"xxx\" is not a model variable"
   expect_error(mdl$get_data(names = "xxx", pattern = "^y"), msg)
-  msg <-"The variables xxx yyy are no model variables"
+  msg <-"The following names are no model variables: \"xxx\", \"yyy\"."
   expect_error(mdl$get_data(names = c("xxx", "yyy")), msg)
 })

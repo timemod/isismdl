@@ -2,9 +2,11 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("get_ca for the  ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model.ismdl"))
+mdl <- read_mdl("islm_model.ismdl", silent = TRUE)
 
 names <- mdl$get_endo_names(type = "frml")
 nperiod <- nperiod(mdl$get_data_period())
@@ -26,12 +28,12 @@ test_that("get_ca works correctly", {
 })
 
 test_that("get_ca handles errors correctly", {
-  msg <- "xxx is not a stochastic model variable"
+  msg <- "\"xxx\" is not a frml variable"
   expect_error(mdl$get_ca(names = "xxx"), msg)
-  msg <- "y is not a stochastic model variable"
+  msg <- "\"y\" is not a frml variable"
   expect_error(mdl$get_ca(names = c("c", "y")), msg)
-  msg <- "y is not a stochastic model variable"
+  msg <- "\"y\" is not a frml variable"
   expect_error(mdl$get_ca(names = "y", pattern = "^y"), msg)
-  msg <-"The variables xxx y are no stochastic model variables"
+  msg <- "The following names are no frml variables: \"xxx\", \"y\"."
   expect_error(mdl$get_ca(names = c("xxx", "y")), msg)
 })

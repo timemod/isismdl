@@ -2,9 +2,11 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("set_values for the ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 test_that("change_ca works correctly (1)", {
   mdl2 <- mdl$clone(deep = TRUE)
@@ -40,8 +42,8 @@ test_that("change_ca works correctly (2)", {
 test_that("change_ca handles errors correctly", {
   f <- function(x) {x}
   mdl2 <- mdl$clone(deep = TRUE)
-  msg <- "y is not a stochastic model variable"
+  msg <- "\"y\" is not a frml variable"
   expect_error(mdl2$change_ca(f, names = "y"), msg)
-  msg <- "The variables y xxx are no stochastic model variables"
+  msg <- "The following names are no frml variables: \"y\", \"xxx\"."
   expect_error(mdl2$change_ca(f, names = c("y", "xxx", "c")), msg)
 })
