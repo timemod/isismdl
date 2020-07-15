@@ -27,7 +27,8 @@ fix_mdl <- mdl$copy()
 
 test_that("set_fix update mode upd", {
 
-  expect_warning(fix_mdl$set_fix(fix), "\"y\" is not a frml variable\\.")
+  expect_warning(fix_mdl$set_fix(fix, name_err = "warn"),
+                 "\"y\" is not a frml variable\\.")
 
   new_data <- update_ts(old_data, fix_ordered, method = "updval")
 
@@ -46,6 +47,7 @@ test_that("set_fix for update mode upd, second test", {
   expect_error(fix_mdl2$set_fix(fix2, upd_mode = "upd", name_err = "stop"),
                "\"y\" is not a frml variable.")
   fix_mdl2$set_fix(fix2, upd_mode = "upd", name_err = "silent")
+  expect_silent(fix_mdl2$set_fix(fix2, upd_mode = "upd"))
   fix_combi <- update_ts(fix, fix2, method = "upd")[, "c", drop = FALSE]
 
   upd1 <- update_ts(fix, fix2, method = "updval")[, c("c", "i")]

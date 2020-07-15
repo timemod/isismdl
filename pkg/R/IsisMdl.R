@@ -516,7 +516,7 @@ IsisMdl <- R6Class("IsisMdl",
                     names = names))
     },
     set_data = function(data, names, upd_mode = c("upd", "updval"), fun,
-                        name_err = "warn") {
+                        name_err = "silent") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
       if (is.null(data)) return(invisible(self))
@@ -527,7 +527,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(private$set_data_(private$data_type, data, upd_mode, fun))
     },
     set_ca = function(data, names, upd_mode = c("upd", "updval"), fun,
-                      name_err = "warn") {
+                      name_err = "silent") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
       if (is.null(data)) return(invisible(self))
@@ -538,7 +538,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(private$set_data_(private$ca_type, data, upd_mode, fun))
     },
     set_fix = function(data, names, upd_mode = c("upd", "updval"),
-                       name_err = "warn") {
+                       name_err = "silent") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
       if (is.null(data)) return(invisible(self))
@@ -549,7 +549,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(private$set_data_(private$fix_type, data, upd_mode))
     },
     set_fit = function(data, names, upd_mode = c("upd", "updval"),
-                       name_err = "warn") {
+                       name_err = "silent") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
       if (is.null(data)) return(invisible(self))
@@ -603,7 +603,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(private$change_data_(private$ca_type, fun, names, pattern,
                                  period, ...))
     },
-    set_rms = function(values, name_err = "warn") {
+    set_rms = function(values, name_err = "silent") {
       if (is.integer(values) || (is.logical(values) && all(is.na(values)))) {
         values[] <- as.numeric(values)
       } else if (!is.numeric(values)) {

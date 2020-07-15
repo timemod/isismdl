@@ -17,7 +17,7 @@ larger than 0 and not equal to \code{NA}.
 \section{Usage}{
 
 \preformatted{
-mdl$set_rms(values, name_err = c("warn", "stop", "silent"))
+mdl$set_rms(values, name_err = c("silent", "warn", "stop"))
 
 mdl$get_rms()
 
@@ -32,13 +32,11 @@ mdl$get_rms()
 \describe{
 \item{\code{values}}{a named numeric vector with rms values.
 If a value is positive and not \code{"NA"},
-then the corresponding value will be used
-as fit instrument}
-\item{\code{name_err}}{a character (default \code{"warn"}) that specifies the
-action that should be taken when a variable name is not a frml variable.
-For \code{"stop"} the function exits with an  an error.
-For \code{"warn"} and \code{"silent"} the timeseries that are no frml
-variables are skipped. \code{"warn"} does however give a warning.}
+then the corresponding value will be used as fit instrument.}
+\item{\code{name_err}}{A character that specifies the
+action that should be taken when a name is not the name of a frml variable.
+For \code{"silent"} (the default), the variable is silently skipped,
+for \code{"warn"} a warning is given and for \code{"stop"} an error is  issued.}
 }
 }
 

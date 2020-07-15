@@ -760,15 +760,16 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_data(data, names = colnames(data), upd_mode = c("upd", "updval"),
-#'              fun, name_err = c("warn", "stop", "silent"))
+#'              fun, name_err = c("silent", "warn", "stop"))
 #'
 #' mdl$set_ca(data, names = colnames(data), upd_mode = c("upd", "updval"),
-#'            fun, name_err = c("warn", "stop", "silent"))
+#'            fun, name_err = c("silent", "warn", "stop"))
 #'
-#' mdl$set_fix(data, names = colnames(data), upd_mode = c("upd", "updval"))
+#' mdl$set_fix(data, names = colnames(data), upd_mode = c("upd", "updval"),
+#'             name_err = c("silent", "warn", "stop"))
 #'
 #' mdl$set_fit(data, names = colnames(data), upd_mode = c("upd", "updval"),
-#'             name_err = c("warn", "stop", "silent"))
+#'             name_err = c("silent", "warn", "stop"))
 #' }
 #'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
@@ -789,11 +790,12 @@ NULL
 #' be a function with two arguments. The original model data is passed to the first
 #' argument of the function and \code{data} to the second argument.
 #' See the examples.}
-#' \item{\code{name_err}}{a character (default `"warn"`) that specifies the
-#' action that should be taken when a variable name is not a model variable of
-#' the required type. For \code{"stop"} the function exits with an  an error.
-#' For \code{"warn"} and \code{"silent"} the timeseries that are no model
-#' variables are skipped. \code{"warn"} does however give a warning.}
+#' \item{\code{name_err}}{A character that specifies the
+#' action that should be taken when a name is not the name model variable
+#' of the appropriate type (for `set_fit`, the variable must be endogenous,
+#' for `set_fix` a frml variable).
+#' For `"silent"` (the default), the variable is silently skipped,
+#' for `"warn"` a warning is given and for `"stop"` an error is  issued.}
 #' }
 #' @section Methods:
 #'
@@ -1033,7 +1035,7 @@ NULL
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_rms(values, name_err = c("warn", "stop", "silent"))
+#' mdl$set_rms(values, name_err = c("silent", "warn", "stop"))
 #'
 #' mdl$get_rms()
 #'
@@ -1046,13 +1048,11 @@ NULL
 #' \describe{
 #' \item{\code{values}}{a named numeric vector with rms values.
 #' If a value is positive and not \code{"NA"},
-#' then the corresponding value will be used
-#' as fit instrument}
-#' \item{\code{name_err}}{a character (default `"warn"`) that specifies the
-#' action that should be taken when a variable name is not a frml variable.
-#' For \code{"stop"} the function exits with an  an error.
-#' For \code{"warn"} and \code{"silent"} the timeseries that are no frml
-#' variables are skipped. \code{"warn"} does however give a warning.}
+#' then the corresponding value will be used as fit instrument.}
+#' \item{\code{name_err}}{A character that specifies the
+#' action that should be taken when a name is not the name of a frml variable.
+#' For `"silent"` (the default), the variable is silently skipped,
+#' for `"warn"` a warning is given and for `"stop"` an error is  issued.}
 #' }
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")

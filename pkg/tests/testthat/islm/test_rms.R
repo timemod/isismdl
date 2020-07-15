@@ -64,6 +64,7 @@ test_that("set_rms name_err", {
   msg <- "The following names are no frml variables: \"y\", \"x\"\\."
   expect_warning(mdl6$set_rms(rms_values_new, name_err = "warn"), msg)
   expect_silent(mdl6$set_rms(rms_values_new, name_err = "silent"))
+  expect_silent(mdl6$set_rms(rms_values_new))
   expect_equal(mdl6$get_rms(), rms_values_before * 2)
 })
 
