@@ -385,29 +385,31 @@ IsisMdl <- R6Class("IsisMdl",
     init_data = function(data_period, data, ca) {
 
       if (missing(data_period)) {
-        # data_period not specified: determine data_period from data and
-        # model_period
-        if (missing(data)) {
+        if (!missing(data)) {
+          # determine the data period from data and the model period (if known)
           if (is.null(private$model_period)) {
-            stop(paste("If neither data_period nor data have been specified",
-                       "then model_period should be known"))
+            data_period <- get_period_range(data)
           } else {
             p <- private$model_period
+            p_data <- get_period_range(data)
             data_period <- period_range(
-              start_period(p) - private$maxlag,
-              end_period(p)   + private$maxlead)
+              min(start_period(p) - private$maxlag,
+                  start_period(p_data)),
+              max(end_period(p) + private$maxlead,
+                  end_period(p_data)))
           }
-        } else if (is.null(private$model_period)) {
-          data_period <- get_period_range(data)
         } else {
-          p <- private$model_period
-          p_data <- get_period_range(data)
-          data_period <- period_range(
-            min(start_period(p) - private$maxlag, start_period(p_data)),
-            max(end_period(p)  + private$maxlead, end_period(p_data)))
+          # neither data_period nor data specified.
+          if (is.null(private$data_period)) {
+            stop(paste("If neither data_period nor data have been specified,",
+                       "then the data period\nshould have been set before",
+                       "with method init_data or set_period."))
+          } else {
+            data_period <- private$data_period
+          }
         }
       } else {
-        # data period specified
+        # data_period specified. Check if model_period is inside data_period
         data_period <- as.period_range(data_period)
         if (!is.null(private$model_period)) {
           mp <- private$model_period
@@ -416,7 +418,7 @@ IsisMdl <- R6Class("IsisMdl",
           if (start_period(data_period) > startp ||
               end_period(data_period)  < endp) {
             p <- period_range(startp, endp)
-            stop(paste("The data period should include the range",
+            stop(paste0("The data period should include the range ",
                        as.character(p), "."))
           }
         }

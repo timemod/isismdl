@@ -401,12 +401,21 @@ NULL
 #' mdl$set_period("2017Q2/2021Q3")
 NULL
 
-#' \code{\link{IsisMdl}} method: initialized the model data.
+#' \code{\link{IsisMdl}} method: initializes the model data.
 #' @name init_data
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}} sets the data period and
-#' initializes the model variables and constant adjustmemts.
+#' This method of R6 class \code{\link{IsisMdl}}
+#' initializes the model variables and constant adjustmemts for the whole
+#' data period.
+#' The model timeseries are set to \code{NA} and the constant adjustments to
+#' zero.
+#'
+#' If arguments \code{data} or \code{ca} have been specified,
+#' then the model variables or constant adjustments are
+#' subsequently updated with the timeseries in \code{data} or \code{ca},
+#' respectively. Timeseries in `data` or `ca` that are no model variables
+#' or constant adjustments are silently skipped.
 #'
 #' If the model period has not yet been specified (in function
 #' \code{\link{isis_mdl}} or method \code{\link{set_period}}), then
@@ -414,12 +423,6 @@ NULL
 #' for which the model will be solved. The model period
 #' is obtained from the data period by subtracting the lag and lead periods.
 #'
-#' The method initializes all model timeseries with \code{NA}
-#' and all constant adjustments with 0 for the data period.
-#' If arguments \code{data} or \code{ca} have been specified,
-#' then the model variables or constant adjustments are
-#' subsequently updated with the timeseries in \code{data} or \code{ca},
-#' respectively.
 #' @section Usage:
 #' \preformatted{
 #' mdl$init_data(data_period, data, ca)
@@ -431,7 +434,7 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{data_period}}{\code{\link[regts]{period_range}}
+#' \item{\code{data_period}}{a \code{\link[regts]{period_range}}
 #' object, or an object that can be coerced to
 #' \code{\link[regts]{period_range}}.  If not specified then the data period
 #' is based on the period range of argument \code{data} (if this argument
@@ -441,6 +444,11 @@ NULL
 #' \item{\code{ca}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
 #'  object with constant adjustments}
 #' }
+#' @seealso \code{\link{set_period}}
+#' @examples
+#' mdl <- islm_mdl()
+#' mdl$init_data("2017Q2/2021Q3")
+#' print(mdl)
 NULL
 
 #' \code{\link{IsisMdl}} method: returns the model period
