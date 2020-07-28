@@ -1,7 +1,7 @@
 module msfitm
     !
     ! work variables for the fit procedure
-    !   fix_active:  true if fix variables are active
+    !   do_fix:  true if fix variables are active
     !   nu_max : maximum number of fit CAs for entire solution
     !            period
     !   nw_max : maximum number of fit targets for entire solution
@@ -22,19 +22,21 @@ module msfitm
     integer, parameter :: SCALE_ROW   = 2
     integer, parameter :: SCALE_BOTH  = 3
 
-    logical, save :: fix_active, is_square, scale_w, scale_u
-    integer(kind = SOLVE_IKIND), private, save :: nu_max = 0, &
-&                                     nw_max = 0, nu = 0, nw = 0
+    logical, save :: do_fix, is_square, scale_w, scale_u
+    integer(kind = SOLVE_IKIND), private, save :: nca_fit = 0, nu_max = 0, &
+                                     nw_max = 0, nu = 0, nw = 0, &
+                                     nfixed = 0
     integer(kind = LI_IKIND), private, save :: lwork_fit
     integer(kind = SOLVE_IKIND), dimension(:), allocatable, &
-&          save, private ::  numu, numr, numw, numu_prev
+&          save, private ::  ca_list, numu, numr, numw, numu_fixed, numu_fixed_prev
     real(kind = SOLVE_RKIND), dimension(:), allocatable, private, &
 &           save :: w, delw, dddelw, b, du0, djtau, delu, resold, &
 &                   zsav, work_fit, u_scale, w_scale, dj_rownorm, dj_colnorm
     real(kind = SOLVE_RKIND), dimension(:, :), allocatable, private, save :: dj
 
     private allocate_fit_work, fitone, mkdelw, mkdelu, &
-&              mkb, mkdu0, mkdjac, mkdqr, mdlpas, msfuck, wfinit, msgstp, msgjac
+            mkb, mkdu0, mkdjac, mkdqr, mdlpas, msfuck, wfinit, msgstp, &
+            msgjac
 
 
 contains
@@ -78,18 +80,23 @@ contains
 
     end subroutine allocate_fit_work
 
-    subroutine init_fit_work(do_fit, error)
+    subroutine prepare_fit(do_fit, error)
         use mdlvars
         use msfito
 
         logical, intent(out) :: do_fit
         integer, intent(out) :: error
-        ! error = 0  ok
-        ! error = 1  not enough memory
+        ! error = 0 ok
+        ! error = 1 not enough memory
+        ! error = 2 no fit CAs available (nca_fit == 0)
 
-        integer :: jt, alloc_stat
+        integer :: jt, alloc_stat, nrms
+
+        integer(kind = SOLVE_IKIND), dimension(:), allocatable :: deact_list, fix_list
+        integer :: ndeact, nfix
 
         error = 0
+
 
         !
         ! initialise fit work data
@@ -103,7 +110,7 @@ contains
         lwork_fit = get_lwork_fit(mdl%nca, mws%fit_targets%var_count)
 
         ! check if in current solution period (jf .. jl)
-        ! fit will be called
+        ! any fit target is present
         do_fit = .false.
         do jt = jf, jl
             if (isfitp(mws, jt)) then
@@ -116,20 +123,66 @@ contains
             return
         endif
 
-        allocate(numu(mdl%nca), stat = alloc_stat)
-        if (alloc_stat == 0) allocate(numr(mdl%nca), stat = alloc_stat)
+        nrms = get_rms_count(mws)
+
+        if (nrms == 0) then
+           error = 2
+           call fitot3(3)
+           return
+        endif
+
+        ! check if in current solution period (jf .. jl)
+        ! any fix tarrget is present
+        if (mws%fix_vars%var_count > 0) then
+            do_fix = .false.
+            do jt = jf, jl
+                if (isfixp(mws, jt)) then
+                    do_fix = .true.
+                    exit
+                endif
+            end do
+        else
+            do_fix = .false.
+        endif
+
+        allocate(ca_list(nrms), stat = alloc_stat)
+      
+        if (alloc_stat == 0) allocate(deact_list(nrms), stat = alloc_stat)
+        if (alloc_stat == 0) allocate(fix_list(nrms), stat = alloc_stat)
+        if (alloc_stat /= 0) then
+            error = 1
+            call fitot11
+            return
+        endif
+    
+
+        if (nrms > 0) then
+            call get_ca_list(mws, ca_list, nca_fit, deact_list, ndeact, &
+                         fix_list, nfix, jt, jl, do_fix)
+            call fitoca_list(ca_list, nca_fit, deact_list, ndeact, fix_list, nfix)
+        else
+            nca_fit = 0
+        endif
+        deallocate(deact_list, stat = alloc_stat)
+        deallocate(fix_list, stat = alloc_stat)
+
+        if (nca_fit == 0) then
+           error = 2
+           call fitot3(3)
+           return
+        endif
+
+        allocate(numu(nca_fit), stat = alloc_stat)
+        if (alloc_stat == 0) allocate(numr(nca_fit), stat = alloc_stat)
+        if (alloc_stat == 0) allocate(numu_fixed(nca_fit), stat = alloc_stat)
         if (alloc_stat /= 0) then
             error = 1
             call fitot11
             return
         endif
 
-        call mknumu(mws, numu, numr, nu)
+        call mknumu(mws, ca_list, nca_fit, numu, numr, nu, numu_fixed, nfixed)
         nu_max = nu
-        if (nu > 0) then
-            call fitonu(nu, numu)
-        endif
-
         nw_max = mws%fit_targets%var_count
 
         call allocate_fit_work(alloc_stat)
@@ -139,18 +192,16 @@ contains
             return
         endif
 
-        fix_active = mws%fix_vars%var_count > 0
-        if (fix_active) then
-            allocate(numu_prev(nu), stat = alloc_stat)
+
+        if (do_fix) then
+            allocate(numu_fixed_prev(nu), stat = alloc_stat)
             if (alloc_stat /= 0) then
                 error = 1
                 call fitot11
-                return
+               return
             endif
-            numu_prev = numu(:nu)
         endif
-
-    end subroutine init_fit_work
+    end subroutine prepare_fit
 
     subroutine clear_fit_work
 
@@ -159,7 +210,9 @@ contains
         deallocate(numu, stat = stat)
         deallocate(numr, stat = stat)
         deallocate(numw, stat = stat)
-        deallocate(numu_prev, stat = stat)
+        deallocate(ca_list, stat = stat)
+        deallocate(numu_fixed, stat = stat)
+        deallocate(numu_fixed_prev, stat = stat)
         deallocate(w, stat = stat)
         deallocate(delw, stat = stat)
         deallocate(dddelw, stat = stat)
@@ -184,10 +237,10 @@ contains
 
     subroutine solfit(retcod, ndiver, jt)
         use msfito
-        integer ::    retcod,ndiver,jt
+        integer :: retcod, ndiver, jt
         
-        integer ::        fiterr
-        logical ::        quit
+        integer :: fiterr
+        logical :: quit
         
         ! To understand what is going on in this code you
         ! must read the separate paper detailing the mathematics of the
@@ -201,13 +254,19 @@ contains
         endif
         
         if (fiterr /= 0 ) then
+            if (fiterr == 4) then
+               ! not enough CAs 
+               call fitot_nu_nw(nu, nw)
+            endif
             call fitot3(fiterr)
             if (fiterr /= 2 )  then
                 ! code 2 implies nothing to be done
                 ! other codes imply cannot continue with fit/simulation
                 retcod = 2
+            else 
+                retcod = 1
             endif
-        elseif (.not. quit ) then
+        else 
             call fitot0(1)
             call fitone(retcod, ndiver)
             call fitot0(2)
@@ -244,7 +303,7 @@ contains
         !     retcod 2 : simulation stopped
         
         integer, intent(inout) :: ndiver
-        integer, intent(inout) ::  retcod
+        integer, intent(inout) :: retcod
         
         !     constants for relative conergence
         !                   absolute convergence
@@ -1040,7 +1099,7 @@ contains
     
     !-----------------------------------------------------------------------
     
-    subroutine wfinit(jt , fiterr, quit)
+    subroutine wfinit(jt, fiterr, quit)
     use msvars
     use msfito
     integer, intent(in)  :: jt
@@ -1065,7 +1124,7 @@ contains
     
     !     quit is set to true if the simulation should be stopped
     
-    integer :: nonval, i, nu_prev
+    integer :: nonval, i, nfixed_prev
     
     type(mdl_variable), pointer :: fit_tar
     real(kind = MWS_RKIND) :: value
@@ -1082,27 +1141,25 @@ contains
        endif
     endif
     
-    if (fix_active) then
+    if (do_fix) then
         ! Reset arrays for exogenous fit CAs.
         ! If the fix procedure is active, then some fit CAs
         ! can be endogenous for the current period.
-        nu_prev = nu
-        call mknumu(mws, numu, numr, nu)
-        if (nu /= nu_prev) then
+        numu_fixed_prev(1:nfixed) = numu_fixed(1:nfixed)
+        nfixed_prev = nfixed
+        call mknumu(mws, ca_list, nca_fit, numu, numr, nu, numu_fixed, nfixed)
+        if (nfixed /= nfixed_prev) then
              changed = .true.
         else
              changed = .false.
-             do i = 1, nu
-                if (numu_prev(i) /= numu(i)) then
+             do i = 1, nfixed
+                if (numu_fixed_prev(i) /= numu_fixed(i)) then
                     changed = .true.
                     exit
                 endif
              end do
         endif
-        if (changed .and. nu > 0) then
-            numu_prev(:nu) = numu(:nu)
-            call fitonu_fix(nu, numu)
-        endif
+        if (changed) call fitonufix(nfixed, numu_fixed)
     endif
     
     ! setup numw array and check that all fit targets are endogenous

@@ -14,7 +14,7 @@ Maximum number of line searches with old Jacobian        5
 Criterion for line search decisions etc.                 geometric
 
 
-     3 CAs used by Fit
+     3 CAs used by Fit:
      c  i  md
    1 steps for Newton matrix at iteration   0 (1/condscal =          )
 Convergence for 2015Q2 in X iterations

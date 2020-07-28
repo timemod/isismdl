@@ -87,9 +87,15 @@ module msimul
     
     ! check for fit procedure and call startup routine
     if (mode /= 'R') then
-        call init_fit_work(do_fit, fit_err)
+        call prepare_fit(do_fit, fit_err)
         if (fit_err > 0) then
-            mws%simerr = 6
+            if (fit_err == 1) then
+                ! not enough memory
+                mws%simerr = 6
+            else if (fit_err == 2) then
+                ! No CAs available for fit
+                mws%simerr = 1
+            endif
             call report_solve_error
             goto 999
        endif

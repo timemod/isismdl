@@ -489,37 +489,109 @@ module mws_type
             endif
         end subroutine get_rms
 
-        subroutine mknumu(mws, numu, numr, nu)
+        integer function get_rms_count(mws)
+            ! return the number of nonzero rms values
             use nucnst
             type(modelworkspace), intent(in) :: mws 
-            integer(kind = SOLVE_IKIND), intent(out) :: numu(*), numr(*), nu
-
-            ! record all exogenous CAs with rms > 0 in numu
-            ! number of CAs recorded put into nu
-
-            integer(kind = SOLVE_IKIND) ::  knu,i
+            integer :: n, i
 
             if (.not. allocated(mws%rmsu)) then
-                nu = 0
+                get_rms_count = 0
                 return
             endif
 
-            knu = 0
-
+            n = 0
             do i = 1, mws%mdl%nca
-               if (mws%mdl%ica(i) .gt. 0 ) then
-                  if (mws%mdl%lik(mws%mdl%ica(i)) ) then
-!                          variable is endogenous ==> CA is exogenous
-                     if (.not. nuifna(mws%rmsu(i)) .and. mws%rmsu(i) > Rzero) then
-                        knu       = knu + 1
-                        numu(knu) = mws%mdl%ica(i)
-                        numr(knu) = i
-                     endif
-                  endif
-               endif
+               if (.not. nuifna(mws%rmsu(i)) .and. mws%rmsu(i) > Rzero) n = n + 1
             end do
 
-            nu = knu
+            get_rms_count = n
+
+        end function get_rms_count
+
+
+        subroutine get_ca_list(mws, ca_list, nca, deact_list, ndeact, fix_list, nfix, &
+                               jt, jl, do_fix)
+            use nucnst
+            type(modelworkspace), intent(in) :: mws
+            integer(kind = SOLVE_IKIND), intent(out) :: ca_list(:), nca,  &
+                                                        deact_list(:), ndeact, &
+                                                        fix_list(:), nfix
+            integer(kind = SOLVE_IKIND), intent(in) :: jt, jl
+            logical(kind = SOLVE_IKIND), intent(in) :: do_fix
+
+            ! Record all exogenous CAs with rms > 0 (active fit instruments) in numu.
+            ! The number of active fit instruments is put into nu.
+            ! num_fixed are fixed fit instruments, nfixed the number of fixed
+            ! fit instruments. Note that num_fixed only contains fit instruments
+            ! in equations, not fit instruments that occur in DEACTIVATED equations.
+
+            integer(kind = SOLVE_IKIND) :: i
+
+            nca = 0
+            ndeact = 0
+            nfix = 0
+
+            do i = 1, mws%mdl%nca
+               if (nuifna(mws%rmsu(i)) .or. mws%rmsu(i) <= Rzero) cycle
+               if (mws%mdl%ica(i) <= 0) then ! equation has been deactivated
+                   ndeact = ndeact + 1
+                   deact_list(ndeact) = -mws%mdl%ica(i)
+                   cycle
+               endif
+               if (do_fix) then
+                   if (mdl_var_valid(mws%fix_vars, mws%mdl%ica(i), jt, jl)) then
+                       ! variable is fixed for whole period
+                       nfix = nfix + 1
+                       fix_list(nfix) = mws%mdl%ica(i)
+                       cycle
+                   endif
+               endif
+               ! variable is not fixed for whole solve period
+               ! (but may be fixed at specific periods)
+               nca       = nca + 1
+               ca_list(nca) = mws%mdl%ica(i)
+            end do
+
+            return
+        end subroutine get_ca_list
+
+        subroutine mknumu(mws, ca_list, nca_fit, numu, numr, nu, numu_fixed, nfixed)
+            use nucnst
+            type(modelworkspace), intent(in) :: mws 
+            integer(kind = SOLVE_IKIND), intent(in) :: ca_list(:), nca_fit
+            integer(kind = SOLVE_IKIND), intent(out) :: numu(:), numr(:), nu, &
+                                                        numu_fixed(:), nfixed
+
+            ! Record all exogenous CAs with rms > 0 (active fit instruments) in numu.
+            ! The number of active fit instruments is put into nu.
+            ! num_fixed are fixed fit instruments, nfixed the number of fixed
+            ! fit instruments. Note that num_fixed only contains fit instruments
+            ! in equations, not fit instruments that occur in DEACTIVATED equations.
+
+            integer(kind = SOLVE_IKIND) :: i
+
+            if (nca_fit == 0) then
+                nu = 0
+                nfixed = 0
+                return
+            endif
+
+            nu = 0
+            nfixed = 0
+
+            do i = 1, nca_fit
+               if (mws%mdl%lik(ca_list(i))) then
+                   ! variable is endogenous ==> CA is exogenous
+                   nu       = nu + 1
+                   numu(nu) = ca_list(i)
+                   numr(nu) = mws%mdl%aci(ca_list(i))
+               else 
+                   ! variable has been fixed ==> CA is endogenous
+                   nfixed = nfixed + 1
+                   numu_fixed(nfixed) = ca_list(i)
+               endif
+            end do
 
             return
         end subroutine mknumu

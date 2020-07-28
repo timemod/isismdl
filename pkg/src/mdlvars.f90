@@ -297,4 +297,36 @@ subroutine dump_mdl_variables(mdl_vars)
     end do
 end subroutine dump_mdl_variables
 
+logical function mdl_var_valid(mdl_vars, var_index, jf, jl)
+    type(mdl_variables), intent(in) :: mdl_vars
+    integer, intent(in) :: var_index, jf, jl
+
+    ! Returns .true. if the model variable with index var_index has
+    ! valid values for all periods between jf and jl.
+
+    type(mdl_variable) :: mdl_var
+    integer :: j
+    logical :: retval
+
+    mdl_var = find_mdl_var(mdl_vars, var_index)
+
+    if (mdl_var%var_index == -1) then
+        mdl_var_valid = .false.
+        return
+    endif
+
+    retval = .true.  
+    do j = jf, jl
+        if (nuifna(get_mdl_var_value(mdl_var, j))) then
+           retval = .false.
+           exit
+        endif
+    enddo
+
+    mdl_var_valid = retval
+
+    return
+
+end function mdl_var_valid
+     
 end module mdlvars
