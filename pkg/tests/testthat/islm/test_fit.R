@@ -130,6 +130,12 @@ test_that("fixed fit instruments (1)", {
                                                 replace_all_numbers = TRUE)),
                       "expected_output/fit_fixed_instr_1c.txt")
   expect_equal(mdl$get_solve_status(), "Simulation stopped")
+
+  expect_warning(report <- capture.output(mdl$solve(period = "2015q3")),
+                 "Simulation not possible")
+  expect_known_output(cat_report(convert_report(report,
+                                                replace_all_numbers = TRUE)),
+                      "expected_output/fit_fixed_instr_1d.txt")
 })
 
 test_that("fixed fit instruments (2)", {
@@ -257,6 +263,4 @@ test_that("deactivated equations (1)", {
                       "expected_output/fit_deact_1a.txt")
   expect_equal(mdl$get_solve_status(), "Simulation not possible")
 })
-
-
 
