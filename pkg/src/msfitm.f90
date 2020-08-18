@@ -1159,7 +1159,7 @@ contains
                 endif
              end do
         endif
-        if (changed) call fitonufix(nfixed, numu_fixed)
+        if (changed) call fitonufix(nfixed, numu_fixed, nu, numu)
     endif
     
     ! setup numw array and check that all fit targets are endogenous

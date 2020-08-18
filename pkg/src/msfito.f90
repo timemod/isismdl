@@ -505,16 +505,20 @@ subroutine fitoca_list(ca_list, nca, deact_list, ndeact, fix_list, nfix)
     call strout(O_OUTB)
 
     if (ndeact > 0) then
-       write(hdr,'(i5,a)') ndeact,' CAs not used by Fit because the equations are deactivated:'
+       write(hdr,'(i5,a)') ndeact,' CAs NOT used by Fit because the equations are deactivated:'
        call msnmot(ndeact, deact_list, mdl%ivnames, mdl%vnames, hdr)
     endif
     if (nfix > 0) then
        write(hdr,'(i5,a)') nfix, &
-          ' CAs not used by Fit because the corresponding variables are fixed:'
+          ' CAs NOT used by Fit because the corresponding variables are fixed in simulation period:'
        call msnmot(nfix,  fix_list, mdl%ivnames, mdl%vnames, hdr)
     endif
     if (nca > 0) then
-        write(hdr,'(i5,a)') nca,' CAs used by Fit:'
+        if (nfix > 0 .or. ndeact > 0) then
+            write(hdr,'(i5,a)') nca,' remaining CAs used by Fit:'
+        else 
+            write(hdr,'(i5,a)') nca,' CAs used by Fit:'
+        endif
         call msnmot(nca,  ca_list, mdl%ivnames, mdl%vnames, hdr)
     else 
         write(str,'(a)')  '     No CAs left to be used by Fit.'
@@ -541,10 +545,11 @@ subroutine fitonu(nu, numu)
     return
 end subroutine fitonu
 
-subroutine fitonufix(nfixed, numu_fixed)
-    integer(kind = SOLVE_IKIND) :: nfixed, numu_fixed(*)
+subroutine fitonufix(nfixed, numu_fixed, nca, ca_list)
+    integer(kind = SOLVE_IKIND), intent(in) :: nfixed, numu_fixed(:), &
+                                               nca, ca_list(:)
     
-    ! Output names of CAs used by fit procedure that are fixed
+    ! Output names of CAs used by fit procedure that are fixed at a specific period,
     ! uses a specialised name output routine.
     ! This verion is used when the fit CAs have changed
     ! because some CAs were disabled by the fix tprocedure.
@@ -556,16 +561,30 @@ subroutine fitonufix(nfixed, numu_fixed)
     write(str,'(a)') ''
     call strout(O_OUTB)
     
-    write(str,'(a)') '----> Set of CAs used by Fit changed ' // &
-                     ' because some variables are fixed/unfixed '
+    write(str,'(a, a)') '----->  Set of CAs used by Fit changed in period ', perstr
+    call strout(O_OUTB)
+    write(str, '(a)')   '        because some variables are fixed/unfixed.'
     call strout(O_OUTB)
     if (nfixed == 0) then
-        write(str,'(a)')  'All CAs are now used by Fit'
+        write(str,'(a)')  'All CAs with rms > 0 and active equations are used.'
         call strout(O_OUTB)
     else 
         write(hdr,'(i5,a)') nfixed, ' CAs NOT used by Fit because the corresponding variables are fixed:'
         call msnmot(nfixed,  numu_fixed(:nfixed), mdl%ivnames, mdl%vnames, hdr)
     endif
+    if (nca > 0) then
+        if (nfixed > 0) then
+           write(hdr,'(i5,a)') nca,' remaining CAs used by Fit:'
+        else
+           write(hdr,'(i5,a)') nca,' CAs used by Fit:'
+        endif
+        call msnmot(nca,  ca_list, mdl%ivnames, mdl%vnames, hdr)
+    else 
+        write(str,'(a)')  '     No CAs left to be used by Fit.'
+        call strout(O_OUTB)
+    endif
+    write(str,'(a)') '<------'
+    call strout(O_OUTB)
     write(str,'(a)') ''
     call strout(O_OUTB)
     
