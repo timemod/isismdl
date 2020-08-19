@@ -249,6 +249,34 @@ test_that("fixed fit instruments (4)", {
 
 })
 
+
+test_that("fixed fit instruments (5)", {
+  mdl <- islm_model$copy()
+  y <- regts(200, period = '2015q2/2015q4')
+  r <- regts(3.5, period = '2015q2/2015q4')
+  fit_targets <- cbind(y, r)
+  mdl$set_fit(fit_targets)
+  mdl$fix_variables("c", period = "2015q4/2016q3")
+  mdl$set_fit_options(zealous = FALSE, warn_ca = FALSE)
+  mdl$solve(options = list(report = "none"))
+  expect_equal(mdl$get_solve_status(), "OK")
+  report <- capture.output(mdl$solve())
+  expect_known_output(cat_report(convert_report(report,
+                                                replace_all_numbers = TRUE)),
+                      "expected_output/fit_fixed_instr_5a.txt")
+
+  fit_fixed <- cbind(mdl$get_fit(), mdl$get_fix())
+  data <- mdl$get_data(names = colnames(fit_fixed), period = get_period_range(fit_fixed))
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+  expect_equal(data, expected_result, tol = 1e-3)
+
+  report <- capture.output(mdl$solve(options = list(mode = "backward")))
+  expect_known_output(cat_report(convert_report(report,
+                                                replace_all_numbers = TRUE)),
+                      "expected_output/fit_fixed_instr_5b.txt")
+})
+
+
 test_that("deactivated equations (1)", {
   mdl <- islm_model$copy()
   y <- regts(200, period = '2015q2/2015q4')
