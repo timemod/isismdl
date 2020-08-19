@@ -5,7 +5,7 @@
 \title{\code{\link{IsisMdl}} method: Fix variables to their current values}
 \description{
 This method of R6 class \code{\link{IsisMdl}} fixes the specified
-model variables to their current values.
+frml variables to their current values in the model data.
 }
 \section{Usage}{
 
@@ -26,6 +26,8 @@ variable names}
 \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
 object that can be coerced to a \code{period_range}}
 }
+If neither \code{names} nor \code{pattern} has
+been specified, then all frml equations are fixed.
 }
 
 \examples{

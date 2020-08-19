@@ -2,9 +2,11 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("fix_variables for the ISLM model")
 
-x <- capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 test_that("fix_values works correctly", {
   mdl2 <- mdl$copy()
@@ -20,6 +22,13 @@ test_that("fix_values works correctly", {
                             period = mdl$get_period()))
 })
 
+test_that("fix_values without arguyments", {
+  mdl2 <- mdl$copy()
+  mdl2$fix_variables()
+  expect_equal(mdl2$get_fix(),
+               mdl$get_data(names = mdl$get_endo_names(type = "frml"),
+                            period = mdl$get_period()))
+})
 
 test_that("errors", {
   mdl2 <- mdl$copy()

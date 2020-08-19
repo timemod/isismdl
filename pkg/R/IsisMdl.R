@@ -649,9 +649,6 @@ IsisMdl <- R6Class("IsisMdl",
       }
     },
     fix_variables = function(names, pattern, period = self$get_period()) {
-      if (missing(names) && missing(pattern)) {
-        stop("Either one of argument names or pattern has to be specified")
-      }
       period <- private$convert_period_arg(period)
       names <- private$get_names_(private$fix_type, names, pattern)
       if (length(names) == 0) {
