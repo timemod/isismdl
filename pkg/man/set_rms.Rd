@@ -3,13 +3,16 @@
 \name{set_rms}
 \alias{set_rms}
 \alias{get_rms}
-\title{\code{\link{IsisMdl}} method: Sets or updates  the root mean square errors}
+\alias{set_rms_values}
+\title{\code{\link{IsisMdl}} method: Sets the root mean square errors}
 \description{
-This method of R6 class \code{\link{IsisMdl}}
-sets or updates the root mean square (rms) error data
+Methods \code{set_rms} and \code{set_rms_values} of R6 class \code{\link{IsisMdl}}
+can be used to set the root mean square (rms) error values
 used in the fit procedure. All variables whose rms value
 is larger than 0 and not \code{NA} are used as
-instruments of the fit procedure.
+instruments of the fit procedure. Method \code{set_rms} can be used to
+specify individual rms values, while \code{set_rms_values} is a convenient method
+to give more than one rms value the same value.
 
 Method \code{get_rms} returns all rms values
 larger than 0 and not equal to \code{NA}.
@@ -18,6 +21,8 @@ larger than 0 and not equal to \code{NA}.
 
 \preformatted{
 mdl$set_rms(values, name_err = c("silent", "warn", "stop"))
+
+mdl$set_rms_values(value, names, pattern)
 
 mdl$get_rms()
 
@@ -32,12 +37,22 @@ mdl$get_rms()
 \describe{
 \item{\code{values}}{a named numeric vector with rms values.
 If a value is positive and not \code{"NA"},
-then the corresponding value will be used as fit instrument.}
+then the corresponding value will be used as fit instrument. The names should
+be the name of the corresponding frml variables.}
 \item{\code{name_err}}{A character that specifies the
 action that should be taken when a name is not the name of a frml variable.
 For \code{"silent"} (the default), the variable is silently skipped,
 for \code{"warn"} a warning is given and for \code{"stop"} an error is  issued.}
+\item{\code{value}}{A numeric vector of length 1.}
+\item{\code{names}}{a character vector with names of the frml variables
+whose rms values should be set at the specified value.}
+\item{\code{pattern}}{a regular expression.
+The rms values for all frml variables matching the regular expression
+is set to the specified value.}
 }
+If neither \code{names} nor \code{pattern} has
+been specified in methods \code{set_rms_values},
+then all rms values are set to the specified value.
 }
 
 \examples{
@@ -49,4 +64,10 @@ print(mdl$get_rms())
 # stop using variable t as fit instrument
 mdl$set_rms(c(t = NA))
 print(mdl$get_rms())
+
+# make all rms values equal to 1
+mdl$set_rms_values(1)
+
+# set the rms values for c and i to 2
+mdl$set_rms_values(2, names = c("c", "i"))
 }

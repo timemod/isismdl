@@ -75,6 +75,20 @@ test_that("errors", {
                "Argument values is not a named numeric vector")
 })
 
+test_that("set_rms_values", {
+  mdl7 <- mdl$copy()
+  mdl7$set_rms_values(1)
+  expect_equal(mdl7$get_rms(), c(c = 1, i = 1, md = 1, t = 1))
+  mdl7$set_rms_values(2, names = c("i", "md"))
+  expect_equal(mdl7$get_rms(), c(c = 1, i = 2, md = 2, t = 1))
+  mdl7$set_rms_values(3, names = "t", pattern = "^c$")
+  expect_equal(mdl7$get_rms(), c(c = 3, i = 2, md = 2, t = 3))
+  expect_error(mdl7$set_rms_values(666, names = "aap"),
+               '"aap" is not a frml variable.')
+  expect_silent(mdl7$set_rms_values(666, pattern = "xxx"))
+  expect_equal(mdl7$get_rms(), c(c = 3, i = 2, md = 2, t = 3))
+})
+
 
 
 

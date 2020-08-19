@@ -173,7 +173,9 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{get_fit}}}{Returns the fit targets}
 #'
-#' \item{\code{\link{set_rms}}}{Sets or updates  the rms values}
+#' \item{\code{\link{set_rms}}}{Sets one or more the rms values used in the fit procedure}
+#'
+#' \item{\code{\link{set_rms_values}}}{Sets the rms values used in the fit procedure}
 #'
 #' \item{\code{\link{set_solve_options}}}{Sets the solve options}
 #'
@@ -561,12 +563,11 @@ IsisMdl <- R6Class("IsisMdl",
       data <- data[ , names, drop = FALSE]
       return(private$set_data_(private$fit_type, data, upd_mode))
     },
-    get_data = function(pattern = NULL, names = NULL,
+    get_data = function(pattern, names,
                         period = private$data_period) {
       return(private$get_data_(private$data_type, names, pattern, period))
     },
-    get_ca = function(pattern = NULL, names =  NULL,
-                      period = private$data_period) {
+    get_ca = function(pattern, names, period = private$data_period) {
       return(private$get_data_(private$ca_type, names, pattern, period))
     },
     get_fix = function() {
@@ -575,33 +576,32 @@ IsisMdl <- R6Class("IsisMdl",
     get_fit = function() {
       return(private$get_fix_fit(type = "fit"))
     },
-    set_values = function(value, names = NULL, pattern = NULL,
-                          period = private$data_period) {
+    set_values = function(value, names, pattern, period = private$data_period) {
       return(private$set_values_(private$data_type, value, names, pattern,
                                  period))
     },
-    set_ca_values = function(value, names = NULL, pattern = NULL,
+    set_ca_values = function(value, names, pattern,
                              period = private$data_period) {
       return(private$set_values_(private$ca_type, value, names, pattern,
                                  period))
     },
-    set_fix_values = function(value, names = NULL, pattern = NULL,
+    set_fix_values = function(value, names, pattern,
                               period = private$data_period) {
       return(private$set_values_(private$fix_type, value, names, pattern,
                                  period))
     },
-    set_fit_values = function(value, names = NULL, pattern = NULL,
+    set_fit_values = function(value, names, pattern,
                               period = private$data_period) {
       return(private$set_values_(private$fit_type, value, names, pattern,
                                  period))
     },
-    change_data = function(fun, names = NULL, pattern = NULL,
-                           period = private$data_period, ...) {
+    change_data = function(fun, names, pattern, period = private$data_period,
+                           ...) {
       return(private$change_data_(private$data_type, fun, names, pattern,
                                  period, ...))
     },
-    change_ca = function(fun, names = NULL, pattern = NULL,
-                         period = private$data_period, ...) {
+    change_ca = function(fun, names, pattern, period = private$data_period,
+                         ...) {
       return(private$change_data_(private$ca_type, fun, names, pattern,
                                  period, ...))
     },
@@ -621,6 +621,18 @@ IsisMdl <- R6Class("IsisMdl",
       .Call(set_rms_c, private$model_index, values)
       return(invisible(self))
     },
+    set_rms_values = function(value, names, pattern) {
+      if (!is.numeric(value) && length(value) != 1) {
+        stop("Argument vaBlue should be a scalar numeric")
+      }
+      names <- private$get_names_(private$rms_type, names, pattern)
+      if ((n <- length(names)) > 0) {
+          values <- rep(value, n)
+          base::names(values) <- names
+          .Call(set_rms_c, private$model_index, values)
+      }
+      return(invisible(self))
+    },
     get_rms = function() {
       values <- .Call(get_rms_c, private$model_index)
       if (is.null(values)) {
@@ -636,9 +648,8 @@ IsisMdl <- R6Class("IsisMdl",
         }
       }
     },
-    fix_variables = function(names = NULL, pattern = NULL,
-                             period = self$get_period()) {
-      if (is.null(names) && is.null(pattern)) {
+    fix_variables = function(names, pattern, period = self$get_period()) {
+      if (missing(names) && missing(pattern)) {
         stop("Either one of argument names or pattern has to be specified")
       }
       period <- private$convert_period_arg(period)
@@ -1020,8 +1031,7 @@ IsisMdl <- R6Class("IsisMdl",
 
       return(invisible(self))
     },
-    get_names_ = function(type, names = NULL,
-                          pattern = NULL,
+    get_names_ = function(type, names, pattern,
                           name_err = c("stop", "warn", "silent")) {
       # This function selects model variable names from names and pattern.
       # It gives an error if names contain any invalid name for the
@@ -1037,7 +1047,7 @@ IsisMdl <- R6Class("IsisMdl",
         var_type <- "endo_exo"
         vnames <- self$get_var_names()
       }
-      if (!is.null(names)) {
+      if (!missing(names)) {
         error_vars <- setdiff(names, vnames)
         if (length(error_vars) > 0) {
           if (name_err != "silent") {
@@ -1064,12 +1074,12 @@ IsisMdl <- R6Class("IsisMdl",
           names <- intersect(names, vnames)
         }
       }
-      if (is.null(pattern) && is.null(names)) {
+      if (missing(pattern) && missing(names)) {
         names <- vnames
-      } else if (!is.null(pattern)) {
+      } else if (!missing(pattern)) {
         sel <- grep(pattern, vnames)
         pattern_names <- vnames[sel]
-        if (!is.null(names)) {
+        if (!missing(names)) {
           names <- union(pattern_names, names)
         } else {
           names <- pattern_names
