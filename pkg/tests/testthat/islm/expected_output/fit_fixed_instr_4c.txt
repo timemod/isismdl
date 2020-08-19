@@ -16,14 +16,8 @@ Criterion for line search decisions etc.                 geometric
 
      1 CAs NOT used by Fit because the equations are deactivated:
      c
-     2 CAs NOT used by Fit because the corresponding variables are fixed in simulation period:
-     i  md
-     1 remaining CAs used by Fit:
-     t
-Convergence for 2015Q2 in    0 iterations
-Number of CAs used by Fit     1
-Number of fit targets         2
-Not enough endogenous CAs for Fit
+     3 CAs NOT used by Fit because the corresponding variables are fixed in simulation period:
+     i  md t
+     No CAs left to be used by Fit.
+No CAs available for Fit
 Fit procedure will not be executed in 2015Q2
-Total number of iterations    0
-Solve model used X CPU secs

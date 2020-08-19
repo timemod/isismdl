@@ -232,19 +232,12 @@ test_that("fixed fit instruments (4)", {
                       "expected_output/fit_fixed_instr_4b.txt")
   expect_equal(mdl$get_solve_status(), "Simulation stopped")
 
-  mdl$fix_variables("t", period = "2015q3")
-  expect_warning(report <- capture.output(mdl$solve()),
-                 "Simulation stopped")
-  expect_known_output(cat_report(convert_report(report,
-                                                replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_4c.txt")
-
   mdl$fix_variables("t")
   expect_warning(report <- capture.output(mdl$solve()),
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_4d.txt")
+                      "expected_output/fit_fixed_instr_4c.txt")
   expect_equal(mdl$get_solve_status(), "Simulation not possible")
 
 })
