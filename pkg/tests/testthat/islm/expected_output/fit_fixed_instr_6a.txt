@@ -1,0 +1,86 @@
+
+Model Solve Options
+Solution period               2015Q2/2016Q3
+Simulation mode               dynamic
+Feedback starting values      current period
+Maximum iterations per period 50
+Relaxation minimum
+           maximum
+           shrinkage
+Criteria stepback
+          matrix
+Maximum updates Newton matrix per period                 10
+Maximum number of line searches with old Jacobian        5
+Criterion for line search decisions etc.                 geometric
+
+
+     1 CAs NOT used by Fit because the corresponding variables are fixed in simulation period:
+     t
+     3 remaining CAs used by Fit:
+     c  i  md
+Convergence for 2015Q2 in    0 iterations
+ Fiter     Icond        Ratio       Delwmx Type Name
+     0                                     Rel  r
+Fit convergence in 2015Q2       after    0 iterations and    0 jacobians
+
+Convergence for 2015Q3 in    0 iterations
+
+----->  Set of CAs used by Fit changed in period 2015Q3
+        because some variables are fixed/unfixed.
+     1 CAs NOT used by Fit because the corresponding variables are fixed:
+     c
+     2 remaining CAs used by Fit:
+     i  md
+<------
+
+ Fiter     Icond        Ratio       Delwmx Type Name
+     0                                     Rel  r
+Fit convergence in 2015Q3       after    0 iterations and    0 jacobians
+
+Convergence for 2015Q4 in    0 iterations
+
+----->  Set of CAs used by Fit changed in period 2015Q4
+        because some variables are fixed/unfixed.
+All CAs with rms > 0 and active equations are used.
+     3 CAs used by Fit:
+     c  i  md
+<------
+
+ Fiter     Icond        Ratio       Delwmx Type Name
+     0                                     Rel  r
+Fit convergence in 2015Q4       after    0 iterations and    0 jacobians
+
+Convergence for 2016Q1 in    0 iterations
+
+----->  Set of CAs used by Fit changed in period 2016Q1
+        because some variables are fixed/unfixed.
+     1 CAs NOT used by Fit because the corresponding variables are fixed:
+     i
+     2 remaining CAs used by Fit:
+     c  md
+<------
+
+ Fiter     Icond        Ratio       Delwmx Type Name
+     0                                     Rel  r
+Fit convergence in 2016Q1       after    0 iterations and    0 jacobians
+
+Convergence for 2016Q2 in    0 iterations
+
+----->  Set of CAs used by Fit changed in period 2016Q2
+        because some variables are fixed/unfixed.
+All CAs with rms > 0 and active equations are used.
+     3 CAs used by Fit:
+     c  i  md
+<------
+
+ Fiter     Icond        Ratio       Delwmx Type Name
+     0                                     Rel  r
+Fit convergence in 2016Q2       after    0 iterations and    0 jacobians
+
+Convergence for 2016Q3 in    0 iterations
+ Fiter     Icond        Ratio       Delwmx Type Name
+     0                                     Rel  r
+Fit convergence in 2016Q3       after    0 iterations and    0 jacobians
+
+Total number of iterations    0
+Solve model used X CPU secs

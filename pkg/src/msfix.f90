@@ -3,11 +3,12 @@ module msfix
     use kinds
 
     logical, save :: has_fix_vars = .false.
-    logical, dimension(:), allocatable, save :: lik_old
 
     contains
 
         subroutine prepare_fix(jt)
+            ! this function is called before the model will be solved for one
+            ! particular period: make fixed variables in this period exogenous.
             use msvars
             use nuna
             integer, intent(in) :: jt
@@ -23,10 +24,6 @@ module msfix
             do
                 value = get_mdl_var_value(fix_var, jt)
                 if (.not. nuifna(value)) then
-                    if (.not. allocated(lik_old)) then
-                        allocate(lik_old(mdl%nrv))
-                        lik_old = mdl%lik
-                    endif
                     has_fix_vars = .true.
                     fixvars(fix_var%var_index) = value
                     mdl%lik(fix_var%var_index) = .false.
@@ -38,14 +35,18 @@ module msfix
         end subroutine prepare_fix
 
         subroutine reset_fix
+            ! this function is called after the model has been solved for one
+            ! particular period: all active frml variables are made endogenous
+            integer :: i
             if (has_fix_vars) then
-                mdl%lik = lik_old
+               do i = 1, mws%mdl%nca
+                   if (mws%mdl%ica(i) > 0) mws%mdl%lik(mws%mdl%ica(i)) = .true.
+               end do
             endif
         end subroutine reset_fix
 
         subroutine clear_msfix
             has_fix_vars = .false.
-            if (allocated(lik_old)) deallocate(lik_old)
         end subroutine clear_msfix
 
 end module msfix

@@ -1161,10 +1161,13 @@ subroutine check_variables
       mdl%aci(k)  = 0
 
       if (char(bysget(vtype,k)) .eq. 'E') then
+           ! exogenous variable
            mdl%lik(k) = .false.
       else
+          ! endogenous variable
           mdl%lik(k) = .true.
           if (char(bysget(vtype,k)) .eq. 'B') then
+              ! frml variable
               mdl%nca = mdl%nca + 1
               mdl%ica(mdl%nca) = k
               mdl%aci(k) = mdl%nca

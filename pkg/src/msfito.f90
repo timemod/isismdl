@@ -346,6 +346,9 @@ subroutine fitot9(fiter, fcvgd, djcnt, maxiter, matitr, nu)
 
     endif
 
+    write(str,'(a)') ''
+    call strout(O_OUTB)
+
     
     return
 end subroutine fitot9
@@ -488,42 +491,92 @@ subroutine fitot_error_zero_columns
     write(str, '(a)') 'Error: too many columns of the fit jacobian are exactly zero.'
     call strout(O_WMSG)
 end subroutine fitot_error_zero_columns
+
+subroutine fitonu_tot(numu_tot, nu_tot, deact_list, ndeact, fix_list, nfix)
+    integer(kind = SOLVE_IKIND), intent(in) :: numu_tot(:), nu_tot, &
+                                               deact_list(:), ndeact, &
+                                               fix_list(:), nfix
     
-subroutine fitonu(nu, numu)
-    integer(kind = SOLVE_IKIND) :: nu, numu(*)
-    
-    ! Output names of CAs used by fit procedure
-    ! uses a specialised name output routine
-    
-    character(len = 25) :: hdr
+    ! Output names of CAs used by fit procedure for the whole simulation period.
+    ! These are the CAs with a rms > 0 that occur in activate equations that are not
+    ! fixed at all periods in the simulation period. 
+    ! N.B.: for particular periods, the number of used CAs may be smaller because a 
+    ! variable is fixed for that particular period.
+
+    character(len = 100) :: hdr
     
     if (opts%repopt == REP_NONE) return
-    
-    write(hdr,'(i5,a)') nu,' CAs used by Fit'
-    
-    call msnmot(nu,  numu(:nu), mdl%ivnames, mdl%vnames, hdr)
+
+    call strini(' ', 1)
+    call strout(O_OUTB)
+
+    if (ndeact > 0) then
+       write(hdr,'(i5,a)') ndeact,' CAs NOT used by Fit because the equations are deactivated:'
+       call msnmot(ndeact, deact_list, mdl%ivnames, mdl%vnames, hdr)
+    endif
+    if (nfix > 0) then
+       write(hdr,'(i5,a)') nfix, &
+          ' CAs NOT used by Fit because the corresponding variables are fixed in simulation period:'
+       call msnmot(nfix,  fix_list, mdl%ivnames, mdl%vnames, hdr)
+    endif
+    if (nu_tot > 0) then
+        if (nfix > 0 .or. ndeact > 0) then
+            write(hdr,'(i5,a)') nu_tot,' remaining CAs used by Fit:'
+        else 
+            write(hdr,'(i5,a)') nu_tot,' CAs used by Fit:'
+        endif
+        call msnmot(nu_tot, numu_tot, mdl%ivnames, mdl%vnames, hdr)
+    else 
+        write(str,'(a)')  '     No CAs left to be used by Fit.'
+        call strout(O_OUTB)
+    endif
     
     return
-end subroutine fitonu
+end subroutine fitonu_tot
 
-subroutine fitonu_fix(nu, numu)
-    integer(kind = SOLVE_IKIND) :: nu, numu(*)
+subroutine fitonu_changed(nfixed, numu_fixed, nu, numu)
+    integer(kind = SOLVE_IKIND), intent(in) :: nfixed, numu_fixed(:), &
+                                               nu, numu(:)
     
-    ! Output names of CAs used by fit procedure.
-    ! uses a specialised name output routine.
-    ! This verion is used when the fit CAs have changed
-    ! because some CAs were disabled by the fit procedure.
+    ! This subroutine is called when the set of fit CAs has changed because some 
+    ! variables are fixed or unfixed at a particular period.
     
+    character(len = 100) :: hdr
+
     if (opts%repopt == REP_NONE) return
-    
-    write(str,'(a)') '----> List of CAs used by Fit changed ' // &
-    &   ' because some variables are fixed/unfixed '
+
+    write(str,'(a)') ''
     call strout(O_OUTB)
     
-    call fitonu(nu, numu)
+    write(str,'(a, a)') '----->  Set of CAs used by Fit changed in period ', perstr
+    call strout(O_OUTB)
+    write(str, '(a)')   '        because some variables are fixed/unfixed.'
+    call strout(O_OUTB)
+    if (nfixed == 0) then
+        write(str,'(a)')  'All CAs with rms > 0 and active equations are used.'
+        call strout(O_OUTB)
+    else 
+        write(hdr,'(i5,a)') nfixed, ' CAs NOT used by Fit because the corresponding variables are fixed:'
+        call msnmot(nfixed,  numu_fixed(:nfixed), mdl%ivnames, mdl%vnames, hdr)
+    endif
+    if (nu > 0) then
+        if (nfixed > 0) then
+           write(hdr,'(i5,a)') nu,' remaining CAs used by Fit:'
+        else
+           write(hdr,'(i5,a)') nu,' CAs used by Fit:'
+        endif
+        call msnmot(nu, numu, mdl%ivnames, mdl%vnames, hdr)
+    else 
+        write(str,'(a)')  '     No CAs left to be used by Fit.'
+        call strout(O_OUTB)
+    endif
+    write(str,'(a)') '<------'
+    call strout(O_OUTB)
+    write(str,'(a)') ''
+    call strout(O_OUTB)
     
     return
-end subroutine fitonu_fix
+end subroutine fitonu_changed
 
 subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
     integer(kind = SOLVE_IKIND), intent(in) :: numw(*), numu(*), nw, nu, nu_max
@@ -605,5 +658,19 @@ subroutine fitoca(delu, numu, nu,fiter)
     
     return
 end subroutine fitoca
+
+subroutine fitot_nu_nw(nu, nw)
+
+    ! print the number of fit targets and CAs
+    integer(kind = SOLVE_IKIND), intent(in) :: nu, nw
+
+    if (opts%repopt == REP_NONE) return
+    
+    write(str,'(a,i5)') 'Number of CAs used by Fit ', nu
+    call strout(O_ERRF)
+    write(str,'(a,i5)') 'Number of fit targets     ', nw
+    call strout(O_ERRF)
+    return
+end subroutine fitot_nu_nw
 
 end module msfito

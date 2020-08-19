@@ -1,0 +1,21 @@
+
+Model Solve Options
+Solution period               2015Q3/2015Q3
+Simulation mode               dynamic
+Feedback starting values      current period
+Maximum iterations per period 50
+Relaxation minimum
+           maximum
+           shrinkage
+Criteria stepback
+          matrix
+Maximum updates Newton matrix per period                 10
+Maximum number of line searches with old Jacobian        5
+Criterion for line search decisions etc.                 geometric
+
+
+     4 CAs NOT used by Fit because the corresponding variables are fixed in simulation period:
+     c  i  md t
+     No CAs left to be used by Fit.
+No CAs available for Fit
+Fit procedure will not be executed in 2015Q3

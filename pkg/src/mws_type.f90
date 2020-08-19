@@ -489,40 +489,116 @@ module mws_type
             endif
         end subroutine get_rms
 
-        subroutine mknumu(mws, numu, numr, nu)
+        integer function get_rms_count(mws)
+            ! return the number of nonzero rms values
             use nucnst
             type(modelworkspace), intent(in) :: mws 
-            integer(kind = SOLVE_IKIND), intent(out) :: numu(*), numr(*), nu
-
-            ! record all exogenous CAs with rms > 0 in numu
-            ! number of CAs recorded put into nu
-
-            integer(kind = SOLVE_IKIND) ::  knu,i
+            integer :: n, i
 
             if (.not. allocated(mws%rmsu)) then
-                nu = 0
+                get_rms_count = 0
                 return
             endif
 
-            knu = 0
+            n = 0
+            do i = 1, mws%mdl%nca
+               if (.not. nuifna(mws%rmsu(i)) .and. mws%rmsu(i) > Rzero) n = n + 1
+            end do
+
+            get_rms_count = n
+
+        end function get_rms_count
+
+
+        subroutine mknumu_tot(mws, numu_tot, numr_tot, nu_tot, deact_list, &
+                              ndeact, fix_list, nfix, jf, jl, do_fix)
+            use nucnst
+            type(modelworkspace), intent(in) :: mws
+            integer(kind = SOLVE_IKIND), intent(out) :: numu_tot(:), numr_tot(:), nu_tot,  &
+                                                        deact_list(:), ndeact, &
+                                                        fix_list(:), nfix
+            integer(kind = SOLVE_IKIND), intent(in) :: jf, jl
+            logical(kind = SOLVE_IKIND), intent(in) :: do_fix
+
+            ! Record all CAs that are used as fit instruments in at least one period in the 
+            ! simulation period (i.e. periods between jf and jl). These are CAs that:
+            ! 1) have an rms > 0
+            ! 2) occur in active equations
+            ! 3) do not occur in equations that are fixed at ALL periods in the simulation
+            !    period. Note: some CAs may be fixed only at specific periods. Subroutine mknumu_t is
+            !    used to remove these CAs from the list of activate fit instruments.
+
+            ! The subroutine also records all CAs with rms > 0 that are not used as fit instruments
+            ! because the equation is inactive or because the equation is fixed for all periods
+            ! in the simulation period.
+
+            integer(kind = SOLVE_IKIND) :: i
+
+            nu_tot = 0
+            ndeact = 0
+            nfix = 0
 
             do i = 1, mws%mdl%nca
-               if (mws%mdl%ica(i) .gt. 0 ) then
-                  if (mws%mdl%lik(mws%mdl%ica(i)) ) then
-!                          variable is endogenous ==> CA is exogenous
-                     if (.not. nuifna(mws%rmsu(i)) .and. mws%rmsu(i) > Rzero) then
-                        knu       = knu + 1
-                        numu(knu) = mws%mdl%ica(i)
-                        numr(knu) = i
-                     endif
-                  endif
+               if (nuifna(mws%rmsu(i)) .or. mws%rmsu(i) <= Rzero) cycle
+               if (mws%mdl%ica(i) <= 0) then ! equation has been deactivated
+                   ndeact = ndeact + 1
+                   deact_list(ndeact) = -mws%mdl%ica(i)
+                   cycle
+               endif
+               if (do_fix) then
+                   if (mdl_var_valid(mws%fix_vars, mws%mdl%ica(i), jf, jl)) then
+                       ! variable is fixed for whole period
+                       nfix = nfix + 1
+                       fix_list(nfix) = mws%mdl%ica(i)
+                       cycle
+                   endif
+               endif
+               ! variable is not fixed for whole solve period
+               ! (but may be fixed at specific periods)
+               nu_tot = nu_tot + 1
+               numu_tot(nu_tot) = mws%mdl%ica(i)
+               numr_tot(nu_tot) = i
+            end do
+
+            return
+        end subroutine mknumu_tot
+
+        subroutine mknumu_t(mws, numu_tot, nu_tot, numu, numr, nu, numu_fixed, nfixed)
+            use nucnst
+            type(modelworkspace), intent(in) :: mws 
+            integer(kind = SOLVE_IKIND), intent(in) :: numu_tot(:), nu_tot
+            integer(kind = SOLVE_IKIND), intent(out) :: numu(:), numr(:), nu, &
+                                                        numu_fixed(:), nfixed
+
+            ! Record all exogenous CAs with rms > 0 in activate equations that are not fixed
+            ! at the current period (active fit instruments) in numu.
+            ! The number of active fit instruments is put into nu.
+            ! num_fixed are fixed fit instruments fot the current period, nfixed the number of fixed
+            ! fit instruments. Note that num_fixed only contains fit instruments
+            ! in active equations, not fit instruments that occur in DEACTIVATED equations.
+
+            integer(kind = SOLVE_IKIND) :: i
+
+            nu = 0
+            nfixed = 0
+
+            do i = 1, nu_tot
+               if (mws%mdl%lik(numu_tot(i))) then
+                   ! variable is endogenous ==> CA is exogenous and can be used
+                   ! as a fit instrument
+                   nu       = nu + 1
+                   numu(nu) = numu_tot(i)
+                   numr(nu) = mws%mdl%aci(numu_tot(i))
+               else 
+                   ! variable has been fixed at specific period ==> CA is endogenous,
+                   ! and can NOT be used a fit instrument
+                   nfixed = nfixed + 1
+                   numu_fixed(nfixed) = numu_tot(i)
                endif
             end do
 
-            nu = knu
-
             return
-        end subroutine mknumu
+        end subroutine mknumu_t
 
         logical function isfitp(mws, jt)
             type(modelworkspace), intent(in) :: mws 

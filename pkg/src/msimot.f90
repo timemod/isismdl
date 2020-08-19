@@ -153,9 +153,6 @@ integer ::  colwid
 colwid = maxnli(ivnames, vnum, 1_MC_IKIND, cnt)
 cstep  = max(1, (LWIDTH-6) / (colwid + 1))
 
-call strini( ' ', 1 )
-call strout(O_OUTB)
-
 write(str,'(1x,a)') hdr
 call strout(O_OUTB)
 
