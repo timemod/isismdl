@@ -2,7 +2,7 @@ module msfitm
     !
     ! work variables for the fit procedure
     !   do_fix:  true if fix variables are active
-    !   nu_max : maximum number of fit CAs for entire solution
+    !   nu_tot : maximum number of fit CAs for entire solution
     !            period
     !   nw_max : maximum number of fit targets for entire solution
     !           period
@@ -23,12 +23,12 @@ module msfitm
     integer, parameter :: SCALE_BOTH  = 3
 
     logical, save :: do_fix, is_square, scale_w, scale_u
-    integer(kind = SOLVE_IKIND), private, save :: nca_fit = 0, nu_max = 0, &
+    integer(kind = SOLVE_IKIND), private, save :: nu_tot = 0, &
                                      nw_max = 0, nu = 0, nw = 0, &
                                      nfixed = 0
     integer(kind = LI_IKIND), private, save :: lwork_fit
     integer(kind = SOLVE_IKIND), dimension(:), allocatable, &
-&          save, private ::  ca_list, numu, numr, numw, numu_fixed, numu_fixed_prev
+&          save, private :: numu_tot, numu, numr, numw, numu_fixed, numu_fixed_prev
     real(kind = SOLVE_RKIND), dimension(:), allocatable, private, &
 &           save :: w, delw, dddelw, b, du0, djtau, delu, resold, &
 &                   zsav, work_fit, u_scale, w_scale, dj_rownorm, dj_colnorm
@@ -47,24 +47,6 @@ contains
         integer :: stat
         integer(kind = SOLVE_IKIND), allocatable :: temp(:)
 
-        if (nu_max < mdl%nca) then
-            ! decrease the size of the numu and numr arrays
-            allocate(temp(nu_max), stat = stat)
-            if (stat /= 0) then
-                alloc_stat = stat
-                return
-            endif
-            temp(:nu_max) = numu(:nu_max)
-            call move_alloc(temp, numu)
-            allocate(temp(nu_max), stat = stat)
-            if (stat /= 0) then
-                alloc_stat = stat
-                return
-            endif
-            temp(:nu_max) = numr(:nu_max)
-            call move_alloc(temp, numr)
-        endif
-
         allocate(numw(nw_max), stat = stat)
         if (stat == 0) allocate(w(nw_max), stat = stat)
         if (stat == 0) allocate(delw(nw_max) , stat = stat)
@@ -72,8 +54,8 @@ contains
         if (stat == 0) allocate(b(nw_max) , stat = stat)
         if (stat == 0) allocate(du0(nw_max) , stat = stat)
         if (stat == 0) allocate(djtau(nw_max), stat = stat)
-        if (stat == 0) allocate(delu(nu_max), stat = stat)
-        if (stat == 0) allocate(resold(nu_max), stat = stat)
+        if (stat == 0) allocate(delu(nu_tot), stat = stat)
+        if (stat == 0) allocate(resold(nu_tot), stat = stat)
         if (stat == 0) allocate(zsav(mdl%nrv), stat = stat)
         if (stat == 0) allocate(work_fit(lwork_fit), stat = stat)
         alloc_stat = stat
@@ -88,12 +70,14 @@ contains
         integer, intent(out) :: error
         ! error = 0 ok
         ! error = 1 not enough memory
-        ! error = 2 no fit CAs available (nca_fit == 0)
+        ! error = 2 no fit CAs available
 
         integer :: jt, alloc_stat, nrms
 
-        integer(kind = SOLVE_IKIND), dimension(:), allocatable :: deact_list, fix_list
+        integer(kind = SOLVE_IKIND), dimension(:), allocatable :: numr_tot, &
+                                         deact_list, fix_list, temp
         integer :: ndeact, nfix
+
 
         error = 0
 
@@ -106,8 +90,6 @@ contains
 
         do_fit = mws%fit_targets%var_count > 0 .and. mdl%nca > 0
         if (.not. do_fit) return
-
-        lwork_fit = get_lwork_fit(mdl%nca, mws%fit_targets%var_count)
 
         ! check if in current solution period (jf .. jl)
         ! any fit target is present
@@ -122,6 +104,8 @@ contains
         if (.not. do_fit) then
             return
         endif
+
+        lwork_fit = get_lwork_fit(mdl%nca, mws%fit_targets%var_count)
 
         nrms = get_rms_count(mws)
 
@@ -145,8 +129,8 @@ contains
             do_fix = .false.
         endif
 
-        allocate(ca_list(nrms), stat = alloc_stat)
-      
+        allocate(numu_tot(nrms), stat = alloc_stat)
+        if (alloc_stat == 0) allocate(numr_tot(nrms), stat = alloc_stat)
         if (alloc_stat == 0) allocate(deact_list(nrms), stat = alloc_stat)
         if (alloc_stat == 0) allocate(fix_list(nrms), stat = alloc_stat)
         if (alloc_stat /= 0) then
@@ -155,52 +139,74 @@ contains
             return
         endif
     
-
-        if (nrms > 0) then
-            call get_ca_list(mws, ca_list, nca_fit, deact_list, ndeact, &
-                         fix_list, nfix, jt, jl, do_fix)
-            call fitoca_list(ca_list, nca_fit, deact_list, ndeact, fix_list, nfix)
-        else
-            nca_fit = 0
-        endif
+        call mknumu_tot(mws, numu_tot, numr_tot, nu_tot, deact_list, ndeact, &
+                        fix_list, nfix, jf, jl, do_fix)
+        call fitonu_tot(numu_tot, nu_tot, deact_list, ndeact, fix_list, nfix)
         deallocate(deact_list, stat = alloc_stat)
         deallocate(fix_list, stat = alloc_stat)
 
-        if (nca_fit == 0) then
+        if (nu_tot == 0) then
            error = 2
            call fitot3(3)
            return
         endif
 
-        allocate(numu(nca_fit), stat = alloc_stat)
-        if (alloc_stat == 0) allocate(numr(nca_fit), stat = alloc_stat)
-        if (alloc_stat == 0) allocate(numu_fixed(nca_fit), stat = alloc_stat)
+        allocate(numu(nu_tot), stat = alloc_stat)
+        if (alloc_stat == 0) allocate(numr(nu_tot), stat = alloc_stat)
+        if (alloc_stat == 0 .and. do_fix) allocate(numu_fixed(nu_tot), stat = alloc_stat)
         if (alloc_stat /= 0) then
             error = 1
             call fitot11
             return
         endif
 
-        call mknumu(mws, ca_list, nca_fit, numu, numr, nu, numu_fixed, nfixed)
-        nu_max = nu
         nw_max = mws%fit_targets%var_count
 
-        call allocate_fit_work(alloc_stat)
-        if (alloc_stat /= 0) then
-            error = 1
-            call fitot11
-            return
-        endif
-
-
         if (do_fix) then
-            allocate(numu_fixed_prev(nu), stat = alloc_stat)
+            ! The active fit instruments may change at different periods,
+            ! because some variables are temporalilly fixed or unfixed.
+            ! The actual list fit instruments used at a specific period (numu)
+            ! is updated in subroutine mknumu_t called by subroutine wfinit.
+            allocate(numu_fixed_prev(nu_tot), stat = alloc_stat)
             if (alloc_stat /= 0) then
                 error = 1
                 call fitot11
                return
             endif
+            nfixed = 0
+        else
+            ! numu and numr are the same for all periods in the simulation period
+            nu = nu_tot
+            numu(1:nu) = numu_tot(1:nu)
+            numr(1:nu) = numr_tot(1:nu)
+            !deallocate(numu_tot, stat = alloc_stat)
         endif
+
+        ! numr_tot is not needed any more 
+        deallocate(numr_tot, stat = alloc_stat)
+
+        ! decrease the size of numu_tot
+        if (.not. do_fix) then
+            ! in this case, numu_tot is also not needed any more 
+            deallocate(numu_tot, stat = alloc_stat)
+        else if (nrms > nu_tot) then
+            allocate(temp(nu_tot), stat = alloc_stat)
+            if (alloc_stat /= 0) then
+                error = 1
+                call fitot11
+                return
+            endif
+            temp(:nu_tot) = numu_tot(:nu_tot)
+            call move_alloc(temp, numu_tot)
+       endif
+
+       ! allocate work arrays for the fit
+       call allocate_fit_work(alloc_stat)
+       if (alloc_stat /= 0) then
+           error = 1
+           call fitot11
+           return
+       endif
     end subroutine prepare_fit
 
     subroutine clear_fit_work
@@ -210,7 +216,7 @@ contains
         deallocate(numu, stat = stat)
         deallocate(numr, stat = stat)
         deallocate(numw, stat = stat)
-        deallocate(ca_list, stat = stat)
+        deallocate(numu_tot, stat = stat)
         deallocate(numu_fixed, stat = stat)
         deallocate(numu_fixed_prev, stat = stat)
         deallocate(w, stat = stat)
@@ -230,6 +236,8 @@ contains
         deallocate(dj_colnorm, stat = stat)
         nu = 0
         nw = 0
+        nu_tot = 0
+        nfixed = 0
         lwork_fit = 0
     end subroutine clear_fit_work
 
@@ -686,7 +694,7 @@ contains
     
         delu(:nw) = b(:nw)
     
-        call qrmn(dj, nu_max, nu, nw, djtau, delu, work_fit, lwork_fit)
+        call qrmn(dj, nu_tot, nu, nw, djtau, delu, work_fit, lwork_fit)
     
         ! delu is scaled ==> unscale
         do i = 1, nu
@@ -792,14 +800,14 @@ contains
     
     ! allocate fit matrix Dj.
     if (.not. allocated(dj)) then
-        allocate(dj(nu_max, mws%fit_targets%var_count), stat = stat)
+        allocate(dj(nu_tot, mws%fit_targets%var_count), stat = stat)
         if (opts%fit%scale_method /= SCALE_NONE .and. stat == 0) then
             allocate(w_scale(mws%fit_targets%var_count), stat = stat)
         endif
         if (opts%fit%scale_method == SCALE_BOTH .and. stat == 0) then
-            allocate(u_scale(nu_max), stat = stat)
+            allocate(u_scale(nu_tot), stat = stat)
         endif
-        if (stat == 0) allocate(dj_rownorm(nu_max))
+        if (stat == 0) allocate(dj_rownorm(nu_tot))
         if (stat == 0) allocate(dj_colnorm(mws%fit_targets%var_count))
         memory_error = stat /= 0
         if (memory_error) then
@@ -851,7 +859,7 @@ contains
     
     ! output the fit jacobian
     if (opts%fit%prijac) then
-        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
+        call fitodj(dj, fiter, numw, numu, nw, nu, nu_tot)
     endif
 
     ! Calculate the maximum of the 1-norms of the columns of matrix dj
@@ -938,14 +946,14 @@ contains
     ! scale the matrix
     !
     if (opts%fit%scale_method == SCALE_BOTH .and. is_square) then
-        call dgeequ(nu, nw, dj, nu_max, u_scale, w_scale, rowcnd, colcnd,  &
+        call dgeequ(nu, nw, dj, nu_tot, u_scale, w_scale, rowcnd, colcnd,  &
              amax, info)
         ! info != 0 if one or more columns or rows of dj only contain only 
         ! zero values
         scale_w = info == 0 .and. (colcnd < 0.1 .or. rowcnd < 0.1)
         scale_u = scale_w
     else if (opts%fit%scale_method == SCALE_ROW) then
-        call dgeequ_col(nu, nw, dj, nu_max, w_scale, colcnd, amax, info)
+        call dgeequ_col(nu, nw, dj, nu_tot, w_scale, colcnd, amax, info)
         ! info != 0 if one or more columns of dj only contain only zero values
         scale_w = info == 0 .and. colcnd < 0.1
         scale_u = .false.
@@ -993,7 +1001,7 @@ contains
     
     ! QR decomposition of Fit jacobian
     ! estimate inverse condition of R ==> inverse condition of jacobian
-    call qrco(dj, nu_max, nu, nw, djtau, dcond, work_fit, lwork_fit)
+    call qrco(dj, nu_tot, nu, nw, djtau, dcond, work_fit, lwork_fit)
 
 
     if (Rone + dcond == Rone) then
@@ -1147,19 +1155,19 @@ contains
         ! can be endogenous for the current period.
         numu_fixed_prev(1:nfixed) = numu_fixed(1:nfixed)
         nfixed_prev = nfixed
-        call mknumu(mws, ca_list, nca_fit, numu, numr, nu, numu_fixed, nfixed)
+        call mknumu_t(mws, numu_tot, nu_tot, numu, numr, nu, numu_fixed, nfixed)
         if (nfixed /= nfixed_prev) then
-             changed = .true.
+            changed = .true.
         else
-             changed = .false.
-             do i = 1, nfixed
+            changed = .false.
+            do i = 1, nfixed
                 if (numu_fixed_prev(i) /= numu_fixed(i)) then
                     changed = .true.
                     exit
                 endif
              end do
         endif
-        if (changed) call fitonufix(nfixed, numu_fixed, nu, numu)
+        if (changed) call fitonu_changed(nfixed, numu_fixed, nu, numu)
     endif
     
     ! setup numw array and check that all fit targets are endogenous
