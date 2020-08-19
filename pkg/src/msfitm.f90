@@ -139,6 +139,8 @@ contains
             return
         endif
     
+        ! Record all CAs that are used as fit instruments in at least one period in the 
+        ! simulation period (i.e. periods between jf and jl).
         call mknumu_tot(mws, numu_tot, numr_tot, nu_tot, deact_list, ndeact, &
                         fix_list, nfix, jf, jl, do_fix)
         call fitonu_tot(numu_tot, nu_tot, deact_list, ndeact, fix_list, nfix)
@@ -1148,12 +1150,13 @@ contains
     endif
     
     if (do_fix) then
-        ! Reset arrays for exogenous fit CAs.
-        ! If the fix procedure is active, then some fit CAs
-        ! can be endogenous for the current period.
         nfixed_prev = nfixed
         if (nfixed > 0) numu_fixed_prev(1:nfixed) = numu_fixed(1:nfixed)
+
+        ! Reset arrays for fit instruments (numu and numr). When variables are fixed in the
+        ! current period, fit instruments in numu_tot should be removed.
         call mknumu_t(mws, numu_tot, nu_tot, numu, numr, nu, numu_fixed, nfixed)
+
         if (nfixed /= nfixed_prev) then
             changed = .true.
         else

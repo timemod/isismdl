@@ -520,8 +520,8 @@ module mws_type
             integer(kind = SOLVE_IKIND), intent(in) :: jf, jl
             logical(kind = SOLVE_IKIND), intent(in) :: do_fix
 
-            ! Record all CAs that are used as fit instruments for the whole simulation
-            ! period (i.e. periods between jf and jl). These are CAs that:
+            ! Record all CAs that are used as fit instruments in at least one period in the 
+            ! simulation period (i.e. periods between jf and jl). These are CAs that:
             ! 1) have an rms > 0
             ! 2) occur in active equations
             ! 3) do not occur in equations that are fixed at ALL periods in the simulation
@@ -530,7 +530,7 @@ module mws_type
 
             ! The subroutine also records all CAs with rms > 0 that are not used as fit instruments
             ! because the equation is inactive or because the equation is fixed for all periods
-            ! in the simulatio period.
+            ! in the simulation period.
 
             integer(kind = SOLVE_IKIND) :: i
 
