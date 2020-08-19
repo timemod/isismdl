@@ -179,17 +179,16 @@ contains
             nu = nu_tot
             numu(1:nu) = numu_tot(1:nu)
             numr(1:nu) = numr_tot(1:nu)
-            !deallocate(numu_tot, stat = alloc_stat)
         endif
 
         ! numr_tot is not needed any more 
         deallocate(numr_tot, stat = alloc_stat)
 
-        ! decrease the size of numu_tot
         if (.not. do_fix) then
             ! in this case, numu_tot is also not needed any more 
             deallocate(numu_tot, stat = alloc_stat)
         else if (nrms > nu_tot) then
+            ! decrease the size of numu_tot
             allocate(temp(nu_tot), stat = alloc_stat)
             if (alloc_stat /= 0) then
                 error = 1
@@ -205,7 +204,6 @@ contains
        if (alloc_stat /= 0) then
            error = 1
            call fitot11
-           return
        endif
     end subroutine prepare_fit
 
@@ -1153,8 +1151,8 @@ contains
         ! Reset arrays for exogenous fit CAs.
         ! If the fix procedure is active, then some fit CAs
         ! can be endogenous for the current period.
-        numu_fixed_prev(1:nfixed) = numu_fixed(1:nfixed)
         nfixed_prev = nfixed
+        if (nfixed > 0) numu_fixed_prev(1:nfixed) = numu_fixed(1:nfixed)
         call mknumu_t(mws, numu_tot, nu_tot, numu, numr, nu, numu_fixed, nfixed)
         if (nfixed /= nfixed_prev) then
             changed = .true.
