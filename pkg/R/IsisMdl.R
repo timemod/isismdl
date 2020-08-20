@@ -139,6 +139,8 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{set_param}}}{Sets the model parameter}
 #'
+#' \item{\code{\link{set_param_values}}}{Sets the value of one or more model parameter}
+#'
 #' \item{\code{\link{get_param}}}{Returns model parameters}
 #'
 #' \item{\code{\link{set_data}}}{Transfer timeseries to the model data}
@@ -483,13 +485,19 @@ IsisMdl <- R6Class("IsisMdl",
     get_data_period = function() {
       return(private$data_period)
     },
-    set_param = function(p) {
-      if (!is.list(p)) {
-        p <- as.list(p)
-      }
+    set_param = function(p, name_err = "warn") {
+      p <- as.list(p)
+
       if (is.null(names(p))) {
         stop("Argument p has no names")
       }
+
+      names <- private$get_names_(private$param_type, names = names(p),
+                                  name_err = name_err)
+
+      npar <- length(names)
+      if (npar == 0) return(invisible(self))
+      p <- p[names]
 
       # check if the list contains any non-numeric elements
       is_not_num <- unlist(lapply(p, FUN = function(x) !is.numeric(x)))
@@ -497,15 +505,25 @@ IsisMdl <- R6Class("IsisMdl",
         no_numeric <- names(p)[is_not_num]
         stop(concat_names(no_numeric), " not numeric")
       }
-
       # convert integer list elements to numeric
       p <- lapply(p, as.numeric)
 
       nset <- .Call("set_param_c", model_index = private$model_index, p)
-      if (nset < length(p)) {
-        no_params <- setdiff(names(p), self$get_par_names())
-        warning(concat_names(no_params), " no model parameter(s)")
+      stopifnot(nset == npar)
+      return(invisible(self))
+    },
+    set_param_values = function(value, names, pattern) {
+      if (is.integer(value) || (is.logical(value) && all(is.na(value)))) {
+        value <- as.numeric(value)
+      } else if (!is.numeric(value)) {
+        stop("Argument 'value' should be a numeric vector")
       }
+      names <- private$get_names_(private$param_type, names, pattern)
+      nparam <- length(names)
+      p <- rep(list(value), nparam)
+      base::names(p) <- names
+      nset <- .Call("set_param_c", model_index = private$model_index, p)
+      stopifnot(nset == nparam)
       return(invisible(self))
     },
     get_param = function(pattern, names) {
@@ -922,6 +940,7 @@ IsisMdl <- R6Class("IsisMdl",
     fix_type = 3L,
     fit_type = 4L,
     rms_type = 5L,
+    param_type = 6L,
 
     deep_clone = function(name, value) {
       if (name == "model_index") {
@@ -1035,52 +1054,52 @@ IsisMdl <- R6Class("IsisMdl",
     },
     get_names_ = function(type, names, pattern,
                           name_err = c("stop", "warn", "silent")) {
-      # This function selects model variable names from names and pattern.
-      # It gives an error if names contain any invalid name for the
+      # This function selects model variable or parameter names from names
+      # and pattern. It gives an error if names contain any invalid name for the
       # specified type of model variable.
       name_err <- match.arg(name_err)
       if (type %in% c(private$fix_type, private$ca_type, private$rms_type)) {
         var_type <- "frml"
-        vnames <- self$get_endo_names(type = "frml", status = "all")
+        all_names <- self$get_endo_names(type = "frml", status = "all")
       } else if (type == private$fit_type) {
         var_type <- "endo"
-        vnames <- self$get_endo_names(status = "all")
+        all_names <- self$get_endo_names(status = "all")
+      } else if (type == private$param_type) {
+        var_type <- "param"
+        all_names <- self$get_par_names()
       } else {
         var_type <- "endo_exo"
-        vnames <- self$get_var_names()
+        all_names <- self$get_var_names()
       }
-      if (!missing(names)) {
-        error_vars <- setdiff(names, vnames)
-        if (length(error_vars) > 0) {
-          if (name_err != "silent") {
-            error_vars <- paste0("\"", error_vars, "\"")
-            type_texts <- c(endo = "endogenous",
-                            frml = "frml",
-                            endo_exo  = "model")
-            type_text <- type_texts[var_type]
-            if (length(error_vars) == 1) {
-              a_word <- if (var_type %in% c("endo")) "an" else "a"
-              msg <- paste0(error_vars, " is not ", a_word, " ", type_text,
-                            " variable.")
-            } else {
-              msg <- paste0("The following names are no ", type_text,
-                            " variables: ",
-                            paste(error_vars, collapse = ", "), ".")
-            }
-            if (name_err == "warn") {
-              warning(msg)
-            } else {
-              stop(msg)
-            }
+      if (!missing(names) &&
+          length(error_vars <- setdiff(names, all_names)) > 0) {
+        if (name_err != "silent") {
+          error_vars <- paste0("\"", error_vars, "\"")
+          type_texts <- c(endo = "endogenous variable",
+                          frml = "frml variable",
+                          endo_exo  = "model variable",
+                          param = "parameter")
+          type_text <- type_texts[var_type]
+          if (length(error_vars) == 1) {
+            a_word <- if (var_type %in% c("endo")) "an" else "a"
+            msg <- paste0(error_vars, " is not ", a_word, " ", type_text, ".")
+          } else {
+            msg <- paste0("The following names are no ", type_text, "s: ",
+                          paste(error_vars, collapse = ", "), ".")
           }
-          names <- intersect(names, vnames)
+          if (name_err == "warn") {
+            warning(msg)
+          } else {
+            stop(msg)
+          }
         }
+        names <- intersect(names, all_names)
       }
       if (missing(pattern) && missing(names)) {
-        names <- vnames
+        names <- all_names
       } else if (!missing(pattern)) {
-        sel <- grep(pattern, vnames)
-        pattern_names <- vnames[sel]
+        sel <- grep(pattern, all_names)
+        pattern_names <- all_names[sel]
         if (!missing(names)) {
           names <- union(pattern_names, names)
         } else {

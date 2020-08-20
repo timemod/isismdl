@@ -1045,7 +1045,7 @@ NULL
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_rms(values, name_err = c("warn", "silent", "warn"))
+#' mdl$set_rms(values, name_err = c("warn", "stop", "silent"))
 #'
 #' mdl$set_rms_values(value, names, pattern)
 #'
@@ -1787,29 +1787,52 @@ NULL
 #' print(mdl$get_ftrelax())
 NULL
 
-#' \code{\link{IsisMdl}} method: Sets the model parameters
+#' \code{\link{IsisMdl}} method: Set the values of model parameters
 #' @name set_param
+#' @aliases  set_param_values
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}}
-#' sets the model parameters
+#' sets the values of model parameters.
+#' Method set_param can be used to specify individual parameters,
+#' while set_param_values is a convenient method to give more than one
+#' parameters the same value.
+#'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_param(p)
+#' mdl$set_param(p, name_err = c("warn", "stop", "silent"))
+#'
+#' mdl$set_param_values(value, names, pattern)
+#'
 #'
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 #' @section Arguments:
-#'
 #' \describe{
 #' \item{\code{p}}{a named list.
 #' The names are the names of the parameter names.
 #' The list elements are numeric vectors with a length equal to the length
-#' of the corresponding parameter}
+#' of the corresponding parameter.}
+#' \item{\code{name_err}}{A character that specifies the
+#' action that should be taken when a name is not the name of a parameter.
+#' For `"warn"` (the default), a warning is given, for `"stop"` an error is
+#' issued. For `"silent"`, the variable is silently skipped.}
+#' \item{\code{names}}{a character vector with names of the parameters.}
+#' \item{\code{pattern}}{a regular expression.
+#' The values for all parameters with names matching the regular expression
+#' are set to the specified value.}
 #' }
+#' If neither \code{names} nor \code{pattern} has
+#' been specified in methods \code{set_rms_values},
+#' then all rms values are set to the specified value.
+#' @section Details:
+#' For `set_param_values`, all specified parameters should have the same length.
 #' @examples
 #' mdl <- islm_mdl()
 #' mdl$set_param(list(i0 = 101))
+#'
+#' # give all parameters i0, c0, m0, and t0 the value 0
+#' mdl$set_param_values(0, pattern = ".0")
 NULL
 
 

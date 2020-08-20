@@ -73,6 +73,8 @@ variables}
 
 \item{\code{\link{set_param}}}{Sets the model parameter}
 
+\item{\code{\link{set_param_values}}}{Sets the value of one or more model parameter}
+
 \item{\code{\link{get_param}}}{Returns model parameters}
 
 \item{\code{\link{set_data}}}{Transfer timeseries to the model data}

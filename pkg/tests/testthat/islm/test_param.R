@@ -39,15 +39,54 @@ test_that("warnings and errors for set_param", {
   expect_error(islm_model$set_param(2), "Argument p has no names")
   expect_error(islm_model$set_param(list(2,3)), "Argument p has no names")
   expect_warning(islm_model$set_param(list(c0 = 120, xx = c(1,2))),
-                   "xx is no model parameter\\(s\\)")
+                 "\"xx\" is not a parameter")
+  expect_error(islm_model$set_param(list(c0 = 120, xx = c(1,2)), name_err = "stop"),
+                 "\"xx\" is not a parameter")
   expect_error(islm_model$set_param(list(c0 = c(120, 120))),
                  "Value for parameter c0 has an incorrect length. Required length: 1. Actual length: 2")
   expect_error(islm_model$set_param(list(c0 = "xxx", i1 = 2)),
                "c0 is not numeric")
+  expect_error(islm_model$set_param(list(c0 = "xxx", i1 = FALSE)),
+               "c0 and i1 are not numeric")
 })
 
 test_that("p as a named numeric vector", {
-  islm_model$set_param(c(c0 = 240L, t1 = 0.5))
+  expect_silent(islm_model$set_param(c(c0 = 240L, t1 = 0.5, xxx = 2),
+                                     name_err = "silent"))
   expect_equal(islm_model$get_param(names = c("c0", "t1")),
                list(c0 = 240, t1 = 0.5))
+})
+
+test_that("set_param_values", {
+  par <- islm_model$get_param()
+
+  islm_model$set_param_values(2)
+  expected_result <- par
+  expected_result[] <- 2
+  expect_equal(islm_model$get_param(), expected_result)
+
+  islm_model$set_param_values(3, pattern = "^i\\d", names = "c0")
+  expected_result[c("i0", "i1", "i2", "i3", "c0")] <- 3
+  expect_equal(islm_model$get_param(), expected_result)
+
+  islm_model$set_param_values(NA, pattern = "^c\\d")
+  expected_result[c("c0", "c1", "c2", "c3")] <- NA_real_
+  expect_equal(islm_model$get_param(), expected_result)
+
+  islm_model$set_param_values(111, names = c("m1"))
+  expected_result["m1"] <- 111
+  expect_equal(islm_model$get_param(), expected_result)
+
+  expect_silent(islm_model$set_param_values(999, pattern = "^x"))
+  expect_equal(islm_model$get_param(), expected_result)
+
+  #
+  # errors
+  #
+  expect_error(islm_model$set_param_values("xxx"),
+               "Argument 'value' should be a numeric vector")
+  expect_error(islm_model$set_param_values(1:2),
+               "Value for parameter c0 has an incorrect length. Required length: 1. Actual length: 2")
+  expect_error(islm_model$set_param_values(3, names = "xxx"),
+               "\"xxx\" is not a parameter.")
 })

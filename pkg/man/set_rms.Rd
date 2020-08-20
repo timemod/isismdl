@@ -20,7 +20,7 @@ larger than 0 and not equal to \code{NA}.
 \section{Usage}{
 
 \preformatted{
-mdl$set_rms(values, name_err = c("warn", "silent", "warn"))
+mdl$set_rms(values, name_err = c("warn", "stop", "silent"))
 
 mdl$set_rms_values(value, names, pattern)
 
