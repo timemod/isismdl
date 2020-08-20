@@ -622,9 +622,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     set_rms_values = function(value, names, pattern) {
-      if (!is.numeric(value) && length(value) != 1) {
-        stop("Argument vaBlue should be a scalar numeric")
-      }
+      value <- check_value(value)
       names <- private$get_names_(private$rms_type, names, pattern)
       if ((n <- length(names)) > 0) {
           values <- rep(value, n)

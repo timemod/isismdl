@@ -87,6 +87,10 @@ test_that("set_rms_values", {
                '"aap" is not a frml variable.')
   expect_silent(mdl7$set_rms_values(666, pattern = "xxx"))
   expect_equal(mdl7$get_rms(), c(c = 3, i = 2, md = 2, t = 3))
+  expect_silent(mdl7$set_rms_values(NA, names = "c"))
+  expect_equal(mdl7$get_rms(), c(i = 2, md = 2, t = 3))
+  expect_error(mdl7$set_rms_values("jan"),
+               "Argument 'value' should be a scalar numeric")
 })
 
 
