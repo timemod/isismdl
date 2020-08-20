@@ -605,7 +605,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(private$change_data_(private$ca_type, fun, names, pattern,
                                  period, ...))
     },
-    set_rms = function(values, name_err = "silent") {
+    set_rms = function(values, name_err = "warn") {
       if (is.integer(values) || (is.logical(values) && all(is.na(values)))) {
         values[] <- as.numeric(values)
       } else if (!is.numeric(values)) {

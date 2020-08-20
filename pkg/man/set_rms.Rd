@@ -20,7 +20,7 @@ larger than 0 and not equal to \code{NA}.
 \section{Usage}{
 
 \preformatted{
-mdl$set_rms(values, name_err = c("silent", "warn", "stop"))
+mdl$set_rms(values, name_err = c("warn", "silent", "warn"))
 
 mdl$set_rms_values(value, names, pattern)
 
@@ -41,8 +41,9 @@ then the corresponding value will be used as fit instrument. The names should
 be the name of the corresponding frml variables.}
 \item{\code{name_err}}{A character that specifies the
 action that should be taken when a name is not the name of a frml variable.
-For \code{"silent"} (the default), the variable is silently skipped,
-for \code{"warn"} a warning is given and for \code{"stop"} an error is  issued.}
+For \code{"warn"} (the default), a warning is given, for \code{"stop"} an error is
+issued. For \code{"silent"}, the variable is silently skipped,
+}
 \item{\code{value}}{A numeric vector of length 1.}
 \item{\code{names}}{a character vector with names of the frml variables
 whose rms values should be set at the specified value.}

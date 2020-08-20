@@ -1045,7 +1045,7 @@ NULL
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_rms(values, name_err = c("silent", "warn", "stop"))
+#' mdl$set_rms(values, name_err = c("warn", "silent", "warn"))
 #'
 #' mdl$set_rms_values(value, names, pattern)
 #'
@@ -1064,8 +1064,9 @@ NULL
 #' be the name of the corresponding frml variables.}
 #' \item{\code{name_err}}{A character that specifies the
 #' action that should be taken when a name is not the name of a frml variable.
-#' For `"silent"` (the default), the variable is silently skipped,
-#' for `"warn"` a warning is given and for `"stop"` an error is  issued.}
+#' For `"warn"` (the default), a warning is given, for `"stop"` an error is
+#' issued. For `"silent"`, the variable is silently skipped,
+#' }
 #' \item{\code{value}}{A numeric vector of length 1.}
 #' \item{\code{names}}{a character vector with names of the frml variables
 #' whose rms values should be set at the specified value.}
