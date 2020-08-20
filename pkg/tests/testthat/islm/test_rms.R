@@ -1,15 +1,15 @@
 library(testthat)
 library(isismdl)
 
-rm(list = ls())
-
 context("rms values for ISLM model")
+
+rm(list = ls())
 
 # prepare rms values and fit targets
 rms_values <- c(c = 5.0, t = 2, i = 21, md = 2)
 rms_values_sorted <- rms_values[order(names(rms_values))]
 
-capture_output(mdl <- read_mdl("islm_model.ismdl"))
+mdl <- read_mdl("islm_model.ismdl", silent = TRUE)
 mdl2 <- mdl$copy()
 
 test_that("get_rms with all positive numbers", {
@@ -17,9 +17,14 @@ test_that("get_rms with all positive numbers", {
   expect_identical(mdl$get_rms(), numeric(0))
   expect_identical(mdl2$get_rms(), rms_values_sorted)
   mdl2$write_mdl("tmp.ismdl")
-  capture.output(mdl3 <- read_mdl("tmp.ismdl"))
+  mdl3 <- read_mdl("tmp.ismdl", silent = TRUE)
   unlink("tmp.ismdl")
   expect_identical(mdl3$get_rms(), rms_values_sorted)
+
+  values <- as.integer(rms_values * 2)
+  names(values) <- names(rms_values)
+  mdl2$set_rms(values)
+  expect_identical(mdl2$get_rms(), rms_values_sorted * 2)
 })
 
 test_that("rms values after clear_fit", {
@@ -79,7 +84,7 @@ test_that("set_rms_values", {
   mdl7 <- mdl$copy()
   mdl7$set_rms_values(1)
   expect_equal(mdl7$get_rms(), c(c = 1, i = 1, md = 1, t = 1))
-  mdl7$set_rms_values(2, names = c("i", "md"))
+  mdl7$set_rms_values(2L, names = c("i", "md"))
   expect_equal(mdl7$get_rms(), c(c = 1, i = 2, md = 2, t = 1))
   mdl7$set_rms_values(3, names = "t", pattern = "^c$")
   expect_equal(mdl7$get_rms(), c(c = 3, i = 2, md = 2, t = 3))

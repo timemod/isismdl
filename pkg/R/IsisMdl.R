@@ -622,7 +622,13 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     set_rms_values = function(value, names, pattern) {
-      value <- check_value(value)
+      err_msg <- "Argument 'value' should be a scalar numeric"
+      if (length(value) != 1) stop(err_msg)
+      if (is.integer(value) || (is.logical(value) && is.na(value))) {
+        value <- as.numeric(value)
+      } else if (!is.numeric(value)) {
+        stop(err_msg)
+      }
       names <- private$get_names_(private$rms_type, names, pattern)
       if ((n <- length(names)) > 0) {
           values <- rep(value, n)
@@ -1083,13 +1089,19 @@ IsisMdl <- R6Class("IsisMdl",
       return(names)
     },
     set_values_ = function(set_type, value, names, pattern, period) {
-      value <- as.numeric(value)
+
       period <- private$convert_period_arg(period)
       if (is.null(range_intersect(period, private$data_period))) {
         warning(sprintf(paste("Specified period (%s) is completely outside the",
                               "data period (%s)."), period,
                         private$data_period))
         return(invisible(self))
+      }
+
+      if (is.integer(value) || (is.logical(value) && all(is.na(value)))) {
+        value <- as.numeric(value)
+      } else if (!is.numeric(value)) {
+        stop("Argument 'value' is not a numeric vector")
       }
       nper <- nperiod(period)
       vlen <- length(value)
