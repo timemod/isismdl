@@ -485,21 +485,22 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_param = function(p) {
       if (!is.list(p)) {
-        stop("Argument p is not a list")
+        p <- as.list(p)
       }
       if (is.null(names(p))) {
         stop("Argument p has no names")
       }
 
       # check if the list contains any non-numeric elements
-      is_num <- unlist(lapply(p, FUN = function(x) !is.numeric(x)))
-      if (any(is_num)) {
-        no_numeric <- names(p)[is_num]
+      is_not_num <- unlist(lapply(p, FUN = function(x) !is.numeric(x)))
+      if (any(is_not_num)) {
+        no_numeric <- names(p)[is_not_num]
         stop(concat_names(no_numeric), " not numeric")
       }
 
       # convert integer list elements to numeric
       p <- lapply(p, as.numeric)
+
       nset <- .Call("set_param_c", model_index = private$model_index, p)
       if (nset < length(p)) {
         no_params <- setdiff(names(p), self$get_par_names())
