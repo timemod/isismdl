@@ -913,29 +913,34 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{value}}{a numeric vector of length 1 or with the same length
-#' as the length of the range of \code{period}}
-#' \item{\code{names}}{a character vector with variable names}
-#' \item{\code{pattern}}{a regular expression specifying the
-#' variable names}
-#' \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
+#' \item{\code{value}}{A numeric vector of length 1 or with the same length
+#' as the length of the range of \code{period}.}
+#' \item{\code{names}}{A character vector with variable names.
+#' For `set_ca_values` and `set_fix_values`, the names should be the
+#' names of frml variables (the variables on the left hand side of frml equations).
+#' For `set_fit_values`, the names should be the names of endogenous variables.}
+#' \item{\code{pattern}}{A regular expression specifying the
+#' variable names.}
+#' \item{\code{period}}{A \code{\link[regts]{period_range}} object or an
 #' object that can be coerced to a \code{period_range}. The default
-#' is the data period}
+#' is the data period.}
 #' }
+#' If neither \code{names} nor \code{pattern} has been specified, then the action
+#' is applied to all model variables of the appropriate type.
 #' @section Methods:
 #' \describe{
-#' \item{\code{set_values}}{Sets the values of model data}
-#' \item{\code{set_ca}}{Sets the values of the  constant adjustments, i.e. the
+#' \item{\code{set_values}}{Sets the values of model data.}
+#' \item{\code{set_ca_values}}{Sets the values of the  constant adjustments, i.e. the
 #' residuals of behavourial (frml) equations.}
-#' \item{\code{set_fix}}{Set fix values for the stochastic
+#' \item{\code{set_fix_values}}{Set fix values for the stochastic
 #' model variables (i.e. model variables that occur at the left
 #' hand side of a frml equation). The model variables will be fixed
 #' at the specified value. A fix value of \code{NA} implies
 #' that the corresponding variable is not fixed. \code{set_fix}
-#' also updates the model data with all non NA values}
-#' \item{\code{set_fit}}{Set fit targets for the fit procedure.
+#' also updates the model data with all non NA values.}
+#' \item{\code{set_fit_values}}{Set fit targets for the fit procedure.
 #' A fit target value of \code{NA} implies
-#' that the corresponding variable is no fit target}
+#' that the corresponding variable is no fit target.}
 #' }
 #'
 #' @examples
@@ -953,7 +958,11 @@ NULL
 #
 #' print(mdl$get_data())
 #'
-#' @examples
+#' give the constant adjustment of variable c the value 1
+#' mdl$set_ca_values(0, names = "c")
+#'
+#' # fix c and i at 200 in period 2017q1/2017q2
+#' mdl$set_fix_values(200, names = c("c", "i))
 #'
 #' @seealso \code{\link{get_data-methods}}, \code{\link{set_data-methods}}
 #' and \code{\link{change_data-methods}}

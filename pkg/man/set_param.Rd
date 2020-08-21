@@ -65,6 +65,6 @@ mdl$set_param_values(0, pattern = ".0")
 # print all parameters
 mdl$get_param()
 
-#' # print parameters c0, c1, c2 and c3
+# print parameters c0, c1, c2 and c3
 print(mdl$get_param(pattern = "^c.*"))
 }
