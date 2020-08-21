@@ -67,6 +67,26 @@ that the corresponding variable is no fit target.}
 }
 }
 
+\examples{
+mdl <- islm_mdl(period = "2017Q1/2017Q3")
+
+# set the values for y in the full data period
+mdl$set_values(1000, names = "y")
+
+# set the values of ms and md in 2017Q1 and 2017Q2
+mdl$set_values(c(205, 206), pattern = "^m.$", period = "2017Q1/2017Q2")
+
+# set the values of ms and md in all quarters of 2017 (2017Q1/2017Q4)
+mdl$set_values(c(205, 206, 207, 208), pattern = "^m.$", period = "2017")
+print(mdl$get_data())
+
+# give the constant adjustment of variable c the value 1
+mdl$set_ca_values(0, names = "c")
+
+# fix c and i at 200 in period 2017q1/2017q2
+mdl$set_fix_values(200, names = c("c", "i"))
+
+}
 \seealso{
 \code{\link{get_data-methods}}, \code{\link{set_data-methods}}
 and \code{\link{change_data-methods}}
