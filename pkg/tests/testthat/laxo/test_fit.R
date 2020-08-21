@@ -3,6 +3,8 @@ library(isismdl)
 
 context("fit for laxo model")
 
+rm(list = ls())
+
 mdl_file <- "mdl/laxo.mdl"
 mif_file <- "mdl/laxo.mif"
 input_csv <- "data/input.csv"
@@ -53,17 +55,17 @@ dif_ca <- tsdif(mdl$get_ca(period = mdl_period), isis_ca_result, tol = 1e-6,
                 fun = cvgdif)
 
 test_that("Testing get_fit", {
-    fit_ref <- fit_targets
-    fit_ref["1993Q2", c("ybfexvk", "c____pr")] <- c(177.84782, 0.00489)
-    expect_identical(mdl$get_fit()[, colnames(fit_ref)], fit_ref)
+  fit_ref <- fit_targets
+  fit_ref["1993Q2", c("ybfexvk", "c____pr")] <- c(177.84782, 0.00489)
+  expect_identical(mdl$get_fit()[, colnames(fit_ref)], fit_ref)
 })
 
 test_that("Comparing the results", {
-    expect_identical(dif$missing_names1, character(0))
-    expect_identical(dif$missing_names2, character(0))
-    expect_identical(dif$difnames, character(0))
-    expect_identical(dif_ca$missing_names1, character(0))
-    expect_identical(dif_ca$missing_names2, character(0))
-    expect_identical(dif_ca$difnames, character(0))
+  expect_identical(dif$missing_names1, character(0))
+  expect_identical(dif$missing_names2, character(0))
+  expect_identical(dif$difnames, character(0))
+  expect_identical(dif_ca$missing_names1, character(0))
+  expect_identical(dif_ca$missing_names2, character(0))
+  expect_identical(dif_ca$difnames, character(0))
 })
 

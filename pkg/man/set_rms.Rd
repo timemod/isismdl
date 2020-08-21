@@ -3,21 +3,29 @@
 \name{set_rms}
 \alias{set_rms}
 \alias{get_rms}
-\title{\code{\link{IsisMdl}} method: Sets or updates  the root mean square errors}
+\alias{set_rms_values}
+\title{\code{\link{IsisMdl}} method: Sets the root mean square errors}
 \description{
-This method of R6 class \code{\link{IsisMdl}}
-sets or updates the root mean square (rms) error data
-used in the fit procedure. All variables whose rms value
-is larger than 0 and not \code{NA} are used as
-instruments of the fit procedure.
+Methods \code{set_rms} and \code{set_rms_values} of R6 class \code{\link{IsisMdl}}
+can be used to set the root mean square (rms) error values
+used in the fit procedure.
+Each frml equation has a constant adjustment and a correpsonding rms value.
+If the rms value is larger than 0 and not \code{NA}, then the constant
+adjustment is used as a fit instruments.
 
-Method \code{get_rms} returns all rms values
-larger than 0 and not equal to \code{NA}.
+Method \code{set_rms} can be used to set individual rms values,
+while \code{set_rms_values} is a convenient method to give more than one rms value
+the same value.
+
+Method \code{get_rms} returns all rms values larger than 0 and not equal
+to \code{NA}.
 }
 \section{Usage}{
 
 \preformatted{
-mdl$set_rms(values, name_err = c("silent", "warn", "stop"))
+mdl$set_rms(values, name_err = c("warn", "stop", "silent"))
+
+mdl$set_rms_values(value, names, pattern)
 
 mdl$get_rms()
 
@@ -30,14 +38,24 @@ mdl$get_rms()
 
 
 \describe{
-\item{\code{values}}{a named numeric vector with rms values.
-If a value is positive and not \code{"NA"},
-then the corresponding value will be used as fit instrument.}
+\item{\code{values}}{A named numeric vector with rms values.
+The names should be the names of the corresponding frml variables
+(the variables at the left hand side of a frml equation).}
 \item{\code{name_err}}{A character that specifies the
 action that should be taken when a name is not the name of a frml variable.
-For \code{"silent"} (the default), the variable is silently skipped,
-for \code{"warn"} a warning is given and for \code{"stop"} an error is  issued.}
+For \code{"warn"} (the default), a warning is given, for \code{"stop"} an error is
+issued. For \code{"silent"}, the variable is silently skipped,
 }
+\item{\code{value}}{A numeric vector of length 1.}
+\item{\code{names}}{A character vector specifying the names of the frml
+variables.}
+\item{\code{pattern}}{A regular expression. The action (get or
+set rms values) is applied to the rms values corresponding to the
+frml variables with names matching \code{pattern}.}
+}
+If neither \code{names} nor \code{pattern} has been specified in
+methods \code{set_rms_values} or \code{get_rms}, then the action
+is applied to all rms values.
 }
 
 \examples{
@@ -46,7 +64,13 @@ mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$set_rms(c(c = 5.0, t = 2, i = 21, md = 2))
 print(mdl$get_rms())
 
-# stop using variable t as fit instrument
-mdl$set_rms(c(t = NA))
+# remove the constant adjustment for variable c from the fit instruments
+mdl$set_rms_values(NA, "c")
 print(mdl$get_rms())
+
+# make all rms values equal to 1
+mdl$set_rms_values(1)
+
+# set the rms values for c and i to 2
+mdl$set_rms_values(2, names = c("c", "i"))
 }

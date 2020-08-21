@@ -73,6 +73,8 @@ variables}
 
 \item{\code{\link{set_param}}}{Sets the model parameter}
 
+\item{\code{\link{set_param_values}}}{Sets the value of one or more model parameter}
+
 \item{\code{\link{get_param}}}{Returns model parameters}
 
 \item{\code{\link{set_data}}}{Transfer timeseries to the model data}
@@ -107,7 +109,9 @@ applying a function}
 
 \item{\code{\link{get_fit}}}{Returns the fit targets}
 
-\item{\code{\link{set_rms}}}{Sets or updates  the rms values}
+\item{\code{\link{set_rms}}}{Sets one or more the rms values used in the fit procedure}
+
+\item{\code{\link{set_rms_values}}}{Sets the rms values used in the fit procedure}
 
 \item{\code{\link{set_solve_options}}}{Sets the solve options}
 

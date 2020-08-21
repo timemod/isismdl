@@ -813,12 +813,14 @@ NULL
 #' the labels of the corresponding model variables}
 #' \item{\code{set_ca}}{Set constant adjustments, i.e. the residuals of
 #' behavourial (frml) equations}
-#' \item{\code{set_fix}}{Set fix values for the stochastic
-#' model variables (i.e. model variables that occur at the left
-#' hand side of a frml equation). The model variables will be fixed
-#' at the specified value. A fix value of \code{NA} implies
-#' that the corresponding variable is not fixed. \code{set_fix}
-#' also updates the model data with all non NA values}
+#' \item{\code{set_fix}}{Set fix values for frml variables
+#' (model variables that occur at the left hand side of a frml equation).
+#' The frml variable is kept fixed
+#' at the specified value, and the constant adjustment of the frml equation
+#' is computed at the difference between the frml variable and the right hand
+#' side of the equation. A fix value of \code{NA} implies
+#' that the corresponding variable is *not* fixed. \code{set_fix}
+#' also updates the model data with all non-NA values in `data`.}
 #' \item{\code{set_fit}}{Set fit targets for the fit procedure.
 #' A fit target value of \code{NA} implies
 #' that the corresponding variable is no fit target}
@@ -839,7 +841,7 @@ NULL
 #' \code{-Inf}) are also disregarded for this update mode.
 #'
 #' \code{set_ca}, \code{set_fix} and \code{set_fit} and
-#' \code{set_data} works similarly.
+#' \code{set_data} work similarly.
 #'
 #' @examples
 #'
@@ -873,6 +875,13 @@ NULL
 #' mdl$set_data(shock, fun = `+`)
 #' #`+` is a primitive function that adds its two arguments.
 #'
+#'
+#' # fix c in 2017Q1/2017q2 and i in 2017q1 to specific values
+#' c <- regts(250, period = "2017q1/2017q2")
+#' i <- regts(175, period = "2017q1")
+#' fix_data <- cbind(c, i)
+#' mdl$set_fix(fix_data)
+#'
 #' @seealso \code{\link{get_data-methods}}, \code{\link{set_values-methods}},
 #' \code{\link{change_data-methods}}, \code{\link{fix_variables}},
 #' \code{\link{clear_fix}} and \code{\link{clear_fit}}.
@@ -904,47 +913,54 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{value}}{a numeric vector of length 1 or with the same length
-#' as the length of the range of \code{period}}
-#' \item{\code{names}}{a character vector with variable names}
-#' \item{\code{pattern}}{a regular expression specifying the
-#' variable names}
-#' \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
+#' \item{\code{value}}{A numeric vector of length 1 or with the same length
+#' as the length of the range of \code{period}.}
+#' \item{\code{names}}{A character vector with variable names.
+#' For `set_ca_values` and `set_fix_values`, the names should be the
+#' names of frml variables (the variables on the left hand side of frml equations).
+#' For `set_fit_values`, the names should be the names of endogenous variables.}
+#' \item{\code{pattern}}{A regular expression specifying the
+#' variable names.}
+#' \item{\code{period}}{A \code{\link[regts]{period_range}} object or an
 #' object that can be coerced to a \code{period_range}. The default
-#' is the data period}
+#' is the data period.}
 #' }
+#' If neither \code{names} nor \code{pattern} has been specified, then the action
+#' is applied to all model variables of the appropriate type.
 #' @section Methods:
 #' \describe{
-#' \item{\code{set_values}}{Sets the values of model data}
-#' \item{\code{set_ca}}{Sets the values of the  constant adjustments, i.e. the
+#' \item{\code{set_values}}{Sets the values of model data.}
+#' \item{\code{set_ca_values}}{Sets the values of the  constant adjustments, i.e. the
 #' residuals of behavourial (frml) equations.}
-#' \item{\code{set_fix}}{Set fix values for the stochastic
+#' \item{\code{set_fix_values}}{Set fix values for the stochastic
 #' model variables (i.e. model variables that occur at the left
 #' hand side of a frml equation). The model variables will be fixed
 #' at the specified value. A fix value of \code{NA} implies
 #' that the corresponding variable is not fixed. \code{set_fix}
-#' also updates the model data with all non NA values}
-#' \item{\code{set_fit}}{Set fit targets for the fit procedure.
+#' also updates the model data with all non NA values.}
+#' \item{\code{set_fit_values}}{Set fit targets for the fit procedure.
 #' A fit target value of \code{NA} implies
-#' that the corresponding variable is no fit target}
+#' that the corresponding variable is no fit target.}
 #' }
-#'
 #' @examples
-#'
 #' mdl <- islm_mdl(period = "2017Q1/2017Q3")
 #'
 #' # set the values for y in the full data period
 #' mdl$set_values(1000, names = "y")
 #'
 #' # set the values of ms and md in 2017Q1 and 2017Q2
-#' mdl$set_values(c(205,206), pattern = "^m.$", period = "2017Q1/2017Q2")
+#' mdl$set_values(c(205, 206), pattern = "^m.$", period = "2017Q1/2017Q2")
 #'
 #' # set the values of ms and md in all quarters of 2017 (2017Q1/2017Q4)
 #' mdl$set_values(c(205, 206, 207, 208), pattern = "^m.$", period = "2017")
 #
 #' print(mdl$get_data())
 #'
-#' @examples
+#' # give the constant adjustment of variable c the value 1
+#' mdl$set_ca_values(0, names = "c")
+#'
+#' # fix c and i at 200 in period 2017q1/2017q2
+#' mdl$set_fix_values(200, names = c("c", "i"))
 #'
 #' @seealso \code{\link{get_data-methods}}, \code{\link{set_data-methods}}
 #' and \code{\link{change_data-methods}}
@@ -1027,23 +1043,30 @@ NULL
 #'
 NULL
 
-#' \code{\link{IsisMdl}} method: Sets or updates  the root mean square errors
+#' \code{\link{IsisMdl}} method: Sets the root mean square errors
 #' @name set_rms
-#' @aliases get_rms
+#' @aliases get_rms set_rms_values
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}}
-#' sets or updates the root mean square (rms) error data
-#' used in the fit procedure. All variables whose rms value
-#' is larger than 0 and not \code{NA} are used as
-#' instruments of the fit procedure.
+#' Methods `set_rms` and `set_rms_values` of R6 class \code{\link{IsisMdl}}
+#' can be used to set the root mean square (rms) error values
+#' used in the fit procedure.
+#' Each frml equation has a constant adjustment and a correpsonding rms value.
+#' If the rms value is larger than 0 and not \code{NA}, then the constant
+#' adjustment is used as a fit instruments.
 #'
-#' Method \code{get_rms} returns all rms values
-#' larger than 0 and not equal to \code{NA}.
+#' Method `set_rms` can be used to set individual rms values,
+#' while `set_rms_values` is a convenient method to give more than one rms value
+#' the same value.
+#'
+#' Method \code{get_rms} returns all rms values larger than 0 and not equal
+#' to \code{NA}.
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_rms(values, name_err = c("silent", "warn", "stop"))
+#' mdl$set_rms(values, name_err = c("warn", "stop", "silent"))
+#'
+#' mdl$set_rms_values(value, names, pattern)
 #'
 #' mdl$get_rms()
 #'
@@ -1054,23 +1077,39 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{values}}{a named numeric vector with rms values.
-#' If a value is positive and not \code{"NA"},
-#' then the corresponding value will be used as fit instrument.}
+#' \item{\code{values}}{A named numeric vector with rms values.
+#' The names should be the names of the corresponding frml variables
+#' (the variables at the left hand side of a frml equation).}
 #' \item{\code{name_err}}{A character that specifies the
 #' action that should be taken when a name is not the name of a frml variable.
-#' For `"silent"` (the default), the variable is silently skipped,
-#' for `"warn"` a warning is given and for `"stop"` an error is  issued.}
+#' For `"warn"` (the default), a warning is given, for `"stop"` an error is
+#' issued. For `"silent"`, the variable is silently skipped,
 #' }
+#' \item{\code{value}}{A numeric vector of length 1.}
+#' \item{\code{names}}{A character vector specifying the names of the frml
+#' variables.}
+#' \item{\code{pattern}}{A regular expression. The action (get or
+#' set rms values) is applied to the rms values corresponding to the
+#' frml variables with names matching \code{pattern}.}
+#' }
+#' If neither \code{names} nor \code{pattern} has been specified in
+#' methods \code{set_rms_values} or \code{get_rms}, then the action
+#' is applied to all rms values.
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #'
 #' mdl$set_rms(c(c = 5.0, t = 2, i = 21, md = 2))
 #' print(mdl$get_rms())
 #'
-#' # stop using variable t as fit instrument
-#' mdl$set_rms(c(t = NA))
+#' # remove the constant adjustment for variable c from the fit instruments
+#' mdl$set_rms_values(NA, "c")
 #' print(mdl$get_rms())
+#'
+#' # make all rms values equal to 1
+#' mdl$set_rms_values(1)
+#'
+#' # set the rms values for c and i to 2
+#' mdl$set_rms_values(2, names = c("c", "i"))
 NULL
 
 #' \code{\link{IsisMdl}} method: Sets the solve options
@@ -1766,60 +1805,67 @@ NULL
 #' print(mdl$get_ftrelax())
 NULL
 
-#' \code{\link{IsisMdl}} method: Sets the model parameters
+#' \code{\link{IsisMdl}} method: Set the values of model parameters
 #' @name set_param
+#' @aliases  set_param_values get_param
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}}
-#' sets the model parameters
+#' Method `set_param` and `set_param_values` of R6 class \code{\link{IsisMdl}}
+#' can be used to set the values of model parameters.
+#' A parameter may have more than one element. The parameter
+#' value is a numeric vector of the appropriate length.
+#'
+#' Method `set_param` can be used to specify individual parameters,
+#' while `set_param_values` is a convenient method to give more than one
+#' parameter the same value.
+#'
+#' Method \code{get_param} returns a list with the
+#' values of the parameters.
+#'
 #' @section Usage:
 #' \preformatted{
-#' mdl$set_param(p)
+#' mdl$set_param(p, name_err = c("warn", "stop", "silent"))
 #'
-#' }
-#' \code{mdl} is an \code{\link{IsisMdl}} object
-#' @section Arguments:
+#' mdl$set_param_values(value, names, pattern)
 #'
-#' \describe{
-#' \item{\code{p}}{a named list.
-#' The names are the names of the parameter names.
-#' The list elements are numeric vectors with a length equal to the length
-#' of the corresponding parameter}
-#' }
-#' @examples
-#' mdl <- islm_mdl()
-#' mdl$set_param(list(i0 = 101))
-NULL
-
-
-#' \code{\link{IsisMdl}} method: Returns model parameters
-#' @name get_param
-#'
-#' @description
-#' This method of R6 class \code{\link{IsisMdl}}
-#' returns model parameters
-#' @section Usage:
-#' \preformatted{
 #' mdl$get_param(pattern, names)
 #'
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 #' @section Arguments:
-#'
 #' \describe{
-#' \item{\code{pattern}}{a regular expression specifying parameter names}
-#' \item{\code{names}}{a character vector with parameter names}
+#' \item{\code{p}}{a named list.
+#' The names are the names of the parameter names.
+#' The list elements are numeric vectors with a length equal to the length
+#' of the corresponding parameter.}
+#' \item{\code{name_err}}{A character that specifies the
+#' action that should be taken when a name is not the name of a parameter.
+#' For `"warn"` (the default), a warning is given, for `"stop"` an error is
+#' issued. For `"silent"`, the variable is silently skipped.}
+#' \item{\code{value}}{A numeric vector of the appropriate length. All parameters
+#' specified with argument `names` and `pattern` must have the same length as
+#' argument `value`.}
+#' \item{\code{names}}{A character vector specifying the names of the parameters.}
+#' \item{\code{pattern}}{A regular expression. The action (get or
+#' set parameter values) is applied to all parameters with names
+#' matching \code{pattern}.}
 #' }
+#' If neither \code{names} nor \code{pattern} has been specified in
+#' methods \code{set_param_values} or \code{get_param}, then the action
+#' is applied to all model parameters.
+#'
 #' @examples
 #' mdl <- islm_mdl()
+#' mdl$set_param(list(i0 = 101))
 #'
-#' # print all model parameters
-#' print(mdl$get_param())
+#' # give parameters i0, c0, m0, and t0 the value 0
+#' mdl$set_param_values(0, pattern = ".0")
+#'
+#' # print all parameters
+#' mdl$get_param()
 #'
 #' # print parameters c0, c1, c2 and c3
 #' print(mdl$get_param(pattern = "^c.*"))
-#' @seealso
-#' \code{\link{set_param}}
 NULL
 
 #' Writes an \code{IsisMdl} object to  a file
@@ -1937,7 +1983,14 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} fixes the specified
-#' model variables to their current values.
+#' frml variables to their current values in the model data.
+#'
+#' Each frml equation has a constant adjustment. If the frml equation is fixed,
+#' then the left hand side of the equation (the  frml variable) is kept fixed
+#' at the current value in the model data, and the
+#' constant adjustment is calculated as the difference between the frml
+#' variable and the right hand side of the equation.
+#'
 #' @section Usage:
 #' \preformatted{
 #' mdl$fix_variables(names, pattern, period = mdl$get_period())
@@ -1954,6 +2007,8 @@ NULL
 #' \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
 #' object that can be coerced to a \code{period_range}}
 #' }
+#' If neither \code{names} nor \code{pattern} has
+#' been specified, then all frml variables are fixed.
 #'
 #' @examples
 #' mdl <- islm_mdl("2015Q2/2016Q3")
@@ -1962,7 +2017,7 @@ NULL
 #' # fix variable "c" for a specific period:
 #' mdl$fix_variables(names = "c", period = "2015Q3/2015Q4")
 #'
-#' # fix all stochastic model variables
+#' # fix all frml variables
 #' mdl$fix_variables(pattern = ".*")
 #' @seealso \code{\link{set_fix}} and \code{\link{get_fix}}
 NULL

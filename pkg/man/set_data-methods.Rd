@@ -67,12 +67,14 @@ If \code{data} has labels, then \code{set_data} will also update
 the labels of the corresponding model variables}
 \item{\code{set_ca}}{Set constant adjustments, i.e. the residuals of
 behavourial (frml) equations}
-\item{\code{set_fix}}{Set fix values for the stochastic
-model variables (i.e. model variables that occur at the left
-hand side of a frml equation). The model variables will be fixed
-at the specified value. A fix value of \code{NA} implies
-that the corresponding variable is not fixed. \code{set_fix}
-also updates the model data with all non NA values}
+\item{\code{set_fix}}{Set fix values for frml variables
+(model variables that occur at the left hand side of a frml equation).
+The frml variable is kept fixed
+at the specified value, and the constant adjustment of the frml equation
+is computed at the difference between the frml variable and the right hand
+side of the equation. A fix value of \code{NA} implies
+that the corresponding variable is \emph{not} fixed. \code{set_fix}
+also updates the model data with all non-NA values in \code{data}.}
 \item{\code{set_fit}}{Set fit targets for the fit procedure.
 A fit target value of \code{NA} implies
 that the corresponding variable is no fit target}
@@ -96,7 +98,7 @@ in \code{data}. This can be achieved by selecting \code{"updval"} for argument
 \code{-Inf}) are also disregarded for this update mode.
 
 \code{set_ca}, \code{set_fix} and \code{set_fit} and
-\code{set_data} works similarly.
+\code{set_data} work similarly.
 }
 
 \examples{
@@ -130,6 +132,13 @@ mdl$set_data(shock, fun = function(x1, x2) {x1 + x2})
 # the statement above can be more concisely written as
 mdl$set_data(shock, fun = `+`)
 #`+` is a primitive function that adds its two arguments.
+
+
+# fix c in 2017Q1/2017q2 and i in 2017q1 to specific values
+c <- regts(250, period = "2017q1/2017q2")
+i <- regts(175, period = "2017q1")
+fix_data <- cbind(c, i)
+mdl$set_fix(fix_data)
 
 }
 \seealso{

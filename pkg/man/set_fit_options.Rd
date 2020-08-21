@@ -334,7 +334,7 @@ the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\prefor
 ## Criterion for line search decisions etc.                 geometric
 ##  
 ##  
-##      3 CAs used by Fit
+##      3 CAs used by Fit:
 ##      c  i  md
 ##    1 steps for Newton matrix at iteration   0 (1/condscal =  1.43E-01)
 ## Convergence for 2020Q1 in    4 iterations

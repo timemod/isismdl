@@ -45,7 +45,6 @@ contains
         integer, intent(out) :: alloc_stat
 
         integer :: stat
-        integer(kind = SOLVE_IKIND), allocatable :: temp(:)
 
         allocate(numw(nw_max), stat = stat)
         if (stat == 0) allocate(w(nw_max), stat = stat)
