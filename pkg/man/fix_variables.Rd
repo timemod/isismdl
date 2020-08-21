@@ -6,6 +6,12 @@
 \description{
 This method of R6 class \code{\link{IsisMdl}} fixes the specified
 frml variables to their current values in the model data.
+
+Each frml equation has a constant adjustment. If the frml equation is fixed,
+then the left hand side of the equation (the  frml variable) is kept fixed
+at the current value in the model data, and the
+constant adjustment is calculated as the difference between the frml
+variable and the right hand side of the equation.
 }
 \section{Usage}{
 
@@ -27,7 +33,7 @@ variable names}
 object that can be coerced to a \code{period_range}}
 }
 If neither \code{names} nor \code{pattern} has
-been specified, then all frml equations are fixed.
+been specified, then all frml variables are fixed.
 }
 
 \examples{
@@ -37,7 +43,7 @@ mdl$solve()
 # fix variable "c" for a specific period:
 mdl$fix_variables(names = "c", period = "2015Q3/2015Q4")
 
-# fix all stochastic model variables
+# fix all frml variables
 mdl$fix_variables(pattern = ".*")
 }
 \seealso{
