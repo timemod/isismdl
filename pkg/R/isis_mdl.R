@@ -119,6 +119,17 @@
 isis_mdl <- function(model_file, period, data, ca, fix_values,
                      parse_options, silent = FALSE) {
 
+  #
+  # check model file
+  #
+  if (!is.character(model_file) | length(model_file) > 1) {
+    stop("Argument 'model_file' must be a character vector of length 1.")
+  }
+  if (.Platform$OS.type == "unix" && startsWith(model_file, "~")) {
+    model_file <- normalizePath(model_file)
+  }
+  if (dir.exists(model_file)) stop(sprintf("'%s' is a directory", model_file))
+
   if (!missing(period)) {
     period <- as.period_range(period)
   }
