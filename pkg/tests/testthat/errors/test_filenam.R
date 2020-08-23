@@ -22,5 +22,13 @@ test_that("file does not exist", {
     mdl_file_abs <- normalizePath(mdl_file)
     mdl_file_tilde <- sub(Sys.getenv("HOME"), "~", mdl_file_abs)
     expect_silent(isis_mdl(mdl_file_tilde, silent = TRUE))
+
+    mdl_file_tilde2 <- sub("\\.mdl$", "", mdl_file_tilde)
+    expect_silent(isis_mdl(mdl_file_tilde2, silent = TRUE))
+
+    filename <- dirname(mdl_file_tilde)
+    expect_error(isis_mdl(filename),
+                 sprintf("'%s' is a directory", normalizePath(filename)))
   }
+
 })
