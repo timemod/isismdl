@@ -114,7 +114,7 @@ extern int mcdebug;
 
 union YYSTYPE
 {
-#line 64 "lex_yacc/xpctab.y" /* yacc.c:1909  */
+#line 62 "lex_yacc/xpctab.y" /* yacc.c:1909  */
 
         int     ival;
         real    dval;

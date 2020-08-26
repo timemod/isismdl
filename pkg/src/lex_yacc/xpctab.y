@@ -53,8 +53,6 @@ void    funccall_prologue   (void);
 Enodep  do_funccall   ( Symbol * , Enodep );
 Enodep  do_builtin    ( Symbol * , Enodep );
 
-static  void    eqtyp_err(Symbol *);
-
 /* fortran subroutine in mcisis.rf7 */
 void FNAME(save_parameter)(FINT *, FREAL8 *);
 
@@ -1025,10 +1023,6 @@ static  void name_err( char *name, Symbol *sp)
         xpcerrmsg("Name %s already used as %s name", name, typename);
     else   
         xpcerrmsg("Name %s already used for something else", name);
-}
-
-static  void eqtyp_err(Symbol *sp) {
-    xpcerrmsg("Illegal equation type %s", sp->name);
 }
 
 void    xpcerrmsg( char *fmt, ... )
