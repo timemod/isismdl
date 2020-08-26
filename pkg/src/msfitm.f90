@@ -327,7 +327,7 @@ contains
                                    delsmxp
         real(kind = ISIS_RKIND), dimension(:,:), allocatable :: fit_jac
         integer :: svd_err, stat, matitr, deltyp, deltypp
-        logical :: memory_error, has_invalid
+        logical :: error
 
         !     fiscod is fit iteration status
         !        0    continue
@@ -391,12 +391,9 @@ contains
                !  in the mathematical paper.
         
         
-               call mkdjac(xcod, fiter, memory_error, has_invalid, matitr)
-               if (memory_error) then
+               call mkdjac(xcod, fiter, error, matitr)
+               if (error) then
                    retcod = 2
-                   goto 9999
-               else if (has_invalid) then
-                   retcod = 1 
                    goto 9999
                endif
         
@@ -764,7 +761,7 @@ contains
     
     !-----------------------------------------------------------------------
     
-    subroutine mkdjac(xcod, fiter, memory_error, has_invalid, matitr)
+    subroutine mkdjac(xcod, fiter, error, matitr)
     use msvars
     use msutil
     use nuv
@@ -781,21 +778,20 @@ contains
     
     integer, intent(out) :: xcod
     integer, intent(in)  :: fiter
-    logical, intent(out) :: memory_error, has_invalid
+    logical, intent(out) :: error
     integer, intent(inout)  :: matitr
     
+    logical :: has_invalid
     real(kind = ISIS_RKIND) :: oldca
+    ! RMSDEL is constant for calculation of derivative
     real(kind = ISIS_RKIND), parameter :: RMSDEL = 0.1_SOLVE_RKIND
     real(kind = ISIS_RKIND) :: t, mat_norm, rowcnd, colcnd, amax
     integer(kind = LAPACK_IKIND) :: info
     
     integer :: i, j, ires, idum, itr0, stat, n_zero_row, n_zero_col
 
+    error = .false.
     itr0 = 0
-    
-    ! RMSDEL is constant for calculation of derivative
-    
-    memory_error = .false.
     
     ! allocate fit matrix Dj.
     if (.not. allocated(dj)) then
@@ -808,8 +804,8 @@ contains
         endif
         if (stat == 0) allocate(dj_rownorm(nu_tot))
         if (stat == 0) allocate(dj_colnorm(mws%fit_targets%var_count))
-        memory_error = stat /= 0
-        if (memory_error) then
+        error = stat /= 0
+        if (error) then
             call fitot14
             return
         endif
@@ -914,7 +910,7 @@ contains
     if (n_zero_row > nu - nw .or. opts%fit%warn_zero_col) then
         ! Print messages about zero columns in dj matrix (i.e. zero rows of jacobian)
         do i = 1, nu
-            t = dasum(int(nw, ISIS_IKIND), dj(i, 1), nu)
+            t = dj_rownorm(i)
             if (t == 0) call fitotr(numu(i), t)
         end do
         if (n_zero_row > nu - nw) call fitot_error_zero_columns
@@ -932,14 +928,17 @@ contains
         enddo
         n_zero_row = 0
         do i = 1, nu
-            t = dasum(int(nw, ISIS_IKIND), dj(i, 1), nu)
+            t = dj_rownorm(i)
             if (t > 0 .and. t <= mat_norm * sqrt(Rmeps)) then
                call fitotr(numu(i), t)
             endif
         end do
     endif
 
-    if (has_invalid) return
+    if (has_invalid) then
+       error = .true.
+       return
+    endif
 
     !
     ! scale the matrix

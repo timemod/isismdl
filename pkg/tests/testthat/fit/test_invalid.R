@@ -20,7 +20,7 @@ mdl$set_rms(rms)
 
 test_that("NA values", {
   expect_warning(report <- capture.output(mdl$solve()),
-                 "Simulation not possible")
+                 "Simulation stopped")
   expect_known_output(cat_report(convert_report(report)),
                       "expected_output/square_invalid_rep1.txt")
 
