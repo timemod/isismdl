@@ -154,7 +154,7 @@ contains
         options%fit%maxiter = 10
         options%fit%cvgabs = 100 * sqrt(Rmeps)
         options%fit%mkdcrt =  0.5_ISIS_RKIND
-        options%fit%cvgrel =  10_ISIS_RKIND
+        options%fit%cvgrel =  0.95_ISIS_RKIND
         options%fit%scale_method = FIT_SCALE_ROW
         options%fit%accurate_jac = .true.
         options%fit%prica  = .false.
