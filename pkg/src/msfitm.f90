@@ -937,7 +937,7 @@ contains
     end do
 
     if (n_zero_row > nu - nw .or. opts%fit%warn_zero_col) then
-        ! Print messages about zero columns in dj matrix (i.e. zero rows of jacobian)
+        ! Print messages about zero rows in dj matrix (i.e. zero columns of jacobian)
         do i = 1, nu
             t = dj_rownorm(i)
             if (t == 0) call fitotr(numu(i), t)
