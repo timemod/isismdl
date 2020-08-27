@@ -41,7 +41,7 @@ Convergence for 2015Q4 in    0 iterations
 
 ----->  Set of CAs used by Fit changed in period 2015Q4
         because some variables are fixed/unfixed.
-All CAs with rms > 0 and active equations are used.
+     All CAs in activate equations with rms > 0 are used
      3 CAs used by Fit:
      c  i  md
 <------
@@ -68,7 +68,7 @@ Convergence for 2016Q2 in    0 iterations
 
 ----->  Set of CAs used by Fit changed in period 2016Q2
         because some variables are fixed/unfixed.
-All CAs with rms > 0 and active equations are used.
+     All CAs in activate equations with rms > 0 are used
      3 CAs used by Fit:
      c  i  md
 <------

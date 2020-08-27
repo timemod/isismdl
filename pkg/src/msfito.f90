@@ -553,7 +553,7 @@ subroutine fitonu_changed(nfixed, numu_fixed, nu, numu)
     write(str, '(a)')   '        because some variables are fixed/unfixed.'
     call strout(O_OUTB)
     if (nfixed == 0) then
-        write(str,'(a)')  'All CAs with rms > 0 and active equations are used.'
+        write(str,'(a)')  '     All CAs in activate equations with rms > 0 are used'
         call strout(O_OUTB)
     else 
         write(hdr,'(i5,a)') nfixed, ' CAs NOT used by Fit because the corresponding variables are fixed:'

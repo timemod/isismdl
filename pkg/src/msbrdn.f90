@@ -145,7 +145,7 @@ endif
 call jacot2(matitr, itr, rcond)
 
 if (rcond <= opts%svdtest_tol .and. opts%repopt /= REP_NONE) then
-    call svd_analysis(jac, mdl%nfb, mdl%nfb, mdl%numfb, &
+    call svd_analysis(jac, mdl%nfb, mdl%nfb, mdl%nfb, mdl%numfb, &
                       mdl%numfb, .false., opts%svdtest_tol, svd_err)
     svd_err = 0
 else

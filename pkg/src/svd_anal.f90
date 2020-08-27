@@ -8,10 +8,11 @@
 !     rank loss. This routine should only be called when the matrix
 !     is (nearly) ill-conditioned.
  
-subroutine svd_analysis(mat, m, n, num_row, num_col, fit, svd_tol, error)
+subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
  
     !     Input:
     !       mat matrix with dimensions m x n
+    !       ldm : leading dimension of mat.
     !       m and n : row and column dimension of mat
     !       num_row an array with the model variable indices for the
     !               rows of mat
@@ -31,10 +32,10 @@ subroutine svd_analysis(mat, m, n, num_row, num_col, fit, svd_tol, error)
     use nuna
     use nucnst
     
-    integer(kind = MC_IKIND), intent(in) :: m,n
+    integer(kind = MC_IKIND), intent(in) :: m, n, ldm
     integer(kind = MC_IKIND), intent(in) :: num_col(*), num_row(*)
     logical, intent(in) :: fit
-    real(kind = ISIS_RKIND), intent(in) :: mat(m,*), svd_tol
+    real(kind = ISIS_RKIND), intent(in) :: mat(ldm, *), svd_tol
     integer, intent(out) :: error
     
     real(kind = ISIS_RKIND), dimension(:,:), allocatable :: u, vt

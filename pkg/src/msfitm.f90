@@ -1,11 +1,12 @@
 module msfitm
     !
     ! work variables for the fit procedure
-    !   do_fix:  true if fix variables are active
-    !   nu_tot : maximum number of fit CAs for entire solution
-    !            period
-    !   nw_max : maximum number of fit targets for entire solution
-    !           period
+    !   do_fix:  true if some variables are fixed in the solution period
+    !   nu_max : maximum number of fit CAs used in the solution
+    !            period (in some periods the number of actually used fit CAs
+    !            can be smaller because some variables are fixed at specific
+    !            periods
+    !   nw_max : maximum number of fit targets in solution period
     !   nu     : number of fit CAs for current period
     !            may be less than nu_max if fix procedure is used
     !   nw     : number of fit targets for current period
@@ -14,6 +15,7 @@ module msfitm
     use msvars
     use nuna
     use nucnst
+    use msfito
 
     ! NOTE: the values of the following parameters should agree with
     ! the order in which the corresponding scalemethod
@@ -23,7 +25,7 @@ module msfitm
     integer, parameter :: SCALE_BOTH  = 3
 
     logical, save :: do_fix, is_square, scale_w, scale_u
-    integer(kind = SOLVE_IKIND), private, save :: nu_tot = 0, &
+    integer(kind = SOLVE_IKIND), private, save :: nu_max = 0, &
                                      nw_max = 0, nu = 0, nw = 0, &
                                      nfixed = 0
     integer(kind = LI_IKIND), private, save :: lwork_fit
@@ -32,7 +34,7 @@ module msfitm
     real(kind = SOLVE_RKIND), dimension(:), allocatable, private, &
 &           save :: w, delw, dddelw, b, du0, djtau, delu, resold, &
 &                   zsav, work_fit, u_scale, w_scale, dj_rownorm, dj_colnorm
-    real(kind = SOLVE_RKIND), dimension(:, :), allocatable, private, save :: dj
+    real(kind = SOLVE_RKIND), dimension(:, :), allocatable, private, save :: dj, fit_jac
 
     private allocate_fit_work, fitone, mkdelw, mkdelu, &
             mkb, mkdu0, mkdjac, mkdqr, mdlpas, msfuck, wfinit, msgstp, &
@@ -46,6 +48,11 @@ contains
 
         integer :: stat
 
+        ! Allocate work arrays for the fit method.
+        ! Note that the fit matrices (dj and fit_jac) are allocated
+        ! in a separate routine (alloc_fit_mat), because the matrices may not be needed
+        ! is the fit method is converged within 0 iterations.
+
         allocate(numw(nw_max), stat = stat)
         if (stat == 0) allocate(w(nw_max), stat = stat)
         if (stat == 0) allocate(delw(nw_max) , stat = stat)
@@ -53,17 +60,56 @@ contains
         if (stat == 0) allocate(b(nw_max) , stat = stat)
         if (stat == 0) allocate(du0(nw_max) , stat = stat)
         if (stat == 0) allocate(djtau(nw_max), stat = stat)
-        if (stat == 0) allocate(delu(nu_tot), stat = stat)
-        if (stat == 0) allocate(resold(nu_tot), stat = stat)
+        if (stat == 0) allocate(delu(nu_max), stat = stat)
+        if (stat == 0) allocate(resold(nu_max), stat = stat)
         if (stat == 0) allocate(zsav(mdl%nrv), stat = stat)
         if (stat == 0) allocate(work_fit(lwork_fit), stat = stat)
         alloc_stat = stat
 
     end subroutine allocate_fit_work
 
+    subroutine allocate_fit_mat(alloc_stat)
+        integer, intent(out) :: alloc_stat
+         
+        ! Allocate matrices needed for the fit iterations
+
+        integer :: stat
+
+        ! allocate fit matrix Dj.
+        allocate(dj(nu_max, nw_max), stat = stat)
+        if (opts%fit%scale_method /= SCALE_NONE .and. stat == 0) then
+            allocate(w_scale(nw_max), stat = stat)
+        endif
+        if (opts%fit%scale_method == SCALE_BOTH .and. stat == 0) then
+            allocate(u_scale(nu_max), stat = stat)
+        endif
+        if (stat == 0) allocate(dj_rownorm(nu_max))
+        if (stat == 0) allocate(dj_colnorm(nw_max))
+
+        if (stat /= 0) then
+            call fitot14
+            alloc_stat = stat
+            return
+        endif
+
+        ! allocate fit_jac, which will be used to save a copy of the fit
+        ! jacobian for the svd analysis
+        if (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
+            allocate(fit_jac(nw_max, nu_max), stat = stat)
+            if (stat /= 0) then
+               call fitot15
+               alloc_stat = stat
+               return
+            endif
+        endif
+
+        alloc_stat = stat
+
+    end subroutine allocate_fit_mat
+    
+
     subroutine prepare_fit(do_fit, error)
         use mdlvars
-        use msfito
 
         logical, intent(out) :: do_fit
         integer, intent(out) :: error
@@ -140,21 +186,21 @@ contains
     
         ! Record all CAs that are used as fit instruments in at least one period in the 
         ! simulation period (i.e. periods between jf and jl).
-        call mknumu_tot(mws, numu_tot, numr_tot, nu_tot, deact_list, ndeact, &
+        call mknumu_tot(mws, numu_tot, numr_tot, nu_max, deact_list, ndeact, &
                         fix_list, nfix, jf, jl, do_fix)
-        call fitonu_tot(numu_tot, nu_tot, deact_list, ndeact, fix_list, nfix)
+        call fitonu_tot(numu_tot, nu_max, deact_list, ndeact, fix_list, nfix)
         deallocate(deact_list, stat = alloc_stat)
         deallocate(fix_list, stat = alloc_stat)
 
-        if (nu_tot == 0) then
+        if (nu_max == 0) then
            error = 2
            call fitot3(3)
            return
         endif
 
-        allocate(numu(nu_tot), stat = alloc_stat)
-        if (alloc_stat == 0) allocate(numr(nu_tot), stat = alloc_stat)
-        if (alloc_stat == 0 .and. do_fix) allocate(numu_fixed(nu_tot), stat = alloc_stat)
+        allocate(numu(nu_max), stat = alloc_stat)
+        if (alloc_stat == 0) allocate(numr(nu_max), stat = alloc_stat)
+        if (alloc_stat == 0 .and. do_fix) allocate(numu_fixed(nu_max), stat = alloc_stat)
         if (alloc_stat /= 0) then
             error = 1
             call fitot11
@@ -168,7 +214,7 @@ contains
             ! because some variables are temporalilly fixed or unfixed.
             ! The actual list fit instruments used at a specific period (numu)
             ! is updated in subroutine mknumu_t called by subroutine wfinit.
-            allocate(numu_fixed_prev(nu_tot), stat = alloc_stat)
+            allocate(numu_fixed_prev(nu_max), stat = alloc_stat)
             if (alloc_stat /= 0) then
                 error = 1
                 call fitot11
@@ -177,7 +223,7 @@ contains
             nfixed = 0
         else
             ! numu and numr are the same for all periods in the simulation period
-            nu = nu_tot
+            nu = nu_max
             numu(1:nu) = numu_tot(1:nu)
             numr(1:nu) = numr_tot(1:nu)
         endif
@@ -188,15 +234,15 @@ contains
         if (.not. do_fix) then
             ! in this case, numu_tot is also not needed any more 
             deallocate(numu_tot, stat = alloc_stat)
-        else if (nrms > nu_tot) then
+        else if (nrms > nu_max) then
             ! decrease the size of numu_tot
-            allocate(temp(nu_tot), stat = alloc_stat)
+            allocate(temp(nu_max), stat = alloc_stat)
             if (alloc_stat /= 0) then
                 error = 1
                 call fitot11
                 return
             endif
-            temp(:nu_tot) = numu_tot(:nu_tot)
+            temp(:nu_max) = numu_tot(:nu_max)
             call move_alloc(temp, numu_tot)
        endif
 
@@ -233,9 +279,11 @@ contains
         deallocate(dj, stat = stat)
         deallocate(dj_rownorm, stat = stat)
         deallocate(dj_colnorm, stat = stat)
+        deallocate(fit_jac, stat = stat)
         nu = 0
         nw = 0
-        nu_tot = 0
+        nu_max = 0
+        nw_max = 0
         nfixed = 0
         lwork_fit = 0
     end subroutine clear_fit_work
@@ -243,7 +291,6 @@ contains
 !-----------------------------------------------------------------------
 
     subroutine solfit(retcod, ndiver, jt)
-        use msfito
         integer :: retcod, ndiver, jt
         
         integer :: fiterr
@@ -289,7 +336,6 @@ contains
         use msutil
         use msnwut
         use mssolve
-        use msfito
         use svd_anal
         
         !     Solves the model for current period jc with constraints
@@ -325,7 +371,6 @@ contains
         integer ::  xcod
         real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, svd_tol, delsmx, &
                                    delsmxp
-        real(kind = ISIS_RKIND), dimension(:,:), allocatable :: fit_jac
         integer :: svd_err, stat, matitr, deltyp, deltypp
         logical :: error
 
@@ -345,8 +390,6 @@ contains
 
         zealous = opts%fit%zealous
         
-        if (allocated(fit_jac)) deallocate(fit_jac)
-        
         ! compute discrepancies delw, and largest delw
         call mkdelw(delwmx, curvars, wmxidx, wmxtyp)
         if (opts%fit%repopt == FITREP_FULLREP) then
@@ -356,6 +399,7 @@ contains
         endif
         
         if (.not. zealous .and. delwmx <= opts%fit%cvgabs) then
+            ! converged at 0 th iteration
             fiscod = 1
             goto 900
         endif
@@ -373,7 +417,15 @@ contains
         deval  = .true.
         devalp = .false.
         delsmx = 0.0_SOLVE_RKIND
-        
+
+        if (.not. allocated(dj)) then
+            call allocate_fit_mat(stat)
+            if (stat /= 0) then
+                retcod = 2
+                return
+            endif
+        endif
+
         do
             fiter = fiter + 1
         
@@ -394,7 +446,7 @@ contains
                call mkdjac(xcod, fiter, error, matitr)
                if (error) then
                    retcod = 2
-                   goto 9999
+                   return
                endif
         
                if( xcod .ne. 0 ) goto 9000
@@ -406,14 +458,6 @@ contains
         
                if (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
                    ! Save a copy of matrix dj for the svdtest in cause of problems
-                   if (.not. allocated(fit_jac)) then
-                       allocate(fit_jac(nw, nu), stat = stat)
-                       if (stat /= 0) then
-                           call fitot15
-                           retcod = 2
-                           goto 9999
-                       endif
-                   endif
                    do i = 1, nw
                       do j = 1, nu
                           fit_jac(i, j) = dj(j, i)
@@ -426,11 +470,11 @@ contains
         
                if (dcond <= opts%fit%svdtest_tol .and. opts%repopt /= REP_NONE) then
                    svd_tol = max(opts%fit%svdtest_tol, sqrt(Rmeps))
-                   call svd_analysis(fit_jac, nw,  nu, numw, numu, &
+                   call svd_analysis(fit_jac, nw_max, nw,  nu, numw, numu, &
                                      .true., svd_tol, svd_err)
                    if (svd_err /= 0) then
                        retcod = 2
-                       goto 9999
+                       return
                    endif
                endif
 
@@ -574,16 +618,15 @@ contains
         call fitot9(fiter, fcvgd, djcnt, opts%fit%maxiter, matitr, nu)
         if (.not. fcvgd) then
             retcod = 2
-            goto 9999
+            return
         endif
         
-        goto 9999
-        
+        return
+
         ! error returns
         
         9000 retcod = xcod
         
-        9999 if (allocated(fit_jac)) deallocate(fit_jac)
         return
     
     end subroutine fitone
@@ -690,7 +733,7 @@ contains
     
         delu(:nw) = b(:nw)
     
-        call qrmn(dj, nu_tot, nu, nw, djtau, delu, work_fit, lwork_fit)
+        call qrmn(dj, nu_max, nu, nw, djtau, delu, work_fit, lwork_fit)
     
         ! delu is scaled ==> unscale
         do i = 1, nu
@@ -768,7 +811,6 @@ contains
     use mssolve
     use msnwut
     use scalemat
-    use msfito
    
     ! Estimate the transpose of the jacobian, the derivatives of the fit 
     ! variables wrt. the residuals, by means of single newton steps for small,
@@ -792,24 +834,6 @@ contains
 
     error = .false.
     itr0 = 0
-    
-    ! allocate fit matrix Dj.
-    if (.not. allocated(dj)) then
-        allocate(dj(nu_tot, mws%fit_targets%var_count), stat = stat)
-        if (opts%fit%scale_method /= SCALE_NONE .and. stat == 0) then
-            allocate(w_scale(mws%fit_targets%var_count), stat = stat)
-        endif
-        if (opts%fit%scale_method == SCALE_BOTH .and. stat == 0) then
-            allocate(u_scale(nu_tot), stat = stat)
-        endif
-        if (stat == 0) allocate(dj_rownorm(nu_tot))
-        if (stat == 0) allocate(dj_colnorm(mws%fit_targets%var_count))
-        error = stat /= 0
-        if (error) then
-            call fitot14
-            return
-        endif
-    endif
     
     zsav(:mdl%nrv) = curvars(:mdl%nrv)
     
@@ -854,7 +878,7 @@ contains
     
     ! output the fit jacobian
     if (opts%fit%prijac) then
-        call fitodj(dj, fiter, numw, numu, nw, nu, nu_tot)
+        call fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
     endif
 
     ! Calculate the maximum of the 1-norms of the columns of matrix dj
@@ -944,14 +968,14 @@ contains
     ! scale the matrix
     !
     if (opts%fit%scale_method == SCALE_BOTH .and. is_square) then
-        call dgeequ(nu, nw, dj, nu_tot, u_scale, w_scale, rowcnd, colcnd,  &
+        call dgeequ(nu, nw, dj, nu_max, u_scale, w_scale, rowcnd, colcnd,  &
              amax, info)
         ! info != 0 if one or more columns or rows of dj only contain only 
         ! zero values
         scale_w = info == 0 .and. (colcnd < 0.1 .or. rowcnd < 0.1)
         scale_u = scale_w
     else if (opts%fit%scale_method == SCALE_ROW) then
-        call dgeequ_col(nu, nw, dj, nu_tot, w_scale, colcnd, amax, info)
+        call dgeequ_col(nu, nw, dj, nu_max, w_scale, colcnd, amax, info)
         ! info != 0 if one or more columns of dj only contain only zero values
         scale_w = info == 0 .and. colcnd < 0.1
         scale_u = .false.
@@ -983,7 +1007,6 @@ contains
     
     subroutine mkdqr(dcond, chkjac, xcod)
     use liqrco
-    use msfito
      
     ! compute QR factorization of Dj
     !  == QR of trans(D) where D is the jacobian defined in mathematical paper.
@@ -999,7 +1022,7 @@ contains
     
     ! QR decomposition of Fit jacobian
     ! estimate inverse condition of R ==> inverse condition of jacobian
-    call qrco(dj, nu_tot, nu, nw, djtau, dcond, work_fit, lwork_fit)
+    call qrco(dj, nu_max, nu, nw, djtau, dcond, work_fit, lwork_fit)
 
 
     if (Rone + dcond == Rone) then
@@ -1077,7 +1100,6 @@ contains
     !-----------------------------------------------------------------------
     
     subroutine msfuck(u)
-    use msfito
     
     ! check relative size of residuals (in u) and
     ! if required give warning message for too big CA's
@@ -1107,7 +1129,6 @@ contains
     
     subroutine wfinit(jt, fiterr, quit)
     use msvars
-    use msfito
     integer, intent(in)  :: jt
     integer, intent(out) :: fiterr
     logical, intent(out) :: quit
@@ -1153,7 +1174,7 @@ contains
 
         ! Reset arrays for fit instruments (numu and numr). When variables are fixed in the
         ! current period, fit instruments in numu_tot should be removed.
-        call mknumu_t(mws, numu_tot, nu_tot, numu, numr, nu, numu_fixed, nfixed)
+        call mknumu_t(mws, numu_tot, nu_max, numu, numr, nu, numu_fixed, nfixed)
 
         if (nfixed /= nfixed_prev) then
             changed = .true.
