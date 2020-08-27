@@ -23,6 +23,8 @@ module solve_options_type
     integer, parameter :: RATREP_FULLREP      = 3
 
     ! scale method for the fit procedures
+    ! NOTE: the FIT_SCALE-parameters should agree with the ordering of
+    ! in array fit_scale_method in fit_options.c
     integer, parameter :: FIT_SCALE_NONE  = 1
     integer, parameter :: FIT_SCALE_ROW   = 2
     integer, parameter :: FIT_SCALE_BOTH  = 3

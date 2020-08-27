@@ -5,7 +5,7 @@ module msfitm
     !   nu_max : maximum number of fit CAs used in the solution
     !            period (in some periods the number of actually used fit CAs
     !            can be smaller because some variables are fixed at specific
-    !            periods
+    !            periods)
     !   nw_max : maximum number of fit targets in solution period
     !   nu     : number of fit CAs for current period
     !            may be less than nu_max if fix procedure is used
@@ -16,13 +16,6 @@ module msfitm
     use nuna
     use nucnst
     use msfito
-
-    ! NOTE: the values of the following parameters should agree with
-    ! the order in which the corresponding scalemethod
-    ! options are defined in bootproc/defns/setfopt.xpd.
-    integer, parameter :: SCALE_NONE  = 1
-    integer, parameter :: SCALE_ROW   = 2
-    integer, parameter :: SCALE_BOTH  = 3
 
     logical, save :: do_fix, is_square, scale_w, scale_u
     integer(kind = SOLVE_IKIND), private, save :: nu_max = 0, &
@@ -38,7 +31,7 @@ module msfitm
 
     private allocate_fit_work, allocate_fit_mat, get_nw_max, fitone, mkdelw, mkdelu, &
             mkb, mkdu0, mkdjac, mkdqr, mdlpas, msfuck, wfinit, msgstp, &
-            msgjac
+            msgjac, get_lwork_fit
 
 
 contains
@@ -63,6 +56,8 @@ contains
         if (stat == 0) allocate(delu(nu_max), stat = stat)
         if (stat == 0) allocate(resold(nu_max), stat = stat)
         if (stat == 0) allocate(zsav(mdl%nrv), stat = stat)
+
+        lwork_fit = get_lwork_fit(nu_max, nw_max)
         if (stat == 0) allocate(work_fit(lwork_fit), stat = stat)
         alloc_stat = stat
 
@@ -77,10 +72,10 @@ contains
 
         ! allocate fit matrix Dj.
         allocate(dj(nu_max, nw_max), stat = stat)
-        if (opts%fit%scale_method /= SCALE_NONE .and. stat == 0) then
+        if (opts%fit%scale_method /= FIT_SCALE_NONE .and. stat == 0) then
             allocate(w_scale(nw_max), stat = stat)
         endif
-        if (opts%fit%scale_method == SCALE_BOTH .and. stat == 0) then
+        if (opts%fit%scale_method == FIT_SCALE_BOTH .and. stat == 0) then
             allocate(u_scale(nu_max), stat = stat)
         endif
         if (stat == 0) allocate(dj_rownorm(nu_max))
@@ -136,6 +131,8 @@ contains
     subroutine prepare_fit(do_fit, error)
         use mdlvars
 
+        ! prepare the fit procedure for the whole solution period
+
         logical, intent(out) :: do_fit
         integer, intent(out) :: error
         ! error = 0 ok
@@ -161,7 +158,6 @@ contains
         do_fit = nw_max > 0
         if (.not. do_fit) return
 
-        lwork_fit = get_lwork_fit(mdl%nca, mws%fit_targets%var_count)
 
         nrms = get_rms_count(mws)
 
@@ -976,14 +972,14 @@ contains
     !
     ! scale the matrix
     !
-    if (opts%fit%scale_method == SCALE_BOTH .and. is_square) then
+    if (opts%fit%scale_method == FIT_SCALE_BOTH .and. is_square) then
         call dgeequ(nu, nw, dj, nu_max, u_scale, w_scale, rowcnd, colcnd,  &
              amax, info)
         ! info != 0 if one or more columns or rows of dj only contain only 
         ! zero values
         scale_w = info == 0 .and. (colcnd < 0.1 .or. rowcnd < 0.1)
         scale_u = scale_w
-    else if (opts%fit%scale_method == SCALE_ROW) then
+    else if (opts%fit%scale_method == FIT_SCALE_ROW) then
         call dgeequ_col(nu, nw, dj, nu_max, w_scale, colcnd, amax, info)
         ! info != 0 if one or more columns of dj only contain only zero values
         scale_w = info == 0 .and. colcnd < 0.1
