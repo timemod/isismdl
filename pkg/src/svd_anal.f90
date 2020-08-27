@@ -17,7 +17,7 @@ subroutine svd_analysis(mat, m, n, num_row, num_col, fit, svd_tol, error)
     !               rows of mat
     !       num_col an array with the model variable indices for the
     !               columns of  mat
-    !       fit     true if matrix is transpoe of the fit jacobian, false if the
+    !       fit     true if matrix is transpose of the fit jacobian, false if the
     !               matrix is the Newton jacobian
     !       svd_tol tolerance for singular values
     !     Outout:
@@ -38,22 +38,22 @@ subroutine svd_analysis(mat, m, n, num_row, num_col, fit, svd_tol, error)
     integer, intent(out) :: error
     
     real(kind = ISIS_RKIND), dimension(:,:), allocatable :: u, vt
-    real(kind = ISIS_RKIND), dimension(:), allocatable :: sv, work, vecu, vecv
+    real(kind = ISIS_RKIND), dimension(:), allocatable :: sv, work, vec
     real(kind = ISIS_RKIND) :: rlwork
     real(kind = ISIS_RKIND), dimension(:), allocatable :: minc, minr
-    integer :: info, lwork, i, j, min_m_n, stat
+    integer :: info, lwork, i, j, min_m_n, max_m_n, stat
     
     error = 0
     
     min_m_n = min(m, n)
+    max_m_n = max(m, n)
     
     allocate(u(m, m), stat = stat)
     if (stat == 0) allocate(vt(n, n), stat = stat)
     if (stat == 0) allocate(sv(min_m_n), stat = stat)
     if (stat == 0) allocate(minc(n), stat = stat)
     if (stat == 0) allocate(minr(m), stat = stat)
-    if (stat == 0) allocate(vecu(m), stat = stat)
-    if (stat == 0) allocate(vecv(n), stat = stat)
+    if (stat == 0) allocate(vec(max_m_n), stat = stat)
     if (stat /= 0) then
         call svdot1
         error = 1
@@ -62,13 +62,13 @@ subroutine svd_analysis(mat, m, n, num_row, num_col, fit, svd_tol, error)
     
     ! get 1-norm of the columns of mat
     do i = 1, n
-         minc(i) = dasum(int(m, ISIS_IKIND), mat(1, i), 1)
-         if (nuifna(minc(i))) then
-             call svdout(7, fit)
-             goto 999
-         endif
-    
-     enddo
+        minc(i) = dasum(int(m, ISIS_IKIND), mat(1, i), 1)
+        if (nuifna(minc(i))) then
+            call svdout(7, fit)
+            goto 999
+        endif
+    enddo
+
     ! get 1-norm of the rows of mat
     do i = 1, m
         minr(i) = dasum(int(n, ISIS_IKIND), mat(i, 1), int(m, ISIS_IKIND))
@@ -94,10 +94,10 @@ subroutine svd_analysis(mat, m, n, num_row, num_col, fit, svd_tol, error)
     call svdout(2, fit)
     do i = 1, min_m_n
         if ((sv(i) / sv(1)) <= svd_tol) then
-           do j = 1, m
-               vecu(j) = u(j, i)
-          end do
-           call svdout_vector(m, sv(i)/sv(1), vecu, num_row)
+            do j = 1, m
+                vec(j) = u(j, i)
+            end do
+            call svdout_vector(m, sv(i)/sv(1), vec, num_row)
         endif
     end do
 
@@ -107,42 +107,38 @@ subroutine svd_analysis(mat, m, n, num_row, num_col, fit, svd_tol, error)
     call svdout(3, fit)
     do i = 1, min_m_n
         if ((sv(i) / sv(1)) <= svd_tol) then
-           do j = 1, n
-               vecv(j) = vt(i, j)
-           end do
-           call svdout_vector(n, sv(i)/sv(1), vecv, num_col)
+            do j = 1, n
+                vec(j) = vt(i, j)
+            end do
+            call svdout_vector(n, sv(i)/sv(1), vec, num_col)
         endif
     end do
     call svdout(100, fit)
 
-    ! find problem in columns
+    ! print the L1-norm of "problem rows"
     call svdout(4, fit)
     do i = 1, m
         do j= 1, min_m_n
-             if  (( (sv(j)/sv(1)) <= svd_tol) &
-    &              .and. (abs(u(i, j)) >= sqrt(Rmeps))) then
-                  call svdout_problemc(num_row(i), minr(i))
-                  exit
-             endif
-          enddo
+            if  (( (sv(j)/sv(1)) <= svd_tol) &
+                  .and. (abs(u(i, j)) >= sqrt(Rmeps))) then
+               call svdout_problemc(num_row(i), minr(i))
+               exit
+            endif
+        enddo
     enddo
     
-    ! If all columns are dependent, it is likely that the problem
-    ! is caused because too many rows are linearly dependent.
-    ! Note that some dependent rows is not problematic, as long as
-    ! the total number of independent rows is >= n.
+    ! print the L1-norm of "problem columns"
     call svdout(5, fit)
     do i = 1, n
         do j = 1, min_m_n
             if  (( (sv(j)/sv(1)) <= svd_tol) &
-    &              .and. (abs(vt(j, i)) >= sqrt(Rmeps))) then
+                  .and. (abs(vt(j, i)) >= sqrt(Rmeps))) then
                 call svdout_problemc(num_col(i), minc(i))
                exit
             endif
         end do
     enddo
 
-    
     call svdout(6, fit)
     
     999 continue
@@ -153,8 +149,7 @@ subroutine svd_analysis(mat, m, n, num_row, num_col, fit, svd_tol, error)
     deallocate(sv, stat = stat)
     deallocate(minc, stat = stat)
     deallocate(minr, stat = stat)
-    deallocate(vecu, stat = stat)
-    deallocate(vecv, stat = stat)
+    deallocate(vec, stat = stat)
 
     return
 end subroutine svd_analysis
@@ -200,14 +195,14 @@ logical ::  fit
 
        str = 'Left Singular vectors:'
        call strout(O_OUTN)
-       str = '-----------------------'
+       str = '----------------------'
        call strout(O_OUTN)
 
    elseif (imsg == 3) then
 
        str = 'Right Singular vectors:'
        call strout(O_OUTN)
-       str = '----------------------'
+       str = '-----------------------'
        call strout(O_OUTN)
 
    elseif (imsg == 4) then
@@ -224,7 +219,7 @@ logical ::  fit
        call strout(O_OUTN)
        str = 'Problem rows:'
        call strout(O_OUTN)
-       str = '-----------------'
+       str = '-------------'
        call strout(O_OUTN)
        write(str, '(A32, A19)') 'Variable', 'L1 norm of row'
        call strout(O_OUTN)
@@ -235,7 +230,7 @@ logical ::  fit
        call strout(O_OUTN)
        str = 'Problem columns:'
        call strout(O_OUTN)
-       str = '-------------'
+       str = '----------------'
        call strout(O_OUTN)
        write(str, '(A32, A19)') 'Variable', 'L1 norm of column'
        call strout(O_OUTN)

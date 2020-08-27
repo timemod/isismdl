@@ -55,12 +55,12 @@ that is (almost) zero.
 Only components >=   0.15E-07  are shown.
 
 Left Singular vectors:
------------------------
+----------------------
 Singular value X
                               w2  -1.0
 
 Right Singular vectors:
-----------------------
+-----------------------
 Singular value X
                               x3  -1.0
 
@@ -70,12 +70,12 @@ Therefore we print the norm of "problem rows" and "problem columns"
 (rows and columns with significant components in left and right singular vectors resp.)
 
 Problem rows:
------------------
+-------------
                         Variable     L1 norm of row
                               w2   0.0
 
 Problem columns:
--------------
+----------------
                         Variable  L1 norm of column
                               x3  0.10E-11
 

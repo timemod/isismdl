@@ -38,13 +38,13 @@ that is (almost) zero.
 Only components >=             are shown.
 
 Left Singular vectors:
------------------------
+----------------------
 Singular value X
                               x1
                               y1
 
 Right Singular vectors:
-----------------------
+-----------------------
 Singular value X
                               x1
                               y1
@@ -56,13 +56,13 @@ Therefore we print the norm of "problem rows" and "problem columns"
 (rows and columns with significant components in left and right singular vectors resp.)
 
 Problem rows:
------------------
+-------------
                         Variable     L1 norm of row
                               x1
                               y1
 
 Problem columns:
--------------
+----------------
                         Variable  L1 norm of column
                               x1
                               y1
