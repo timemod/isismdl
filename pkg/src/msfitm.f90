@@ -36,7 +36,7 @@ module msfitm
 &                   zsav, work_fit, u_scale, w_scale, dj_rownorm, dj_colnorm
     real(kind = SOLVE_RKIND), dimension(:, :), allocatable, private, save :: dj, fit_jac
 
-    private allocate_fit_work, fitone, mkdelw, mkdelu, &
+    private allocate_fit_work, allocate_fit_mat, get_nw_max, fitone, mkdelw, mkdelu, &
             mkb, mkdu0, mkdjac, mkdqr, mdlpas, msfuck, wfinit, msgstp, &
             msgjac
 
@@ -106,7 +106,32 @@ contains
         alloc_stat = stat
 
     end subroutine allocate_fit_mat
+
+    integer function get_nw_max(jf, jl) 
+        integer, intent(in) :: jf, jl
+
+        ! count the maximum number of fit targets in the solution period
+
+        integer :: t, nw, nw_max
+        type(mdl_variable), pointer :: fit_tar
+        real(kind = MWS_RKIND) :: value
     
+        nw_max = 0
+        do t = jf, jl
+            nw = 0
+            fit_tar => mws%fit_targets%first
+            do
+                value = get_mdl_var_value(fit_tar, t)
+                if (.not. nuifna(value)) nw = nw + 1
+                fit_tar => fit_tar%next
+                if (.not. associated(fit_tar)) exit
+            end do
+            nw_max = max(nw_max, nw)
+        end do
+
+        get_nw_max = nw_max
+
+    end function get_nw_max
 
     subroutine prepare_fit(do_fit, error)
         use mdlvars
@@ -126,29 +151,15 @@ contains
 
         error = 0
 
-
-        !
-        ! initialise fit work data
-        !
-
         call clear_fit_work
 
         do_fit = mws%fit_targets%var_count > 0 .and. mdl%nca > 0
         if (.not. do_fit) return
 
-        ! check if in current solution period (jf .. jl)
-        ! any fit target is present
-        do_fit = .false.
-        do jt = jf, jl
-            if (isfitp(mws, jt)) then
-                do_fit = .true.
-                exit
-            endif
-        end do
-
-        if (.not. do_fit) then
-            return
-        endif
+        ! check maximum number of fit targets
+        nw_max = get_nw_max(jf, jl)
+        do_fit = nw_max > 0
+        if (.not. do_fit) return
 
         lwork_fit = get_lwork_fit(mdl%nca, mws%fit_targets%var_count)
 
@@ -206,8 +217,6 @@ contains
             call fitot11
             return
         endif
-
-        nw_max = mws%fit_targets%var_count
 
         if (do_fix) then
             ! The active fit instruments may change at different periods,
