@@ -896,7 +896,7 @@ contains
         dj_colnorm(j) = t
         if (nuifna(t)) then
            has_invalid = .true.
-           exit
+           cycle
         endif
         mat_norm = max(t, mat_norm)
         if (t == 0) n_zero_col = n_zero_col + 1
