@@ -364,13 +364,13 @@ the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\prefor
 ## Only components >=   0.15E-07  are shown.
 ##  
 ## Left Singular vectors:
-## -----------------------
+## ----------------------
 ## Singular value   0.73E-15
 ##                                y -0.62
 ##                               yd  0.79
 ##  
 ## Right Singular vectors:
-## ----------------------
+## -----------------------
 ## Singular value   0.73E-15
 ##                                c  0.26
 ##                               md  0.97
@@ -381,13 +381,13 @@ the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\prefor
 ## (rows and columns with significant components in left and right singular vectors resp.)
 ##  
 ## Problem rows:
-## -----------------
+## -------------
 ##                         Variable     L1 norm of row
 ##                                y   44.
 ##                               yd   34.
 ##  
 ## Problem columns:
-## -------------
+## ----------------
 ##                         Variable  L1 norm of column
 ##                                c   22.
 ##                               md   5.9
@@ -396,7 +396,7 @@ the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\prefor
 ## 
 }\preformatted{## Warning in mdl$solve(): Simulation not possible
 }\preformatted{## Total number of iterations   14
-## Solve model used     0.05 CPU secs
+## Solve model used     0.01 CPU secs
 ## 
 }
 }

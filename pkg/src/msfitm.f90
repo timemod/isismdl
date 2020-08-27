@@ -835,7 +835,7 @@ contains
     real(kind = ISIS_RKIND) :: t, mat_norm, rowcnd, colcnd, amax
     integer(kind = LAPACK_IKIND) :: info
     
-    integer :: i, j, ires, idum, itr0, stat, n_zero_row, n_zero_col
+    integer :: i, j, ires, idum, itr0, n_zero_row, n_zero_col
 
     error = .false.
     itr0 = 0
