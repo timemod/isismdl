@@ -8,13 +8,13 @@ This method of R6 class \code{\link{IsisMdl}}
 runs specific equations of the model separately.
 Each specified equation is run separately for the specified period.
 If the equation is a stochastic equation (a \code{frml} equation)
-and the corresponding endogenous variable has been fixed
+and the corresponding endogenous variable has been fixed,
 then the constant adjustment for the equation will be calculated
 such that the result of the equation equals the predetermined required
 value for the left-hand side.
 
-If neither argument \code{pattern} or \code{names} have been specified,
-then all active model equations are ran in solve order.
+If neither argument \code{pattern} nor \code{names} have been specified,
+then all active model equations are run in solve order.
 }
 \section{Usage}{
 
@@ -31,10 +31,10 @@ mdl$run_eqn(pattern, names, period = mdl$get_data_period())
 
 \describe{
 \item{\code{pattern}}{a regular expression. Equations with names
-matching the regular expression are run in solve order}
+matching the regular expression are run in solve order.}
 \item{\code{names}}{a character vector with equation names. The
 corresponding equations are solved in the order as they are
-specified}
+specified.}
 \item{\code{period}}{a \code{\link[regts]{period_range}} object}
 }
 }

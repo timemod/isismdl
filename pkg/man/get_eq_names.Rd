@@ -16,7 +16,7 @@ Possible options for argument \code{status are}
 \item{\code{"all"}}{all equations, the default}
 }
 
-Argument \code{order} specifies the order of the eqautions returned.
+Argument \code{order} specifies the order of the equations returned.
 The following ordering options are recognized:
 \describe{
 \item{\code{"sorted"}}{alphabetically ordering}

@@ -752,23 +752,21 @@ IsisMdl <- R6Class("IsisMdl",
       "Run model equations"
       period <- private$convert_period_arg(period)
       if (missing(pattern) && missing(names)) {
-        eq_names <- self$get_eq_names(order = "solve")
+        eq_names <- self$get_eq_names(status = "active", order = "solve")
       } else if (missing(pattern) && !missing(names)) {
-        eq_names <- intersect(names, self$get_eq_names())
-        eq_nums <- as.integer(match(eq_names, self$get_eq_names()))
+        eq_names <- private$get_eq_names_(TRUE, names, pattern)
       } else if (!missing(pattern) && missing(names)) {
-        eq_names <- self$get_eq_names(order = "solve")
-        ieqs <- grep(pattern, eq_names)
-        eq_names <- eq_names[ieqs]
+        eq_names <- self$get_eq_names(pattern = pattern, status = "active",
+                                      order = "solve")
       } else {
-        stop(paste("Only one of arguments pattern and names can  be",
-                   "specified"))
+        stop("Only one of arguments 'pattern' and 'names' can be specified")
       }
-      eqnums <- match(eq_names, self$get_eq_names(order = "natural"))
-      if (is.null(private$model_period)) stop(private$period_error_msg)
-      js <- private$get_period_indices(period)
-      .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums),
-            jtb = js$startp, jte = js$end)
+      if (length(eq_names) > 0) {
+        eqnums <- match(eq_names, self$get_eq_names(order = "natural"))
+        js <- private$get_period_indices(period)
+        .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums),
+              jtb = js$startp, jte = js$end)
+      }
       return(invisible(self))
     },
     get_solve_options = function() {

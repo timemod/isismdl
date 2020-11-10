@@ -102,7 +102,8 @@ test_that("deactivating fixed equations", {
   mdl2$solve(options = list(report = "none"))
   expect_equal(mdl2$get_data(names = "c"), c_ref)
   expect_equal(mdl2$get_ca(names = "c"), mdl$get_ca(names = "c"))
-  mdl2$run_eqn(names = "c")
+  expect_error(mdl2$run_eqn(names = "c"),
+               "\"c\" is not an active equation")
   expect_equal(mdl2$get_data(names = "c"), c_ref)
   expect_equal(mdl2$get_ca(names = "c"), mdl$get_ca(names = "c"))
 })
