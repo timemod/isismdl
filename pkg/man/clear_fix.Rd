@@ -5,7 +5,9 @@
 \title{\code{\link{IsisMdl}} method: deletes all fix values}
 \description{
 This methods of R6 class \code{\link{IsisMdl}}
-deletes all fix values
+deletes all fix values specified with methods
+\code{\link{set_fix}}, \code{\link{set_fix_values}} and
+\code{\link{fix_variables}}
 }
 \section{Usage}{
 
@@ -16,6 +18,6 @@ mdl$clear_fix()
 }
 
 \seealso{
-\code{\link{set_fix}}, \code{\link{fix_variables}}
-and \code{\link{get_fix}}
+\code{\link{set_fix}}, \code{\link{set_fix_values}},
+\code{\link{fix_variables}} and \code{\link{get_fix}}
 }

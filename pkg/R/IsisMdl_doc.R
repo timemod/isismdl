@@ -312,10 +312,7 @@ NULL
 #'
 #' Since deactivating effectively changes the structure of the model,
 #' it may be necessary to compute a new ordering of the model.
-#' This is not done automatically.
-#' You must do it by hand. Currently, package \code{isismdl} does
-#' not yet support reordering the model, but this feature will
-#' become available in the future.
+#' This is not done automatically. Use method \code{\link{order}}.
 #'
 #' If the left-hand side variable of a deactivated equation
 #' appears as lead in the model, that lead will
@@ -347,7 +344,7 @@ NULL
 #'
 #' If neither \code{pattern} nor \code{status} have been specified,
 #' then all equations will be activated or deactivated.
-#' @seealso \code{\link{get_eq_names}}
+#' @seealso \code{\link{get_eq_names}} and \code{\link{order}}
 #' @examples
 #' mdl <- islm_mdl()
 #'
@@ -509,7 +506,7 @@ NULL
 #' \describe{
 #' \item{\code{period}}{\code{\link[regts]{period_range}}
 #' object, or an object
-#' that can be coerced to \code{\link[regts]{period_range}}}
+#' that can be coerced to \code{\link[regts]{period_range}}}.
 #' \item{\code{options}}{a named list with solve options,
 #' for example \code{list(maxiter = 50)}.
 #' The names are the corresponding argument names of
@@ -727,7 +724,12 @@ NULL
 #' \item{\code{names}}{a character vector with variable names}
 #' \item{\code{pattern}}{a regular expression}
 #' \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
-#' object that can be coerced to a \code{period_range}}
+#' object that can be coerced to a \code{period_range}.
+#' The frequency of `period` should be equal to or lower than the
+#' frequency of the model period. If the frequency is lower,
+#' than the period range is converted to the same frequency
+#' as the model frequency with function \code{\link[regts]{change_frequency}}
+#' of package `regts`.}
 #' }
 #' @section Methods:
 #' \itemize{
@@ -749,7 +751,7 @@ NULL
 #' print(mdl$get_data(names = c("g", "y"), period = "2017Q2/"))
 #'
 #' # print data for all quarters in 2017 (2017Q1/2017Q4)
-#' print(mdl$get_data(names = c("g", "y"), period = "2017"))
+#' print(mdl$get_data(names = c("g", "y"), period = 2017))
 #'
 #' print(mdl$get_data(pattern = "^ymdl"))
 #'
@@ -923,7 +925,11 @@ NULL
 #' variable names.}
 #' \item{\code{period}}{A \code{\link[regts]{period_range}} object or an
 #' object that can be coerced to a \code{period_range}. The default
-#' is the data period.}
+#' is the data period. The frequency of `period` should be equal to or lower than the
+#' frequency of the model period. If the frequency is lower,
+#' than the period range is converted to the same frequency
+#' as the model frequency with function \code{\link[regts]{change_frequency}}
+#' of package `regts`.}
 #' }
 #' If neither \code{names} nor \code{pattern} has been specified, then the action
 #' is applied to all model variables of the appropriate type.
@@ -1202,9 +1208,9 @@ NULL
 #' \code{"period"} (for a report per period),
 #' \code{"fullrep"} (for a full report),
 #' \code{"minimal"}  (for a minimal report), and
-#' \code{"none"}  (for no report). The default is \code{"period"}}
-#'  The report options \code{"none"} also suppresses all output
-#' of the fit procedure and the Fair-Taylor progress report.
+#' \code{"none"}  (for no report). The default is \code{"period"}.
+#' The report options \code{"none"} also suppresses all output
+#' of the fit procedure and the Fair-Taylor progress report.}
 #' \item{\code{ratreport}}{Defines the type of rational expectations progress
 #' report. See section "Ratex report options" below}
 #' \item{\code{ratreport_rep}}{An integer number specifying
@@ -1352,6 +1358,7 @@ NULL
 #' The default values for \code{ratreport_rep}  and \code{ratfullreport_rep}
 #' are 1 and \code{NA}, respectively.
 #'
+#' @seealso \code{\link{set_debug_eqn}}
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$set_solve_options(maxiter = 100)
@@ -1832,9 +1839,11 @@ NULL
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 #' @section Arguments:
 #' \describe{
-#' \item{\code{p}}{a named list.
+#' \item{\code{p}}{a named character vector or list.
 #' The names are the names of the parameter names.
-#' The list elements are numeric vectors with a length equal to the length
+#' `p` should be a list if one or more of the specified parameters are vector
+#' parameters, i.e. parameters with a length greater than 1. In that
+#' case, the list elements are numeric vectors with a length equal to the length
 #' of the corresponding parameter.}
 #' \item{\code{name_err}}{A character that specifies the
 #' action that should be taken when a name is not the name of a parameter.
@@ -1937,22 +1946,25 @@ NULL
 #' mdl$clear_fit()
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
-#' @seealso \code{\link{set_fit}} and \code{\link{get_fit}}
+#' @seealso \code{\link{set_fit}}, \code{\link{set_fit_values}}
+#' and \code{\link{get_fit}}.
 NULL
 
 #' \code{\link{IsisMdl}} method: deletes all fix values
 #' @name clear_fix
 #' @description
 #' This methods of R6 class \code{\link{IsisMdl}}
-#' deletes all fix values
+#' deletes all fix values specified with methods
+#' \code{\link{set_fix}}, \code{\link{set_fix_values}} and
+#' \code{\link{fix_variables}}
 #'
 #' @section Usage:
 #' \preformatted{
 #' mdl$clear_fix()
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
-#' @seealso \code{\link{set_fix}}, \code{\link{fix_variables}}
-#' and \code{\link{get_fix}}
+#' @seealso \code{\link{set_fix}}, \code{\link{set_fix_values}},
+#' \code{\link{fix_variables}} and \code{\link{get_fix}}
 NULL
 
 #' \code{\link{IsisMdl}} method: Returns a copy of this \code{IsisMdl} object
@@ -2017,7 +2029,8 @@ NULL
 #'
 #' # fix all frml variables
 #' mdl$fix_variables(pattern = ".*")
-#' @seealso \code{\link{set_fix}} and \code{\link{get_fix}}
+#' @seealso \code{\link{set_fix}}, \code{\link{get_fix}}
+#' and \code{\link{clear_fix}}.
 NULL
 
 #' \code{\link{IsisMdl}} method: R Sets the debug equation option
@@ -2053,6 +2066,7 @@ NULL
 #' output file whenever it encounters numerical problems during calculation
 #' of an equation.
 #'
+#' @seealso \code{\link{set_solve_options}}
 #' @examples
 #' mdl <- islm_mdl()
 #' mdl$set_debug_eqn(TRUE)

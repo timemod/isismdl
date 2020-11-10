@@ -7,6 +7,10 @@ program Isis.
 
 ## Documentation
 
-[Reference manual](isismdl.pdf)
+[Reference manual](pkg/vignettes/isismdl_refman.pdf)
 
-[Vignette](pkg/vignettes/isismdl.pdf)
+[Introduction to Package isismdl](pkg/vignettes/isismdl.pdf)
+
+[Model Syntax Reference for Package isismdl](pkg/vignettes/isismdl_syntax.pdf)
+
+[A Newton algorithm for solving an underdetermined system of equations](pkg/vignettes/fit_method.pdf)

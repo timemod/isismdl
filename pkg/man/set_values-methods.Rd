@@ -43,7 +43,11 @@ For \code{set_fit_values}, the names should be the names of endogenous variables
 variable names.}
 \item{\code{period}}{A \code{\link[regts]{period_range}} object or an
 object that can be coerced to a \code{period_range}. The default
-is the data period.}
+is the data period. The frequency of \code{period} should be equal to or lower than the
+frequency of the model period. If the frequency is lower,
+than the period range is converted to the same frequency
+as the model frequency with function \code{\link[regts]{change_frequency}}
+of package \code{regts}.}
 }
 If neither \code{names} nor \code{pattern} has been specified, then the action
 is applied to all model variables of the appropriate type.

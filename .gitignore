@@ -7,7 +7,7 @@ pkg/src/*.dll
 pkg/src/mod/*.mod
 pkg/inst/doc
 ./data
-isismdl.log
+refman.log
 isismdl.Rcheck
 isismdl_*.tar.gz
 tmp/

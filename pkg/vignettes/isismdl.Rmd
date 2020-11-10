@@ -1,18 +1,29 @@
 ---
-title: "Introduction to package `isismdl`"
+title: "Introduction to Package `isismdl`"
 author: "Rob van Harrevelt"
 date: "`r Sys.Date()`"
 output:
   pdf_document:
-    toc: true
+    toc: yes
     toc_depth: 3
-    number_sections: true
-linkcolor: blue    
-vignette: >
-  %\VignetteIndexEntry{Introduction to package isismdl}
-  %\VignetteEngine{knitr::rmarkdown}
+    number_sections: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    df_print: paged
+  word_document:
+    toc: yes
+    toc_depth: '3'
+bibliography: isismdl.bib
+linkcolor: blue
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{caption}
+- \captionsetup[table]{position=bottom}
+vignette: |
+  %\VignetteIndexEntry{Introduction to Package isismdl} 
+  %\VignetteEngine{knitr::rmarkdown} 
   %\VignetteEncoding{UTF-8}
-  
 ---
 
 <!--   
@@ -27,22 +38,86 @@ library(isismdl)
 knitr::opts_chunk$set(collapse = FALSE, comment = "", prompt = TRUE)
 ```
 
-# Introduction
+# Introduction \label{sec:intro}
 
 This introduction shows how package `isismdl` can be used to solve a simple example 
-model, a dynamical version of the ISLM model.
+model, a dynamical version of the Keynesian IS-LM model. This vignette will not cover
+all possibilities of package `isismdl`, but introduces the main functionality.
+Consult the [_Reference Manual_](isismdl_refman.pdf) for the full documentation.
 
-[Here follows a description of the ISLM model]
+\begin{table}[ht]
+\begin{tabular}{ll|ll}
+\toprule
+\multicolumn{2}{c|}{\textbf{Endogenous variables}}& \multicolumn{2}{c}{\textbf{Exogenous variables}} \\
+\midrule
+$Y$      & national income            & $G$      & government spending   \\
+$Y^d$    & dispensable income         & $M^s$     & money supply          \\
+$C$      & consumption                &          &                       \\
+$I$      & investments                &          &                       \\
+$T$      & tax                        &          &                       \\
+$M^d$    & money demand               &          &                       \\
+$r$      & interest rate              &          &                       \\
+\bottomrule
+\end{tabular}
+\caption{Variables of the IS-LM example model}
+\label{tab:islm_vars}
+\end{table}
 
-# The model file
+Table \ref{tab:islm_vars} present all variables of the example model.
+The model equations are given by
+\begin{align}
+ C_t   &= \gamma_0 +  \gamma_1 (0.9 Y^d_t + 0.1 Y^d_{t-1})- \gamma_2 r_t + 
+          \gamma_3 r_t^2 + \epsilon_{Ct} \label{eqn:islm_c}\\
+ I_t   &= \iota_0 +  \iota_1 (0.2Y_t+0.8Y_{t-1}) - \iota_2  r_{t-1} + 
+          \iota_3 r_{t-1}^2 + \epsilon_{It}   \label{eqn:islm_i}\\
+ M^d_t &= \mu_0 + \mu_1 Y_t -\mu_2 r_t + \mu_3 r_t^2  
+        + \epsilon_{{M^d}t}\label{eqn:islm_md}     \\
+ T_t   &= \tau_0 + \tau_1 Y_t + \epsilon_{Tt}   \label{eqn:islm_t}\\
+ Y^d_t &= Y_t - T_t                                  \label{eqn:islm_yd}\\
+ Y_t   &= C_t + I_t + G_t                              \label{eqn:islm_y} \\
+ M^d_t &= M^s_t,                                    \label{eqn:islm_mequ}
+\end{align}
 
-The model file should be defined on an external ASCII file. A detailed
-discussion about the syntax of this file is provided in the Reference
-Manual of Isis.
+where $t$ is the period, for example a quarter for a quarterly model, and
+$\gamma_i$, $\iota_i$, $\mu_i$, $\tau_i$ are parameters.
+Equations  \ref{eqn:islm_c}-\ref{eqn:islm_t}  are *behavioural equations* and 
+contain a residual $\epsilon_{it}$ (where $i$ stands for $C$, $I$, 
+$M^d$ or $T$).
+Equations \ref{eqn:islm_t}-\ref{eqn:islm_mequ} are *identity equations* 
+and have no residuals.  Identity equations are typically definition or bookkeeping 
+equations.
 
-A model file for the ISLM model is included in the example models
+# The model file \label{sec:model_file}
+
+The model file for package `isismdl` should be defined on an external ASCII file. 
+A detailed
+description of the model syntax is provided in the vignette
+[_"Model Syntax Reference for Package isismdl"_](isismdl_syntax.pdf).
+
+The equations in the model file should be normalised, which implies
+that there must be one equation of the form $y_i = \ldots$ for each 
+endogenous variable $y_i$. The system of equations 
+\ref{eqn:islm_c}-\ref{eqn:islm_mequ} is not normalised:
+there are two equations for $M^d$ and no equation for $r$. Therefore 
+equation \ref{eqn:islm_mequ} has to be rewritten and transformed to an equation 
+for $r$:
+\begin{align}
+\nonumber M^d &= M^s    & \\
+\nonumber 0   &= M^s - M^d             &      \\
+\nonumber 0   &= \frac{M^s - M^d}{M^s} &    \\
+r   &= r + \frac{M^s - M^d}{M^s}  & \text{add $r$ at both sides}   \label{eqn:islm_r}
+\end{align}
+
+The effect of Equation \ref{eqn:islm_r} is that  the value of 
+the interest rate $r$ is determined by the equilibrium between
+money demand ($M^d$) and supply ($M^s$). 
+
+The model file for this example model should include the equations
+\ref{eqn:islm_c} - \ref{eqn:islm_y}
+and equation \ref{eqn:islm_r}.
+A model file for the IS-LM  model is included in the example models
 in directory `models` of the package directory.
-To copy this file to you working directory, use
+To copy this file to your working directory, use
 ```{r echo = FALSE, message = FALSE}
 unlink("islm.mdl")
 ```
@@ -56,7 +131,25 @@ The model file `islm.mdl` has the following contents:
 cat(readLines('islm.mdl'), sep = '\n')
 ```
 
-# Creating the  model
+The model definition contains a number of parameters, four behavioural equation
+(equations starting with the `frml` keyword) and  three identity equations 
+(equations starting with a `ident` keyword).
+As explained in Section \ref{sec:intro}, the behavioural equations have additive
+residuals. These residuals are implicit and not explicitly indicated in
+the model equations defined in the model file.
+Behavioural  equations are also called *frml equations*
+^["frml" is short for "formula".] , and the residuals are also referred to 
+as *constant adjustments*.  The `frml` equations can be fixed 
+(see Section \ref{sec:fix}) and play an important role in the fit procedure 
+(see Section \ref{sec:fit}).
+
+For identity equations, the left hand side
+is determined exactly by the right hand side expression. 
+The `ident` keyword for the identity equations is optional. If an
+equation starts without the `ident` or `frml` keyword, the equation is
+an identity equation.
+
+# Creating an `IsisMdl` object
 
 The function `isis_mdl` parses the model file and creates an `IsisMdl` object
 ```{r}
@@ -69,7 +162,7 @@ the structure of the model.
 If the compiler detects an error in the model file, an additional
 file `islm.err` is created. This file contains a list of errors.
 
-The mrf file for our ISLM looks like this:
+The `mrf` file for our ISLM looks like this:
 
 ```{r echo = FALSE}
 cat(readLines('islm.mrf'), sep = '\n')
@@ -80,165 +173,640 @@ For example, it shows which variables are exogenous or endogenous,
 and which variables are feedback variables. A brief explanation of these
 concepts:
 
-* Exogenous variables are variables that only occur at the right hand side of the equation.
+* Exogenous variables are variables that only occur at the right hand side of 
+  the equation.
 * Endogenous variables are variables on the left hand side of the equations.
-* A feedback variable is a variable that directly or indirectly depends on itself. In order to solve the model, initial guess values for the feedback variables have to be specified.
+* A feedback variable is a variable that directly or indirectly depends on 
+  itself. In order to solve the model, initial guess values for the feedback 
+  variables have to be specified.
 
 # `IsisMdl` objects
 
 An `IsisMdl` object is an R6 class object. R6 
 classes behave quite differently than the more familiar S3 and S4 classes. 
-For example, for R6 classes methods are part of the object itself and not of 
+For example, for R6 classes, methods are part of the object itself and not of 
 generic functions. R6 classes behave in a similar way as classes in
 object oriented languages such as Java, C++ or Python. 
 
-For example, the method `get_params()` can be used to
+For example, the method `get_param()` can be used to
 obtain the values of the model parameters. 
-For example, to obtains the values of parameters `m0` and `c1`, use
+To obtain the values of parameters `m0` and `c1`, use
 ```{r}
 mdl$get_param(names = c("m0", "c1"))
 ```
 
 Methods starting with `get_`, are often called "getter" methods.
-There are also corresponding "setter" methods. For example
+There are usually corresponding "setter" methods. For example
 ```{r}
-mdl$set_param(list(m0 = 100))
+mdl$set_param(c(m0 = 100))
 mdl$get_param("m0")
 ```
-Input for method `set_params()` is a named list.
+Input for method `set_param()` is a named vector.
 
-## Copying `IsisMdl` objects
+There are more getters and setters, for example for model variables  
+(`get_data()` and `set_data()`) and constant adjustments (`get_ca()` and 
+`set_ca()`). All getters and setters are described in the 
+[_Reference Manual_](isismdl_refman.pdf).
+
+## Copying `IsisMdl` objects \label{sec:copying}
 
 Consider the following assignment:
 ```{r}
 mdl2 <- mdl
 ```
-Now variables `mdl2` and `mdl` refer to the same object. If you modify
+Variables `mdl2` and `mdl` refer to the same object. If you modify
 `mdl2`, then also `mdl` is modified.
 ```{r}
 mdl2$set_param(list(m0 = 75))
 mdl$get_param("m0")
 ```
-The usual copy-on-modify semantics that are used for convential
+The usual copy-on-modify semantics that are used for conventional
 R objects such as S3 or S4 classes do not apply to R6 classes.
 
-If you want to create a copy of the model, use the `copy()` method with
-argument `deep = TRUE` :
+If you want to create a copy of the model, use the `copy()` method:
 ```{r}
 mdl2 <- mdl$copy()
 mdl2$set_param(list(m0 = -9999))
 mdl$get_param("m0")
 ```
 
-# Solving the model \label{sec:solve}
-
-Suppose that we want to solve the model for the period from `2017Q1` to
-`2018Q2`. Then we need the values of the exogenous variables for that period.
-For the feedback variables `y` and `r` we also need initial
-starting values for the model period `2017Q1/2018Q2'.
-Since `r`, `y` and `y_d` are lagged, we also need values for these
-variables in `2016Q4`. 
-
-In typical applications, the input timeseries are read
-from an external file, for example a csv file. For this tutorial
-we will create a timeseries object manually by employing
-function `regts` of the `regts` package. For the exogenous variables
-`g` and `ms` we assume an annual growth of 1.5% after `2016Q4`.
-```{r}
-# exogenous variables:
-g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2017Q1")
-ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2017Q1")
-# feedback variables (with lag):
-r <- regts(3.4, period = "2016Q4/2018Q2")
-y <- regts(980, period = "2016Q4/2018Q2")
-# lagged variable
-yd <- regts(790, start = "2016Q4")
-data <- cbind(g, ms, r, y, yd)
-data
-```
-
-To transfer these variables to the model, we first
-have to define the model period. This is the period for which the model will be 
-solved. For this we use the
-method `set_period()`:
-```{r}
-mdl$set_period(period_range("2017Q1", "2018Q2"))
-mdl
-```
-The data period is the model period extended with the lag and lead period.
-You can also retrieve the model period and model data period 
-with the methods `get_period()` and `get_data_period`.
-
-Now we can transfer the values in `regts` object data to the model
-with method `set_data()`:
-```{r}
-mdl$set_data(data)
-```
-
-To check the model data, we use
-```{r}
-mdl$get_data()
-```
-Model variables that we have not explicitly set all value `NA`.
-These values are not needed to solve the model.
-
-We are now ready to solve the model:
-```{r}
-mdl$solve()
-```
-
-The method `get_data()` can be used to retrieve the solution.
-```{r}
-mdl$get_data()
-```
-
-# Writing and reading `IsisMdl` objects
+## Writing and reading `IsisMdl` objects
 
 To write an `IsisMdl`object to a file, use for example
 ```{r}
 mdl$write_mdl(file = "islm_mdl.ismdl")
 ```
 
-This methods serializes the model equations, parameters, model data, solve options, etc.
+This methods serialises the model equations, parameters, model data, 
+solve options, etc. Also included are fix values (discussed in Section \ref{sec:fix}), 
+fit targets and root mean square errors (discussed in Section \ref{sec:fit}).
+
 You can read this model back with the command
 ```{r, results = "hide"}
-mdl <- read_mdl("islm_mdl.ismdl")
+mdl2 <- read_mdl("islm_mdl.ismdl")
 ```
+
+`mdl2` is now an identical copy of `mdl`.
 
 ```{r, echo = FALSE, results = "hide"}
 unlink("islm_mdl.rds")
 ```
 
 Do not use the standard functions for writing objects to a file and to restore them,
-such as `save`, `saveRDS`, `load` and `readRDS`. These functions cannot handle
-the complex structure of `IsisMdl` objects.
+such as `save`, `saveRDS`, `load` and `readRDS`. 
 
-# Fixing variables
+# Solving the model \label{sec:solve}
 
-TODO
+Suppose that we want to solve the model for the period from `2020Q1` to
+`2021Q2`. The first step is to set the model period, the period for which the 
+model will be solved. For this we use method `set_period()`:
+```{r}
+mdl$set_period("2020Q1/2021Q2")
+```
+The argument of `set_period` is a character representing a period range
+using the syntax of package `regts`.
 
-<!-- There are two types of equations in Isis models: -->
-<!-- the so called `frml` (formula) equations, also -->
-<!-- called behavioural equations, and identities.  The frml equations -->
+Let's print the model object:
+```{r}
+mdl
+```
+The model data period is the model period extended with the lag period (and 
+lead period for models with leads).
+You can retrieve the model period and model data period 
+with the methods `get_period()` and `get_data_period`.
 
-<!-- Endogenous variables that occur in the left hand side of frml equations -->
+To solve the model, we need
 
-# The fit procedure
+  * Values for the exogenous variables `g` and `ms` for the 
+    model period `2020Q1/2021Q2`
+  * Values for the lagged variables `r`, `y` and `yd` in the lag quarter `2019q4`
+  * Initial values for the feedback variables `r` and `y` in the model period.
+    The solution does not depend on the initial values, but it is easier to find
+    the solution of the model if you provide a reasonable guess for the initial values.
+    
+In typical applications, the input timeseries are read
+from an external file, for example a csv or Excel file. For this simple example,
+we will create a timeseries object  by employing
+function `regts` of the `regts` package. For the exogenous variables
+`g` and `ms`, we assume an annual growth of 1.5% after `2019Q4`.
+```{r}
+# exogenous variables:
+g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2020Q1")
+ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2020Q1")
+# feedback variables (with lag):
+r <- regts(3.4, period = "2019Q4/2021Q2")
+y <- regts(980, period = "2019Q4/2021Q2")
+# lagged variable
+yd <- regts(790, start = "2019Q4")
+data <- cbind(g, ms, r, y, yd)
+data
+```
 
-TODO
+To transfer these variables to the model, use method `set_data()`:
+```{r}
+mdl$set_data(data)
+```
 
-# Modellen bewerken
+Let's check the model data:
+```{r}
+mdl$get_data()
+```
+Model variables for which we have not yet specified values (`c`, `i`,  and `t`)
+all have value `NA`. Values for these variables are computed when the model is 
+solved. We are now ready to solve the model:
+```{r}
+mdl$solve()
+```
 
-## Vergelijkingen uitschakelen
+The output of `solve` starts with an overview of the  solve
+options. Subsequently, the number of iterations per each period is printed.
+The solve options can be specified with method `set_solve_options`
+(see the [_Reference Manual_](isis_refman.pdf) for more information).
 
-TODO
+The method `get_data()` can be used to retrieve the solution.
+```{r}
+mdl$get_data()
+```
 
-## Modeldata aanvullen
+A detailed description of the numerical methods used to solve the model 
+is provided in Chapters 17 to 20 in the Isis Gebruikershandleiding 
+[@isishandleiding] (in Dutch, there is currently no English documentation 
+available).
+Briefly, the equations are ordered and a preferably small set of feedback 
+variables is determined [@dongallo; @hasselman2004].
+The condensed system of equations involving feedback variables only
+is solved using the Broyden method [@denschnbl], a variant of the 
+Newton method with an update method for the jacobian at each iteration.
 
-TODO
+# Constant adjustments
 
-## Losse vergelijkingen draaien
+As explained in Section \ref{sec:model_file}, each behavioural or
+`frml` equation has a residual, also called constant adjustment.
+By default, all constant adjustments are zero. It is possible
+to set constant adjustments with `IsisMdl` method `set_ca` or `set_ca_values`.
+Here I illustrate the usage of method `set_ca_values`:
+```{r}
+mdl$set_ca_values(20, names = "c", period = "2020q1")
+mdl$get_ca(period = "2020q1/2020q2")
+```
 
-# Bijsturen van het modeloplossen
+# Fixing variables \label{sec:fix}
 
-TODO
+The left hand side variables of `frml` equations can be fixed, which
+means that the left hand side variable is exogenous while the constant
+adjustment is endogenous. The constant adjustment is calculated as the
+difference between the left hand side variable and the right hand side
+expression. Equations can be fixed for the whole period but also for 
+specific periods.
+
+For example, suppose that we have some observations for `c` and `t`:   
+```{r}
+c  <- regts(c(600, 610), period = "2020q1/2020q2")
+t <- regts(200, start = "2020q1")
+obs <- cbind(c, t)
+obs
+```
+
+We can  fix `c` and `i` at these given values:
+```{r}
+mdl$set_fix(obs)
+mdl$solve(options = list(report = "none"))  # solve but suppress output
+mdl$get_data(names = c("c", "t"), period = 2020)
+```
+
+`c` is fixed at the specified value for `2020Q1` and `2020Q2`, but endogenous
+for other periods. `t` is only  fixed at `2020Q1`: if a fix value is `NA`, then
+the corresponding variable is not fixed at the corresponding period.
+Note that if we specify a year for argument `period`, `get_data` returns the 
+data for each quarter in that year.
+
+The constant adjustments for `c` and `t` are now nonzero:
+```{r}
+mdl$get_ca(period = 2020)
+```
+
+Method `clear_fix()` removes all fix values:
+```{r}
+mdl$clear_fix()
+```
+Now all `frml` variables are free (i.e. endogenous), and the constant adjustments
+are exogenous. However, `clear_fix` does *not* set all 
+constant adjustments  to zero. All constant adjustments retain their values.
+
+To remove only specific fix values, use for example:
+```{r}
+mdl$set_fix_values(NA, "t")  # remove all fix values for t
+ ```
+ 
+Table \ref{tab:methods_fix} presents  an overview of the methods related to 
+ fixing. Full documentation with examples is provided in the 
+[_Reference Manual_](isismdl_refman.pdf).
+
+\begin{table}[!ht]
+\begin{tabular}{lp{10cm}}
+\toprule
+\texttt{set\_fix}, \texttt{set\_fix\_values} and \texttt{get\_fix} & set and 
+                                                    retrieve fix values. 
+                                                    See also Section \ref{sec:ca_fix_fit}.    \\
+\texttt{clear\_fix} & remove all fix values and unfix all frml variabkles\\
+\texttt{fix\_variables}  & fix some  variables for a specified period at
+                           the current model data values  \\
+\bottomrule
+\end{tabular}
+\caption{Overview of methods related to fixing.}
+\label{tab:methods_fix}
+\end{table}
+
+# The fit procedure \label{sec:fit}
+ 
+## Introduction
+ 
+ Suppose that we have some observations for `y`. Since `y` is determined by
+ an identity equation, we cannot fix `y`. To force the model forecast to reproduce 
+ the observed values for `y`, we can use the so called "fit procedure".
+ The basic idea of the fit procedure is as follows. Since `y` depends indirectly
+ on the constant adjustments of `c`, `i`, `t` and `md`,  we can try to find
+ the values of these constant adjustments so that the model reproduces the
+ observed values of `y`.
+ 
+ The name "fit procedure" may be a bit confusing. Usually, the term "fitting"
+ refers to the process of finding the parameters of a mathematical function that
+ best describe a series of  data points. The number of observations is always larger
+ than the number of parameters to be fitted. However, in the fit procedure, we 
+ have more degrees of freedom than observations. 
+ For the example discussed above, we have one observation for `y` for each
+ period, but four degrees of freedom (the four constant adjustments for that period).
+ In Dutch, the fit procedure is called "waarnemingenprocedure", for which the 
+ literal English translation is "observation procedure". This would be a 
+ better name for "fit procedure", but the usage of the term "fit procedure"
+ is already well established.
+
+ The method of the fit procedure is described in Ref. [@sandb1984]. The method is based on the maximum 
+ likelihood principle: find the values of the constant adjustments for which the 
+ probability has a maximum subject to the constraint that the model
+ reproduces the observations. The constant adjustments (residuals),
+ $\epsilon_{it}$ in Equations \ref{eqn:islm_c} - \ref{eqn:islm_t}, are 
+ assumed to be distributed according to a normal distribution with mean zero 
+ and standard deviation $\sigma_i$. This implies that the fit procedure minimises 
+ $\sum_i (\epsilon_{it} / \sigma_i)^2$ subject to the constraint that the model 
+ reproduces the observations.
+ 
+## Numerical implementation
+   
+The numerical implementation of the fit procedure is described in 
+CPB Memorandum @hasselman2003, which is included as vignette 
+[_"A Newton algorithm for solving an underdetermined system of equations"_](fit_method.pdf)
+in this package.
+Here a brief summary is presented that will be sufficient to understand 
+the output of the fit procedure discussed below.
+
+First, define $w \in \mathbb{R}^m$ as the vector of observations at a specific period
+(in this section the period index $t$ is omitted), and
+the $u \in \mathbb{R}^n$ as the vector of residuals scaled with
+the standard deviation (i.e. $u_i = \epsilon_i / \sigma_i)$.
+The $u_i$s  are also called *fit instruments*. 
+The number of observations is less than or equal to the number of fit instruments
+($m \le n$).
+The fit procedure can be formulated mathematically as 
+
+\begin{gather}
+\min _u \quad u^T u \label{eqn:fit_min_u}   \\
+\mbox{subject to} \quad w = h(u) \label{eqn:fit_constraint}
+\end{gather}
+
+The vector valued function $h:\mathbb{R}^n \rightarrow \mathbb{R}^m$ represents the implicit 
+reduced form equations relating the targeted endogenous variables to the residuals.
+The function is evaluated by solving the model for a given set of fit instruments.
+
+A Newton-like method is used to solve Equations 
+\ref{eqn:fit_min_u}  - \ref{eqn:fit_constraint}.
+This method involves the fit jacobian $D_{ij} = \partial h_i / \partial u_j$,
+which  is calculated numerically.
+
+The fit procedure for $m = n$ is often referred to as "square fit procedure", 
+since the fit jacobian is a square matrix in this case.
+For the square fit procedure,  the results are independent of the 
+standard deviations $\sigma_i$, since there
+is a unique solution of Equation \ref{eqn:fit_constraint}. However, because
+of the numerical implementation, $\sigma_i$ should have the same scale as the
+corresponding variable. So simply setting all $\sigma_i$s to 1 is not always
+a good idea. 
+
+## Example   
+ 
+  Suppose that we have some observations for variables `c` and `r` that we
+  want to use as fit targets for the fit procedure
+   
+```{r}
+y <- regts(c(1000, 1005), period = "2020q1/2020q2")
+r <- regts(3.5, start = "2020q1")
+fit_targets <- cbind(y, r)
+fit_targets
+``` 
+
+We register them as fit targets with function `set_fit`
+```{r}
+mdl$set_fit(fit_targets)
+```
+Method `set_fit` works similarly as `set_fix`: if a fit target is `NA`, 
+then the corresponding variable is not a fit target.
+
+Before solving the model, the standard deviations of the residuals,
+also called root mean square errors (rms errors), have 
+to be specified. We assume that the rms values are given^[The rms values can be estimated 
+from the model if for some historical period the values of the frml variables
+are known. Solve the model while fixing the frml variables. The rms errors
+can now be estimated from the calculated constant adjustments.].
+```{r}
+rms_errors <- c(c = 5.0, i = 21, md = 2, t = 2)
+mdl$set_rms(rms_errors)
+```
+
+Function `set_rms` expects a named numeric vector as argument.
+The default values for the rms errors are zero. If the rms error of
+a constant adjustment is zero, then the constant adjustment is not used as
+a fit instrument and retains the original value when the model is solved.
+
+We are now ready to solve with the fit procedure:
+```{r}
+mdl$solve()
+```
+
+The output includes an iteration report of the fit procedure for each period
+with fit targets. The iteration report start with the line that starts with `Fiter`.
+A brief description of the columns in the iteration report
+is presented in table \ref{tab:fit_iter_report}.
+
+\begin{table}[ht]
+\begin{tabular}{lp{15cm}}
+\toprule
+\textbf{Column} & \textbf{Description} \\
+\midrule
+\texttt{Fiter}  & Iteration counter. Suffixed with \texttt{D} if a new fit 
+                  jacobian is calculated at the beginning of the iteration. \\
+\texttt{Icond}  & Inverse condition of the fit jacobian.  A very small number 
+                  (smaller than about $10^{-7}$) indicates that the jacobian is 
+                  nearly singular. \\
+\texttt{Delwmx} & Maximum relative deviation of observation $w_i$ from
+                  the corresponding endogenous variables $y_i$, defined as 
+                  $\mid w_i  - y_i \mid / \mathrm{max}(\mid w_i \mid, 1)$. \\
+\texttt{Delsmx} & Maximum relative step size, defined as 
+                  $\mid y_i  - {y_i}^{\mathrm{prev}} \mid / \mathrm{max}(\mid {y_i}^{\mathrm{prev}}\mid, 1)$, 
+                  where ${y_i}^{\mathrm{prev}}$ is the value of the endogenous 
+                  variable for the previous iteration \\
+\texttt{Deltyp} & Type of the difference (\texttt{Delwmx} or \texttt{Delsmx})
+                  for which the next three columns show further information: 
+                  \texttt{w} for \texttt{Delwmx} and \texttt{s} for 
+                  \texttt{Delsmx}. Convergence of the fit procedure is achieved
+                  if both \texttt{Delwmx} or \texttt{Delsmx} are smaller than
+                  the convergence threshold, which is by default 100 times the
+                  square root of the machine precision ($\approx 1.5 \times 10^{-6}$)
+                  and can be set by specifying fit option \texttt{cvgabs}.
+                  \texttt{Deltyp} is \texttt{w} if \texttt{Delwmx} is larger 
+                  than the convergence threshold and otherwise \texttt{s}. \\
+\texttt{Ratio}  & The ratio of the current and previous value of 
+                  \texttt{Delwmx} or \texttt{Delsmx}, depending on 
+                  \texttt{Deltyp}.\\ 
+\texttt{Type}   & Specifies whether \texttt{Delwmx} or \texttt{Delsmx}, 
+                  depending on \texttt{Deltyp}, is an absolute or relative 
+                  difference.\\  
+\texttt{Name}   & The name of the variable with the largest discrepancy 
+                  between the observation and value, or the name of the 
+                  variable with the largest (relative) step size, \
+                  depending on \texttt{Deltyp}. \\
+\bottomrule
+\end{tabular}
+\caption{Description of the columns of the iteration report of the fit procedure}
+\label{tab:fit_iter_report}
+\end{table}
+
+The results of the fit procedure are:
+
+```{r}
+mdl$get_data(names = c("y", "r"), period = 2020)
+mdl$get_ca(period = 2020)
+```
+
+In the previous example, the two fit targets were the left hand side variables
+of identity equations, but frml variables can  be used as fit targets as well. 
+For example
+```{r}
+fit_targets <- cbind(c, t, y, r)
+mdl$set_fit(fit_targets)
+```
+```{r echo = FALSE, results = "hide"}
+mdl$solve()
+```
+
+It is also possible to combine the fit procedure with fixing:
+```{r}
+mdl$set_fit_values(NA) # remove all fit targets
+fit_targets <- cbind(y, r)
+fix_data <- cbind(c, t)
+mdl$set_fit(fit_targets)
+mdl$set_fix(fix_data)
+```
+
+```{r echo = FALSE, results = "hide"}
+mdl$solve()
+```
+
+In general, it is preferable to also use the fit procedure for the
+observations of frml variables, because the solution of the fit procedure has a higher
+probability, assuming that we have good estimates of the standard deviations.
+
+As shown in the example above, the expression `mdl$set_fit_values(NA)` can be
+used to remove all fit targets. This can also be achieved with method
+`clear_fit`. However, `clear_fit` not only removes the fit targets,
+but also sets all rms errors to zero. 
+```{r}
+mdl$clear_fix() # remove all fit targets and set all rms errors to 0
+```
+
+## Options for the fit procedure 
+
+There are many options that can be specified to fine-tune the fit procedure,
+for example to fix numerical problems or to get more detailed information
+about the iteration process or the fit jacobian. If the fit jacobian
+is (nearly) singular, it can be useful to turn on an SVD (Singular Value
+Documentation) analysis of the jacobian.
+Consult the documentation of method `set_fit_options` in the 
+[_Reference Manual_](isis_refman.pdf)
+for more information. In interactive R-sessions, you can also get the documentation
+by typing
+```{r}
+?set_fit_options
+```
+
+## Overview of methods for to the fit procedure
+
+Table \ref{tab:methods_fit} presents  an overview of the methods related to the
+fit procedure.
+Full documentation with examples is provided in the 
+[_Reference Manual_](isismdl_refman.pdf).
+
+\begin{table}[!ht]
+\begin{tabular}{lp{10cm}}
+\toprule
+\texttt{set\_fit}, \texttt{set\_fit\_values} and \texttt{get\_fit} & set and 
+                                                    retrieve fit targets. 
+                                                    See also Section \ref{sec:ca_fix_fit}.    \\
+\texttt{set\_rms} and \texttt{get\_rms} & set and get rms errors \\
+\texttt{clear\_fit} & remove all fit targets and set all rms errors to 0.\\
+\texttt{set\_fit\_options} and \texttt{get\_fit\_options} & set and get the 
+options for the fit procedure. \\
+\bottomrule
+\end{tabular}
+\caption{Overview of methods related to the fit procedure.}
+\label{tab:methods_fit}
+\end{table}
+
+# Deactivating equations \label{sec:deact}
+
+It is possible to completely deactivate an equation. For example,
+suppose we no longer wish to calculate the interest rate by the model.
+We can use:
+```{r}
+mdl$set_eq_status("inactive", names = "r")
+```
+
+Now `r` is an exogenous variable for the whole solution period.
+If a frml equation is deactivated, then the constant adjustment is also
+exogenous and retains the original value.
+
+After (de)activating an equation, it is  often desirable, although not
+necessary, to reorder the model equations and determine a new feedback
+set. This is possible with method `order`:
+
+```{r}
+mdl$order()  
+ ```
+
+```{r echo = FALSE, results = "hide" }
+mdl$clear_fit()$clear_fix()
+mdl$solve()
+```
+
+
+# Modifying model timeseries and parameters
+
+## Model data
+
+There are three methods that can be used to modify model variables:
+`set_data`, that we already encountered in Section \ref{sec:solve},
+`set_values`, and `change_data`. A number of examples is presented below.
+
+### `set_data` {.unlisted .unnumbered}
+
+Method `set_data` updates the model data with a timeseries object.
+If `data` is a timeseries object, we can use
+```{r}
+mdl$set_data(data)
+```
+
+`set_data` uses the column names of `data` to determine which model
+variables should be updated.
+
+### `set_values` {.unlisted .unnumbered}
+
+Method `set_values` is useful to set the value of a model variable 
+for a specific period, without creating a timeseries object.
+Example:
+```{r}
+mdl$set_values(1000, names = "y", period = "2019q4")
+```
+
+Method `set_data` can also be used to give more than one variable the same value.
+Some examples:
+```{r}
+ # give all variables starting with m (ms and md) the value 200 for all periods:
+mdl$set_values(200, pattern = "^m")
+# make all model variables equal to 1:
+mdl$set_values(1) 
+```
+
+```{r echo = FALSE, results = "hide" }
+# restore old data
+mdl$set_data(data)
+mdl$solve()
+```
+
+### `change_data` {.unlisted .unnumbered}
+
+Suppose we wish to increase  exogenous variable `g` with 10% in the period 
+`"2020Q1/2020Q2"`. This is easy with method `change_data`:
+```{r}
+mdl$change_data(fun = function(x) {x * 1.1}, names = "g", period = "2020Q1/2020Q2")
+```
+
+Method `change_data` applies a function to the model timeseries.
+
+## Constant adjustments, fix values and fit targets \label{sec:ca_fix_fit}
+
+Since constant adjustments, fix values and fit targets are timeseries just
+as the model variables, similar methods are available to modify these model 
+timeseries.
+Table \ref{tab:modify_model_timeseries} presents an overview
+of the available methods.
+The methods in the same column work similarly. The fourth column gives the
+getter methods that can be used to retrieve the model timeseries. 
+Full documentation with examples is provided in the 
+[_Reference Manual_](isismdl_refman.pdf).
+
+\begin{table}[ht]
+\begin{tabular}{llll}
+\toprule
+\texttt{set\_data} & \texttt{set\_values}      & \texttt{change\_data} & \texttt{get\_data}\\
+\texttt{set\_ca}   & \texttt{set\_ca\_values}  & \texttt{change\_ca}   & \texttt{get\_ca}\\
+\texttt{set\_fix}  & \texttt{set\_fix\_values} &                       & \texttt{get\_fix}\\
+\texttt{set\_fit}  & \texttt{set\_fit\_values} &                       & \texttt{get\_fit}\\
+\bottomrule
+\end{tabular}
+\caption{Overview of methods to modify and retrieve model timeseries}
+\label{tab:modify_model_timeseries}
+\end{table}
+
+## Parameters and rms errors
+
+Parameters can be modified with methods `set_param` and `set_param_values`.
+In Section \ref{sec:copying}, we have already seen an example of `set_param`.
+Another example:
+```{r}
+mdl$set_param(c(m0 = 75, c0 = 120))
+```
+The argument of `set_param` is  named vector.
+
+Method `set_param_values` is useful to give more than one parameter the 
+same value. For example, to make all parameters for the quadratic terms
+equal to zero, use
+```{r}
+mdl$set_param_values(0, pattern = "3$")
+```
+
+The rms errors, i.e. the standard deviation of the residuals used in the
+fit procedure (see Section \ref{sec:fit}), are modified by similar methods
+`set_rms` and `set_rms_values`. Table \ref{tab:modify_parameters} 
+presents an overview of the available methods. The methods in the same column 
+work similarly. The third column gives the getter methods that can 
+be used to retrieve the parameters or rms errors. 
+Full documentation with examples is provided in the 
+[_Reference Manual_](isismdl_refman.pdf).
+
+\begin{table}[h]
+\begin{tabular}{lll}
+\toprule
+\texttt{set\_param} & \texttt{set\_param\_values} & \texttt{get\_param} \\
+\texttt{set\_rms} & \texttt{set\_rms\_values}     & \texttt{get\_rms}   \\
+\bottomrule
+\end{tabular}
+\caption{Overview of methods to modify and retrieve model parameters and rms errors}
+\label{tab:modify_parameters}
+\end{table}
+
+
+```{r echo = FALSE, message = FALSE}
+unlink(c("islm.mdl", "islm.mrf", "islm_mdl.ismdl"))
+```
+
+# References
+

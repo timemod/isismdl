@@ -93,9 +93,9 @@ computation progress report. Possible values are
 \code{"period"} (for a report per period),
 \code{"fullrep"} (for a full report),
 \code{"minimal"}  (for a minimal report), and
-\code{"none"}  (for no report). The default is \code{"period"}}
+\code{"none"}  (for no report). The default is \code{"period"}.
 The report options \code{"none"} also suppresses all output
-of the fit procedure and the Fair-Taylor progress report.
+of the fit procedure and the Fair-Taylor progress report.}
 \item{\code{ratreport}}{Defines the type of rational expectations progress
 report. See section "Ratex report options" below}
 \item{\code{ratreport_rep}}{An integer number specifying
@@ -255,4 +255,7 @@ are 1 and \code{NA}, respectively.
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$set_solve_options(maxiter = 100)
+}
+\seealso{
+\code{\link{set_debug_eqn}}
 }

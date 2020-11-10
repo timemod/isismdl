@@ -5,5 +5,5 @@ islm.mrf
 *.ilg
 *.log
 *.synctex.gz
-*.tex
+./*.tex
 *.toc

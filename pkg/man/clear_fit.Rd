@@ -18,5 +18,6 @@ mdl$clear_fit()
 }
 
 \seealso{
-\code{\link{set_fit}} and \code{\link{get_fit}}
+\code{\link{set_fit}}, \code{\link{set_fit_values}}
+and \code{\link{get_fit}}.
 }

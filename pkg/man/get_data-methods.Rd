@@ -36,7 +36,12 @@ mdl$get_fit()
 \item{\code{names}}{a character vector with variable names}
 \item{\code{pattern}}{a regular expression}
 \item{\code{period}}{an \code{\link[regts]{period_range}} object or an
-object that can be coerced to a \code{period_range}}
+object that can be coerced to a \code{period_range}.
+The frequency of \code{period} should be equal to or lower than the
+frequency of the model period. If the frequency is lower,
+than the period range is converted to the same frequency
+as the model frequency with function \code{\link[regts]{change_frequency}}
+of package \code{regts}.}
 }
 }
 
@@ -62,7 +67,7 @@ print(mdl$get_data())
 print(mdl$get_data(names = c("g", "y"), period = "2017Q2/"))
 
 # print data for all quarters in 2017 (2017Q1/2017Q4)
-print(mdl$get_data(names = c("g", "y"), period = "2017"))
+print(mdl$get_data(names = c("g", "y"), period = 2017))
 
 print(mdl$get_data(pattern = "^ymdl"))
 

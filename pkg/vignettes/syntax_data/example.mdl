@@ -1,0 +1,4 @@
+#if x_zero
+  x = 0;
+#endif;
+y = x;
