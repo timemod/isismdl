@@ -27,7 +27,7 @@ mdl$solve(period = mdl$get_period(), options = list(),
 \describe{
 \item{\code{period}}{\code{\link[regts]{period_range}}
 object, or an object
-that can be coerced to \code{\link[regts]{period_range}}}
+that can be coerced to \code{\link[regts]{period_range}}}.
 \item{\code{options}}{a named list with solve options,
 for example \code{list(maxiter = 50)}.
 The names are the corresponding argument names of

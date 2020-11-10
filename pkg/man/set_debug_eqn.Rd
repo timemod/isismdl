@@ -46,3 +46,6 @@ mdl$set_debug_eqn(TRUE)
 
 print(mdl$get_debug_eqn())
 }
+\seealso{
+\code{\link{set_solve_options}}
+}

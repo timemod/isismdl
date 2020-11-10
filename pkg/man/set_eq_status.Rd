@@ -31,10 +31,7 @@ variable will be treated as endogenous.
 
 Since deactivating effectively changes the structure of the model,
 it may be necessary to compute a new ordering of the model.
-This is not done automatically.
-You must do it by hand. Currently, package \code{isismdl} does
-not yet support reordering the model, but this feature will
-become available in the future.
+This is not done automatically. Use method \code{\link{order}}.
 
 If the left-hand side variable of a deactivated equation
 appears as lead in the model, that lead will
@@ -83,5 +80,5 @@ mdl$set_eq_status("inactive", pattern = "^y*")
 print(mdl$get_eq_names(status = "inactive"))
 }
 \seealso{
-\code{\link{get_eq_names}}
+\code{\link{get_eq_names}} and \code{\link{order}}
 }

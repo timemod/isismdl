@@ -47,5 +47,6 @@ mdl$fix_variables(names = "c", period = "2015Q3/2015Q4")
 mdl$fix_variables(pattern = ".*")
 }
 \seealso{
-\code{\link{set_fix}} and \code{\link{get_fix}}
+\code{\link{set_fix}}, \code{\link{get_fix}}
+and \code{\link{clear_fix}}.
 }

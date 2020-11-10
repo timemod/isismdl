@@ -34,9 +34,11 @@ mdl$get_param(pattern, names)
 \section{Arguments}{
 
 \describe{
-\item{\code{p}}{a named list.
+\item{\code{p}}{a named character vector or list.
 The names are the names of the parameter names.
-The list elements are numeric vectors with a length equal to the length
+\code{p} should be a list if one or more of the specified parameters are vector
+parameters, i.e. parameters with a length greater than 1. In that
+case, the list elements are numeric vectors with a length equal to the length
 of the corresponding parameter.}
 \item{\code{name_err}}{A character that specifies the
 action that should be taken when a name is not the name of a parameter.
