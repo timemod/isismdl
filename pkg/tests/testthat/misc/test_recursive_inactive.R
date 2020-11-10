@@ -4,17 +4,19 @@ library(testthat)
 
 rm(list = ls())
 
-context("test for a simple recursive model")
+context("test for a simple recursive model with inactive equations")
 
 period <- as.period_range("1550Y")
 
 mdl <- isis_mdl("mdl/recursive.mdl", period, silent = TRUE)
 mdl$set_solve_options(report = "none", maxiter = 0)
+mdl$set_eq_status("inactive", "x")
+mdl$set_values(2, names = "x")
 mdl_solved <- mdl$copy()
 mdl_solved$solve()
 
 names <- mdl$get_var_names()
-expected_result <- regts(matrix(1, nrow = 1, ncol = length(names)),
+expected_result <- regts(matrix(c(1, 2, 2, 2), nrow = 1, ncol = length(names)),
                         period = period, names = names)
 
 test_that("run_eqn", {
@@ -25,22 +27,25 @@ test_that("run_eqn", {
 
 test_that("run_eqn with natural ordering", {
   mdl2 <- mdl$copy()
-  mdl2$run_eqn(names = mdl$get_eq_names(order = "natural"))
-  expected_result_err <- regts(matrix(c(1, 1, NA, NA), nrow = 1, ncol = length(names)),
-                               period = period, names = names)
+  expect_error(mdl2$run_eqn(names = mdl$get_eq_names(order = "natural")),
+               "\"x\" is not an active equation.")
+  mdl2$run_eqn(names = mdl$get_eq_names(status = "active", order = "natural"))
+
+  expected_result_err <- regts(matrix(c(1, 2, 2, NA), nrow = 1, ncol = length(names)),
+                           period = period, names = names)
   expect_equal(mdl2$get_data(), expected_result_err)
 })
 
 test_that("run_eqn with alphabetical ordering", {
   # in this case, alphabetic order is gives same result as solve order
   mdl2 <- mdl$copy()
-  mdl2$run_eqn(names = mdl$get_eq_names(order = "sorted"))
+  mdl2$run_eqn(names = mdl$get_eq_names(status = "active", order = "sorted"))
   expect_equal(mdl2$get_data(), expected_result)
 })
 
 test_that("run_eqn with solve ordering", {
   mdl2 <- mdl$copy()
-  mdl2$run_eqn(names = mdl$get_eq_names(order = "solve"))
+  mdl2$run_eqn(names = mdl$get_eq_names(status = "active", order = "solve"))
   expect_equal(mdl2$get_data(), expected_result)
   mdl2$solve(options = list(maxiter = 0))
   expect_equal(mdl2, mdl_solved)
