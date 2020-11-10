@@ -754,7 +754,10 @@ IsisMdl <- R6Class("IsisMdl",
       if (missing(pattern) && missing(names)) {
         eq_names <- self$get_eq_names(status = "active", order = "solve")
       } else if (missing(pattern) && !missing(names)) {
-        eq_names <- private$get_eq_names_(TRUE, names, pattern)
+        # call get_eq_names to check the equation names, get_eq_names will
+        # give an error if any name is not the name of an equation
+        private$get_eq_names_(TRUE, names, pattern)
+        eq_names <-  names
       } else if (!missing(pattern) && missing(names)) {
         eq_names <- self$get_eq_names(pattern = pattern, status = "active",
                                       order = "solve")
