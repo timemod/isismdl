@@ -1,9 +1,11 @@
 library(testthat)
 library(isismdl)
 
+rm(list = ls())
+
 context("fit for ISLM model")
 
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 all_eqs <- mdl$get_eq_names()
 frml_names <- c("c", "i", "md", "t")
 endo_names <- mdl$get_endo_names()
@@ -137,4 +139,14 @@ test_that("fixing deactived equation give an error", {
   data <- mdl2$get_data(names = c("y", "yd"))
   msg <- "The variables y yd are inactive and cannot be used as fit targets"
   expect_error(mdl2$set_fit(data), msg)
+})
+
+test_that("errors", {
+  mdl2 <- mdl$copy()
+  expect_error(mdl2$set_eq_status(status = "inactive", names = c("y", "yyy")),
+               "\"yyy\" is not an equation.")
+  expect_error(mdl2$set_eq_status(status = "active", names = c("y", "yyy", "x")),
+                "The following names are no equations: \"yyy\", \"x\".")
+  expect_warning(mdl2$set_eq_status(status = "active", names = "y", pattern = "^z"),
+                "There are no equations that match pattern '\\^z'.")
 })

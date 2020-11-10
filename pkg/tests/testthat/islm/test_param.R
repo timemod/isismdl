@@ -77,7 +77,8 @@ test_that("set_param_values", {
   expected_result["m1"] <- 111
   expect_equal(islm_model$get_param(), expected_result)
 
-  expect_silent(islm_model$set_param_values(999, pattern = "^x"))
+  expect_warning(islm_model$set_param_values(999, pattern = "^x"),
+                 "There are no parameters that match pattern '\\^x'.")
   expect_equal(islm_model$get_param(), expected_result)
 
   #
