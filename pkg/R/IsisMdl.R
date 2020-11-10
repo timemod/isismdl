@@ -752,23 +752,21 @@ IsisMdl <- R6Class("IsisMdl",
       "Run model equations"
       period <- private$convert_period_arg(period)
       if (missing(pattern) && missing(names)) {
-        eq_names <- self$get_eq_names(order = "solve")
+        eq_names <- self$get_eq_names(status = "active", order = "solve")
       } else if (missing(pattern) && !missing(names)) {
-        eq_names <- intersect(names, self$get_eq_names())
-        eq_nums <- as.integer(match(eq_names, self$get_eq_names()))
+        eq_names <- private$get_eq_names_(TRUE, names, pattern)
       } else if (!missing(pattern) && missing(names)) {
-        eq_names <- self$get_eq_names(order = "solve")
-        ieqs <- grep(pattern, eq_names)
-        eq_names <- eq_names[ieqs]
+        eq_names <- self$get_eq_names(pattern = pattern, status = "active",
+                                      order = "solve")
       } else {
-        stop(paste("Only one of arguments pattern and names can  be",
-                   "specified"))
+        stop("Only one of arguments 'pattern' and 'names' can be specified")
       }
-      eqnums <- match(eq_names, self$get_eq_names(order = "natural"))
-      if (is.null(private$model_period)) stop(private$period_error_msg)
-      js <- private$get_period_indices(period)
-      .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums),
-            jtb = js$startp, jte = js$end)
+      if (length(eq_names) > 0) {
+        eqnums <- match(eq_names, self$get_eq_names(order = "natural"))
+        js <- private$get_period_indices(period)
+        .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums),
+              jtb = js$startp, jte = js$end)
+      }
       return(invisible(self))
     },
     get_solve_options = function() {
@@ -834,23 +832,11 @@ IsisMdl <- R6Class("IsisMdl",
     set_eq_status = function(status = c("active", "inactive"),
                              pattern, names) {
       "Activate or deactivate equations"
-
       status <- match.arg(status)
-
-      if (missing(pattern) && missing(names)) {
-        names <- self$get_eq_names()
-      } else if (!missing(pattern)) {
-        pvars <- self$get_eq_names(pattern)
-        if (!missing(names)) {
-          names <- union(pvars, names)
-        } else {
-          names <- pvars
-        }
+      names <- private$get_eq_names_(FALSE, names, pattern)
+      if (length(names) > 0) {
+        .Call("set_eq_status_c", private$model_index, names, status);
       }
-
-      # TODO: if names specified, then check if it contains
-      # names that are no model variables
-      .Call("set_eq_status_c", private$model_index, names, status);
       return(invisible(self))
     },
     get_last_solve_period = function() {
@@ -1071,15 +1057,17 @@ IsisMdl <- R6Class("IsisMdl",
         var_type <- "endo_exo"
         all_names <- self$get_var_names()
       }
+
+      type_texts <- c(endo = "endogenous variable",
+                      frml = "frml variable",
+                      endo_exo  = "model variable",
+                      param = "parameter")
+      type_text <- type_texts[var_type]
+
       if (!missing(names) &&
           length(error_vars <- setdiff(names, all_names)) > 0) {
         if (name_err != "silent") {
           error_vars <- paste0("\"", error_vars, "\"")
-          type_texts <- c(endo = "endogenous variable",
-                          frml = "frml variable",
-                          endo_exo  = "model variable",
-                          param = "parameter")
-          type_text <- type_texts[var_type]
           if (length(error_vars) == 1) {
             a_word <- if (var_type %in% c("endo")) "an" else "a"
             msg <- paste0(error_vars, " is not ", a_word, " ", type_text, ".")
@@ -1099,6 +1087,48 @@ IsisMdl <- R6Class("IsisMdl",
         names <- all_names
       } else if (!missing(pattern)) {
         sel <- grep(pattern, all_names)
+        if (length(sel) == 0) {
+          warning("There are no ", type_text, "s that match pattern '",
+                  pattern, "'.")
+        }
+        pattern_names <- all_names[sel]
+        if (!missing(names)) {
+          names <- union(pattern_names, names)
+        } else {
+          names <- pattern_names
+        }
+      }
+      return(names)
+    },
+    get_eq_names_ = function(active, names, pattern) {
+      # This function selects equations names. It gives an error if names
+      # contains any invalid name for the specified type of equation.
+
+      status <- if (active) "active" else "all"
+      all_names <- self$get_eq_names(status = status)
+
+      type_text <- if (active) " active " else " "
+
+      # check supplied names, give an error if an invalid name has been
+      # specified
+      if (!missing(names) &&
+                        length(error_vars <- setdiff(names, all_names)) > 0) {
+        error_vars <- paste0("\"", error_vars, "\"")
+        if (length(error_vars) == 1) {
+          stop(error_vars, " is not an", type_text, "equation.")
+        } else {
+          stop("The following names are no", type_text, "equations: ",
+                        paste(error_vars, collapse = ", "), ".")
+        }
+      }
+      if (missing(pattern) && missing(names)) {
+        names <- all_names
+      } else if (!missing(pattern)) {
+        sel <- grep(pattern, all_names)
+        if (length(sel) == 0) {
+          warning("There are no", type_text, "equations that match pattern '",
+                  pattern, "'.")
+        }
         pattern_names <- all_names[sel]
         if (!missing(names)) {
           names <- union(pattern_names, names)

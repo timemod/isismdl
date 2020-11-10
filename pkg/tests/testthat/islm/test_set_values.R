@@ -41,6 +41,16 @@ test_that("set_values works correctly (2)", {
   expect_equal(mdl2$get_data(), expected * NA_real_)
 })
 
+test_that("warning when no variables match pattern", {
+  mdl2 <- mdl$copy()
+  expect_warning(mdl2$set_values(3, pattern = "^z", names = "c"),
+                 "There are no model variables that match pattern '\\^z'.")
+  expect_equal(mdl2$get_data(names = "c")[, 1],
+               regts(3, period = mdl$get_data_period()),
+               check.attributes = FALSE)
+
+})
+
 test_that("set_values handles errors correctly", {
   mdl2 <- mdl$clone(deep = TRUE)
   msg <- "\"xxx\" is not a model variable"
