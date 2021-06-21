@@ -56,7 +56,7 @@ module msvars
 
             integer, external :: ms_get_lwork_nwto, ms_get_lwork_nwqr
             integer :: stat
-    
+
             jf = jf_in
             jl = jl_in
             opts => opts_in
@@ -101,6 +101,16 @@ module msvars
                 return
             endif
 
+            if (mode == 'X' .and. mdl%nendex > 0) then
+                ! endogenous leads for the Fair-Taylor
+                ! method
+                allocate(endo_leads(mws%mdl%nendex, mws%perlen), stat = stat)
+                if (stat /= 0) then
+                    error = 1
+                    return
+                endif
+            endif
+
             if (mode == 'R' .or. method == 'G') return
 
             la_lwork = get_lwork()
@@ -125,15 +135,6 @@ module msvars
                 endif
             endif
 
-            if (mode == 'X' .and. mdl%nendex > 0) then
-                ! endogenous leads for the Fair-Taylor
-                ! method
-                allocate(endo_leads(mws%mdl%nendex, mws%perlen), stat = stat)
-                if (stat /= 0) then
-                    error = 1
-                    return
-                endif
-            endif
 
         end subroutine prepare_solve
 
