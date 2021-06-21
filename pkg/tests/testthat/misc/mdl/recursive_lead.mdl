@@ -1,0 +1,5 @@
+? simple example of a recursive model
+ident z = y;
+ident y = x;
+ident a = 1;
+ident x = a(1);
