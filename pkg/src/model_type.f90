@@ -307,7 +307,7 @@ contains
         type(model), intent(inout) :: mdl
         integer, intent(in) :: eqnum, action
 
-        integer :: eqtyp, lhsvar, jen, canum, lhsvar_new
+        integer :: eqtyp, lhsvar, jen, canum, lhsvar_signed
         logical :: is_act
         integer, external :: bysget
 
@@ -319,31 +319,41 @@ contains
         eqtyp  = bysget(mdl%etype, eqnum)
         lhsvar = mdl%lhsnum(eqnum)
 
-        ! CA number (if <> 0 index into ica() corresponding to lhs variable)
-        canum = mdl%aci(lhsvar)
-
-        if (mdl%ibx2(lhsvar+1) > mdl%ibx2(lhsvar)) then
-            ! have leads: lookup index in iendex (to make exogenous)
-            jen = idxlzuk(mdl%iendex, mdl%nendex, lhsvar)
-            if (jen == 0 ) then
-                call rexit("Internal error in mcadeq: iendex array error")
-            endif
-        else 
-            jen = 0
-        endif
-    
         ! eqtyp is lowercase for active eqaution and uppercase for an 
         ! inactive equaiton
         if (action == ACTIVATE) then
             call bysset(mdl%etype, eqnum, eqtyp - 32)
-            lhsvar_new = lhsvar
         else 
             call bysset(mdl%etype, eqnum, eqtyp + 32)
-            lhsvar_new = -lhsvar
         endif
-        if (jen   > 0) mdl%iendex(jen) = lhsvar_new
-        if (canum > 0) mdl%ica(canum)  = lhsvar_new
         mdl%lik(lhsvar) = action == ACTIVATE
+
+        !
+        ! now update mdl%iendex and mdl%ica: lhsvar should be replaced by -lhsvar if 
+        ! the variable is deactivated, and +lhsvar if the equation is activated
+        !
+        if (action == ACTIVATE) then
+            lhsvar_signed = lhsvar
+        else 
+            lhsvar_signed = -lhsvar
+        endif
+        
+        if (mdl%ibx2(lhsvar + 1) > mdl%ibx2(lhsvar)) then
+            ! The variable has leads: look up index in iendex (to make exogenous)
+            ! Note that we use -lhsvar_signed: we use the sign of the variable
+            ! before activation / deactivation 
+            jen = idxlzuk(mdl%iendex, mdl%nendex, -lhsvar_signed)
+            if (jen == 0) then
+                call rexit("Internal error in activate_deactivate_eq: iendex array error")
+            endif
+        else 
+            jen = 0
+        endif
+        if (jen > 0) mdl%iendex(jen) = lhsvar_signed
+
+        ! CA number (if <> 0 index into ica() corresponding to lhs variable)
+        canum = mdl%aci(lhsvar)
+        if (canum > 0) mdl%ica(canum)  = lhsvar_signed
     end subroutine activate_deactivate_eq
 
     logical function has_fb_order(mdl)

@@ -76,4 +76,14 @@ test_that("get_endo_names with inactive equations", {
   expect_identical(ifn_mdl2$get_endo_names(type = "leads", status = "inactive"),
                    c("eta", "px"))
 
+  expect_error(ifn_mdl2$set_eq_status("active", names = all_leads),
+               'The following names are no equations: "gpx", "groei", "tc".',
+               fixed = TRUE)
+
+  ifn_mdl2$set_eq_status("active", names = endo_leads)
+  expect_identical(ifn_mdl2$get_endo_names(type = "leads"), endo_leads)
+  expect_identical(ifn_mdl2$get_endo_names(type = "leads", status = "all"),
+                   endo_leads)
+  expect_identical(ifn_mdl2$get_endo_names(type = "leads", status = "inactive"),
+                   character(0))
 })
