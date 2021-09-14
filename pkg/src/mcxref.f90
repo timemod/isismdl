@@ -215,7 +215,7 @@ write(xrfunt,'(1x,i7,a)', err=990,iostat=ios) &
 write(xrfunt,'(1x,7x,i7,a)', err=990,iostat=ios) maxlg, ' maximum lag'
 write(xrfunt,'(1x,7x,i7,a)', err=990,iostat=ios) maxld, ' maximum lead'
 write(xrfunt,'(1x,7x,i7,a/)', err=990,iostat=ios) &
-&          mdl%nendex,' variables with leads'
+&          mdl%nendex,' endogenous variables with leads'
 
 write(xrfunt,'(1x,i7,a)', err=990,iostat=ios) mdl%nrp,' parameters '
 write(xrfunt,'(1x,7x,i7,a/)', err=990,iostat=ios) &

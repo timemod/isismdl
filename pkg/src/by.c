@@ -32,11 +32,7 @@ int strcicmp(char const *a, char const *b, int nb) {
     for (i = 0 ; i < nb; i++) {
         /* convert to upper case, because in the ASCII ordering
          * the upper case letters come before the underscore */
-        int d = toupper(*(a + i)) - toupper(*(b + i));
-        if (d == 0) {
-            /* same letter, in that upper case before lower case */
-            d = *(a + i) - *(b + i);
-        }
+        int d = tolower(*(a + i)) - tolower(*(b + i));
         if (d != 0 || !*(a + 1) || !*(b + 1)) {
             return d;
         }
