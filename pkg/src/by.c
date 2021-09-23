@@ -45,12 +45,14 @@ int strcmp_alt(char const *a, char const *b, int nb) {
          * convert to lower case, because in the ASCII ordering
          * the underscore comes before the underscore */
         int d = tolower(*(a + i)) - tolower(*(b + i));
+        if (d == 0) {
+           // same letter, in that case upper case before lower case
+           d = *(a + i) - *(b + i);
+        }
         if (d != 0) return d;
     }
 
-    // The case insensitive comparison did not detect any differences. 
-    // Now use normal case sensitive comparison
-    return strncmp(a, b, nb);
+    return 0;
 }
 
 /*
