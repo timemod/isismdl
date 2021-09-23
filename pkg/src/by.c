@@ -26,12 +26,12 @@ void F77_SUB(bysset)(FUCHAR *str, FINT *fb, FUINT *bv)
     *(str+*fb-1) = (FUCHAR)(*bv);
 }
 
-/* case insensitive comparison.*/
+/* case insensitive comparison (using ASCII ordering) */
 int strcicmp(char const *a, char const *b, int nb) {
     int i;
     for (i = 0 ; i < nb; i++) {
-        /* convert to upper case, because in the ASCII ordering
-         * the upper case letters come before the underscore */
+        /* convert to lower case, because for ASCII ordering
+         * the underscore comes before lower case letters */
         int d = tolower(*(a + i)) - tolower(*(b + i));
         if (d != 0 || !*(a + 1) || !*(b + 1)) {
             return d;
