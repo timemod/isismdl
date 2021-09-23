@@ -2,7 +2,12 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+update <- FALSE
+
 context("test for complex model 2")
+
+source("../tools/read_mrf.R")
 
 period <- as.period_range("2017m12")
 expected_output_file <- "expected_output/complex2.rds"
@@ -52,3 +57,9 @@ test_that("model is solved correctly", {
   expect_equal(mdl$get_data(), mdl_subst$get_data())
 })
 
+test_that("check mrf", {
+  mrf_data <- read_mrf(mdl_filename)
+  expect_known_output(cat(mrf_data), file = "expected_output/complex2_mrf.txt",
+                      update = update, print = TRUE)
+
+})

@@ -2,9 +2,13 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+update <- FALSE
+
 context("test handling missing exos and lags")
 
 source("../tools/convert_report.R")
+source("../tools/read_mrf.R")
 
 
 period <- period_range(2018, 2019)
@@ -54,6 +58,13 @@ test_that("option cont in combination with report = \"none\"", {
   expect_identical(y3_result, y3_expected)
 })
 
+test_that("check mrf", {
+  mrf_data <- read_mrf(mdl_file)
+  expect_known_output(cat(mrf_data),
+                      file = "expected_output/missing_exo_lag1_mrf.txt",
+                      update = update, print = TRUE)
+
+})
 
 
 

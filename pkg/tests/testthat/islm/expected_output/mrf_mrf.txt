@@ -1,0 +1,112 @@
+ ISIS model compilation : islm 
+
+ Model reference table
+
+ Each variable name is followed by its
+ maximum lag (with minus sign) and maximum lead in the model,
+ its type:  E(xogenous), B(ehavioral), I(dentity).
+ Exogenous variables listed first.
+
+ Parameters are listed separately.
+ Each parameter name is followed by its length.
+
+ Equations are listed in solution order,
+ followed by a list of feedback variables.
+
+ *** Statistics ***
+
+       9 variables of which
+              2 exogenous
+              4 behavioral
+              3 identity
+
+       3 total number of lags and leads with
+              1 maximum lag
+              0 maximum lead
+              1 maximum lag  endogenous variables
+              0 maximum lead endogenous variables
+              0 maximum lag  exogenous  variables
+              0 maximum lead exogenous  variables
+              0 endogenous variables with leads
+              0 exogenous  variables with leads
+
+      14 parameters 
+             14 total length of parameter values
+
+       7 equations of which
+              0 in prologue
+              7 in simultaneous block
+              0 in epilogue
+
+       2 feedback variables
+                 4 (100.0%) structural nonzeros in jacobian
+
+
+ Statistics of feedback ordering
+               7 words of memory used
+             2   minimum feedback chain (excl. fb equations)
+             5   maximum feedback chain (excl. fb equations)
+             3.5 average feedback chain (excl. fb equations)
+             2   average newton steps (rounded up)
+
+
+ *** Variables ***
+
+ *** Exogenous ***
+
+ g       0   0  E      
+ ms      0   0  E      
+
+ *** Endogenous ***
+
+ c       0   0  B      
+ i       0   0  B      
+ md      0   0  B      
+ r      -1   0  I      
+ t       0   0  B      
+ y      -1   0  I      
+ yd     -1   0  I      
+
+ *** Parameters ***
+
+ c0      1
+ c1      1
+ c2      1
+ c3      1
+ i0      1
+ i1      1
+ i2      1
+ i3      1
+ m0      1
+ m1      1
+ m2      1
+ m3      1
+ t0      1
+ t1      1
+
+ *** Equations (in solution order) ***
+
+     0 Prologue equations
+
+
+     7 Simultaneous equations
+
+ t    i    md   yd   c    y    r   
+
+     0 Epilogue equations
+
+
+ *** Feedback variables ***
+
+     2 Feedback variables
+
+ r    y   
+
+
+ *** Additional information for feedback variables
+     Name of feedback variable followed by how it was chosen: fixed, diagonal, heuristic,
+     and the length of the feedback cycle (excluding feedback variables)
+
+
+ r    diagonal          2  
+ y    diagonal          5  

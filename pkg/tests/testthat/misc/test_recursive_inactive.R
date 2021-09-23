@@ -8,7 +8,8 @@ context("test for a simple recursive model with inactive equations")
 
 period <- as.period_range("1550Y")
 
-mdl <- isis_mdl("mdl/recursive.mdl", period, silent = TRUE)
+mdl_filename <- "mdl/recursive.mdl"
+mdl <- isis_mdl(mdl_filename, period, silent = TRUE)
 mdl$set_solve_options(report = "none", maxiter = 0)
 mdl$set_eq_status("inactive", "x")
 mdl$set_values(2, names = "x")

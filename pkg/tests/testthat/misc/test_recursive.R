@@ -3,12 +3,16 @@ library(isismdl)
 library(testthat)
 
 rm(list = ls())
+update <- FALSE
 
 context("test for a simple recursive model")
 
+source("../tools/read_mrf.R")
+
 period <- as.period_range("1550Y")
 
-mdl <- isis_mdl("mdl/recursive.mdl", period, silent = TRUE)
+mdl_filename <- "mdl/recursive.mdl"
+mdl <- isis_mdl(mdl_filename, period, silent = TRUE)
 mdl$set_solve_options(report = "none", maxiter = 0)
 mdl_solved <- mdl$copy()
 mdl_solved$solve()
@@ -56,4 +60,12 @@ test_that("fill_mdl_data", {
   mdl2 <- mdl$copy()
   mdl2$fill_mdl_data(report = "no")
   expect_equal(mdl2$get_data(), expected_result)
+})
+
+test_that("check mrf", {
+  mrf_data <- read_mrf(mdl_filename)
+  expect_known_output(cat(mrf_data),
+                      file = "expected_output/recursive_mrf.txt",
+                      update = update, print = TRUE)
+
 })
