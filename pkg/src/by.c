@@ -1,4 +1,3 @@
-
 #include <R.h>
 #include <Rinternals.h>
 #include "isismdl_types.h"
@@ -26,18 +25,32 @@ void F77_SUB(bysset)(FUCHAR *str, FINT *fb, FUINT *bv)
     *(str+*fb-1) = (FUCHAR)(*bv);
 }
 
-/* case insensitive comparison (using ASCII ordering) */
-int strcicmp(char const *a, char const *b, int nb) {
+/* Alternative string comparison (assuming ASCII ordering) *
+ * Returns zero, a positive or negative number, depending on the ordering 
+ * of two strings.
+ * This implementation is not entirely case insensitve:
+ * If the only difference between the two strings is the case,
+ * the function returns the result of the normal case sensensitive
+ * comparison. This is needed because the isismdl variables names IS
+ * case sensitive (the ordering is used to find model variables) */
+int strcmp_alt(char const *a, char const *b, int nb) {
+
+    // first do case insensitive comparison
     int i;
-    for (i = 0 ; i < nb; i++) {
-        /* convert to lower case, because for ASCII ordering
-         * the underscore comes before lower case letters */
-        int d = tolower(*(a + i)) - tolower(*(b + i));
-        if (d != 0 || !*(a + 1) || !*(b + 1)) {
-            return d;
+    for (i = 0; i < nb; i++) {
+        if (!*(a + i) || !*(b + i)) {
+           break;
         }
+        /* for case insensitive comparison, 
+         * convert to lower case, because in the ASCII ordering
+         * the underscore comes before the underscore */
+        int d = tolower(*(a + i)) - tolower(*(b + i));
+        if (d != 0) return d;
     }
-    return 0;
+
+    // The case insensitive comparison did not detect any differences. 
+    // Now use normal case sensitive comparison
+    return strncmp(a, b, nb);
 }
 
 /*
@@ -59,7 +72,11 @@ int strcicmp(char const *a, char const *b, int nb) {
 int F77_SUB(byscmp)(FUCHAR *str1, FINT *fb1, FINT *nb, FUCHAR *str2, FINT *fb2) {
     int r = 0;
     if (*nb > 0) {
-        r = strcicmp((char *) str1+*fb1-1, (char *) str2+*fb2-1, *nb);
+        // TODO: try strcoll (on Linux), this function takes the locale intp
+        // acount. It turns out that the laxo model does not work with strcoll ordering.
+        // The question is why. Could it be that something is 
+        // wrong with the binary search algorithm? Check this.
+        r = strcmp_alt((char *) str1 + *fb1 - 1, (char *) str2 + *fb2 - 1, *nb);
     }
     if (r) {
         return r > 0 ? +1 : -1;
@@ -94,11 +111,12 @@ void F77_SUB(byszer)(FUCHAR *str, FINT *fb, FINT *nb)
 #include <stdio.h>
 
 int main() {
-    printf("result %d\n", strcicmp("aap", "noot", 3));
-    printf("result %d\n", strcicmp("noot", "a", 1));
-    printf("result %d\n", strcicmp("A", "a", 1));
-    printf("result %d\n", strcicmp("a", "A", 1));
-    printf("result %d\n", strcicmp("ab", "a_", 2));
-    printf("result %d\n", strcicmp("a_", "ab", 2));
+    printf("result %d\n", strcmp_alt("aap", "noot", 3));
+    printf("result %d\n", strcmp_alt("noot", "a", 1));
+    printf("result %d\n", strcmp_alt("A", "a", 1));
+    printf("result %d\n", strcmp_alt("a", "A", 1));
+    printf("result %d\n", strcmp_alt("ab", "a_", 2));
+    printf("result %d\n", strcmp_alt("a_", "ab", 2));
+    printf("result %d\n", strcmp_alt("A", "a", 1));
 }
 #endif
