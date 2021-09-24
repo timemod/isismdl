@@ -59,15 +59,15 @@
  B       0   0  E      
  bb      0   0  E      
  g       0   0  E      
+ g4      0   1  E      
  g_2     0   0  E      
  g_22    0   0  E      
- g4      0   1  E      
  gaz    -1   0  E      
  ms      0   0  E      
- x       0   0  E      
  X       0   0  E      
- z       0   0  E      
+ x       0   0  E      
  Z       0   0  E      
+ z       0   0  E      
 
  *** Endogenous ***
 

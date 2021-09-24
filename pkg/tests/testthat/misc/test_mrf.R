@@ -2,7 +2,7 @@ library(isismdl)
 library(testthat)
 
 rm(list = ls())
-update <- TRUE
+update <- FALSE
 
 context("mrf")
 

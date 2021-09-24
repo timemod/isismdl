@@ -4,7 +4,14 @@
 #include <string.h>
 #include <ctype.h>
 
-#define USE_STRCOLL
+/* Do not use strcoll for string comparison, for two reasons:
+ * 1) The ordering is platform dependent and thefore 
+ *    different on Windows and Linux.
+ * 2) For the default locale on Linux (en_US.utf8), strcoll procedures
+ *    a strange ordering (when string are compared, underscores are ignorted).
+ * Note: the ordering has an effect on order of the names in the mrf file
+ */
+//#define USE_STRCOLL
 
 static int strncicmp(char const *a, char const *b, int nb);
 
@@ -21,14 +28,9 @@ static int strncicmp(char const *a, char const *b, int nb);
 int F77_SUB(string_comp)(FUCHAR *str1, FINT *fb1, FINT *nb1, 
                          FUCHAR *str2, FINT *fb2, FINT *nb2) {
  
-    /* TODO: try strcoll (on Linux), tis function takes the locale into
-     * acount. It turns out that the laxo model does not work with strcoll ordering.
-     * The question is why. Could it be that something is 
-     * wrong with the binary search algorithm? Check this.
-    */
     int d = 0;
 
-#ifdef USE_STRCOLL;
+#ifdef USE_STRCOLL
 
     char s1[MCMXNM + 1];
     char s2[MCMXNM + 1];
@@ -48,7 +50,7 @@ int F77_SUB(string_comp)(FUCHAR *str1, FINT *fb1, FINT *nb1,
     d = strncicmp((char *) str1 + *fb1 - 1, (char *) str2 + *fb2 - 1, nb);
 
     if (d == 0) {
-        /* No case-insensitive difference in first nb bytes.
+        /* No case insensitive difference in first nb bytes.
          * Compare lengths and if the strings have equal length do a case 
          * sensitive comparison */
         if (*nb1 == *nb2) {
@@ -67,11 +69,13 @@ int F77_SUB(string_comp)(FUCHAR *str1, FINT *fb1, FINT *nb1,
     }
 }
 
+
 /* Case insensitive string comparison using ASCII ordering.
  * This function compares nb bites of string a and b.
  * These strings should not contain and end of string character ('\0').
- * TODO: on Linux, we might use strncasecmp, maybe something similar 
- *       is available on Windows.
+ * Note that in principle standard function strncasecmp can be used.
+ * However, according to the POSIX standard the behaviour is undefined
+ * if the locale is not POSIX or C. Therefore use our own implementation.
  */
 static int strncicmp(char const *a, char const *b, int nb) {
 
