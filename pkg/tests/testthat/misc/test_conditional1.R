@@ -2,6 +2,8 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("test for complex model 1")
 
 period <- as.period_range("476")

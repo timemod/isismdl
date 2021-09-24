@@ -1,4 +1,4 @@
- ISIS model compilation : islm 
+ ISIS model compilation 
 
  Model reference table
 

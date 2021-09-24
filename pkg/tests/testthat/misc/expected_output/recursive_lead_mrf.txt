@@ -1,4 +1,4 @@
- ISIS model compilation : recursive_lead 
+ ISIS model compilation 
 
  Model reference table
 

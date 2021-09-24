@@ -67,6 +67,7 @@ set_solve_opts_c.o : init_set_get_options.h set_option_utils.h \
                     set_solve_options.h set_solve_opts.h set_solve_opts_c.h \
                     solve_options.h
 solve_options.o : option_utils.h solve_options.h
+string_comp.o : isismdl_types.h
 symbol.o : dependencies.h isismdl.h symbol.h util.h xpcdef.h
 symbol.o : dependencies.h
 util.o : isismdl.h util.h

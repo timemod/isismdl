@@ -1,4 +1,4 @@
- ISIS model compilation : mrf_example
+ ISIS model compilation 
 
  Model reference table
 
@@ -54,8 +54,8 @@
 
  *** Exogenous ***
 
- Aa      0   0  E      
  a       0   0  E      
+ Aa      0   0  E      
  B       0   0  E      
  bb      0   0  E      
  g       0   0  E      

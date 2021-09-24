@@ -1,4 +1,4 @@
- ISIS model compilation : missing_exo_lag
+ ISIS model compilation 
 
  Model reference table
 
