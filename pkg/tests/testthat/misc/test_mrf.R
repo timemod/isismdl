@@ -1,8 +1,8 @@
 library(isismdl)
 library(testthat)
-rm(list = ls())
 
-update <- FALSE
+rm(list = ls())
+update <- TRUE
 
 context("mrf")
 
@@ -13,5 +13,7 @@ mdl <- isis_mdl(mdl_file, silent = TRUE)
 
 mrf_data <- read_mrf(mdl_file)
 
-expect_known_output(cat(mrf_data), file = "expected_output/mrf_mrf.txt",
+test_that("check_mrf", {
+  expect_known_output(cat(mrf_data), file = "expected_output/mrf_mrf.txt",
                     update = update, print = TRUE)
+})

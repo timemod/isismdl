@@ -48,10 +48,10 @@
 
  *** Endogenous ***
 
- A      -1   0  I      
  a       0   0  I      
- Aa     -1   0  I      
+ A      -1   0  I      
  aa      0   0  I      
+ Aa     -1   0  I      
  aa1     0   0  I      
 
  *** Parameters ***

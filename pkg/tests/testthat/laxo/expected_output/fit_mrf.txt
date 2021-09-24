@@ -56,20 +56,20 @@
 
  ab_bomda    0   0  E      
  ab_bomdu    0   0  E      
+ abcexmda    0   0  E      
  ab_demd     0   0  E      
  ab_exmda    0   0  E      
  ab_exmdu    0   0  E      
  ab_ktmd     0   0  E      
+ abrmda      0   0  E      
  ab_shmda    0   0  E      
  ab_shmdu    0   0  E      
  ab_womd     0   0  E      
- abcexmda    0   0  E      
- abrmda      0   0  E      
  afown      -1   0  E      
  afpwn      -1   0  E      
+ agbqn       0   0  E      
  ag_mda      0   0  E      
  ag_mdv      0   0  E      
- agbqn       0   0  E      
  akpwra      0   0  E      
  akpwrv      0   0  E      
  akswra      0   0  E      
@@ -83,25 +83,25 @@
  bag__pra    0   0  E      
  bag__prv    0   0  E      
  bag__vr     0   0  E      
- bd___vra    0   0  E      
- bd___vru    0   0  E      
  bd_bhpra    0   0  E      
  bd_bhpru    0   0  E      
  bd_bkpra    0   0  E      
- bf___vra    0   0  E      
- bf___vru    0   0  E      
+ bd___vra    0   0  E      
+ bd___vru    0   0  E      
  bf_bhpra    0   0  E      
  bf_bhpru    0   0  E      
  bf_bkpra    0   0  E      
+ bfcpr     -11   0  E      
  bf_s_qna    0   0  E      
  bf_s_qnv    0   0  E      
- bfcpr     -11   0  E      
+ bf___vra    0   0  E      
+ bf___vru    0   0  E      
  bgbqn       0   0  E      
+ bo_bkpra    0   0  E      
  bo___pra    0   0  E      
  bo___prv    0   0  E      
- bo___vr     0   0  E      
- bo_bkpra    0   0  E      
  bouqn      -2   0  E      
+ bo___vr     0   0  E      
  bprpra      0   0  E      
  bprprv      0   0  E      
  bprwnb      0   0  E      
@@ -109,12 +109,6 @@
  bsgwnv      0   0  E      
  bsown       0   0  E      
  c3bbn       0   0  E      
- c____vra    0   0  E      
- c____vru    0   0  E      
- c__bhpra    0   0  E      
- c__bhpru    0   0  E      
- c_lpra      0   0  E      
- c_lprv      0   0  E      
  cag__pra    0   0  E      
  cag__prv    0   0  E      
  cag__vr     0   0  E      
@@ -122,16 +116,20 @@
  capbovrv    0   0  E      
  capshvra    0   0  E      
  capshvrv    0   0  E      
- cg___vr     0   0  E      
+ c__bhpra    0   0  E      
+ c__bhpru    0   0  E      
  cg_bhpra    0   0  E      
  cg_bhprv    0   0  E      
  cg_s_qna    0   0  E      
  cg_s_qnv    0   0  E      
+ cg___vr     0   0  E      
  chewra      0   0  E      
  chewrv      0   0  E      
  ckwpra      0   0  E      
  ckwprv      0   0  E      
  ckwvr       0   0  E      
+ c_lpra      0   0  E      
+ c_lprv      0   0  E      
  cmepra      0   0  E      
  cmeprv      0   0  E      
  cmevr       0   0  E      
@@ -139,34 +137,36 @@
  cres_qna    0   0  E      
  cres_qnv    0   0  E      
  cretkqdb    0   0  E      
- cwo__pr     0   0  E      
- cwo__vr     0   0  E      
+ c____vra    0   0  E      
+ c____vru    0   0  E      
  cwobhpra    0   0  E      
  cwobhprv    0   0  E      
+ cwo__pr     0   0  E      
  cwos_qna    0   0  E      
  cwos_qnv    0   0  E      
  cwotkqna    0   0  E      
  cwotkqnv    0   0  E      
+ cwo__vr     0   0  E      
  dagbn       0   0  E      
  db1wna      0   0  E      
  db1wnv      0   0  E      
+ db_dbwna    0   0  E      
+ db_dbwnv    0   0  E      
+ dbewna      0   0  E      
+ dbewnv      0   0  E      
+ db_exwna    0   0  E      
+ db_exwnu    0   0  E      
  db___pra    0   0  E      
  db___prv    0   0  E      
  db___vra    0   0  E      
  db___vrv    0   0  E      
- db_dbwna    0   0  E      
- db_dbwnv    0   0  E      
- db_exwna    0   0  E      
- db_exwnu    0   0  E      
- dbewna      0   0  E      
- dbewnv      0   0  E      
  dg_pra      0   0  E      
  dg_prv      0   0  E      
- dg_vr       0   0  E      
  dgspra      0   0  E      
  dgsprv      0   0  E      
  dgsvra      0   0  E      
  dgsvrv      0   0  E      
+ dg_vr       0   0  E      
  dicqn       0   0  E      
  dm1bn       0   0  E      
  dm2bn       0   0  E      
@@ -174,6 +174,10 @@
  dtkbn       0   0  E      
  dtlbn       0   0  E      
  dtubn       0   0  E      
+ eagwda      0   0  E      
+ eagwdv      0   0  E      
+ eatwda      0   0  E      
+ eatwdv      0   0  E      
  e_cdbpra    0   0  E      
  e_cdbprv    0   0  E      
  e_cdbvra    0   0  E      
@@ -183,10 +187,6 @@
  e_cdevr     0   0  E      
  e_cexvra    0   0  E      
  e_cexvru    0   0  E      
- eagwda      0   0  E      
- eagwdv      0   0  E      
- eatwda      0   0  E      
- eatwdv      0   0  E      
  eo_wn      -1   0  E      
  epsexrna    0   0  E      
  ertwda      0   0  E      
@@ -204,14 +204,14 @@
  huiprv      0   0  E      
  hypwna      0   0  E      
  hypwnv      0   0  E      
- i_bmgvra    0   0  E      
- ibb__vra    0   0  E      
- ibb__vru    0   0  E      
  ibbbhpra    0   0  E      
  ibbbhpru    0   0  E      
  ibbbkpra    0   0  E      
  ibbexwna    0   0  E      
  ibbexwnv    0   0  E      
+ ibb__vra    0   0  E      
+ ibb__vru    0   0  E      
+ i_bmgvra    0   0  E      
  ibrbhpra    0   0  E      
  ibrbhpru    0   0  E      
  ibrbkpra    0   0  E      
@@ -221,35 +221,34 @@
  isvpra      0   0  E      
  isvprv      0   0  E      
  isvvr       0   0  E      
+ ivoexwna    0   0  E      
+ ivoexwnv    0   0  E      
  ivo__pra    0   0  E      
  ivo__prv    0   0  E      
  ivo__vr     0   0  E      
- ivoexwna    0   0  E      
- ivoexwnv    0   0  E      
  iwewna      0   0  E      
  iwewnv      0   0  E      
- iwo__vra    0   0  E      
- iwo__vrv    0   0  E      
  iwobhpra    0   0  E      
  iwobhpru    0   0  E      
- j_b__vr     0   0  E      
+ iwo__vra    0   0  E      
+ iwo__vrv    0   0  E      
  j_bbhpra    0   0  E      
  j_bbhprv    0   0  E      
- j_r__vr     0   0  E      
+ j_b__vr     0   0  E      
  j_rbhpra    0   0  E      
  j_rbhprv    0   0  E      
+ j_r__vr     0   0  E      
  js_pra      0   0  E      
  js_prv      0   0  E      
  js_vra      0   0  E      
  js_vrv      0   0  E      
  k11exan    -1   0  E      
  k1sexan     0   0  E      
+ kagprb      0   0  E      
+ kagqn      -1   0  E      
  k__dbvra    0   0  E      
  k__exan   -12   0  E      
  k__exvra   -1   0  E      
- k_sexan     0   0  E      
- kagprb      0   0  E      
- kagqn      -1   0  E      
  kgwwn       0   0  E      
  kiapra      0   0  E      
  koqbopra    0   0  E      
@@ -257,20 +256,19 @@
  kosexpra    0   0  E      
  kosktpra    0   0  E      
  kossrpra    0   0  E      
- l_pwna      0   0  E      
- l_pwnv      0   0  E      
+ k_sexan     0   0  E      
  lb2pra      0   0  E      
- lb___pra    0   0  E      
- lb___prv    0   0  E      
  lb_bopra    0   0  E      
  lb_boprv    0   0  E      
  lb_expra    0   0  E      
  lb_exprv    0   0  E      
  lb_ktpra    0   0  E      
  lb_ktprv    0   0  E      
+ lb___pra    0   0  E      
+ lb___prv    0   0  E      
+ lbrpra      0   0  E      
  lb_shpra    0   0  E      
  lb_shprv    0   0  E      
- lbrpra      0   0  E      
  lbtpra      0   0  E      
  lbtprv      0   0  E      
  lcopra      0   0  E      
@@ -281,35 +279,37 @@
  linprv      0   0  E      
  lmipra      0   0  E      
  lmiprv      0   0  E      
- lo_pra      0   0  E      
- lo_prv      0   0  E      
  locpra      0   0  E      
  locprv      0   0  E      
  loipr       0   0  E      
+ lo_pra      0   0  E      
+ lo_prv      0   0  E      
+ l_pwna      0   0  E      
+ l_pwnv      0   0  E      
  ltcpra      0   0  E      
  ltcprv      0   0  E      
  ltipr       0   0  E      
  m3_pr     -15   0  E      
  m3_vra      0   0  E      
  m3_vru      0   0  E      
- mc___pr    -7   0  E      
- mc___vra    0   0  E      
- mc___vru    0   0  E      
  mc_gpvra    0   0  E      
  mc_gpvrv    0   0  E      
  mc_gpwna    0   0  E      
  mc_gpwnv    0   0  E      
+ mc___pr    -7   0  E      
+ mc___vra    0   0  E      
+ mc___vru    0   0  E      
  mdbgppra    0   0  E      
  mdbgpprv    0   0  E      
  mdbgpvra    0   0  E      
  mdbgpvru    0   0  E      
- mdc__pr    -7   0  E      
- mdc__vra    0   0  E      
- mdc__vru    0   0  E      
  mdcgpvra    0   0  E      
  mdcgpvrv    0   0  E      
  mdcgpwna    0   0  E      
  mdcgpwnv    0   0  E      
+ mdc__pr    -7   0  E      
+ mdc__vra    0   0  E      
+ mdc__vru    0   0  E      
  mgrgppr    -4   0  E      
  mgrgpvra    0   0  E      
  mgrgpvru    0   0  E      
@@ -327,17 +327,13 @@
  msown       0   0  E      
  mu_exrn     0   0  E      
  mwfhr       0   0  E      
- n_own      -1   0  E      
  nbfpra      0   0  E      
  nbfprv      0   0  E      
  nbfqna      0   0  E      
  nbfqnv      0   0  E      
  nbopra      0   0  E      
  nboprv      0   0  E      
- o_vwza      0   0  E      
- o_vwzv      0   0  E      
- o_wwza      0   0  E      
- o_wwzv      0   0  E      
+ n_own      -1   0  E      
  of_wna      0   0  E      
  of_wnv      0   0  E      
  ol1mda      0   0  E      
@@ -352,6 +348,10 @@
  ol2vovr     0   0  E      
  ol3vr       0   0  E      
  opfwn       0   0  E      
+ o_vwza      0   0  E      
+ o_vwzv      0   0  E      
+ o_wwza      0   0  E      
+ o_wwzv      0   0  E      
  p1vwna      0   0  E      
  p1wwna      0   0  E      
  pacqn       0   0  E      
@@ -387,10 +387,10 @@
  povqdv      0   0  E      
  povwna      0   0  E      
  povwnv      0   0  E      
- ps_oda      0   0  E      
- ps_odv      0   0  E      
  pscoda      0   0  E      
  pscodv      0   0  E      
+ ps_oda      0   0  E      
+ ps_odv      0   0  E      
  pstod      -4   0  E      
  pwpqn       0   0  E      
  pwwqna      0   0  E      
@@ -414,11 +414,11 @@
  revwn       0   0  E      
  rewwn       0   0  E      
  rkorn       0   0  E      
- rl_rda      0   0  E      
- rl_rdv      0   0  E      
  rlarn      -1   0  E      
  rlgrn      -1   0  E      
  rlprn      -1   0  E      
+ rl_rda      0   0  E      
+ rl_rdv      0   0  E      
  rlurn      -1   0  E      
  rpfwda      0   0  E      
  rpfwdv      0   0  E      
@@ -444,10 +444,6 @@
  sprwda      0   0  E      
  sprwdv      0   0  E      
  subwn       0   0  E      
- tk_wdb      0   0  E      
- tk_wdc      0   0  E      
- tk_wra      0   0  E      
- tk_wru      0   0  E      
  tkgvia      0   0  E      
  tkgviv      0   0  E      
  tkgwna      0   0  E      
@@ -456,6 +452,10 @@
  tkhwnv      0   0  E      
  tktwna      0   0  E      
  tktwnu      0   0  E      
+ tk_wdb      0   0  E      
+ tk_wdc      0   0  E      
+ tk_wra      0   0  E      
+ tk_wru      0   0  E      
  tlkwda      0   0  E      
  tlkwdu      0   0  E      
  tltwda      0   0  E      
@@ -471,9 +471,6 @@
  tzrwdb      0   0  E      
  tzrwna      0   0  E      
  tzrwnv      0   0  E      
- u_ppra      0   0  E      
- u_pprv      0   0  E      
- u_pvr       0   0  E      
  uawpra      0   0  E      
  uawprv      0   0  E      
  uawvr       0   0  E      
@@ -487,6 +484,9 @@
  uowpra      0   0  E      
  uowprv      0   0  E      
  uowvr       0   0  E      
+ u_ppra      0   0  E      
+ u_pprv      0   0  E      
+ u_pvr       0   0  E      
  uvpqn      -2   0  E      
  uwwmna      0   0  E      
  uwwmnv      0   0  E      
@@ -586,13 +586,6 @@
 
  *** Endogenous ***
 
- a__mn       0   0  I      
- a__od      -4   0  I      
- a__on      -1   0  I      
- ab___md     0   0  I      
- ab___mn    -1   0  I      
- ab___mr     0   0  I      
- ab___on     0   0  I      
  ab_bomd     0   0  B      
  ab_bomdg    0   0  I      
  ab_bomdh    0   0  I      
@@ -601,26 +594,6 @@
  ab_bomn    -1   0  I      
  ab_bomr   -15   0  I      
  ab_boon     0   0  I      
- ab_exmd     0   0  B      
- ab_exmdg    0   0  I      
- ab_exmdh    0   0  I      
- ab_exmn    -1   0  I      
- ab_exmr   -12   0  I      
- ab_exon     0   0  I      
- ab_ktmn    -1   0  I      
- ab_ktmr   -12   0  I      
- ab_kton     0   0  I      
- ab_shmd     0   0  B      
- ab_shmdg    0   0  I      
- ab_shmdh    0   0  I      
- ab_shmdi    0   0  I      
- ab_shmdj    0   0  I      
- ab_shmdk    0   0  I      
- ab_shmdl    0   0  I      
- ab_shmdm    0   0  I      
- ab_shmn    -1   0  I      
- ab_shmr   -15   0  I      
- ab_shon     0   0  I      
  abcexmd     0   0  I      
  abcexmdg    0   0  I      
  abcexmdh    0   0  I      
@@ -635,19 +608,43 @@
  abcexmn    -1   0  I      
  abcexmnt   -1   0  I      
  abcexmr     0   0  I      
+ ab_exmd     0   0  B      
+ ab_exmdg    0   0  I      
+ ab_exmdh    0   0  I      
+ ab_exmn    -1   0  I      
+ ab_exmr   -12   0  I      
+ ab_exon     0   0  I      
+ ab_ktmn    -1   0  I      
+ ab_ktmr   -12   0  I      
+ ab_kton     0   0  I      
+ ab___md     0   0  I      
+ ab___mn    -1   0  I      
+ ab___mr     0   0  I      
+ ab___on     0   0  I      
  abrmd       0   0  I      
  abrmn      -1   0  I      
  abrmr       0   0  I      
  abron       0   0  I      
+ ab_shmd     0   0  B      
+ ab_shmdg    0   0  I      
+ ab_shmdh    0   0  I      
+ ab_shmdi    0   0  I      
+ ab_shmdj    0   0  I      
+ ab_shmdk    0   0  I      
+ ab_shmdl    0   0  I      
+ ab_shmdm    0   0  I      
+ ab_shmn    -1   0  I      
+ ab_shmr   -15   0  I      
+ ab_shon     0   0  I      
  ag_md       0   0  B      
  ag_mn      -1   0  I      
  ag_mr       0   0  I      
  agqqn       0   0  I      
+ aiqboqn     0   0  I      
+ aiqexqn     0   0  I      
  aiq__qn     0   0  I      
  aiq_rfn     0   0  I      
  aiq_rqn     0   0  I      
- aiqboqn     0   0  I      
- aiqexqn     0   0  I      
  aiqshqn     0   0  I      
  akpvk      -4   0  I      
  akpvr       0   0  I      
@@ -661,8 +658,11 @@
  al___mr     0   0  I      
  al___on    -1   0  I      
  al___or     0   0  I      
+ a__mn       0   0  I      
+ a__od      -4   0  I      
  ao_mn      -1   0  I      
  ao_mr       0   0  I      
+ a__on      -1   0  I      
  ao_on       0   0  I      
  arbinv      0   0  I      
  az___mn    -1   0  I      
@@ -673,27 +673,14 @@
  b3_pr       0   0  I      
  b3_vk      -4   0  I      
  b3_wn      -4   0  I      
- b__pi       0   0  I      
- b__vk      -4   0  I      
- b__wn      -4   0  I      
- b_bvr       0   0  I      
- b_tpr       0   0  I      
- b_tprg      0   0  I      
- b_tprh      0   0  I      
- b_tpri      0   0  I      
- b_tprj      0   0  I      
- b_tprq      0   0  I      
+ bagdepr     0   0  I      
  bag__pr     0   0  B      
  bag__vk    -4   0  I      
  bag__wn    -4   0  I      
- bagdepr     0   0  I      
  bbpvk      -4   0  I      
  bbpvr       0   0  I      
  bbpwn      -4   0  I      
- bd___pr     0   0  I      
- bd___vk    -4   0  I      
- bd___vr    -2   0  B      
- bd___wn    -4   0  I      
+ b_bvr       0   0  I      
  bd_bepr    -4   0  I      
  bd_bhpr     0   0  B      
  bd_bhprg    0   0  I      
@@ -712,16 +699,13 @@
  bd_mdvr     0   0  I      
  bd_mdwn    -1   0  I      
  bd_mgwn    -1   0  I      
+ bd___pr     0   0  I      
  bd_rpvr     0   0  I      
  bd_tkqn    -1   0  I      
  bd_tkqng    0   0  I      
- bf___pr   -11   0  I      
- bf___vk    -4   0  I      
- bf___vr     0   0  B      
- bf___vrg    0   0  I      
- bf___vrh    0   0  I      
- bf___vri    0   0  I      
- bf___wn    -4   0  I      
+ bd___vk    -4   0  I      
+ bd___vr    -2   0  B      
+ bd___wn    -4   0  I      
  bf_bhpr     0   0  B      
  bf_bhprg    0   0  I      
  bf_bhprh    0   0  I      
@@ -737,16 +721,23 @@
  bf_bkpri    0   0  I      
  bf_bkprj    0   0  I      
  bf_bkprk    0   0  I      
- bf_s_qn    -1   0  B      
- bf_tkqn    -1   0  I      
- bf_tkqng    0   0  I      
  bfopr       0   0  I      
  bfoprg      0   0  I      
  bfoprh      0   0  I      
  bfopri      0   0  I      
  bfoprj      0   0  I      
  bfoprk      0   0  I      
+ bf___pr   -11   0  I      
+ bf_s_qn    -1   0  B      
+ bf_tkqn    -1   0  I      
+ bf_tkqng    0   0  I      
+ bf___vk    -4   0  I      
  bfvpr       0   0  I      
+ bf___vr     0   0  B      
+ bf___vrg    0   0  I      
+ bf___vrh    0   0  I      
+ bf___vri    0   0  I      
+ bf___wn    -4   0  I      
  bfwpr       0   0  I      
  bgdvk      -4   0  I      
  bgdwn      -4   0  I      
@@ -756,17 +747,13 @@
  bggwn      -4   0  I      
  bilqn       0   0  I      
  bkaqn       0   0  I      
- bnf__pr     0   0  I      
- bnf__vk    -4   0  I      
- bnf__vr     0   0  I      
- bnf__wn    -4   0  I      
- bnf_dpr   -15   0  I      
  bnfbepr    -4   0  I      
  bnfbhpr     0   0  I      
  bnfbhvk    -4   0  I      
  bnfbhvr    -2   0  I      
  bnfbhwn    -4   0  I      
  bnfdevr     0   0  I      
+ bnf_dpr   -15   0  I      
  bnfexpr   -11   0  I      
  bnfm3vr     0   0  I      
  bnfm3wn    -1   0  I      
@@ -774,28 +761,138 @@
  bnfmdwn    -1   0  I      
  bnfmgvr     0   0  I      
  bnfmgwn    -1   0  I      
+ bnf__pr     0   0  I      
  bnfrpvr     0   0  I      
  bnfsrvr     0   0  I      
+ bnf__vk    -4   0  I      
+ bnf__vr     0   0  I      
+ bnf__wn    -4   0  I      
+ bnoexpr     0   0  I      
+ bnom3wn    -1   0  I      
  bno__pr     0   0  I      
  bno__vk    -4   0  I      
  bno__vr     0   0  I      
  bno__wn    -4   0  I      
- bnoexpr     0   0  I      
- bnom3wn    -1   0  I      
  bnpvk      -4   0  I      
  bnpvr       0   0  I      
  bnpwn      -4   0  I      
+ bo_bkpr     0   0  I      
  bo___pr     0   0  B      
  bo___vk    -4   0  I      
  bo___wn    -4   0  I      
- bo_bkpr     0   0  I      
+ b__pi       0   0  I      
  bprpr       0   0  B      
  bprvk      -4   0  I      
  bprwn      -4   0  I      
  bsgwn      -1   0  B      
  bsiwn       0   0  I      
+ b_tpr       0   0  I      
+ b_tprg      0   0  I      
+ b_tprh      0   0  I      
+ b_tpri      0   0  I      
+ b_tprj      0   0  I      
+ b_tprq      0   0  I      
+ b__vk      -4   0  I      
+ b__wn      -4   0  I      
  c3bqd     -11   0  I      
  c3bqn      -1   0  I      
+ cagbhpr     0   0  I      
+ cagbhvk    -4   0  I      
+ cagbhvn     0   0  I      
+ cagbhwn    -4   0  I      
+ cag__pr     0   0  B      
+ cag__vn     0   0  I      
+ cag__wn    -1   0  I      
+ capbovr    -4   0  B      
+ capexan    -1   0  I      
+ capexvr     0   0  I      
+ ca_pr      -8   0  I      
+ capshvr     0   0  B      
+ capshvrg    0   0  I      
+ capshvrh    0   0  I      
+ ca_vk      -4   0  I      
+ ca_wn      -4   0  I      
+ c__bhpr     0   0  B      
+ c__bhprg    0   0  I      
+ c__bhprh    0   0  I      
+ c__bhpri    0   0  I      
+ c__bhprj    0   0  I      
+ c__bhprk    0   0  I      
+ c__bhprl    0   0  I      
+ c__bhprm    0   0  I      
+ c__bhprr    0   0  I      
+ c__bhvk    -4   0  I      
+ c__bhvn     0   0  I      
+ c__bhwn    -4   0  I      
+ cd_vk       0   0  I      
+ cd_wn       0   0  I      
+ cg_bepr    -4   0  I      
+ cg_bhpr     0   0  B      
+ cg_bhvk    -4   0  I      
+ cg_bhvr    -2   0  I      
+ cg_bhwn    -4   0  I      
+ cg_devr     0   0  I      
+ cg_expr     0   0  I      
+ cglvk       0   0  I      
+ cglwn       0   0  I      
+ cg_m3vr     0   0  I      
+ cg_m3wn    -1   0  I      
+ cg_mdvr     0   0  I      
+ cg_mdwn    -1   0  I      
+ cg_mgvr     0   0  I      
+ cg_mgwn    -1   0  I      
+ cgnpi       0   0  I      
+ cgnvk      -4   0  I      
+ cgnwn      -4   0  I      
+ cg_plpr     0   0  I      
+ cg_plvk    -4   0  I      
+ cg_plvr     0   0  I      
+ cg_plwn    -4   0  I      
+ cg___pr     0   0  I      
+ cg_rpvr     0   0  I      
+ cg_s_qn    -1   0  B      
+ cg_tkqn    -1   0  I      
+ cg_tkqng    0   0  I      
+ cg___vk    -4   0  I      
+ cg___wn    -4   0  I      
+ cgwqn       0   0  I      
+ cgwwn       0   0  I      
+ chewn      -1   0  I      
+ chewr       0   0  B      
+ chnwd       0   0  I      
+ chnwn      -1   0  I      
+ chtvk      -4   0  I      
+ chtvr       0   0  I      
+ chtwn      -4   0  I      
+ cilqn       0   0  I      
+ ckaqn       0   0  I      
+ cktbhpr     0   0  I      
+ cktbhvk    -4   0  I      
+ cktbhvn     0   0  I      
+ cktbhvr     0   0  I      
+ cktbhwn    -4   0  I      
+ cktexpr     0   0  I      
+ cktktpr     0   0  I      
+ ckt__pr     0   0  I      
+ ckttkqn    -1   0  I      
+ ckttkqng    0   0  I      
+ ckt__vk    -4   0  I      
+ ckt__vn     0   0  I      
+ ckt__vr     0   0  I      
+ ckt__wn    -4   0  I      
+ ckwpr       0   0  B      
+ ckwvk      -4   0  I      
+ ckwwn      -4   0  I      
+ c_lpr     -13   0  B      
+ cmepr       0   0  B      
+ cmevk      -4   0  I      
+ cmewn      -4   0  I      
+ c_opr       0   0  I      
+ c_oprg      0   0  I      
+ c_oprh      0   0  I      
+ c_oprj      0   0  I      
+ c_oprl      0   0  I      
+ c_oprq      0   0  I      
  c____pr   -16   0  I      
  c____prg    0   0  I      
  c____prh    0   0  I      
@@ -811,6 +908,62 @@
  c____prr    0   0  I      
  c____prs    0   0  I      
  c____prt    0   0  I      
+ cr_bhpr     0   0  I      
+ cr_bhqn     0   0  I      
+ cr_bhvk    -4   0  I      
+ cr_bhvn     0   0  I      
+ cr_bhwn    -4   0  I      
+ cr_bkpr     0   0  I      
+ cr_bkprg    0   0  I      
+ cr_bkprh    0   0  I      
+ cr_bkpri    0   0  I      
+ cr_bkprj    0   0  I      
+ cr_bkprk    0   0  I      
+ crebepr    -4   0  I      
+ crebhpr   -15   0  I      
+ crebhvk    -4   0  I      
+ crebhvn     0   0  I      
+ crebhvr     0   0  I      
+ crebhwn    -4   0  I      
+ cre_bpr   -11   0  I      
+ crebsvk    -4   0  I      
+ crebswn    -4   0  I      
+ cre_bvk    -4   0  I      
+ cre_bwn    -4   0  I      
+ credevr     0   0  I      
+ cre_dpr   -15   0  I      
+ creexpr     0   0  I      
+ crem3vr     0   0  I      
+ crem3wn    -1   0  I      
+ cremdvr     0   0  I      
+ cremdwn    -1   0  I      
+ cremgvr     0   0  I      
+ cremgwn    -1   0  I      
+ cre__pr     0   0  I      
+ crerpvr     0   0  I      
+ cre_rvk    -4   0  I      
+ cre_rvn     0   0  I      
+ cre_rwn    -4   0  I      
+ cres_qn    -1   0  B      
+ cresrvr     0   0  I      
+ cretkqdt    0   0  I      
+ cretkqn    -1   0  I      
+ cretkqng    0   0  I      
+ cre_tpr     0   0  I      
+ cre_tvk    -4   0  I      
+ cre_tvn     0   0  I      
+ cre_twn    -4   0  I      
+ cre__vk    -4   0  I      
+ cre__vn     0   0  I      
+ cre__vr    -2   0  I      
+ cre__wn    -4   0  I      
+ crhvr       0   0  I      
+ c_tpr       0   0  I      
+ c_tprg      0   0  I      
+ c_tprh      0   0  I      
+ c_tpri      0   0  I      
+ c_tprl      0   0  I      
+ c_tprq      0   0  I      
  c____vk    -4   0  I      
  c____vn     0   0  I      
  c____vr     0   0  B      
@@ -824,162 +977,6 @@
  c____vrn    0   0  I      
  c____vrr    0   0  I      
  c____wn    -4   0  I      
- c__bhpr     0   0  B      
- c__bhprg    0   0  I      
- c__bhprh    0   0  I      
- c__bhpri    0   0  I      
- c__bhprj    0   0  I      
- c__bhprk    0   0  I      
- c__bhprl    0   0  I      
- c__bhprm    0   0  I      
- c__bhprr    0   0  I      
- c__bhvk    -4   0  I      
- c__bhvn     0   0  I      
- c__bhwn    -4   0  I      
- c_lpr     -13   0  B      
- c_opr       0   0  I      
- c_oprg      0   0  I      
- c_oprh      0   0  I      
- c_oprj      0   0  I      
- c_oprl      0   0  I      
- c_oprq      0   0  I      
- c_tpr       0   0  I      
- c_tprg      0   0  I      
- c_tprh      0   0  I      
- c_tpri      0   0  I      
- c_tprl      0   0  I      
- c_tprq      0   0  I      
- ca_pr      -8   0  I      
- ca_vk      -4   0  I      
- ca_wn      -4   0  I      
- cag__pr     0   0  B      
- cag__vn     0   0  I      
- cag__wn    -1   0  I      
- cagbhpr     0   0  I      
- cagbhvk    -4   0  I      
- cagbhvn     0   0  I      
- cagbhwn    -4   0  I      
- capbovr    -4   0  B      
- capexan    -1   0  I      
- capexvr     0   0  I      
- capshvr     0   0  B      
- capshvrg    0   0  I      
- capshvrh    0   0  I      
- cd_vk       0   0  I      
- cd_wn       0   0  I      
- cg___pr     0   0  I      
- cg___vk    -4   0  I      
- cg___wn    -4   0  I      
- cg_bepr    -4   0  I      
- cg_bhpr     0   0  B      
- cg_bhvk    -4   0  I      
- cg_bhvr    -2   0  I      
- cg_bhwn    -4   0  I      
- cg_devr     0   0  I      
- cg_expr     0   0  I      
- cg_m3vr     0   0  I      
- cg_m3wn    -1   0  I      
- cg_mdvr     0   0  I      
- cg_mdwn    -1   0  I      
- cg_mgvr     0   0  I      
- cg_mgwn    -1   0  I      
- cg_plpr     0   0  I      
- cg_plvk    -4   0  I      
- cg_plvr     0   0  I      
- cg_plwn    -4   0  I      
- cg_rpvr     0   0  I      
- cg_s_qn    -1   0  B      
- cg_tkqn    -1   0  I      
- cg_tkqng    0   0  I      
- cglvk       0   0  I      
- cglwn       0   0  I      
- cgnpi       0   0  I      
- cgnvk      -4   0  I      
- cgnwn      -4   0  I      
- cgwqn       0   0  I      
- cgwwn       0   0  I      
- chewn      -1   0  I      
- chewr       0   0  B      
- chnwd       0   0  I      
- chnwn      -1   0  I      
- chtvk      -4   0  I      
- chtvr       0   0  I      
- chtwn      -4   0  I      
- cilqn       0   0  I      
- ckaqn       0   0  I      
- ckt__pr     0   0  I      
- ckt__vk    -4   0  I      
- ckt__vn     0   0  I      
- ckt__vr     0   0  I      
- ckt__wn    -4   0  I      
- cktbhpr     0   0  I      
- cktbhvk    -4   0  I      
- cktbhvn     0   0  I      
- cktbhvr     0   0  I      
- cktbhwn    -4   0  I      
- cktexpr     0   0  I      
- cktktpr     0   0  I      
- ckttkqn    -1   0  I      
- ckttkqng    0   0  I      
- ckwpr       0   0  B      
- ckwvk      -4   0  I      
- ckwwn      -4   0  I      
- cmepr       0   0  B      
- cmevk      -4   0  I      
- cmewn      -4   0  I      
- cr_bhpr     0   0  I      
- cr_bhqn     0   0  I      
- cr_bhvk    -4   0  I      
- cr_bhvn     0   0  I      
- cr_bhwn    -4   0  I      
- cr_bkpr     0   0  I      
- cr_bkprg    0   0  I      
- cr_bkprh    0   0  I      
- cr_bkpri    0   0  I      
- cr_bkprj    0   0  I      
- cr_bkprk    0   0  I      
- cre__pr     0   0  I      
- cre__vk    -4   0  I      
- cre__vn     0   0  I      
- cre__vr    -2   0  I      
- cre__wn    -4   0  I      
- cre_bpr   -11   0  I      
- cre_bvk    -4   0  I      
- cre_bwn    -4   0  I      
- cre_dpr   -15   0  I      
- cre_rvk    -4   0  I      
- cre_rvn     0   0  I      
- cre_rwn    -4   0  I      
- cre_tpr     0   0  I      
- cre_tvk    -4   0  I      
- cre_tvn     0   0  I      
- cre_twn    -4   0  I      
- crebepr    -4   0  I      
- crebhpr   -15   0  I      
- crebhvk    -4   0  I      
- crebhvn     0   0  I      
- crebhvr     0   0  I      
- crebhwn    -4   0  I      
- crebsvk    -4   0  I      
- crebswn    -4   0  I      
- credevr     0   0  I      
- creexpr     0   0  I      
- crem3vr     0   0  I      
- crem3wn    -1   0  I      
- cremdvr     0   0  I      
- cremdwn    -1   0  I      
- cremgvr     0   0  I      
- cremgwn    -1   0  I      
- crerpvr     0   0  I      
- cres_qn    -1   0  B      
- cresrvr     0   0  I      
- cretkqdt    0   0  I      
- cretkqn    -1   0  I      
- cretkqng    0   0  I      
- crhvr       0   0  I      
- cwo__vk    -4   0  I      
- cwo__vn     0   0  I      
- cwo__wn    -4   0  I      
  cwobhpr     0   0  B      
  cwobhvk    -4   0  I      
  cwobhvn     0   0  I      
@@ -988,24 +985,27 @@
  cwos_qn    -1   0  B      
  cwotkqn    -1   0  B      
  cwotkwn     0   0  I      
+ cwo__vk    -4   0  I      
+ cwo__vn     0   0  I      
+ cwo__wn    -4   0  I      
  cwowopr     0   0  I      
  db1wn      -1   0  B      
  db1wr       0   0  I      
+ db_dbwn    -2   0  B      
+ dbewn       0   0  B      
+ db_exwn    -2   0  B      
  db___pr     0   0  B      
  db___vk    -4   0  I      
  db___vr     0   0  B      
  db___wn    -4   0  I      
- db_dbwn    -2   0  B      
- db_exwn    -2   0  B      
- dbewn       0   0  B      
  dcfqn       0   0  I      
  dg_pr       0   0  B      
- dg_vk      -4   0  I      
- dg_wn      -4   0  I      
  dgspr       0   0  B      
  dgsvk      -4   0  I      
  dgsvr       0   0  B      
  dgswn      -4   0  I      
+ dg_vk      -4   0  I      
+ dg_wn      -4   0  I      
  e1cexan    -1   0  I      
  e1cexpn     0   0  I      
  e1cexpr     0   0  I      
@@ -1013,8 +1013,10 @@
  e1cexvk    -4   0  I      
  e1cexvr     0   0  I      
  e1cexwn    -4   0  I      
- e__vk       0   0  I      
- e__wn       0   0  I      
+ eagwd       0   0  B      
+ eagwn      -1   0  I      
+ eatwd       0   0  B      
+ eatwn      -1   0  I      
  e_cdban    -2   0  I      
  e_cdbpn    -2   0  I      
  e_cdbpr     0   0  B      
@@ -1046,10 +1048,6 @@
  e_cexvrm    0   0  I      
  e_cexvrn    0   0  I      
  e_cexwn    -4   0  I      
- eagwd       0   0  B      
- eagwn      -1   0  I      
- eatwd       0   0  B      
- eatwn      -1   0  I      
  ed_vk       0   0  I      
  ed_wn       0   0  I      
  effinv      0   0  I      
@@ -1065,86 +1063,38 @@
  epsshrn     0   0  I      
  ertwd       0   0  B      
  ertwn      -1   0  I      
+ e__vk       0   0  I      
  ewcqn       0   0  I      
  ewcwn       0   0  I      
+ e__wn       0   0  I      
  ewtqn       0   0  I      
  ewtwn       0   0  I      
+ gagpr       0   0  B      
  g_vwn       0   0  I      
  g_wwn       0   0  I      
- gagpr       0   0  B      
- h11__in    -1   0  I      
  h11exin    -1   0  I      
- h____hr     0   0  I      
- h__bohr     0   0  I      
- h__exhr     0   0  I      
- h__shhr   -11   0  I      
- h_rhr     -11   0  I      
+ h11__in    -1   0  I      
  ha1boir    -3   0  I      
  ha1dbin     0   0  I      
  ha1exin    -1   0  I      
  ha1exir   -12   0  I      
  ha1shir   -15   0  I      
+ h__bohr     0   0  I      
  hc1in      -1   0  I      
  hd1dn      -1   0  I      
  hehwn     -12   0  I      
  herpi       0   0  I      
  hervd      -3   0  I      
  herwn      -1   0  I      
+ h__exhr     0   0  I      
  hg_hr       0   0  B      
+ h____hr     0   0  I      
+ h_rhr     -11   0  I      
+ h__shhr   -11   0  I      
  hu1un      -1   0  I      
  huipr       0   0  B      
  hypwn       0   0  B      
  hypwz      -5   0  I      
- i____vk     0   0  I      
- i____wn     0   0  I      
- i__exqn    -4   0  I      
- i__exvr     0   0  I      
- i__exwn     0   0  I      
- i_b__pr     0   0  I      
- i_b__vk    -4   0  I      
- i_b__vr     0   0  I      
- i_b__wn    -4   0  I      
- i_bbhpr     0   0  I      
- i_bbhvk    -4   0  I      
- i_bbhvr     0   0  I      
- i_bbhwn    -4   0  I      
- i_bbopr     0   0  I      
- i_bexpr     0   0  I      
- i_bm3wn    -1   0  I      
- i_bmdwn    -1   0  I      
- i_bmgvr     0   0  I      
- i_bmgwn    -1   0  I      
- i_brpvr     0   0  I      
- i_r__pr     0   0  I      
- i_r__vk    -4   0  I      
- i_r__vr     0   0  I      
- i_r__wn    -4   0  I      
- i_rbhpr     0   0  I      
- i_rbhvk    -4   0  I      
- i_rbhvr     0   0  I      
- i_rbhwn    -4   0  I      
- i_rexpr     0   0  I      
- i_rmdwn    -1   0  I      
- i_rmgvr     0   0  I      
- i_rmgwn    -1   0  I      
- i_rrpvr     0   0  I      
- i_vwn       0   0  I      
- i_wpr       0   0  I      
- i_wvk      -4   0  I      
- i_wwn      -4   0  I      
- ib_pr       0   0  I      
- ib_vk      -4   0  I      
- ib_vr       0   0  I      
- ib_wn      -4   0  I      
- ibb__pn    -2   0  I      
- ibb__pr    -5   0  I      
- ibb__vk    -4   0  I      
- ibb__vr     0   0  B      
- ibb__vrg    0   0  I      
- ibb__vrh    0   0  I      
- ibb__vri    0   0  I      
- ibb__wn    -4   0  I      
- ibb__wr     0   0  I      
  ibbbhpr     0   0  B      
  ibbbhvk    -4   0  I      
  ibbbhvr     0   0  I      
@@ -1156,19 +1106,34 @@
  ibbbkprj    0   0  I      
  ibbbkprk    0   0  I      
  ibbexwn    -1   0  B      
+ i_bbhpr     0   0  I      
+ i_bbhvk    -4   0  I      
+ i_bbhvr     0   0  I      
+ i_bbhwn    -4   0  I      
+ i_bbopr     0   0  I      
+ ibb__pn    -2   0  I      
+ ibb__pr    -5   0  I      
  ibbtkqn    -1   0  I      
  ibbtkqng    0   0  I      
+ ibb__vk    -4   0  I      
+ ibb__vr     0   0  B      
+ ibb__vrg    0   0  I      
+ ibb__vrh    0   0  I      
+ ibb__vri    0   0  I      
+ ibb__wn    -4   0  I      
+ ibb__wr     0   0  I      
  ibc__pr     0   0  I      
  ibc__qn     0   0  I      
  ibc__vk    -4   0  I      
  ibc__vr     0   0  I      
  ibc__wn    -4   0  I      
- ibr__pr     0   0  I      
- ibr__vk    -4   0  I      
- ibr__vr     0   0  I      
- ibr__wn    -4   0  I      
- ibr_tvk    -4   0  I      
- ibr_twn    -4   0  I      
+ i_bexpr     0   0  I      
+ i_bm3wn    -1   0  I      
+ i_bmdwn    -1   0  I      
+ i_bmgvr     0   0  I      
+ i_bmgwn    -1   0  I      
+ i_b__pr     0   0  I      
+ ib_pr       0   0  I      
  ibrbhpr    -6   0  B      
  ibrbhprg    0   0  I      
  ibrbhprh    0   0  I      
@@ -1183,81 +1148,110 @@
  ibrbkpri    0   0  I      
  ibrbkprj    0   0  I      
  ibrbkprk    0   0  I      
+ ibr__pr     0   0  I      
+ i_brpvr     0   0  I      
  ibrtkqn    -1   0  I      
  ibrtkqng    0   0  I      
+ ibr_tvk    -4   0  I      
+ ibr_twn    -4   0  I      
+ ibr__vk    -4   0  I      
+ ibr__vr     0   0  I      
+ ibr__wn    -4   0  I      
+ i_b__vk    -4   0  I      
+ ib_vk      -4   0  I      
+ i_b__vr     0   0  I      
+ ib_vr       0   0  I      
+ i_b__wn    -4   0  I      
+ ib_wn      -4   0  I      
  ic1vk       0   0  I      
  ic1wn       0   0  I      
  id_vk       0   0  I      
  id_wn       0   0  I      
  ie1vk       0   0  I      
  ie1wn       0   0  I      
+ i__exqn    -4   0  I      
+ i__exvr     0   0  I      
+ i__exwn     0   0  I      
  intexpr    -4   0  I      
+ i_rbhpr     0   0  I      
+ i_rbhvk    -4   0  I      
+ i_rbhvr     0   0  I      
+ i_rbhwn    -4   0  I      
+ i_rexpr     0   0  I      
+ i_rmdwn    -1   0  I      
+ i_rmgvr     0   0  I      
+ i_rmgwn    -1   0  I      
+ i_r__pr     0   0  I      
+ i_rrpvr     0   0  I      
+ i_r__vk    -4   0  I      
+ i_r__vr     0   0  I      
+ i_r__wn    -4   0  I      
  ispwn      -1   0  I      
  isvan     -12   0  I      
  isvpr       0   0  B      
  isvvk      -4   0  I      
  isvwn      -4   0  I      
  itwwn       0   0  I      
+ i____vk     0   0  I      
+ ivoexwn     0   0  B      
  ivo__pr     0   0  B      
  ivo__vk    -4   0  I      
  ivo__wn    -4   0  I      
- ivoexwn     0   0  B      
+ i_vwn       0   0  I      
  iwewn       0   0  B      
+ i____wn     0   0  I      
+ iwobhpr     0   0  B      
+ iwobhvk    -4   0  I      
+ iwobhvr     0   0  I      
+ iwobhwn    -4   0  I      
  iwo__pr     0   0  I      
+ iwotkqn    -1   0  I      
+ iwotkqng    0   0  I      
  iwo__vk    -4   0  I      
  iwo__vr     0   0  B      
  iwo__vrg    0   0  I      
  iwo__vrh    0   0  I      
  iwo__wn    -4   0  I      
- iwobhpr     0   0  B      
- iwobhvk    -4   0  I      
- iwobhvr     0   0  I      
- iwobhwn    -4   0  I      
- iwotkqn    -1   0  I      
- iwotkqng    0   0  I      
- j____pr     0   0  I      
- j____vk    -4   0  I      
- j____vr     0   0  I      
- j____wn    -4   0  I      
- j__bhvk    -4   0  I      
- j__bhvr     0   0  I      
- j__bhwn    -4   0  I      
- j_b__pr     0   0  I      
- j_b__vk    -4   0  I      
- j_b__wn    -4   0  I      
+ i_wpr       0   0  I      
+ i_wvk      -4   0  I      
+ i_wwn      -4   0  I      
  j_bbhpr     0   0  B      
  j_bbhvk    -4   0  I      
  j_bbhvr     0   0  I      
  j_bbhwn    -4   0  I      
+ j__bhvk    -4   0  I      
+ j__bhvr     0   0  I      
+ j__bhwn    -4   0  I      
+ j_b__pr     0   0  I      
  j_btkqn    -1   0  I      
  j_btkqng    0   0  I      
- j_r__pr     0   0  I      
- j_r__vk    -4   0  I      
- j_r__wn    -4   0  I      
+ j_b__vk    -4   0  I      
+ j_b__wn    -4   0  I      
+ j____pr     0   0  I      
  j_rbhpr     0   0  B      
  j_rbhvk    -4   0  I      
  j_rbhvr     0   0  I      
  j_rbhwn    -4   0  I      
+ j_r__pr     0   0  I      
  j_rtkqn    -1   0  I      
  j_rtkqng    0   0  I      
+ j_r__vk    -4   0  I      
+ j_r__wn    -4   0  I      
+ jsnqn       0   0  I      
+ jsnwn       0   0  I      
  js_pr       0   0  B      
  js_qn       0   0  I      
  js_vr       0   0  B      
  js_wn      -1   0  I      
- jsnqn       0   0  I      
- jsnwn       0   0  I      
+ j____vk    -4   0  I      
+ j____vr     0   0  I      
+ j____wn    -4   0  I      
+ kagpr       0   0  I      
  k__dbad   -11   0  I      
  k__dban   -12   0  I      
  k__dbang    0   0  I      
  k__dbanh    0   0  I      
  k__dbani    0   0  I      
- k__exad   -11   0  I      
- k__exadg    0   0  I      
- k__exadh    0   0  I      
- k__exadi    0   0  I      
- k__exadj    0   0  I      
- k__exwn     0   0  I      
- kagpr       0   0  I      
  kepb3pr     0   0  I      
  kepbdpr     0   0  I      
  kepbfpr     0   0  I      
@@ -1269,16 +1263,22 @@
  kepktpr    -5   0  I      
  kepmkpr     0   0  I      
  kepsrpr    -5   0  I      
+ k__exad   -11   0  I      
+ k__exadg    0   0  I      
+ k__exadh    0   0  I      
+ k__exadi    0   0  I      
+ k__exadj    0   0  I      
+ k__exwn     0   0  I      
  kgbpr       0   0  I      
  kgbqn      -1   0  I      
  kgbqnh      0   0  I      
  kgbrn      -1   0  I      
  kiapr       0   0  I      
  ko_pr       0   0  I      
+ koqbopr     0   0  I      
  ko_qn      -1   0  I      
  ko_qnh      0   0  I      
  ko_rn      -1   0  I      
- koqbopr     0   0  I      
  kosbopr     0   0  I      
  kosexpr     0   0  I      
  kosktpr     0   0  I      
@@ -1296,32 +1296,28 @@
  krwdbqn    -3   0  I      
  krwexqd    -8   0  I      
  krwexqn    -8   0  I      
- l__wn       0   0  I      
- l_ppr       0   0  I      
- l_pvr       0   0  I      
- l_pwn      -1   0  B      
  lb1pr     -16   0  I      
  lb1wn      -1   0  I      
  lb2pr     -15   0  I      
- lb___pr     0   0  B      
- lb___prn    0   0  I      
- lb___pro    0   0  I      
- lb___vk    -4   0  I      
- lb___wn    -4   0  I      
  lb_bopr    -2   0  B      
  lb_dbpn    -1   0  I      
  lb_dbpr     0   0  I      
  lb_expn    -1   0  I      
  lb_expr    -2   0  B      
  lb_ktpr    -2   0  B      
- lb_shpr    -2   0  B      
+ lb___pr     0   0  B      
+ lb___prn    0   0  I      
+ lb___pro    0   0  I      
  lbrpr       0   0  I      
  lbrprm      0   0  I      
+ lb_shpr    -2   0  B      
  lbtpr       0   0  B      
  lbupr       0   0  I      
- lby_rpr     0   0  I      
+ lb___vk    -4   0  I      
+ lb___wn    -4   0  I      
  lbybopr     0   0  I      
  lbyexpr   -12   0  I      
+ lby_rpr     0   0  I      
  lbyshpr     0   0  I      
  lbzbopr    -6   0  I      
  lbzexpr   -12   0  I      
@@ -1336,7 +1332,6 @@
  lcoprm      0   0  I      
  lcoprn      0   0  I      
  lcopro      0   0  I      
- ld_wn       0   0  I      
  ldapi       0   0  I      
  ldavd       0   0  I      
  ldavdk     -3   0  I      
@@ -1344,6 +1339,7 @@
  ldlwn       0   0  I      
  ldrhr     -17   0  I      
  ldtwn      -1   0  I      
+ ld_wn       0   0  I      
  ldzwn       0   0  I      
  lepb3pr     0   0  I      
  lepbdpr     0   0  I      
@@ -1369,67 +1365,68 @@
  linpri      0   0  I      
  lmipr     -15   0  B      
  lo1wn       0   0  I      
+ locpr       0   0  B      
+ lomvk      -4   0  I      
+ lomwn      -4   0  I      
  lo_pr       0   0  B      
  lo_prh      0   0  I      
  lo_pri      0   0  I      
  lo_vr       0   0  I      
  lo_wn      -1   0  I      
- locpr       0   0  B      
- lomvk      -4   0  I      
- lomwn      -4   0  I      
+ l_ppr       0   0  I      
+ l_pvr       0   0  I      
+ l_pwn      -1   0  B      
  ltcpr       0   0  B      
+ l__wn       0   0  I      
  lyfboqn    -1   0  I      
  lyfexqn    -1   0  I      
  lyfktqn    -1   0  I      
  lyfshqn    -1   0  I      
  lyfsrqn    -1   0  I      
  lz1wn       0   0  I      
- lz_wd       0   0  I      
- lz_wn      -1   0  I      
  lztdbwn    -2   0  I      
  lztexwn    -2   0  I      
+ lz_wd       0   0  I      
+ lz_wn      -1   0  I      
  m3_vk      -4   0  I      
  m3_vr       0   0  B      
  m3_vrg      0   0  I      
  m3_vrh      0   0  I      
  m3_vri      0   0  I      
  m3_wn      -4   0  I      
- m__pi       0   0  I      
- m__vk      -4   0  I      
- m__wn      -4   0  I      
+ mc_gppr     0   0  I      
+ mc_gpvk    -4   0  I      
+ mc_gpvn     0   0  I      
+ mc_gpvr     0   0  B      
+ mc_gpwn    -4   0  B      
  mc___vk    -4   0  I      
  mc___vr     0   0  B      
  mc___vrg    0   0  I      
  mc___vrh    0   0  I      
  mc___vri    0   0  I      
  mc___wn    -4   0  I      
- mc_gppr     0   0  I      
- mc_gpvk    -4   0  I      
- mc_gpvn     0   0  I      
- mc_gpvr     0   0  B      
- mc_gpwn    -4   0  B      
- md_vk       0   0  I      
- md_wn       0   0  I      
- mdb__pr    -6   0  I      
- mdb__vk    -4   0  I      
- mdb__vr     0   0  I      
- mdb__wn    -4   0  I      
  mdbgppr    -4   0  B      
  mdbgpvk    -4   0  I      
  mdbgpvr     0   0  B      
  mdbgpvrg    0   0  I      
  mdbgpvrh    0   0  I      
  mdbgpwn    -4   0  I      
- mdc__vk    -4   0  I      
- mdc__vr     0   0  B      
- mdc__vrg    0   0  I      
- mdc__vrh    0   0  I      
- mdc__wn    -4   0  I      
+ mdb__pr    -6   0  I      
+ mdb__vk    -4   0  I      
+ mdb__vr     0   0  I      
+ mdb__wn    -4   0  I      
  mdcgppr     0   0  I      
  mdcgpvk    -4   0  I      
  mdcgpvn     0   0  I      
  mdcgpvr     0   0  B      
  mdcgpwn    -4   0  B      
+ mdc__vk    -4   0  I      
+ mdc__vr     0   0  B      
+ mdc__vrg    0   0  I      
+ mdc__vrh    0   0  I      
+ mdc__wn    -4   0  I      
+ md_vk       0   0  I      
+ md_wn       0   0  I      
  mg1vk      -4   0  I      
  mg1wn      -4   0  I      
  mgdvk      -4   0  I      
@@ -1440,16 +1437,16 @@
  mghpr       0   0  I      
  mghvk      -4   0  I      
  mghwn      -4   0  I      
- mgr__pr    -8   0  I      
- mgr__vk    -4   0  I      
- mgr__vr     0   0  I      
- mgr__wn    -4   0  I      
  mgrgpvk    -4   0  I      
  mgrgpvr     0   0  B      
  mgrgpvrg    0   0  I      
  mgrgpvrh    0   0  I      
  mgrgpvri    0   0  I      
  mgrgpwn    -4   0  I      
+ mgr__pr    -8   0  I      
+ mgr__vk    -4   0  I      
+ mgr__vr     0   0  I      
+ mgr__wn    -4   0  I      
  mi_vk      -4   0  I      
  mi_vr       0   0  B      
  mi_vrg      0   0  I      
@@ -1457,6 +1454,7 @@
  mi_vri      0   0  I      
  mi_vrj      0   0  I      
  mi_wn      -4   0  I      
+ m__pi       0   0  I      
  mprpr       0   0  B      
  mprvk      -4   0  I      
  mprwn      -4   0  I      
@@ -1467,12 +1465,8 @@
  msiwn       0   0  I      
  mu_exin    -1   0  I      
  mulexrn     0   0  I      
- n__vk       0   0  I      
- n__wn       0   0  I      
- n_bvr       0   0  I      
- n_fvk       0   0  I      
- n_fwn      -1   0  I      
- n_ovk       0   0  I      
+ m__vk      -4   0  I      
+ m__wn      -4   0  I      
  nbfpr       0   0  B      
  nbfqn       0   0  B      
  nbfqng      0   0  I      
@@ -1487,16 +1481,20 @@
  nbown      -4   0  I      
  nbpvk       0   0  I      
  nbpwn       0   0  I      
+ n_bvr       0   0  I      
  nfbwn       0   0  I      
  nfkwn       0   0  I      
+ n_fvk       0   0  I      
+ n_fwn      -1   0  I      
  nnihr       0   0  I      
  nnpvk      -4   0  I      
  nnpvr       0   0  I      
  nnpwn      -4   0  I      
+ n_ovk       0   0  I      
  nulybvk     0   0  I      
  nulybwn     0   0  I      
- o_vwz      -1   0  B      
- o_wwz      -1   0  B      
+ n__vk       0   0  I      
+ n__wn       0   0  I      
  of_wn       0   0  B      
  ol1md       0   0  B      
  ol1mn      -1   0  I      
@@ -1511,35 +1509,33 @@
  ol2vown    -4   0  I      
  ol3pr       0   0  I      
  ol3wn      -1   0  I      
- ol_qn       0   0  I      
- ol_wn       0   0  I      
  olbpi       0   0  I      
  olbvd       0   0  I      
  olbvdk     -3   0  I      
  olbwn      -1   0  I      
  oldwn       0   0  I      
+ ol_qn       0   0  I      
+ ol_wn       0   0  I      
  opfqn       0   0  I      
  ovkwn       0   0  I      
+ o_vwz      -1   0  B      
+ o_wwz      -1   0  B      
  p1vfn       0   0  I      
  p1vwn       0   0  I      
  p1wfn       0   0  I      
  p1wwn       0   0  I      
- p_pwn       0   0  I      
- p_swn       0   0  I      
- p_vwn       0   0  I      
- p_wwn       0   0  I      
+ papwn       0   0  I      
  pa_qd       0   0  I      
  pa_qn      -1   0  I      
- papwn       0   0  I      
  parqn       0   0  B      
  pavqn      -1   0  B      
  pavwn       0   0  I      
  pawqn      -1   0  B      
  pawwn       0   0  I      
  pb_wn       0   0  I      
+ pdpwn       0   0  I      
  pd_qd       0   0  I      
  pd_qn      -1   0  I      
- pdpwn       0   0  I      
  pdvqd       0   0  I      
  pdvqn      -1   0  B      
  pdvwn       0   0  I      
@@ -1557,43 +1553,48 @@
  pgwwn       0   0  I      
  phiexan    -1   0  I      
  pl_wn       0   0  I      
- pm_qn      -1   0  I      
  pmpwn       0   0  I      
+ pm_qn      -1   0  I      
  pmwqn      -1   0  B      
  pmwwn       0   0  I      
- po_wn       0   0  I      
  povqd       0   0  B      
  povqn      -1   0  I      
  povwn      -1   0  B      
+ po_wn       0   0  I      
+ p_pwn       0   0  I      
  pryqn       0   0  I      
- ps_md       0   0  I      
- ps_mn      -1   0  I      
- ps_od       0   0  B      
- ps_on      -1   0  I      
  psbmn       0   0  I      
  pscod       0   0  B      
  pscodg      0   0  I      
  pscodh      0   0  I      
+ ps_md       0   0  I      
+ ps_mn      -1   0  I      
+ ps_od       0   0  B      
+ ps_on      -1   0  I      
  pstmd       0   0  I      
  pston      -1   0  I      
+ p_swn       0   0  I      
  pu_wn       0   0  I      
- pw_qn      -1   0  I      
+ p_vwn       0   0  I      
  pwpwn       0   0  I      
+ pw_qn      -1   0  I      
+ p_wwn       0   0  I      
  pwwqn      -1   0  B      
  pwwwn       0   0  I      
- pz_wn       0   0  I      
  pzfwn       0   0  B      
  pzpwn       0   0  I      
  pzvqn      -1   0  B      
  pzvwn       0   0  I      
+ pz_wn       0   0  I      
+ qadexqn     0   0  I      
  qa_exqd     0   0  I      
  qa_exqn    -1   0  I      
  qa_exqr     0   0  I      
- qadexqn     0   0  I      
  qy_bfqd    -4   0  I      
  qy_bfqn    -3   0  I      
  qy_boqn    -3   0  I      
  qy_boqr    -3   0  B      
+ qycexqn    -1   0  I      
  qy_c_qd    -3   0  I      
  qy_c_qn    -3   0  I      
  qy_dbqd    -3   0  I      
@@ -1610,7 +1611,6 @@
  qy_shqd   -15   0  I      
  qy_shqn    -3   0  I      
  qy_shqr    -4   0  B      
- qycexqn    -1   0  I      
  rbidbrn     0   0  I      
  rcard      -6   0  I      
  rcarn      -1   0  I      
@@ -1633,10 +1633,10 @@
  rgnshrd   -11   0  I      
  rgnshrn    -1   0  I      
  ribwn       0   0  I      
- rl_rd      -9   0  B      
- rl_rn     -15   0  I      
  rlgrd       0   0  I      
  rlhrn      -4   0  I      
+ rl_rd      -9   0  B      
+ rl_rn     -15   0  I      
  rmuexin     0   0  I      
  rnjexrn     0   0  I      
  rpfwd       0   0  B      
@@ -1652,34 +1652,32 @@
  rvbwn       0   0  I      
  rwewn       0   0  I      
  s3_wn       0   0  I      
- s__qn       0   0  I      
- s__wn       0   0  I      
- s_cwn       0   0  I      
  savqn       0   0  I      
- sb_wn       0   0  I      
  sbbqn       0   0  I      
  sbbwn      -4   0  I      
  sbeqn       0   0  I      
  sbewn       0   0  I      
  sbmvk       0   0  I      
  sbmwn       0   0  I      
+ sb_wn       0   0  I      
  schdbqd     0   0  B      
  schdbqn    -4   0  I      
  schexqd     0   0  B      
  schexqn    -4   0  I      
  schvbqn     0   0  I      
+ s_cwn       0   0  I      
  sd_wn       0   0  I      
  sggwn       0   0  I      
  sgrqn       0   0  I      
  shgwd       0   0  B      
  shgwn      -1   0  I      
  siswn       0   0  I      
+ skeexqn     0   0  I      
  sk_exan     0   0  I      
  sk_exang    0   0  I      
  sk_exanh    0   0  I      
  sk_exqd     0   0  I      
  sk_exqn    -1   0  I      
- skeexqn     0   0  I      
  sktexqn     0   0  I      
  sliqd       0   0  B      
  sliqn      -1   0  I      
@@ -1703,36 +1701,34 @@
  sprwn      -1   0  I      
  spyqn       0   0  I      
  spywn       0   0  I      
+ s__qn       0   0  I      
  stlqr     -16   0  I      
  su2fn       0   0  I      
  subqn       0   0  I      
  subwng      0   0  I      
- t__jn      -1   0  I      
- t__qn       0   0  I      
- t__wn       0   0  I      
- t_tqn       0   0  I      
- t_twn       0   0  I      
+ s__wn       0   0  I      
  td_wn       0   0  I      
- ti_exjn    -1   0  I      
  tiaexjd     0   0  I      
  tiaexjdg    0   0  I      
  tiaexjdh    0   0  I      
  tiaexjdi    0   0  I      
  tiaexjn    -1   0  I      
+ ti_exjn    -1   0  I      
  tisexjn     0   0  I      
+ t__jn      -1   0  I      
  tk2fn       0   0  I      
- tk_qn       0   0  I      
- tk_wn      -1   0  I      
- tk_wr       0   0  B      
  tkbfn       0   0  I      
  tkgvi       0   0  B      
  tkgvk      -4   0  I      
  tkgwn      -4   0  B      
  tkhwn       0   0  B      
+ tk_qn       0   0  I      
  tkswn       0   0  I      
  tktqn       0   0  I      
  tktwn      -1   0  B      
  tktwng      0   0  I      
+ tk_wn      -1   0  I      
+ tk_wr       0   0  B      
  tlkqn       0   0  I      
  tlkwd       0   0  B      
  tlkwdk      0   0  I      
@@ -1754,13 +1750,17 @@
  totmdwn    -1   0  I      
  totmgwn    -1   0  I      
  tp_qn       0   0  I      
+ t__qn       0   0  I      
  ttlqd       0   0  I      
  ttlqn      -1   0  I      
  ttlwd      -2   0  I      
  ttlwn      -1   0  I      
+ t_tqn       0   0  I      
  ttuwd      -2   0  B      
  ttuwn      -1   0  I      
+ t_twn       0   0  I      
  tutqn       0   0  I      
+ t__wn       0   0  I      
  tzgqn       0   0  I      
  tzgwnk      0   0  I      
  tzkqn       0   0  I      
@@ -1777,18 +1777,10 @@
  tztwn       0   0  I      
  tzzqn       0   0  I      
  tzzwn       0   0  I      
- u_bwn       0   0  I      
- u_ppr       0   0  B      
- u_pvk      -4   0  I      
- u_pwn      -4   0  I      
- u_svk      -4   0  I      
- u_svr       0   0  I      
- u_swn      -4   0  I      
- u_vwn       0   0  I      
- u_wwn       0   0  I      
  uawpr       0   0  B      
  uawvk      -4   0  I      
  uawwn      -4   0  I      
+ u_bwn       0   0  I      
  ubzpr       0   0  B      
  ubzvk      -4   0  I      
  ubzvr       0   0  B      
@@ -1808,11 +1800,19 @@
  uowpr       0   0  B      
  uowvk      -4   0  I      
  uowwn      -4   0  I      
+ u_ppr       0   0  B      
+ u_pvk      -4   0  I      
+ u_pwn      -4   0  I      
+ u_svk      -4   0  I      
+ u_svr       0   0  I      
+ u_swn      -4   0  I      
+ u_vwn       0   0  I      
  uwnqn       0   0  I      
  uwwmd       0   0  I      
  uwwmn      -1   0  B      
  uwwmng     -1   0  I      
  uwwmnh     -1   0  I      
+ u_wwn       0   0  I      
  uwwpr       0   0  B      
  uwwprs    -12   0  I      
  uwwvk      -4   0  I      
@@ -1829,17 +1829,17 @@
  uzfvr       0   0  B      
  uzfwn      -4   0  I      
  vagpr       0   0  B      
- vb_pr       0   0  I      
- vb_vk      -4   0  I      
- vb_vr       0   0  I      
- vb_wn      -4   0  I      
  vbkqn       0   0  I      
  vbkwn       0   0  B      
+ vb_pr       0   0  I      
  vbtwn     -12   0  I      
  vbtwr       0   0  B      
  vbtwrg      0   0  I      
  vbtwrh      0   0  I      
  vbtwri      0   0  I      
+ vb_vk      -4   0  I      
+ vb_vr       0   0  I      
+ vb_wn      -4   0  I      
  vc_bhpr    -8   0  I      
  vc_bhvd    -5   0  I      
  vc_bhvk    -4   0  I      
@@ -1848,9 +1848,9 @@
  vc_bhwn    -4   0  I      
  vf1vk      -4   0  I      
  vf1wn      -4   0  I      
+ vfbvr       0   0  I      
  vf_vk       0   0  I      
  vf_wn       0   0  I      
- vfbvr       0   0  I      
  vgkqn       0   0  I      
  vgkwd       0   0  B      
  vgkwn      -1   0  I      
@@ -1859,45 +1859,42 @@
  vtcwn       0   0  I      
  vtoqn       0   0  I      
  vtown       0   0  I      
+ wfiwn       0   0  I      
+ wfiwz      -1   0  I      
+ whuwn       0   0  B      
+ whuwz      -1   0  I      
+ wkapr       0   0  B      
  w__md       0   0  I      
  w__mn      -1   0  I      
  w__od       0   0  I      
  w__on      -1   0  I      
  w__qd      -6   0  I      
  w__qn      -6   0  I      
- wfiwn       0   0  I      
- wfiwz      -1   0  I      
- whuwn       0   0  B      
- whuwz      -1   0  I      
- wkapr       0   0  B      
  wswmn       0   0  I      
  wt_wn       0   0  I      
  wt_wz      -1   0  I      
  wtzvn     -12   0  I      
  wtzwn       0   0  I      
- x__qn       0   0  I      
- x__wn       0   0  I      
- x_oqn       0   0  I      
- x_tqn       0   0  I      
- x_twn      -3   0  I      
- x_twng      0   0  I      
- xag__qn     0   0  I      
  xagdepr   -15   0  I      
+ xag__qn     0   0  I      
  xbeqn       0   0  I      
  xbuwn       0   0  I      
  xkrqn       0   0  I      
  xktqn       0   0  I      
  xktwn       0   0  B      
+ x_oqn       0   0  I      
  xovqn       0   0  I      
+ x__qn       0   0  I      
  xr1qn       0   0  I      
  xr1wn       0   0  I      
  xr8qn       0   0  I      
  xr8wn       0   0  I      
+ x_tqn       0   0  I      
+ x_twn      -3   0  I      
+ x_twng      0   0  I      
+ x__wn       0   0  I      
  xzzqn       0   0  I      
  xzzwn       0   0  I      
- yb_vk      -4   0  I      
- yb_vr       0   0  I      
- yb_wn      -4   0  I      
  ybfbepr     0   0  I      
  ybfbeprs    0   0  I      
  ybfbevk    -4   0  I      
@@ -1957,6 +1954,9 @@
  ybgsrvr     0   0  B      
  ybgwopr     0   0  B      
  ybgwovr     0   0  B      
+ yb_vk      -4   0  I      
+ yb_vr       0   0  I      
+ yb_wn      -4   0  I      
  yfrpi       0   0  I      
  yfrpn      -1   0  I      
  yfrpr       0   0  I      
@@ -1964,13 +1964,8 @@
  yfrvr       0   0  I      
  yfrwn      -4   0  I      
  ynfvbwn   -15   0  I      
- yp_wn       0   0  I      
  ypdwn       0   0  I      
- z____wn     0   0  I      
- z__shwn     0   0  I      
- z__wn       0   0  I      
- z_gwn       0   0  I      
- z_pwn       0   0  I      
+ yp_wn       0   0  I      
  zagwd     -11   0  B      
  zagwn      -1   0  I      
  zapwd       0   0  I      
@@ -1990,10 +1985,15 @@
  zdgwn       0   0  I      
  zdlwn       0   0  I      
  zdpwn       0   0  I      
+ z_gwn       0   0  I      
  zibwn      -3   0  I      
  ziqqn      -1   0  I      
  ziqqr     -12   0  I      
+ z_pwn       0   0  I      
+ z__shwn     0   0  I      
  zviwn      -3   0  I      
+ z__wn       0   0  I      
+ z____wn     0   0  I      
 
  *** Parameters ***
 

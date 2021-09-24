@@ -1,8 +1,8 @@
 library(isismdl)
 library(testthat)
-rm(list = ls())
 
-update <- FALSE
+rm(list = ls())
+update <- TRUE
 
 context("mrf")
 

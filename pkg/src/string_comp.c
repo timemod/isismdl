@@ -4,6 +4,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define USE_STRCOLL
+
 static int strncicmp(char const *a, char const *b, int nb);
 
 /*
@@ -25,6 +27,19 @@ int F77_SUB(string_comp)(FUCHAR *str1, FINT *fb1, FINT *nb1,
      * wrong with the binary search algorithm? Check this.
     */
     int d = 0;
+
+#ifdef USE_STRCOLL;
+
+    char s1[MCMXNM + 1];
+    char s2[MCMXNM + 1];
+    memcpy(s1, str1 + *fb1 - 1, *nb1);
+    memcpy(s2, str2 + *fb2 - 1, *nb2);
+    s1[*nb1] = '\0';
+    s2[*nb2] = '\0';
+    d = strcoll(s1, s2);
+
+#else 
+
     int nb = *nb1 < *nb2 ? *nb1 : *nb2;
 
     if (nb == 0) return 0;
@@ -43,6 +58,7 @@ int F77_SUB(string_comp)(FUCHAR *str1, FINT *fb1, FINT *nb1,
             return *nb1 > *nb2 ? +1 : -1;
         }
     }
+#endif
    
     if (d) {
         return d > 0 ? +1 : -1;
