@@ -8,6 +8,8 @@ context("mrf")
 
 source("../tools/read_mrf.R")
 
+Sys.setlocale("LC_COLLATE", "C")
+
 mdl_file <- "mdl/capitals.mdl"
 mdl <- isis_mdl(mdl_file, silent = TRUE, period = 2021)
 mdl$set_values(0.5, names = "A", period = 2020)

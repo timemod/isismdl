@@ -8,6 +8,8 @@ context("mrf")
 
 source("../tools/read_mrf.R")
 
+Sys.setlocale("LC_COLLATE", "C")
+
 mdl_file <- "mdl/mrf_example1.mdl"
 mdl <- isis_mdl(mdl_file, silent = TRUE)
 
