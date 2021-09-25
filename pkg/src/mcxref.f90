@@ -45,7 +45,8 @@ external bysget
 character(len = 8) :: string
 logical ::   exist
 
-integer ::   ios, i, maxlg, maxld, nxref, iref
+integer ::   ios, i, maxlg, maxld, maxlg_endo, maxld_endo, maxlg_exo, & 
+             maxld_exo, maxlgi, maxldi, exo_lead_count, nxref, iref
 integer ::   j, ldum, npro, nsim, nepi
 integer ::   p,cnt,tcnt
 
@@ -77,7 +78,7 @@ endif
 
 if( .not. rfshrt ) then
 
-!        !!! allocate memory for LONG cross reference
+   !!! allocate memory for LONG cross reference
 
    allocate(ivref(mdl%nrv), stat = stat)
    if (stat == 0) allocate(ipref(mdl%nrp), stat = stat)
@@ -100,7 +101,7 @@ if (prisjc .and. mdl%nfb > 0) then
     call gen_sjac(mdl, fbsjac, mdl%nfb)
 endif
 
-! calculate number of structural non zero elements in feedback jacobian
+! calculate number of structural nonzero elements in feedback jacobian
 call mcjzct(mdl, nzrcnt, equno)
 
 ier = 0
@@ -156,11 +157,32 @@ write(xrfunt,'(a/a/)',err=990,iostat=ios) &
 & ' Equations are listed in solution order,', &
 & ' followed by a list of feedback variables.'
 
+!
+! lag and lead statistics
+!
 maxlg = 0
 maxld = 0
-do  i=1,mdl%nrv
-   if(maxlag(i) .gt. maxlg) maxlg = maxlag(i)
-   if(mxlead(i) .gt. maxld) maxld = mxlead(i)
+maxlg_exo = 0
+maxld_exo = 0
+maxlg_endo = 0
+maxld_endo = 0
+exo_lead_count = 0
+do  i = 1, mdl%nrv
+   maxlgi = maxlag(i)
+   maxldi = mxlead(i)
+   if (maxlgi > maxlg) maxlg = maxlgi
+   if (maxldi > maxld) maxld = maxldi
+   vartyp = char(bysget(vtype, int(i, ISIS_IKIND)))
+   if (vartyp == 'E') then
+     ! exogenous variable
+     if (maxlgi > maxlg_exo) maxlg_exo = maxlgi
+     if (maxldi > maxld_exo) maxld_exo = maxldi
+     if (maxldi > 0) exo_lead_count = exo_lead_count + 1
+  else
+     ! endogenous variable 
+     if (maxlgi > maxlg_endo) maxlg_endo = maxlgi
+     if (maxldi > maxld_endo) maxld_endo = maxldi
+  endif
 enddo
 
 if( .not. rfshrt ) then
@@ -214,8 +236,14 @@ write(xrfunt,'(1x,i7,a)', err=990,iostat=ios) &
 &          mdl%nd, ' total number of lags and leads with'
 write(xrfunt,'(1x,7x,i7,a)', err=990,iostat=ios) maxlg, ' maximum lag'
 write(xrfunt,'(1x,7x,i7,a)', err=990,iostat=ios) maxld, ' maximum lead'
+write(xrfunt,'(1x,7x,i7,a)', err=990,iostat=ios) maxlg_endo, ' maximum lag  endogenous variables'
+write(xrfunt,'(1x,7x,i7,a)', err=990,iostat=ios) maxld_endo, ' maximum lead endogenous variables'
+write(xrfunt,'(1x,7x,i7,a)', err=990,iostat=ios) maxlg_exo,  ' maximum lag  exogenous  variables'
+write(xrfunt,'(1x,7x,i7,a)', err=990,iostat=ios) maxld_exo,  ' maximum lead exogenous  variables'
+write(xrfunt,'(1x,7x,i7,a)', err=990,iostat=ios) &
+&          mdl%nendex,' endogenous variables with leads'
 write(xrfunt,'(1x,7x,i7,a/)', err=990,iostat=ios) &
-&          mdl%nendex,' variables with leads'
+&     exo_lead_count, ' exogenous  variables with leads'
 
 write(xrfunt,'(1x,i7,a)', err=990,iostat=ios) mdl%nrp,' parameters '
 write(xrfunt,'(1x,7x,i7,a/)', err=990,iostat=ios) &
@@ -232,10 +260,10 @@ write(xrfunt,'(1x,7x,i7,a/)', err=990,iostat=ios) nepi ,' in epilogue'
 
 
 if( mdl%nfb .gt. 0 ) then
-    z = dble(nzrcnt)/(dble(mdl%nfb*mdl%nfb))*100.0
+    z = dble(nzrcnt) / (dble(mdl%nfb * mdl%nfb)) * 100.0
     write(xrfunt,'(1x,i7,a)', err=990,iostat=ios) mdl%nfb,' feedback variables'
-    write(xrfunt,'(8x,i10,a,f4.1,a//)', err=990,iostat=ios) &
-&          nzrcnt,' (',z,'%) structural non zero''s in jacobian'
+    write(xrfunt,'(8x,i10,a,f5.1,a//)', err=990,iostat=ios) &
+&          nzrcnt,' (',z,'%) structural nonzeros in jacobian'
 else
     write(xrfunt,'(1x,i7,a//)', err=990,iostat=ios) mdl%nfb,' feedback variables'
 endif

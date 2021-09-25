@@ -1,0 +1,5 @@
+ident a = 1;
+ident A = 2;
+ident Aa = 3 + A[-1];
+ident aa = Aa[-1];
+ident aa1 = 3 * aa;

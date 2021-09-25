@@ -2,7 +2,12 @@ library(utils)
 library(testthat)
 library(isismdl)
 
+rm(list = ls())
+update <- FALSE
+
 context("solve dslnex model")
+
+source("../tools/read_mrf.R")
 
 mdl_file <- "mdl/dslnex.mdl"
 
@@ -35,5 +40,13 @@ test_that("model also solved with small rlxmax", {
   expect_error(model$solve(options = list(rlxmax = 0.05, rlxmin = 0.08,
                                            report = "none")), msg)
 })
+
+test_that("check mrf", {
+  mrf_data <- read_mrf(mdl_file)
+  expect_known_output(cat(mrf_data),
+                      file = "expected_output/solve_mrf.txt",
+                      update = update, print = TRUE)
+})
+
 
 

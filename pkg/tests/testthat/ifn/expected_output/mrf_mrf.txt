@@ -1,0 +1,149 @@
+ ISIS model compilation 
+
+ Model reference table
+
+ Each variable name is followed by its
+ maximum lag (with minus sign) and maximum lead in the model,
+ its type:  E(xogenous), B(ehavioral), I(dentity).
+ Exogenous variables listed first.
+
+ Parameters are listed separately.
+ Each parameter name is followed by its length.
+
+ Equations are listed in solution order,
+ followed by a list of feedback variables.
+
+ *** Statistics ***
+
+      45 variables of which
+              6 exogenous
+              3 behavioral
+             36 identity
+
+      16 total number of lags and leads with
+              1 maximum lag
+              1 maximum lead
+              1 maximum lag  endogenous variables
+              1 maximum lead endogenous variables
+              0 maximum lag  exogenous  variables
+              1 maximum lead exogenous  variables
+              6 endogenous variables with leads
+              3 exogenous  variables with leads
+
+      12 parameters 
+             12 total length of parameter values
+
+      39 equations of which
+             13 in prologue
+             15 in simultaneous block
+             11 in epilogue
+
+       2 feedback variables
+                 3 ( 75.0%) structural nonzeros in jacobian
+
+
+ Statistics of feedback ordering
+              22 words of memory used
+            11   minimum feedback chain (excl. fb equations)
+            11   maximum feedback chain (excl. fb equations)
+            11.0 average feedback chain (excl. fb equations)
+             2   average newton steps (rounded up)
+
+
+ *** Variables ***
+
+ *** Exogenous ***
+
+ gpx         0   1  E      
+ groei       0   1  E      
+ rf          0   0  E      
+ risk        0   0  E      
+ tc          0   1  E      
+ tp          0   0  E      
+
+ *** Endogenous ***
+
+ a           0   1  I      
+ aiq         0   0  I      
+ bcap       -1   0  I      
+ bzcap       0   0  I      
+ bzmax       0   0  I      
+ bzmin       0   0  I      
+ capcost     0   0  I      
+ cfcap       0   0  I      
+ dcap        0   0  I      
+ di          0   0  I      
+ eta         0   1  I      
+ hcap        0   0  I      
+ i          -1   0  B      
+ kgv        -1   0  I      
+ lab         0   0  I      
+ lambda      0   1  I      
+ mpk         0   0  I      
+ mpl         0   0  I      
+ mzk         0   1  I      
+ ncap        0   0  I      
+ ocap        0   0  I      
+ px         -1   1  I      
+ py          0   0  I      
+ pyc        -1   0  I      
+ pyc1        0   0  I      
+ rho         0   1  B      
+ rhox        0   0  I      
+ rhoxmax     0   0  I      
+ rhoxmin     0   0  I      
+ theta       0   0  I      
+ wage       -1   0  I      
+ wage1       0   0  I      
+ x           0   0  I      
+ xk          0   0  I      
+ yd          0   0  I      
+ ydex       -1   0  B      
+ ydex1       0   0  I      
+ ys          0   0  I      
+ zcap        0   0  I      
+
+ *** Parameters ***
+
+ ak          1
+ al          1
+ alfa        1
+ alk         1
+ chi         1
+ delta       1
+ eps         1
+ g1          1
+ g2          1
+ kappa       1
+ phi         1
+ sigma       1
+
+ *** Equations (in solution order) ***
+
+    13 Prologue equations
+
+ theta    pyc      px       wage     pyc1     wage1    ydex     ydex1    rho      rhmin    rhmax    bzmin    bzmax   
+
+    15 Simultaneous equations
+
+ x        ys       py       zcap     cfcap    kgv      bzcap    bcap     i        di       eta      lambda   a        xk      
+ lab     
+
+    11 Epilogue equations
+
+ hcap     rhox     ocap     aiq      capcost  mpl      mpk      yd       mzk      dcap     ncap    
+
+ *** Feedback variables ***
+
+     2 Feedback variables
+
+ lab      xk      
+
+
+ *** Additional information for feedback variables
+     Name of feedback variable followed by how it was chosen: fixed, diagonal, heuristic,
+     and the length of the feedback cycle (excluding feedback variables)
+
+
+ lab      diagonal         11  
+ xk       diagonal         11  

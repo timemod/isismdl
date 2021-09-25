@@ -3,12 +3,16 @@ library(isismdl)
 library(testthat)
 
 rm(list = ls())
+update <- FALSE
 
 context("test for a simple recursive model with leads")
 
+source("../tools/read_mrf.R")
+
 period <- as.period_range("1550Y/1551y")
 
-mdl <- isis_mdl("mdl/recursive_lead.mdl", period, silent = TRUE)
+mdl_filename <- "mdl/recursive_lead.mdl"
+mdl <- isis_mdl(mdl_filename, period, silent = TRUE)
 mdl$set_values(names = "a", value = 0)
 
 test_that("solving", {
@@ -25,4 +29,13 @@ test_that("result", {
   z <- x
   expected_result <- cbind(a, x, y, z)
   expect_equal(mdl$get_data(), expected_result)
+})
+
+
+test_that("check mrf", {
+  mrf_data <- read_mrf(mdl_filename)
+  expect_known_output(cat(mrf_data),
+                      file = "expected_output/recursive_lead_mrf.txt",
+                      update = update, print = TRUE)
+
 })

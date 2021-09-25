@@ -4,6 +4,9 @@ library(isismdl)
 context("fit for laxo model")
 
 rm(list = ls())
+update <- FALSE
+
+source("../tools/read_mrf.R")
 
 mdl_file <- "mdl/laxo.mdl"
 mif_file <- "mdl/laxo.mif"
@@ -67,5 +70,12 @@ test_that("Comparing the results", {
   expect_identical(dif_ca$missing_names1, character(0))
   expect_identical(dif_ca$missing_names2, character(0))
   expect_identical(dif_ca$difnames, character(0))
+})
+
+test_that("check mrf", {
+  mrf_data <- read_mrf(mdl_file)
+  expect_known_output(cat(mrf_data),
+                      file = "expected_output/fit_mrf.txt",
+                      update = update, print = TRUE)
 })
 

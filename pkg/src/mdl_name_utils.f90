@@ -138,35 +138,26 @@ end subroutine mcgetnam
 
 !-----------------------------------------------------------------------
 
-integer function mcncmp(name,nb, snames, sptr)
+integer function mcncmp(name, nb, snames, sptr)
 
-!         compare <name> with length <nb> with
-!         the name with pointer <sptr> from string memory <snames>
-!         returns
-!            0      if equal
-!           -1      if name < snames[~sptr]
-!            1      if name > snames[~sptr]
+    ! compare <name> with length <nb> with
+    ! the name with pointer <sptr> from string memory <snames>
+    ! returns
+    !  0      if equal
+    ! -1      if name < snames[~sptr]
+    !  1      if name > snames[~sptr]
 
-    integer, intent(in) ::  name(*),nb
+    integer, intent(in) ::  name(*), nb
     integer(kind = MC_IKIND), intent(in) :: snames(*), sptr
 
-integer ::  sb,start, k
-integer ::  byscmp
+    integer ::  sb, start
+    integer, external :: string_comp
 
     sb    = mod(sptr,64)
     start = sptr / 64 - sb
     sb    = sb + 1
 
-    k = byscmp(name,1,min(sb,nb),snames,start)
-    if( k .eq. 0 .and. sb .ne. nb ) then
-       if( nb .lt. sb ) then
-           k = -1
-       else
-           k =  1
-       endif
-    endif
-
-    mcncmp = k
+    mcncmp = string_comp(name, 1, nb, snames, start, sb)
     return
 end function mcncmp
 
@@ -287,33 +278,23 @@ end function maxnli
 
 function mvncmp(a, b, nameptrs, names)
 
-! compare names of model variables a and b lexicographically
+    ! compare names of model variables a and b lexicographically
 
-implicit none
-integer(kind = MC_IKIND) :: mvncmp
-integer(kind = MC_IKIND), intent(in) :: a, b, nameptrs(*), names(*)
-integer, external   :: byscmp
-integer             :: sa, sb, starta, startb, k
+    implicit none
+    integer(kind = MC_IKIND) :: mvncmp
+    integer(kind = MC_IKIND), intent(in) :: a, b, nameptrs(*), names(*)
+    integer, external :: string_comp
+    integer :: sa, sb, starta, startb
 
-sa     = mod(nameptrs(a), 64)
-sb     = mod(nameptrs(b), 64)
-starta = nameptrs(a) / 64 - sa
-startb = nameptrs(b) / 64 - sb
-sa     = sa + 1
-sb     = sb + 1
-
-k  = byscmp(names, starta, min(sa, sb), names, startb)
-if( k .eq. 0 .and. sa .ne. sb ) then
-    if( sa .lt. sb ) then
-        k = -1
-    else
-        k =  1
-    endif
-endif
-
-mvncmp = k
-
-return
+    sa     = mod(nameptrs(a), 64)
+    sb     = mod(nameptrs(b), 64)
+    starta = nameptrs(a) / 64 - sa
+    startb = nameptrs(b) / 64 - sb
+    sa     = sa + 1
+    sb     = sb + 1
+    
+    mvncmp  = string_comp(names, starta, sa, names, startb, sb)
+    return
 end function mvncmp
 
 !-------------------------------------------------------------------

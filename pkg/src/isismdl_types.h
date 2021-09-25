@@ -43,4 +43,5 @@ typedef unsigned char   FUCHAR  ;   /* unsigned char    */
 FINT FNAME(vsiofs) (const FINT *VAR, const FINT *base);
 FINT FNAME(zfexist)(FUCHAR filename[], FINT* filenamelen);
 
-
+/*  maximum length of a variable name: */
+#define MCMXNM 32

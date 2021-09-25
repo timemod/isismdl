@@ -1,0 +1,74 @@
+ ISIS model compilation 
+
+ Model reference table
+
+ Each variable name is followed by its
+ maximum lag (with minus sign) and maximum lead in the model,
+ its type:  E(xogenous), B(ehavioral), I(dentity).
+ Exogenous variables listed first.
+
+ Parameters are listed separately.
+ Each parameter name is followed by its length.
+
+ Equations are listed in solution order,
+ followed by a list of feedback variables.
+
+ *** Statistics ***
+
+       3 variables of which
+              2 exogenous
+              0 behavioral
+              1 identity
+
+       1 total number of lags and leads with
+              1 maximum lag
+              0 maximum lead
+              1 maximum lag  endogenous variables
+              0 maximum lead endogenous variables
+              0 maximum lag  exogenous  variables
+              0 maximum lead exogenous  variables
+              0 endogenous variables with leads
+              0 exogenous  variables with leads
+
+       1 parameters 
+              3 total length of parameter values
+
+       1 equations of which
+              1 in prologue
+              0 in simultaneous block
+              0 in epilogue
+
+       0 feedback variables
+
+
+ *** Variables ***
+
+ *** Exogenous ***
+
+ x2      0   0  E      
+ x3      0   0  E      
+
+ *** Endogenous ***
+
+ x1     -1   0  I      
+
+ *** Parameters ***
+
+ coef    3
+
+ *** Equations (in solution order) ***
+
+     1 Prologue equations
+
+ x1  
+
+     0 Simultaneous equations
+
+
+     0 Epilogue equations
+
+
+ *** Feedback variables ***
+
+     0 Feedback variables
+
