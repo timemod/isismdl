@@ -233,12 +233,15 @@ IsisMdl <- R6Class("IsisMdl",
         stop("Specify either argument mif_name or serialized_mdl")
       }
 
+      reorder_names <- 0L
       if (!missing(serialized_mdl)) {
         if (!inherits(serialized_mdl, "serialized_isismdl")) {
           stop("Argument serialized_mdl is not a serialized_isismdl object")
         }
         mif_file <- tempfile("mif")
         writeBin(serialized_mdl$mif_data, con = mif_file)
+
+        if (serialized_mdl$version < "1.9.0") reorder_names <- 1L
       }
 
       has_free_mws <- .Call(has_free_mws_c)
@@ -246,11 +249,15 @@ IsisMdl <- R6Class("IsisMdl",
 
       if (!silent) {
         cat("Reading mif file ...\n")
-        private$model_index <- .Call(read_mdl_c, mif_file)
+        if (reorder_names) {
+          cat(paste0("\nModel names will be reordered because the IsisMdl ",
+                     "object\nwas created with isismdl version < 1.9.0.\n\n"))
+        }
+        private$model_index <- .Call(read_mdl_c, mif_file, reorder_names)
         cat("\n")
       } else {
         output <- capture.output({
-          private$model_index <- .Call(read_mdl_c, mif_file)
+          private$model_index <- .Call(read_mdl_c, mif_file, reorder_names)
        })
       }
       if (!missing(serialized_mdl)) {

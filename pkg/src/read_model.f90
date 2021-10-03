@@ -1,4 +1,4 @@
-subroutine read_model_fortran(modelnmlen, modelnm, model_index, ier)
+subroutine read_model_fortran(modelnmlen, modelnm, model_index, reorder_names_, ier)
     ! 
     ! read the model from the file
     !
@@ -13,19 +13,27 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, ier)
     use msvars
     use output_utils
     use mcheck
+    use mcrmif
+    use iso_c_binding, only : c_int
 
-    integer, intent(in)               :: modelnmlen
-    integer, dimension(*), intent(in) :: modelnm
-    integer, intent(out)              :: model_index, ier
-    character(len = 80)               :: str
+    integer(c_int), intent(in)               :: modelnmlen
+    integer(c_int), dimension(*), intent(in) :: modelnm
+    integer(c_int), intent(out)              :: model_index, ier
+    integer(c_int), intent(in)               :: reorder_names_
 
+
+    character(len = 80) :: str
     integer :: fstat, nerr, fbo_err
+    logical :: reorder_names
+
+    reorder_names = reorder_names_ /= 0
 
     model_index = create_mws()
+
     if (model_index < 0) return
 
-    call read_mif_file(mws_array(model_index)%mdl, modelnmlen, modelnm, ier, &
-&                      fstat)
+    call read_mif_file(mws_array(model_index)%mdl, modelnmlen, modelnm, &
+                       reorder_names, ier, fstat)
     if (ier /= 0) then
         if (ier == 1) then
             ier = 1

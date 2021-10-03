@@ -7,6 +7,7 @@ convert_mdl_file_c.o : convert_mdl_file_c.h include_paths.h mchdr.h \
 dependencies.o : dependencies.h util.h
 ecode.o : dependencies.h ecode.h include_paths.h ipcode.h mchdr.h \
          mcinit.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
+ecode.o : ipcode.h
 expsymtab.o : dependencies.h isismdl_types.h mcinit.h symbol.h \
              xpcdef.h
 fit_options.o : fit_options.h option_utils.h solve_options.h
@@ -24,6 +25,7 @@ init.o : c_calls.h compile_mdl_c.h convert_mdl_file_c.h \
 mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h \
           include_paths.h ipcode.h isismdl.h mchdr.h mcinit.h mcopt.h mdldef.h \
           outecode.h outmdl.h symbol.h util.h xpcdef.h
+mchdr.o : include_paths.h mcopt.h
 mcinit.o : dependencies.h ecode.h ipcode.h mcinit.h symbol.h util.h \
           xpcdef.h xpctab.h
 mcip.o : flags.h include_paths.h mchdr.h mcopt.h util.h
@@ -44,6 +46,9 @@ outipcode.o : dependencies.h ecode.h include_paths.h ipcode.h \
 outomdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
            mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outotmdl.h \
            outovtmdl.h symbol.h util.h xpcdef.h
+outovtmdl.o : dependencies.h ecode.h include_paths.h ipcode.h \
+             isismdl.h mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h \
+             symbol.h util.h xpcdef.h
 outtmdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
            mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outotmdl.h \
            outovtmdl.h outvtmdl.h symbol.h util.h xpcdef.h
@@ -63,8 +68,8 @@ set_solve_opts_c.o : init_set_get_options.h set_option_utils.h \
                     solve_options.h
 solve_options.o : option_utils.h solve_options.h
 string_comp.o : isismdl_types.h
-string_comp_old.o : isismdl_types.h
 symbol.o : dependencies.h isismdl.h symbol.h util.h xpcdef.h
+symbol.o : dependencies.h
 util.o : isismdl.h util.h
 xpctab.o : dependencies.h ecode.h include_paths.h ipcode.h \
           isismdl_types.h mchdr.h mcinit.h mcopt.h mdldef.h outmdl.h symbol.h \

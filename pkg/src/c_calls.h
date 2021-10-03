@@ -5,7 +5,7 @@
 
 
 SEXP init_modules_c(void);
-SEXP read_mdl_c(SEXP filename);
+SEXP read_mdl_c(SEXP filename, SEXP reorder_names_);
 SEXP write_mdl_c(SEXP filename, SEXP model_index_);
 SEXP get_par_names_c(SEXP model_index_);
 SEXP get_var_names_c(SEXP type_, SEXP model_index_);

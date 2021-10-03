@@ -227,7 +227,7 @@ mdl%neq = nre
 !*IF TIMER
 !      call xtime(told)
 !*ENDIF
-call sort_names
+call sort_names(mdl)
 
 !*IF TIMER
 !      call xtime(tnew)
@@ -819,25 +819,6 @@ subroutine mcszer(names, lastp, kmax)
 
     return
 end subroutine mcszer
-
-!----------------------------------------------------------------------------
-
-!  generate an alphabetical ordering of names
-
-subroutine sort_names
-    use mcvars
-    use mdl_name_utils
-
-   ! equations
-   call hsortmvn(mdl%indexe, mdl%neq, mdl%ienames, mdl%enames)
-
-   ! equations
-   call hsortmvn(mdl%indexv, mdl%nrv, mdl%ivnames, mdl%vnames)
-
-   ! parameters
-   call hsortmvn(mdl%indexp, mdl%nrp, mdl%ipnames, mdl%pnames)
-
-end subroutine sort_names
 
 !--------------------------------------------------------------------------
 

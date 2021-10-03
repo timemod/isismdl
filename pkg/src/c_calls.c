@@ -27,7 +27,7 @@
 
 extern void F77_NAME(init_modules_fortran)(void);
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
-                                       int *model_index, int *ier);
+                                       int *model_index, int *reorder_names, int *ier);
 extern void F77_NAME(write_model_fortran)(int *modelnmlen, const char *modelnm,
                                           int *model_index, int *ier);
 extern void F77_NAME(get_data_fortran)(int *model_index, int *nvar, int *ivar,
@@ -96,12 +96,14 @@ SEXP init_modules_c(void) {
     return R_NilValue;
 }
 
-SEXP read_mdl_c(SEXP filename) {
+SEXP read_mdl_c(SEXP filename, SEXP reorder_names_) {
 
     const char *modelnm = CHAR(STRING_ELT(filename, 0));
     int modelnmlen = strlen(modelnm);
     int model_index, ier;
-    F77_CALL(read_model_fortran)(&modelnmlen, modelnm, &model_index, &ier);
+    int reorder_names = asInteger(reorder_names_);
+    F77_CALL(read_model_fortran)(&modelnmlen, modelnm, &model_index, 
+                                 &reorder_names, &ier);
 
     if (ier == 0) {
         return ScalarInteger(model_index);
