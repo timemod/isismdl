@@ -394,9 +394,8 @@ IsisMdl <- R6Class("IsisMdl",
       return(.Call("get_dbgeqn_c", private$model_index))
     },
     init_data = function(data_period, data, ca) {
-
       if (missing(data_period)) {
-        if (!missing(data)) {
+        if (!missing(data) && !is.null(data)) {
           # determine the data period from data and the model period (if known)
           if (is.null(private$model_period)) {
             data_period <- get_period_range(data)
