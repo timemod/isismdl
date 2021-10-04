@@ -22,7 +22,7 @@ test_that("check_mrf", {
 })
 
 test_that("read old rds file", {
-  expect_output(mdl_old <- read_mdl("rds_old/mrf_example1.rds"),
+  expect_output(mdl_old <- read_mdl("old_rds_files/mrf_example1.rds"),
                 "Model names will be reordered")
   expect_known_value(mdl_old$get_data(),
                      file = "expected_output/mrf_example1_mdl_old_data.rds")

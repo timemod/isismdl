@@ -39,7 +39,7 @@ test_that("mrf", {
 })
 
 test_that("read old rds file", {
-  expect_silent(mdl_old <- read_mdl("rds_old/capitals.rds", silent = TRUE))
+  expect_silent(mdl_old <- read_mdl("old_rds_files/capitals.rds", silent = TRUE))
   expect_known_value(mdl_old$get_data(),
                      file = "expected_output/capitls_old_data.rds")
   expect_equal(as.numeric(mdl_old$get_data(names = "Aa", period = 2020)), 16)
