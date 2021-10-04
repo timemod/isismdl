@@ -394,7 +394,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(.Call("get_dbgeqn_c", private$model_index))
     },
     init_data = function(data_period, data, ca) {
-      if (missing(data_period)) {
+      if (missing(data_period) || is.null(data_period)) {
         if (!missing(data) && !is.null(data)) {
           # determine the data period from data and the model period (if known)
           if (is.null(private$model_period)) {
@@ -1253,6 +1253,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
       l <- list(labels = private$labels,
                 model_period = private$model_period,
+                data_period = private$data_period,
                 debug_eqn = self$get_debug_eqn(),
                 solve_options = self$get_solve_options(),
                 fit_options = self$get_fit_options(),
@@ -1280,7 +1281,7 @@ IsisMdl <- R6Class("IsisMdl",
       .Call("set_ftrelax_init_mws_c", private$model_index, x$ftrelax)
       if (!is.null(x$model_period)) {
         private$model_period <- x$model_period
-        self$init_data(data = x$data, ca = x$ca)
+        self$init_data(data_period = x$data_period, data = x$data, ca = x$ca)
         if (!is.null(x$fix)) {
           self$set_fix(x$fix)
         }
