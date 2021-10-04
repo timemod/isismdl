@@ -361,4 +361,21 @@ contains
         has_fb_order = mdl%fboflg > 0 .and. mdl%fbomem > 0
     end function has_fb_order
 
+    ! generate an alphabetical ordering of names
+    subroutine sort_names(mdl)
+       use mdl_name_utils
+       type(model), intent(inout) :: mdl
+
+       ! equations
+       call hsortmvn(mdl%indexe, mdl%neq, mdl%ienames, mdl%enames)
+    
+       ! variables
+       call hsortmvn(mdl%indexv, mdl%nrv, mdl%ivnames, mdl%vnames)
+    
+       ! parameters
+       call hsortmvn(mdl%indexp, mdl%nrp, mdl%ipnames, mdl%pnames)
+    
+    end subroutine sort_names
+
+
 end module model_type

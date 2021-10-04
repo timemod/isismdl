@@ -18,7 +18,7 @@ static const R_CMethodDef CEntries[] = {
 };
 
 static const R_CallMethodDef CallEntries[] = {
-    {"read_mdl_c", (DL_FUNC) &read_mdl_c, 1},
+    {"read_mdl_c", (DL_FUNC) &read_mdl_c, 2},
     {"write_mdl_c", (DL_FUNC) &write_mdl_c, 2},
     {"get_par_names_c", (DL_FUNC) &get_par_names_c, 1},
     {"get_var_names_c", (DL_FUNC) &get_var_names_c, 2},
