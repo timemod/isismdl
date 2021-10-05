@@ -294,7 +294,7 @@ of the jacobian that is almost zero. A right singular vector is a linear
 combination of the columns that is almost zero. An example for the ISLM model
 is shown below.
 
-First we create an Isis model and prepare fit data.\if{html}{\out{<div class="r">}}\preformatted{mdl <- islm_mdl("2020Q1")
+First we create an Isis model and prepare fit data.\if{html}{\out{<div class="sourceCode r">}}\preformatted{mdl <- islm_mdl("2020Q1")
 y <- regts(985, start = "2020q1")
 yd <- regts(800, start = "2020q1")
 c <- regts(600, start = "2020q1")
@@ -303,19 +303,19 @@ mdl$set_fit(fit)
 mdl$set_rms(c(c = 5.0, i = 21, md = 2))
 }\if{html}{\out{</div>}}
 
-So we have the following fit targets:\if{html}{\out{<div class="r">}}\preformatted{mdl$get_fit()
+So we have the following fit targets:\if{html}{\out{<div class="sourceCode r">}}\preformatted{mdl$get_fit()
 }\if{html}{\out{</div>}}\preformatted{##          c   y  yd
 ## 2020Q1 600 985 800
 }
 
 We specify fit options so that the SVD analysis is performed and the
-fit jacobian is printed.\if{html}{\out{<div class="r">}}\preformatted{mdl$set_fit_options(svdtest_tol = 1e-8, dbgopt = "prijac")
+fit jacobian is printed.\if{html}{\out{<div class="sourceCode r">}}\preformatted{mdl$set_fit_options(svdtest_tol = 1e-8, dbgopt = "prijac")
 }\if{html}{\out{</div>}}
 
 Next solve the model. Because y and yd are related according to \code{y = yd - t}
 (\code{t} is also linearly related to \code{y}, so there is a linear relation between
 \code{y} and \code{yd}),
-the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\preformatted{mdl$solve()
+the fit jacobian contains dependent rows.\if{html}{\out{<div class="sourceCode r">}}\preformatted{mdl$solve()
 }\if{html}{\out{</div>}}\preformatted{##  
 ## Model Solve Options
 ## Solution period               2020Q1/2020Q1
@@ -396,7 +396,7 @@ the fit jacobian contains dependent rows.\if{html}{\out{<div class="r">}}\prefor
 ## 
 }\preformatted{## Warning in mdl$solve(): Simulation not possible
 }\preformatted{## Total number of iterations   14
-## Solve model used     0.01 CPU secs
+## Solve model used     0.02 CPU secs
 ## 
 }
 }

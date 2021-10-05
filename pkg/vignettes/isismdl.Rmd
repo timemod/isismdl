@@ -396,7 +396,7 @@ constant adjustments  to zero. All constant adjustments retain their values.
 To remove only specific fix values, use for example:
 ```{r}
 mdl$set_fix_values(NA, "t")  # remove all fix values for t
- ```
+```
  
 Table \ref{tab:methods_fix} presents  an overview of the methods related to 
  fixing. Full documentation with examples is provided in the 
@@ -680,7 +680,7 @@ set. This is possible with method `order`:
 
 ```{r}
 mdl$order()  
- ```
+```
 
 ```{r echo = FALSE, results = "hide" }
 mdl$clear_fit()$clear_fix()
