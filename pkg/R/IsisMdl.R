@@ -276,6 +276,9 @@ IsisMdl <- R6Class("IsisMdl",
       if (!missing(serialized_mdl)) {
         private$init_mws(serialized_mdl$mws)
         private$model_text <- serialized_mdl$model_text
+        if (!is.null(serialized_mdl$user_data)) {
+          private$user_data <- serialized_mdl$user_data
+        }
       } else {
         private$model_text <- model_text
       }
@@ -874,7 +877,8 @@ IsisMdl <- R6Class("IsisMdl",
       unlink(mif_file)
       return(structure(list(version = packageVersion("isismdl"),
                             model_text = private$model_text,
-                            mif_data = mif_data, mws = private$get_mws()),
+                            mif_data = mif_data, mws = private$get_mws(),
+                            user_data = private$user_data),
                        class = "serialized_isismdl"))
     },
     clear_fit = function() {
@@ -911,6 +915,38 @@ IsisMdl <- R6Class("IsisMdl",
     },
     copy = function() {
       return(self$clone(deep = TRUE))
+    },
+    set_user_data = function(user_data, ...) {
+      if (!missing(user_data) && !is.null(user_data)) {
+        if (!is.list(user_data) || is.null(names(user_data))) {
+          stop("Argument 'user_data' must be a named list")
+        }
+        private$user_data <- user_data
+      }
+      dot_args <- list(...)
+      private$user_data[names(dot_args)] <- dot_args
+    },
+    get_user_data = function(key) {
+      if (missing(key) || is.null(key)) {
+        return(private$user_data)
+      } else {
+        if (!is.character(key)) stop("Argument 'key' must be a character")
+        user_data_keys <- names(private$user_data)
+        if (length(key) == 1) {
+          if (!key %in% user_data_keys) {
+            stop("'", key, "' is not a user data key")
+          }
+          return(private$user_data[[key]])
+        } else {
+          unknown_keys <- setdiff(user_data_keys, key)
+          if (length(unknown_keys) > 0) {
+            unknown_keys <- paste0("'", unknown_keys, "'")
+            stop("The next keys are not present in user data:\n",
+                 paste(unknown_keys, collapse = "',"))
+          }
+          return(private$user_data[key])
+        }
+      }
     }
   ),
   private = list(
@@ -933,6 +969,8 @@ IsisMdl <- R6Class("IsisMdl",
     fit_type = 4L,
     rms_type = 5L,
     param_type = 6L,
+
+    user_data = list(),
 
     deep_clone = function(name, value) {
       if (name == "model_index") {
