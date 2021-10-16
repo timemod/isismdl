@@ -925,6 +925,10 @@ IsisMdl <- R6Class("IsisMdl",
       }
       dot_args <- list(...)
       private$user_data[names(dot_args)] <- dot_args
+
+      # verwijder alle NULL elementen
+      is_null <- sapply(private$user_data, FUN = is.null)
+      private$user_data <- private$user_data[!is_null]
     },
     get_user_data = function(key) {
       if (missing(key) || is.null(key)) {
@@ -938,11 +942,11 @@ IsisMdl <- R6Class("IsisMdl",
           }
           return(private$user_data[[key]])
         } else {
-          unknown_keys <- setdiff(user_data_keys, key)
+          unknown_keys <- setdiff(key, user_data_keys)
           if (length(unknown_keys) > 0) {
             unknown_keys <- paste0("'", unknown_keys, "'")
-            stop("The next keys are not present in user data:\n",
-                 paste(unknown_keys, collapse = "',"))
+            stop("The following keys are not present in user data:\n",
+                 paste(unknown_keys, collapse = ", "))
           }
           return(private$user_data[key])
         }

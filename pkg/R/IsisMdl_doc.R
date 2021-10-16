@@ -2157,13 +2157,11 @@ NULL
 #' @aliases get_user_data
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}} sets the
-#' user data of an \code{IsisMdl} object.
+#' An \code{\link{IsisMdl}} object is equipped with a list with user data.
+#' This list is empty by default. With method \code{set_user_data} of
+#' R6 class `IsisMdl` elements can be added to this list.
 #' Method \code{get_user_data()} returns the user data.
 #'
-#' Each \code{\link{IsisMdl}} is equipped with user data. By default,
-#' the user data is an empty list, but with method \code{set_user_data}
-#' elements can be added to this list.
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_user_data(user_data, ...)
@@ -2176,29 +2174,31 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{user_data}}{The user data., This should be a named list}
+#' \item{\code{user_data}}{The user data. This should be a named list.}
 #'  \item{\code{...}}{The other arguments passed to \code{set_user_data} are
 #'  used to update the user data list. See the examples.}
 #' \item{\code{key}}{A character specifying the key(s) of the user data elements
 #' to retrieve. If not specified the complete user data list is returned.}
 #' }
 #'
-#' Function \code{get_user_data} returns a single element of the user data
-#' if argument \code{key} has been specified and if this is a single number;
+#' Function \code{get_user_data} returns a single element of the user data list
+#' if argument \code{key} has been specified and if this is a single character;
 #' otherwise the function returns a list.
 #'
+#' To remove an element of the list, set it to `NULL` (see example)
+#'
 #' @examples
-#' mdl <- islm_mdl()
+#' mdl <- islm_mdl(period = "2021q1/2021q2")
 #'
 #' mdl$set_user_data(date = Sys.Date(),
-#'                   note = "Simple example of ISLM model")
+#'                   note = "Example of user data")
 #'
 #' # the previous statement is equivalent to:
 #' mdl$set_user_data(list(date = Sys.Date(),
 #'                        note = "Simple example of ISLM model"))
 #'
 #' # add another user data element
-#' mdl$set_user_data(version = 12)
+#' mdl$set_user_data(input_data = mdl$get_data())
 #'
 #' # print all user data
 #' print(mdl$get_user_data())
@@ -2207,6 +2207,11 @@ NULL
 #' print(mdl$get_user_data("date"))
 #'
 #' # print two specific elements of the user data
-#' print(mdl$get_user_data(c("date", "version"))
+#' print(mdl$get_user_data(c("date", "input_data")))
+#'
+#' # remove user data element 'input_data':
+#' mdl$set_user_data(input_data = NULL)
+#' print(mdl$get_user_data())
+#'
 NULL
 
