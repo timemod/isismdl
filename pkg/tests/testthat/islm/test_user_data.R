@@ -28,6 +28,7 @@ test_that("set_user_data/get_user data work correctly", {
   expect_error(mdl$get_user_data(c("p", "x", "zzz", "rrr")),
                "The following keys are not present in user data:\n'zzz', 'rrr'")
 
+  expect_equal(mdl$get_user_data(character(0)), expected_result[integer(0)])
 
   mdl$set_user_data(p = NULL)
   expected_result <- list(x = 2:3, txt = "yyy", z = TRUE)
