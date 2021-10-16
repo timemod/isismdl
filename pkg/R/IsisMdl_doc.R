@@ -193,8 +193,8 @@ NULL
 #' # get the names of all model variables
 #' mdl$get_var_names()
 #'
-#' # get all variables with names starting with "m":
-#' mdl$get_var_names(pattern = "^y.*")
+#' # get all variables with names starting with "y":
+#' mdl$get_var_names(pattern = "^y")
 #'
 #' # get the names of all lagged variables
 #' mdl$get_var_names(type = "lags")
@@ -2195,7 +2195,7 @@ NULL
 #'
 #' # the previous statement is equivalent to:
 #' mdl$set_user_data(list(date = Sys.Date(),
-#'                        note = "Simple example of ISLM model"))
+#'                        note = "Example of user data"))
 #'
 #' # add another user data element
 #' mdl$set_user_data(input_data = mdl$get_data())
