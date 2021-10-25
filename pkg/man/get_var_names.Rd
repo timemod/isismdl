@@ -41,8 +41,8 @@ mdl <- islm_mdl()
 # get the names of all model variables
 mdl$get_var_names()
 
-# get all variables with names starting with "m":
-mdl$get_var_names(pattern = "^y.*")
+# get all variables with names starting with "y":
+mdl$get_var_names(pattern = "^y")
 
 # get the names of all lagged variables
 mdl$get_var_names(type = "lags")

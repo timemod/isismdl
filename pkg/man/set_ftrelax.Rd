@@ -15,7 +15,7 @@ for all endogenous leads.
 \section{Usage}{
 
 \preformatted{
-mdl$set_ftrelaxvalue, pattern, names)
+mdl$set_ftrelax(value, pattern, names)
 
 mdl$get_ftrelax()
 
