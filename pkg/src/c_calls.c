@@ -260,7 +260,7 @@ SEXP get_lags_or_leads(int model_index, int type) {
     return names;
 }
 
-SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP order_,
+SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP solve_order_,
                     SEXP endo_names_) {
     /* This function returns the names of the equations or,
      * if endo_names == 1, the names of the left hand side variables of the
@@ -268,7 +268,8 @@ SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP order_,
      * INPUT:
      *   model_index_  the index of the model
      *   status_       status ("all", "active" or "inactive")
-     *   order_        order of the equations ("sorted", "natural" or "solve")
+     *   solve_order_  0 if the equations should be returned in natural order
+     *                 1 if the equations should be returned in solution order
      *   endo_names_   0 if the function should return equation names,
      *                 1 if it should return the names of the lhs variables.
      *                 The equation and lhs names are usually the same,
@@ -276,8 +277,8 @@ SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP order_,
      */
     int model_index = asInteger(model_index_);
     int endo_names = asInteger(endo_names_);
+    int solve_order = asInteger(solve_order_);
     const char *status_str = CHAR(asChar(status_));
-    const char *order_str = CHAR(asChar(order_));
     int status;
     if (strcmp(status_str, "all") == 0) {
         status = ALL;
@@ -291,7 +292,6 @@ SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP order_,
 
     int neq  = F77_CALL(get_eq_count)(&model_index);
     int alphabet = 0;
-    int solve_order = (strcmp(order_str, "solve") == 0) ? 1 : 0;
 
     /* get list of equation indices */
     int *ieqs = (int *) R_alloc(neq, sizeof(int));

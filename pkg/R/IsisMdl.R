@@ -336,7 +336,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
 
       if (type == "all" || type == "lags") {
-        names <- .Call(get_eq_names_c, private$model_index, status, order, 1L)
+        names <- .Call(get_eq_names_c, private$model_index, status, 0L, 1L)
         if (type == "lags") {
           names <- intersect(names, self$get_var_names(type = "lags"))
         }
@@ -347,7 +347,7 @@ IsisMdl <- R6Class("IsisMdl",
         if (status != "all") {
           # If status != "all", select only activated or deactivated equations.
           endo_names_status <- .Call("get_eq_names_c", private$model_index,
-                              status, order, 1L)
+                              status, 0L, 1L)
           names <- intersect(names, endo_names_status)
         }
       }
@@ -376,14 +376,16 @@ IsisMdl <- R6Class("IsisMdl",
                             order = c("sorted", "solve", "natural")) {
       status  <- match.arg(status)
       order <- match.arg(order)
-      names <- .Call("get_eq_names_c", private$model_index,status, order, 0L)
+
+      solve_order <- if (order == "solve") 1L else 0L
+      names <- .Call("get_eq_names_c", private$model_index, status,
+                     solve_order,  0L)
+
       if (!missing(pattern)) {
         sel <- grep(pattern, names)
         names <- names[sel]
       }
-      if (order == "sorted") {
-        names <- sort(names)
-      }
+      if (order == "sorted") names <- sort(names)
       return(names)
     },
     set_debug_eqn = function(value) {
@@ -1149,11 +1151,21 @@ IsisMdl <- R6Class("IsisMdl",
       return(names)
     },
     get_eq_names_ = function(active, names, pattern) {
-      # This function selects equations names. It gives an error if names
-      # contains any invalid name for the specified type of equation.
+      # This function selects equations names from specified 
+      # names and/or a pattern.  Used internally by methods
+      # set_eq_status and run_eqn.
+      # Equations specified with a pattern are returned in natural ordering
+      # (the order in which the equations are stored in the model).
+      # It gives an error if names contains any invalid name for the specified 
+      # type of equation.
 
       status <- if (active) "active" else "all"
-      all_names <- self$get_eq_names(status = status)
+     
+      # Get all equation names with the sepcified status
+      # Use order = "natural" because we don't care about the order here
+      # and because sorting the equations can take a lot of time 
+      # for large models.
+      all_names <- self$get_eq_names(status = status, order = "natural")
 
       type_text <- if (active) " active " else " "
 
