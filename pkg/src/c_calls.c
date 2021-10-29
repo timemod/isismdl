@@ -77,7 +77,7 @@ extern void F77_NAME(remove_mws_fortran)(int *model_index);
 extern void F77_NAME(set_dbgeqn_fortran)(int *model_index, int *dbgeqn);	
 extern int F77_NAME(get_dbgeqn_fortran)(int *model_index);	
 extern void F77_NAME(run_eqn_fortran)(int *model_index, int *neq, int *eqnums,
-                                       int *jtb, int *jte);	
+                                       int *jtb, int *jte, int *updval_);	
 extern int F77_NAME(get_jc_fortran)(int * model_index);	
 extern void F77_NAME(set_jc_fortran)(int *model_index, int *jc);
 extern void F77_NAME(mdlpas_fortran)(int *model_index, int *jtb, int *jte);
@@ -870,12 +870,13 @@ SEXP get_dbgeqn_c(SEXP model_index_) {
     return(ScalarLogical(dbgeqn));
 }
 
-SEXP run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_) {
+SEXP run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_, SEXP updval__) {
     int model_index = asInteger(model_index_);
     int jtb = asInteger(jtb_);
     int jte = asInteger(jte_);
+    int updval_ = asInteger(updval__);
     int neq = length(eqnums);
-    F77_CALL(run_eqn_fortran)(&model_index, &neq, INTEGER(eqnums), &jtb, &jte);
+    F77_CALL(run_eqn_fortran)(&model_index, &neq, INTEGER(eqnums), &jtb, &jte, &updval_);
     return R_NilValue;
 }
 

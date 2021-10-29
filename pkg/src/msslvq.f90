@@ -2,18 +2,18 @@ module msslvq
 
 contains
 
-subroutine solve_equation(eqnum, update,  jt1, jt2, errflg)
+subroutine solve_equation(eqnum, updval, jt1, jt2, errflg)
 use msvars
 use mssneq
 use nuna
 use mdlvars
  
 ! solves equation eqnum for all periods between jt1 and jt2
-! if update == .true.  then do not store NA or missing result
-! if update == .false. then result is always stored
+! if updval == .true.  then do not store NA or missing result
+! if updval == .false. then result is always stored
 
 integer, intent(in) :: eqnum, jt1, jt2
-logical, intent(in) :: update
+logical, intent(in) :: updval
 integer, intent(out):: errflg
 
 real(kind = SOLVE_RKIND) :: result
@@ -25,7 +25,7 @@ integer, external ::  bysget
 character(len = 1) :: eqtype
 type(mdl_variable) :: fix_var
 real(kind = SOLVE_RKIND) :: fix_value
-integer :: jtd
+integer :: jtd, step
 
 errflg = 0
 old_lik = .true.
@@ -48,7 +48,14 @@ if( jca .ne. 0 ) then
    endif
 endif
 
-do jtime = jt1, jt2
+if (jt2 >= jt1) then
+   step = 1
+else 
+   step = -1
+endif
+
+
+do jtime = jt1, jt2, step
 
    jtd = jtime + mdl%mxlag
 
@@ -125,7 +132,7 @@ do jtime = jt1, jt2
 
 480 continue
    !  missing or NA in rhs
-   if (update) cycle
+   if (updval) cycle
    result = NA
 
 490 continue

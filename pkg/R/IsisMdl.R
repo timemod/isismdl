@@ -759,24 +759,40 @@ IsisMdl <- R6Class("IsisMdl",
             report = report)
       return(invisible(self))
     },
-    run_eqn = function(pattern, names, period = private$data_period) {
+    run_eqn = function(pattern, names, period = private$data_period,
+                       solve_order, forwards = TRUE,
+                       update_mode = c("upd", "updval")) {
       "Run model equations"
+
+      update_mode <- match.arg(update_mode)
       period <- private$convert_period_arg(period)
-      if (missing(pattern) && missing(names)) {
-        eq_names <- self$get_eq_names(status = "active", order = "solve")
-      } else if (missing(pattern) && !missing(names)) {
-        eq_names <- private$get_eq_names_(TRUE, names, pattern)
-      } else if (!missing(pattern) && missing(names)) {
+
+      if (missing(names)) {
+        order <- if (missing(solve_order) || solve_order) "solve" else "natural"
         eq_names <- self$get_eq_names(pattern = pattern, status = "active",
-                                      order = "solve")
+                                      order = order)
       } else {
-        stop("Only one of arguments 'pattern' and 'names' can be specified")
+        if (!missing(pattern)) {
+          stop("Only one of arguments 'pattern' and 'names' can be specified")
+        }
+        if (missing(solve_order)) solve_order <- FALSE
+        eq_names <- private$get_eq_names_(TRUE, names, pattern, solve_order)
       }
+
       if (length(eq_names) > 0) {
         eqnums <- match(eq_names, self$get_eq_names(order = "natural"))
         js <- private$get_period_indices(period)
+
+        if (forwards) {
+          jtb <- js$startp
+          jte <- js$end
+        } else {
+          jtb <- js$end
+          jte <- js$startp
+        }
+        updval <- if (update_mode == "updval") 1L else 0L
         .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums),
-              jtb = js$startp, jte = js$end)
+              jtb = jtb, jte = jte, updval = updval)
       }
       return(invisible(self))
     },
@@ -844,7 +860,7 @@ IsisMdl <- R6Class("IsisMdl",
                              pattern, names) {
       "Activate or deactivate equations"
       status <- match.arg(status)
-      names <- private$get_eq_names_(FALSE, names, pattern)
+      names <- private$get_eq_names_(FALSE, names, pattern, solve_order = FALSE)
       if (length(names) > 0) {
         .Call("set_eq_status_c", private$model_index, names, status);
       }
@@ -1150,51 +1166,66 @@ IsisMdl <- R6Class("IsisMdl",
       }
       return(names)
     },
-    get_eq_names_ = function(active, names, pattern) {
-      # This function selects equations names from specified 
+    get_eq_names_ = function(active, names, pattern, solve_order) {
+      # This function selects equations names from specified
       # names and/or a pattern.  Used internally by methods
       # set_eq_status and run_eqn.
-      # Equations specified with a pattern are returned in natural ordering
-      # (the order in which the equations are stored in the model).
-      # It gives an error if names contains any invalid name for the specified 
-      # type of equation.
+      # If solve_order == TRUE, then the equation names are returned in
+      # solution order. Otherwise, the equations specified with a pattern are
+      # defined in natural ordering (the order in which the equations are
+      # stored in the model), and the specified names are returned in the
+      # original ordering of the names.
+      # The function gives an error if names contains any invalid name for
+      # the specified type of equation.
+
+      names_specified <- !missing(names)
+      pattern_specified <- !missing(pattern)
 
       status <- if (active) "active" else "all"
-     
+
       # Get all equation names with the sepcified status
       # Use order = "natural" because we don't care about the order here
-      # and because sorting the equations can take a lot of time 
+      # and because sorting the equations can take a lot of time
       # for large models.
-      all_names <- self$get_eq_names(status = status, order = "natural")
+      order <- if (solve_order) "solve" else "natural"
+      all_names <- self$get_eq_names(status = status, order = order)
 
       type_text <- if (active) " active " else " "
 
       # check supplied names, give an error if an invalid name has been
       # specified
-      if (!missing(names) &&
-                        length(error_vars <- setdiff(names, all_names)) > 0) {
-        error_vars <- paste0("\"", error_vars, "\"")
-        if (length(error_vars) == 1) {
-          stop(error_vars, " is not an", type_text, "equation.")
-        } else {
-          stop("The following names are no", type_text, "equations: ",
+      if (names_specified) {
+        error_vars <- setdiff(names, all_names)
+        if (length(error_vars) > 0) {
+          error_vars <- paste0("\"", error_vars, "\"")
+          if (length(error_vars) == 1) {
+            stop(error_vars, " is not an", type_text, "equation.")
+          } else {
+            stop("The following names are no", type_text, "equations: ",
                         paste(error_vars, collapse = ", "), ".")
+          }
         }
       }
-      if (missing(pattern) && missing(names)) {
+      if (!(names_specified || pattern_specified)) {
         names <- all_names
-      } else if (!missing(pattern)) {
+      } else if (pattern_specified) {
         sel <- grep(pattern, all_names)
         if (length(sel) == 0) {
           warning("There are no", type_text, "equations that match pattern '",
                   pattern, "'.")
         }
         pattern_names <- all_names[sel]
-        if (!missing(names)) {
+        if (names_specified) {
           names <- union(pattern_names, names)
         } else {
           names <- pattern_names
         }
+      }
+
+      # reorder names, this is only necessary if argument names has been
+      # specified (otherwise the variables have  already the correct order)
+      if (names_specified && solve_order) {
+        names <- all_names[all_names %in% names]
       }
       return(names)
     },

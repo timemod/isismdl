@@ -46,7 +46,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"remove_mws_c", (DL_FUNC) &remove_mws_c, 1},
     {"set_dbgeqn_c", (DL_FUNC) &set_dbgeqn_c, 2},
     {"get_dbgeqn_c", (DL_FUNC) &get_dbgeqn_c, 1},
-    {"run_eqn_c", (DL_FUNC) &run_eqn_c, 4},
+    {"run_eqn_c", (DL_FUNC) &run_eqn_c, 5},
     {"set_jc_c", (DL_FUNC) &set_jc_c, 2},
     {"get_jc_c", (DL_FUNC) &get_jc_c, 1},
     {"mdlpas_c", (DL_FUNC) &mdlpas_c, 3},

@@ -36,7 +36,7 @@ SEXP get_max_lag_lead_c(SEXP model_index_);
 SEXP remove_mws_c(SEXP model_index_);
 SEXP set_dbgeqn_c(SEXP model_index_, SEXP dbgeqn_);
 SEXP get_dbgeqn_c(SEXP model_index_);
-SEXP run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_);
+SEXP run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_, SEXP updval__);
 SEXP set_jc_c(SEXP model_index_, SEXP jc_);
 SEXP get_jc_c(SEXP model_index_);
 SEXP mdlpas_c(SEXP model_index_, SEXP jtb_, SEXP jte_);
