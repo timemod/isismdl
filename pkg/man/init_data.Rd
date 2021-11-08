@@ -5,7 +5,7 @@
 \title{\code{\link{IsisMdl}} method: initializes the model data.}
 \description{
 This method of R6 class \code{\link{IsisMdl}}
-initializes the model variables and constant adjustmemts for the whole
+initializes the model variables and constant adjustments for the whole
 data period.
 The model timeseries are set to \code{NA} and the constant adjustments to
 zero.

@@ -5,21 +5,22 @@
 \title{\code{\link{IsisMdl}} method: runs model equations}
 \description{
 This method of R6 class \code{\link{IsisMdl}}
-runs specific equations of the model separately.
-Each specified equation is run separately for the specified period.
-If the equation is a stochastic equation (a \code{frml} equation)
-and the corresponding endogenous variable has been fixed,
-then the constant adjustment for the equation will be calculated
-such that the result of the equation equals the predetermined required
-value for the left-hand side.
+runs specific equations of the model. Each specified equation is run
+separately for all periods in the specified period range. So if multiple
+equations are specified, then the first equation is first solved for
+all periods, then the second equation for all periods, and so on.
 
-If neither argument \code{pattern} nor \code{names} have been specified,
-then all active model equations are run in solve order.
+The names of the equations to be run can be specified with argument
+\code{names} or \code{pattern}. These arguments cannot be specified both.
+If neither argument \code{pattern} nor \code{names} has been specified,
+then all active model equations are run.
 }
 \section{Usage}{
 
 \preformatted{
-mdl$run_eqn(pattern, names, period = mdl$get_data_period())
+mdl$run_eqn(pattern, names, period = mdl$get_data_period(),
+            solve_order, forwards = TRUE,
+            update_mode = c("upd", "updval"))
 
 }
 
@@ -31,15 +32,78 @@ mdl$run_eqn(pattern, names, period = mdl$get_data_period())
 
 \describe{
 \item{\code{pattern}}{a regular expression. Equations with names
-matching the regular expression are run in solve order.}
-\item{\code{names}}{a character vector with equation names. The
-corresponding equations are solved in the order as they are
-specified.}
-\item{\code{period}}{a \code{\link[regts]{period_range}} object}
+matching the regular expression are run.}
+\item{\code{names}}{a character vector with equation names}
+\item{\code{period}}{a \code{\link[regts]{period_range}} object
+or a single \code{\link[regts]{period}} specifying the period range.
+By default the equation are run for the whole data period.}
+\item{\code{solve_order}}{
+A logical: should the specified equations be run in solve order?
+The default value depends on whether argument \code{names} has been
+specified: \code{FALSE} if \code{names} has been specified and otherwise \code{TRUE}.
+See Section Equation Order}
+\item{\code{forwards}}{A logical indicating whether each equation is run
+forwards or backwards in time. See Section Forwards and Backwards.}
+\item{\code{update_mode}}{This argument specifies whether the model data
+should be updated with the result of running an equation
+if the result is an invalid number (\code{NA}). If \code{update_mode = "upd"}
+(the default), the model data is always updated with the result.
+If \code{update_mode = "updval"}, the model data is only updated if the
+result is not \code{NA}.}
 }
+
+Only one of the two arguments \code{pattern} and \code{names} can be specified.
+}
+
+\section{Equation order}{
+
+
+If argument \code{solve_order = TRUE}, the specified equations
+are run in solve order, i.e. the order used when solving the model.
+If \code{solve_order = FALSE}, the order depends on whether argument \code{names}
+is specified:
+\itemize{
+\item If argument \code{names} has been specified, the equations are run
+in the same order as the specified names.
+\item Otherwise the equations are run using the 'natural order',
+i.e. the order of the equations as defined in the model file.
+The default of argument \code{solve_order} is \code{FALSE} if \code{names} is
+specified and \code{TRUE} in other cases.
+}
+}
+
+\section{Forwards and Backwards}{
+
+
+By default, the equations are run forwards in time: the equation is
+first evaluated at the first period of the specified period range,
+then the second period, and so on.
+If argument \code{forwards = FALSE}, the equation is run backwards:
+first at the last period of the specified period range,
+then at the last but one period, and so on.
+}
+
+\section{Fixed equations}{
+
+
+If the equation is a stochastic equation (a \code{frml} equation)
+and the corresponding endogenous variable has been fixed,
+then the constant adjustment for the equation will be calculated
+such that the result of the equation equals the predetermined required
+value for the left-hand side.
 }
 
 \examples{
 mdl <- islm_mdl("2017Q1/2019Q3")
 mdl$run_eqn(names = c("c", "t"))
+
+# run all equations with names starting with y
+mdl$run_eqn(pattern = "^y")
+
+# run all model equations in the order of the equations as specified
+# in the mdl file.
+mdl$run_eqn(solve_order = FALSE)
+}
+\seealso{
+\code{\link{solve}} and  \code{\link{fill_mdl_data}}.
 }

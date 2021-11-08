@@ -7,11 +7,11 @@
 \alias{set_fix}
 \alias{set_fit}
 \title{\code{\link{IsisMdl}} methods: transfers data from a timeseries
-object to the model data, constant adjusments, fix values or fit targets.}
+object to the model data, constant adjustments, fix values or fit targets.}
 \description{
 These methods of R6 class \code{\link{IsisMdl}}
 Transfers data from a timeseries object to the model data,
-constant adjusments, fix values or fit targets.
+constant adjustments, fix values or fit targets.
 }
 \section{Usage}{
 
@@ -66,7 +66,7 @@ for \code{"warn"} a warning is given and for \code{"stop"} an error is  issued.}
 If \code{data} has labels, then \code{set_data} will also update
 the labels of the corresponding model variables}
 \item{\code{set_ca}}{Set constant adjustments, i.e. the residuals of
-behavourial (frml) equations}
+behavioural (frml) equations}
 \item{\code{set_fix}}{Set fix values for frml variables
 (model variables that occur at the left hand side of a frml equation).
 The frml variable is kept fixed

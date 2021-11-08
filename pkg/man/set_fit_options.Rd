@@ -54,7 +54,7 @@ computed in  an earlier iteration), then a second attempt with
 a  new jacobian is made. If the iteration already used a new
 jacobian, then the fit procedure will be terminated.}
 \item{\code{zero_ca}}{A logical. If \code{TRUE}, then the initial values
-of the constant adjustments used in the fit procedure are initialised to 0.
+of the constant adjustments used in the fit procedure are initialized to 0.
 The default is \code{FALSE}}
 \item{\code{warn_ca}}{A logical. If \code{TRUE} (default), then warnings
 are given for possibly too large constant adjustments at the end of the fit
@@ -156,7 +156,7 @@ and \eqn{w} is an \eqn{m}-vector of fit target values.
 The scaled residuals \eqn{u_i} have been scaled with the root mean square
 values specified with procedures \code{\link{set_rms}}.
 
-The fit procedure linearises the relation \eqn{y=h(u)} and
+The fit procedure linearizes the relation \eqn{y=h(u)} and
 determines a minimum norm solution for \eqn{u} to the resulting set of
 linear equations after setting \eqn{y=w}.
 It uses the QR decomposition for numerical stability.
@@ -185,7 +185,7 @@ The value of \eqn{epsilon} is specified with argument \code{cgvabs} (
 the machine precision, which is typically \code{1.5e-6}).
 If the zealous fit method is used (see Section The Zealous
 and Lazy Fit Method), we also require for convergence that
-the relative step size for all variables is smaller then \eqn{epilon}.
+the relative step size for all variables is smaller than \eqn{epsilon}.
 
 Since evaluating the jacobian of \eqn{h(u)} can be a time-consuming
 process, the jacobian of a previous iteration can sometimes be reused for

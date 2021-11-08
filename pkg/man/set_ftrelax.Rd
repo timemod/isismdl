@@ -3,13 +3,13 @@
 \name{set_ftrelax}
 \alias{set_ftrelax}
 \alias{get_ftrelax}
-\title{\code{\link{IsisMdl}} method: Sets the Fair-Taylor relaxtion factors}
+\title{\code{\link{IsisMdl}} method: Sets the Fair-Taylor relaxation factors}
 \description{
 This method of R6 class \code{\link{IsisMdl}} sets the
-Fair-Taylor relaxtion factors for the endogenous leads.
+Fair-Taylor relaxation factors for the endogenous leads.
 
 Method \code{get_ftrelax()} returns
-the Fair-Taylor relaxtion factors
+the Fair-Taylor relaxation factors
 for all endogenous leads.
 }
 \section{Usage}{
@@ -27,7 +27,7 @@ mdl$get_ftrelax()
 
 
 \describe{
-\item{\code{value}}{Fair-Taylor relaxtion number.
+\item{\code{value}}{Fair-Taylor relaxation number.
 This must be a positive number or \code{NA} to disable any previously set value.
 The default value for all endogenous leads is \code{NA}, which means that
 the general uniform Fair-taylor relaxation
@@ -39,18 +39,18 @@ variable names}
 }
 
 If neither \code{pattern} nor \code{names} have been specified,
-then the Fair-Taylor relaxtion factors of all variables
+then the Fair-Taylor relaxation factors of all variables
 with endogenous leads will be set to the specified values.
 }
 
 \examples{
 mdl <- ifn_mdl()
 
-# set Fair-relaxtion factor all all variables with names of length 2
+# set Fair-Taylor relaxation factor all all variables with names of length 2
 # to 0.5:
 mdl$set_ftrelax(0.5, pattern = "^..$")
 
-# set Fair-relaxtion factor for variable "lambda":
+# set Fair-Taylor relaxation factor for variable "lambda":
 mdl$set_ftrelax(0.5, names = "lambda")
 
 print(mdl$get_ftrelax())

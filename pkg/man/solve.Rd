@@ -27,7 +27,7 @@ mdl$solve(period = mdl$get_period(), options = list(),
 \describe{
 \item{\code{period}}{\code{\link[regts]{period_range}}
 object, or an object
-that can be coerced to \code{\link[regts]{period_range}}}.
+that can be coerced to \code{\link[regts]{period_range}}}
 \item{\code{options}}{a named list with solve options,
 for example \code{list(maxiter = 50)}.
 The names are the corresponding argument names of
@@ -61,7 +61,7 @@ solve. If none are specified the solve options
 as specified with method \code{\link{set_solve_options}}
 are used.
 
-The solve procedure \emph{never} raises an error, even if the solve was
+The solve procedure \emph{never} raizes an error, even if the solve was
 not successful. In that case a warning may be issued. It is up to the user
 to perform any checks.
 Method \code{\link{get_solve_status}} can be used to check

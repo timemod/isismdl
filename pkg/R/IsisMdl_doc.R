@@ -227,7 +227,7 @@ NULL
 #' # print all model parameter names
 #' print(mdl$get_par_names())
 #'
-#' # print names of model paramters with names starting with c
+#' # print names of model parameters with names starting with c
 #' print(mdl$get_par_names(pattern = "^c.*"))
 NULL
 
@@ -403,7 +403,7 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}}
-#' initializes the model variables and constant adjustmemts for the whole
+#' initializes the model variables and constant adjustments for the whole
 #' data period.
 #' The model timeseries are set to \code{NA} and the constant adjustments to
 #' zero.
@@ -506,7 +506,7 @@ NULL
 #' \describe{
 #' \item{\code{period}}{\code{\link[regts]{period_range}}
 #' object, or an object
-#' that can be coerced to \code{\link[regts]{period_range}}}.
+#' that can be coerced to \code{\link[regts]{period_range}}}
 #' \item{\code{options}}{a named list with solve options,
 #' for example \code{list(maxiter = 50)}.
 #' The names are the corresponding argument names of
@@ -565,7 +565,7 @@ NULL
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the status
 #' of the last model solve as a  text string. If the last model solve
-#' was succesfull, it returns the string \code{"OK"}.
+#' was successful, it returns the string \code{"OK"}.
 #'
 
 #' @section Usage:
@@ -587,8 +587,8 @@ NULL
 #'  * \code{"Initial lags/leads missing/invalid. Simulation not possible"}
 #'  * \code{"Invalid parameter values detected. Simulation not possible"}
 #'  * \code{"Fair-Taylor has not converged"}
-#'  * \code{"Out of memory. Simulation not succesfull"}
-#'  * \code{"Unknown problem in solve. Simulation not succesfull"}
+#'  * \code{"Out of memory. Simulation not successful"}
+#'  * \code{"Unknown problem in solve. Simulation not successful"}
 #'
 #' @seealso \code{\link{solve}}
 #' @examples
@@ -644,6 +644,7 @@ NULL
 #' \item{\code{no}}{to not generate a report}
 #' }
 #'
+#' @seealso \code{\link{run_eqn}}.
 #'
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
@@ -659,20 +660,21 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}}
-#' runs specific equations of the model separately.
-#' Each specified equation is run separately for the specified period.
-#' If the equation is a stochastic equation (a \code{frml} equation)
-#' and the corresponding endogenous variable has been fixed,
-#' then the constant adjustment for the equation will be calculated
-#' such that the result of the equation equals the predetermined required
-#' value for the left-hand side.
+#' runs specific equations of the model. Each specified equation is run
+#' separately for all periods in the specified period range. So if multiple
+#' equations are specified, then the first equation is first solved for
+#' all periods, then the second equation for all periods, and so on.
 #'
-#' If neither argument \code{pattern} nor \code{names} have been specified,
-#' then all active model equations are run in solve order.
+#' The names of the equations to be run can be specified with argument
+#' `names` or `pattern`. These arguments cannot be specified both.
+#' If neither argument \code{pattern} nor \code{names} has been specified,
+#' then all active model equations are run.
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$run_eqn(pattern, names, period = mdl$get_data_period())
+#' mdl$run_eqn(pattern, names, period = mdl$get_data_period(),
+#'             solve_order, forwards = TRUE,
+#'             update_mode = c("upd", "updval"))
 #'
 #' }
 #'
@@ -682,27 +684,81 @@ NULL
 #'
 #' \describe{
 #' \item{\code{pattern}}{a regular expression. Equations with names
-#' matching the regular expression are run in solve order.}
-#' \item{\code{names}}{a character vector with equation names. The
-#' corresponding equations are solved in the order as they are
-#' specified.}
-#' \item{\code{period}}{a \code{\link[regts]{period_range}} object}
+#' matching the regular expression are run.}
+#' \item{\code{names}}{a character vector with equation names}
+#' \item{\code{period}}{a \code{\link[regts]{period_range}} object
+#' or a single \code{\link[regts]{period}} specifying the period range.
+#' By default the equation are run for the whole data period.}
+#' \item{\code{solve_order}}{
+#' A logical: should the specified equations be run in solve order?
+#' The default value depends on whether argument `names` has been
+#' specified: `FALSE` if `names` has been specified and otherwise `TRUE`.
+#' See Section Equation Order}
+#' \item{\code{forwards}}{A logical indicating whether each equation is run
+#' forwards or backwards in time. See Section Forwards and Backwards.}
+#' \item{\code{update_mode}}{This argument specifies whether the model data
+#' should be updated with the result of running an equation
+#' if the result is an invalid number (`NA`). If `update_mode = "upd"`
+#' (the default), the model data is always updated with the result.
+#' If `update_mode = "updval"`, the model data is only updated if the
+#' result is not `NA`.}
 #' }
 #'
+#' Only one of the two arguments `pattern` and `names` can be specified.
+#'
+#' @section Equation order:
+#'
+#' If argument `solve_order = TRUE`, the specified equations
+#' are run in solve order, i.e. the order used when solving the model.
+#' If `solve_order = FALSE`, the order depends on whether argument `names`
+#' is specified:
+#'   * If argument `names` has been specified, the equations are run
+#' in the same order as the specified names.
+#'   *  Otherwise the equations are run using the 'natural order',
+#' i.e. the order of the equations as defined in the model file.
+#' The default of argument `solve_order` is `FALSE` if `names` is
+#' specified and `TRUE` in other cases.
+#'
+#' @section Forwards and Backwards:
+#'
+#' By default, the equations are run forwards in time: the equation is
+#' first evaluated at the first period of the specified period range,
+#' then the second period, and so on.
+#' If argument `forwards = FALSE`, the equation is run backwards:
+#' first at the last period of the specified period range,
+#' then at the last but one period, and so on.
+#'
+#' @section Fixed equations:
+#'
+#' If the equation is a stochastic equation (a \code{frml} equation)
+#' and the corresponding endogenous variable has been fixed,
+#' then the constant adjustment for the equation will be calculated
+#' such that the result of the equation equals the predetermined required
+#' value for the left-hand side.
+#'
+#' @seealso \code{\link{solve}} and  \code{\link{fill_mdl_data}}.
+#
 #' @examples
 #' mdl <- islm_mdl("2017Q1/2019Q3")
 #' mdl$run_eqn(names = c("c", "t"))
+#'
+#' # run all equations with names starting with y
+#' mdl$run_eqn(pattern = "^y")
+#'
+#' # run all model equations in the order of the equations as specified
+#' # in the mdl file.
+#' mdl$run_eqn(solve_order = FALSE)
 NULL
 
 
 #' \code{\link{IsisMdl}} methods: Retrieve timeseries from the model data,
-#' constant adjusments, fix values or fit targets
+#' constant adjustments, fix values or fit targets
 #' @name get_data-methods
 #' @aliases get_data get_ca get_fix get_fit
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}}
 #' can be used to retrieve timeseries from the model data,
-#' constant adjusments, fix values or fit targets.
+#' constant adjustments, fix values or fit targets.
 #'
 #' @section Usage:
 #' \preformatted{
@@ -755,18 +811,16 @@ NULL
 #'
 #' print(mdl$get_data(pattern = "^ymdl"))
 #'
-#' @seealso \code{\link{set_data-methods}}, \code{\link{set_values-methods}}
-#' and \code{\link{change_data-methods}}
 NULL
 
 #' \code{\link{IsisMdl}} methods: transfers data from a timeseries
-#' object to the model data, constant adjusments, fix values or fit targets.
+#' object to the model data, constant adjustments, fix values or fit targets.
 #' @name set_data-methods
 #' @aliases set_data set_ca set_fix set_fit
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}}
 #' Transfers data from a timeseries object to the model data,
-#' constant adjusments, fix values or fit targets.
+#' constant adjustments, fix values or fit targets.
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_data(data, names = colnames(data), upd_mode = c("upd", "updval"),
@@ -814,7 +868,7 @@ NULL
 #' If \code{data} has labels, then \code{set_data} will also update
 #' the labels of the corresponding model variables}
 #' \item{\code{set_ca}}{Set constant adjustments, i.e. the residuals of
-#' behavourial (frml) equations}
+#' behavioural (frml) equations}
 #' \item{\code{set_fix}}{Set fix values for frml variables
 #' (model variables that occur at the left hand side of a frml equation).
 #' The frml variable is kept fixed
@@ -895,7 +949,7 @@ NULL
 #' @aliases set_values set_ca_values set_fix_values set_fit_values
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}}
-#' can be used to set the values of the model data, constant adjusments,
+#' can be used to set the values of the model data, constant adjustments,
 #' fix values or fit targets.
 #'
 #' @section Usage:
@@ -937,7 +991,7 @@ NULL
 #' \describe{
 #' \item{\code{set_values}}{Sets the values of model data.}
 #' \item{\code{set_ca_values}}{Sets the values of the  constant adjustments, i.e. the
-#' residuals of behavourial (frml) equations.}
+#' residuals of behavioural (frml) equations.}
 #' \item{\code{set_fix_values}}{Set fix values for the stochastic
 #' model variables (i.e. model variables that occur at the left
 #' hand side of a frml equation). The model variables will be fixed
@@ -1057,7 +1111,7 @@ NULL
 #' Methods `set_rms` and `set_rms_values` of R6 class \code{\link{IsisMdl}}
 #' can be used to set the root mean square (rms) error values
 #' used in the fit procedure.
-#' Each frml equation has a constant adjustment and a correpsonding rms value.
+#' Each frml equation has a constant adjustment and a corresponding rms value.
 #' If the rms value is larger than 0 and not \code{NA}, then the constant
 #' adjustment is used as a fit instruments.
 #'
@@ -1286,7 +1340,7 @@ NULL
 #' Argument \code{fbstart} can be used to specify
 #' the way how the feedback variables at the current period
 #' (i.e. the period for which the model is being solved)
-#' are initialised from the model data.
+#' are initialized from the model data.
 #' Possible values of \code{fbstart} are:
 #' \describe{
 #' \item{\code{"current"}}{the initial values are always taken from the
@@ -1338,7 +1392,7 @@ NULL
 #' Arguments \code{ratreport_rep} (the report repetion count)
 #' and \code{ratfullreport_rep} (the full report repetition count),
 #' both specified as integer numbers,
-#' can be used to futher modify the progress report.
+#' can be used to further modify the progress report.
 #'
 #' Possible values for \code{ratreport} are
 #' \describe{
@@ -1415,7 +1469,7 @@ NULL
 #' a  new jacobian is made. If the iteration already used a new
 #' jacobian, then the fit procedure will be terminated.}
 #' \item{\code{zero_ca}}{A logical. If \code{TRUE}, then the initial values
-#' of the constant adjustments used in the fit procedure are initialised to 0.
+#' of the constant adjustments used in the fit procedure are initialized to 0.
 #' The default is \code{FALSE}}
 #' \item{\code{warn_ca}}{A logical. If \code{TRUE} (default), then warnings
 #' are given for possibly too large constant adjustments at the end of the fit
@@ -1515,7 +1569,7 @@ NULL
 #' The scaled residuals \eqn{u_i} have been scaled with the root mean square
 #' values specified with procedures \code{\link{set_rms}}.
 #'
-#' The fit procedure linearises the relation \eqn{y=h(u)} and
+#' The fit procedure linearizes the relation \eqn{y=h(u)} and
 #' determines a minimum norm solution for \eqn{u} to the resulting set of
 #' linear equations after setting \eqn{y=w}.
 #' It uses the QR decomposition for numerical stability.
@@ -1545,7 +1599,7 @@ NULL
 #' the machine precision, which is typically \code{1.5e-6}).
 #' If the zealous fit method is used (see Section The Zealous
 #' and Lazy Fit Method), we also require for convergence that
-#' the relative step size for all variables is smaller then \eqn{epilon}.
+#' the relative step size for all variables is smaller than \eqn{epsilon}.
 #'
 #' Since evaluating the jacobian of \eqn{h(u)} can be a time-consuming
 #' process, the jacobian of a previous iteration can sometimes be reused for
@@ -1759,16 +1813,16 @@ NULL
 #' print(mdl$get_cvgcrit())
 NULL
 
-#' \code{\link{IsisMdl}} method: Sets the Fair-Taylor relaxtion factors
+#' \code{\link{IsisMdl}} method: Sets the Fair-Taylor relaxation factors
 #' @name set_ftrelax
 #' @aliases get_ftrelax
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} sets the
-#' Fair-Taylor relaxtion factors for the endogenous leads.
+#' Fair-Taylor relaxation factors for the endogenous leads.
 #'
 #' Method \code{get_ftrelax()} returns
-#' the Fair-Taylor relaxtion factors
+#' the Fair-Taylor relaxation factors
 #' for all endogenous leads.
 #' @section Usage:
 #' \preformatted{
@@ -1782,7 +1836,7 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{value}}{Fair-Taylor relaxtion number.
+#' \item{\code{value}}{Fair-Taylor relaxation number.
 #' This must be a positive number or \code{NA} to disable any previously set value.
 #' The default value for all endogenous leads is \code{NA}, which means that
 #' the general uniform Fair-taylor relaxation
@@ -1794,17 +1848,17 @@ NULL
 #' }
 #'
 #' If neither \code{pattern} nor \code{names} have been specified,
-#' then the Fair-Taylor relaxtion factors of all variables
+#' then the Fair-Taylor relaxation factors of all variables
 #' with endogenous leads will be set to the specified values.
 #'
 #' @examples
 #' mdl <- ifn_mdl()
 #'
-#' # set Fair-relaxtion factor all all variables with names of length 2
+#' # set Fair-Taylor relaxation factor all all variables with names of length 2
 #' # to 0.5:
 #' mdl$set_ftrelax(0.5, pattern = "^..$")
 #'
-#' # set Fair-relaxtion factor for variable "lambda":
+#' # set Fair-Taylor relaxation factor for variable "lambda":
 #' mdl$set_ftrelax(0.5, names = "lambda")
 #'
 #' print(mdl$get_ftrelax())

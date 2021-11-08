@@ -175,7 +175,7 @@ The default is \code{"auto"}.
 Argument \code{fbstart} can be used to specify
 the way how the feedback variables at the current period
 (i.e. the period for which the model is being solved)
-are initialised from the model data.
+are initialized from the model data.
 Possible values of \code{fbstart} are:
 \describe{
 \item{\code{"current"}}{the initial values are always taken from the
@@ -231,7 +231,7 @@ The type of report is determined by argument \code{ratreport}.
 Arguments \code{ratreport_rep} (the report repetion count)
 and \code{ratfullreport_rep} (the full report repetition count),
 both specified as integer numbers,
-can be used to futher modify the progress report.
+can be used to further modify the progress report.
 
 Possible values for \code{ratreport} are
 \describe{
