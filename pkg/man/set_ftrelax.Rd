@@ -30,7 +30,7 @@ mdl$get_ftrelax()
 \item{\code{value}}{Fair-Taylor relaxation number.
 This must be a positive number or \code{NA} to disable any previously set value.
 The default value for all endogenous leads is \code{NA}, which means that
-the general uniform Fair-taylor relaxation
+the general uniform Fair-Taylor relaxation
 (solve option \code{ftrelax}, see \code{\link{set_solve_options}})
 will be applied}
 \item{\code{pattern}}{a regular expression specifying the

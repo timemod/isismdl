@@ -52,7 +52,6 @@ setOldClass("period_range")
 #' @useDynLib isismdl set_ftrelax_init_mws_c
 #' @useDynLib isismdl get_ftrelax_c
 #' @useDynLib isismdl set_eq_status_c
-#' @useDynLib isismdl mdlpas_c
 #' @useDynLib isismdl clone_mws_c
 #' @useDynLib isismdl run_eqn_c
 #' @useDynLib isismdl get_solve_status_c
@@ -761,11 +760,18 @@ IsisMdl <- R6Class("IsisMdl",
     },
     run_eqn = function(pattern, names, period = private$data_period,
                        solve_order, forwards = TRUE,
-                       update_mode = c("upd", "updval")) {
+                       update_mode = c("upd", "updval"),
+                       per_period = FALSE) {
       "Run model equations"
 
       update_mode <- match.arg(update_mode)
       period <- private$convert_period_arg(period)
+      if (!is.logical(forwards) || length(forwards)!= 1) {
+        stop("Argument 'forwards' should be a TRUE or FALSE")
+      }
+      if (!is.logical(per_period) || length(per_period) != 1) {
+        stop("Argument 'per_period' should be a TRUE or FALSE")
+      }
 
       if (missing(names)) {
         order <- if (missing(solve_order) || solve_order) "solve" else "natural"
@@ -792,7 +798,7 @@ IsisMdl <- R6Class("IsisMdl",
         }
         updval <- if (update_mode == "updval") 1L else 0L
         .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums),
-              jtb = jtb, jte = jte, updval = updval)
+              jtb = jtb, jte = jte, updval = updval, per_period = per_period)
       }
       return(invisible(self))
     },
@@ -873,15 +879,6 @@ IsisMdl <- R6Class("IsisMdl",
       } else {
         return(NULL)
       }
-    },
-    mdlpas = function(period = private$model_period) {
-      "Run all equations of the model in solution order forwards in time"
-      if (is.null(private$model_period)) stop(private$period_error_msg)
-      period <- private$convert_period_arg(period)
-      js <- private$get_period_indices(period)
-      .Call("mdlpas_c", model_index = private$model_index,
-            jtb = js$startp, jte = js$end)
-      return(invisible(self))
     },
     write_mdl = function(file) {
       saveRDS(self$serialize(), file)

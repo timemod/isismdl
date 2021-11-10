@@ -16,7 +16,7 @@ model contains preprocessor directives
 does not handle preprocessor directives yet, but in future
 versions \code{isismdl} will store the preprocessed model text (the model
 text obtained by evaluating the preprocessor directives). \emph{Therefore,
-we recomment to always keep the original model file}.
+we recommend to always keep the original model file}.
 }
 \section{Usage}{
 

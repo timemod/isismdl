@@ -4,11 +4,16 @@
 \alias{run_eqn}
 \title{\code{\link{IsisMdl}} method: runs model equations}
 \description{
-This method of R6 class \code{\link{IsisMdl}}
-runs specific equations of the model. Each specified equation is run
-separately for all periods in the specified period range. So if multiple
-equations are specified, then the first equation is first solved for
-all periods, then the second equation for all periods, and so on.
+This method of R6 class \code{\link{IsisMdl}} runs specific equations of the
+model separately for the specific period range. The right-hand sides of the
+equations are evaluated and used to update the values of the
+corresponding left-hand side variables in the model data.
+
+If the equation is a stochastic equation (a \code{frml} equation)
+and the corresponding endogenous variable has been fixed,
+then the constant adjustment of the equation will be calculated
+such that the result of the equation equals the predetermined required
+value for the left-hand side.
 
 The names of the equations to be run can be specified with argument
 \code{names} or \code{pattern}. These arguments cannot be specified both.
@@ -19,8 +24,8 @@ then all active model equations are run.
 
 \preformatted{
 mdl$run_eqn(pattern, names, period = mdl$get_data_period(),
-            solve_order, forwards = TRUE,
-            update_mode = c("upd", "updval"))
+            solve_order, forwards = TRUE, update_mode = c("upd", "updval"),
+            per_period = FALSE)
 
 }
 
@@ -42,8 +47,14 @@ A logical: should the specified equations be run in solve order?
 The default value depends on whether argument \code{names} has been
 specified: \code{FALSE} if \code{names} has been specified and otherwise \code{TRUE}.
 See Section Equation Order}
-\item{\code{forwards}}{A logical indicating whether each equation is run
-forwards or backwards in time. See Section Forwards and Backwards.}
+\item{\code{per_period}}{A logical (default \code{FALSE}).
+If \code{TRUE}, all equations are first solved for the first period, then all
+equations for the second period, and so on. If \code{per_period} is \code{FALSE},
+the first equation if evaluated for all periods, then the second equation is solved
+for all periods, and so on.}
+\item{\code{forwards}}{A logical indicating whether the equations
+are evaluated forwards or backwards in time.
+See Section Forwards and Backwards.}
 \item{\code{update_mode}}{This argument specifies whether the model data
 should be updated with the result of running an equation
 if the result is an invalid number (\code{NA}). If \code{update_mode = "upd"}
@@ -75,22 +86,12 @@ specified and \code{TRUE} in other cases.
 \section{Forwards and Backwards}{
 
 
-By default, the equations are run forwards in time: the equation is
+By default, the equations are run forwards in time: the equations are
 first evaluated at the first period of the specified period range,
-then the second period, and so on.
+then at the second period, and so on.
 If argument \code{forwards = FALSE}, the equation is run backwards:
 first at the last period of the specified period range,
 then at the last but one period, and so on.
-}
-
-\section{Fixed equations}{
-
-
-If the equation is a stochastic equation (a \code{frml} equation)
-and the corresponding endogenous variable has been fixed,
-then the constant adjustment for the equation will be calculated
-such that the result of the equation equals the predetermined required
-value for the left-hand side.
 }
 
 \examples{
@@ -101,8 +102,12 @@ mdl$run_eqn(names = c("c", "t"))
 mdl$run_eqn(pattern = "^y")
 
 # run all model equations in the order of the equations as specified
-# in the mdl file.
+# in the mdl file
 mdl$run_eqn(solve_order = FALSE)
+
+# emulate a single pass through the model
+# note that we use per_period = TRUE
+mdl$run_eqn(period = mdl$get_period(), per_period = TRUE)
 }
 \seealso{
 \code{\link{solve}} and  \code{\link{fill_mdl_data}}.

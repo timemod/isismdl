@@ -77,10 +77,10 @@ extern void F77_NAME(remove_mws_fortran)(int *model_index);
 extern void F77_NAME(set_dbgeqn_fortran)(int *model_index, int *dbgeqn);	
 extern int F77_NAME(get_dbgeqn_fortran)(int *model_index);	
 extern void F77_NAME(run_eqn_fortran)(int *model_index, int *neq, int *eqnums,
-                                       int *jtb, int *jte, int *updval_);	
+                                       int *jtb, int *jte, int *updval_,
+                                       int *per_period_);	
 extern int F77_NAME(get_jc_fortran)(int * model_index);	
 extern void F77_NAME(set_jc_fortran)(int *model_index, int *jc);
-extern void F77_NAME(mdlpas_fortran)(int *model_index, int *jtb, int *jte);
 extern void F77_NAME(clear_fit_fortran)(int *model_index);
 extern void F77_NAME(clear_fix_fortran)(int *model_index);
 extern int F77_NAME(clone_mws_fortran)(int *model_index);
@@ -870,13 +870,16 @@ SEXP get_dbgeqn_c(SEXP model_index_) {
     return(ScalarLogical(dbgeqn));
 }
 
-SEXP run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_, SEXP updval__) {
+SEXP run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_, 
+               SEXP updval__, SEXP per_period__) {
     int model_index = asInteger(model_index_);
     int jtb = asInteger(jtb_);
     int jte = asInteger(jte_);
     int updval_ = asInteger(updval__);
+    int per_period_ = asInteger(per_period__);
     int neq = length(eqnums);
-    F77_CALL(run_eqn_fortran)(&model_index, &neq, INTEGER(eqnums), &jtb, &jte, &updval_);
+    F77_CALL(run_eqn_fortran)(&model_index, &neq, INTEGER(eqnums), &jtb, &jte, 
+             &updval_, &per_period_);
     return R_NilValue;
 }
 
@@ -891,14 +894,6 @@ SEXP get_jc_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     int jc = F77_CALL(get_jc_fortran)(&model_index);	
     return(ScalarInteger(jc));
-}
-
-SEXP mdlpas_c(SEXP model_index_, SEXP jtb_, SEXP jte_) {
-    int model_index = asInteger(model_index_);
-    int jtb = asInteger(jtb_);
-    int jte = asInteger(jte_);
-    F77_CALL(mdlpas_fortran)(&model_index, &jtb, &jte);
-    return R_NilValue;
 }
 
 SEXP clear_fit_c(SEXP model_index_) {

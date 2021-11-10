@@ -37,18 +37,18 @@ All arguments below expect a numerical value unless mentioned otherwise.
 \code{"backward"} or \code{"static"}). \code{"auto"} is the default.
 See section "Solution modes" below}
 \item{\code{fbstart}}{a character string specifying
-the method of initialising feedback values.
+the method of initializing feedback values.
 (\code{"current"}, \code{"previous"}, \code{"curifok"} or \code{"previfok"}).
-The default is \code{"current"}. See section "Feedback initialisation
+The default is \code{"current"}. See section "Feedback initialization
 methods" below}
 \item{\code{maxiter}}{the maximum number of iterations per period (default 50)}
-\item{\code{maxjacupd}}{the maximum number of Newton jacobian updates per period
+\item{\code{maxjacupd}}{the maximum number of Newton Jacobian updates per period
 (default 10)}
 \item{\code{rlxspeed}}{Newton relaxation shrinkage (default is 0.5)}
 \item{\code{rlxmin}}{Minimum Newton relaxation factor (default is 0.05)}
 \item{\code{rlxmax}}{Maximum Newton relaxation factor (default is 1.0)}
 \item{\code{cstpbk}}{Stepback criterion (default is 1.3).
-If the convergence criterium \code{Fcrit} is larger
+If the convergence criterion \code{Fcrit} is larger
 than \code{cstpbk} or invalid feedback variables
 have been obtained then the Newton step
 is not accepted and linesearching will be initiated.
@@ -57,20 +57,20 @@ If the linesearching procedure failed
 after the maximum number of linesearch steps \code{bktmax}
 has been reached or if the relaxation
 factor has become smaller than \code{rlxmin}),
-a new jacobian matrix is computed.
+a new Jacobean matrix is computed.
 In each linesearch step the current relaxation factor is shrunk by
 \code{rspeed}.
 The relaxation factor is set to its maximum value
-\code{rlxmax}) when a new jacobian has been calculated.
+\code{rlxmax}) when a new Jacobian has been calculated.
 }
 \item{\code{cnmtrx}}{Recalculate matrix criterion (default is 0.9).
-If the convergence criterium \code{Fcrit} is larger
+If the convergence criterion \code{Fcrit} is larger
 than \code{cnmtrx} but smaller than \code{cstpbk},
-the Newton step is accepted but a new jacobian is computed
+the Newton step is accepted but a new Jacobian is computed
 and the relaxation factor is set to its maximum value
 \code{rlxmax}.
-The new jacobian is used in the next step. However, the
-jacobian will not be recalculated if the number of jacobian updates
+The new Jacobian is used in the next step. However, the
+Jacobian will not be recalculated if the number of Jacobian updates
 in a period is larger than \code{maxjacupd}}
 \item{\code{xrelax}}{Rational expectations relaxation factor (default is 1)}
 \item{\code{xmaxiter}}{Maximum number of rational expectation iterations
@@ -105,10 +105,10 @@ See Section "Ratex report options" below.}
 the Fair-Taylor full report repetition count. See Section
 "Ratex report options" below.}
 \item{\code{bktmax}}{Maximum number of backtracking linesearch steps
-with old jacobian. Sometimes it is necessary for the Broyden
+with old Jacobian. Sometimes it is necessary for the Broyden
 method to take a shorter step than the standard step. This is called
 backtracking linesearch. \code{bktmax} is the maximum number of
-line search steps before a new jacobian is computed.}
+line search steps before a new Jacobian is computed.}
 \item{\code{xtfac}}{Rational expectations convergence test multiplier
 When using the \code{"ratex"} solution mode,
 convergence of endogenous leads cannot be tested to the accuracy used in
@@ -120,14 +120,14 @@ and assume a value of 10 for the multiplier.
 Then its endogenous lead will be regarded as converged.}
 \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
 parameter.
-If the inverse condition of the jacobian is smaller than this parameter,
-then an SVD analysis of the jacobian is performed. This may help to
-find the equations that cause (near) singularity of the jacobian.
+If the inverse condition of the Jacobian is smaller than this parameter,
+then an SVD analysis of the Jacobian is performed. This may help to
+find the equations that cause (near) singularity of the Jacobian.
 The default value is \code{-1}, which implies that the SVD test is never
 performed. Specify a number between 0 and 1 to enable an SVD analysis depending
-on the inverse condition of the jacobian.
-When this option has been specified a copy of the jacobian is kept in memory,
-even if the jacobian is not ill-conditioned.
+on the inverse condition of the Jacobian.
+When this option has been specified a copy of the Jacobian is kept in memory,
+even if the Jacobian is not ill-conditioned.
 This option should therefore only be used during testing. It should be turned
 off in production calculations.}
 }
@@ -169,7 +169,7 @@ default; this is a Fair-Taylor algorithm.
 The default is \code{"auto"}.
 }
 
-\section{Feedback initialisation methods}{
+\section{Feedback initialization methods}{
 
 
 Argument \code{fbstart} can be used to specify
@@ -204,22 +204,22 @@ options for debugging.  Possible values are
 \describe{
 \item{\code{"prifb"}}{print feedback variables at each iteration}
 \item{\code{"prild"}}{print all leads at each ratex iteration}
-\item{\code{"prijac"}}{print jacobian matrix when updated}
+\item{\code{"prijac"}}{print Jacobian matrix when updated}
 \item{\code{"prinoconv"}}{print all not converged endogenous variables}
 \item{\code{"prinotconvl"}}{print all not converged leads}
 \item{\code{"allinfo"}}{all of the above}
 \item{\code{"noprifb"}}{do not print feedback variables at each iteration}
 \item{\code{"noprild"}}{do not print all leads at each ratex iteration}
-\item{\code{"noprijac"}}{do not print jacobian matrix when updated}
+\item{\code{"noprijac"}}{do not print Jacobian matrix when updated}
 \item{\code{"noprinoconv"}}{print only the largest discrepancy of
 all not converged endogenous variables}
 \item{\code{"noprinotconvl"}}{print only the largest discrepancy of
 all not converged leads}
 \item{\code{"noinfo"}}{no debugging output}
 \item{\code{"priscal"}}{print scaling factors as determined from the
-jacobian}
+Jacobian}
 \item{\code{nopriscal}}{do not print scaling factors as determined
-from the jacobian}
+from the Jacobian}
 }
 Default is no printing of debugging information.
 }
@@ -228,7 +228,7 @@ Default is no printing of debugging information.
 
 
 The type of report is determined by argument \code{ratreport}.
-Arguments \code{ratreport_rep} (the report repetion count)
+Arguments \code{ratreport_rep} (the report repetition count)
 and \code{ratfullreport_rep} (the full report repetition count),
 both specified as integer numbers,
 can be used to further modify the progress report.
@@ -236,13 +236,13 @@ can be used to further modify the progress report.
 Possible values for \code{ratreport} are
 \describe{
 \item{\code{"iter"}}{print the number of not converged
-expectation values every \code{ratreport_rep} Fair Taylor iteration
+expectation values every \code{ratreport_rep} Fair-Taylor iteration
 (the default)}
 \item{\code{"fullrep"}}{full report. The number of not converged
-expectation values is printed every \code{ratreport_rep} Fair Taylor
+expectation values is printed every \code{ratreport_rep} Fair-Taylor
 iteration and the largest remaining discrepancy every
-\code{ratfullreport_rep} Fair Taylor iteration}
-\item{\code{"minimal"}}{for a full report only after the last Fair Taylor
+\code{ratfullreport_rep} Fair-Taylor iteration}
+\item{\code{"minimal"}}{for a full report only after the last Fair-Taylor
 iteration}
 }
 

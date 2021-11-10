@@ -154,46 +154,46 @@ subroutine get_rms_fortran(model_index, values)
 end subroutine get_rms_fortran
 
 
-! run all equations in the model starting a each time
-subroutine mdlpas_fortran(model_index, jtb, jte)
-    use modelworkspaces
-    use iso_c_binding
-    use msvars
-    use msslvq
-    integer(c_int), intent(in) :: model_index, jtb, jte
-
-    integer :: i, j, errflg, ieq
-
-    call msvarsinit(mws_array(model_index))
-        
-    do j = jtb, jte
-        do i = 1, mws_array(model_index)%mdl%neq 
-            ieq  = mws_array(model_index)%mdl%order(i)
-            if (ieq > 0) call solve_equation(ieq, .false., j, j, errflg)
-        enddo
-    end do
-end subroutine mdlpas_fortran
-
-subroutine run_eqn_fortran(model_index, neq, eqnums, jtb, jte, updval_)
+subroutine run_eqn_fortran(model_index, neq, eqnums, jtb, jte, updval_, &
+                           per_period_)
     use modelworkspaces
     use iso_c_binding
     use msvars
     use msslvq
     integer(c_int), intent(in) :: model_index, neq, jtb, jte
     integer(c_int), intent(in) :: eqnums(neq)
-    integer(c_int), intent(in) :: updval_
+    integer(c_int), intent(in) :: updval_, per_period_
     ! 
     ! run a number of equations
     !
-    integer :: ieq, errflg
-    logical :: updval
+    integer :: ieq, errflg, step, j
+    logical :: updval, per_period
     
     call msvarsinit(mws_array(model_index))
         
     updval = updval_ /= 0
-    do ieq = 1, neq
-        call solve_equation(eqnums(ieq), updval, jtb, jte, errflg)
-    end do
+    per_period = per_period_ /= 0
+
+    if (per_period) then 
+        ! the inner loop is over the equations
+        if (jte >= jtb) then
+            step = 1
+        else 
+            step = -1
+        endif
+        do j = jtb, jte, step
+            do ieq = 1, neq
+                call solve_equation(eqnums(ieq), updval, j, j, errflg)
+            enddo
+        end do
+    else
+        ! run each equation per_period for all periods.
+        ! the loop over the time is in function solve_equation
+        do ieq = 1, neq
+            call solve_equation(eqnums(ieq), updval, jtb, jte, errflg)
+        end do
+    endif
+
 end subroutine run_eqn_fortran
 
 subroutine solve_fortran(model_index, jtb, jte, opts_present, error)

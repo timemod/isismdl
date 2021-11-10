@@ -61,7 +61,7 @@ solve. If none are specified the solve options
 as specified with method \code{\link{set_solve_options}}
 are used.
 
-The solve procedure \emph{never} raizes an error, even if the solve was
+The solve procedure \emph{never} raises an error, even if the solve was
 not successful. In that case a warning may be issued. It is up to the user
 to perform any checks.
 Method \code{\link{get_solve_status}} can be used to check

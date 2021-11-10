@@ -1,7 +1,7 @@
 #' Creates an \code{\link{IsisMdl}} object from a model file.
 #'
 #' This function creates an \code{\link{IsisMdl}} object.
-#' A model as defined on an external ASCII file is parsed, analysed and
+#' A model as defined on an external ASCII file is parsed, analyzed and
 #' converted into an internal code. This internal code is used to evaluate
 #' the model equations.
 #'
@@ -41,7 +41,7 @@
 #'
 #' If the parser encounters errors in the model, these are written
 #' to a file with an extension \code{err}.
-#' All generated files have the same basename as the model file.
+#' All generated files have the same base name as the model file.
 #'
 #' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
@@ -148,8 +148,8 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   # compile_mdl_c writes intermediate results to a so called
   # mif file (model information file). These results are then
   # read by read_model. This strange situation is due to the history
-  # of package isismdl. Changing this behaviour is not trivial and requires a
-  # significant reorganisation of the code.
+  # of package isismdl. Changing this behavior is not trivial and requires a
+  # significant reorganization of the code.
 
   call_compile_mdl_c <-function() {
     with(parse_options_, {
@@ -167,7 +167,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   }
 
   if (!retval) {
-    stop("Compilation was not succesfull")
+    stop("Compilation was not successful")
   }
 
   # TODO: if the model contains preprocessor directives (#if, #include),

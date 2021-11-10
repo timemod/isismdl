@@ -66,7 +66,7 @@ for \code{"warn"} a warning is given and for \code{"stop"} an error is  issued.}
 If \code{data} has labels, then \code{set_data} will also update
 the labels of the corresponding model variables}
 \item{\code{set_ca}}{Set constant adjustments, i.e. the residuals of
-behavioural (frml) equations}
+behavioral (frml) equations}
 \item{\code{set_fix}}{Set fix values for frml variables
 (model variables that occur at the left hand side of a frml equation).
 The frml variable is kept fixed
