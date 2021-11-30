@@ -227,7 +227,7 @@ NULL
 #' # print all model parameter names
 #' print(mdl$get_par_names())
 #'
-#' # print names of model paramters with names starting with c
+#' # print names of model parameters with names starting with c
 #' print(mdl$get_par_names(pattern = "^c.*"))
 NULL
 
@@ -403,7 +403,7 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}}
-#' initializes the model variables and constant adjustmemts for the whole
+#' initializes the model variables and constant adjustments for the whole
 #' data period.
 #' The model timeseries are set to \code{NA} and the constant adjustments to
 #' zero.
@@ -506,7 +506,7 @@ NULL
 #' \describe{
 #' \item{\code{period}}{\code{\link[regts]{period_range}}
 #' object, or an object
-#' that can be coerced to \code{\link[regts]{period_range}}}.
+#' that can be coerced to \code{\link[regts]{period_range}}}
 #' \item{\code{options}}{a named list with solve options,
 #' for example \code{list(maxiter = 50)}.
 #' The names are the corresponding argument names of
@@ -565,7 +565,7 @@ NULL
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the status
 #' of the last model solve as a  text string. If the last model solve
-#' was succesfull, it returns the string \code{"OK"}.
+#' was successful, it returns the string \code{"OK"}.
 #'
 
 #' @section Usage:
@@ -587,8 +587,8 @@ NULL
 #'  * \code{"Initial lags/leads missing/invalid. Simulation not possible"}
 #'  * \code{"Invalid parameter values detected. Simulation not possible"}
 #'  * \code{"Fair-Taylor has not converged"}
-#'  * \code{"Out of memory. Simulation not succesfull"}
-#'  * \code{"Unknown problem in solve. Simulation not succesfull"}
+#'  * \code{"Out of memory. Simulation not successful"}
+#'  * \code{"Unknown problem in solve. Simulation not successful"}
 #'
 #' @seealso \code{\link{solve}}
 #' @examples
@@ -644,6 +644,7 @@ NULL
 #' \item{\code{no}}{to not generate a report}
 #' }
 #'
+#' @seealso \code{\link{run_eqn}}.
 #'
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
@@ -658,21 +659,27 @@ NULL
 #' @name run_eqn
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}}
-#' runs specific equations of the model separately.
-#' Each specified equation is run separately for the specified period.
+#' This method of R6 class \code{\link{IsisMdl}} runs specific equations of the
+#' model separately for the specified period range. The right-hand sides of the
+#' equations are evaluated and used to update the values of the
+#' corresponding left-hand side variables in the model data.
+#'
 #' If the equation is a stochastic equation (a \code{frml} equation)
 #' and the corresponding endogenous variable has been fixed,
-#' then the constant adjustment for the equation will be calculated
+#' then the constant adjustment of the equation will be calculated
 #' such that the result of the equation equals the predetermined required
 #' value for the left-hand side.
 #'
-#' If neither argument \code{pattern} nor \code{names} have been specified,
-#' then all active model equations are run in solve order.
+#' The names of the equations to be run can be specified with argument
+#' `names` or `pattern`. These arguments cannot be specified both.
+#' If neither argument \code{pattern} nor \code{names} has been specified,
+#' then all active model equations are run.
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$run_eqn(pattern, names, period = mdl$get_data_period())
+#' mdl$run_eqn(pattern, names, period = mdl$get_data_period(),
+#'             solve_order, forwards = TRUE, update_mode = c("upd", "updval"),
+#'             per_period = FALSE)
 #'
 #' }
 #'
@@ -682,27 +689,85 @@ NULL
 #'
 #' \describe{
 #' \item{\code{pattern}}{a regular expression. Equations with names
-#' matching the regular expression are run in solve order.}
-#' \item{\code{names}}{a character vector with equation names. The
-#' corresponding equations are solved in the order as they are
-#' specified.}
-#' \item{\code{period}}{a \code{\link[regts]{period_range}} object}
+#' matching the regular expression are run.}
+#' \item{\code{names}}{a character vector with equation names}
+#' \item{\code{period}}{a \code{\link[regts]{period_range}} object
+#' or a single \code{\link[regts]{period}} specifying the period range.
+#' By default the equation are run for the whole data period.}
+#' \item{\code{solve_order}}{
+#' A logical: should the specified equations be run in solve order?
+#' The default value depends on whether argument `names` has been
+#' specified: `FALSE` if `names` has been specified and otherwise `TRUE`.
+#' See Section Equation Order.}
+#' \item{\code{forwards}}{A logical indicating whether the equations
+#' are evaluated forwards or backwards in time.
+#' See Section Forwards and Backwards.}
+#' \item{\code{update_mode}}{This argument specifies whether the model data
+#' should be updated with the result of running an equation
+#' if the result is an invalid number (`NA`). If `update_mode = "upd"`
+#' (the default), the model data is always updated with the result.
+#' If `update_mode = "updval"`, the model data is only updated if the
+#' result is not `NA`.}
+#' #' \item{\code{per_period}}{A logical (default `FALSE`).
+#' If `TRUE`, all equations are first evaluated at the first period, then all
+#' equations at the second period, and so on. If `per_period` is `FALSE`,
+#' the first equation is first evaluated for all periods, then the second equation is solved
+#' for all periods, and so on.}
 #' }
 #'
+#' Only one of the two arguments `pattern` and `names` can be specified.
+#'
+#' @section Equation order:
+#'
+#' If argument `solve_order = TRUE`, the specified equations
+#' are run in solve order, i.e. the order used when solving the model.
+#' If `solve_order = FALSE`, the order depends on whether argument `names`
+#' is specified:
+#'   * If argument `names` has been specified, the equations are run
+#' in the same order as the specified names.
+#'   *  Otherwise the equations are run using the 'natural order',
+#' i.e. the order of the equations as defined in the model file.
+#' The default of argument `solve_order` is `FALSE` if `names` has been
+#' specified and `TRUE` in other cases.
+#'
+#' @section Forwards and Backwards:
+#'
+#' By default, the equations are run forwards in time: the equations are
+#' first evaluated at the first period of the specified period range,
+#' then at the second period, and so on.
+#' If argument `forwards = FALSE`, the equations are run backwards:
+#' first at the last period of the specified period range,
+#' then at the last but one period, and so on.
+
+
+#'
+#' @seealso \code{\link{solve}} and  \code{\link{fill_mdl_data}}.
+#
 #' @examples
 #' mdl <- islm_mdl("2017Q1/2019Q3")
 #' mdl$run_eqn(names = c("c", "t"))
+#'
+#' # run all equations with names starting with y
+#' mdl$run_eqn(pattern = "^y")
+#'
+#' # run all model equations in the order of the equations as specified
+#' # in the mdl file
+#' mdl$run_eqn(solve_order = FALSE)
+#'
+#' # emulate a single pass through the model
+#' # note that we use per_period = TRUE
+#' mdl$run_eqn(period = mdl$get_period(), per_period = TRUE)
 NULL
 
 
 #' \code{\link{IsisMdl}} methods: Retrieve timeseries from the model data,
-#' constant adjusments, fix values or fit targets
+#' constant adjustments, fix values or fit targets
 #' @name get_data-methods
 #' @aliases get_data get_ca get_fix get_fit
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}}
 #' can be used to retrieve timeseries from the model data,
-#' constant adjusments, fix values or fit targets.
+#' constant adjustments, fix values or fit targets.
 #'
 #' @section Usage:
 #' \preformatted{
@@ -755,18 +820,16 @@ NULL
 #'
 #' print(mdl$get_data(pattern = "^ymdl"))
 #'
-#' @seealso \code{\link{set_data-methods}}, \code{\link{set_values-methods}}
-#' and \code{\link{change_data-methods}}
 NULL
 
 #' \code{\link{IsisMdl}} methods: transfers data from a timeseries
-#' object to the model data, constant adjusments, fix values or fit targets.
+#' object to the model data, constant adjustments, fix values or fit targets.
 #' @name set_data-methods
 #' @aliases set_data set_ca set_fix set_fit
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}}
 #' Transfers data from a timeseries object to the model data,
-#' constant adjusments, fix values or fit targets.
+#' constant adjustments, fix values or fit targets.
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_data(data, names = colnames(data), upd_mode = c("upd", "updval"),
@@ -814,7 +877,7 @@ NULL
 #' If \code{data} has labels, then \code{set_data} will also update
 #' the labels of the corresponding model variables}
 #' \item{\code{set_ca}}{Set constant adjustments, i.e. the residuals of
-#' behavourial (frml) equations}
+#' behavioral (frml) equations}
 #' \item{\code{set_fix}}{Set fix values for frml variables
 #' (model variables that occur at the left hand side of a frml equation).
 #' The frml variable is kept fixed
@@ -895,7 +958,7 @@ NULL
 #' @aliases set_values set_ca_values set_fix_values set_fit_values
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}}
-#' can be used to set the values of the model data, constant adjusments,
+#' can be used to set the values of the model data, constant adjustments,
 #' fix values or fit targets.
 #'
 #' @section Usage:
@@ -937,7 +1000,7 @@ NULL
 #' \describe{
 #' \item{\code{set_values}}{Sets the values of model data.}
 #' \item{\code{set_ca_values}}{Sets the values of the  constant adjustments, i.e. the
-#' residuals of behavourial (frml) equations.}
+#' residuals of 0 (frml) equations.}
 #' \item{\code{set_fix_values}}{Set fix values for the stochastic
 #' model variables (i.e. model variables that occur at the left
 #' hand side of a frml equation). The model variables will be fixed
@@ -1057,7 +1120,7 @@ NULL
 #' Methods `set_rms` and `set_rms_values` of R6 class \code{\link{IsisMdl}}
 #' can be used to set the root mean square (rms) error values
 #' used in the fit procedure.
-#' Each frml equation has a constant adjustment and a correpsonding rms value.
+#' Each frml equation has a constant adjustment and a corresponding rms value.
 #' If the rms value is larger than 0 and not \code{NA}, then the constant
 #' adjustment is used as a fit instruments.
 #'
@@ -1152,18 +1215,18 @@ NULL
 #' \code{"backward"} or \code{"static"}). \code{"auto"} is the default.
 #' See section "Solution modes" below}
 #' \item{\code{fbstart}}{a character string specifying
-#' the method of initialising feedback values.
+#' the method of initializing feedback values.
 #' (\code{"current"}, \code{"previous"}, \code{"curifok"} or \code{"previfok"}).
-#' The default is \code{"current"}. See section "Feedback initialisation
+#' The default is \code{"current"}. See section "Feedback initialization
 #' methods" below}
 #' \item{\code{maxiter}}{the maximum number of iterations per period (default 50)}
-#' \item{\code{maxjacupd}}{the maximum number of Newton jacobian updates per period
+#' \item{\code{maxjacupd}}{the maximum number of Newton Jacobian updates per period
 #'  (default 10)}
 #'  \item{\code{rlxspeed}}{Newton relaxation shrinkage (default is 0.5)}
 #'  \item{\code{rlxmin}}{Minimum Newton relaxation factor (default is 0.05)}
 #'  \item{\code{rlxmax}}{Maximum Newton relaxation factor (default is 1.0)}
 #'  \item{\code{cstpbk}}{Stepback criterion (default is 1.3).
-#' If the convergence criterium \code{Fcrit} is larger
+#' If the convergence criterion \code{Fcrit} is larger
 #' than \code{cstpbk} or invalid feedback variables
 #' have been obtained then the Newton step
 #' is not accepted and linesearching will be initiated.
@@ -1172,20 +1235,20 @@ NULL
 #' after the maximum number of linesearch steps \code{bktmax}
 #' has been reached or if the relaxation
 #' factor has become smaller than \code{rlxmin}),
-#' a new jacobian matrix is computed.
+#' a new Jacobean matrix is computed.
 #' In each linesearch step the current relaxation factor is shrunk by
 #' \code{rspeed}.
 #' The relaxation factor is set to its maximum value
-#' \code{rlxmax}) when a new jacobian has been calculated.
+#' \code{rlxmax}) when a new Jacobian has been calculated.
 #' }
 #'  \item{\code{cnmtrx}}{Recalculate matrix criterion (default is 0.9).
-#' If the convergence criterium \code{Fcrit} is larger
+#' If the convergence criterion \code{Fcrit} is larger
 #' than \code{cnmtrx} but smaller than \code{cstpbk},
-#' the Newton step is accepted but a new jacobian is computed
+#' the Newton step is accepted but a new Jacobian is computed
 #' and the relaxation factor is set to its maximum value
 #' \code{rlxmax}.
-#' The new jacobian is used in the next step. However, the
-#' jacobian will not be recalculated if the number of jacobian updates
+#' The new Jacobian is used in the next step. However, the
+#' Jacobian will not be recalculated if the number of Jacobian updates
 #' in a period is larger than \code{maxjacupd}}
 #'  \item{\code{xrelax}}{Rational expectations relaxation factor (default is 1)}
 #'  \item{\code{xmaxiter}}{Maximum number of rational expectation iterations
@@ -1220,10 +1283,10 @@ NULL
 #' the Fair-Taylor full report repetition count. See Section
 #' "Ratex report options" below.}
 #' \item{\code{bktmax}}{Maximum number of backtracking linesearch steps
-#' with old jacobian. Sometimes it is necessary for the Broyden
+#' with old Jacobian. Sometimes it is necessary for the Broyden
 #' method to take a shorter step than the standard step. This is called
 #' backtracking linesearch. \code{bktmax} is the maximum number of
-#' line search steps before a new jacobian is computed.}
+#' line search steps before a new Jacobian is computed.}
 #' \item{\code{xtfac}}{Rational expectations convergence test multiplier
 #' When using the \code{"ratex"} solution mode,
 #' convergence of endogenous leads cannot be tested to the accuracy used in
@@ -1235,14 +1298,14 @@ NULL
 #' Then its endogenous lead will be regarded as converged.}
 #' \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
 #' parameter.
-#' If the inverse condition of the jacobian is smaller than this parameter,
-#' then an SVD analysis of the jacobian is performed. This may help to
-#' find the equations that cause (near) singularity of the jacobian.
+#' If the inverse condition of the Jacobian is smaller than this parameter,
+#' then an SVD analysis of the Jacobian is performed. This may help to
+#' find the equations that cause (near) singularity of the Jacobian.
 #' The default value is \code{-1}, which implies that the SVD test is never
 #' performed. Specify a number between 0 and 1 to enable an SVD analysis depending
-#' on the inverse condition of the jacobian.
-#' When this option has been specified a copy of the jacobian is kept in memory,
-#' even if the jacobian is not ill-conditioned.
+#' on the inverse condition of the Jacobian.
+#' When this option has been specified a copy of the Jacobian is kept in memory,
+#' even if the Jacobian is not ill-conditioned.
 #' This option should therefore only be used during testing. It should be turned
 #' off in production calculations.}
 #' }
@@ -1281,12 +1344,12 @@ NULL
 #'
 #' The default is \code{"auto"}.
 #'
-#' @section Feedback initialisation methods:
+#' @section Feedback initialization methods:
 #'
 #' Argument \code{fbstart} can be used to specify
 #' the way how the feedback variables at the current period
 #' (i.e. the period for which the model is being solved)
-#' are initialised from the model data.
+#' are initialized from the model data.
 #' Possible values of \code{fbstart} are:
 #' \describe{
 #' \item{\code{"current"}}{the initial values are always taken from the
@@ -1313,43 +1376,43 @@ NULL
 #' \describe{
 #' \item{\code{"prifb"}}{print feedback variables at each iteration}
 #' \item{\code{"prild"}}{print all leads at each ratex iteration}
-#' \item{\code{"prijac"}}{print jacobian matrix when updated}
+#' \item{\code{"prijac"}}{print Jacobian matrix when updated}
 #' \item{\code{"prinoconv"}}{print all not converged endogenous variables}
 #' \item{\code{"prinotconvl"}}{print all not converged leads}
 #' \item{\code{"allinfo"}}{all of the above}
 #' \item{\code{"noprifb"}}{do not print feedback variables at each iteration}
 #' \item{\code{"noprild"}}{do not print all leads at each ratex iteration}
-#' \item{\code{"noprijac"}}{do not print jacobian matrix when updated}
+#' \item{\code{"noprijac"}}{do not print Jacobian matrix when updated}
 #' \item{\code{"noprinoconv"}}{print only the largest discrepancy of
 #' all not converged endogenous variables}
 #' \item{\code{"noprinotconvl"}}{print only the largest discrepancy of
 #' all not converged leads}
 #' \item{\code{"noinfo"}}{no debugging output}
 #' \item{\code{"priscal"}}{print scaling factors as determined from the
-#' jacobian}
+#' Jacobian}
 #' \item{\code{nopriscal}}{do not print scaling factors as determined
-#' from the jacobian}
+#' from the Jacobian}
 #' }
 #' Default is no printing of debugging information.
 
 #' @section Ratex report options:
 #'
 #' The type of report is determined by argument \code{ratreport}.
-#' Arguments \code{ratreport_rep} (the report repetion count)
+#' Arguments \code{ratreport_rep} (the report repetition count)
 #' and \code{ratfullreport_rep} (the full report repetition count),
 #' both specified as integer numbers,
-#' can be used to futher modify the progress report.
+#' can be used to further modify the progress report.
 #'
 #' Possible values for \code{ratreport} are
 #' \describe{
 #' \item{\code{"iter"}}{print the number of not converged
-#' expectation values every \code{ratreport_rep} Fair Taylor iteration
+#' expectation values every \code{ratreport_rep} Fair-Taylor iteration
 #' (the default)}
 #' \item{\code{"fullrep"}}{full report. The number of not converged
-#' expectation values is printed every \code{ratreport_rep} Fair Taylor
+#' expectation values is printed every \code{ratreport_rep} Fair-Taylor
 #'  iteration and the largest remaining discrepancy every
-#' \code{ratfullreport_rep} Fair Taylor iteration}
-#' \item{\code{"minimal"}}{for a full report only after the last Fair Taylor
+#' \code{ratfullreport_rep} Fair-Taylor iteration}
+#' \item{\code{"minimal"}}{for a full report only after the last Fair-Taylor
 #' iteration}
 #' }
 #'
@@ -1399,10 +1462,10 @@ NULL
 #' The default value is 100 times the square root of
 #' the machine precision (\code{100 * sqrt(.Machine$double.eps)}),
 #' which is typically \code{1.5e-6}.}
-#' \item{\code{mkdcrt}}{Criterion for calculating a new fit jacobian.
+#' \item{\code{mkdcrt}}{Criterion for calculating a new fit Jacobian.
 #' When the ratio of two successive largest scaled discrepancies of
 #' the fit target values is
-#' larger than \code{mkdcrt} a new fit jacobian will be calculated
+#' larger than \code{mkdcrt} a new fit Jacobian will be calculated
 #' in the next iteration. Any value specified must lie between 0.05
 #' and 0.95. The default value is 0.5.}
 #' \item{\code{cvgrel}}{Criterion for accepting the result of a fit
@@ -1410,30 +1473,30 @@ NULL
 #' When the ratio of two successive largest scaled discrepancies of
 #' the fit target values is
 #' larger than \code{cvgrel},  then the result of the iteration is rejected.
-#' If the iteration employed an old fit jacobian (i.e. a jacobian
+#' If the iteration employed an old fit Jacobian (i.e. a Jacobian
 #' computed in  an earlier iteration), then a second attempt with
-#' a  new jacobian is made. If the iteration already used a new
-#' jacobian, then the fit procedure will be terminated.}
+#' a  new Jacobian is made. If the iteration already used a new
+#' Jacobian, then the fit procedure will be terminated.}
 #' \item{\code{zero_ca}}{A logical. If \code{TRUE}, then the initial values
-#' of the constant adjustments used in the fit procedure are initialised to 0.
+#' of the constant adjustments used in the fit procedure are initialized to 0.
 #' The default is \code{FALSE}}
 #' \item{\code{warn_ca}}{A logical. If \code{TRUE} (default), then warnings
 #' are given for possibly too large constant adjustments at the end of the fit
 #' procedure for each period.}
 #' \item{\code{accurate_jac}}{A logical. If \code{TRUE} (default), then the
-#' fit jacobian is calculated accurately, otherwise the jacobian
+#' fit Jacobian is calculated accurately, otherwise the Jacobian
 #' is calculated approximately. See Details.}
 #' \item{\code{zealous}}{A logical. If \code{TRUE} (default), then a zealous
 #' version of the fit procedure is used (see section The Zealous and Lazy Fit Method),
 #' otherwise a lazy version is used.
 #' The recommended option is to use the zealous version,
 #' although this may require much more CPU time.}
-#' \item{\code{scale_method}}{The scaling method for the fit jacobian.
+#' \item{\code{scale_method}}{The scaling method for the fit Jacobian.
 #' Possible values are `"row"` (row scaling, the default), and `"none"` (no scaling).
 #' See Section "Row Scaling".}
 #' \item{\code{warn_zero_row}}{A logical (default `FALSE`). If `TRUE`, then a
-#' warning is issued for each row of the fit jacobian for which all values are
-#' almost equal to zero. A row of the fit jacobian contains the derivatives
+#' warning is issued for each row of the fit Jacobian for which all values are
+#' almost equal to zero. A row of the fit Jacobian contains the derivatives
 #' of a fit targets with respect to the residuals. A row is considered
 #' almost zero if the L1-norm of that row is smaller than a fraction \eqn{\epsilon} of
 #' the largest L1-norm of the rows. \eqn{\epsilon} is the square root of
@@ -1444,11 +1507,11 @@ NULL
 #' possible and therefore an message is always issued,
 #' even if `warn_zero_row = FALSE`.}
 #' \item{\code{warn_zero_col}}{A logical (default `FALSE`). IF `TRUE`, then a
-#' warning is issued for each column of the fit jacobian for which all values are
-#' almost or exactly equal to zero. A column of the fit jacobian contains the derivatives
+#' warning is issued for each column of the fit Jacobian for which all values are
+#' almost or exactly equal to zero. A column of the fit Jacobian contains the derivatives
 #' of all fit targets with respect to one particular residual. A columns is considered
 #' almost zero if the L1-norm of that column is smaller than a fraction
-#' \eqn{\epsilon} of the larget L1-norm of the columns. \eqn{\epsilon} is the
+#' \eqn{\epsilon} of the largest L1-norm of the columns. \eqn{\epsilon} is the
 #' square root of the machine precision (typically \code{1.5e-8}).
 #' A column that is (almost) zero is not necessarily problematic, except when
 #' the number of non-zero columns is smaller than the number of rows (the number
@@ -1457,11 +1520,11 @@ NULL
 #' rows and the number of columns, then the fit procedure is not possible. Therefore
 #' a message about zero columns is always given in that case.}
 #' \item{\code{chkjac}}{A logical. If `TRUE` (the default), then the fit
-#' method is terminated when the inverse condition of the fit jacobian
+#' method is terminated when the inverse condition of the fit Jacobian
 #' is smaller than the square root of the machine precision
 #' (typically \code{1.5e-8}).
 #' When a model is badly scaled, the inverse condition number of the
-#' jacobian may become small, which can lead to inaccurate or even unstable
+#' Jacobian may become small, which can lead to inaccurate or even unstable
 #' solutions. If `FALSE`, the fit procedure is only terminated when the
 #' inverse condition is exactly zero.}
 #' \item{\code{report}}{A character string specifying the the
@@ -1475,14 +1538,14 @@ NULL
 #' parameter. The default value for argument `svdtest_tol` is \code{-1},
 #' which implies that the SVD test is never performed.
 #' Specify a number between 0 and 1
-#' to enable an SVD analysis, depending on the inverse condition of the jacobian.
+#' to enable an SVD analysis, depending on the inverse condition of the Jacobian.
 #' See section "SVD Analysis'.
 #' If scaling has been applied (see argument `scale_method`), then the SVD
-#' analysis is performed for the scaled jacobian.
+#' analysis is performed for the scaled Jacobian.
 #' Sometimes it is easier to interpret the result of the SVD analysis by turning
 #' off row scaling.
-#' When this option has been specified, a copy of the fit jacobian is kept in memory,
-#' even if the jacobian is not ill-conditioned.
+#' When this option has been specified, a copy of the fit Jacobian is kept in memory,
+#' even if the Jacobian is not ill-conditioned.
 #' For large models this option should therefore only be used during testing,
 #' and should be turned off in production calculations}
 #' }
@@ -1515,19 +1578,19 @@ NULL
 #' The scaled residuals \eqn{u_i} have been scaled with the root mean square
 #' values specified with procedures \code{\link{set_rms}}.
 #'
-#' The fit procedure linearises the relation \eqn{y=h(u)} and
+#' The fit procedure linearizes the relation \eqn{y=h(u)} and
 #' determines a minimum norm solution for \eqn{u} to the resulting set of
 #' linear equations after setting \eqn{y=w}.
 #' It uses the QR decomposition for numerical stability.
 #'
-#' The fit jacobian \eqn{D_{ij} = \partial h_i / \partial u_j} is calculated
+#' The fit Jacobian \eqn{D_{ij} = \partial h_i / \partial u_j} is calculated
 #' numerically by a first difference approach.
 #' The \eqn{j}'th column is calculated by giving residual \eqn{u_j} a small
 #' distortion and then solving the model again.
 #' For numerical efficiency the model is solved with a *single* iteration
 #' by default. This is usually a good approximation.
 #' Use argument `accurate_jac = TRUE` for a more accurate
-#' calculation of the fit jacobian. For this option the model is solved
+#' calculation of the fit Jacobian. For this option the model is solved
 #' until convergence has been reached.
 #'
 #' The criterion used for testing for convergence is the largest
@@ -1545,26 +1608,26 @@ NULL
 #' the machine precision, which is typically \code{1.5e-6}).
 #' If the zealous fit method is used (see Section The Zealous
 #' and Lazy Fit Method), we also require for convergence that
-#' the relative step size for all variables is smaller then \eqn{epilon}.
+#' the relative step size for all variables is smaller than \eqn{epsilon}.
 #'
-#' Since evaluating the jacobian of \eqn{h(u)} can be a time-consuming
-#' process, the jacobian of a previous iteration can sometimes be reused for
+#' Since evaluating the Jacobian of \eqn{h(u)} can be a time-consuming
+#' process, the Jacobian of a previous iteration can sometimes be reused for
 #' a next iteration.
 #' As long as \eqn{F_k \le \delta  F_{k-1}} where \eqn{0 < \delta < 0.95}
-#' the current jacobian will not be recalculated, except when the zealous
+#' the current Jacobian will not be recalculated, except when the zealous
 #' fit method is used and the the number
 #' of residuals is larger than the number of targets, see Section The Zealous
 #' and Lazy Fit Method.
 #' The default value for \eqn{\delta} is 0.5.
 #' When \eqn{F_k > 0.95 F_{k-1}}
-#' and the current jacobian is not
+#' and the current Jacobian is not
 #' up-to-date, the residuals will be reset to the values of the
-#' previous iteration and the jacobian will be recalculated.
-#' However if the current jacobian is up-to-date, the process will be
+#' previous iteration and the Jacobian will be recalculated.
+#' However if the current Jacobian is up-to-date, the process will be
 #' stopped with the message \code{Cannot locate a better point}.
 #'
 #' If the zealous fit method is used (see next paragraph), then
-#' a new jacobian is calculated every iteration when the number
+#' a new Jacobian is calculated every iteration when the number
 #' of residuals is larger than the number of targets (\eqn{m > n}).
 #'
 #' @section The Zealous and Lazy Fit Method:
@@ -1581,20 +1644,20 @@ NULL
 #' These relative changes are shown
 #' in the output as `Delsmx` (maximum step size in an iteration).
 #' The zealous fit procedure also uses an accurate calculation
-#' of the jacobian (see general description).
+#' of the Jacobian (see general description).
 #' If \eqn{m > n} (non-square fit problem), the zealous fit procedure
-#' also updates the fit jacobian every iteration,
-#' because for non-square fit problems the results depends on the jacobian.
+#' also updates the fit Jacobian every iteration,
+#' because for non-square fit problems the results depends on the Jacobian.
 #' For the square case \eqn{m = n} this is not necessary because the
-#' final results are independent on the jacobian.
+#' final results are independent on the Jacobian.
 #'
 #' @section Row scaling:
 #'
-#' As explained in section Details, the fit jacobian \eqn{D_{ij}} is a matrix
+#' As explained in section Details, the fit Jacobian \eqn{D_{ij}} is a matrix
 #' with the derivatives of the fit targets (\eqn{i}) with respect to the scaled
 #' residuals (\eqn{j}). If there are large scale differences between the
 #' fit targets, additional row scaling may improve the condition
-#' number of the fit jacobian.
+#' number of the fit Jacobian.
 #'
 #' The following procedure is
 #' used to determine if row scaling is necessary. For each row \eqn{i},
@@ -1602,7 +1665,7 @@ NULL
 #' if the ratio of the largest and smallest value of vector \eqn{R} is larger
 #' than 10, then all rows are scaled so that
 #' the largest absolute value in each row is 1. If the ratio is smaller than
-#' 10, the jacobian is not scaled.
+#' 10, the Jacobian is not scaled.
 #'
 #' Row scaling can be turned off by specifying argument `scale_method = "none"`.
 #'
@@ -1615,8 +1678,8 @@ NULL
 #' at each fit iteration.}
 #' \item{\code{noprica}}{do not print the constant adjustments values and changes
 #' at each fit iteration.}
-#' \item{\code{prijac}}{print the fit jacobian every time it is calculated.}
-#' \item{\code{noprijac}}{do not print the fit jacobian every time it is
+#' \item{\code{prijac}}{print the fit Jacobian every time it is calculated.}
+#' \item{\code{noprijac}}{do not print the fit Jacobian every time it is
 #' calculated.}
 #' \item{\code{supsot}}{to suppress all output of the normal solution process.}
 #' \item{\code{nosupsot}}{to not suppress all output of the normal solution
@@ -1626,12 +1689,12 @@ NULL
 #'
 #' @section SVD Analysis:
 #'
-#' If the inverse condition of the fit jacobian is exactly zero,
+#' If the inverse condition of the fit Jacobian is exactly zero,
 #' then it is impossible to solve the equations of the fit procedure,
 #' and the fit procedure is terminated. When the inverse condition
 #' is small but non-zero, the solution is often inaccurate or even unstable.
 #' In some cases the (near) singularity is caused by (almost) zero rows
-#' or columns of the fit jacobian.  It is also possible that
+#' or columns of the fit Jacobian.  It is also possible that
 #' some rows or columns are linearly dependent. The example below shows
 #' a case where the rows are dependent.
 #'
@@ -1641,8 +1704,8 @@ NULL
 #' enabled by specifying argument `svdtest_tol` of `set_fit_options`.
 #'
 #' The output of the SVD analysis are the left and right singular vectors of
-#' the jacobian. A left singular vector is a linear combination of the rows
-#' of the jacobian that is almost zero. A right singular vector is a linear
+#' the Jacobian. A left singular vector is a linear combination of the rows
+#' of the Jacobian that is almost zero. A right singular vector is a linear
 #' combination of the columns that is almost zero. An example for the ISLM model
 #' is shown below.
 #'
@@ -1663,7 +1726,7 @@ NULL
 #' ````
 #'
 #' We specify fit options so that the SVD analysis is performed and the
-#' fit jacobian is printed.
+#' fit Jacobian is printed.
 #' ```{r}
 #' mdl$set_fit_options(svdtest_tol = 1e-8, dbgopt = "prijac")
 #' ```
@@ -1671,7 +1734,7 @@ NULL
 #' Next solve the model. Because y and yd are related according to `y = yd - t`
 #' (`t` is also linearly related to `y`, so there is a linear relation between
 #' `y` and `yd`),
-#' the fit jacobian contains dependent rows.
+#' the fit Jacobian contains dependent rows.
 #' ```{r}
 #' mdl$solve()
 #' ```
@@ -1680,7 +1743,7 @@ NULL
 #'
 #' mdl <- islm_mdl("2020Q1")
 #'
-#' # print constant adjustment and jacobian  for each fit iteration
+#' # print constant adjustment and Jacobian  for each fit iteration
 #' mdl$set_fit_options(zealous = TRUE, dbgopt = c("prica", "prijac"))
 NULL
 
@@ -1759,16 +1822,16 @@ NULL
 #' print(mdl$get_cvgcrit())
 NULL
 
-#' \code{\link{IsisMdl}} method: Sets the Fair-Taylor relaxtion factors
+#' \code{\link{IsisMdl}} method: Sets the Fair-Taylor relaxation factors
 #' @name set_ftrelax
 #' @aliases get_ftrelax
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} sets the
-#' Fair-Taylor relaxtion factors for the endogenous leads.
+#' Fair-Taylor relaxation factors for the endogenous leads.
 #'
 #' Method \code{get_ftrelax()} returns
-#' the Fair-Taylor relaxtion factors
+#' the Fair-Taylor relaxation factors
 #' for all endogenous leads.
 #' @section Usage:
 #' \preformatted{
@@ -1782,10 +1845,10 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{value}}{Fair-Taylor relaxtion number.
+#' \item{\code{value}}{Fair-Taylor relaxation number.
 #' This must be a positive number or \code{NA} to disable any previously set value.
 #' The default value for all endogenous leads is \code{NA}, which means that
-#' the general uniform Fair-taylor relaxation
+#' the general uniform Fair-Taylor relaxation
 #' (solve option \code{ftrelax}, see \code{\link{set_solve_options}})
 #' will be applied}
 #' \item{\code{pattern}}{a regular expression specifying the
@@ -1794,17 +1857,17 @@ NULL
 #' }
 #'
 #' If neither \code{pattern} nor \code{names} have been specified,
-#' then the Fair-Taylor relaxtion factors of all variables
+#' then the Fair-Taylor relaxation factors of all variables
 #' with endogenous leads will be set to the specified values.
 #'
 #' @examples
 #' mdl <- ifn_mdl()
 #'
-#' # set Fair-relaxtion factor all all variables with names of length 2
+#' # set Fair-Taylor relaxation factor all all variables with names of length 2
 #' # to 0.5:
 #' mdl$set_ftrelax(0.5, pattern = "^..$")
 #'
-#' # set Fair-relaxtion factor for variable "lambda":
+#' # set Fair-Taylor relaxation factor for variable "lambda":
 #' mdl$set_ftrelax(0.5, names = "lambda")
 #'
 #' print(mdl$get_ftrelax())
@@ -2118,7 +2181,7 @@ NULL
 #' does not handle preprocessor directives yet, but in future
 #' versions \code{isismdl} will store the preprocessed model text (the model
 #' text obtained by evaluating the preprocessor directives). \emph{Therefore,
-#' we recomment to always keep the original model file}.
+#' we recommend to always keep the original model file}.
 #' @section Usage:
 #' \preformatted{
 #' mdl$get_text()
@@ -2136,10 +2199,10 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the last solve period,
-#' i.e. the last period for which method \code{\link{solve}} attemted to
-#' find a solution (whether succesful or not). The period is returned as a
+#' i.e. the last period for which method \code{\link{solve}} attempted to
+#' find a solution (whether successful or not). The period is returned as a
 #' \code{\link[regts]{period}} object. The function returns \code{NULL} when
-#' method \code{solve} has not yet been used fot this \code{IsisMdl} object.
+#' method \code{solve} has not yet been used for this \code{IsisMdl} object.
 #' @section Usage:
 #' \preformatted{
 #' mdl$get_last_solve_period()

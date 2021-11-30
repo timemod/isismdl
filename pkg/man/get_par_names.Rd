@@ -31,6 +31,6 @@ mdl <- islm_mdl()
 # print all model parameter names
 print(mdl$get_par_names())
 
-# print names of model paramters with names starting with c
+# print names of model parameters with names starting with c
 print(mdl$get_par_names(pattern = "^c.*"))
 }

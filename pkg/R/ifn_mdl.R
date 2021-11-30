@@ -1,6 +1,6 @@
 #' Returns an IFN model
 
-#' This function returns an unitialized IFN model.
+#' This function returns an uninitialized IFN model.
 #' @return a \code{\link{IsisMdl}} object
 #' @examples
 #' mdl <- ifn_mdl()

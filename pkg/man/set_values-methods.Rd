@@ -10,7 +10,7 @@
 constant adjustments, fix values or fit targets}
 \description{
 These methods of R6 class \code{\link{IsisMdl}}
-can be used to set the values of the model data, constant adjusments,
+can be used to set the values of the model data, constant adjustments,
 fix values or fit targets.
 }
 \section{Usage}{
@@ -58,7 +58,7 @@ is applied to all model variables of the appropriate type.
 \describe{
 \item{\code{set_values}}{Sets the values of model data.}
 \item{\code{set_ca_values}}{Sets the values of the  constant adjustments, i.e. the
-residuals of behavourial (frml) equations.}
+residuals of 0 (frml) equations.}
 \item{\code{set_fix_values}}{Set fix values for the stochastic
 model variables (i.e. model variables that occur at the left
 hand side of a frml equation). The model variables will be fixed

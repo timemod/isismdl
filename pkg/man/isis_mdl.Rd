@@ -38,7 +38,7 @@ output of the model parser is suppressed.}
 }
 \description{
 This function creates an \code{\link{IsisMdl}} object.
-A model as defined on an external ASCII file is parsed, analysed and
+A model as defined on an external ASCII file is parsed, analyzed and
 converted into an internal code. This internal code is used to evaluate
 the model equations.
 }
@@ -77,7 +77,7 @@ can be solved in one pass through the equations).
 
 If the parser encounters errors in the model, these are written
 to a file with an extension \code{err}.
-All generated files have the same basename as the model file.
+All generated files have the same base name as the model file.
 }
 \section{Parse options}{
 

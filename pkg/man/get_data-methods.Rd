@@ -7,11 +7,11 @@
 \alias{get_fix}
 \alias{get_fit}
 \title{\code{\link{IsisMdl}} methods: Retrieve timeseries from the model data,
-constant adjusments, fix values or fit targets}
+constant adjustments, fix values or fit targets}
 \description{
 These methods of R6 class \code{\link{IsisMdl}}
 can be used to retrieve timeseries from the model data,
-constant adjusments, fix values or fit targets.
+constant adjustments, fix values or fit targets.
 }
 \section{Usage}{
 
@@ -71,8 +71,4 @@ print(mdl$get_data(names = c("g", "y"), period = 2017))
 
 print(mdl$get_data(pattern = "^ymdl"))
 
-}
-\seealso{
-\code{\link{set_data-methods}}, \code{\link{set_values-methods}}
-and \code{\link{change_data-methods}}
 }

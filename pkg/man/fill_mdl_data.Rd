@@ -55,3 +55,6 @@ mdl$set_values(200, names = "t", period = "2017Q1")
 mdl$fill_mdl_data(period = "2017Q1")
 print(mdl$get_data(names = "yd"))
 }
+\seealso{
+\code{\link{run_eqn}}.
+}

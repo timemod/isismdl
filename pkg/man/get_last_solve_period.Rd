@@ -5,10 +5,10 @@
 \title{\code{\link{IsisMdl}} method: Returns the last solve period}
 \description{
 This method of R6 class \code{\link{IsisMdl}} returns the last solve period,
-i.e. the last period for which method \code{\link{solve}} attemted to
-find a solution (whether succesful or not). The period is returned as a
+i.e. the last period for which method \code{\link{solve}} attempted to
+find a solution (whether successful or not). The period is returned as a
 \code{\link[regts]{period}} object. The function returns \code{NULL} when
-method \code{solve} has not yet been used fot this \code{IsisMdl} object.
+method \code{solve} has not yet been used for this \code{IsisMdl} object.
 }
 \section{Usage}{
 

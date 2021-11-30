@@ -3000,7 +3000,7 @@ void make_param(Symbol *sp)
 }
 
 int add_pval(double rval) {
-    /* adds a value to the current parameter. returns 0 if succesfull,
+    /* adds a value to the current parameter. returns 0 if successful,
      * or 1 if the number of values > MAXPARAM */
     if( curpcnt >= MAXPARAM ) {
         mcerror( "Too many parameter values for parameter %s. The maximum is %d.",

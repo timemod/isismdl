@@ -9,7 +9,7 @@
 Methods \code{set_rms} and \code{set_rms_values} of R6 class \code{\link{IsisMdl}}
 can be used to set the root mean square (rms) error values
 used in the fit procedure.
-Each frml equation has a constant adjustment and a correpsonding rms value.
+Each frml equation has a constant adjustment and a corresponding rms value.
 If the rms value is larger than 0 and not \code{NA}, then the constant
 adjustment is used as a fit instruments.
 

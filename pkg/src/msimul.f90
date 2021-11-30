@@ -605,9 +605,9 @@ module msimul
         case (5)
             call isismdl_warn("Fair-Taylor has not converged")
         case (6)
-            call isismdl_warn("Out of memory. Simulation not succesfull")
+            call isismdl_warn("Out of memory. Simulation not successful")
         case default
-            call isismdl_warn("Unknown problem in solve. Simulation not succesfull")
+            call isismdl_warn("Unknown problem in solve. Simulation not successful")
         end select
     
     end subroutine report_solve_error

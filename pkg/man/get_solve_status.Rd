@@ -6,7 +6,7 @@
 \description{
 This method of R6 class \code{\link{IsisMdl}} returns the status
 of the last model solve as a  text string. If the last model solve
-was succesfull, it returns the string \code{"OK"}.
+was successful, it returns the string \code{"OK"}.
 }
 \section{Usage}{
 
@@ -31,8 +31,8 @@ or feedback variables have \code{NA} values)
 \item \code{"Initial lags/leads missing/invalid. Simulation not possible"}
 \item \code{"Invalid parameter values detected. Simulation not possible"}
 \item \code{"Fair-Taylor has not converged"}
-\item \code{"Out of memory. Simulation not succesfull"}
-\item \code{"Unknown problem in solve. Simulation not succesfull"}
+\item \code{"Out of memory. Simulation not successful"}
+\item \code{"Unknown problem in solve. Simulation not successful"}
 }
 }
 
