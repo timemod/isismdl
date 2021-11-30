@@ -679,7 +679,7 @@ NULL
 #' \preformatted{
 #' mdl$run_eqn(pattern, names, period = mdl$get_data_period(),
 #'             solve_order, forwards = TRUE, update_mode = c("upd", "updval"),
-#'             per_period = FALSE)
+#'             by_period = FALSE)
 #'
 #' }
 #'
@@ -708,9 +708,9 @@ NULL
 #' (the default), the model data is always updated with the result.
 #' If `update_mode = "updval"`, the model data is only updated if the
 #' result is not `NA`.}
-#' #' \item{\code{per_period}}{A logical (default `FALSE`).
+#' #' \item{\code{by_period}}{A logical (default `FALSE`).
 #' If `TRUE`, all equations are first evaluated at the first period, then all
-#' equations at the second period, and so on. If `per_period` is `FALSE`,
+#' equations at the second period, and so on. If `by_period` is `FALSE`,
 #' the first equation is first evaluated for all periods, then the second equation is solved
 #' for all periods, and so on.}
 #' }
@@ -755,8 +755,8 @@ NULL
 #' mdl$run_eqn(solve_order = FALSE)
 #'
 #' # emulate a single pass through the model
-#' # note that we use per_period = TRUE
-#' mdl$run_eqn(period = mdl$get_period(), per_period = TRUE)
+#' # note that we use by_period = TRUE
+#' mdl$run_eqn(period = mdl$get_period(), by_period = TRUE)
 NULL
 
 

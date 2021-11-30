@@ -25,7 +25,7 @@ then all active model equations are run.
 \preformatted{
 mdl$run_eqn(pattern, names, period = mdl$get_data_period(),
             solve_order, forwards = TRUE, update_mode = c("upd", "updval"),
-            per_period = FALSE)
+            by_period = FALSE)
 
 }
 
@@ -56,9 +56,9 @@ if the result is an invalid number (\code{NA}). If \code{update_mode = "upd"}
 (the default), the model data is always updated with the result.
 If \code{update_mode = "updval"}, the model data is only updated if the
 result is not \code{NA}.}
-#' \item{\code{per_period}}{A logical (default \code{FALSE}).
+#' \item{\code{by_period}}{A logical (default \code{FALSE}).
 If \code{TRUE}, all equations are first evaluated at the first period, then all
-equations at the second period, and so on. If \code{per_period} is \code{FALSE},
+equations at the second period, and so on. If \code{by_period} is \code{FALSE},
 the first equation is first evaluated for all periods, then the second equation is solved
 for all periods, and so on.}
 }
@@ -106,8 +106,8 @@ mdl$run_eqn(pattern = "^y")
 mdl$run_eqn(solve_order = FALSE)
 
 # emulate a single pass through the model
-# note that we use per_period = TRUE
-mdl$run_eqn(period = mdl$get_period(), per_period = TRUE)
+# note that we use by_period = TRUE
+mdl$run_eqn(period = mdl$get_period(), by_period = TRUE)
 }
 \seealso{
 \code{\link{solve}} and  \code{\link{fill_mdl_data}}.

@@ -759,7 +759,7 @@ IsisMdl <- R6Class("IsisMdl",
     run_eqn = function(pattern, names, period = private$data_period,
                        solve_order, forwards = TRUE,
                        update_mode = c("upd", "updval"),
-                       per_period = FALSE) {
+                       by_period = FALSE) {
       "Run model equations"
 
       update_mode <- match.arg(update_mode)
@@ -767,9 +767,9 @@ IsisMdl <- R6Class("IsisMdl",
       if (!is.logical(forwards) || length(forwards)!= 1 || is.na(forwards)) {
         stop("Argument 'forwards' should be a TRUE or FALSE")
       }
-      if (!is.logical(per_period) || length(per_period) != 1 ||
-          is.na(per_period)) {
-        stop("Argument 'per_period' should be a TRUE or FALSE")
+      if (!is.logical(by_period) || length(by_period) != 1 ||
+          is.na(by_period)) {
+        stop("Argument 'by_period' should be a TRUE or FALSE")
       }
 
       if (missing(names)) {
@@ -797,7 +797,7 @@ IsisMdl <- R6Class("IsisMdl",
         }
         updval <- if (update_mode == "updval") 1L else 0L
         .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums),
-              jtb_ = jtb, jte_ = jte, updval__ = updval, per_period__ = per_period)
+              jtb_ = jtb, jte_ = jte, updval__ = updval, by_period__ = by_period)
       }
       return(invisible(self))
     },

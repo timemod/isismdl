@@ -78,7 +78,7 @@ extern void F77_NAME(set_dbgeqn_fortran)(int *model_index, int *dbgeqn);
 extern int F77_NAME(get_dbgeqn_fortran)(int *model_index);	
 extern void F77_NAME(run_eqn_fortran)(int *model_index, int *neq, int *eqnums,
                                        int *jtb, int *jte, int *updval_,
-                                       int *per_period_);	
+                                       int *by_period_);	
 extern int F77_NAME(get_jc_fortran)(int * model_index);	
 extern void F77_NAME(set_jc_fortran)(int *model_index, int *jc);
 extern void F77_NAME(clear_fit_fortran)(int *model_index);
@@ -871,15 +871,15 @@ SEXP get_dbgeqn_c(SEXP model_index_) {
 }
 
 SEXP run_eqn_c(SEXP model_index_, SEXP eqnums, SEXP jtb_, SEXP jte_, 
-               SEXP updval__, SEXP per_period__) {
+               SEXP updval__, SEXP by_period__) {
     int model_index = asInteger(model_index_);
     int jtb = asInteger(jtb_);
     int jte = asInteger(jte_);
     int updval_ = asInteger(updval__);
-    int per_period_ = asInteger(per_period__);
+    int by_period_ = asInteger(by_period__);
     int neq = length(eqnums);
     F77_CALL(run_eqn_fortran)(&model_index, &neq, INTEGER(eqnums), &jtb, &jte, 
-             &updval_, &per_period_);
+             &updval_, &by_period_);
     return R_NilValue;
 }
 
