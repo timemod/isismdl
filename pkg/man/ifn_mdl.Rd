@@ -3,7 +3,7 @@
 \name{ifn_mdl}
 \alias{ifn_mdl}
 \title{Returns an IFN model
-This function returns an unitialized IFN model.}
+This function returns an uninitialized IFN model.}
 \usage{
 ifn_mdl()
 }
@@ -12,7 +12,7 @@ a \code{\link{IsisMdl}} object
 }
 \description{
 Returns an IFN model
-This function returns an unitialized IFN model.
+This function returns an uninitialized IFN model.
 }
 \examples{
 mdl <- ifn_mdl()

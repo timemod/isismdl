@@ -5,7 +5,7 @@
 \title{\code{\link{IsisMdl}} method: runs model equations}
 \description{
 This method of R6 class \code{\link{IsisMdl}} runs specific equations of the
-model separately for the specific period range. The right-hand sides of the
+model separately for the specified period range. The right-hand sides of the
 equations are evaluated and used to update the values of the
 corresponding left-hand side variables in the model data.
 
@@ -46,12 +46,7 @@ By default the equation are run for the whole data period.}
 A logical: should the specified equations be run in solve order?
 The default value depends on whether argument \code{names} has been
 specified: \code{FALSE} if \code{names} has been specified and otherwise \code{TRUE}.
-See Section Equation Order}
-\item{\code{per_period}}{A logical (default \code{FALSE}).
-If \code{TRUE}, all equations are first solved for the first period, then all
-equations for the second period, and so on. If \code{per_period} is \code{FALSE},
-the first equation if evaluated for all periods, then the second equation is solved
-for all periods, and so on.}
+See Section Equation Order.}
 \item{\code{forwards}}{A logical indicating whether the equations
 are evaluated forwards or backwards in time.
 See Section Forwards and Backwards.}
@@ -61,6 +56,11 @@ if the result is an invalid number (\code{NA}). If \code{update_mode = "upd"}
 (the default), the model data is always updated with the result.
 If \code{update_mode = "updval"}, the model data is only updated if the
 result is not \code{NA}.}
+#' \item{\code{per_period}}{A logical (default \code{FALSE}).
+If \code{TRUE}, all equations are first solved for the first period, then all
+equations for the second period, and so on. If \code{per_period} is \code{FALSE},
+the first equation is first evaluated for all periods, then the second equation is solved
+for all periods, and so on.}
 }
 
 Only one of the two arguments \code{pattern} and \code{names} can be specified.
@@ -78,7 +78,7 @@ is specified:
 in the same order as the specified names.
 \item Otherwise the equations are run using the 'natural order',
 i.e. the order of the equations as defined in the model file.
-The default of argument \code{solve_order} is \code{FALSE} if \code{names} is
+The default of argument \code{solve_order} is \code{FALSE} if \code{names} has been
 specified and \code{TRUE} in other cases.
 }
 }
@@ -89,7 +89,7 @@ specified and \code{TRUE} in other cases.
 By default, the equations are run forwards in time: the equations are
 first evaluated at the first period of the specified period range,
 then at the second period, and so on.
-If argument \code{forwards = FALSE}, the equation is run backwards:
+If argument \code{forwards = FALSE}, the equations are run backwards:
 first at the last period of the specified period range,
 then at the last but one period, and so on.
 }

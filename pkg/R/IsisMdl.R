@@ -766,10 +766,11 @@ IsisMdl <- R6Class("IsisMdl",
 
       update_mode <- match.arg(update_mode)
       period <- private$convert_period_arg(period)
-      if (!is.logical(forwards) || length(forwards)!= 1) {
+      if (!is.logical(forwards) || length(forwards)!= 1 || is.na(forwards)) {
         stop("Argument 'forwards' should be a TRUE or FALSE")
       }
-      if (!is.logical(per_period) || length(per_period) != 1) {
+      if (!is.logical(per_period) || length(per_period) != 1 || 
+          is.na(per_period)) {
         stop("Argument 'per_period' should be a TRUE or FALSE")
       }
 
@@ -798,7 +799,7 @@ IsisMdl <- R6Class("IsisMdl",
         }
         updval <- if (update_mode == "updval") 1L else 0L
         .Call("run_eqn_c", private$model_index, eqnums = as.integer(eqnums),
-              jtb = jtb, jte = jte, updval = updval, per_period = per_period)
+              jtb_ = jtb, jte_ = jte, updval__ = updval, per_period__ = per_period)
       }
       return(invisible(self))
     },

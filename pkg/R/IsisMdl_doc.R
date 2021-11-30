@@ -660,7 +660,7 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} runs specific equations of the
-#' model separately for the specific period range. The right-hand sides of the
+#' model separately for the specified period range. The right-hand sides of the
 #' equations are evaluated and used to update the values of the
 #' corresponding left-hand side variables in the model data.
 #'
@@ -698,12 +698,7 @@ NULL
 #' A logical: should the specified equations be run in solve order?
 #' The default value depends on whether argument `names` has been
 #' specified: `FALSE` if `names` has been specified and otherwise `TRUE`.
-#' See Section Equation Order}
-#' \item{\code{per_period}}{A logical (default `FALSE`).
-#' If `TRUE`, all equations are first solved for the first period, then all
-#' equations for the second period, and so on. If `per_period` is `FALSE`,
-#' the first equation if evaluated for all periods, then the second equation is solved
-#' for all periods, and so on.}
+#' See Section Equation Order.}
 #' \item{\code{forwards}}{A logical indicating whether the equations
 #' are evaluated forwards or backwards in time.
 #' See Section Forwards and Backwards.}
@@ -713,6 +708,11 @@ NULL
 #' (the default), the model data is always updated with the result.
 #' If `update_mode = "updval"`, the model data is only updated if the
 #' result is not `NA`.}
+#' #' \item{\code{per_period}}{A logical (default `FALSE`).
+#' If `TRUE`, all equations are first solved for the first period, then all
+#' equations for the second period, and so on. If `per_period` is `FALSE`,
+#' the first equation is first evaluated for all periods, then the second equation is solved
+#' for all periods, and so on.}
 #' }
 #'
 #' Only one of the two arguments `pattern` and `names` can be specified.
@@ -727,7 +727,7 @@ NULL
 #' in the same order as the specified names.
 #'   *  Otherwise the equations are run using the 'natural order',
 #' i.e. the order of the equations as defined in the model file.
-#' The default of argument `solve_order` is `FALSE` if `names` is
+#' The default of argument `solve_order` is `FALSE` if `names` has been
 #' specified and `TRUE` in other cases.
 #'
 #' @section Forwards and Backwards:
@@ -735,7 +735,7 @@ NULL
 #' By default, the equations are run forwards in time: the equations are
 #' first evaluated at the first period of the specified period range,
 #' then at the second period, and so on.
-#' If argument `forwards = FALSE`, the equation is run backwards:
+#' If argument `forwards = FALSE`, the equations are run backwards:
 #' first at the last period of the specified period range,
 #' then at the last but one period, and so on.
 
