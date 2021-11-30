@@ -380,10 +380,8 @@ IsisMdl <- R6Class("IsisMdl",
       names <- .Call("get_eq_names_c", private$model_index, status,
                      solve_order,  0L)
 
-      if (!missing(pattern)) {
-        sel <- grep(pattern, names)
-        names <- names[sel]
-      }
+      if (!missing(pattern)) names <- grep(pattern, names, value = TRUE)
+
       if (order == "sorted") names <- sort(names)
       return(names)
     },
@@ -769,7 +767,7 @@ IsisMdl <- R6Class("IsisMdl",
       if (!is.logical(forwards) || length(forwards)!= 1 || is.na(forwards)) {
         stop("Argument 'forwards' should be a TRUE or FALSE")
       }
-      if (!is.logical(per_period) || length(per_period) != 1 || 
+      if (!is.logical(per_period) || length(per_period) != 1 ||
           is.na(per_period)) {
         stop("Argument 'per_period' should be a TRUE or FALSE")
       }
