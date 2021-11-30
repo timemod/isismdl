@@ -6,10 +6,6 @@ update <- FALSE
 
 context("run_eqn_1")
 
-source("../tools/read_mrf.R")
-
-Sys.setlocale("LC_COLLATE", "C")
-
 mdl_file <- "mdl/test_run_eqn_1.mdl"
 
 lag_data <- regts(matrix(1:2, ncol = 2), start = 2020,
@@ -59,6 +55,16 @@ test_that("run_eqn without solve order", {
   expected_result$y1 <- 2
   expected_result$y2 <- 4
   expect_equal(data, expected_result)
+
+  # errors
+  expect_error(mdl2$run_eqn(names = "jan"), "\"jan\" is not an active equation.",
+               fixed = TRUE)
+
+  msg <- "Argument 'forwards' should be a TRUE or FALSE"
+  expect_error(mdl2$run_eqn(forwards = "yes"), msg, fixed = TRUE)
+  expect_error(mdl2$run_eqn(forwards = NA), msg, fixed = TRUE)
+  expect_error(mdl2$run_eqn(forwards = c(TRUE, TRUE)), msg, fixed = TRUE)
 })
+
 
 

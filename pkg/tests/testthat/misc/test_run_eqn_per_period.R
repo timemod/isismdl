@@ -2,11 +2,10 @@ library(isismdl)
 library(testthat)
 
 rm(list = ls())
-update <- FALSE
 
-context("per period")
+context("run_eqn per period")
 
-mdl_file <- "mdl/test_per_period.mdl"
+mdl_file <- "mdl/test_run_eqn_per_period.mdl"
 
 solve_per <- period_range(2021, 2023)
 mdl <- isis_mdl(mdl_file, silent = TRUE, period = solve_per)
@@ -55,4 +54,10 @@ test_that("period_period TRUE, forwards = TRUE", {
   expect_equal(mdl1$get_data(), expected_result)
 })
 
+test_that("error", {
+  msg <- "Argument 'per_period' should be a TRUE or FALSE"
+  expect_error(mdl$run_eqn(per_period = 2), msg)
+  expect_error(mdl$run_eqn(per_period = NA), msg)
+  expect_error(mdl$run_eqn(per_period = c(TRUE, TRUE)), msg)
+})
 
