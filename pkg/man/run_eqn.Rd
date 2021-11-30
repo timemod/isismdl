@@ -57,8 +57,8 @@ if the result is an invalid number (\code{NA}). If \code{update_mode = "upd"}
 If \code{update_mode = "updval"}, the model data is only updated if the
 result is not \code{NA}.}
 #' \item{\code{per_period}}{A logical (default \code{FALSE}).
-If \code{TRUE}, all equations are first solved for the first period, then all
-equations for the second period, and so on. If \code{per_period} is \code{FALSE},
+If \code{TRUE}, all equations are first evaluated at the first period, then all
+equations at the second period, and so on. If \code{per_period} is \code{FALSE},
 the first equation is first evaluated for all periods, then the second equation is solved
 for all periods, and so on.}
 }
