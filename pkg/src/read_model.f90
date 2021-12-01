@@ -1,4 +1,5 @@
-subroutine read_model_fortran(modelnmlen, modelnm, model_index, reorder_names_, ier)
+subroutine read_model_fortran(modelnmlen, modelnm, model_index, & 
+                              reorder_names_, ier)
     ! 
     ! read the model from the file
     !

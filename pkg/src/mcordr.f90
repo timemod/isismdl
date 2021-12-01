@@ -363,6 +363,9 @@ enddo
 
 810 continue
 
+! construct the inverse order array
+call set_order_inv(mdl)
+
 900 continue
 !
 ! adjust the size of mdl%numfb and mdl%fbtype
@@ -377,6 +380,7 @@ call move_alloc(tmp, mdl%numfb)
 allocate(tmp(mdl%nfb))
 tmp(1: mdl%nfb) = mdl%fbtype(1: mdl%nfb)
 call move_alloc(tmp, mdl%fbtype)
+
 
 return
 

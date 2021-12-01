@@ -35,7 +35,7 @@ module model_type
 &           ipnames,ifnames,iulfnames,indexe,lhsnum, eqnum, indexv, &
 &           narguf,indexp,nvalp,cfptr,etype, &
 &           numfb,fbtype,iendex,ica,aci,ibx1,ibx2, &
-&           order,fboptr,fbordr,nrecp,nrecuf,equat
+&           order,order_inv,fboptr,fbordr,nrecp,nrecuf,equat
          logical(kind = MC_IKIND), dimension(:), allocatable :: lik
          real(kind = MC_RKIND), dimension(:), allocatable :: coef
     end type model
@@ -83,6 +83,7 @@ contains
        if (stat == 0) allocate(mdl%nvalp(parCount), stat = stat)
        if (stat == 0) allocate(mdl%cfptr(parCount), stat = stat)
        if (stat == 0) allocate(mdl%order(eqCount), stat = stat)
+       if (stat == 0) allocate(mdl%order_inv(eqCount), stat = stat)
        if (stat == 0) allocate(mdl%ibx1(varCount + 1), stat = stat)
        if (stat == 0) allocate(mdl%ibx2(varCount + 1), stat = stat)
        if (stat == 0) allocate(mdl%lik(varCount), stat = stat)
@@ -152,6 +153,7 @@ contains
         deallocate(mdl%ibx1, stat = stat)
         deallocate(mdl%ibx2, stat = stat)
         deallocate(mdl%order, stat = stat)
+        deallocate(mdl%order_inv, stat = stat)
         deallocate(mdl%fboptr, stat = stat)
         deallocate(mdl%fbordr, stat = stat)
         deallocate(mdl%nrecp, stat = stat)
@@ -376,6 +378,35 @@ contains
        call hsortmvn(mdl%indexp, mdl%nrp, mdl%ipnames, mdl%pnames)
     
     end subroutine sort_names
+
+    subroutine set_order_inv(mdl)
+       type(model), intent(inout) :: mdl
+
+       integer :: ieq, ieq_ord
+
+       mdl%order_inv(:mdl%neq) = 0
+       do ieq_ord = 1, mdl%neq
+           ieq = mdl%order(ieq_ord)
+           if (ieq > 0) mdl%order_inv(ieq) = ieq_ord
+       end do
+
+    end subroutine set_order_inv
+
+
+    ! check if active equations are in solve order
+    subroutine check_active_equations(mdl) 
+       type(model), intent(in) :: mdl
+
+       integer :: ieq
+      
+       do ieq = 1, mdl%neq
+           if (mdl%order_inv(ieq) == 0) then
+               if (is_active(mdl, ieq)) then
+                 call rexit("One or more active equations not in solve order. Reorder the model with method 'order'.")
+               endif
+          end if
+       end do
+    end subroutine check_active_equations
 
 
 end module model_type
