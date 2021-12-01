@@ -247,6 +247,9 @@ module mcrmif
          read(MIFUNT,err=895,end=895,iostat=fstat) mdl%ifnames(:mdl%nuf)
          read(MIFUNT,err=895,end=895,iostat=fstat) mdl%narguf(:mdl%nuf)
      endif
+
+     ! initialize the order_inv array (the inverse of array order)
+     call set_order_inv(mdl)
      
      ! calculate maximum variable lag and lead from ibx1 and ibx2
      mdl%mxlag  = 0

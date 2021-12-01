@@ -27,7 +27,8 @@
 
 extern void F77_NAME(init_modules_fortran)(void);
 extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
-                                       int *model_index, int *reorder_names, int *ier);
+                                         int *model_index, int *reorder_names, 
+                                         int *ier);
 extern void F77_NAME(write_model_fortran)(int *modelnmlen, const char *modelnm,
                                           int *model_index, int *ier);
 extern void F77_NAME(get_data_fortran)(int *model_index, int *nvar, int *ivar,
@@ -87,6 +88,7 @@ extern int F77_NAME(clone_mws_fortran)(int *model_index);
 extern int F77_NAME(set_period_fortran)(int *model_index, int *start, int *end, 
                                         int *freq);
 extern void F77_NAME(remove_mws_fortran)(int *model_index);
+extern void F77_NAME(check_active_eqs_fortran)(int *model_index);
 
 SEXP get_lags_or_leads(int model_index, int type);
 
@@ -288,6 +290,10 @@ SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP solve_order_,
         status = INACTIVE;
     } else {
         error("Illegal equation type %s specified\n", status_str);
+    }
+
+    if (status != INACTIVE && solve_order == 1) {
+       F77_CALL(check_active_eqs_fortran)(&model_index);
     }
 
     int neq  = F77_CALL(get_eq_count)(&model_index);

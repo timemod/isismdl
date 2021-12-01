@@ -168,9 +168,9 @@ subroutine run_eqn_fortran(model_index, neq, eqnums, jtb, jte, updval_, &
     !
     integer :: ieq, errflg, step, j
     logical :: updval, by_period
-    
+
     call msvarsinit(mws_array(model_index))
-        
+
     updval = updval_ /= 0
     by_period = by_period_ /= 0
 
@@ -209,6 +209,8 @@ subroutine solve_fortran(model_index, jtb, jte, opts_present, error)
     integer :: errflg
     type(solve_options), pointer :: opt
 
+    call check_active_equations(mws_array(model_index)%mdl)
+
     if (opts_present /= 0) then
         ! Options specified by user in the call of solve.
         ! The options are present in module set_solve_opts.
@@ -230,6 +232,7 @@ subroutine filmdt_fortran(model_index, jtb, jte, report_type)
     use iso_c_binding, only : c_int
     integer(c_int), intent(in) :: model_index, jtb, jte, report_type
 
+    call check_active_equations(mws_array(model_index)%mdl)
     call msvarsinit(mws_array(model_index))
     call fill_mdl_data(jtb, jte, report_type)
 
@@ -400,3 +403,10 @@ function get_jc_fortran(model_index)
     integer(c_int), intent(in) :: model_index
     get_jc_fortran = mws_array(model_index)%jc
 end function get_jc_fortran
+
+subroutine check_active_eqs_fortran(model_index)
+    use modelworkspaces
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: model_index
+    call check_active_equations(mws_array(model_index)%mdl)
+end subroutine check_active_eqs_fortran
