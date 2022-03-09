@@ -708,10 +708,14 @@ NULL
 #' (the default), the model data is always updated with the result.
 #' If `update_mode = "updval"`, the model data is only updated if the
 #' result is not `NA`.}
-#' #' \item{\code{by_period}}{A logical (default `FALSE`).
-#' If `TRUE`, all equations are first evaluated at the first period, then all
+#' \item{\code{by_period}}{A logical (default `FALSE`).
+#' If `TRUE`, and if `forwards` is `TRUE`, all equations are first evaluated at the first period, then all
 #' equations at the second period, and so on. If `by_period` is `FALSE`,
-#' the first equation is first evaluated for all periods, then the second equation is solved
+#' the first equation is first run for all periods (starting at the first period,  then the second period etc.), then the second equation is solved
+#' for all periods, and so on.
+#' If `by_period` is `TRUE` and if `forwards` is `FALSE`, all equations are first evaluated at the last period, then all
+#' equations at the last but one period, and so on. If `by_period` is `FALSE`,
+#' the first equation is first run for all periods (starting at the last period,  then the last but one period etc.), then the second equation is solved
 #' for all periods, and so on.}
 #' }
 #'
@@ -738,8 +742,6 @@ NULL
 #' If argument `forwards = FALSE`, the equations are run backwards:
 #' first at the last period of the specified period range,
 #' then at the last but one period, and so on.
-
-
 #'
 #' @seealso \code{\link{solve}} and  \code{\link{fill_mdl_data}}.
 #
