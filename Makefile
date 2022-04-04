@@ -14,7 +14,7 @@ PKGTAR=$(PKG)_$(shell grep 'Version' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2).t
 PKGDATE=$(shell grep 'Date' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
 TODAY=$(shell date "+%Y-%m-%d")
 
-OSTYPE=$(shell Rscript -e "cat(.Platform[['OS.type']])")
+export OSTYPE=$(shell Rscript -e "cat(.Platform[['OS.type']])")
 
 help:
 	@echo
