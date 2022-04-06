@@ -35,13 +35,6 @@ The model definition file may contain comments.
 Comments start with `?` and extend to the end of 
 line (inclusive).  They may be placed anywhere in the model definition.
 
-# End statement
-
-The syntax is
-```
-end;
-```
-All input after this statement is ignored. It is optional.
 
 # Identifiers
 
@@ -397,6 +390,21 @@ a function argument may only be a simple variable followed (optionally)
 by a lag or lead indicator.
 A function may return a logical value.
 
+
+# End statement
+\label{sec:end}
+
+The syntax is
+```
+end;
+```
+All input after this statement is ignored. It is optional.
+The end statement is not allowed in files included with the `#include` 
+preprocessor directive (see Section \ref{sec:include}). 
+Instead of the end statement, it is possible to use conditional
+compilation using a dummy flag (see \ref{sec:skip_equations}).
+
+
 <!--
 USER LANGUAGE FUNCTION NOT YET SUPPORTED FOR R PACKAGE ISISMDL
 # User language functions
@@ -451,6 +459,7 @@ Unfortunately, model analysis program Nephthys cannot handle preprocessor
 directives yet, so do not use the model preprocessor if you want to use Nephthys.
 
 ## File inclusion
+\label{sec:include}
 
 The `#include` directive can be used to insert functions, parameters and
 model equations from another input file. The syntax is
@@ -466,6 +475,10 @@ file with the `#include` directive).
 If not found there, it searches in the current directory.
 It is possible to add directories to the search path in function `isis_mdl`.
 
+It is not allowed to use the end statement (see Section \ref{sec:end}) in an included
+file. If you wish to skip some equations at the end of the file,
+use conditional compilation (see section \ref{sec:skip_equations}) with a dummy
+flag.
 
 ## Conditional compilation \label{sec:conditional}
 
@@ -525,3 +538,19 @@ It may also be a part of an equation, as in the following examples
 ```
 ident x = #if x_zero 0 #else 1 #endif
 ```
+
+### Using conditional compilation to skip equations
+\label{sec:skip_equations}
+
+Conditional compilation can also be used to skip some equations during
+compilation. For example
+
+```
+#if dummy
+x = 1;
+z = 2;
+#endif
+```
+
+If the compiler flag `dummy` has not been defined, the equations `x = 1` and
+`z = 2` are skipped.

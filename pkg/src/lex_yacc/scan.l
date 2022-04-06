@@ -228,17 +228,25 @@ void reset_scanner(void) {
      * end; statement has occurred in the model
      */
 
+    if (include_level > 0) {
+      mcerror("end; statement not allowed in included file");
+    }
+
     /* first close current buffer (the current buffer is not stored on 
      * the stack) */
     close_buffer();
 
     if (include_level == -1) return;
 
+
     /* close buffers on the stack */
     int i;
     for (i = 0; i <= include_level; i++) {
         fclose(include_stack[include_level].fin);
-        free(include_stack[include_level].filename);
+        if (include_level > 0) {
+          /* filename was allocated with malloc in get_includefile(). */
+          free(include_stack[include_level].filename);
+        }
         free(include_stack[include_level].dirname);
         free(include_stack[include_level].buf);
     }
