@@ -3,6 +3,8 @@ library(testthat)
 
 rm(list = ls())
 
+update_expected <- FALSE
+
 source("../tools/convert_report.R")
 
 context("fit square mdl zero columns")
@@ -35,7 +37,8 @@ test_that("column with zeros", {
 
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/square_zero_cols_rep1.txt")
+                      "expected_output/square_zero_cols_rep1.txt",
+                      update = update_expected)
 
   # make third column almost zero, and second row zero
   param_new$r3[3] <- 1e-12
@@ -46,13 +49,15 @@ test_that("column with zeros", {
                  "Simulation not possible")
 
   expect_known_output(cat_report(convert_report(report)),
-                      "expected_output/square_zero_cols_rep2.txt")
+                      "expected_output/square_zero_cols_rep2.txt",
+                      update = update_expected)
 
   expect_warning(report <- capture.output(mdl2$solve(fit_options =
                                                        list(warn_zero_col = FALSE))),
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report)),
-                      "expected_output/square_zero_cols_rep3.txt")
+                      "expected_output/square_zero_cols_rep3.txt",
+                      update = update_expected)
 
 })
 

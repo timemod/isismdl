@@ -2,6 +2,8 @@ library(testthat)
 library(isismdl)
 library(utils)
 
+rm(list = ls())
+
 context("solve options for ISLM model")
 
 capture_output(mdl <- read_mdl("islm_model.ismdl"))

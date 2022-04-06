@@ -4,6 +4,8 @@ library(testthat)
 
 rm(list = ls())
 
+update_expected <- FALSE
+
 context("equation debugging for the ISLM model")
 
 source("../tools/convert_report.R")
@@ -46,7 +48,8 @@ test_that("debug statements for solve", {
 
   #cat(paste(report, collapse = "\n"))
   expected_report_file <- "expected_output/debug_report1.txt"
-  expect_known_output(cat_report(convert_report(report)), expected_report_file)
+  expect_known_output(cat_report(convert_report(report)), expected_report_file,
+                      update = update_expected)
 })
 
 test_that("debug statements for run_eqn", {
@@ -62,5 +65,6 @@ test_that("debug statements for run_eqn", {
 
   #cat(paste(report, collapse = "\n"))
   expected_report_file <- "expected_output/debug_report2.txt"
-  expect_known_output(cat_report(convert_report(report)), expected_report_file)
+  expect_known_output(cat_report(convert_report(report)), expected_report_file,
+                      update = update_expected)
 })

@@ -1,9 +1,11 @@
 library(testthat)
 library(isismdl)
 
-context("fit for ISLM model singular case with SVD test")
-
 rm(list = ls())
+
+update_expected <- FALSE
+
+context("fit for ISLM model singular case with SVD test")
 
 source("../tools/convert_report.R")
 
@@ -28,5 +30,6 @@ test_that("Correct type of report created", {
 
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_svd_rep1.txt")
+                      "expected_output/fit_svd_rep1.txt",
+                      update = update_expected)
 })

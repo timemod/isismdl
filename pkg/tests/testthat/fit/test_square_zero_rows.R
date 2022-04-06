@@ -3,6 +3,8 @@ library(testthat)
 
 rm(list = ls())
 
+update_expected <- FALSE
+
 source("../tools/convert_report.R")
 
 context("fit square mdl zero rows")
@@ -29,7 +31,8 @@ test_that("row with almost zeros", {
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report1,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/square_zero_rows_rep1.txt")
+                      "expected_output/square_zero_rows_rep1.txt",
+                      update = update_expected)
 
   # without row scaling simulation is not possible
   expect_warning(report1a <- capture.output(
@@ -37,7 +40,8 @@ test_that("row with almost zeros", {
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report1a,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/square_zero_rows_rep1a.txt")
+                      "expected_output/square_zero_rows_rep1a.txt",
+                      update = update_expected)
 
   # with row scaling simulation is possible
   mdl2$set_fit_options(scale_method = "row")
@@ -60,7 +64,8 @@ test_that("row with only zeros", {
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report2,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/square_zero_rows_rep2.txt")
+                      "expected_output/square_zero_rows_rep2.txt",
+                      update = update_expected)
 
   mdl2$set_param(list(r3 = c(0, 0, 1e-9, 0, 0, 0)))
   expect_warning(report3 <- capture.output(mdl2$solve(fit_options =
@@ -68,5 +73,6 @@ test_that("row with only zeros", {
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report3,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/square_zero_rows_rep3.txt")
+                      "expected_output/square_zero_rows_rep3.txt",
+                      update = update_expected)
 })

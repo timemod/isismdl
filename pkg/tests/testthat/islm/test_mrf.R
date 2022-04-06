@@ -3,7 +3,8 @@ library(isismdl)
 library(testthat)
 
 rm(list = ls())
-update <- FALSE
+
+update_expected  <- FALSE
 
 context("mrf islm model")
 
@@ -15,5 +16,5 @@ test_that("new compiled moel", {
   mrf_data <- read_mrf(mdl_filename)
   expect_known_output(cat(mrf_data),
                       file = "expected_output/mrf_mrf.txt",
-                      update = update, print = TRUE)
+                      update = update_expected, print = TRUE)
 })

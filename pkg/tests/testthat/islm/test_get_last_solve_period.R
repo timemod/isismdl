@@ -2,6 +2,8 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("get_last_solve_period")
 
 test_that("new compiled moel", {

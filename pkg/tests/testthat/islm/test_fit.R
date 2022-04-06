@@ -1,6 +1,10 @@
 library(testthat)
 library(isismdl)
 
+rm(list = ls())
+
+update_expected <- FALSE
+
 context("fit for ISLM model")
 
 source("../tools/convert_report.R")
@@ -108,7 +112,8 @@ test_that("fixed fit instruments (1)", {
   report <- capture.output(mdl$solve())
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_1a.txt")
+                      "expected_output/fit_fixed_instr_1a.txt",
+                      update = update_expected)
 
   fit_fixed <- cbind(mdl$get_fit(), mdl$get_fix())
   data <- mdl$get_data(names = colnames(fit_fixed), period = get_period_range(fit_fixed))
@@ -120,7 +125,8 @@ test_that("fixed fit instruments (1)", {
                  "Simulation stopped")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_1b.txt")
+                      "expected_output/fit_fixed_instr_1b.txt",
+                      update = update_expected)
   expect_equal(mdl$get_solve_status(), "Simulation stopped")
 
   mdl$fix_variables("t", period = "2015q3")
@@ -128,21 +134,24 @@ test_that("fixed fit instruments (1)", {
                  "Simulation stopped")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_1c.txt")
+                      "expected_output/fit_fixed_instr_1c.txt",
+                      update = update_expected)
   expect_equal(mdl$get_solve_status(), "Simulation stopped")
 
   expect_warning(report <- capture.output(mdl$solve(period = "2015q3")),
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_1d.txt")
+                      "expected_output/fit_fixed_instr_1d.txt",
+                      update = update_expected)
 
   mdl$set_rms_values(NA)
   expect_warning(report <- capture.output(mdl$solve()),
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_1e.txt")
+                      "expected_output/fit_fixed_instr_1e.txt",
+                      update = update_expected)
   expect_equal(mdl$get_solve_status(), "Simulation not possible")
 })
 
@@ -159,7 +168,8 @@ test_that("fixed fit instruments (2)", {
   report <- capture.output(mdl$solve())
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_2a.txt")
+                      "expected_output/fit_fixed_instr_2a.txt",
+                      update = update_expected)
 
   fit_fixed <- cbind(mdl$get_fit(), mdl$get_fix())
   data <- mdl$get_data(names = colnames(fit_fixed), period = get_period_range(fit_fixed))
@@ -171,7 +181,8 @@ test_that("fixed fit instruments (2)", {
                  "Simulation stopped")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_2b.txt")
+                      "expected_output/fit_fixed_instr_2b.txt",
+                      update = update_expected)
   expect_equal(mdl$get_solve_status(), "Simulation stopped")
 
   mdl$fix_variables("t")
@@ -179,7 +190,8 @@ test_that("fixed fit instruments (2)", {
                 "Simulation not possible")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_2c.txt")
+                      "expected_output/fit_fixed_instr_2c.txt",
+                      update = update_expected)
   expect_equal(mdl$get_solve_status(), "Simulation not possible")
 })
 
@@ -196,7 +208,8 @@ test_that("fixed fit instruments (3)", {
   report <- capture.output(mdl$solve())
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_3a.txt")
+                      "expected_output/fit_fixed_instr_3a.txt",
+                      update = update_expected)
 
   fit_fixed <- cbind(mdl$get_fit(), mdl$get_fix())
   data <- mdl$get_data(names = colnames(fit_fixed), period = get_period_range(fit_fixed))
@@ -208,7 +221,8 @@ test_that("fixed fit instruments (3)", {
                  "Simulation stopped")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_3b.txt")
+                      "expected_output/fit_fixed_instr_3b.txt",
+                      update = update_expected)
   expect_equal(mdl$get_solve_status(), "Simulation stopped")
 
   # check that eqaution c is still inactive
@@ -228,7 +242,8 @@ test_that("fixed fit instruments (4)", {
   report <- capture.output(mdl$solve())
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_4a.txt")
+                      "expected_output/fit_fixed_instr_4a.txt",
+                      update = update_expected)
 
   fit_fixed <- cbind(mdl$get_fit(), mdl$get_fix())
   data <- mdl$get_data(names = colnames(fit_fixed), period = get_period_range(fit_fixed))
@@ -240,7 +255,8 @@ test_that("fixed fit instruments (4)", {
                  "Simulation stopped")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_4b.txt")
+                      "expected_output/fit_fixed_instr_4b.txt",
+                      update = update_expected)
   expect_equal(mdl$get_solve_status(), "Simulation stopped")
 
   mdl$fix_variables("t")
@@ -248,7 +264,8 @@ test_that("fixed fit instruments (4)", {
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_4c.txt")
+                      "expected_output/fit_fixed_instr_4c.txt",
+                      update = update_expected)
   expect_equal(mdl$get_solve_status(), "Simulation not possible")
 
 })
@@ -267,7 +284,8 @@ test_that("fixed fit instruments (5)", {
   report <- capture.output(mdl$solve())
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_5a.txt")
+                      "expected_output/fit_fixed_instr_5a.txt",
+                      update = update_expected)
 
   fit_fixed <- cbind(mdl$get_fit(), mdl$get_fix())
   data <- mdl$get_data(names = colnames(fit_fixed), period = get_period_range(fit_fixed))
@@ -277,7 +295,8 @@ test_that("fixed fit instruments (5)", {
   report <- capture.output(mdl$solve(options = list(mode = "backward")))
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_5b.txt")
+                      "expected_output/fit_fixed_instr_5b.txt",
+                      update = update_expected)
 })
 
 test_that("fixed fit instruments (6)", {
@@ -295,7 +314,8 @@ test_that("fixed fit instruments (6)", {
   report <- capture.output(mdl$solve())
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_fixed_instr_6a.txt")
+                      "expected_output/fit_fixed_instr_6a.txt",
+                      update = update_expected)
   fit_fixed <- cbind(mdl$get_fit(), mdl$get_fix())
   data <- mdl$get_data(names = colnames(fit_fixed), period = get_period_range(fit_fixed))
   expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
@@ -313,7 +333,8 @@ test_that("deactivated equations (1)", {
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/fit_deact_1a.txt")
+                      "expected_output/fit_deact_1a.txt",
+                      update = update_expected)
   expect_equal(mdl$get_solve_status(), "Simulation not possible")
 })
 

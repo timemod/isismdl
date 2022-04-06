@@ -5,6 +5,8 @@ context("parameters for laxo model")
 
 rm(list = ls())
 
+update_expected <- FALSE
+
 mdl_file <- "mdl/laxo.mdl"
 mif_file <- "mdl/laxo.mif"
 
@@ -12,7 +14,8 @@ expect_silent(mdl <- isis_mdl("mdl/laxo.mdl", silent = TRUE))
 param <- mdl$get_param()
 
 test_that("get_param", {
-  expect_known_output(param, print = TRUE, file = "expected_output/param.txt")
+  expect_known_output(param, print = TRUE, file = "expected_output/param.txt",
+                      update_expected <- FALSE)
 })
 
 test_that("set_param", {

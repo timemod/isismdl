@@ -2,6 +2,8 @@ library(isismdl)
 library(testthat)
 library(readr)
 
+update_expected <- FALSE
+
 context("syntax error user function")
 
 test_that("error given", {
@@ -15,6 +17,7 @@ test_that("error file correct", {
     error_txt <- gsub("\r", "", error_txt)
   }
   #cat(error_txt)
-  expect_known_output(cat(error_txt), "expected_output/ulfunc1.txt")
+  expect_known_output(cat(error_txt), "expected_output/ulfunc1.txt",
+                      update = update_expected)
 })
 

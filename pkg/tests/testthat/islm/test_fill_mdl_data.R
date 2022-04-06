@@ -2,6 +2,8 @@ library(utils)
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("fill_mdl_data for the ISLM model")
 
 test_that("filmdt works correctly", {

@@ -2,6 +2,10 @@ library(isismdl)
 library(testthat)
 library(readr)
 
+rm(list = ls())
+
+update_expected <- FALSE
+
 context("syntax error params (1)")
 
 test_that("error given", {
@@ -15,5 +19,6 @@ test_that("error file correct", {
     error_txt <- gsub("\r", "", error_txt)
   }
   #cat(error_txt)
-  expect_known_output(cat(error_txt), "expected_output/params1.txt")
+  expect_known_output(cat(error_txt), "expected_output/params1.txt",
+                      update = update_expected)
 })

@@ -3,7 +3,7 @@ library(isismdl)
 library(testthat)
 
 rm(list = ls())
-update <- FALSE
+update_expected <- FALSE
 
 context("test handling missing exos and lags")
 
@@ -26,7 +26,8 @@ test_that("standard option stop", {
   expect_warning(mdl2$solve(),
                  "Initial lags/leads missing/invalid. Simulation not possible."))
   expect_known_output(cat_report(report),
-                      "expected_output/missing_exo_lag1_report1.txt")
+                      "expected_output/missing_exo_lag1_report1.txt",
+                      update = update_expected)
 })
 
 test_that("option continue", {
@@ -35,7 +36,8 @@ test_that("option continue", {
    expect_warning(mdl2$solve(options = list(erropt = "cont")), NA))
   report <- convert_report(report)
    expect_known_output(cat(paste(report, collapse = "\n")),
-                       "expected_output/missing_exo_lag1_report2.txt")
+                       "expected_output/missing_exo_lag1_report2.txt",
+                       update = update_expected)
    y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
    expect_identical(y3_result, y3_expected)
 })
@@ -46,7 +48,8 @@ test_that("option silent", {
     expect_warning(mdl2$solve(options = list(erropt = "silent")), NA))
   report <- convert_report(report)
   expect_known_output(cat(paste(report, collapse = "\n")),
-                      "expected_output/missing_exo_lag1_report3.txt")
+                      "expected_output/missing_exo_lag1_report3.txt",
+                      update = update_expected)
   y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
   expect_identical(y3_result, y3_expected)
 })
@@ -62,7 +65,7 @@ test_that("check mrf", {
   mrf_data <- read_mrf(mdl_file)
   expect_known_output(cat(mrf_data),
                       file = "expected_output/missing_exo_lag1_mrf.txt",
-                      update = update, print = TRUE)
+                      update = update_expected, print = TRUE)
 
 })
 

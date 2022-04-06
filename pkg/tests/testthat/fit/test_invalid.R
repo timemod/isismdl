@@ -3,6 +3,8 @@ library(testthat)
 
 rm(list = ls())
 
+update_expected <- FALSE
+
 source("../tools/convert_report.R")
 
 context("fit square mdl na values")
@@ -22,6 +24,7 @@ test_that("NA values", {
   expect_warning(report <- capture.output(mdl$solve()),
                  "Simulation stopped")
   expect_known_output(cat_report(convert_report(report)),
-                      "expected_output/square_invalid_rep1.txt")
+                      "expected_output/square_invalid_rep1.txt",
+                      update = update_expected)
 
 })

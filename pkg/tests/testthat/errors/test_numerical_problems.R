@@ -1,6 +1,8 @@
 library(isismdl)
 library(testthat)
 
+rm(list = ls())
+
 context("numerical problems")
 
 source("../tools/convert_report.R")

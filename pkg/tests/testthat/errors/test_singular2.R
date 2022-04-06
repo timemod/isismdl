@@ -3,6 +3,8 @@ library(testthat)
 
 rm(list = ls())
 
+update_expected <- FALSE
+
 context("singular model 2")
 
 source("../tools/convert_report.R")
@@ -19,6 +21,7 @@ test_that("solve", {
 
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/singular2_rep1.txt")
+                      "expected_output/singular2_rep1.txt",
+                      update = update_expected)
 
 })

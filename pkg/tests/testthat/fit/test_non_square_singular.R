@@ -3,6 +3,8 @@ library(testthat)
 
 rm(list = ls())
 
+update_expected <- FALSE
+
 context("fit nonsquare mdl singular")
 
 source("../tools/convert_report.R")
@@ -23,7 +25,8 @@ test_that("report correct",{
   expect_warning(report <- capture.output(mdl$solve()),
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report)),
-                                 "expected_output/non_square_singular_rep1.txt")
+                                 "expected_output/non_square_singular_rep1.txt",
+                      update = update_expected)
 })
 
 
@@ -40,25 +43,29 @@ test_that("zero columns", {
   expect_warning(report2 <- capture.output(mdl2$solve()),
                                       "Simulation not possible")
   expect_known_output(cat_report(convert_report(report2, replace_all_numbers = TRUE)),
-                      "expected_output/non_square_singular_rep2.txt")
+                      "expected_output/non_square_singular_rep2.txt",
+                      update = update_expected)
 
   expect_warning(report3 <- capture.output(mdl2$solve(fit_options =
                                 list(warn_zero_col = TRUE))),
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report3, replace_all_numbers = TRUE)),
-                      "expected_output/non_square_singular_rep3.txt")
+                      "expected_output/non_square_singular_rep3.txt",
+                      update = update_expected)
 
   mdl2$set_param(list(r1 = c(1, 0, 0), r2 = c(2, 0, 0)))
   expect_warning(report4 <- capture.output(mdl2$solve(fit_options =
                                                         list(warn_zero_col = FALSE))),
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report4, replace_all_numbers = TRUE)),
-                      "expected_output/non_square_singular_rep4.txt")
+                      "expected_output/non_square_singular_rep4.txt",
+                      update = update_expected)
 
   mdl2$set_param(list(r1 = c(1, 1e-8, 0), r2 = c(2, 0, 0)))
   expect_warning(report5 <- capture.output(mdl2$solve(fit_options =
                                                         list(warn_zero_col = TRUE))),
                  "Simulation not possible")
   expect_known_output(cat_report(convert_report(report5, replace_all_numbers = TRUE)),
-                      "expected_output/non_square_singular_rep5.txt")
+                      "expected_output/non_square_singular_rep5.txt",
+                      update = update_expected)
 })
