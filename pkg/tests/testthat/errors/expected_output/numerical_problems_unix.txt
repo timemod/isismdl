@@ -47,6 +47,10 @@ Criterion for line search decisions etc.                 geometric
 ** ---> Left operand:                    NaN
 ** ---> Right operand:             0.100E+13
 ** Error in equation x11
+** Numerical problems in evaluation of max
+** ---> Left operand:               1.00
+** ---> Right operand:                   NaN
+** Error in equation x12
 Convergence for 2011 in    0 iterations
 Total number of iterations    0
 Solve model used X CPU secs
