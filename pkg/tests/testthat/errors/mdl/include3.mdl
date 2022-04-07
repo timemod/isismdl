@@ -1,0 +1,7 @@
+ident a = 1; 
+
+#include incl/incl_err.mdl
+
+a === 1 b = 2
+
+#include incl/incl_err.mdl

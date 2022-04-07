@@ -1,0 +1,3 @@
+ident a = 1; 
+
+#include "incl/incl_err.mdl"

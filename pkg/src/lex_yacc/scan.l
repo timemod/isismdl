@@ -110,9 +110,12 @@ endif    "#ENDIF"
                     char *inclname = get_includefile();
                     if (inclname != NULL) {
                         open_buffer(inclname);
-                    }
+                    } 
                     BEGIN(INITIAL);
                  }
+<incl>.       { mcerror("Illegal #include syntax");
+                BEGIN(INITIAL);
+              }
 
 {if}               BEGIN(get_flag);
 {elseif}           {if_nest_cnt = 0;
@@ -238,17 +241,16 @@ void reset_scanner(void) {
 
     if (include_level == -1) return;
 
-
     /* close buffers on the stack */
     int i;
     for (i = 0; i <= include_level; i++) {
-        fclose(include_stack[include_level].fin);
-        if (include_level > 0) {
+        fclose(include_stack[i].fin);
+        if (i > 0) {
           /* filename was allocated with malloc in get_includefile(). */
-          free(include_stack[include_level].filename);
+          free(include_stack[i].filename);
         }
-        free(include_stack[include_level].dirname);
-        free(include_stack[include_level].buf);
+        free(include_stack[i].dirname);
+        free(include_stack[i].buf);
     }
 
     include_level = -1;
@@ -271,6 +273,8 @@ void open_buffer(char *new_filename) {
         include_stack[include_level].buf         = buf;
         include_stack[include_level].bufp        = bufp;
         include_stack[include_level].line_number = line_number;
+
+       
     }
 
     if (++include_level > MAX_INCLUDE_DEPTH) {
@@ -406,9 +410,9 @@ static char * get_includefile(void)
 
    /* search for the include file based on the include search paths */
    includefile = get_includefilename(includename);
-   free(includename);
    if (includefile == NULL) {
        mcerror("Include file %s not found", includename);
    }
+   free(includename);
    return includefile;
 }
