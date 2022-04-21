@@ -600,10 +600,10 @@ subroutine fitodj(dj, fiter, numw, numu, nw, nu, nu_max)
     return
 end subroutine fitodj
 
-subroutine fitoca(delu, numu, nu,fiter)
+subroutine fitoca(resold, numu, nu,fiter)
     use mdl_name_utils
     
-    real(kind = SOLVE_RKIND), intent(in) ::  delu(*)
+    real(kind = SOLVE_RKIND), intent(in) ::  resold(*)
     integer, intent(in) :: fiter
     integer(kind = SOLVE_IKIND), intent(in) :: numu(*), nu
     
@@ -649,7 +649,7 @@ subroutine fitoca(delu, numu, nu,fiter)
        call mcf7ex(name, nlen, mdl%ivnames(ires), mdl%vnames)
        call strini(name(:nlen), 1 + maxlen)
        temp(1) = ca(ires)
-       temp(2) = delu(i)
+       temp(2) = temp(1) - resold(i)
     
        call svlfmt(temp,1,2,colwid)
        call strout(O_OUTB)

@@ -515,7 +515,7 @@ contains
             endif
         
             if (opts%fit%prica) then
-                call fitoca(delu,numu,nu,fiter)
+                call fitoca(resold, numu, nu, fiter)
             endif
         
             ! new solution and new discrepancies.
