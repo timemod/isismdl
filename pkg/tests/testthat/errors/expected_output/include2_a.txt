@@ -1,0 +1,15 @@
+Include file incl2.mdl not found
+Line: 3 of file mdl/include2.mdl
+#include "incl2.mdl"
+                    ^
+
+Variable b used more than once in left hand side
+Line: 5 of file mdl/include2.mdl
+ident b = 2;
+        ^
+
+Duplicate equation b
+Line: 5 of file mdl/include2.mdl
+ident b = 2;
+           ^
+

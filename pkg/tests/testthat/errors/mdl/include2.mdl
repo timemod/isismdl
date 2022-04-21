@@ -1,0 +1,5 @@
+ident b = 1;  
+
+#include "incl2.mdl"
+
+ident b = 2;

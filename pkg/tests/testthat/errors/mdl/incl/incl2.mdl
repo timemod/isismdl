@@ -1,0 +1,3 @@
+#include "incl_err.mdl"
+
+This text may contains nonsense, all input after end is ignored.

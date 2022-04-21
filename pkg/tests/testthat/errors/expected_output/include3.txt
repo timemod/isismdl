@@ -1,0 +1,25 @@
+Illegal #include syntax
+Line: 3 of file mdl/include3.mdl
+#include incl/incl_err.mdl
+         ^
+
+syntax error, unexpected '/'
+Line: 3 of file mdl/include3.mdl
+#include incl/incl_err.mdl
+             ^
+
+Illegal character in input
+Line: 3 of file mdl/include3.mdl
+#include incl/incl_err.mdl
+                       ^
+
+Illegal #include syntax
+Line: 7 of file mdl/include3.mdl
+#include incl/incl_err.mdl
+         ^
+
+Illegal character in input
+Line: 7 of file mdl/include3.mdl
+#include incl/incl_err.mdl
+                       ^
+
