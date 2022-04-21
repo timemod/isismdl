@@ -115,7 +115,7 @@ void FNAME(save_parameter)(FINT *, FREAL8 *);
  * due to the optional endif keyword */
 %expect 1
 
-%error-verbose
+%define parse.error verbose
 
 %%
 

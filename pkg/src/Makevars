@@ -15,7 +15,7 @@ scan.c : $(LEX_YACC_DIR)/scan.l
 	$(LEX) -P$(LYPREFIX) -o$@ -i $<
 
 xpctab.c : $(LEX_YACC_DIR)/xpctab.y 
-	$(YACC) -d -p $(LYPREFIX) -o $@ $<
+	$(YACC) -Wno-yacc -d -p $(LYPREFIX) -o $@ $<
 
 # dependencies C files
 include deps/makedeps_c

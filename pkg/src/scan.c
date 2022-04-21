@@ -1449,7 +1449,7 @@ YY_RULE_SETUP
 case 45:
 YY_RULE_SETUP
 #line 208 "lex_yacc/scan.l"
-{if (!scanning) mcerror( "Illegal character in input" );BEGIN(INITIAL);}
+{if (!scanning) mcerror( "Illegal character in input" );}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
