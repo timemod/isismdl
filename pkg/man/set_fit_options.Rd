@@ -347,7 +347,7 @@ the fit Jacobian contains dependent rows.\if{html}{\out{<div class="sourceCode r
 ## c       7.72048     11.42037     -2.05591
 ##  
 ## Fit Warning - D matrix is ill conditioned.
-## Inverse condition=  6.72E-16 < Machine prec**.5=  1.49E-08
+## Inverse condition=  1.11E-14 < Machine prec**.5=  1.49E-08
 ## Derivatives of fit targets are dependent or
 ## for one or more fit targets all derivatives are (almost) zero ...
 ## Tip: try to use svd analysis and/or fit option 'warn_zero_row' or warn_zero_col'.
@@ -365,15 +365,15 @@ the fit Jacobian contains dependent rows.\if{html}{\out{<div class="sourceCode r
 ##  
 ## Left Singular vectors:
 ## ----------------------
-## Singular value   0.73E-15
+## Singular value   0.12E-13
 ##                                y -0.62
 ##                               yd  0.79
 ##  
 ## Right Singular vectors:
 ## -----------------------
-## Singular value   0.73E-15
-##                                c  0.26
-##                               md  0.97
+## Singular value   0.12E-13
+##                                c -0.26
+##                               md -0.97
 ##  
 ##  
 ## The singularity may also be caused by (almost) zero rows or columns.
@@ -396,7 +396,7 @@ the fit Jacobian contains dependent rows.\if{html}{\out{<div class="sourceCode r
 ## 
 }\preformatted{## Warning in mdl$solve(): Simulation not possible
 }\preformatted{## Total number of iterations   14
-## Solve model used     0.01 CPU secs
+## Solve model used     0.00 CPU secs
 ## 
 }
 }
