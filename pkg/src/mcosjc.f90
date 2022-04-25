@@ -71,14 +71,14 @@ do  ncpb = 1, nxrc, npcols
 
      do  i=1,nxrc
 
-!             write row header (left justified)
+        ! write row header (left justified)
 
         call mcf7ex(name, nlen, inames(rcidx(i)), names)
 
-        str  = name(:nlen)
+        str(:nlen) = name(:nlen)
         spos = 1 + maxrhl + ICSPAC
 
-!             write x(i,j=ncpb..ncpe) (right justified)
+        ! write x(i,j=ncpb..ncpe) (right justified)
 
         do  j = ncpb, ncpe
            rpos = spos + colwid - XWID

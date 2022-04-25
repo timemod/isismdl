@@ -100,7 +100,7 @@
  */
 
 #define MAX_UFNNLEN      60
-#define MAX_VARNLEN      64
+#define MAX_VARNLEN      60
 #define MAX_PARNLEN      60
 
 #endif
