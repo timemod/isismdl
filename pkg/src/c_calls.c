@@ -7,8 +7,8 @@
 #include "set_fit_options.h"
 #include "option_utils.h"
 #include "init_set_get_options.h"
+#include "isismdl_types.h"
 
-#define MAX_NAME_LEN 32
 #define ALL  1
 #define FRML 2
 #define ENDOLEADS 3
@@ -151,7 +151,7 @@ SEXP get_par_names_c(SEXP model_index_) {
 
     /* get list of parameters */
     int ipar, len, alpha = 1;
-    char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
+    char name[MCMXNM + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, npar));
     for (ipar = 1; ipar <= npar; ipar++) {
         F77_CALL(get_param_name)(&model_index, &ipar, name, &len, &alpha);
@@ -209,7 +209,7 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
 
     /* get list of variables */
     int ivar, len;
-    char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
+    char name[MCMXNM + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, nvar));
     for (ivar = 1; ivar <= nvar; ivar++) {
         if (type == ALL) {
@@ -250,7 +250,7 @@ SEXP get_lags_or_leads(int model_index, int type) {
 
     /* now create character vector with the variable names */
     int len, alphabet = 0, i;
-    char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
+    char name[MCMXNM + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, cnt));
     for (i = 0; i < cnt; i++) {
         F77_CALL(get_variable_name)(&model_index, &ivars[i], name, &len,
@@ -321,7 +321,7 @@ SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP solve_order_,
 
     /* now create character vector with the selected equation names */
     int len, ivar;
-    char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
+    char name[MCMXNM + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, cnt));
     for (i = 0; i < cnt; i++) {
         if (endo_names) {
@@ -559,7 +559,7 @@ SEXP get_fix_fit_c(SEXP type_, SEXP model_index_) {
     INTEGER(dim)[1] = nvar;
     setAttrib(mat, R_DimSymbol, dim);
 
-    char name[MAX_NAME_LEN + 1]; /* +1 because of terminating '\0' */
+    char name[MCMXNM + 1]; /* +1 because of terminating '\0' */
     SEXP names = PROTECT(allocVector(STRSXP, nvar));
     int i, len, alpha = 0;
     for (i = 0; i < nvar; i++) {
