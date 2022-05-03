@@ -40,7 +40,7 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     
     real(kind = ISIS_RKIND), dimension(:,:), allocatable :: u, vt
     real(kind = ISIS_RKIND), dimension(:), allocatable :: sv, work, vec
-    real(kind = ISIS_RKIND) :: rlwork
+    real(kind = ISIS_RKIND), dimension(1) :: rlwork
     real(kind = ISIS_RKIND), dimension(:), allocatable :: minc, minr
     integer :: info, lwork, i, j, min_m_n, max_m_n, stat
     
@@ -76,7 +76,7 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     enddo
     
     call dgesvd('A', 'A', m, n, mat, m, sv, u, m, vt, n, rlwork, -1, info)
-    lwork = nint(rlwork)
+    lwork = nint(rlwork(1))
     allocate(work(lwork), stat = stat)
     if (stat /= 0) then
         call svdot1

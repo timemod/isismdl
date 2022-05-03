@@ -8,11 +8,9 @@ RCHECKARG=--no-multiarch
 PKG_FFLAGS=-fimplicit-none -cpp -J $(PKGDIR)/src/mod -I $(PKGDIR)/src/include
 PKG_CFLAGS=
 
-# Package name, Version and date from DESCIPTION
-PKG=$(shell grep 'Package:' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
-PKGTAR=$(PKG)_$(shell grep 'Version' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2).tar.gz
-PKGDATE=$(shell grep 'Date' $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
-TODAY=$(shell date "+%Y-%m-%d")
+# Package name and Version from DESCIPTION
+PKG=$(shell grep Package: $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2)
+PKGTAR=$(PKG)_$(shell grep Version $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2).tar.gz
 
 export OSTYPE=$(shell Rscript -e "cat(.Platform[['OS.type']])")
 
@@ -39,21 +37,18 @@ help:
 # gives error doing syntax target
 #R_CPPFLAGS=$(shell R CMD config --cppflags)
 FC=$(shell R CMD config FC)
-F77=$(shell R CMD config F77)
 CC=$(shell R CMD config CC)
 CPP=$(shell R CMD config CXX)
 CPP_FLAGS=$(shell R CMD config --cppflags)
 
 flags:
-	@echo "OSTYPE=$(OSTYPE)"
-	@echo "PKGDIR=$(PKGDIR)"
-	@echo "PKG=$(PKG)"
-	@echo "PKGTAR=$(PKGTAR)"
-	@echo "PKGDATE=$(PKGDATE)"
-	@echo "FC=$(FC)"
-	@echo "F77=$(F77)"
-	@echo "CC=$(CC)"
-	@echo ".libPaths():"
+	@echo OSTYPE=$(OSTYPE)
+	@echo PKGDIR=$(PKGDIR)
+	@echo PKG=$(PKG)
+	@echo PKGTAR=$(PKGTAR)
+	@echo FC=$(FC)
+	@echo CC=$(CC)
+	@echo libPaths:
 	@R --no-save --quiet --slave -e '.libPaths()'
 
 test:
@@ -68,15 +63,10 @@ check: cleanx syntax
 	R CMD build $(PKGDIR)
 	R CMD check $(RCHECKARG) $(PKGTAR)
 	@rm -f  $(PKGTAR)
-	@echo "Today                           : $(TODAY)"
-	@echo "Checked package description date: $(PKGDATE)"
-# 	@Rscript -e 'cat("Installed version date          :",packageDescription("nleqslv", fields="Date"))'
-	@echo ""
 
-
-syntax: bin
-	# To make sure that all Fortran module files (.mod) files are present,
-	# we have to run the bin target before we can check the syntax.
+syntax: install
+# To make sure that all Fortran module files (.mod) files are present,
+# we have to install teh package before syntax checking
 	$(FC) $(PKG_FFLAGS) -c -fsyntax-only -Wall -pedantic $(PKGDIR)/src/*.f90
 	$(CC) $(CPP_FLAGS) $(PKG_CFLAGS) -std=gnu99 -c -fsyntax-only -Wall -pedantic $(PKGDIR)/src/*.c
 
@@ -98,10 +88,6 @@ else
 	R CMD build $(PKGDIR)
 	#R CMD check --as-cran $(RCHECKARG) $(PKGTAR)
 	@cp -nv $(PKGTAR) archive
-	@echo "Today                           : $(TODAY)"
-	@echo "Checked package description date: $(PKGDATE)"
-	@echo "Checked package description date: $(PKGDATE)"
-	@echo ""
 	./drat.sh --pkg=$(PKGTAR)
 endif
 
