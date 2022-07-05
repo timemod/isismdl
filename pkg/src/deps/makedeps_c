@@ -24,6 +24,7 @@ init.o : c_calls.h compile_mdl_c.h convert_mdl_file_c.h \
 mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h \
           include_paths.h ipcode.h isismdl.h mchdr.h mcinit.h mcopt.h mdldef.h \
           outecode.h outmdl.h symbol.h util.h xpcdef.h
+mchdr.o : include_paths.h mcopt.h
 mcinit.o : dependencies.h ecode.h ipcode.h mcinit.h symbol.h util.h \
           xpcdef.h xpctab.h
 mcip.o : flags.h include_paths.h mchdr.h mcopt.h util.h

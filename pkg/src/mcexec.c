@@ -88,6 +88,14 @@ static void reset(void) {
     clear_flags();
 }
 
+
+/* Call the model parsers.
+ * mfname: name of the mdl file
+ * outputfile: if this function is called by mcisis, outputfile is the name
+ *             of the file to which the preprocessed mdl file is written.
+ *             if this function is called from convert_mdl_c, outputfile is the
+ *             name of the ouptu file with converted mdl.
+ */
 int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
     FILE    *mp;
     char    *fnmdl;
@@ -163,7 +171,6 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
         return FILE_ERROR;
     }
 
-    init_scanner(fnmdl);
 
     if (!options.Strict) {
          /* non-strict compilation: parameters may be used before
@@ -175,11 +182,11 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
             Rprintf("Scanning model for parameters ...\n" );
             tb = clock();
         }
+        init_scanner(fnmdl, NULL);
         scanning = 1;
         mc_scan_params();
         scanning = 0;
 
-        init_scanner(fnmdl);
         mcrestart(NULL);
 
         if (!options.McIsisMdl) {
@@ -196,6 +203,12 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
        tb = clock();
     }
 
+    if (options.McIsisMdl) {
+      init_scanner(fnmdl, outputfile);
+    } else {
+      init_scanner(fnmdl, NULL);
+    }
+ 
     /* initialise parser (needed when mcexec is called more than once)
      */
     mcparse_init();
@@ -308,8 +321,8 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
     return 0;
     }
     
-    char *mkfname( char *fname, char *path, char *base, char *ext) {
-        char    *fn;
+char *mkfname( char *fname, char *path, char *base, char *ext) {
+    char *fn;
     
     fn = fnjoin( fname, path, base, ext);
     if (fn == NULL) {

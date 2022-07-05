@@ -814,6 +814,7 @@ char *yytext;
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <Rinternals.h>
 
 #include "symbol.h"
@@ -831,6 +832,7 @@ char *yytext;
 
 static void    open_buffer(char *filename);
 static void    close_buffer(void);
+static void    close_preproc_file(void);
 static void    get_comment ( void );
 static char*   get_includefile ( void );
 static int     mcgetc(void);
@@ -846,7 +848,9 @@ typedef struct _selem {
 
 static include_stack_elem include_stack[MAX_INCLUDE_DEPTH + 1];
 
-static  FILE *fin  = NULL;              /* input  stream */
+static FILE *fin  = NULL;              /* input  stream */
+static int write_preproc_file = 0;
+static FILE *fp_preproc = NULL;  /* output stream for preprocessed file */
 static char *filename;
 static char *dirname;
 static char *buf;
@@ -888,11 +892,11 @@ static size_t if_nest_cnt; /* number of nested #if constructs within a #if */
 
 #endif
 
-#line 892 "scan.c"
+#line 896 "scan.c"
 /* the "incl" state is used for picking up the name of an include file
  */
 
-#line 896 "scan.c"
+#line 900 "scan.c"
 
 #define INITIAL 0
 #define incl 1
@@ -1113,10 +1117,10 @@ YY_DECL
 		}
 
 	{
-#line 105 "lex_yacc/scan.l"
+#line 109 "lex_yacc/scan.l"
 
 
-#line 1120 "scan.c"
+#line 1124 "scan.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1175,17 +1179,17 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 107 "lex_yacc/scan.l"
+#line 111 "lex_yacc/scan.l"
 BEGIN(incl);
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 108 "lex_yacc/scan.l"
+#line 112 "lex_yacc/scan.l"
 /* eat the white space */
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 109 "lex_yacc/scan.l"
+#line 113 "lex_yacc/scan.l"
 {   
                     char *inclname = get_includefile();
                     if (inclname != NULL) {
@@ -1196,43 +1200,43 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 116 "lex_yacc/scan.l"
+#line 120 "lex_yacc/scan.l"
 { mcerror("Illegal #include syntax");
                 BEGIN(INITIAL);
               }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 120 "lex_yacc/scan.l"
+#line 124 "lex_yacc/scan.l"
 BEGIN(get_flag);
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 121 "lex_yacc/scan.l"
+#line 125 "lex_yacc/scan.l"
 {if_nest_cnt = 0;
                     BEGIN(goto_endif);
                    }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 124 "lex_yacc/scan.l"
+#line 128 "lex_yacc/scan.l"
 {if_nest_cnt = 0;
                     BEGIN(goto_endif);
                    }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 127 "lex_yacc/scan.l"
+#line 131 "lex_yacc/scan.l"
 /* ignore */
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 129 "lex_yacc/scan.l"
+#line 133 "lex_yacc/scan.l"
 /* eat the white space */
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 130 "lex_yacc/scan.l"
+#line 134 "lex_yacc/scan.l"
 {  if (flag_present(mctext)) {
 		   	BEGIN(INITIAL);
                       } else {
@@ -1243,22 +1247,22 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 138 "lex_yacc/scan.l"
+#line 142 "lex_yacc/scan.l"
 {if_nest_cnt++;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 139 "lex_yacc/scan.l"
+#line 143 "lex_yacc/scan.l"
 {if (!if_nest_cnt) BEGIN(get_flag);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 140 "lex_yacc/scan.l"
+#line 144 "lex_yacc/scan.l"
 {if (!if_nest_cnt) BEGIN(INITIAL);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 141 "lex_yacc/scan.l"
+#line 145 "lex_yacc/scan.l"
 {  if (!if_nest_cnt) {
                             BEGIN(INITIAL);
                         } else {
@@ -1268,23 +1272,23 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 147 "lex_yacc/scan.l"
+#line 151 "lex_yacc/scan.l"
 /* skip */
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 148 "lex_yacc/scan.l"
+#line 152 "lex_yacc/scan.l"
 /* skip newline */
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 150 "lex_yacc/scan.l"
+#line 154 "lex_yacc/scan.l"
 {if_nest_cnt++;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 151 "lex_yacc/scan.l"
+#line 155 "lex_yacc/scan.l"
 {  if (!if_nest_cnt) { 
                              BEGIN(INITIAL);
                          } else {
@@ -1294,13 +1298,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 157 "lex_yacc/scan.l"
+#line 161 "lex_yacc/scan.l"
 /* skip */
 	YY_BREAK
 case 20:
 /* rule 20 can match eol */
 YY_RULE_SETUP
-#line 158 "lex_yacc/scan.l"
+#line 162 "lex_yacc/scan.l"
 /* skip newline */
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
@@ -1308,124 +1312,128 @@ case YY_STATE_EOF(incl):
 case YY_STATE_EOF(get_flag):
 case YY_STATE_EOF(goto_else):
 case YY_STATE_EOF(goto_endif):
-#line 160 "lex_yacc/scan.l"
-{ close_buffer();
-          if (include_level < 0) yyterminate();}
+#line 165 "lex_yacc/scan.l"
+{ close_buffer(); 
+          if (include_level < 0) {
+            close_preproc_file();
+            yyterminate();
+          }
+        }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 163 "lex_yacc/scan.l"
-{ mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
+#line 172 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 164 "lex_yacc/scan.l"
-{ mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
+#line 173 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 166 "lex_yacc/scan.l"
-{ get_comment(); }
+#line 175 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); get_comment();}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 168 "lex_yacc/scan.l"
-{ return mclval.ival = mctext[0]; }
+#line 177 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = mctext[0]; }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 170 "lex_yacc/scan.l"
-{ return mclval.ival = T_POW; }
+#line 179 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_POW; }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 171 "lex_yacc/scan.l"
-{ return mclval.ival = T_GT;  }
+#line 180 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GT;  }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 172 "lex_yacc/scan.l"
-{ return mclval.ival = T_GE;  }
+#line 181 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GE;  }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 173 "lex_yacc/scan.l"
-{ return mclval.ival = T_LT;  }
+#line 182 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LT;  }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 174 "lex_yacc/scan.l"
-{ return mclval.ival = T_LE;  }
+#line 183 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LE;  }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 175 "lex_yacc/scan.l"
-{ return mclval.ival = T_AND; }
+#line 184 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 176 "lex_yacc/scan.l"
-{ return mclval.ival = T_OR;  }
+#line 185 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 177 "lex_yacc/scan.l"
-{ return mclval.ival = T_NOT; }
+#line 186 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NOT; }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 178 "lex_yacc/scan.l"
-{ return mclval.ival = T_EQ;  }
+#line 187 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_EQ;  }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 179 "lex_yacc/scan.l"
-{ return mclval.ival = T_NE;  }
+#line 188 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 181 "lex_yacc/scan.l"
-{ return mclval.ival = T_GT;  }
+#line 190 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GT;  }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 182 "lex_yacc/scan.l"
-{ return mclval.ival = T_GE;  }
+#line 191 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GE;  }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 183 "lex_yacc/scan.l"
-{ return mclval.ival = T_LT;  }
+#line 192 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LT;  }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 184 "lex_yacc/scan.l"
-{ return mclval.ival = T_LE;  }
+#line 193 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LE;  }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 185 "lex_yacc/scan.l"
-{ return mclval.ival = T_NOT; }
+#line 194 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NOT; }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 186 "lex_yacc/scan.l"
-{ return mclval.ival = T_NE;  }
+#line 195 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 187 "lex_yacc/scan.l"
-{ return mclval.ival = T_AND; }
+#line 196 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 188 "lex_yacc/scan.l"
-{ return mclval.ival = T_OR;  }
+#line 197 "lex_yacc/scan.l"
+{if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 190 "lex_yacc/scan.l"
-{
+#line 199 "lex_yacc/scan.l"
+{       if (write_preproc_file) fputs(mctext, fp_preproc);
                 Symbol *sp;
 
                 /*
@@ -1443,20 +1451,21 @@ YY_RULE_SETUP
 case 44:
 /* rule 44 can match eol */
 YY_RULE_SETUP
-#line 206 "lex_yacc/scan.l"
-;       /* skip whitespace, including spurious carriage return */
+#line 215 "lex_yacc/scan.l"
+;  if (write_preproc_file) fputs(mctext, fp_preproc);
 	YY_BREAK
+/* skip whitespace, including spurious carriage return */
 case 45:
 YY_RULE_SETUP
-#line 208 "lex_yacc/scan.l"
+#line 218 "lex_yacc/scan.l"
 {if (!scanning) mcerror( "Illegal character in input" );}
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 211 "lex_yacc/scan.l"
+#line 221 "lex_yacc/scan.l"
 ECHO;
 	YY_BREAK
-#line 1460 "scan.c"
+#line 1469 "scan.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2459,29 +2468,45 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 211 "lex_yacc/scan.l"
+#line 221 "lex_yacc/scan.l"
 
 
-int mcwrap( void )
-{
-    return 1;
+int mcwrap(void) {
+  return 1;
 }
 
-void init_scanner(char *filenm) {
-    /*
-     * Initialise the scanner for the specified filename 
-     */
+void init_scanner(char *filenm, const char *filenm_preproc) {
+   /*
+    * Initialise the scanner for the specified filename 
+    */
 
-    include_level = -1;
+   include_level = -1;
 
-    open_buffer(filenm);
+   open_buffer(filenm);
+
+   write_preproc_file = filenm_preproc != NULL;
+   if (write_preproc_file) fp_preproc = fopen(filenm_preproc, "w+");
+}
+
+void close_preproc_file(void) {
+    if (write_preproc_file) {
+      fclose(fp_preproc);
+      write_preproc_file = 0;
+    }
 }
 
 void reset_scanner(void) {
     /*
-     * Close all buffers. This function should be called when an
+     * Close all buffers. This function is called when an
      * end; statement has occurred in the model
      */
+
+    if (write_preproc_file) {
+      // write a newline, the newline after end; in the input is ignored
+      fputc('\n', fp_preproc);
+      close_preproc_file();
+    }
+
 
     if (include_level > 0) {
       mcerror("end; statement not allowed in included file");
@@ -2506,6 +2531,7 @@ void reset_scanner(void) {
     }
 
     include_level = -1;
+
 }
 
 
@@ -2640,15 +2666,15 @@ void showbuf( FILE *fout )
  * and discard to end of line
  */
 
-static  void    get_comment( void )
-{
-    int     c;
-
-    while( (c = input()) != '\n' && c != EOF);
+static void get_comment(void) {
+    int c;
+    while ((c = input()) != '\n' && c != EOF) {
+       if (write_preproc_file) fputc((char) c, fp_preproc);
+    }
+    if (write_preproc_file) fputc('\n', fp_preproc);
 }
 
-static char * get_includefile(void) 
-{
+static char * get_includefile(void) {
    /* Returns the name of the include file based on the specified
     * include filename and the include search paths
     */

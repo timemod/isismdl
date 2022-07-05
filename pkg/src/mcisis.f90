@@ -1,5 +1,5 @@
 subroutine mcisis(modelnaml,modelnams, &
-&                 mifnaml, mifnams, &
+&                 mifnaml, mifnams, ppfnaml, ppfnams, &
 &                 idofbrd, igenfbo, ifbomif, iprifbi, iprisjc, &
 &                 mrfopt, fbcopt, igen_dep_file, mcstat)
 use mcvars
@@ -10,10 +10,10 @@ use mcxref
 use iso_c_binding, only : C_NULL_CHAR
 
 interface
-    function mcip(mfname, strict, gen_dep_file) bind(c)
+    function mcip(mfname, ppfname, strict, gen_dep_file) bind(c)
         use iso_c_binding, only : c_int, c_char
         integer(c_int) :: mcip
-        character(kind = c_char), dimension(*), intent(in) :: mfname
+        character(kind = c_char), dimension(*), intent(in) :: mfname, ppfname
         integer(c_int), intent(in) :: strict, gen_dep_file
     end function mcip
 end interface
@@ -72,6 +72,7 @@ end interface
 integer, intent(out) ::  mcstat
 integer, intent(in) ::  modelnaml, modelnams(*)
 integer, intent(in) ::  mifnaml, mifnams(*)
+integer, intent(in) ::  ppfnaml, ppfnams(*)
 integer, intent(in) ::  idofbrd, igenfbo, ifbomif, iprifbi, iprisjc,  &
                                    igen_dep_file
 integer, intent(in) ::  mrfopt(*), fbcopt(*)
@@ -100,7 +101,7 @@ logical ::  davail
 external davail
 
 !     name of model file with path
-character*(MAXFLEN + 1) pathnm
+character*(MAXFLEN + 1) pathnm, ppfname
 
 integer ::   ios
 integer ::   ier,errpar,mcrcod,orderr
@@ -114,6 +115,7 @@ integer ::  istrict, i_gen_dep_file
 !*ENDIF
 integer ::  remove_xrffile, remove_miffile, xrf_err, mif_err
 integer ::  fbor_err
+
 
 ! convert integers (passed from C) to logicals
 dofbrd = idofbrd > 0
@@ -142,6 +144,11 @@ call mcfileadmin(modelnaml, modelnams, pathnm)
 ! generate names of the mif and mrf file
 call byasf7(mifnams, 1, mifnaml, mifnam)
 call mkfnam(xrfnam,xrfext)
+
+!
+! TODO: check maximum length mnams, mifnam, etc, ppfnams (MAXFLEN?)
+!
+call byasf7(ppfnams, 1, ppfnaml, ppfname)
 
 !  delete the mif and mrf file if they already exist
 mif_err = remove_miffile()
@@ -207,7 +214,8 @@ else
    i_gen_dep_file = 0
 endif
 
-mcstat = mcip(trim(pathnm) // C_NULL_CHAR, istrict, i_gen_dep_file)
+mcstat = mcip(trim(pathnm) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR,  &
+              istrict, i_gen_dep_file)
 
 call mcimsg(3, 0)
 

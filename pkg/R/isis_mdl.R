@@ -151,10 +151,12 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   # of package isismdl. Changing this behavior is not trivial and requires a
   # significant reorganization of the code.
 
+  preproc_file <- tempfile(pattern = "isismdl_", fileext = ".mdl")
+
   call_compile_mdl_c <-function() {
     with(parse_options_, {
-      return(.Call(compile_mdl_c, model_file, mif_file, flags, include_dirs,
-                   gen_dep_file))
+      return(.Call(compile_mdl_c, model_file, mif_file, preproc_file,
+                   flags, include_dirs, gen_dep_file))
 
     })
   }
@@ -170,14 +172,8 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
     stop("Compilation was not successful")
   }
 
-  # TODO: if the model contains preprocessor directives (#if, #include),
-  # the text should actually be preprocessed
-  model_filename = if (file_ext(model_file) == "mdl") {
-                              model_file
-                    } else {
-                      paste0(model_file, ".mdl")
-                    }
-  model_text <- read_file(model_filename)
+  model_text <- read_file(preproc_file)
+  ok <- file.remove(preproc_file)
 
   mdl <- IsisMdl$new(mif_file = mif_file, model_text = model_text,
                      silent = silent)

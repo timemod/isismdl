@@ -23,7 +23,7 @@ extern  int     mcparse();
 extern  void    mcparse_init(void);
 
 extern  int     mclex(void);
-extern  void    init_scanner(char *filename);
+extern  void    init_scanner(char *filename, const char *filename_preproc);
 extern  void    reset_scanner(void);
 extern  void    showbuf( FILE *fout );
 

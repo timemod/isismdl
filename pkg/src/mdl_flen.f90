@@ -1,7 +1,7 @@
 module mdl_flen
 
 ! maximum filename including path and extension.
-integer, parameter :: MAXFLEN = 256
+integer, parameter :: MAXFLEN = 1000
 
 ! maximum size of extension (including a . or _ ):
 integer, parameter :: MAXEXTLEN = 5
