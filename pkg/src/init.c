@@ -6,6 +6,7 @@
 #include "c_calls.h"
 #include "compile_mdl_c.h"
 #include "convert_mdl_file_c.h"
+#include "preproc_mdl_file_c.h"
 #include "get_fit_opts_c.h"
 #include "get_solve_opts_c.h"
 #include "order_mdl_c.h"
@@ -56,6 +57,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"remove_mws_c", (DL_FUNC) &remove_mws_c, 1},
     {"compile_mdl_c", (DL_FUNC) &compile_mdl_c, 6},
     {"convert_mdl_file_c", (DL_FUNC) &convert_mdl_file_c, 5},
+    {"preproc_mdl_file_c", (DL_FUNC) &preproc_mdl_file_c, 4},
     {"get_fit_opts_c", (DL_FUNC) &get_fit_opts_c, 1},
     {"get_solve_opts_c", (DL_FUNC) &get_solve_opts_c, 1},
     {"order_mdl_c", (DL_FUNC) &order_mdl_c, 2},

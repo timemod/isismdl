@@ -26,25 +26,16 @@ convert_mdl_file <- function(model_file, output_file,
                              conversion_options = list(),
                              parse_options = list()) {
 
-  default_parse_options <- list(flags = NULL,
-                                include_dirs = NULL,
-                                gen_dep_file = FALSE)
+  model_file <- check_mdl_file(model_file)
+  parse_options <- prepare_parse_options(parse_options)
 
   if (!missing(conversion_options) && !is.list(conversion_options)) {
     stop("Argument conversion_options is not a list")
   }
 
-  parse_options_ <- default_parse_options
-  if (!missing(parse_options)) {
-    names <- names(parse_options)
-    parse_options_[names] <- parse_options
-  }
-
-  with(parse_options_, {
+  with(parse_options, {
     retval <- .Call(convert_mdl_file_c, model_file, output_file, flags,
                     include_dirs, conversion_options)
     return(retval)
   })
-
-
 }

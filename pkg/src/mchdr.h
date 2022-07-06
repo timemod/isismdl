@@ -40,5 +40,6 @@ extern  void    export_names(void);
 
 extern Mcopt options;
 
-extern  int     mcexec(const char *mfname, const char *outputfile, Mcopt options);
+extern  int     mcexec(const char *mfname, const char *outputfile, 
+		       const Mcopt *options);
 #endif

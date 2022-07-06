@@ -119,31 +119,16 @@
 isis_mdl <- function(model_file, period, data, ca, fix_values,
                      parse_options, silent = FALSE) {
 
-  #
-  # check model file
-  #
-  if (!is.character(model_file) | length(model_file) > 1) {
-    stop("Argument 'model_file' must be a character vector of length 1.")
-  }
-  if (dir.exists(model_file)) stop(sprintf("'%s' is a directory", model_file))
-  if (.Platform$OS.type == "unix" && startsWith(model_file, "~")) {
-    model_file <- sub("~", Sys.getenv("HOME"), model_file)
-  }
+  model_file <- check_mdl_file(model_file)
 
   if (!missing(period)) {
     period <- as.period_range(period)
   }
 
+  parse_options <- prepare_parse_options(parse_options)
+
   mif_file <- tempfile(pattern = "isismdl_", fileext = ".mif")
 
-  default_parse_options <- list(flags = NULL, include_dirs = NULL,
-                                gen_dep_file = FALSE)
-
-  parse_options_ <- default_parse_options
-  if (!missing(parse_options)) {
-    names <- names(parse_options)
-    parse_options_[names] <- parse_options
-  }
 
   # compile_mdl_c writes intermediate results to a so called
   # mif file (model information file). These results are then
@@ -154,7 +139,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   preproc_file <- tempfile(pattern = "isismdl_", fileext = ".mdl")
 
   call_compile_mdl_c <-function() {
-    with(parse_options_, {
+    with(parse_options, {
       return(.Call(compile_mdl_c, model_file, mif_file, preproc_file,
                    flags, include_dirs, gen_dep_file))
 

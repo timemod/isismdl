@@ -96,7 +96,7 @@ static void reset(void) {
  *             if this function is called from convert_mdl_c, outputfile is the
  *             name of the ouptu file with converted mdl.
  */
-int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
+int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) {
     FILE    *mp;
     char    *fnmdl;
     char    fname[FILENAME_MAX + 1];
@@ -104,14 +104,16 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
     clock_t tb, te;
     double  cpusecs;
 
-    options = options_in;
+    options = *options_in;
 
     /* check output options */
-    int output_cnt = options.Showecode + options.Showocode +
-                     options.MakeTroll + options.MakeEviews;
+    int output_cnt = options.McPreproc + options.Showecode + 
+	             options.Showocode + options.MakeTroll + 
+		     options.MakeEviews + options.MakeDynare;
     if (output_cnt > 1) {
         ERROR("Only a single output type can be selected");
-    } else if (output_cnt != 0 && options.McIsisMdl) {
+    } else if ((output_cnt != 0 && !(output_cnt == 1 && options.McPreproc))
+		    && options.McIsisMdl) {
         ERROR("Options McIsisMdl is incompatible with output options");
     } else if (output_cnt == 1 && outputfile == NULL) {
         ERROR("Argument outputfile should not be NULL");
@@ -133,13 +135,6 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
     /* if the input filename fname does not have an extension, 
      * then add extension "mdl" */
     fnmdl = (*ext == 0 ) ? mkfname(fname, path, base, "mdl") : fname;
-
-    /* if argument outputname has been specified, then determine the
-     * path and base of the outputname and use these variables 
-     * to generate the output filenames */
-    if (options.outputname != NULL) {
-        fnsplit(options.outputname, path, base, ext);
-    }
 
     /* create error file */
     mkfname(msgname, path, base, "err" );   /* for errors and warnings */
@@ -178,7 +173,7 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
           * for parameters
           */
 
-        if (!options.McIsisMdl) {
+        if (options.ShowTiming) {
             Rprintf("Scanning model for parameters ...\n" );
             tb = clock();
         }
@@ -189,7 +184,7 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
 
         mcrestart(NULL);
 
-        if (!options.McIsisMdl) {
+        if (options.ShowTiming) {
             te = clock();
             cpusecs = CPUSECS(tb,te);
             Rprintf("Scanning used %.2f seconds\n", cpusecs);
@@ -199,11 +194,11 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
         }
     }
 
-    if (!options.McIsisMdl) {
+    if (options.ShowTiming) {
        tb = clock();
     }
 
-    if (options.McIsisMdl) {
+    if (options.McPreproc) {
       init_scanner(fnmdl, outputfile);
     } else {
       init_scanner(fnmdl, NULL);
@@ -215,13 +210,13 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
 
     mcparse();
 
-    if (!options.McIsisMdl) {
+    if (options.ShowTiming) {
         te = clock();
         cpusecs = CPUSECS(tb,te);
         Rprintf("Parse used %.2f seconds\n", cpusecs);
     }
 
-    if( warncnt || errcnt ) {
+    if (warncnt || errcnt) {
         if (!options.McIsisMdl) {
             ERROR("Warnings and/or errors written to .err file\n");
         }
@@ -253,11 +248,12 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
         fclose(foco);
     }
 
+    /*
+
     if (options.MakeTroll) {
     
         ERROR("It is not yet possible to generate Troll output");
 
-        /*
 
         mkfname(outputfile, path, base, "inp" ); 
         foco = efopen(outputfile, "w" );
@@ -270,8 +266,8 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
 
         out_tmdl(foco, fxtr);
         fclose(foco);
-        */
     }
+    */
 
     if (options.MakeDynare) {
         FILE *foco = efopen(outputfile, "w" );
@@ -279,15 +275,17 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
         fclose(foco);
     }
 
+    /*
     if( options.MakeEviews) {
         FILE *foco = efopen(outputfile, "w" );
         out_vmdl(foco, options.mdlname);
         fclose(foco);
     }
+    */
 
     if (options.gen_dep) {
         char depfilename[FILENAME_MAX + 1];
-        mkfname(depfilename, path, base, "dep");   
+	mkfname(depfilename, path, base, "dep");
         FILE *fdep = efopen(depfilename, "w" );
         do_dep(fdep);
         fclose(fdep);

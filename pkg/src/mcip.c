@@ -13,7 +13,9 @@ int mcip(const char *mfname, const char *ppfname,
          int *strict, int *gen_dep_file) {
     Mcopt options;
     mcopt_init(&options);
+    options.McIsisMdl = 1;
+    options.McPreproc = 1;
     options.Strict = *strict;
     options.gen_dep = *gen_dep_file;
-    return mcexec(mfname, ppfname, options);
+    return mcexec(mfname, ppfname, &options);
 }
