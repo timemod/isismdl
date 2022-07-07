@@ -1,6 +1,7 @@
 module model_type
 
     use model_params
+    use mdl_flen
 
     !
     ! Model paramters
@@ -23,7 +24,7 @@ module model_type
 
     type model
         integer(kind = MC_IKIND)  :: cnamelen
-        character(len = MAXMOLEN_2) :: cname
+        character(len = MAXMOLEN) :: cname
         character(len = 10) :: date, time
         integer(kind = MC_IKIND)  :: &
 &           neq,loops,loope,nuf,nulf,ielast,ufblen,eqblen, &

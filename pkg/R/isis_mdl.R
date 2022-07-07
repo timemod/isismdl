@@ -121,7 +121,6 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
 
   parse_options <- check_parse_options(parse_options)
 
-
   # compile_mdl_c writes intermediate results to a so called
   # mif file (model information file). These results are then
   # read by read_model. This strange situation is due to the history
@@ -132,7 +131,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   flags <- parse_options$flags
   include_dirs <- parse_options$include_dirs
 
-  call_compile_mdl_c <-function() {
+  call_compile_mdl_c <- function() {
     return(.Call(compile_mdl_c, model_file, mif_file, preproc_file,
                  flags, include_dirs))
   }

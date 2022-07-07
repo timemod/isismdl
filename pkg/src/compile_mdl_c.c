@@ -21,8 +21,7 @@ SEXP compile_mdl_c(SEXP filename, SEXP mifname, SEXP ppfname,
     int ppfnmlen = strlen(ppfnm);
 
     /* initialise options */
-    int idofbrd, igenfbo, ifbomif, iprifbi, iprisjc,
-        mrfopt[2], fbcopt[2];
+    int idofbrd, igenfbo, ifbomif, iprifbi, iprisjc, mrfopt[2], fbcopt[2];
 
     idofbrd = 1;
     igenfbo = 1;

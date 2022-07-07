@@ -2,7 +2,6 @@
  * initialize options
  */
 
-#include <stdio.h>
 #include "mcopt.h"
 
 /* mcopt_init: initialise the options for the model compiler */

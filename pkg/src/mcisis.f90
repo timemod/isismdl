@@ -7,6 +7,7 @@ use mccedp
 use mdordr
 use mcpars
 use mcxref
+use output_utils
 use iso_c_binding, only : C_NULL_CHAR
 
 interface
@@ -134,16 +135,25 @@ call mcimsg(1, 0)
 
 call mcifig
 
+! check length of filenames
+if (modelnaml > MAXFLEN) then
+    call isismdl_error("Length of model filename too long")
+endif
+if (mifnaml > MAXFLEN) then
+    call isismdl_error("Length of filename for mif file too long")
+endif
+if (ppfnaml > MAXFLEN) then
+    call isismdl_error("Length of filename for preproc file too long")
+endif
+
 ! initialise model compiler, determine pathname modelfile
 call mcfileadmin(modelnaml, modelnams, pathnm)
+
 
 ! generate names of the mif and mrf file
 call byasf7(mifnams, 1, mifnaml, mifnam)
 call mkfnam(xrfnam,xrfext)
 
-!
-! TODO: check maximum length mnams, mifnam, etc, ppfnams (MAXFLEN?)
-!
 call byasf7(ppfnams, 1, ppfnaml, ppfname)
 
 !  delete the mif and mrf file if they already exist

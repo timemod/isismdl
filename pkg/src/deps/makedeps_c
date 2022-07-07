@@ -14,8 +14,6 @@ fname.o : fname.h
 futils.o : futils.h
 gen_dep_file.o : gen_dep_file.h include_paths.h mchdr.h mcopt.h \
                 run_mcexec.h
-gen_dep_file_c.o : gen_dep_file_c.h include_paths.h mchdr.h mcopt.h \
-                  run_mcexec.h
 get_fit_opts_c.o : fit_options.h get_fit_opts_c.h get_option_utils.h \
                   init_set_get_options.h
 get_option_utils.o : get_option_utils.h
@@ -28,7 +26,6 @@ init.o : c_calls.h compile_mdl_c.h convert_mdl_file_c.h gen_dep_file.h \
 mcexec.o : dependencies.h ecode.h flags.h fname.h futils.h \
           include_paths.h ipcode.h isismdl.h mchdr.h mcinit.h mcopt.h mdldef.h \
           outecode.h outmdl.h symbol.h util.h xpcdef.h
-mchdr.o : include_paths.h mcopt.h
 mcinit.o : dependencies.h ecode.h ipcode.h mcinit.h symbol.h util.h \
           xpcdef.h xpctab.h
 mcip.o : flags.h include_paths.h mchdr.h mcopt.h util.h
@@ -56,12 +53,8 @@ outvmdl.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
            mchdr.h mcinit.h mcopt.h mdldef.h oprintf.h outmdl.h outovtmdl.h \
            outvtmdl.h symbol.h util.h xpcdef.h
 prepare_compiler.o : flags.h include_paths.h prepare_compiler.h
-preproc_mdl_file_c.o : include_paths.h mchdr.h mcopt.h \
-                      preproc_mdl_file_c.h run_mcexec.h
 run_mcexec.o : include_paths.h mchdr.h mcopt.h prepare_compiler.h \
               run_mcexec.h
-run_preproc_c.o : include_paths.h mchdr.h mcopt.h run_mcexec.h \
-                 run_preproc_c.h
 scan.o : dependencies.h ecode.h flags.h fname.h include_paths.h \
         ipcode.h mchdr.h mcinit.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
 scan_params.o : dependencies.h ecode.h include_paths.h ipcode.h \
