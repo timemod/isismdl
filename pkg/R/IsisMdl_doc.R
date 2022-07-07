@@ -2219,7 +2219,7 @@ NULL
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 #' @examples
 #' mdl <- islm_mdl()
-#' cat(mdl$get_dep_struct())
+#' print(mdl$get_dep_struct())
 NULL
 
 #' \code{\link{IsisMdl}} method: Returns the last solve period

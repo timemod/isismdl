@@ -1,4 +1,5 @@
 # internal function to create the dependency structure from the model_text
+#' @importFrom utils read.csv
 #' @useDynLib isismdl gen_dep_file
 get_dep_struct_internal <- function(model_text) {
 

@@ -26,5 +26,5 @@ mdl$get_dep_struct()
 
 \examples{
 mdl <- islm_mdl()
-cat(mdl$get_dep_struct())
+print(mdl$get_dep_struct())
 }
