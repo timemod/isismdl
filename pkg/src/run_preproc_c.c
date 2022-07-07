@@ -1,10 +1,11 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
 #include "mchdr.h"
-#include "preproc_mdl_file_c.h"
+#include "run_preproc_c.h"
 #include "run_mcexec.h"
 
-SEXP preproc_mdl_file_c(SEXP filename, SEXP outputfile, SEXP flags, 
+/* Run the model preprocessor to get a fully preprocessed model */
+SEXP run_preproc_c(SEXP filename, SEXP outputfile, SEXP flags, 
                         SEXP include_dirs) {
 
     Mcopt mc_options;

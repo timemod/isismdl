@@ -83,13 +83,14 @@ All generated files have the same base name as the model file.
 
 
 The following parse options can be specified with argument
-\code{parse_options}. This argument should be a named list
+\code{parse_options}, which should be a named list
 \describe{
-\item{\code{"flags"}}{This flag is used for conditional compilation.
-Consult Section 3.11.2 "Conditional compilation" in the Isis reference
+\item{\code{"flags"}}{A character vector with the flags for conditional
+compilation. Consult Section 3.11.2 "Conditional compilation" in the Isis reference
 manual for more information about conditional compilation}
-\item{\code{"include_dirs"}}{Add directory \code{include_dir} to the list of
-directories to be searched for include files.
+\item{\code{"include_dirs"}}{A vector with the names of directories
+that should be added to the list of
+directories used to searched for include files.
 In the model file, the \code{\#include} directive (see Section
 3.11.1 "File inclusion" in the Isis Reference Manual) is used
 to include another file in the model. The specified name of the include
@@ -102,14 +103,7 @@ argument \code{include_dir}, in the order that the directories
 have been specified.
 If the include file is still not found, the parser
 searches in the current directory}
-\item{\code{"gen_dep_file"}}{Specify \code{TRUE} to generate a file with
-dependency information. The default is \code{FALSE}.
-The dependency information is written to an external file with extension
-\code{dep}. The file gives for each equation a list of the variables that occur
-in the right hand side of the equation with lags and leads included.
-This file may be useful for model analysis with other software.
-Currently this option cannot be used for models with user functions.
-}}
+}
 }
 
 \examples{

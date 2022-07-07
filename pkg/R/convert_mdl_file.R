@@ -27,7 +27,7 @@ convert_mdl_file <- function(model_file, output_file,
                              parse_options = list()) {
 
   model_file <- check_mdl_file(model_file)
-  parse_options <- prepare_parse_options(parse_options)
+  parse_options <- check_parse_options(parse_options)
 
   if (!missing(conversion_options) && !is.list(conversion_options)) {
     stop("Argument conversion_options is not a list")

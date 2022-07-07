@@ -6,7 +6,8 @@
 #include "c_calls.h"
 #include "compile_mdl_c.h"
 #include "convert_mdl_file_c.h"
-#include "preproc_mdl_file_c.h"
+#include "run_preproc_c.h"
+#include "gen_dep_file.h"
 #include "get_fit_opts_c.h"
 #include "get_solve_opts_c.h"
 #include "order_mdl_c.h"
@@ -55,9 +56,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"clone_mws_c", (DL_FUNC) &clone_mws_c, 1},
     {"set_period_c", (DL_FUNC) &set_period_c, 4},
     {"remove_mws_c", (DL_FUNC) &remove_mws_c, 1},
-    {"compile_mdl_c", (DL_FUNC) &compile_mdl_c, 6},
+    {"compile_mdl_c", (DL_FUNC) &compile_mdl_c, 5},
     {"convert_mdl_file_c", (DL_FUNC) &convert_mdl_file_c, 5},
-    {"preproc_mdl_file_c", (DL_FUNC) &preproc_mdl_file_c, 4},
+    {"run_preproc_c", (DL_FUNC) &run_preproc_c, 4},
+    {"gen_dep_file", (DL_FUNC) &gen_dep_file, 2},
     {"get_fit_opts_c", (DL_FUNC) &get_fit_opts_c, 1},
     {"get_solve_opts_c", (DL_FUNC) &get_solve_opts_c, 1},
     {"order_mdl_c", (DL_FUNC) &order_mdl_c, 2},

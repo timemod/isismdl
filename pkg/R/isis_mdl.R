@@ -62,13 +62,14 @@
 #' @section Parse options:
 #'
 #' The following parse options can be specified with argument
-#' \code{parse_options}. This argument should be a named list
+#' \code{parse_options}, which should be a named list
 #' \describe{
-#' \item{\code{"flags"}}{This flag is used for conditional compilation.
-#' Consult Section 3.11.2 "Conditional compilation" in the Isis reference
+#' \item{\code{"flags"}}{A character vector with the flags for conditional
+#' compilation. Consult Section 3.11.2 "Conditional compilation" in the Isis reference
 #' manual for more information about conditional compilation}
-#' \item{\code{"include_dirs"}}{Add directory \code{include_dir} to the list of
-#'  directories to be searched for include files.
+#' \item{\code{"include_dirs"}}{A vector with the names of directories
+#' that should be added to the list of
+#'  directories used to searched for include files.
 #'  In the model file, the \code{\#include} directive (see Section
 #'  3.11.1 "File inclusion" in the Isis Reference Manual) is used
 #' to include another file in the model. The specified name of the include
@@ -81,14 +82,7 @@
 #' have been specified.
 #' If the include file is still not found, the parser
 #' searches in the current directory}
-#' \item{\code{"gen_dep_file"}}{Specify \code{TRUE} to generate a file with
-#' dependency information. The default is \code{FALSE}.
-#' The dependency information is written to an external file with extension
-#' \code{dep}. The file gives for each equation a list of the variables that occur
-#' in the right hand side of the equation with lags and leads included.
-#' This file may be useful for model analysis with other software.
-#' Currently this option cannot be used for models with user functions.
-#' }}
+#' }
 #' @examples
 #'
 #' # copy the islm.mdl file in the directory models of the package
@@ -125,9 +119,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
     period <- as.period_range(period)
   }
 
-  parse_options <- prepare_parse_options(parse_options)
-
-  mif_file <- tempfile(pattern = "isismdl_", fileext = ".mif")
+  parse_options <- check_parse_options(parse_options)
 
 
   # compile_mdl_c writes intermediate results to a so called
@@ -135,15 +127,14 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   # read by read_model. This strange situation is due to the history
   # of package isismdl. Changing this behavior is not trivial and requires a
   # significant reorganization of the code.
-
+  mif_file <- tempfile(pattern = "isismdl_", fileext = ".mif")
   preproc_file <- tempfile(pattern = "isismdl_", fileext = ".mdl")
+  flags <- parse_options$flags
+  include_dirs <- parse_options$include_dirs
 
   call_compile_mdl_c <-function() {
-    with(parse_options, {
       return(.Call(compile_mdl_c, model_file, mif_file, preproc_file,
-                   flags, include_dirs, gen_dep_file))
-
-    })
+                   flags, include_dirs))
   }
   if (silent) {
     output <- capture.output({

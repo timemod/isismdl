@@ -109,7 +109,8 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
     /* check output options */
     int output_cnt = options.McPreproc + options.Showecode + 
 	             options.Showocode + options.MakeTroll + 
-		     options.MakeEviews + options.MakeDynare;
+		     options.MakeEviews + options.MakeDynare +
+		     options.gen_dep;
     if (output_cnt > 1) {
         ERROR("Only a single output type can be selected");
     } else if ((output_cnt != 0 && !(output_cnt == 1 && options.McPreproc))
@@ -284,9 +285,7 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
     */
 
     if (options.gen_dep) {
-        char depfilename[FILENAME_MAX + 1];
-	mkfname(depfilename, path, base, "dep");
-        FILE *fdep = efopen(depfilename, "w" );
+        FILE *fdep = efopen(outputfile, "w" );
         do_dep(fdep);
         fclose(fdep);
     }

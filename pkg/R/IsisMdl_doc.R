@@ -2195,6 +2195,26 @@ NULL
 #' cat(mdl$get_text())
 NULL
 
+
+#' \code{\link{IsisMdl}} method: Returns the dependency structure of the model
+#' variables
+
+#' @name get_dep_struct
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the dependency
+#' structure of the model. TODO: beschrijving
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_dep_struct()
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @examples
+#' mdl <- islm_mdl()
+#' cat(mdl$get_dep_struct())
+NULL
+
 #' \code{\link{IsisMdl}} method: Returns the last solve period
 
 #' @name get_last_solve_period
