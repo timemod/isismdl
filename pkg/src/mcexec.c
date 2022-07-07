@@ -380,8 +380,7 @@ static int dep_out(Symbol *sp ) {
     if (sp->xpctype == XP_EQN) {
         Equation *eq = sp->u.eqnp;
         if (eq->deps != NULL) {
-            fprintf(fzzout, "%-32s ", eq->lhs->name);
-            print_dependencies(fzzout, eq->deps);
+            print_dependencies(fzzout, eq->lhs->name, eq->deps);
         } 
     }
     return NXTSYM;

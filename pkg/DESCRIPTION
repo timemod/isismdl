@@ -17,9 +17,7 @@ Imports:
     methods,
     R6,
     readr,
-    tools,
-    stringr,
-    zoo
+    tools
 Suggests:
     testthat,
     knitr,

@@ -16,6 +16,6 @@ typedef struct dep {
 /* function definitions */
 void add_dependency(char *name, int lower, int upper);
 dependencies *close_dependencies(void);
-void print_dependencies(FILE *f, dependencies *deps);
+void print_dependencies(FILE *f, const char *lhs_name, dependencies *deps);
 
 #endif

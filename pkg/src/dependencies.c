@@ -103,14 +103,10 @@ static struct offset_node *offset_alloc(void) {
     return node;
 }
 
-void print_dependencies(FILE *f, dependencies *deps) {
-    int first = 1;
+void print_dependencies(FILE *f, const char *lhs_name, dependencies *deps) {
     while (deps != NULL) {
-        if (!first) {
-            fprintf(f, "%33s", " ");
-        }
-        first = 0;
-        fprintf(f, "%-32s ", deps->name);
+        fprintf(f, "%s,", lhs_name);
+        fprintf(f, "%s,", deps->name);
         offset_tree_print(f, deps->offset_tree);
         fprintf(f, "\n");
         deps = deps->next;

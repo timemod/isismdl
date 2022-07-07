@@ -21,8 +21,10 @@ does not already have an extension}
 \item{conversion_options}{conversion options. See section Conversion options.}
 
 \item{parse_options}{a named list with options passed to the model parser.
-See section "Parse option" in the description of function
-\code{\link{isis_mdl}}.}
+See section "Parse option" in the description of function}
+}
+\value{
+Returns \code{TRUE} is the model has been converted successfully.
 }
 \description{
 Converts an \code{\link{IsisMdl}} a model file.
@@ -41,3 +43,6 @@ to a Dynare mod file.The default is \code{FALSE}.}
 }
 }
 
+\seealso{
+\code{\link{isis_mdl}}.
+}
