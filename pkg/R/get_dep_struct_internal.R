@@ -21,6 +21,8 @@ get_dep_struct_internal <- function(model_text) {
   dep_data <- read.csv(dep_file_tmp, header = FALSE,
                        col.names = c("lhs",  "rhs", "lags"))
 
+  dep_data$lags <- trimws(dep_data$lags, which = "right")
+
   dum <- file.remove(c(mdl_file_tmp1, mdl_file_tmp2, dep_file_tmp))
 
   return(dep_data)

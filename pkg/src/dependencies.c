@@ -80,11 +80,8 @@ struct offset_node *add_offset(struct offset_node *p, int offset) {
 void offset_tree_print(FILE *f, struct offset_node *p) {
     if (p != NULL) {
         offset_tree_print(f, p->left);
-        fprintf(f, "%d", p->offset);
-	if (p->right != NULL) {
-          fprintf(f, " ");
-          offset_tree_print(f, p->right);
-	}
+        fprintf(f, "%d ", p->offset);
+        offset_tree_print(f, p->right);
     }
 }
 
