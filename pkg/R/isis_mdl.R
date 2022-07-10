@@ -147,7 +147,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
     stop("Compilation was not successful")
   }
 
-  model_text <- trimws(read_file(preproc_file), which = "right")
+  model_text <- read_file(preproc_file)
   ok <- file.remove(preproc_file)
 
   mdl <- IsisMdl$new(mif_file = mif_file, model_text = model_text,
