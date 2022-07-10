@@ -12,12 +12,13 @@
 
 /* local variables */
 static dependencies *root = NULL;
+static int first_lag;
 
 /* local function defintions */
 static dependencies *dep_alloc(char *name);
 static struct offset_node *offset_alloc(void);
-struct offset_node *add_offset(struct offset_node *p, int offset);
-void offset_tree_print(FILE *f, struct offset_node *p);
+static struct offset_node *add_offset(struct offset_node *p, int offset);
+static void offset_tree_print(FILE *f, struct offset_node *p);
 
 /* add_dependency: add a new dependency to the dependency list */
 void add_dependency(char *name, int lower, int upper) {
@@ -80,7 +81,9 @@ struct offset_node *add_offset(struct offset_node *p, int offset) {
 void offset_tree_print(FILE *f, struct offset_node *p) {
     if (p != NULL) {
         offset_tree_print(f, p->left);
-        fprintf(f, "%d ", p->offset);
+	if (!first_lag) fprintf(f, " ");
+        fprintf(f, "%d", p->offset);
+	if (first_lag) first_lag = 0;
         offset_tree_print(f, p->right);
     }
 }
@@ -107,6 +110,7 @@ void print_dependencies(FILE *f, const char *lhs_name, dependencies *deps) {
     while (deps != NULL) {
         fprintf(f, "%s,", lhs_name);
         fprintf(f, "%s,", deps->name);
+	first_lag = 1;
         offset_tree_print(f, deps->offset_tree);
         fprintf(f, "\n");
         deps = deps->next;
