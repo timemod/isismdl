@@ -52,8 +52,10 @@ char    xtra [FILENAME_MAX + 1];
 char    *mkfname(char *fname, char *path, char *base, char *ext);
 
 static void do_dep(FILE *);               /* for dependency output   */
+static void do_dep_free(void);            /* free dependency trees   */
 
 static void do_zrf(FILE *);               /* for zrf output   */
+
 
 /*
  * warnings and errors
@@ -76,6 +78,8 @@ static void reset(void) {
     }
     warncnt = 0;
     errcnt = 0; 
+
+    if (options.gen_dep) do_dep_free();
 
     free_symtab(Stp);
     Stp = NULL;
@@ -386,6 +390,7 @@ static int dep_out(Symbol *sp ) {
     return NXTSYM;
 }
 
+
 /* do_dep: output dependency information for all equations in the symbol table */
 static void do_dep(FILE *fzout) {
     fzzout = fzout;
@@ -412,4 +417,20 @@ static int var_out(Symbol *sp) {
 static void do_zrf (FILE *fzout) {
     fzzout = fzout;
     sym_walk(Stp, var_out, NULL );
+}
+
+/* dep_free: deallocate memory of dependency structure */
+static int dep_free(Symbol *sp ) {
+    if (sp->xpctype == XP_EQN) {
+        Equation *eq = sp->u.eqnp;
+        if (eq->deps != NULL) {
+            free_dependencies(eq->deps);
+        } 
+    }
+    return NXTSYM;
+}
+
+/* do_dep_free: free dependency trees for all equations */
+static void do_dep_free(void) {
+    sym_walk(Eqntp, dep_free, NULL);
 }

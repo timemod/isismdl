@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "dependencies.h"
 #include "util.h"
@@ -15,10 +16,10 @@ static dependencies *root = NULL;
 static int first_lag;
 
 /* local function defintions */
-static dependencies *dep_alloc(char *name);
+static dependencies *dep_alloc(const char *name);
 static struct offset_node *offset_alloc(void);
 static struct offset_node *add_offset(struct offset_node *p, int offset);
-static void offset_tree_print(FILE *f, struct offset_node *p);
+static void offset_tree_print(FILE *f, const struct offset_node *p);
 
 /* add_dependency: add a new dependency to the dependency list */
 void add_dependency(char *name, int lower, int upper) {
@@ -78,7 +79,7 @@ struct offset_node *add_offset(struct offset_node *p, int offset) {
 }
 
 /* offset_tree_print: print the tree of offsets (lags/ leads) */
-void offset_tree_print(FILE *f, struct offset_node *p) {
+void offset_tree_print(FILE *f, const struct offset_node *p) {
     if (p != NULL) {
         offset_tree_print(f, p->left);
 	if (!first_lag) fprintf(f, " ");
@@ -89,7 +90,7 @@ void offset_tree_print(FILE *f, struct offset_node *p) {
 }
 
 /* dep_alloc: allocate and initialise a new dependency structure */
-static dependencies *dep_alloc(char *name) {
+static dependencies *dep_alloc(const char *name) {
     dependencies *deps;
     deps = (dependencies *) emalloc(sizeof(dependencies));
     deps->name = name;
@@ -106,7 +107,7 @@ static struct offset_node *offset_alloc(void) {
     return node;
 }
 
-void print_dependencies(FILE *f, const char *lhs_name, dependencies *deps) {
+void print_dependencies(FILE *f, const char *lhs_name, const dependencies *deps) {
     while (deps != NULL) {
         fprintf(f, "%s,", lhs_name);
         fprintf(f, "%s,", deps->name);
@@ -117,4 +118,23 @@ void print_dependencies(FILE *f, const char *lhs_name, dependencies *deps) {
     }
 }
 
-/* TODO: add code to free the allocated memory */
+static void free_offset_tree(struct offset_node *p) {
+    if (p != NULL) {
+        free_offset_tree(p->left);
+        free_offset_tree(p->right);
+        free(p);
+    }
+}
+
+void free_dependencies(dependencies *deps_root) {
+
+    dependencies *deps = deps_root;
+    dependencies *deps_next;
+
+    while (deps != NULL) {
+        deps_next = deps->next;
+	free_offset_tree(deps->offset_tree);
+	free(deps);
+	deps = deps_next;
+    }
+}
