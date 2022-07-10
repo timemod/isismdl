@@ -479,6 +479,7 @@ void    cleanup( int comefrom )
     in_equation = 0;
     argdefs = NULL;
     insum   = indel = indef = Curfunc_sum = Curfunc_del = 0;
+    deloffset = 0;
 }
 
 int  ufunc_prologue(Symbol *sp, int is_ulfunc) {
@@ -1140,7 +1141,7 @@ void set_parval()
 #endif
 }
 
-void mcparse_init(void) 
+void mcparse_init(void)  
     /* initialise variables for parser */
 {
    eqCount = 0;

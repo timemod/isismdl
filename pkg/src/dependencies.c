@@ -51,7 +51,7 @@ void add_dependency(char *name, int lower, int upper) {
     }
 }
 
-/* close_dependencies: returns a pointer to the depenendency list,
+/* close_dependencies: returns a pointer to the dependency list,
  * are resets the root pointer */
 dependencies *close_dependencies(void) {
 
