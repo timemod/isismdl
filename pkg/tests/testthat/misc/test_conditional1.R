@@ -4,7 +4,8 @@ library(testthat)
 
 rm(list = ls())
 
-context("test for complex model 1")
+update_expected <- FALSE
+context("test for conditional 1")
 
 period <- as.period_range("476")
 mdl_filename <- "mdl/conditional1.mdl"
@@ -15,12 +16,12 @@ flags_1 <- c("no_flag", "no_flag" , "one"    , "one"     , "two"    , "two" ,
 flags_2 <- c("no_flag", "times_10", "no_flag", "times_10", "no_flag", "times_10",
             "times_100")
 
-test_that("the parse flags are handles correctly", {
+test_that("the parse flags are handled correctly", {
   results <- numeric(length(flags_1))
   for (i in seq_along(flags_1)) {
     parse_options <- list(flags = c(flags_1[i], flags_2[i]))
-    outp <- capture.output(mdl <- isis_mdl(mdl_filename, period = period,
-                                           parse_options = parse_options))
+    mdl <- isis_mdl(mdl_filename, period = period,
+                    parse_options = parse_options, silent = TRUE)
     mdl$solve(options = list(report = "none"))
     results[i] <- as.numeric(mdl$get_data(names = "x_copy"))
   }
@@ -30,12 +31,31 @@ test_that("the parse flags are handles correctly", {
 
 test_that("convert_mdl_file also handles flags correctly", {
   parse_options <- list(flags = c("two", "times_100"))
-  outp <- capture.output(convert_mdl_file(mdl_filename, mdl_subst_filename,
-                                  parse_options = parse_options))
-  outp <- capture.output(mdl <- isis_mdl(mdl_subst_filename, period = period,
-                                         parse_options = parse_options))
-  mdl$solve(options = list(report = "none"))
+  convert_mdl_file(mdl_filename, mdl_subst_filename,
+                                  parse_options = parse_options)
+  expect_known_output(cat(paste(readLines(mdl_subst_filename), collapse = "\n")),
+                      file = "expected_output/conditional1_subst.mdl",
+                      update = update_expected, print = TRUE)
+  mdl_subst <- isis_mdl(mdl_subst_filename, period = period,
+                  parse_options = parse_options, silent = TRUE)
+  mdl_subst$solve(options = list(report = "none"))
   expected_data <- regts(matrix(200, ncol = 2), period = "476",
-                         names = mdl$get_var_names())
-  expect_equal(mdl$get_data(), expected_data)
+                         names = mdl_subst$get_var_names())
+  expect_equal(mdl_subst$get_data(), expected_data)
+})
+
+test_that("test get_text", {
+  parse_options <- list(flags = c("two", "times_100"))
+  mdl <- isis_mdl(mdl_filename, period = period,
+                  parse_options = parse_options, silent = TRUE)
+  mdl_text <- mdl$get_text()
+  expect_known_output(cat(mdl_text),
+                      file = "expected_output/conditional1_text.mdl",
+                      update = update_expected, print = TRUE)
+  mdl_tmp <- tempfile("isismdl_test_", fileext = ".mdl")
+  writeLines(mdl_text, mdl_tmp)
+  mdl_test <- isis_mdl(mdl_tmp, silent = TRUE)
+  expect_identical(mdl$get_var_names(), mdl_test$get_var_names())
+  expect_identical(mdl$get_dep_struct(), mdl_test$get_dep_struct())
+  expect_identical(mdl$get_text(), mdl_text)
 })

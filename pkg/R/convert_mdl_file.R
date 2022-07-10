@@ -2,11 +2,11 @@
 #'
 #' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
-#' does not already have an extension
+#' does not already have an extension.
 #' @param output_file The name of the output file.
 #' @param conversion_options conversion options. See section Conversion options.
 #' @param parse_options a named list with options passed to the model parser.
-#' See section "Parse option" in the description of function
+#' See section "Parse option" in the description of function.
 #' @return Returns `TRUE` is the model has been converted successfully.
 #' @seealso \code{\link{isis_mdl}}.
 #' @useDynLib isismdl convert_mdl_file_c

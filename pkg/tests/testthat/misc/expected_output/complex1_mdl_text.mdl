@@ -1,0 +1,17 @@
+
+param coef 1 2 3 4;
+;
+function f1(x, y, z) = 2 * sum(j = -2, -1 : coef[j] * x[j+1]) 
+                       + del(1 : sum(j = -4, -2 : y[j])) 
+                       + 2 * z * coef[-1];
+function f2(x, y, z)  = 2 * f1(x, y, z);
+function f3(x, y, z)  = 2 * f2(x[-2], y[-3], z);
+
+function f4(x, y, z)  = 2 * f3(x[-2], y[-3], coef[-2]);
+function f5(x, y, z)  = 2 * f3(x[-2], y[-3], f1(x[-1], y[-4], 3));
+
+ident x1 = f1(x1, x2, x3[-1]);
+ident x2 = f2(x1, x2, x3);
+ident x3 = f3(x1, x2[-1], x3);
+ident x4 = f4(x1, x2, x3);
+end;
