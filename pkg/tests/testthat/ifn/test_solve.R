@@ -2,6 +2,10 @@ library(isismdl)
 library(testthat)
 library(utils)
 
+rm(list = ls())
+
+update_expected <- FALSE
+
 context("solve IFN model")
 capture_output(ifn_mdl <- read_mdl("ifn_mdl.rds"))
 
@@ -87,3 +91,23 @@ test_that("get_endo_names with inactive equations", {
   expect_identical(ifn_mdl2$get_endo_names(type = "leads", status = "inactive"),
                    character(0))
 })
+
+test_that("test get_text", {
+  mdl_text <- ifn_mdl$get_text()
+  expect_known_output(cat(mdl_text),
+                      file = "expected_output/ifn_text.mdl",
+                      update = update_expected, print = TRUE)
+  mdl_tmp <- tempfile("isismdl_test_", fileext = ".mdl")
+  writeLines(mdl_text, mdl_tmp)
+  mdl_test <- isis_mdl(mdl_tmp, silent = TRUE)
+  expect_identical(ifn_mdl$get_var_names(), mdl_test$get_var_names())
+  expect_identical(ifn_mdl$get_dep_struct(), mdl_test$get_dep_struct())
+  expect_identical(mdl_test$get_text(),mdl_text)
+})
+
+test_that("get_dep_struct", {
+  expect_known_output(ifn_mdl$get_dep_struct(),
+                      file = "expected_output/ifn.dep",
+                      update = update_expected, print = TRUE)
+})
+

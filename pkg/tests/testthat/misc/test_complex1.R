@@ -99,7 +99,7 @@ test_that("test get_text", {
   mdl_test <- isis_mdl(mdl_tmp, silent = TRUE)
   expect_identical(mdl$get_var_names(), mdl_test$get_var_names())
   expect_identical(mdl$get_dep_struct(), mdl_test$get_dep_struct())
-  expect_identical(mdl$get_text(), mdl_text)
+  expect_identical(mdl_test$get_text(), mdl_text)
 })
 
 test_that("parse options errors", {
