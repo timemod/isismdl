@@ -105,7 +105,7 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
     char    *fnmdl;
     char    fname[FILENAME_MAX + 1];
 
-    clock_t tb, te;
+    clock_t tb = clock(), te;
     double  cpusecs;
 
     options = *options_in;
