@@ -94,7 +94,8 @@ test_that("get_endo_names with inactive equations", {
 
 test_that("test get_text", {
   mdl_text <- ifn_mdl$get_text()
-  expect_known_output(cat(mdl_text),
+  # for using expect_known_output we have to remove the carriage return
+  expect_known_output(cat(gsub("\r", "", mdl_text)),
                       file = "expected_output/ifn_text.mdl",
                       update = update_expected, print = TRUE)
   mdl_tmp <- tempfile("isismdl_test_", fileext = ".mdl")
@@ -102,8 +103,11 @@ test_that("test get_text", {
   mdl_test <- isis_mdl(mdl_tmp, silent = TRUE)
   expect_identical(ifn_mdl$get_var_names(), mdl_test$get_var_names())
   expect_identical(ifn_mdl$get_dep_struct(), mdl_test$get_dep_struct())
-  expect_identical(trimws(mdl_test$get_text(), which = "right"),
-		   trimws(mdl_text, which = "right"))
+  mdl_text_test <- mdl_test$get_text()
+  # mdl_text_test contains one extra line ending (I do not understand why),
+  # therefore remove the final line ending
+  mdl_text_test <- sub("(\r?\n)$", "", mdl_text_test)
+  expect_identical(mdl_text, mdl_text_test)
 })
 
 test_that("get_dep_struct", {

@@ -109,7 +109,7 @@ endif    "#ENDIF"
 %%
 
 {include}          BEGIN(incl);
-<incl>[ \t]*        /* eat the white space */
+<incl>[ \t]*        /* eat white space */
 <incl>{filename} {   
                     char *inclname = get_includefile();
                     if (inclname != NULL) {
@@ -211,9 +211,15 @@ endif    "#ENDIF"
                 return sp->type;
         }
 
+[\r]          ; /* skip carriage return 
+                 * Do not write \r (carriage return) to the preproc file.
+                 * On Windows, a \r is automatically added for every \n when the
+                 * file is written, so if we would write a \r the result would be
+                 * \r\r\n.
+                 */
+[ \v\f\t\n]  if (write_preproc_file) fputs(mctext, fp_preproc);
+             /* skip other whitespace and newline */
 
-[ \r\v\f\t\n]  ;  if (write_preproc_file) fputs(mctext, fp_preproc);
-                  /* skip whitespace, including spurious carriage return */
 
 .       {if (!scanning) mcerror( "Illegal character in input" );}
 
@@ -418,7 +424,12 @@ void showbuf( FILE *fout )
 static void get_comment(void) {
     int c;
     while ((c = input()) != '\n' && c != EOF) {
-       if (write_preproc_file) fputc((char) c, fp_preproc);
+       /* Do not write \r (carriage return) to the preproc file.
+        * On Windows, a \r is automatically added for every \n when the
+        * file is written, so if we would write a \r the result would be
+        * \r\r\n.
+        */
+       if (write_preproc_file && c != '\r') fputc((char) c, fp_preproc);
     }
     if (write_preproc_file) fputc('\n', fp_preproc);
 }

@@ -91,7 +91,8 @@ test_that("check mrf", {
 
 test_that("test get_text", {
   mdl_text <- mdl$get_text()
-  expect_known_output(cat(mdl_text),
+  # for using expect_known_output we have to remove the carriage return
+  expect_known_output(cat(gsub("\r", "", mdl_text)),
                       file = "expected_output/complex1_mdl_text.mdl",
                       update = update_expected, print = TRUE)
   mdl_tmp <- tempfile("isismdl_test_", fileext = ".mdl")

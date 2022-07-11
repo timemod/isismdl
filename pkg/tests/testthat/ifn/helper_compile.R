@@ -1,4 +1,5 @@
 library(utils)
+library(isismdl)
 
 capture.output(ifn_mdl <- ifn_mdl())
 

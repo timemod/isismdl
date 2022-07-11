@@ -49,7 +49,8 @@ test_that("test get_text", {
   mdl <- isis_mdl(mdl_filename, period = period,
                   parse_options = parse_options, silent = TRUE)
   mdl_text <- mdl$get_text()
-  expect_known_output(cat(mdl_text),
+  # for using expect_known_output we have to remove the carriage return
+  expect_known_output(cat(gsub("\r", "", mdl_text)),
                       file = "expected_output/conditional1_text.mdl",
                       update = update_expected, print = TRUE)
   mdl_tmp <- tempfile("isismdl_test_", fileext = ".mdl")
