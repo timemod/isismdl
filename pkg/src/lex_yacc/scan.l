@@ -95,7 +95,7 @@ static size_t if_nest_cnt; /* number of nested #if constructs within a #if */
 %x goto_else
 %x goto_endif
 
-filename \".+\"
+filename \"[^\n\r"]+\"
 name     [a-zA-Z][a-zA-Z0-9#@%_]*
 D        [0-9]
 fnum     ({D}+\.?{D}*|\.{D}+)([eE][+-]?{D}+)?
