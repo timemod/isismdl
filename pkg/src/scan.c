@@ -831,7 +831,7 @@ char *yytext;
 #include "xpctab.h"
 
 #define MAX_INCLUDE_DEPTH 10
-#define MAXLINE 256
+#define MAXLINE 2000
 
 static void    open_buffer(char *filename);
 static void    close_buffer(void);
