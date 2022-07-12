@@ -14,14 +14,15 @@ convert_mdl_file(
 \arguments{
 \item{model_file}{The name of the model file.
 An extension \code{mdl} is appended to the specified name if the filename
-does not already have an extension}
+does not already have an extension.}
 
 \item{output_file}{The name of the output file.}
 
 \item{conversion_options}{conversion options. See section Conversion options.}
 
 \item{parse_options}{a named list with options passed to the model parser.
-See section "Parse option" in the description of function}
+See section "Parse option" in the description of function
+\code{\link{isis_mdl}}.}
 }
 \value{
 Returns \code{TRUE} is the model has been converted successfully.
