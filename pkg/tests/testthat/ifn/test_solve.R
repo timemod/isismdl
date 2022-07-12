@@ -99,14 +99,12 @@ test_that("test get_text", {
                       file = "expected_output/ifn_text.mdl",
                       update = update_expected, print = TRUE)
   mdl_tmp <- tempfile("isismdl_test_", fileext = ".mdl")
-  writeLines(mdl_text, mdl_tmp)
+  # write the mdl, remove the final rewline character
+  writeLines(sub("\r?\n$", "", mdl_text), mdl_tmp)
   mdl_test <- isis_mdl(mdl_tmp, silent = TRUE)
   expect_identical(ifn_mdl$get_var_names(), mdl_test$get_var_names())
   expect_identical(ifn_mdl$get_dep_struct(), mdl_test$get_dep_struct())
   mdl_text_test <- mdl_test$get_text()
-  # mdl_text_test contains one extra line ending (I do not understand why),
-  # therefore remove the final line ending
-  mdl_text_test <- sub("(\r?\n)$", "", mdl_text_test)
   expect_identical(mdl_text, mdl_text_test)
 })
 

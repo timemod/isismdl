@@ -96,7 +96,8 @@ test_that("test get_text", {
                       file = "expected_output/complex1_mdl_text.mdl",
                       update = update_expected, print = TRUE)
   mdl_tmp <- tempfile("isismdl_test_", fileext = ".mdl")
-  writeLines(mdl_text, mdl_tmp)
+  # write the mdl, remove the final rewline character
+  writeLines(sub("\r?\n$", "", mdl_text), mdl_tmp)
   mdl_test <- isis_mdl(mdl_tmp, silent = TRUE)
   expect_identical(mdl$get_var_names(), mdl_test$get_var_names())
   expect_identical(mdl$get_dep_struct(), mdl_test$get_dep_struct())
