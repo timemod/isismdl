@@ -1,0 +1,115 @@
+? Dynamisch model investeringen en financiering
+?
+?                       Waarschuwing
+? door de wijze waarop het model nu is opgeschreven kan het volgende niet
+?   g2 op 0 stellen
+?   tp in de toekomst laten veranderen
+?
+? de notatie van de variabelen is zoveel mogelijk gelijk aan die
+? van het paper (en voldoet niet aan de algemene cpb eisen!!)
+
+param
+      delta  0.1
+      kappa  1.
+      sigma  0.5
+      alk    3.5
+      al     0.875
+      ak     0.25
+      phi    3.0
+      chi    1.
+      alfa   0.5
+      g1     0.05
+      g2     0.05
+      eps    1.
+;
+
+
+? hcap = verschil dividenduitkeringen bij n = 0 - minimale dividenduitkeringen
+
+ident hcap     hcap  = (1-alfa)*(cfcap - delta)
+                   + bcap*kgv/kgv(-1) - bcap(-1)*px(-1)/px - xk + delta ;
+ident ocap     ocap  =  max(hcap,0);
+ident ncap     ncap  = -min(hcap,0);
+ident dcap     dcap  = ocap + alfa*(cfcap - delta);
+ident zcap     zcap  = (py * ys)/(px*kgv(-1)) - (wage * lab)/(px*kgv(-1)) - .5 * phi * xk * xk ;
+ident cfcap   cfcap  = (1-tc) * ( zcap - i(-1)*bcap(-1)*px(-1)/px - delta ) + delta;
+
+? hcap = 0 levert een waarde van bcap = bzcap
+
+
+ident bzcap  bzcap  = (  -(1-alfa)*( cfcap - delta )
+                     + bcap(-1)*px(-1)/px + xk - delta ) * kgv(-1) / kgv;
+?ident bzcap bzcap  = Bz / (px * kgv );
+ident bcap   bcap  = min( bzmax, max ( bzcap, bzmin ) );
+?ident B       B  = bcap * px * kgv ;
+ident kgv    kgv  = (1-delta) * kgv(-1) + x;
+ident a       a  = theta + (1-alfa) * eta;
+ident xk     xk  = ( lambda - theta - eta ) / (phi * (1-tc) * a );
+ident x       x  = xk * kgv(-1);
+ident eta   eta  = ( (theta + eta(+1)) + (1-tc(+1)) * a(+1) * (i + bcap * di) )
+                  / (1+rho(+1)) - theta;
+
+? **************************************************************************
+? expliciete verwijzing naar lambda(+1) vervangen door lam1, die gekoppeld
+? is aan eta(+1) en xk(+1) (zie boven), om minder endogene leads te krijgen
+? **************************************************************************
+
+ident lambda lambda = ( (1-delta) * lambda(+1) * px(+1)
+                     + (1-tc(+1)) * a(+1) * px * bcap * bcap * di
+                     + (1-tc(+1)) * a(+1) * mzk(+1)
+                     + delta * ( theta + eta(+1) ) * px(+1) )
+                   / (px * (1+rho(+1)) );
+
+frml  i       i  = rf + g1 * bcap + g2 * bcap * bcap;
+ident di   di  = g1 + 2 * g2 * bcap;
+
+? voor berekening bzmin en bzmax is vergelijking
+? rhox... = i(bz...) + di(bz...) * bz...
+? volledig uitgeschreven (oplossing vierkantsvergelijking)
+
+ident bzmin bzmin = (-2*g1+(4*g1*g1+12*g2*(rhoxmin - rf))**.5 ) / (6*g2);
+? ident bzmax bzmax = (-2*g1+(4*g1*g1+12*g2*(rhoxmax - rf))**.5 ) / (6*g2);
+ident bzmax bzmax = (-2*g1+(4*g1*g1+12*g2*(rhoxmax - rf))**.5) / (6*g2);
+
+frml  rho       rho = theta * rf + risk;
+ident rhox     rhox = rho(+1) * (theta + eta ) / ( (1-tc(+1)) * a(+1) )
+                     + ( eta - eta(+1) ) / ( (1-tc(+1)) * a(+1) );
+
+? rhoxmin kan door een te grote eta(+1) te klein of zelfs negatief worden
+? om dat te verhinderen wordt max(...,rf) genomen
+? bzmin is daardoor altijd >= 0
+? PAS OP: de nu gevolgde constructie is waarschijnlijk niet geheel kosher
+
+ident rhmin rhoxmin = max( (rho(+1) * theta - eta(+1)) / ( (1-tc(+1)) * a(+1) ) , rf);
+ident rhmax rhoxmax = ( rho(+1) + 1 - theta - eta(+1) ) / ( (1-tc(+1)) * a(+1) );
+ident theta      theta = 1 - tp;
+
+ident mzk     mzk = chi * py * mpk + .5 * phi * px * xk * xk - delta * px;
+
+? pyc, px en wage evolueren met een gemeenschappelijke inflatie
+? exogenen met leads weggwerkt om groeivoeten constant te houden
+
+ident pyc   pyc = (1+gpx) * pyc(-1);
+ident px     px = (1+gpx) * px(-1);
+ident wage   wage = (1+gpx) * wage(-1);
+ident pyc1 pyc1 = pyc * (1+gpx(+1));
+ident wage1  wage1= wage * (1+gpx(+1));
+
+ident ys       ys = ( al * lab**(-kappa) + ak * kgv(-1)**(-kappa) ) ** (-1/kappa);
+ident yd       yd = ydex * (py/pyc) ** (-eps);
+frml  ydex   ydex = ydex(-1) * (1+groei);
+ident ydex1 ydex1 = ydex * (1+groei(+1));
+ident mpk     mpk = ak * ( ys / kgv(-1) ) ** (1+kappa);
+ident mpl     mpl = al * ( ys / lab ) ** (1+kappa);
+
+ident py       py = pyc * ( ys / ydex ) ** (-1/eps);
+ident lab      lab = ys * ( wage/(chi*py*al)**(-sigma) );
+
+
+? berekening kengetallen ( hier makkelijker dan met calc )
+
+?ident dcap     dcap = D / (px * kgv(-1));
+?ident ncap     ncap = N / (px * kgv(-1));
+?ident zcap     zcap = Z / (px * kgv(-1));
+ident capcost  capcost = bcap * i + (1-bcap) * rhox;
+ident aiq     aiq = ( lab * wage ) / ( py * ys );

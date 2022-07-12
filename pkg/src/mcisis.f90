@@ -1,20 +1,21 @@
 subroutine mcisis(modelnaml,modelnams, &
-&                 mifnaml, mifnams, &
+&                 mifnaml, mifnams, ppfnaml, ppfnams, &
 &                 idofbrd, igenfbo, ifbomif, iprifbi, iprisjc, &
-&                 mrfopt, fbcopt, igen_dep_file, mcstat)
+&                 mrfopt, fbcopt, mcstat)
 use mcvars
 use mccedp
 use mdordr
 use mcpars
 use mcxref
+use output_utils
 use iso_c_binding, only : C_NULL_CHAR
 
 interface
-    function mcip(mfname, strict, gen_dep_file) bind(c)
+    function mcip(mfname, ppfname, strict) bind(c)
         use iso_c_binding, only : c_int, c_char
         integer(c_int) :: mcip
-        character(kind = c_char), dimension(*), intent(in) :: mfname
-        integer(c_int), intent(in) :: strict, gen_dep_file
+        character(kind = c_char), dimension(*), intent(in) :: mfname, ppfname
+        integer(c_int), intent(in) :: strict
     end function mcip
 end interface
 
@@ -50,8 +51,6 @@ end interface
 !         In    fbcopt      Integer(2)  options for printing feedback cycle
 !                                       passed to mcxref
 
-!         In    igen_dep_file Integer    0 to generate a dependency file
-!                                        1 to not generate a dependency file
 !         Out   mcstat      Integer     status flag
 !                                         0 all ok
 !                                         1 model file does not exist
@@ -72,12 +71,12 @@ end interface
 integer, intent(out) ::  mcstat
 integer, intent(in) ::  modelnaml, modelnams(*)
 integer, intent(in) ::  mifnaml, mifnams(*)
-integer, intent(in) ::  idofbrd, igenfbo, ifbomif, iprifbi, iprisjc,  &
-                                   igen_dep_file
+integer, intent(in) ::  ppfnaml, ppfnams(*)
+integer, intent(in) ::  idofbrd, igenfbo, ifbomif, iprifbi, iprisjc
 integer, intent(in) ::  mrfopt(*), fbcopt(*)
 
 
-logical ::  dofbrd, genfbo, fbomif, prifbi, prisjc, gen_dep_file
+logical ::  dofbrd, genfbo, fbomif, prifbi, prisjc
 
 !     for copy of fbcopt
 
@@ -100,12 +99,12 @@ logical ::  davail
 external davail
 
 !     name of model file with path
-character*(MAXFLEN + 1) pathnm
+character*(MAXFLEN + 1) pathnm, ppfname
 
 integer ::   ios
 integer ::   ier,errpar,mcrcod,orderr
 
-integer ::  istrict, i_gen_dep_file
+integer ::  istrict
 
 !*IF TIMER
 !     for time measurements
@@ -115,13 +114,13 @@ integer ::  istrict, i_gen_dep_file
 integer ::  remove_xrffile, remove_miffile, xrf_err, mif_err
 integer ::  fbor_err
 
+
 ! convert integers (passed from C) to logicals
 dofbrd = idofbrd > 0
 genfbo = igenfbo > 0
 fbomif = ifbomif > 0
 prifbi = iprifbi > 0
 prisjc = iprisjc > 0
-gen_dep_file = igen_dep_file > 0
 
 mcstat = 0
 faterr = .false.
@@ -136,12 +135,26 @@ call mcimsg(1, 0)
 
 call mcifig
 
+! check length of filenames
+if (modelnaml > MAXFLEN) then
+    call isismdl_error("Length of model filename too long")
+endif
+if (mifnaml > MAXFLEN) then
+    call isismdl_error("Length of filename for mif file too long")
+endif
+if (ppfnaml > MAXFLEN) then
+    call isismdl_error("Length of filename for preproc file too long")
+endif
+
 ! initialise model compiler, determine pathname modelfile
 call mcfileadmin(modelnaml, modelnams, pathnm)
+
 
 ! generate names of the mif and mrf file
 call byasf7(mifnams, 1, mifnaml, mifnam)
 call mkfnam(xrfnam,xrfext)
+
+call byasf7(ppfnams, 1, ppfnaml, ppfname)
 
 !  delete the mif and mrf file if they already exist
 mif_err = remove_miffile()
@@ -201,13 +214,9 @@ endif
 ! call the xpc model compiler
 
 istrict = 1
-if (gen_dep_file) then
-   i_gen_dep_file = 1
-else
-   i_gen_dep_file = 0
-endif
 
-mcstat = mcip(trim(pathnm) // C_NULL_CHAR, istrict, i_gen_dep_file)
+mcstat = mcip(trim(pathnm) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR,  &
+              istrict)
 
 call mcimsg(3, 0)
 

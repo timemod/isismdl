@@ -1,0 +1,2 @@
+ident x = 2 * 100;
+ident x_copy = x;

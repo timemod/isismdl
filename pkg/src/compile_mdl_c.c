@@ -5,22 +5,23 @@
 
 extern void F77_NAME(mcisis)(int *modelnmlen, const char *modelnm,
                              int *mifnmlen, const char *mifnm,
+                             int *ppfnmlen, const char *ppfnm,
                              int *idofbrd, int *igenfbo, int *ifbomif,
                              int *iprifb, int *iprisjc, int *mrfopt,
-                             int *fbcopt, int *igen_dep_file, int *mcstat);
+                             int *fbcopt, int *mcstat);
 
-SEXP compile_mdl_c(SEXP filename, SEXP mifname, SEXP flags, SEXP include_dirs, 
-                   SEXP gen_dep_file_) {
+SEXP compile_mdl_c(SEXP filename, SEXP mifname, SEXP ppfname,
+		   SEXP flags, SEXP include_dirs) {
 
     const char *modelnm = CHAR(STRING_ELT(filename, 0));
     int modelnmlen = strlen(modelnm);
     const char *mifnm = CHAR(STRING_ELT(mifname, 0));
     int mifnmlen = strlen(mifnm);
-    int gen_dep_file = asInteger(gen_dep_file_);
+    const char *ppfnm = CHAR(STRING_ELT(ppfname, 0));
+    int ppfnmlen = strlen(ppfnm);
 
     /* initialise options */
-    int idofbrd, igenfbo, ifbomif, iprifbi, iprisjc,
-        mrfopt[2], fbcopt[2];
+    int idofbrd, igenfbo, ifbomif, iprifbi, iprisjc, mrfopt[2], fbcopt[2];
 
     idofbrd = 1;
     igenfbo = 1;
@@ -35,10 +36,10 @@ SEXP compile_mdl_c(SEXP filename, SEXP mifname, SEXP flags, SEXP include_dirs,
     prepare_compiler(flags, include_dirs);
 
     int mcstat;
-    F77_CALL(mcisis)(&modelnmlen, modelnm, &mifnmlen, mifnm,
-                     &idofbrd, &igenfbo, &ifbomif,
-                     &iprifbi, &iprisjc, mrfopt, fbcopt, &gen_dep_file, 
-                     &mcstat);
+    F77_CALL(mcisis)(&modelnmlen, modelnm, &mifnmlen, mifnm, 
+		     &ppfnmlen, ppfnm, 
+		     &idofbrd, &igenfbo, &ifbomif,
+                     &iprifbi, &iprisjc, mrfopt, fbcopt, &mcstat);
 
     if (mcstat != 0) {
         char *format;

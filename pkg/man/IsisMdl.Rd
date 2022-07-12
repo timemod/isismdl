@@ -42,6 +42,9 @@ For example, method \code{solve} is described in section
 
 \item{\code{\link{get_text}}}{Returns the textual representation of the model}
 
+\item{\code{\link{get_dep_struct}}}{Returns the dependency structure of the
+model variables}
+
 \item{\code{\link{get_maxlag}}}{Returns the maximum lag}
 
 \item{\code{\link{get_maxlead}}}{Returns the maximum lead}

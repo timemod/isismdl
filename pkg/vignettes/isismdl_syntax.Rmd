@@ -455,9 +455,6 @@ the contents of a file during model compilation. Another feature is
 conditional compilation using the `#if`, `#else`, `#elseif` 
 and `#endif` directives (see Section \ref{sec:conditional}.
 
-Unfortunately, model analysis program Nephthys cannot handle preprocessor
-directives yet, so do not use the model preprocessor if you want to use Nephthys.
-
 ## File inclusion
 \label{sec:include}
 

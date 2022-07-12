@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <Rinternals.h>
 
 #include "symbol.h"
@@ -21,10 +22,11 @@
 #include "xpctab.h"
 
 #define MAX_INCLUDE_DEPTH 10
-#define MAXLINE 256
+#define MAXLINE 2000
 
 static void    open_buffer(char *filename);
 static void    close_buffer(void);
+static void    close_preproc_file(void);
 static void    get_comment ( void );
 static char*   get_includefile ( void );
 static int     mcgetc(void);
@@ -40,7 +42,9 @@ typedef struct _selem {
 
 static include_stack_elem include_stack[MAX_INCLUDE_DEPTH + 1];
 
-static  FILE *fin  = NULL;              /* input  stream */
+static FILE *fin  = NULL;              /* input  stream */
+static int write_preproc_file = 0;
+static FILE *fp_preproc = NULL;  /* output stream for preprocessed file */
 static char *filename;
 static char *dirname;
 static char *buf;
@@ -91,7 +95,7 @@ static size_t if_nest_cnt; /* number of nested #if constructs within a #if */
 %x goto_else
 %x goto_endif
 
-filename \".+\"
+filename \"[^\n\r"]+\"
 name     [a-zA-Z][a-zA-Z0-9#@%_]*
 D        [0-9]
 fnum     ({D}+\.?{D}*|\.{D}+)([eE][+-]?{D}+)?
@@ -105,7 +109,7 @@ endif    "#ENDIF"
 %%
 
 {include}          BEGIN(incl);
-<incl>[ \t]*        /* eat the white space */
+<incl>[ \t]*        /* eat white space */
 <incl>{filename} {   
                     char *inclname = get_includefile();
                     if (inclname != NULL) {
@@ -157,37 +161,42 @@ endif    "#ENDIF"
 <goto_endif>.         /* skip */
 <goto_endif>\n        /* skip newline */
 
-<<EOF>> { close_buffer();
-          if (include_level < 0) yyterminate();}
 
-{inum}  { mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
-{fnum}  { mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
+<<EOF>> { close_buffer(); 
+          if (include_level < 0) {
+            close_preproc_file();
+            yyterminate();
+          }
+        }
 
-"?"    { get_comment(); }
+{inum}  {if (write_preproc_file) fputs(mctext, fp_preproc); mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
+{fnum}  {if (write_preproc_file) fputs(mctext, fp_preproc); mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
 
-[-=\[\]():;,+*/] { return mclval.ival = mctext[0]; }
+"?"    {if (write_preproc_file) fputs(mctext, fp_preproc); get_comment();}
 
-"**"      { return mclval.ival = T_POW; }
-\.GT\.    { return mclval.ival = T_GT;  }
-\.GE\.    { return mclval.ival = T_GE;  }
-\.LT\.    { return mclval.ival = T_LT;  }
-\.LE\.    { return mclval.ival = T_LE;  }
-\.AND\.   { return mclval.ival = T_AND; }
-\.OR\.    { return mclval.ival = T_OR;  }
-\.NOT\.   { return mclval.ival = T_NOT; }
-\.EQ\.    { return mclval.ival = T_EQ;  }
-\.NE\.    { return mclval.ival = T_NE;  }
+[-=\[\]():;,+*/] {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = mctext[0]; }
 
-">"       { return mclval.ival = T_GT;  }
-">="      { return mclval.ival = T_GE;  }
-"<"       { return mclval.ival = T_LT;  }
-"<="      { return mclval.ival = T_LE;  }
-"^"       { return mclval.ival = T_NOT; }
-"^="      { return mclval.ival = T_NE;  }
-"&"       { return mclval.ival = T_AND; }
-"|"       { return mclval.ival = T_OR;  }
+"**"      {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_POW; }
+\.GT\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GT;  }
+\.GE\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GE;  }
+\.LT\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LT;  }
+\.LE\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LE;  }
+\.AND\.   {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
+\.OR\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
+\.NOT\.   {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NOT; }
+\.EQ\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_EQ;  }
+\.NE\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
 
-{name}  {
+">"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GT;  }
+">="      {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GE;  }
+"<"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LT;  }
+"<="      {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LE;  }
+"^"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NOT; }
+"^="      {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
+"&"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
+"|"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
+
+{name}  {       if (write_preproc_file) fputs(mctext, fp_preproc);
                 Symbol *sp;
 
                 /*
@@ -202,34 +211,57 @@ endif    "#ENDIF"
                 return sp->type;
         }
 
+[\r]          ; /* skip carriage return 
+                 * Do not write \r (carriage return) to the preproc file.
+                 * On Windows, a \r is automatically added for every \n when the
+                 * file is written, so if we would write a \r the result would be
+                 * \r\r\n.
+                 */
+[ \v\f\t\n]  if (write_preproc_file) fputs(mctext, fp_preproc);
+             /* skip other whitespace and newline */
 
-[ \r\v\f\t\n]  ;       /* skip whitespace, including spurious carriage return */
 
 .       {if (!scanning) mcerror( "Illegal character in input" );}
 
 
 %%
 
-int mcwrap( void )
-{
-    return 1;
+int mcwrap(void) {
+  return 1;
 }
 
-void init_scanner(char *filenm) {
-    /*
-     * Initialise the scanner for the specified filename 
-     */
+void init_scanner(char *filenm, const char *filenm_preproc) {
+   /*
+    * Initialise the scanner for the specified filename 
+    */
 
-    include_level = -1;
+   include_level = -1;
 
-    open_buffer(filenm);
+   open_buffer(filenm);
+
+   write_preproc_file = filenm_preproc != NULL;
+   if (write_preproc_file) fp_preproc = fopen(filenm_preproc, "w+");
+}
+
+void close_preproc_file(void) {
+    if (write_preproc_file) {
+      fclose(fp_preproc);
+      write_preproc_file = 0;
+    }
 }
 
 void reset_scanner(void) {
     /*
-     * Close all buffers. This function should be called when an
+     * Close all buffers. This function is called when an
      * end; statement has occurred in the model
      */
+
+    if (write_preproc_file) {
+      // write a newline, the newline after end; in the input is ignored
+      fputc('\n', fp_preproc);
+      close_preproc_file();
+    }
+
 
     if (include_level > 0) {
       mcerror("end; statement not allowed in included file");
@@ -254,6 +286,7 @@ void reset_scanner(void) {
     }
 
     include_level = -1;
+
 }
 
 
@@ -388,15 +421,20 @@ void showbuf( FILE *fout )
  * and discard to end of line
  */
 
-static  void    get_comment( void )
-{
-    int     c;
-
-    while( (c = input()) != '\n' && c != EOF);
+static void get_comment(void) {
+    int c;
+    while ((c = input()) != '\n' && c != EOF) {
+       /* Do not write \r (carriage return) to the preproc file.
+        * On Windows, a \r is automatically added for every \n when the
+        * file is written, so if we would write a \r the result would be
+        * \r\r\n.
+        */
+       if (write_preproc_file && c != '\r') fputc((char) c, fp_preproc);
+    }
+    if (write_preproc_file) fputc('\n', fp_preproc);
 }
 
-static char * get_includefile(void) 
-{
+static char * get_includefile(void) {
    /* Returns the name of the include file based on the specified
     * include filename and the include search paths
     */

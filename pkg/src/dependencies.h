@@ -8,7 +8,7 @@ struct offset_node { /* a tree with all the lags/leads occuring in the model */
 };
 
 typedef struct dep {
-    char *name;
+    const char *name;
     struct offset_node *offset_tree;
     struct dep *next;
 } dependencies;
@@ -16,6 +16,6 @@ typedef struct dep {
 /* function definitions */
 void add_dependency(char *name, int lower, int upper);
 dependencies *close_dependencies(void);
-void print_dependencies(FILE *f, dependencies *deps);
-
+void print_dependencies(FILE *f, const char *lhs_name, const dependencies *deps);
+void free_dependencies(dependencies *deps);
 #endif

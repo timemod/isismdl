@@ -2,12 +2,13 @@
 #'
 #' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
-#' does not already have an extension
+#' does not already have an extension.
 #' @param output_file The name of the output file.
 #' @param conversion_options conversion options. See section Conversion options.
 #' @param parse_options a named list with options passed to the model parser.
-#' See section "Parse option" in the description of function
-#' \code{\link{isis_mdl}}.
+#' See section "Parse option" in the description of function.
+#' @return Returns `TRUE` is the model has been converted successfully.
+#' @seealso \code{\link{isis_mdl}}.
 #' @useDynLib isismdl convert_mdl_file_c
 #' @export
 #'
@@ -26,25 +27,16 @@ convert_mdl_file <- function(model_file, output_file,
                              conversion_options = list(),
                              parse_options = list()) {
 
-  default_parse_options <- list(flags = NULL,
-                                include_dirs = NULL,
-                                gen_dep_file = FALSE)
+  model_file <- check_mdl_file(model_file)
+  parse_options <- check_parse_options(parse_options)
 
   if (!missing(conversion_options) && !is.list(conversion_options)) {
     stop("Argument conversion_options is not a list")
   }
 
-  parse_options_ <- default_parse_options
-  if (!missing(parse_options)) {
-    names <- names(parse_options)
-    parse_options_[names] <- parse_options
-  }
+  flags <- parse_options$flags
+  include_dirs <- parse_options$include_dirs
 
-  with(parse_options_, {
-    retval <- .Call(convert_mdl_file_c, model_file, output_file, flags,
-                    include_dirs, conversion_options)
-    return(retval)
-  })
-
-
+  return(.Call(convert_mdl_file_c, model_file, output_file, flags,
+               include_dirs, conversion_options))
 }

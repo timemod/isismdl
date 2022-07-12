@@ -45,16 +45,20 @@ variable. The function is evaluated for each model variable separately.
 The values of the model variables for period range \code{period} are passed as a
 normal numeric vector (not a timeseries) to the first argument.
 
-An example may help to clarify this. Consider the following statement\preformatted{mdl$change_data(fun = myfun, names = c("c", "y"),
+An example may help to clarify this. Consider the following statement
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{mdl$change_data(fun = myfun, names = c("c", "y"),
                      period = "2017q1/2017q2"),
-}
+}\if{html}{\out{</div>}}
 
 where \code{mdl} is a \code{DynMdl} object and \code{myfun} some function whose details
-are not relevant here. Method  \code{change_data} evaluates this as\preformatted{data <- mdl$get_data(names = c("c", "y"), period = "2017q1/2017q2")
+are not relevant here. Method  \code{change_data} evaluates this as
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{data <- mdl$get_data(names = c("c", "y"), period = "2017q1/2017q2")
 data[, "c"] <- myfun(as.numeric(data[, "c"]))
 data[, "y"] <- myfun(as.numeric(data[, "y"]))
 mdl$set_data(data)
-}
+}\if{html}{\out{</div>}}
 
 The function result must be a vector (or timeseries) of length one or with
 the same length as the number of periods in the period range \code{period}.

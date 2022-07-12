@@ -23,7 +23,7 @@ extern  int     mcparse();
 extern  void    mcparse_init(void);
 
 extern  int     mclex(void);
-extern  void    init_scanner(char *filename);
+extern  void    init_scanner(char *filename, const char *filename_preproc);
 extern  void    reset_scanner(void);
 extern  void    showbuf( FILE *fout );
 
@@ -40,5 +40,6 @@ extern  void    export_names(void);
 
 extern Mcopt options;
 
-extern  int     mcexec(const char *mfname, const char *outputfile, Mcopt options);
+extern  int     mcexec(const char *mfname, const char *outputfile, 
+		       const Mcopt *options);
 #endif

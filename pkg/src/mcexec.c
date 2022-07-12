@@ -52,8 +52,10 @@ char    xtra [FILENAME_MAX + 1];
 char    *mkfname(char *fname, char *path, char *base, char *ext);
 
 static void do_dep(FILE *);               /* for dependency output   */
+static void do_dep_free(void);            /* free dependency trees   */
 
 static void do_zrf(FILE *);               /* for zrf output   */
+
 
 /*
  * warnings and errors
@@ -77,6 +79,8 @@ static void reset(void) {
     warncnt = 0;
     errcnt = 0; 
 
+    if (options.gen_dep) do_dep_free();
+
     free_symtab(Stp);
     Stp = NULL;
     free_symtab(Eqntp);
@@ -88,22 +92,33 @@ static void reset(void) {
     clear_flags();
 }
 
-int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
+
+/* Call the model parsers.
+ * mfname: name of the mdl file
+ * outputfile: if this function is called by mcisis, outputfile is the name
+ *             of the file to which the preprocessed mdl file is written.
+ *             if this function is called from convert_mdl_c, outputfile is the
+ *             name of the ouptu file with converted mdl.
+ */
+int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) {
     FILE    *mp;
     char    *fnmdl;
     char    fname[FILENAME_MAX + 1];
 
-    clock_t tb, te;
+    clock_t tb = clock(), te;
     double  cpusecs;
 
-    options = options_in;
+    options = *options_in;
 
     /* check output options */
-    int output_cnt = options.Showecode + options.Showocode +
-                     options.MakeTroll + options.MakeEviews;
+    int output_cnt = options.McPreproc + options.Showecode + 
+	             options.Showocode + options.MakeTroll + 
+		     options.MakeEviews + options.MakeDynare +
+		     options.gen_dep;
     if (output_cnt > 1) {
         ERROR("Only a single output type can be selected");
-    } else if (output_cnt != 0 && options.McIsisMdl) {
+    } else if ((output_cnt != 0 && !(output_cnt == 1 && options.McPreproc))
+		    && options.McIsisMdl) {
         ERROR("Options McIsisMdl is incompatible with output options");
     } else if (output_cnt == 1 && outputfile == NULL) {
         ERROR("Argument outputfile should not be NULL");
@@ -125,13 +140,6 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
     /* if the input filename fname does not have an extension, 
      * then add extension "mdl" */
     fnmdl = (*ext == 0 ) ? mkfname(fname, path, base, "mdl") : fname;
-
-    /* if argument outputname has been specified, then determine the
-     * path and base of the outputname and use these variables 
-     * to generate the output filenames */
-    if (options.outputname != NULL) {
-        fnsplit(options.outputname, path, base, ext);
-    }
 
     /* create error file */
     mkfname(msgname, path, base, "err" );   /* for errors and warnings */
@@ -163,7 +171,6 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
         return FILE_ERROR;
     }
 
-    init_scanner(fnmdl);
 
     if (!options.Strict) {
          /* non-strict compilation: parameters may be used before
@@ -171,18 +178,18 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
           * for parameters
           */
 
-        if (!options.McIsisMdl) {
+        if (options.ShowTiming) {
             Rprintf("Scanning model for parameters ...\n" );
             tb = clock();
         }
+        init_scanner(fnmdl, NULL);
         scanning = 1;
         mc_scan_params();
         scanning = 0;
 
-        init_scanner(fnmdl);
         mcrestart(NULL);
 
-        if (!options.McIsisMdl) {
+        if (options.ShowTiming) {
             te = clock();
             cpusecs = CPUSECS(tb,te);
             Rprintf("Scanning used %.2f seconds\n", cpusecs);
@@ -192,23 +199,29 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
         }
     }
 
-    if (!options.McIsisMdl) {
+    if (options.ShowTiming) {
        tb = clock();
     }
 
+    if (options.McPreproc) {
+      init_scanner(fnmdl, outputfile);
+    } else {
+      init_scanner(fnmdl, NULL);
+    }
+ 
     /* initialise parser (needed when mcexec is called more than once)
      */
     mcparse_init();
 
     mcparse();
 
-    if (!options.McIsisMdl) {
+    if (options.ShowTiming) {
         te = clock();
         cpusecs = CPUSECS(tb,te);
         Rprintf("Parse used %.2f seconds\n", cpusecs);
     }
 
-    if( warncnt || errcnt ) {
+    if (warncnt || errcnt) {
         if (!options.McIsisMdl) {
             ERROR("Warnings and/or errors written to .err file\n");
         }
@@ -240,11 +253,12 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
         fclose(foco);
     }
 
+    /*
+
     if (options.MakeTroll) {
     
         ERROR("It is not yet possible to generate Troll output");
 
-        /*
 
         mkfname(outputfile, path, base, "inp" ); 
         foco = efopen(outputfile, "w" );
@@ -257,8 +271,8 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
 
         out_tmdl(foco, fxtr);
         fclose(foco);
-        */
     }
+    */
 
     if (options.MakeDynare) {
         FILE *foco = efopen(outputfile, "w" );
@@ -266,16 +280,16 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
         fclose(foco);
     }
 
+    /*
     if( options.MakeEviews) {
         FILE *foco = efopen(outputfile, "w" );
         out_vmdl(foco, options.mdlname);
         fclose(foco);
     }
+    */
 
     if (options.gen_dep) {
-        char depfilename[FILENAME_MAX + 1];
-        mkfname(depfilename, path, base, "dep");   
-        FILE *fdep = efopen(depfilename, "w" );
+        FILE *fdep = efopen(outputfile, "w" );
         do_dep(fdep);
         fclose(fdep);
     }
@@ -308,8 +322,8 @@ int mcexec(const char *mfname, const char *outputfile, Mcopt options_in) {
     return 0;
     }
     
-    char *mkfname( char *fname, char *path, char *base, char *ext) {
-        char    *fn;
+char *mkfname( char *fname, char *path, char *base, char *ext) {
+    char *fn;
     
     fn = fnjoin( fname, path, base, ext);
     if (fn == NULL) {
@@ -370,12 +384,12 @@ static int dep_out(Symbol *sp ) {
     if (sp->xpctype == XP_EQN) {
         Equation *eq = sp->u.eqnp;
         if (eq->deps != NULL) {
-            fprintf(fzzout, "%-32s ", eq->lhs->name);
-            print_dependencies(fzzout, eq->deps);
+            print_dependencies(fzzout, eq->lhs->name, eq->deps);
         } 
     }
     return NXTSYM;
 }
+
 
 /* do_dep: output dependency information for all equations in the symbol table */
 static void do_dep(FILE *fzout) {
@@ -403,4 +417,20 @@ static int var_out(Symbol *sp) {
 static void do_zrf (FILE *fzout) {
     fzzout = fzout;
     sym_walk(Stp, var_out, NULL );
+}
+
+/* dep_free: deallocate memory of dependency structure */
+static int dep_free(Symbol *sp ) {
+    if (sp->xpctype == XP_EQN) {
+        Equation *eq = sp->u.eqnp;
+        if (eq->deps != NULL) {
+            free_dependencies(eq->deps);
+        } 
+    }
+    return NXTSYM;
+}
+
+/* do_dep_free: free dependency trees for all equations */
+static void do_dep_free(void) {
+    sym_walk(Eqntp, dep_free, NULL);
 }

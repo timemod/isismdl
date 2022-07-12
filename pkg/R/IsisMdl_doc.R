@@ -2195,6 +2195,33 @@ NULL
 #' cat(mdl$get_text())
 NULL
 
+
+#' \code{\link{IsisMdl}} method: Returns the dependency structure of the model
+#' variables
+
+#' @name get_dep_struct
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the dependency
+#' structure of the model. It returns a data frame with three columns:
+#' the first column contains the left hand side variables (lhs), the second
+#' column right hand side variables (rhs) that occur in the equations for the
+#' lhs variables on the same row, and the third column the lags (and
+#' possibly leads) with which the rhs variables occur, separated with a space.
+#' For example, suppose you have
+#' an equation `a = b - b[-1];`, then the data frame has one row for lhs variable
+#' `a`: `"a"  "b"  "-1 0"`.
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_dep_struct()
+#'
+#' }
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @examples
+#' mdl <- islm_mdl()
+#' print(mdl$get_dep_struct())
+NULL
+
 #' \code{\link{IsisMdl}} method: Returns the last solve period
 
 #' @name get_last_solve_period

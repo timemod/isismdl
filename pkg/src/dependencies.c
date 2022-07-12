@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "dependencies.h"
 #include "util.h"
@@ -12,12 +13,13 @@
 
 /* local variables */
 static dependencies *root = NULL;
+static int first_lag;
 
 /* local function defintions */
-static dependencies *dep_alloc(char *name);
+static dependencies *dep_alloc(const char *name);
 static struct offset_node *offset_alloc(void);
-struct offset_node *add_offset(struct offset_node *p, int offset);
-void offset_tree_print(FILE *f, struct offset_node *p);
+static struct offset_node *add_offset(struct offset_node *p, int offset);
+static void offset_tree_print(FILE *f, const struct offset_node *p);
 
 /* add_dependency: add a new dependency to the dependency list */
 void add_dependency(char *name, int lower, int upper) {
@@ -51,7 +53,7 @@ void add_dependency(char *name, int lower, int upper) {
     }
 }
 
-/* close_dependencies: returns a pointer to the depenendency list,
+/* close_dependencies: returns a pointer to the dependency list,
  * are resets the root pointer */
 dependencies *close_dependencies(void) {
 
@@ -77,16 +79,18 @@ struct offset_node *add_offset(struct offset_node *p, int offset) {
 }
 
 /* offset_tree_print: print the tree of offsets (lags/ leads) */
-void offset_tree_print(FILE *f, struct offset_node *p) {
+void offset_tree_print(FILE *f, const struct offset_node *p) {
     if (p != NULL) {
         offset_tree_print(f, p->left);
-        fprintf(f, "%d ", p->offset);
+	if (!first_lag) fprintf(f, " ");
+        fprintf(f, "%d", p->offset);
+	if (first_lag) first_lag = 0;
         offset_tree_print(f, p->right);
     }
 }
 
 /* dep_alloc: allocate and initialise a new dependency structure */
-static dependencies *dep_alloc(char *name) {
+static dependencies *dep_alloc(const char *name) {
     dependencies *deps;
     deps = (dependencies *) emalloc(sizeof(dependencies));
     deps->name = name;
@@ -103,18 +107,34 @@ static struct offset_node *offset_alloc(void) {
     return node;
 }
 
-void print_dependencies(FILE *f, dependencies *deps) {
-    int first = 1;
+void print_dependencies(FILE *f, const char *lhs_name, const dependencies *deps) {
     while (deps != NULL) {
-        if (!first) {
-            fprintf(f, "%33s", " ");
-        }
-        first = 0;
-        fprintf(f, "%-32s ", deps->name);
+        fprintf(f, "%s,", lhs_name);
+        fprintf(f, "%s,", deps->name);
+	first_lag = 1;
         offset_tree_print(f, deps->offset_tree);
         fprintf(f, "\n");
         deps = deps->next;
     }
 }
 
-/* TODO: add code to free the allocated memory */
+static void free_offset_tree(struct offset_node *p) {
+    if (p != NULL) {
+        free_offset_tree(p->left);
+        free_offset_tree(p->right);
+        free(p);
+    }
+}
+
+void free_dependencies(dependencies *deps_root) {
+
+    dependencies *deps = deps_root;
+    dependencies *deps_next;
+
+    while (deps != NULL) {
+        deps_next = deps->next;
+	free_offset_tree(deps->offset_tree);
+	free(deps);
+	deps = deps_next;
+    }
+}

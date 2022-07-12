@@ -107,6 +107,9 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{get_text}}}{Returns the textual representation of the model}
 #'
+#' \item{\code{\link{get_dep_struct}}}{Returns the dependency structure of the
+#' model variables}
+#'
 #' \item{\code{\link{get_maxlag}}}{Returns the maximum lag}
 #'
 #' \item{\code{\link{get_maxlead}}}{Returns the maximum lead}
@@ -301,6 +304,9 @@ IsisMdl <- R6Class("IsisMdl",
     },
     get_text = function() {
       return(private$model_text)
+    },
+    get_dep_struct = function() {
+      return(get_dep_struct_internal(private$model_text))
     },
     get_maxlag = function() {
       return(private$maxlag)
