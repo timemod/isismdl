@@ -63,6 +63,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"order_mdl_c", (DL_FUNC) &order_mdl_c, 2},
     {"set_fit_opts_c", (DL_FUNC) &set_fit_opts_c, 2},
     {"set_solve_opts_c", (DL_FUNC) &set_solve_opts_c, 2},
+    {"get_simul_names_c", (DL_FUNC) &get_simul_names_c, 1},
     {NULL, NULL, 0}
 };
 

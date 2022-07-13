@@ -4,7 +4,7 @@
 
 ident x1 = f1(x1, x2, x3[-1]);
 ident x2 = f2(x1, x2, x3);
-ident x3 = f3(x1, x2[-1], x3);
+ident eq_for_x3 x3 = f3(x1, x2[-1], x3);
 ident x4 = f4(x1, x2, x3);
 end;
 

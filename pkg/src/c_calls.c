@@ -927,3 +927,21 @@ SEXP set_period_c(SEXP model_index_, SEXP start, SEXP end, SEXP freq_) {
                                            INTEGER(end), &freq);	
     return(ScalarInteger(ierr));
 }
+
+/* Returns the names of the simulaneous parameters */
+SEXP get_simul_names_c(SEXP model_index_) {
+    int model_index = asInteger(model_index_);
+    int nsimul = F77_CALL(get_simul_count)(&model_index);
+
+    /* get list of parameters */
+    int isimul, len;
+    char name[MCMXNM + 1]; /* +1 because of terminating '\0' */
+    SEXP names = PROTECT(allocVector(STRSXP, nsimul));
+    for (isimul = 1; isimul <= nsimul; isimul++) {
+        F77_CALL(get_simul_name)(&model_index, &isimul, name, &len);
+        name[len] = '\0';
+        SET_STRING_ELT(names, isimul - 1, mkChar(name));
+    }
+    UNPROTECT(1);
+    return names;
+}

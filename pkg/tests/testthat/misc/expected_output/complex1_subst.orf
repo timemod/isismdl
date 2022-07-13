@@ -12,15 +12,15 @@
 
      1 Prologue equations
 
- x4  
+ x4          
 
      2 Simultaneous equations
 
- x3   x1  
+ eq_for_x3    x1          
 
      1 Epilogue equations
 
- x2  
+ x2          
 
  *** Feedback variables ***
 

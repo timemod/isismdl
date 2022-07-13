@@ -3,7 +3,7 @@ ident x1 = 2 * sum(j = -2, -1 : coef[j] * x1[j+1] ) + del(1 : sum(j = -4, -2 :
            x2[j] ) ) + 2 * x3[-1] * coef[-1];
 ident x2 = 2 * (2 * sum(j = -2, -1 : coef[j] * x1[j+1] ) + del(1 : sum(j = -4, -2 : 
            x2[j] ) ) + 2 * x3 * coef[-1]);
-ident x3 = 2 * 2 * (2 * sum(j = -2, -1 : coef[j] * x1[j-1] ) + del(1 : sum(j = -4, -2 : 
-           x2[j-4] ) ) + 2 * x3 * coef[-1]);
+ident eq_for_x3 x3 = 2 * 2 * (2 * sum(j = -2, -1 : coef[j] * x1[j-1] ) + del(1 : 
+                     sum(j = -4, -2 : x2[j-4] ) ) + 2 * x3 * coef[-1]);
 ident x4 = 2 * 2 * 2 * (2 * sum(j = -2, -1 : coef[j] * x1[j-3] ) + del(1 : sum(j = -4, -2 : 
            x2[j-6] ) ) + 2 * coef[-2] * coef[-1]);

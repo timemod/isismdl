@@ -114,3 +114,23 @@ test_that("get_dep_struct", {
                       update = update_expected, print = TRUE)
 })
 
+test_that("get_simul_names", {
+
+  sim_names <- ifn_mdl$get_simul_names()
+  sim_names_expected <- c("x", "ys","py", "zcap", "cfcap", "kgv", "bzcap",
+                          "bcap", "i", "di", "eta", "lambda", "a", "xk", "lab")
+  expect_equal(sim_names, sim_names_expected)
+
+  ifn_mdl2 <- ifn_mdl$copy()
+  ifn_mdl2$set_eq_status("inactive", names = c("eta", "px", "py", "lab"))
+  sim_names_expected <- c("x", "ys", "zcap", "cfcap", "kgv", "bzcap",
+                          "bcap", "i", "di", "lambda", "a", "xk")
+  sim_names <- ifn_mdl2$get_simul_names()
+  expect_equal(sim_names, sim_names_expected)
+
+  ifn_mdl2$set_eq_status("active", names = "eta")
+  sim_names_expected <- c("x", "ys", "zcap", "cfcap", "kgv", "bzcap",
+                          "bcap", "i", "di", "eta", "lambda", "a", "xk")
+  sim_names <- ifn_mdl2$get_simul_names()
+  expect_equal(sim_names, sim_names_expected)
+})

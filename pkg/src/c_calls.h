@@ -45,3 +45,4 @@ SEXP clear_fix_c(SEXP model_index_);
 SEXP clone_mws_c(SEXP model_index_);
 SEXP set_period_c(SEXP model_index_, SEXP start, SEXP end, SEXP freq_);
 SEXP remove_mws_c(SEXP model_index_);
+SEXP get_simul_names_c(SEXP model_index_);

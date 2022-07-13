@@ -104,7 +104,7 @@ subroutine get_endex_name(model_index, i, nam, nlen)
 end subroutine get_endex_name
 
 subroutine get_fb_name(model_index, i, nam, nlen)
-    ! returns the name of the i'th feedback variabel (active and inactive) 
+    ! returns the name of the i'th feedback variable (active and inactive) 
     ! (NOT in alphabetical order!!!)
     use modelworkspaces
     use iso_c_binding
@@ -347,3 +347,39 @@ function has_lead(model_index, iv)
         has_lead = 0
     endif
 end function has_lead
+
+! returns the number of simulatenous variables
+function get_simul_count(model_index)
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int) :: get_simul_count
+    integer(c_int), intent(in) :: model_index
+    integer :: loops, loope  
+    loops = mws_array(model_index)%mdl%loops
+    loope = mws_array(model_index)%mdl%loope
+    get_simul_count = loope - loops + 1
+end function get_simul_count
+
+subroutine get_simul_name(model_index, isimul, nam, nlen)
+    ! return the name of the isimul'th simulatneous variable
+    use modelworkspaces
+    use iso_c_binding
+    integer(c_int), intent(in)   :: model_index, isimul
+    integer(c_int), intent(out)  :: nlen
+    integer, dimension(*), intent(out) :: nam
+    integer ieq_ordr, ieq, ivar
+
+    ieq_ordr = mws_array(model_index)%mdl%loops + isimul - 1
+    ieq = mws_array(model_index)%mdl%order(ieq_ordr)
+    if (ieq <= 0) then
+       ! the equation is deactivated
+       nlen = 0
+       return
+    endif
+    ivar = mws_array(model_index)%mdl%lhsnum(ieq)
+    if (.not. mws_array(model_index)%mdl%lik(ivar)) then
+        nlen = 0
+        return
+    endif
+    call get_var_name(mws_array(model_index)%mdl, ivar, .false., nam, nlen);
+end subroutine get_simul_name
