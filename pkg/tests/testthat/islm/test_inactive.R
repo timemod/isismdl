@@ -79,6 +79,7 @@ test_that("Testing equation status after reading the model", {
 test_that("behaviour of deactivated equations", {
   mdl2 <- mdl$copy()
   mdl2$set_eq_status("inactive", names = "c")
+  expect_equal(mdl2$get_simul_names(), c("i", "md", "t", "yd", "y", "r"))
   mdl2$set_values(600, names = "c")
   c_ref <- mdl2$get_data(names = "c")
   mdl2$solve(options = list(report = "none"))
@@ -90,6 +91,9 @@ test_that("behaviour of deactivated equations", {
   mdl2$solve(options = list(report = "none"))
   expect_equal(mdl2$get_data(period = "2015Q2/"),
                mdl$get_data(period = "2015Q2/"))
+
+  mdl$set_eq_status("active", names = c("c", "i"))
+  expect_equal(mdl2$get_simul_names(), c("i", "md", "t", "yd", "c", "y", "r"))
 })
 
 test_that("deactivating fixed equations", {

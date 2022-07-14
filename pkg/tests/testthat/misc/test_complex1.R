@@ -45,6 +45,11 @@ test_that("get_dep_struct", {
                       update = update_expected, print = TRUE)
 })
 
+test_that("get_simul_names", {
+  names <- mdl$get_simul_names()
+  expect_equal(names, c("x3", "x1"))
+})
+
 test_that("function substitution is correct", {
   expect_known_output(cat(paste(readLines(mdl_subst_filename), collapse = "\n")),
                       file = "expected_output/complex1_mdl_subst.mdl",

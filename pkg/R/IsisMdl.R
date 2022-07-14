@@ -60,6 +60,7 @@ setOldClass("period_range")
 #' @useDynLib isismdl get_jc_c
 #' @useDynLib isismdl order_mdl_c
 #' @useDynLib isismdl has_free_mws_c
+#' @useDynLib isismdl get_simul_names_c
 #' @import regts
 #' @importFrom "methods" "new"
 #' @export
@@ -361,6 +362,13 @@ IsisMdl <- R6Class("IsisMdl",
         names <- names[sel]
       }
       return(sort(names))
+    },
+    get_simul_names = function() {
+      sim_names <- .Call(get_simul_names_c, private$model_index)
+      # Remove empty strings: get_simul_names_c returns an empty string for the
+      # lhs variabes of inacvtive euations.
+      sim_names <- sim_names[sim_names != ""]
+      return(sim_names)
     },
     set_labels = function(labels) {
       private$update_labels(labels)
