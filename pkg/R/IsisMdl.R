@@ -307,7 +307,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(private$model_text)
     },
     get_dep_struct = function() {
-      return(get_dep_struct_internal(private$model_text))
+      return(get_dep_struct_internal(private$model_text, self$get_endo_names()))
     },
     get_maxlag = function() {
       return(private$maxlag)

@@ -1,7 +1,7 @@
 # internal function to create the dependency structure from the model_text
 #' @importFrom utils read.csv
 #' @useDynLib isismdl gen_dep_file
-get_dep_struct_internal <- function(model_text) {
+get_dep_struct_internal <- function(model_text, active_endo_names) {
 
   mdl_file_tmp1 <- tempfile(pattern = "isismdl_", fileext = ".mdl")
   mdl_file_tmp2 <- tempfile(pattern = "isismdl_", fileext = ".mdl")
@@ -20,6 +20,11 @@ get_dep_struct_internal <- function(model_text) {
 
   dep_data <- read.csv(dep_file_tmp, header = FALSE,
                        col.names = c("lhs",  "rhs", "lags"))
+
+  #
+  # remove dependency of inactive equations
+  #
+  dep_data <- subset(dep_data, lhs %in% active_endo_names)
 
   # sort the lhs names alphabetically. The ordering of the result returned
   # by gen_dep_file appears to be completely random (the ordering is based on

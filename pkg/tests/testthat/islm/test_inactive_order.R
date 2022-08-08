@@ -32,6 +32,11 @@ test_that("deactive y", {
   expect_equal(mdl_new$get_data(names = "y")[, 1],
                regts(c(980, rep(999, nmsp)), period = mdp, labels = "income"))
 
+  # check get_dep_struct
+  dep_struct <- mdl_new$get_dep_struct()
+  expect_known_value(dep_struct,
+                     "expected_output/inactive_order_dep_struct.rds")
+
   # now reorder the model, y should no longer be in solve order
   mdl_new$order(silent = TRUE)
   expect_equal(mdl_new$get_eq_names(order = "solve"),
@@ -41,14 +46,23 @@ test_that("deactive y", {
   expect_equal(mdl_new$get_eq_names(order = "solve", status = "inactive"),
                character(0))
 
+
+  dep_struct_2 <- mdl_new$get_dep_struct()
+  expect_known_value(dep_struct_2,
+                     "expected_output/inactive_order_dep_struct.rds",
+                     update = FALSE)
+
+
   # check solve again
   mdl_new$set_values(names = "y", value = 1000, period = msp)
   mdl_new$solve(options = list(report = "none"))
   expect_equal(mdl_new$get_data(names = "y")[, 1],
                regts(c(980, rep(1000, nmsp)) , period = mdp, labels = "income"))
+
+
 })
 
-test_that("reactive y", {
+test_that("reactivate y", {
   # now reactivate "y"
   mdl_new$set_eq_status(names = "y", status = "active")
 
