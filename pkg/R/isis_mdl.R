@@ -47,8 +47,8 @@
 #' An extension \code{mdl} is appended to the specified name if the filename
 #' does not already have an extension
 #' @param period a \code{\link[regts]{period_range}} object
-#' @param data the model data as a  \code{\link[regts]{regts}} object with column
-#' names
+#' @param data the model data as a  \code{\link[regts]{regts}} object with
+#' column names
 #' @param ca the constant adjustments as a  \code{\link[regts]{regts}} object
 #' with column names
 #' @param fix_values the fix values as a  \code{\link[regts]{regts}} object
@@ -65,8 +65,8 @@
 #' \code{parse_options}, which should be a named list
 #' \describe{
 #' \item{\code{"flags"}}{A character vector with the flags for conditional
-#' compilation. Consult Section 3.11.2 "Conditional compilation" in the Isis reference
-#' manual for more information about conditional compilation}
+#' compilation. Consult Section 3.11.2 "Conditional compilation" in the Isis
+#' reference manual for more information about conditional compilation}
 #' \item{\code{"include_dirs"}}{A vector with the names of directories
 #' that should be added to the list of
 #'  directories used to searched for include files.
@@ -136,7 +136,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
                  flags, include_dirs))
   }
   if (silent) {
-    output <- capture.output({
+    capture.output({
       retval <- call_compile_mdl_c()
     })
   } else {
@@ -148,7 +148,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   }
 
   model_text <- read_file(preproc_file)
-  ok <- file.remove(preproc_file)
+  file.remove(preproc_file)
 
   mdl <- IsisMdl$new(mif_file = mif_file, model_text = model_text,
                      silent = silent)

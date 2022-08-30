@@ -1,3 +1,3 @@
-.onUnload <- function (libpath) {
-    library.dynam.unload("isismdl", libpath)
+.onUnload <- function(libpath) {
+    return(library.dynam.unload("isismdl", libpath))
 }

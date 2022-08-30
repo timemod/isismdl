@@ -16,7 +16,8 @@ get_dep_struct_internal <- function(model_text, active_endo_names) {
               NULL, list(substitute = TRUE))
   stopifnot(ok)
 
-  retval <- .Call(gen_dep_file, mdl_file_tmp2, dep_file_tmp)
+  ok <- .Call(gen_dep_file, mdl_file_tmp2, dep_file_tmp)
+  stopifnot(ok)
 
   dep_data <- read.csv(dep_file_tmp, header = FALSE,
                        col.names = c("lhs",  "rhs", "lags"))
@@ -24,7 +25,8 @@ get_dep_struct_internal <- function(model_text, active_endo_names) {
   #
   # remove dependency of inactive equations
   #
-  dep_data <- subset(dep_data, lhs %in% active_endo_names)
+  row_sel <- dep_data$lhs %in% active_endo_names
+  dep_data <- dep_data[row_sel, , drop = FALSE]
 
   # sort the lhs names alphabetically. The ordering of the result returned
   # by gen_dep_file appears to be completely random (the ordering is based on
@@ -32,7 +34,7 @@ get_dep_struct_internal <- function(model_text, active_endo_names) {
   dep_data <- dep_data[order(dep_data$lhs), , drop = FALSE]
   rownames(dep_data) <- NULL
 
-  dum <- file.remove(c(mdl_file_tmp1, mdl_file_tmp2, dep_file_tmp))
+  file.remove(c(mdl_file_tmp1, mdl_file_tmp2, dep_file_tmp))
 
   return(dep_data)
 }

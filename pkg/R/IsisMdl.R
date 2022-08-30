@@ -568,7 +568,7 @@ IsisMdl <- R6Class("IsisMdl",
       names <- private$get_names_(private$data_type, names = colnames(data),
                                   name_err = name_err)
       if (length(names) == 0) return(invisible(self))
-      data <- data[ , names, drop = FALSE]
+      data <- data[, names, drop = FALSE]
       return(private$set_data_(private$data_type, data, upd_mode, fun))
     },
     set_ca = function(data, names, upd_mode = c("upd", "updval"), fun,
@@ -579,7 +579,7 @@ IsisMdl <- R6Class("IsisMdl",
       names <- private$get_names_(private$ca_type, names = colnames(data),
                                   name_err = name_err)
       if (length(names) == 0) return(invisible(self))
-      data <- data[ , names, drop = FALSE]
+      data <- data[, names, drop = FALSE]
       return(private$set_data_(private$ca_type, data, upd_mode, fun))
     },
     set_fix = function(data, names, upd_mode = c("upd", "updval"),
@@ -590,7 +590,7 @@ IsisMdl <- R6Class("IsisMdl",
       names <- private$get_names_(private$fix_type, names = colnames(data),
                                   name_err = name_err)
       if (length(names) == 0) return(invisible(self))
-      data <- data[ , names, drop = FALSE]
+      data <- data[, names, drop = FALSE]
       return(private$set_data_(private$fix_type, data, upd_mode))
     },
     set_fit = function(data, names, upd_mode = c("upd", "updval"),
@@ -601,7 +601,7 @@ IsisMdl <- R6Class("IsisMdl",
       names <- private$get_names_(private$fit_type, names = colnames(data),
                                   name_err = name_err)
       if (length(names) == 0) return(invisible(self))
-      data <- data[ , names, drop = FALSE]
+      data <- data[, names, drop = FALSE]
       return(private$set_data_(private$fit_type, data, upd_mode))
     },
     get_data = function(pattern, names,
@@ -706,7 +706,7 @@ IsisMdl <- R6Class("IsisMdl",
       fix_data <- regts(fix_data, start = start_period(period), names = names)
       if (any(is.na(fix_data))) {
         na_names <- colnames(fix_data)[apply(fix_data,
-                                FUN = function(x) {any(is.na(x))}, MARGIN = 2)]
+                                FUN = function(x) any(is.na(x)), MARGIN = 2)]
         na_names_text <- paste(na_names, collapse = " ")
         na_names_lines <- strwrap(na_names_text, width = 80)
         na_names_text <- paste(na_names_lines, collapse = "\n")
@@ -726,7 +726,7 @@ IsisMdl <- R6Class("IsisMdl",
 
       # create a list of supplied options
       names <- names(match.call()[-1])
-      options <- lapply(names, FUN = function(x) {eval(parse(text = x))})
+      options <- lapply(names, FUN = function(x) eval(parse(text = x)))
       names(options) <- names
       .Call("set_solve_opts_c", private$model_index, options)
       return(invisible(self))
@@ -736,7 +736,7 @@ IsisMdl <- R6Class("IsisMdl",
                                warn_zero_row, warn_zero_col, chkjac, report,
                                dbgopt, svdtest_tol) {
       names <- names(match.call()[-1])
-      options <- lapply(names, FUN = function(x) {eval(parse(text = x))})
+      options <- lapply(names, FUN = function(x) eval(parse(text = x)))
       names(options) <- names
       .Call("set_fit_opts_c", private$model_index, options)
       return(invisible(self))
@@ -778,7 +778,7 @@ IsisMdl <- R6Class("IsisMdl",
 
       update_mode <- match.arg(update_mode)
       period <- private$convert_period_arg(period)
-      if (!is.logical(forwards) || length(forwards)!= 1 || is.na(forwards)) {
+      if (!is.logical(forwards) || length(forwards) != 1 || is.na(forwards)) {
         stop("Argument 'forwards' should be a TRUE or FALSE")
       }
       if (!is.logical(by_period) || length(by_period) != 1 ||
@@ -866,7 +866,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
       .Call("set_ftrelax_c", private$model_index, names,
             as.numeric(value))
-      return (invisible(self))
+      return(invisible(self))
     },
     get_ftrelax = function() {
       "Returns the Fair-Taylor relaxtion factors"
@@ -881,7 +881,7 @@ IsisMdl <- R6Class("IsisMdl",
       status <- match.arg(status)
       names <- private$get_eq_names_(FALSE, names, pattern, solve_order = FALSE)
       if (length(names) > 0) {
-        .Call("set_eq_status_c", private$model_index, names, status);
+        .Call("set_eq_status_c", private$model_index, names, status)
       }
       return(invisible(self))
     },
@@ -926,7 +926,7 @@ IsisMdl <- R6Class("IsisMdl",
           file.remove(orfnam)
         }
       }
-      call_order_mdl_c <-function() {
+      call_order_mdl_c <- function() {
         .Call(order_mdl_c, model_index = private$model_index,
               orfnam = orfnam)
         return(invisible())
@@ -1065,7 +1065,7 @@ IsisMdl <- R6Class("IsisMdl",
           vartype <- "frml"
           msg <- "fixed"
         } else {
-          vartype = "all"
+          vartype <- "all"
           msg <- "used as fit targets"
         }
         inactive <- intersect(names, self$get_endo_names(type = vartype,
@@ -1288,7 +1288,7 @@ IsisMdl <- R6Class("IsisMdl",
         data <- self$get_ca(names = names, period = period)
       }
       for (c in seq_len(ncol(data))) {
-        fun_result <- fun(as.numeric(data[ , c]), ...)
+        fun_result <- fun(as.numeric(data[, c]), ...)
         result_len <- length(fun_result)
         if (result_len != 1 && result_len != nper) {
           stop(sprintf(paste("The function result has length %d but should have",
@@ -1306,7 +1306,7 @@ IsisMdl <- R6Class("IsisMdl",
       if (!is.null(ret)) {
         ret <- regts(ret[[2]], start = start_period(private$fortran_period)
                      + ret[[1]] - 1, names = ret[[3]])
-        ret <- ret[ , sort(colnames(ret)), drop = FALSE]
+        ret <- ret[, sort(colnames(ret)), drop = FALSE]
         if (length(private$labels) > 0) {
           ret <- update_ts_labels(ret, private$labels)
         }
@@ -1326,7 +1326,7 @@ IsisMdl <- R6Class("IsisMdl",
 
         data <- self$get_data()
         # remove columns /rows with only NA from data
-        data <- data[ , ! apply(is.na(data) , 2 , all), drop = FALSE]
+        data <- data[, ! apply(is.na(data) , 2 , all), drop = FALSE]
         if (ncol(data) > 0) {
           # remove leading and trailing rows with only NAs
           data <- na_trim(data)
@@ -1358,7 +1358,7 @@ IsisMdl <- R6Class("IsisMdl",
                 data = data, ca = ca,
                 fix = self$get_fix(), fit = self$get_fit(),
                 rms = self$get_rms())
-      return(structure(l, class="mws"))
+      return(structure(l, class = "mws"))
     },
     init_mws = function(x) {
       # Initialize the mws with information in a mws
@@ -1460,7 +1460,7 @@ IsisMdl <- R6Class("IsisMdl",
         return(invisible(NULL))
       }
       names <- names(options)
-      if (is.null(names) || !is.na(Position(f = function(x) {x == ""}, names))) {
+      if (is.null(names) || !is.na(Position(f = function(x) x == "", names))) {
           stop(paste("The", type, "should be a named list"))
       }
       return(invisible(NULL))
@@ -1537,7 +1537,7 @@ IsisMdl <- R6Class("IsisMdl",
       # check for duplicate names
       if (anyDuplicated(names)) {
         dupl <- duplicated(names)
-        data <- data[  , !dupl, drop = FALSE]
+        data <- data[, !dupl, drop = FALSE]
         warning(sprintf(paste("Data contains duplicate names. The first column",
                               "is used.\nThe duplicated names are: %s."),
                         paste(unique(names[dupl]), collapse = ", ")))
@@ -1545,7 +1545,7 @@ IsisMdl <- R6Class("IsisMdl",
 
       if (is.integer(data) || !is.numeric(data)) {
         # make sure that data is a matrix of numeric values
-        data[] <- apply(data, MARGIN = c(1,2), FUN = as.numeric)
+        data[] <- apply(data, MARGIN = c(1, 2), FUN = as.numeric)
       }
 
       return(data)
@@ -1564,5 +1564,3 @@ concat_names <- function(names) {
     return(paste(paste(names[-n], collapse = ", "), "and", names[n], "are"))
   }
 }
-
-

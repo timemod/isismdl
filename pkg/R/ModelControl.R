@@ -13,4 +13,3 @@ ModelControl <- R6Class("ModelControl",
                  }
             )
 )
-
