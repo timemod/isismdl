@@ -21,8 +21,8 @@ does not already have an extension}
 
 \item{period}{a \code{\link[regts]{period_range}} object}
 
-\item{data}{the model data as a  \code{\link[regts]{regts}} object with column
-names}
+\item{data}{the model data as a  \code{\link[regts]{regts}} object with
+column names}
 
 \item{ca}{the constant adjustments as a  \code{\link[regts]{regts}} object
 with column names}
@@ -86,8 +86,8 @@ The following parse options can be specified with argument
 \code{parse_options}, which should be a named list
 \describe{
 \item{\code{"flags"}}{A character vector with the flags for conditional
-compilation. Consult Section 3.11.2 "Conditional compilation" in the Isis reference
-manual for more information about conditional compilation}
+compilation. Consult Section 3.11.2 "Conditional compilation" in the Isis
+reference manual for more information about conditional compilation}
 \item{\code{"include_dirs"}}{A vector with the names of directories
 that should be added to the list of
 directories used to searched for include files.
