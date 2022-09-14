@@ -13,6 +13,7 @@ islm_input <- cbind(r, y, yd, g, ms)
 # create the model
 mdl <- isis_mdl("islm.mdl", data = islm_input, silent = FALSE)
 print(mdl)
+print(mdl$get_text())
 mdl$set_eq_status(status = "inactive", names = "y")
 
 # add labels for model variables not in the input data

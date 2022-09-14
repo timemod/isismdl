@@ -13,3 +13,7 @@ frml t = t0 + t1 * y;
 yd = y - t;
 y = c + i + g;
 r = r + (ms - md) / ms;
+ 
+
+
+zzz = 1.2345678910e-12;
