@@ -2,25 +2,29 @@
 % Please edit documentation in R/solve_mdl.R
 \name{solve_mdl}
 \alias{solve_mdl}
-\title{Function solve_mdl solves model for given data and returns resulting data and constant adjustments}
+\title{Function solve_mdl solves model for given data and returns resulting data
+and constant adjustments}
 \usage{
 solve_mdl(model_file, data, period, fix_values, ca, fit_targets)
 }
 \arguments{
-\item{model_file}{is a reference to the file containing the \code{\link{IsisMdl}} model}
+\item{model_file}{is a reference to the file containing the
+\code{\link{IsisMdl}} model}
 
 \item{data}{is a \code{regts} object containing time series data}
 
 \item{period}{is a \code{period} object describing a time interval}
 
-\item{fix_values}{is a \code{regts} object containing known time series data that should be fixed during analysis}
+\item{fix_values}{is a \code{regts} object containing known time series data
+that should be fixed during analysis}
 
 \item{ca}{describes the so-called constant adjustment values}
 
 \item{fit_targets}{describes the so-called fit targets}
 }
 \description{
-Function solve_mdl solves model for given data and returns resulting data and constant adjustments
+Function solve_mdl solves model for given data and returns resulting data
+and constant adjustments
 }
 \seealso{
 \code{\link{set_data-methods}, \link{get_period}}
