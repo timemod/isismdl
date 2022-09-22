@@ -301,7 +301,11 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     finalize = function() {
-      .Call("remove_mws_c", model_index = private$model_index)
+      # remove_mws_c is unloaded if unloadNamespace() has been
+      # called
+      if (is.loaded("remove_mws_c", "isismdl")) {
+        .Call("remove_mws_c", model_index = private$model_index)
+      }
     },
     get_text = function() {
       return(private$model_text)

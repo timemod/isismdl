@@ -308,10 +308,8 @@ mdl$set_rms(c(c = 5.0, i = 21, md = 2))
 So we have the following fit targets:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{mdl$get_fit()
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##          c   y  yd
-## 2020Q1 600 985 800
+#>          c   y  yd
+#> 2020Q1 600 985 800
 }\if{html}{\out{</div>}}
 
 We specify fit options so that the SVD analysis is performed and the
@@ -326,94 +324,88 @@ Next solve the model. Because y and yd are related according to \code{y = yd - t
 the fit Jacobian contains dependent rows.
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{mdl$solve()
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{##  
-## Model Solve Options
-## Solution period               2020Q1/2020Q1
-## Simulation mode               dynamic
-## Feedback starting values      current period
-## Maximum iterations per period 50
-## Relaxation minimum            0.500E-01
-##            maximum            1.00
-##            shrinkage          0.500
-## Criteria stepback             1.30
-##           matrix              0.900
-## Maximum updates Newton matrix per period                 10
-## Maximum number of line searches with old Jacobian        5
-## Criterion for line search decisions etc.                 geometric
-##  
-##  
-##      3 CAs used by Fit:
-##      c  i  md
-##    1 steps for Newton matrix at iteration   0 (1/condscal =  1.43E-01)
-## Convergence for 2020Q1 in    4 iterations
-##  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
-##      0                0.00652              w                   Rel  c
-##  
-## Fit jacobian (scaled with rms) in period 2020Q1       at iteration    1
-##  
-##               c            i           md
-## y       8.04217     33.77122     -2.14157
-## yd      6.27289     26.34155     -1.67042
-## c       7.72048     11.42037     -2.05591
-##  
-## Fit Warning - D matrix is ill conditioned.
-## Inverse condition=  1.11E-14 < Machine prec**.5=  1.49E-08
-## Derivatives of fit targets are dependent or
-## for one or more fit targets all derivatives are (almost) zero ...
-## Tip: try to use svd analysis and/or fit option 'warn_zero_row' or warn_zero_col'.
-## See documentation of method set_fit_options.
-##  
-## *** SVD analysis ***
-## =======================
-## The purpose of the SVD analysis is to find linearly dependent rows or columns
-## of the fit jacobian.
-## A left singular vector is a linear combination of the rows of the jacobian
-## that is (almost) zero.
-## A right singular vector is a linear combination of the columns of the jacobian
-## that is (almost) zero.
-## Only components >=   0.15E-07  are shown.
-##  
-## Left Singular vectors:
-## ----------------------
-## Singular value   0.12E-13
-##                                y -0.62
-##                               yd  0.79
-##  
-## Right Singular vectors:
-## -----------------------
-## Singular value   0.12E-13
-##                                c -0.26
-##                               md -0.97
-##  
-##  
-## The singularity may also be caused by (almost) zero rows or columns.
-## Therefore we print the norm of "problem rows" and "problem columns"
-## (rows and columns with significant components in left and right singular vectors resp.)
-##  
-## Problem rows:
-## -------------
-##                         Variable     L1 norm of row
-##                                y   44.
-##                               yd   34.
-##  
-## Problem columns:
-## ----------------
-##                         Variable  L1 norm of column
-##                                c   22.
-##                               md   5.9
-##  
-## *** END SVD ANALYSIS ***
-## 
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Warning in mdl$solve(): Simulation not possible
-}\if{html}{\out{</div>}}
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{## Total number of iterations   14
-## Solve model used     0.00 CPU secs
-## 
+#>  
+#> Model Solve Options
+#> Solution period               2020Q1/2020Q1
+#> Simulation mode               dynamic
+#> Feedback starting values      current period
+#> Maximum iterations per period 50
+#> Relaxation minimum            0.500E-01
+#>            maximum            1.00
+#>            shrinkage          0.500
+#> Criteria stepback             1.30
+#>           matrix              0.900
+#> Maximum updates Newton matrix per period                 10
+#> Maximum number of line searches with old Jacobian        5
+#> Criterion for line search decisions etc.                 geometric
+#>  
+#>  
+#>      3 CAs used by Fit:
+#>      c  i  md
+#>    1 steps for Newton matrix at iteration   0 (1/condscal =  1.43E-01)
+#> Convergence for 2020Q1 in    4 iterations
+#>  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
+#>      0                0.00652              w                   Rel  c
+#>  
+#> Fit jacobian (scaled with rms) in period 2020Q1       at iteration    1
+#>  
+#>               c            i           md
+#> y       8.04217     33.77122     -2.14157
+#> yd      6.27289     26.34155     -1.67042
+#> c       7.72048     11.42037     -2.05591
+#>  
+#> Fit Warning - D matrix is ill conditioned.
+#> Inverse condition=  1.11E-14 < Machine prec**.5=  1.49E-08
+#> Derivatives of fit targets are dependent or
+#> for one or more fit targets all derivatives are (almost) zero ...
+#> Tip: try to use svd analysis and/or fit option 'warn_zero_row' or warn_zero_col'.
+#> See documentation of method set_fit_options.
+#>  
+#> *** SVD analysis ***
+#> =======================
+#> The purpose of the SVD analysis is to find linearly dependent rows or columns
+#> of the fit jacobian.
+#> A left singular vector is a linear combination of the rows of the jacobian
+#> that is (almost) zero.
+#> A right singular vector is a linear combination of the columns of the jacobian
+#> that is (almost) zero.
+#> Only components >=   0.15E-07  are shown.
+#>  
+#> Left Singular vectors:
+#> ----------------------
+#> Singular value   0.12E-13
+#>                                y -0.62
+#>                               yd  0.79
+#>  
+#> Right Singular vectors:
+#> -----------------------
+#> Singular value   0.12E-13
+#>                                c -0.26
+#>                               md -0.97
+#>  
+#>  
+#> The singularity may also be caused by (almost) zero rows or columns.
+#> Therefore we print the norm of "problem rows" and "problem columns"
+#> (rows and columns with significant components in left and right singular vectors resp.)
+#>  
+#> Problem rows:
+#> -------------
+#>                         Variable     L1 norm of row
+#>                                y   44.
+#>                               yd   34.
+#>  
+#> Problem columns:
+#> ----------------
+#>                         Variable  L1 norm of column
+#>                                c   22.
+#>                               md   5.9
+#>  
+#> *** END SVD ANALYSIS ***
+#> 
+#> Warning in mdl$solve(): Simulation not possible
+#> Total number of iterations   14
+#> Solve model used     0.00 CPU secs
+#> 
 }\if{html}{\out{</div>}}
 }
 

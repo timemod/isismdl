@@ -15,6 +15,7 @@
 
 static const R_CMethodDef CEntries[] = {
     {"init_modules_c", (DL_FUNC) &init_modules_c, 0},
+    {"remove_all_mwss_c", (DL_FUNC) &remove_all_mwss_c, 0},
     {NULL, NULL, 0}
 };
 
@@ -54,7 +55,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"clear_fix_c", (DL_FUNC) &clear_fix_c, 1},
     {"clone_mws_c", (DL_FUNC) &clone_mws_c, 1},
     {"set_period_c", (DL_FUNC) &set_period_c, 4},
-    {"remove_mws_c", (DL_FUNC) &remove_mws_c, 1},
     {"compile_mdl_c", (DL_FUNC) &compile_mdl_c, 5},
     {"convert_mdl_file_c", (DL_FUNC) &convert_mdl_file_c, 5},
     {"gen_dep_file", (DL_FUNC) &gen_dep_file, 2},

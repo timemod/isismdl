@@ -75,6 +75,7 @@ extern int F77_NAME(has_lead)(int *model_index, int *iv);
 extern int F77_NAME(has_free_mws_fortran)(void);
 extern void F77_NAME(get_max_lag_lead_fortran)(int *model_index, int *maxlag, int *maxlead);
 extern void F77_NAME(remove_mws_fortran)(int *model_index);
+extern void F77_NAME(remove_all_mwss_fortran)(void);
 extern void F77_NAME(set_dbgeqn_fortran)(int *model_index, int *dbgeqn);	
 extern int F77_NAME(get_dbgeqn_fortran)(int *model_index);	
 extern void F77_NAME(run_eqn_fortran)(int *model_index, int *neq, int *eqnums,
@@ -87,7 +88,6 @@ extern void F77_NAME(clear_fix_fortran)(int *model_index);
 extern int F77_NAME(clone_mws_fortran)(int *model_index);
 extern int F77_NAME(set_period_fortran)(int *model_index, int *start, int *end, 
                                         int *freq);
-extern void F77_NAME(remove_mws_fortran)(int *model_index);
 extern void F77_NAME(check_active_eqs_fortran)(int *model_index);
 
 SEXP get_lags_or_leads(int model_index, int type);
@@ -182,7 +182,6 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
         error("Illegal parameter vtype %s\n", type_str);
     }
     int model_index = asInteger(model_index_);
-
 
     if (type == LAGS || type == LEADS) {
         return get_lags_or_leads(model_index, type);
@@ -860,6 +859,11 @@ SEXP get_max_lag_lead_c(SEXP model_index_) {
 SEXP remove_mws_c(SEXP model_index_) {
     int model_index = asInteger(model_index_);
     F77_CALL(remove_mws_fortran)(&model_index);
+    return R_NilValue;
+}
+
+SEXP remove_all_mwss_c(void) {
+    F77_CALL(remove_all_mwss_fortran)();
     return R_NilValue;
 }
 

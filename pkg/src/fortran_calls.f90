@@ -242,9 +242,13 @@ subroutine remove_mws_fortran(model_index)
     use modelworkspaces
     use iso_c_binding, only : c_int
     integer(c_int), intent(in) :: model_index
-    call clear_mws(mws_array(model_index))
     call remove_mws(model_index)
 end subroutine remove_mws_fortran
+
+subroutine remove_all_mwss_fortran()
+    use modelworkspaces
+    call remove_all_modelworkspaces()
+end subroutine remove_all_mwss_fortran
 
 subroutine clear_fit_fortran(model_index)
     use modelworkspaces

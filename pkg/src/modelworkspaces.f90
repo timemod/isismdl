@@ -41,7 +41,7 @@ module modelworkspaces
             integer :: i
 
             i = find_free_mws()
-
+             
             if (i < 1) then
                 call isismdl_error("Maximum number of models in memory reached")
                 create_mws = -1
@@ -54,7 +54,18 @@ module modelworkspaces
 
         subroutine remove_mws(model_index)
             integer, intent(in) :: model_index
+            call clear_mws(mws_array(model_index))
             mws_used(model_index) = .false.
         end subroutine remove_mws
+
+        subroutine remove_all_modelworkspaces()
+          integer i
+          do i = 1, MAX_SIZE 
+             if (mws_used(i)) then
+                 call clear_mws(mws_array(i))
+                 mws_used(i) = .false.
+             endif
+          end do
+        end subroutine remove_all_modelworkspaces
 
 end module modelworkspaces
