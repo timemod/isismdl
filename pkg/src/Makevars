@@ -3,8 +3,8 @@ PKG_CFLAGS =
 PKG_FCFLAGS = -fimplicit-none -cpp -J mod -I include
 
 # options for lex and yacc
-LEX = flex
-YACC = bison
+LEX_CMD = flex
+YACC_CMD = bison
 LYPREFIX = mc
 LEX_YACC_DIR = lex_yacc
 
@@ -12,10 +12,10 @@ all: $(SHLIB)
 
 # rules for lex and yacc
 scan.c : $(LEX_YACC_DIR)/scan.l
-	$(LEX) -P$(LYPREFIX) -o$@ -i $<
+	$(LEX_CMD) -P$(LYPREFIX) -o$@ -i $<
 
 xpctab.c : $(LEX_YACC_DIR)/xpctab.y 
-	$(YACC) -Wno-yacc -d -p $(LYPREFIX) -o $@ $<
+	$(YACC_CMD) -Wno-yacc -d -p $(LYPREFIX) -o $@ $<
 
 # dependencies C files
 include deps/makedeps_c
