@@ -105,7 +105,7 @@ document: install_deps
 	R CMD Rd2pdf --batch $(PKGDIR) -o pkg/vignettes/isismdl_refman.pdf 2>refman.log
 
 install: install_deps
-	$(MAKE) -f Makedeps
+	#$(MAKE) -f Makedeps
 	R CMD INSTALL $(INSTALL_FLAGS) $(PKGDIR)
 
 installv: install_deps

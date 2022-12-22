@@ -13,12 +13,6 @@ DEP_C_PKL = dep_c.pkl
 SRC_DEP_DIR = $(SRC_DIR)/deps
 
 INCLUDE_DIR = include
-ifeq ($(OSTYPE), unix)
-  PYTHON=python2
-else
- PYTHON=python
-endif
-
 
 all: check $(SRC_DEP_DIR)/$(DEP_F90) $(SRC_DEP_DIR)/$(DEP_C)
 
