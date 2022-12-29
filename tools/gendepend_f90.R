@@ -1,8 +1,7 @@
 #
-# This script is used to check the dependencies f90 files on other f90 files
-# due to a "use" statement
-# A dependency list is written file deps/deps_f90.rds.
-library(igraph)
+# This script is used to check the dependencies f90
+# files on mod files. A dependency list is written file
+# deps/deps_f90.rds.
 library(stringr)
 library(tictoc)
 
@@ -11,6 +10,7 @@ rm(list = ls())
 source("tools/parameters.R")
 
 read_used_modules <- function(filename, src_dir, is_macro_dir = FALSE) {
+  src_name <- sub(paste0("\\.", src_f90_ext, "$"), "", filename)
   use_pattern = "^\\s+use\\s+([a-z][a-z0-9_]*)"
   lines <- readLines(file.path(src_dir, filename))
   modules <- character(0)
@@ -19,7 +19,10 @@ read_used_modules <- function(filename, src_dir, is_macro_dir = FALSE) {
     module <- ma[, 2]
     if (!is.na(module)) {
       if (file.exists(file.path(src_dir, paste0(module, ".", src_f90_ext)))) {
-        modules <- c(modules, module)
+        if (module == src_name) {
+          stop("f90 file imports its own module for ", filename)
+        }
+        modules <- union(modules, module)
       }
     }
   }
@@ -40,7 +43,10 @@ get_dep_list <- function(filenames, src_dir, is_macro_dir = FALSE) {
 
 update_deps <- function(deps, filenames, src_dir) {
 
-  deps <- get_dep_list(filenames, src_dir = src_dir)
+  if (length(filenames) > 0) {
+    new_deps <- get_dep_list(filenames, src_dir = src_dir)
+    deps[names(new_deps)] <- new_deps
+  }
 
   # remove unnessary dependencies
   is_null <- sapply(deps, FUN = is.null)

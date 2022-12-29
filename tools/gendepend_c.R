@@ -26,7 +26,7 @@ read_includes <- function(filename, src_dir, is_macro_dir = FALSE) {
     }
   }
   if (length(includes) == 0) {
-    return(NULL) 
+    return(NULL)
   } else {
     return(includes)
   }
@@ -41,63 +41,48 @@ get_dep_list <- function(filenames, src_dir, is_macro_dir = FALSE) {
 }
 
 update_deps <- function(deps, filenames, src_dir) {
-  
-  is_macro_file <- grepl("^macro/", filenames)
-  
-  macro_files <- filenames[is_macro_file]
-  other_files <- filenames[!is_macro_file]
-  
-  # for macro files we only need header files
-  header_pattern <- paste0("\\.(",  paste(header_ext, collapse = "|"),
-                                          ")$")
-  macro_files <- grep(header_pattern, macro_files, value = TRUE)
- 
-  if (length(macro_files) > 0) {
-    macro_deps <- get_dep_list(macro_files, src_dir = src_dir,
-                               is_macro_dir = TRUE)
-    deps[names(macro_deps)] <- macro_deps
+
+  if (length(filenames) > 0) {
+    new_deps <- get_dep_list(filenames, src_dir = src_dir)
+    deps[names(new_deps)] <- new_deps
   }
-  if (length(other_files) > 0) {
-    other_deps <- get_dep_list(other_files, src_dir = src_dir,
-                               is_macro_dir = FALSE)
-    deps[names(other_deps)] <- other_deps
-  }
-  
-  # remove unnessary dependencies 
+
+
+  # remove unnessary dependencies
   is_null <- sapply(deps, FUN = is.null)
   return(deps[!is_null])
 }
 
 if (interactive() || !file.exists(dep_rds)) {
-  
+
   #
   # This script is run from RStudio or the dep_rds file
   # does not exist.
   #
-  
-  pattern <- paste0("\\.(",  
-                    paste(c(src_ext, header_ext), collapse = "|"),
+
+  pattern <- paste0("\\.(",
+                    paste(c(src_c_ext, c_header_ext), collapse = "|"),
                     ")$")
-  filenames <- list.files(src_dir, pattern = pattern, recursive = TRUE)
-  
+  filenames <- list.files(src_dir, pattern = pattern)
+
   cat("\nAnalyzing dependencies of c++ files on header files\n\n")
-  
+
   deps <- list()
-  
+
 } else {
-  
+
   # This script is called from the makefile Makedeps,
   # The command line arguments are the names of the files
   # that are newer than the dep_rds file.
-  
+
   filenames <- commandArgs(trailingOnly = TRUE)
   pattern <- paste0("^", src_dir, "/")
   pattern <- sub("/", "(/|\\\\\\\\)", pattern)
   filenames <- sub(pattern, "", filenames)
-  
+
   cat("\nUpdating dependencies of C++ files on header files:\n",
       paste(filenames, collapse = "\n"), "\n\n")
-  
+
   deps <- readRDS(dep_rds)
 }
 
@@ -105,4 +90,4 @@ tic("Analyzing dependencies")
 deps <- update_deps(deps, filenames, src_dir = src_dir)
 toc()
 
-saveRDS(deps, dep_rds)
+saveRDS(deps, dep_c_rds)

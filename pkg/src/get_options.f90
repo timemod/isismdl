@@ -39,16 +39,3 @@ module get_options
         end function logical2int
 
 end module get_options
-
-!
-! the following functions is called from C and is therefore not 
-! part of the module
-!
-subroutine init_get_options(model_index)
-    use modelworkspaces
-    use get_options
-    use iso_c_binding, only : c_int
-    integer(c_int), intent(in) :: model_index
-
-    options => mws_array(model_index)%solve_opts
-end subroutine init_get_options
