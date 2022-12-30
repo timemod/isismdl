@@ -1,257 +1,160 @@
-fortran_calls.o : kinds.mod liqrco.mod liqrmn.mod liqrsq.mod mcedef.mod \
-    mcstak.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod mdlvars.mod \
-    model_params.mod model_type.mod modelworkspaces.mod msbrdn.mod mscalc.mod \
-    msfbvl.mod msfill.mod msfitm.mod msfito.mod msfix.mod msimob.mod msimod.mod \
-    msimot.mod msimox.mod msimul.mod msnwut.mod msolot.mod msratop.mod \
-    msslvq.mod mssneq.mod mssolve.mod msufstack.mod msutil.mod msvars.mod \
-    mws_params.mod mws_type.mod nucnst.mod nuna.mod nuv.mod output_utils.mod \
-    period_type.mod scalemat.mod set_options.mod solve_options_type.mod \
-    svd_anal.mod utils.mod
+fortran_calls.o : modelworkspaces.o msfill.o msimot.o msimul.o msslvq.o \
+    msvars.o set_options.o
 
-get_fit_opts.o : get_options.mod kinds.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod mws_params.mod \
-    mws_type.mod nucnst.mod nuna.mod output_utils.mod period_type.mod \
-    scalemat.mod solve_options_type.mod utils.mod
+get_fit_opts.o : get_options.o
 
-get_info.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod mdlvars.mod \
-    model_params.mod model_type.mod modelworkspaces.mod mws_params.mod \
-    mws_type.mod nucnst.mod nuna.mod output_utils.mod period_type.mod \
-    scalemat.mod solve_options_type.mod utils.mod
+get_info.o : mdl_name_utils.o modelworkspaces.o utils.o
 
-get_options.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    mdlvars.mod model_params.mod model_type.mod mws_params.mod mws_type.mod \
-    nucnst.mod nuna.mod output_utils.mod period_type.mod scalemat.mod \
-    solve_options_type.mod utils.mod
+get_options.o : kinds.o mws_type.o solve_options_type.o
 
-get_solve_opts.o : get_options.mod kinds.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod mws_params.mod \
-    mws_type.mod nucnst.mod nuna.mod output_utils.mod period_type.mod \
-    scalemat.mod solve_options_type.mod utils.mod
+get_solve_opts.o : get_options.o
 
-init_get_options.o : get_options.mod kinds.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod \
-    modelworkspaces.mod mws_params.mod mws_type.mod nucnst.mod nuna.mod \
-    output_utils.mod period_type.mod scalemat.mod solve_options_type.mod \
-    utils.mod
+init_get_options.o : get_options.o modelworkspaces.o
 
-init_modules.o : kinds.mod mcedef.mod nuna.mod
+init_modules.o : mcedef.o nuna.o
 
-init_set_options.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    mdlvars.mod model_params.mod model_type.mod modelworkspaces.mod \
-    mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod set_options.mod solve_options_type.mod \
-    utils.mod
+init_set_options.o : modelworkspaces.o set_options.o
 
-mccedp.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    model_params.mod model_type.mod utils.mod
+invpol.o : model_params.o
 
-mcfbor.o : kinds.mod mccedp.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    model_params.mod model_type.mod utils.mod
+liqrco.o : kinds.o
 
-mcheck.o : mdl_name_utils.mod mdl_nlen.mod msufstack.mod output_utils.mod
+liqrmn.o : kinds.o nucnst.o
 
-mcirfb.o : kinds.mod mccedp.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    model_params.mod model_type.mod utils.mod
+liqrsq.o : kinds.o
 
-mcisis.o : invpol.mod kinds.mod mcpars.mod mcvars.mod mdl_flen.mod \
-    mdl_name_utils.mod mdl_nlen.mod model_params.mod model_type.mod \
-    output_utils.mod utils.mod
+liqrup.o : kinds.o nuv.o
 
-mcjsbl.o : kinds.mod mccedp.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    model_params.mod model_type.mod utils.mod
+mccedp.o : invpol.o kinds.o mcdep.o mcodep.o mcpars.o mcvars.o model_type.o
 
-mcodep.o : mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod model_params.mod \
-    model_type.mod utils.mod
+mcfbor.o : mccedp.o model_type.o
 
-mcordr.o : kinds.mod mccedp.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    model_params.mod model_type.mod utils.mod
+mcheck.o : mcedef.o mcstak.o mdl_name_utils.o model_type.o msufstack.o \
+    output_utils.o
 
-mcrmif.o : invpol.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod mif_file.mod \
-    model_params.mod model_type.mod utils.mod
+mcirfb.o : kinds.o mccedp.o mcordr.o mdl_name_utils.o model_type.o
 
-mcvars.o : mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod model_params.mod \
-    model_type.mod utils.mod
+mcisis.o : filenameutils.o invpol.o kinds.o mccedp.o mcdep.o mcpars.o mcvars.o \
+    mcxref.o mdl_name_utils.o mdordr.o model_params.o msufstack.o \
+    output_utils.o
 
-mdgfbo.o : kinds.mod mccedp.mod mcfbor.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod model_params.mod model_type.mod utils.mod
+mcjsbl.o : mccedp.o model_type.o
 
-mdl_name_utils.o : mdl_nlen.mod
+mcodep.o : mcdep.o mcedef.o mcstak.o model_type.o msufstack.o
 
-mdlvars.o : kinds.mod mws_params.mod
+mcordr.o : kinds.o mccedp.o model_type.o
 
-mdordr.o : kinds.mod mccedp.mod mcfbor.mod mcirfb.mod mcordr.mod mdl_flen.mod \
-    mdl_name_utils.mod mdl_nlen.mod model_params.mod model_type.mod \
-    output_utils.mod utils.mod
+mcosjc.o : mdl_name_utils.o model_params.o
 
-mif_file.o : mdl_flen.mod
+mcrmif.o : invpol.o mif_file.o model_type.o
 
-model_type.o : mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod model_params.mod \
-    utils.mod
+mcvars.o : mdl_flen.o model_type.o
 
-modelworkspaces.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    mdlvars.mod model_params.mod model_type.mod mws_params.mod mws_type.mod \
-    nucnst.mod nuna.mod output_utils.mod period_type.mod scalemat.mod \
-    solve_options_type.mod utils.mod
+mcwmif.o : invpol.o mcpars.o model_type.o
 
-mscalc.o : kinds.mod liqrco.mod liqrsq.mod mcedef.mod mcstak.mod mdl_flen.mod \
-    mdl_name_utils.mod mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod \
-    msimot.mod msufstack.mod msvars.mod mws_params.mod mws_type.mod nucnst.mod \
-    nuna.mod nuv.mod output_utils.mod period_type.mod scalemat.mod \
-    solve_options_type.mod utils.mod
+mcxref.o : kinds.o mcdep.o mcjsbl.o mcpars.o mcvars.o mdl_name_utils.o \
+    model_params.o
 
-msfbvl.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msimot.mod \
-    msvars.mod mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+mdgfbo.o : mccedp.o mcfbor.o model_type.o
 
-msfill.o : kinds.mod liqrco.mod liqrsq.mod mcedef.mod mcstak.mod mdl_flen.mod \
-    mdl_name_utils.mod mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod \
-    mscalc.mod msimot.mod mssneq.mod msufstack.mod msvars.mod mws_params.mod \
-    mws_type.mod nucnst.mod nuna.mod nuv.mod output_utils.mod period_type.mod \
-    scalemat.mod solve_options_type.mod utils.mod
+mdl_name_utils.o : mdl_nlen.o model_params.o
 
-msfitm.o : kinds.mod liqrco.mod liqrmn.mod liqrsq.mod mdl_flen.mod \
-    mdl_name_utils.mod mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod \
-    msbrdn.mod msfbvl.mod msfito.mod msimob.mod msimod.mod msimot.mod \
-    msnwut.mod msolot.mod mssolve.mod msutil.mod msvars.mod mws_params.mod \
-    mws_type.mod nucnst.mod nuna.mod nuv.mod output_utils.mod period_type.mod \
-    scalemat.mod solve_options_type.mod svd_anal.mod utils.mod
+mdlvars.o : kinds.o model_params.o mws_params.o nuna.o
 
-msfito.o : kinds.mod mdl_name_utils.mod mdl_nlen.mod nucnst.mod
+mdordr.o : kinds.o mccedp.o mcfbor.o mcirfb.o mcordr.o mdl_name_utils.o \
+    model_type.o output_utils.o
 
-msfix.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msvars.mod \
-    mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+mif_file.o : mdl_flen.o
 
-msimob.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msvars.mod \
-    mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+model_type.o : mdl_flen.o mdl_name_utils.o model_params.o utils.o
 
-msimot.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msvars.mod \
-    mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+modelworkspaces.o : mws_type.o output_utils.o
 
-msimox.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msimot.mod \
-    msvars.mod mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+msbrdn.o : kinds.o liqrco.o liqrup.o msjcot.o msnwut.o msvars.o nucnst.o nuv.o \
+    svd_anal.o
 
-msimul.o : kinds.mod liqrco.mod liqrmn.mod liqrsq.mod mdl_flen.mod \
-    mdl_name_utils.mod mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod \
-    msbrdn.mod msfbvl.mod msfitm.mod msfito.mod msfix.mod msimob.mod msimod.mod \
-    msimot.mod msimox.mod msnwut.mod msolot.mod msratop.mod mssolve.mod \
-    msutil.mod msvars.mod mws_params.mod mws_type.mod nucnst.mod nuna.mod \
-    nuv.mod output_utils.mod period_type.mod scalemat.mod \
-    solve_options_type.mod svd_anal.mod utils.mod
+mscalc.o : kinds.o mcedef.o mcstak.o model_params.o msimot.o msufstack.o \
+    msvars.o mws_type.o nuna.o nuv.o
 
-msjcot.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msimot.mod \
-    msvars.mod mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+msfbvl.o : kinds.o mdl_name_utils.o mscalc.o msimot.o msvars.o nuna.o
 
-msnothing.o : kinds.mod
+msfill.o : msimot.o mssneq.o msvars.o
 
-msnwut.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msimot.mod \
-    msvars.mod mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+msfitm.o : kinds.o liqrco.o liqrmn.o mdlvars.o msbrdn.o msfbvl.o msfito.o \
+    msnwut.o mssolve.o msutil.o msvars.o nucnst.o nuna.o nuv.o scalemat.o \
+    svd_anal.o
 
-msolot.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msimot.mod \
-    msvars.mod mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+msfito.o : kinds.o mdl_name_utils.o msimot.o nucnst.o
 
-msordr.o : kinds.mod mccedp.mod mcfbor.mod mcirfb.mod mcjsbl.mod mcordr.mod \
-    mcxref.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod mdlvars.mod \
-    mdordr.mod model_params.mod model_type.mod modelworkspaces.mod msorpr.mod \
-    mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+msfix.o : kinds.o msvars.o nuna.o
 
-msorpr.o : kinds.mod mccedp.mod mcjsbl.mod mcxref.mod mdl_flen.mod \
-    mdl_name_utils.mod mdl_nlen.mod model_params.mod model_type.mod \
-    output_utils.mod utils.mod
+msimob.o : mdl_name_utils.o msimot.o msvars.o
 
-msrchk.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msfbvl.mod \
-    msimob.mod msimod.mod msimot.mod msolot.mod msutil.mod msvars.mod \
-    mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+msimod.o : mdl_name_utils.o msimot.o msvars.o
 
-mssneq.o : kinds.mod liqrco.mod liqrsq.mod mcedef.mod mcstak.mod mdl_flen.mod \
-    mdl_name_utils.mod mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod \
-    mscalc.mod msimot.mod msufstack.mod msvars.mod mws_params.mod mws_type.mod \
-    nucnst.mod nuna.mod nuv.mod output_utils.mod period_type.mod scalemat.mod \
-    solve_options_type.mod utils.mod
+msimot.o : mdl_name_utils.o mdl_nlen.o model_params.o msvars.o nucnst.o nuna.o \
+    output_utils.o
 
-mssolve.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msfbvl.mod \
-    msimob.mod msimod.mod msimot.mod msolot.mod msutil.mod msvars.mod \
-    mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+msimox.o : kinds.o mdl_name_utils.o msimot.o msratop.o msvars.o
 
-msutil.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msimob.mod \
-    msimod.mod msimot.mod msolot.mod msvars.mod mws_params.mod mws_type.mod \
-    nucnst.mod nuna.mod output_utils.mod period_type.mod scalemat.mod \
-    solve_options_type.mod utils.mod
+msimul.o : msfitm.o msfix.o msimob.o msimot.o msimox.o msolot.o msratop.o \
+    mssolve.o msutil.o msvars.o nucnst.o nuna.o output_utils.o
 
-msvars.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod mws_params.mod \
-    mws_type.mod nucnst.mod nuna.mod output_utils.mod period_type.mod \
-    scalemat.mod solve_options_type.mod utils.mod
+msjcot.o : mdl_name_utils.o msimot.o msvars.o
 
-mws_type.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod mdlvars.mod \
-    model_params.mod model_type.mod mws_params.mod nucnst.mod nuna.mod \
-    output_utils.mod period_type.mod scalemat.mod solve_options_type.mod \
-    utils.mod
+msnothing.o : kinds.o
 
-nucnst.o : kinds.mod
+msnwut.o : kinds.o mdl_name_utils.o msfbvl.o msimot.o msjcot.o msolot.o \
+    msutil.o msvars.o nucnst.o nuna.o nuv.o scalemat.o
 
-nuna.o : kinds.mod
+msolot.o : mdl_name_utils.o msimot.o msvars.o nuna.o
 
-nuv.o : kinds.mod nucnst.mod
+msordr.o : mccedp.o mdordr.o modelworkspaces.o msorpr.o mws_type.o \
+    output_utils.o
 
-period_type.o : model_params.mod
+msorpr.o : kinds.o mcjsbl.o mcxref.o mdl_flen.o mdl_name_utils.o model_type.o \
+    output_utils.o
 
-read_model.o : invpol.mod kinds.mod liqrco.mod liqrsq.mod mcheck.mod mcrmif.mod \
-    mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod mdlvars.mod mif_file.mod \
-    model_params.mod model_type.mod modelworkspaces.mod msufstack.mod \
-    msvars.mod mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+msrchk.o : msfbvl.o msolot.o msutil.o
 
-scalemat.o : kinds.mod nucnst.mod nuna.mod
+msslvq.o : mdlvars.o mssneq.o msvars.o nuna.o
 
-set_fit_opts.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    mdlvars.mod model_params.mod model_type.mod mws_params.mod mws_type.mod \
-    nucnst.mod nuna.mod output_utils.mod period_type.mod scalemat.mod \
-    set_options.mod solve_options_type.mod utils.mod
+mssneq.o : mdl_name_utils.o mscalc.o msimot.o msvars.o nuna.o
 
-set_options.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    mdlvars.mod model_params.mod model_type.mod mws_params.mod mws_type.mod \
-    nucnst.mod nuna.mod output_utils.mod period_type.mod scalemat.mod \
-    solve_options_type.mod utils.mod
+mssolve.o : msbrdn.o msfbvl.o msnwut.o msolot.o msutil.o msvars.o nucnst.o
 
-set_solve_opts.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    mdlvars.mod model_params.mod model_type.mod mws_params.mod mws_type.mod \
-    nucnst.mod nuna.mod output_utils.mod period_type.mod scalemat.mod \
-    set_options.mod solve_options_type.mod utils.mod
+msutil.o : kinds.o model_params.o msimob.o msimod.o msolot.o msvars.o nucnst.o \
+    nuna.o
 
-solve_options_type.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    model_params.mod model_type.mod nucnst.mod nuna.mod scalemat.mod utils.mod
+msvars.o : kinds.o liqrco.o liqrsq.o mws_type.o solve_options_type.o
 
-svd_anal.o : kinds.mod liqrco.mod liqrsq.mod mdl_flen.mod mdl_name_utils.mod \
-    mdl_nlen.mod mdlvars.mod model_params.mod model_type.mod msimot.mod \
-    msvars.mod mws_params.mod mws_type.mod nucnst.mod nuna.mod nuv.mod \
-    output_utils.mod period_type.mod scalemat.mod solve_options_type.mod \
-    utils.mod
+mws_type.o : kinds.o mdlvars.o model_type.o mws_params.o nucnst.o nuna.o \
+    output_utils.o period_type.o solve_options_type.o
 
-utils.o : model_params.mod
+nucnst.o : kinds.o
 
-write_model.o : kinds.mod mdl_flen.mod mdl_name_utils.mod mdl_nlen.mod \
-    mdlvars.mod model_params.mod model_type.mod modelworkspaces.mod \
-    mws_params.mod mws_type.mod nucnst.mod nuna.mod output_utils.mod \
-    period_type.mod scalemat.mod solve_options_type.mod utils.mod
+nuna.o : kinds.o
+
+nuv.o : kinds.o nucnst.o
+
+period_type.o : model_params.o
+
+read_model.o : mcheck.o mcrmif.o modelworkspaces.o msvars.o output_utils.o
+
+scalemat.o : kinds.o nucnst.o nuna.o nuv.o
+
+set_fit_opts.o : set_options.o
+
+set_options.o : kinds.o mws_type.o solve_options_type.o
+
+set_solve_opts.o : output_utils.o set_options.o
+
+solve_options_type.o : kinds.o model_type.o nucnst.o nuna.o scalemat.o
+
+svd_anal.o : kinds.o mdl_name_utils.o model_params.o msimot.o msvars.o nucnst.o \
+    nuna.o nuv.o output_utils.o
+
+utils.o : model_params.o
+
+write_model.o : mdl_flen.o modelworkspaces.o
 

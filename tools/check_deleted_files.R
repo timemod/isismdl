@@ -1,5 +1,5 @@
 # Check if the dep_rds file contains files that do not longer
-# exist. If so, then remove the depency files, so that they
+# exist. If so, then remove the dependency files, so that they
 # will be generated again
 rm(list = ls())
 

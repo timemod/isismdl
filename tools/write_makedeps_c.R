@@ -1,5 +1,5 @@
-# This scripts creates a Makefile with dependencies of source files in 
-# directory pkg/src on the header files in directory pkg/src and 
+# This scripts creates a Makefile with dependencies of source files in
+# directory pkg/src on the header files in directory pkg/src and
 # pkg/src/macro.
 
 library(igraph)
@@ -9,7 +9,7 @@ rm(list = ls())
 
 source("tools/parameters.R")
 
-deps <- readRDS(dep_rds)
+deps <- readRDS(dep_c_rds)
 
 tic("construct matrix")
 all_names <- sort(union(names(deps), unique(unlist(deps))))
@@ -30,10 +30,10 @@ toc()
 # TODO: give a warning about include files  that are not used
 
 tic("writing dep_file")
-src_pattern <- paste0("\\.(",  paste(src_ext, collapse = "|"), ")$")
+src_pattern <- paste0("\\.(",  paste(src_c_ext, collapse = "|"), ")$")
 src_files <- grep(src_pattern, names(deps), value = TRUE)
 src_files <- sort(src_files)
-con <- file(dep_file, "wt")
+con <- file(dep_c_file, "wt")
 for (src_file in src_files) {
   obj_file <- sub(src_pattern, ".o", src_file)
   deps <- names(subcomponent(g, src_file, mode = "in")[-1])

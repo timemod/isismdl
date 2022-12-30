@@ -1,7 +1,6 @@
 #
-# This script is used to check the dependencies f90
-# files on mod files. A dependency list is written file
-# deps/deps_f90.rds.
+# This script checks the dependencies of f90 files on mod files.
+# A dependency list is written file deps/deps_f90.rds.
 library(stringr)
 library(tictoc)
 
@@ -11,7 +10,7 @@ source("tools/parameters.R")
 
 read_used_modules <- function(filename, src_dir, is_macro_dir = FALSE) {
   src_name <- sub(paste0("\\.", src_f90_ext, "$"), "", filename)
-  use_pattern = "^\\s+use\\s+([a-z][a-z0-9_]*)"
+  use_pattern = "^\\s*use\\s+([a-z][a-z0-9_]*)"
   lines <- readLines(file.path(src_dir, filename))
   modules <- character(0)
   for (line in lines) {

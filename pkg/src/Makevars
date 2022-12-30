@@ -8,8 +8,6 @@ YACC_CMD = bison
 LYPREFIX = mc
 LEX_YACC_DIR = lex_yacc
 
-VPATH = mod:include
-
 all: $(SHLIB)
 
 # rules for lex and yacc
@@ -26,4 +24,4 @@ include deps/makedeps_c
 include deps/makedeps_f90
 
 # dependencies of object files on include files
-mscalc.o : mspushf.inc  mspushv.inc  msshift.inc
+mscalc.o : include/mspushf.inc  include/mspushv.inc  include/msshift.inc
