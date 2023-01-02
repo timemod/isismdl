@@ -1,10 +1,12 @@
-# This scripts creates a Makefile with dependencies for f90 files on other
-# f90 files because of the 'use' statement.
-# The f90 files actually depends of the .mod files in
-# directory pkg/src/mod, but since these mod files are created when
-# f90 files are compiled, we can use the dependencies of mod files.
-
-library(igraph)
+# This scripts creates a Makefile with dependencies for the f90 files.
+# An f90 file should be recompiled when imported module files (modules
+# imported with the "use <module_name>" statement) are changed.
+# The module files are created in directory mod when the corresponding
+# f90 is is compiled AND if the interface of the module has been modified.
+# So when the f90 file is compiled a new mod file is not always created.
+# This makes it is a bit difficult to treat mod files in makefiles. Therefore
+# we now recompile an f90 files if any object file corresponding to the
+# imported modules have been modified.
 library(tictoc)
 
 rm(list = ls())

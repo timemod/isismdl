@@ -12,7 +12,7 @@ rm(list = ls())
 source("tools/parameters.R")
 
 read_includes <- function(filename, src_dir, is_macro_dir = FALSE) {
-  include_pattern <- "^#\\s*include\\s+\"(.+)\""
+  include_pattern <- "^\\s*#\\s*include\\s+\"(.+)\""
   lines <- readLines(file.path(src_dir, filename))
   includes <- character(0)
   for (line in lines) {

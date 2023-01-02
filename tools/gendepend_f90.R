@@ -1,5 +1,5 @@
 #
-# This script checks the dependencies of f90 files on mod files.
+# This script checks the dependencies of f90 files on mod files (module files)
 # A dependency list is written file deps/deps_f90.rds.
 library(stringr)
 library(tictoc)

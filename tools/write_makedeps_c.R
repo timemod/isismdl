@@ -1,6 +1,5 @@
 # This scripts creates a Makefile with dependencies of source files in
-# directory pkg/src on the header files in directory pkg/src and
-# pkg/src/macro.
+# directory pkg/src on the header files in directory pkg/src.
 
 library(igraph)
 library(tictoc)
