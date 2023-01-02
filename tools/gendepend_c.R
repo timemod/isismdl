@@ -53,7 +53,7 @@ update_deps <- function(deps, filenames, src_dir) {
   return(deps[!is_null])
 }
 
-if (interactive() || !file.exists(dep_rds)) {
+if (interactive() || !file.exists(dep_c_rds)) {
 
   #
   # This script is run from RStudio or the dep_rds file
@@ -83,7 +83,7 @@ if (interactive() || !file.exists(dep_rds)) {
   cat("\nUpdating dependencies of C++ files on header files:\n",
       paste(filenames, collapse = "\n"), "\n\n")
 
-  deps <- readRDS(dep_rds)
+  deps <- readRDS(dep_c_rds)
 }
 
 tic("Analyzing dependencies")

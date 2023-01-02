@@ -36,7 +36,7 @@ read_used_modules <- function(filename, src_dir, is_macro_dir = FALSE) {
 get_dep_list <- function(filenames, src_dir, is_macro_dir = FALSE) {
   retval <- lapply(filenames, FUN = read_used_modules,
                    src_dir = src_dir, is_macro_dir = is_macro_dir)
-  names(retval) <- sub(paste0("\\.", src_f90_ext, "$"), "", filenames)
+  names(retval) <- filenames
   return(retval)
 }
 
@@ -52,7 +52,7 @@ update_deps <- function(deps, filenames, src_dir) {
   return(deps[!is_null])
 }
 
-if (interactive() || !file.exists(dep_rds)) {
+if (interactive() || !file.exists(dep_f90_rds)) {
 
   #
   # This script is run from RStudio or the dep_rds file
@@ -80,7 +80,7 @@ if (interactive() || !file.exists(dep_rds)) {
   cat("\nUpdating dependencies of C++ files on header files:\n",
       paste(filenames, collapse = "\n"), "\n\n")
 
-  deps <- readRDS(dep_rds)
+  deps <- readRDS(dep_f90_rds)
 }
 
 tic("Analyzing dependencies")

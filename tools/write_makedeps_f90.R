@@ -16,7 +16,7 @@ deps <- readRDS(dep_f90_rds)
 tic("writing dep_file")
 con <- file(dep_f90_file, "wt")
 for (src_name in names(deps)) {
-  obj_file <- paste0(src_name, ".o")
+  obj_file <- sub(paste0("\\.", src_f90_ext, "$"), ".o", src_name)
   dep_files <- deps[[src_name]]
   dep_files <-sort(dep_files)
   dep_files <- paste0(dep_files, ".o")
