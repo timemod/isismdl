@@ -2,45 +2,36 @@
 
 TOOLDIR = tools
 SRC_DIR = pkg/src
-SRCF90 = $(wildcard $(SRC_DIR)/*.f90)
-SRCC = $(wildcard $(SRC_DIR)/*.c)
-INCC = $(wildcard $(SRC_DIR)/*.h)
+SRC_F90 = $(wildcard $(SRC_DIR)/*.f90)
+SRC_C = $(wildcard $(SRC_DIR)/*.c)
+SRC_H = $(wildcard $(SRC_DIR)/*.h)
 DEP_DIR = deps
-DEP_F90 = makedeps_f90
-DEP_C = makedeps_c
-DEP_F90_PKL = dep_f90.pkl
-DEP_C_PKL = dep_c.pkl
+DEP_F90_FILE = makedeps_f90
+DEP_C_FILE = makedeps_c
+DEP_F90_RDS = deps_f90.rds
+DEP_C_RDS = deps_c.rds
 SRC_DEP_DIR = $(SRC_DIR)/deps
 
 INCLUDE_DIR = include
-ifeq ($(OSTYPE), unix)
-  PYTHON=python2
-else
- PYTHON=python
-endif
 
-
-all: check $(SRC_DEP_DIR)/$(DEP_F90) $(SRC_DEP_DIR)/$(DEP_C)
+all: check $(SRC_DEP_DIR)/$(DEP_F90_FILE) $(SRC_DEP_DIR)/$(DEP_C_FILE)
 
 check:
-	echo "ostype"
-	echo $(OSTYPE)
-	@echo checking source files does not work yet
-#	@$(PYTHON) $(TOOLDIR)/check_srcfiles.py $(SRC_DIR) $(DEP_DIR)
+	@Rscript $(TOOLDIR)/check_deleted_files.R
 
-$(DEP_DIR)/$(DEP_F90_PKL) : $(SRCF90)
-	@$(PYTHON) $(TOOLDIR)/gendepend_f90.py $(SRC_DIR)  $@ $(INCLUDE_DIR) $(notdir $(?F))
+$(SRC_DEP_DIR)/$(DEP_C_FILE) : $(DEP_DIR)/$(DEP_C_RDS)
+	@Rscript $(TOOLDIR)/write_makedeps_c.R
 
-$(DEP_DIR)/$(DEP_C_PKL) : $(SRCC) $(INCC)
-	@$(PYTHON) $(TOOLDIR)/gendepend_c.py $(SRC_DIR) $@ $(notdir $(?F))
+$(DEP_DIR)/$(DEP_C_RDS) : $(SRC_C) $(SRC_H) 
+	@Rscript $(TOOLDIR)/gendepend_c.R $?
 
-$(SRC_DEP_DIR)/$(DEP_F90) : $(DEP_DIR)/$(DEP_F90_PKL)
-	@$(PYTHON) $(TOOLDIR)/write_makedeps.py $< $@
+$(SRC_DEP_DIR)/$(DEP_F90_FILE) : $(DEP_DIR)/$(DEP_F90_RDS)
+	@Rscript $(TOOLDIR)/write_makedeps_f90.R
 
-$(SRC_DEP_DIR)/$(DEP_C) : $(DEP_DIR)/$(DEP_C_PKL)
-	@$(PYTHON) $(TOOLDIR)/write_makedeps.py $< $@
+$(DEP_DIR)/$(DEP_F90_RDS) : $(SRC_F90)
+	@Rscript $(TOOLDIR)/gendepend_f90.R $?
 
 clean:
-	@rm -f deps/*pkl
-
-
+	-@rm -f $(DEP_DIR)/*rds
+	-@rm -f $(SRC_DEP_DIR)/makedeps_f90
+	-@rm -f $(SRC_DEP_DIR)/makedeps_c

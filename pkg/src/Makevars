@@ -17,8 +17,11 @@ scan.c : $(LEX_YACC_DIR)/scan.l
 xpctab.c : $(LEX_YACC_DIR)/xpctab.y 
 	$(YACC_CMD) -Wno-yacc -d -p $(LYPREFIX) -o $@ $<
 
-# dependencies C files
+# dependencies of object files on header files
 include deps/makedeps_c
 
-# dependencies Fortran files
+# dependencies of object files files on mod files
 include deps/makedeps_f90
+
+# dependencies of object files on include files
+mscalc.o : include/mspushf.inc  include/mspushv.inc  include/msshift.inc
