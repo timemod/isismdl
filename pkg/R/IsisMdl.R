@@ -1383,6 +1383,11 @@ IsisMdl <- R6Class("IsisMdl",
         self$init_data(data_period = x$data_period, data = x$data, ca = x$ca)
         if (!is.null(x$fix)) {
           self$set_fix(x$fix)
+          # x$data should be transferred to the model data again after
+          # set_fix() has been called, because set_fix also transfers the
+          # fix values to the model data:
+          private$set_data_(private$data_type,
+                            x$data[, colnames(x$fix), drop = FALSE])
         }
         if (!is.null(x$fit)) {
           self$set_fit(x$fit)
