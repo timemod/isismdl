@@ -1381,7 +1381,7 @@ IsisMdl <- R6Class("IsisMdl",
       if (!is.null(x$model_period)) {
         private$model_period <- x$model_period
         self$init_data(data_period = x$data_period, data = x$data, ca = x$ca)
-        if (!is.null(x$fix)) {
+        if (!is.null(x$fix) && ncol(x$fix) > 0) {
           self$set_fix(x$fix)
           # x$data should be transferred to the model data again after
           # set_fix() has been called, because set_fix also transfers the
