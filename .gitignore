@@ -8,6 +8,7 @@ pkg/src/mod/*.mod
 pkg/inst/doc
 ./data
 refman.log
+refman.pdf
 isismdl.Rcheck
 isismdl_*.tar.gz
 tmp/

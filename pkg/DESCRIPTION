@@ -11,7 +11,7 @@ Depends:
     regts
 SystemRequirements: GNU make
 License: GPL-3
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE, r6 = FALSE)
 Imports:
     methods,

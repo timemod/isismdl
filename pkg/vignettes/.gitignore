@@ -7,3 +7,5 @@ islm.mrf
 *.synctex.gz
 ./*.tex
 *.toc
+*.pdf
+!fit_method.pdf

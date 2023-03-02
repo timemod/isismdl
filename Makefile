@@ -100,9 +100,9 @@ bin: install_deps
 
 document: install_deps
 	$(MAKE) -f Makedeps
-	-@rm -f pkg/vignettes/isismdl_refman.pdf
+	-@rm -f refman.pdf
 	R -e "devtools::document('"$(PKGDIR)"')"
-	R CMD Rd2pdf --batch $(PKGDIR) -o pkg/vignettes/isismdl_refman.pdf 2>refman.log
+	R CMD Rd2pdf --no-preview $(PKGDIR) -o refman.pdf 2>&1 > refman.log
 
 install: install_deps
 	$(MAKE) -f Makedeps
