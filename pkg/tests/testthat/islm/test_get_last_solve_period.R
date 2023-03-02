@@ -4,7 +4,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("get_last_solve_period")
 
 test_that("new compiled moel", {
   mdl <- isis_mdl("mdl/islm.mdl", silent = TRUE)

@@ -1,7 +1,6 @@
 library(testthat)
 library(isismdl)
 
-context("fit for laxo model")
 
 rm(list = ls())
 update <- FALSE

@@ -3,7 +3,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("run_eqn per period")
 
 mdl_file <- "mdl/test_run_eqn_by_period.mdl"
 

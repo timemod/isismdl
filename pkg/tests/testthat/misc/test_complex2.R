@@ -5,7 +5,6 @@ library(testthat)
 rm(list = ls())
 update <- FALSE
 
-context("test for complex model 2")
 
 source("../tools/read_mrf.R")
 

@@ -3,7 +3,6 @@ library(isismdl)
 
 rm(list = ls())
 
-context("scale_method fit")
 
 period <- period("2020q2")
 

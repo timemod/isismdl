@@ -5,7 +5,6 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-context("singular model 2")
 
 source("../tools/convert_report.R")
 

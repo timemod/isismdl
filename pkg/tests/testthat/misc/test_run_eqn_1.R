@@ -4,7 +4,6 @@ library(testthat)
 rm(list = ls())
 update <- FALSE
 
-context("run_eqn_1")
 
 mdl_file <- "mdl/test_run_eqn_1.mdl"
 

@@ -5,7 +5,6 @@ library(testthat)
 rm(list = ls())
 update <- FALSE
 
-context("test for a simple recursive model")
 
 source("../tools/read_mrf.R")
 

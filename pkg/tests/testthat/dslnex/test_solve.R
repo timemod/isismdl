@@ -5,7 +5,6 @@ library(isismdl)
 rm(list = ls())
 update <- FALSE
 
-context("solve dslnex model")
 
 source("../tools/read_mrf.R")
 

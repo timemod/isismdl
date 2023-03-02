@@ -2,7 +2,6 @@ library(isismdl)
 library(testthat)
 library(readr)
 
-context("user language functions (1)")
 
 capture_output(mdl <- isis_mdl("mdl/ulfunc1.mdl", period = "2010"))
 mdl$set_values(3, names = "x")

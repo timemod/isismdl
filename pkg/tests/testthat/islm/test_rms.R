@@ -1,7 +1,6 @@
 library(testthat)
 library(isismdl)
 
-context("rms values for ISLM model")
 
 rm(list = ls())
 

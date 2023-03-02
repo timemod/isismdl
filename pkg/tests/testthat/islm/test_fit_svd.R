@@ -5,7 +5,6 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-context("fit for ISLM model singular case with SVD test")
 
 source("../tools/convert_report.R")
 

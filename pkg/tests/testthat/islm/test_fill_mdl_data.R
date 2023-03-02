@@ -4,7 +4,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("fill_mdl_data for the ISLM model")
 
 test_that("filmdt works correctly", {
   capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))

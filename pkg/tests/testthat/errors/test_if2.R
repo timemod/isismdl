@@ -5,7 +5,6 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-context("logical/numerical type errors")
 
 test_that("output function isis_mdl is correct", {
   msg <- "Model not correct \\(see output\\)"

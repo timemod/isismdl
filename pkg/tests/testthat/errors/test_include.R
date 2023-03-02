@@ -3,7 +3,6 @@ library(testthat)
 library(readr)
 
 rm(list = ls())
-context("end statement in include")
 
 update_expected <- FALSE
 

@@ -3,7 +3,6 @@ library(isismdl)
 
 rm(list = ls())
 
-context("set_fit (2) for ISLM model")
 
 # prepare rms values and fit targets
 i <- regts(200, start = '2015Q2')

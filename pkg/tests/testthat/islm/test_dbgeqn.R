@@ -6,7 +6,6 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-context("equation debugging for the ISLM model")
 
 source("../tools/convert_report.R")
 

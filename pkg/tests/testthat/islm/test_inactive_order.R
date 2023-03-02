@@ -3,7 +3,6 @@ library(isismdl)
 
 rm(list = ls())
 
-context("inactive equations and equation order for ISLM model")
 
 mdl_basis <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 msp <- mdl_basis$get_period()

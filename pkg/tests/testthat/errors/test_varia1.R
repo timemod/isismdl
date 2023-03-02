@@ -2,7 +2,6 @@ library(isismdl)
 library(testthat)
 library(readr)
 
-context("syntax error varia")
 
 update_expected <- FALSE
 

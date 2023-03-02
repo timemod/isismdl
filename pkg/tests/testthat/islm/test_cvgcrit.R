@@ -3,7 +3,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("test cvgcrit")
 
 rep1 <- capture_output(mdl <- read_mdl("islm_model.ismdl"))
 rep2 <- capture_output(mdl_solved <- read_mdl("islm_model_solved.ismdl"))

@@ -4,7 +4,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("read_mdl_dataperiod")
 
 mdl_filename <- "mdl/islm.mdl"
 mdl <- isis_mdl(mdl_filename, period = "2018/2019", silent = TRUE)

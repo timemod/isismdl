@@ -1,7 +1,6 @@
 library(testthat)
 library(isismdl)
 
-context("set_fix (2) for the ISLM model")
 
 # prepare rms values and fix targets
 i <- regts(200, start = '2015Q2')

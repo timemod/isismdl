@@ -4,7 +4,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("test for a simple recursive model with inactive equations")
 
 period <- as.period_range("1550Y")
 

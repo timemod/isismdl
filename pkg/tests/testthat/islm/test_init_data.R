@@ -2,7 +2,6 @@ library(utils)
 library(isismdl)
 library(testthat)
 
-context("init_data for the ISLM model")
 
 rm(list = ls())
 

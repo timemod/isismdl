@@ -1,7 +1,6 @@
 library(testthat)
 library(isismdl)
 
-context("parameters for laxo model")
 
 rm(list = ls())
 

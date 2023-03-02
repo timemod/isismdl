@@ -4,7 +4,6 @@ library(readr)
 
 update_expected <- FALSE
 
-context("syntax error user function")
 
 test_that("error given", {
   msg <- "Error detected in compilation of model mdl/ufunc1\nCheck the .err file"

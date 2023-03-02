@@ -4,7 +4,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("get_ca for the  ISLM model")
 
 mdl <- read_mdl("islm_model.ismdl", silent = TRUE)
 

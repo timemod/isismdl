@@ -3,7 +3,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("fit square mdl singular")
 
 mdl <- isis_mdl("mdl/square.mdl", period = 1000, silent = TRUE)
 

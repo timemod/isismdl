@@ -2,7 +2,6 @@ library(isismdl)
 library(testthat)
 library(readr)
 
-context("user language functions (1)")
 
 rm(list = ls())
 

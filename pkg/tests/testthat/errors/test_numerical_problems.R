@@ -5,7 +5,6 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-context("numerical problems")
 
 source("../tools/convert_report.R")
 

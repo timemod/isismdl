@@ -5,7 +5,6 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-context("fit nonsquare mdl singular")
 
 source("../tools/convert_report.R")
 

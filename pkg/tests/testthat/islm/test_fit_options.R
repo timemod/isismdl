@@ -5,7 +5,6 @@ library(utils)
 
 rm(list = ls())
 
-context("fit options for ISLM model")
 
 mdl <- read_mdl("islm_model.ismdl", silent  = TRUE)
 

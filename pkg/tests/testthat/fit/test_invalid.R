@@ -7,7 +7,6 @@ update_expected <- FALSE
 
 source("../tools/convert_report.R")
 
-context("fit square mdl na values")
 
 mdl <- isis_mdl("mdl/square_div_0.mdl", period = 1000, silent = TRUE)
 

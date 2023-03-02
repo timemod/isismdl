@@ -6,7 +6,6 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-context("solve IFN model")
 capture_output(ifn_mdl <- read_mdl("ifn_mdl.rds"))
 
 isis_result <- as.regts(read.csv("isi/solve.csv"), time_column = 1)

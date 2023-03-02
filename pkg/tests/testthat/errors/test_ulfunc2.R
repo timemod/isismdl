@@ -4,7 +4,6 @@ library(readr)
 
 update_expected <- FALSE
 
-context("user language functions (2)")
 
 test_that("output function isis_mdl is correct", {
   msg <- "Model not correct \\(see output\\)"

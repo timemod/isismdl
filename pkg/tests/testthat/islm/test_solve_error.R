@@ -4,7 +4,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("solve errors ISLM model")
 
 capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 mdl$set_solve_options(report = "none")

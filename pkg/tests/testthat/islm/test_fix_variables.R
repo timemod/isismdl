@@ -4,7 +4,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("fix_variables for the ISLM model")
 
 mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 

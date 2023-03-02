@@ -5,7 +5,6 @@ library(utils)
 rm(list = ls())
 update <- FALSE
 
-context("mrf IFN model")
 
 source("../tools/read_mrf.R")
 

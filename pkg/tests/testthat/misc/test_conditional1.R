@@ -5,7 +5,6 @@ library(testthat)
 rm(list = ls())
 
 update_expected <- FALSE
-context("test for conditional 1")
 
 period <- as.period_range("476")
 mdl_filename <- "mdl/conditional1.mdl"

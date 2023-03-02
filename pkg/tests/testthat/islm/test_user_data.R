@@ -4,7 +4,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("test user_data")
 
 mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 

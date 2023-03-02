@@ -6,7 +6,6 @@ rm(list = ls())
 
 update_expected  <- FALSE
 
-context("mrf islm model")
 
 source("../tools/read_mrf.R")
 

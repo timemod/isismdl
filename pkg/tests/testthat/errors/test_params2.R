@@ -6,7 +6,6 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-context("syntax error params (2)")
 
 test_that("error given", {
   msg <- "Error detected in compilation of model mdl/params2\nCheck the .err file"

@@ -3,7 +3,6 @@ library(isismdl)
 
 rm(list = ls())
 
-context("lazy fit for ISLM model")
 
 # prepare rms values and fit targets
 rms_values <- c(c = 5.0, t = 2, i = 21, md = 2)

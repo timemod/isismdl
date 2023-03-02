@@ -2,7 +2,6 @@ library(utils)
 library(testthat)
 library(isismdl)
 
-context("modify parameters ISLM model")
 
 rm(list = ls())
 

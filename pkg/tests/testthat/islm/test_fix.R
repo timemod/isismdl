@@ -1,7 +1,6 @@
 library(isismdl)
 library(testthat)
 
-context("fix for ISLM model")
 
 rm(list = ls())
 capture_output(islm_model <- read_mdl("islm_model.ismdl"))

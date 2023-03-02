@@ -4,7 +4,6 @@ library(testthat)
 
 rm(list = ls())
 
-context("read_mdl_dataperiod")
 
 expect_silent(mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE))
 

@@ -6,7 +6,6 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-context("syntax error nesting (2)")
 
 test_that("error given", {
   msg <- "Error detected in compilation of model mdl/nesting2\nCheck the .err file"

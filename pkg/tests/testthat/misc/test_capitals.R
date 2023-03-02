@@ -4,7 +4,6 @@ library(testthat)
 rm(list = ls())
 update <- FALSE
 
-context("mrf")
 
 source("../tools/read_mrf.R")
 

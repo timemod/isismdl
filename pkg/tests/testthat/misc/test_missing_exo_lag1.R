@@ -5,7 +5,6 @@ library(testthat)
 rm(list = ls())
 update_expected <- FALSE
 
-context("test handling missing exos and lags")
 
 source("../tools/convert_report.R")
 source("../tools/read_mrf.R")
