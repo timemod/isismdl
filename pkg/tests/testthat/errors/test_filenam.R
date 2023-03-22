@@ -19,13 +19,15 @@ test_that("file does not exist", {
 
   if (.Platform$OS.type == "unix") {
     mdl_file_abs <- normalizePath(mdl_file)
-    mdl_file_tilde <- sub(Sys.getenv("HOME"), "~", mdl_file_abs)
+    # on Linux server cpb-rs-l02p normalizePath will append a /zfs
+    home_dir <- normalizePath(Sys.getenv("HOME"))
+    mdl_file_tilde <- sub(paste0("^", home_dir), "~", mdl_file_abs)
     expect_silent(isis_mdl(mdl_file_tilde, silent = TRUE))
 
     mdl_file_tilde2 <- sub("\\.mdl$", "", mdl_file_tilde)
     expect_silent(isis_mdl(mdl_file_tilde2, silent = TRUE))
 
-    filename <- dirname(mdl_file_tilde)
+    filename <- normalizePath(dirname(mdl_file_tilde))
     expect_error(isis_mdl(filename),
                  sprintf("'%s' is a directory", normalizePath(filename)))
   }
