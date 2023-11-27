@@ -80,7 +80,8 @@ test_that("order works correctly", {
 test_that("model is solved correctly", {
 
   mdl$solve()
-  expect_equal_to_reference(mdl$get_data(), file = expected_output_file)
+  expect_known_value(mdl$get_data(), file = expected_output_file,
+		     update = update_expected)
 
   mdl_subst$solve()
   expect_equal(mdl$get_data(), mdl_subst$get_data())

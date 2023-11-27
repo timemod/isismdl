@@ -16,7 +16,7 @@ mdl_filename <- "mdl/complex2.mdl"
 mdl_subst_filename <- "mdl/complex2_subst.mdl"
 
 # create model
-capture.output(mdl <- isis_mdl(mdl_filename, period))
+mdl <- isis_mdl(mdl_filename, period, silent = TRUE)
 data_per <- mdl$get_data_period()
 mdl$set_values(seq_len(nperiod(data_per)), names = paste0("x", 1:3))
 mdl$set_solve_options(report = "none")
@@ -50,7 +50,8 @@ test_that("order works correctly", {
 test_that("model is solved correctly", {
 
   mdl$solve()
-  expect_equal_to_reference(mdl$get_data(), file = expected_output_file)
+  expect_known_value(mdl$get_data(), file = expected_output_file,
+		      update = update)
 
   mdl_subst$solve()
   expect_equal(mdl$get_data(), mdl_subst$get_data())
