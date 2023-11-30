@@ -47,17 +47,18 @@ test_that("column with zeros", {
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 
-  expect_known_output(cat_report(convert_report(report)),
-                      "expected_output/square_zero_cols_rep2.txt",
+  file <- sprintf("expected_output/square_zero_cols_rep2_%s.txt",
+                  .Platform$OS.type)
+  expect_known_output(cat_report(convert_report(report)), file = file,
                       update = update_expected)
 
   expect_warning(report <- capture.output(mdl2$solve(fit_options =
                                                        list(warn_zero_col = FALSE))),
                  "Simulation not possible")
+  file <- sprintf("expected_output/square_zero_cols_rep3_%s.txt",
+                  .Platform$OS.type)
   expect_known_output(cat_report(convert_report(report)),
-                      "expected_output/square_zero_cols_rep3.txt",
-                      update = update_expected)
-
+                      file = file, update = update_expected)
 })
 
 test_that("zero row and one less fit target", {
