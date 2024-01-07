@@ -20,7 +20,7 @@ real(kind = SOLVE_RKIND) :: result
 integer ::        lhs,jca, jtime
 integer ::        ier
 
-logical  :: error, old_lik
+logical  :: error, old_lik, store_result
 integer, external ::  bysget
 character(len = 1) :: eqtype
 type(mdl_variable) :: fix_var
@@ -69,6 +69,8 @@ do jtime = jt1, jt2, step
            mws%mdl_data(lhs, jtd) = fix_value
        endif
    endif
+
+   store_result = .true.
 
    ! now test behavioural equation
    if (eqtype == 'B' .or. eqtype == 'M') then
@@ -125,22 +127,29 @@ do jtime = jt1, jt2, step
        ! no message for normal missing rhs
        call msverr(ier, jtime, eqnum)
        if (ier > 3 ) goto 490
-       if (ier == 1 ) goto 1000
+       if (ier == 1 ) then
+           if (fix_var%var_index == lhs) then
+               mdl%lik(lhs) = old_lik
+           endif
+           goto 1000
+       endif
    endif
 
 !  FALL THROUGH for ier == 3 (missing rhs)
 
 480 continue
    !  missing or NA in rhs
-   if (updval) cycle
+   if (updval) store_result = .false.
    result = NA
 
 490 continue
    ! store result
-   if (mdl%lik(lhs)) then
-       call set_var_value(mws, lhs, jtime, result, error)
-   else
-       mws%constant_adjustments(jca, jtd) = result
+   if (store_result) then
+       if (mdl%lik(lhs)) then
+           call set_var_value(mws, lhs, jtime, result, error)
+       else
+           mws%constant_adjustments(jca, jtd) = result
+       endif
    endif
 
    if (fix_var%var_index == lhs) then
