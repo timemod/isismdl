@@ -1,12 +1,15 @@
 # Utility function for error / warning messages: concate a number of names,
 # separating the first n - 1 names with "," and the last with "and".
 # Finally, "is" or "are" are added depending on the number of names.
+# The function also surrounds the names with single quotes.
 concat_names <- function(names) {
   n <- length(names)
+  if (n == 0) return(names)
+  names <- paste0("'", names, "'")
   if (n == 1) {
-    return(paste(names, "is"))
+    return(names)
   } else {
-    return(paste(paste(names[-n], collapse = ", "), "and", names[n], "are"))
+    return(paste(paste(names[-n], collapse = ", "), "and", names[n]))
   }
 }
 
@@ -26,9 +29,7 @@ check_names <- function(names, type = "endolead", model_index) {
   if (n == 1) {
     stop("Variable '", problem_names, "' is not ", a_word, " ", type_desc, ".")
   }
-  problem_names <- paste0("'", problem_names, "'")
-  problem_names_text <- paste(paste(problem_names[-n], collapse = ", "), "and",
-                              problem_names[n])
+  problem_names_text <- concat_names(problem_names)
   msg <- paste0("The following variables are not ", type_desc, "s:\n",
                 problem_names_text, ".")
   lines <- strwrap(msg, width = 80, exdent = 4)

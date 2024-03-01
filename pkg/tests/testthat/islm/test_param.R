@@ -44,9 +44,9 @@ test_that("warnings and errors for set_param", {
   expect_error(islm_model$set_param(list(c0 = c(120, 120))),
                "Value for parameter c0 has an incorrect length. Required length: 1. Actual length: 2")
   expect_error(islm_model$set_param(list(c0 = "xxx", i1 = 2)),
-               "c0 is not numeric")
+               "'c0' is not numeric")
   expect_error(islm_model$set_param(list(c0 = "xxx", i1 = FALSE)),
-               "c0 and i1 are not numeric")
+               "'c0' and 'i1' are not numeric")
 })
 
 test_that("p as a named numeric vector", {

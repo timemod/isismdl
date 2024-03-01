@@ -529,7 +529,8 @@ IsisMdl <- R6Class("IsisMdl",
       is_not_num <- unlist(lapply(p, FUN = function(x) !is.numeric(x)))
       if (any(is_not_num)) {
         no_numeric <- names(p)[is_not_num]
-        stop(concat_names(no_numeric), " not numeric")
+        is_or_are <- if (length(no_numeric) == 1) "is" else "are"
+        stop(concat_names(no_numeric), " ", is_or_are, " not numeric")
       }
       # convert integer list elements to numeric
       p <- lapply(p, as.numeric)
