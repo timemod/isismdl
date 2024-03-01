@@ -855,21 +855,25 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_ftrelax = function(value, pattern, names) {
       "Sets the Fair-Taylor relaxation criterion."
-      if (missing(pattern) && missing(names)) {
-        names <- self$get_endo_names(type = "leads", status = "all")
-      } else if (!missing(pattern)) {
-        pvars <- self$get_endo_names(pattern, type = "leads", status = "all")
-        if (!missing(names)) {
-          names <- union(pvars, names)
-        } else {
-          names <- pvars
-        }
-      }
       if (!(is.numeric(value) || is.logical(value)) || length(value) != 1) {
         stop("value should be a single numerical value")
       }
-      .Call("set_ftrelax_c", private$model_index, names,
-            as.numeric(value))
+      value <- as.numeric(value)
+      if (missing(pattern) && missing(names)) {
+        names <- self$get_endo_names(type = "leads", status = "all")
+      } else {
+        if (!missing(names)) {
+          check_names(names, type = "endolead",
+                      model_index = private$model_index)
+        } else {
+          names <- character(0)
+        }
+        if (!missing(pattern)) {
+          pvars <- self$get_endo_names(pattern, type = "leads", status = "all")
+          names <- union(pvars, names)
+        }
+      }
+      .Call("set_ftrelax_c", private$model_index, names, value)
       return(invisible(self))
     },
     get_ftrelax = function() {
@@ -1561,15 +1565,3 @@ IsisMdl <- R6Class("IsisMdl",
     }
   )
 )
-
-# utility function for error / warning messages: concate a number of names,
-# separating the first n - 1 names with "," and the last with "and".
-# Finally, "is" or "are" are added depending on the number of names.
-concat_names <- function(names) {
-  n <- length(names)
-  if (n == 1) {
-    return(paste(names, "is"))
-  } else {
-    return(paste(paste(names[-n], collapse = ", "), "and", names[n], "are"))
-  }
-}

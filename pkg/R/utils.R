@@ -1,0 +1,34 @@
+# Utility function for error / warning messages: concate a number of names,
+# separating the first n - 1 names with "," and the last with "and".
+# Finally, "is" or "are" are added depending on the number of names.
+concat_names <- function(names) {
+  n <- length(names)
+  if (n == 1) {
+    return(paste(names, "is"))
+  } else {
+    return(paste(paste(names[-n], collapse = ", "), "and", names[n], "are"))
+  }
+}
+
+# Check if the supplied names have the correct type
+check_names <- function(names, type = "endolead", model_index) {
+  type <- match.arg(type)
+  if (length(names) == 0) return(invisible())
+  if (type == "endolead") {
+    correct_names <- .Call(get_var_names_c, "endolead", model_index)
+    type_desc <- "endogenous lead"
+  }
+  problem_names <- setdiff(names, correct_names)
+  n <- length(problem_names)
+  if (n == 0) return(invisible())
+  if (n == 1) {
+    stop("Variable '", problem_names, "' is not a ", type_desc, ".")
+  }
+  problem_names <- paste0("'", problem_names, "'")
+  problem_names_text <- paste(paste(problem_names[-n], collapse = ", "), "and",
+                              problem_names[n])
+  msg <- paste0("The following variables are not ", type_desc, "s:\n",
+                problem_names_text, ".")
+  lines <- strwrap(msg, width = 80, exdent = 4)
+  stop(paste(lines, collapse = "\n"))
+}

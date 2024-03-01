@@ -50,17 +50,41 @@ test_that("set_ftrelax", {
 })
 
 test_that("errors", {
+
+  ifn_mdl$set_ftrelax(0.25)
+
   emsg <- "value should be a single numerical value"
   expect_error(ifn_mdl$set_ftrelax("x"), emsg)
   expect_error(ifn_mdl$set_ftrelax(1:2), emsg)
-
-  expect_warning(
-    expect_error(
-      ifn_mdl$set_ftrelax(0.15, names = "rhox"),
-      "incorrect variable name(s) encountered. See warning(s)",
-      fixed = TRUE
-    ),
-    '"rhox" is not an endogenous lead.',
+  expect_error(
+    ifn_mdl$set_ftrelax(0.15, names = "rhox"),
+    "Variable 'rhox' is not a endogenous lead.",
     fixed = TRUE
   )
+
+  emsg <- "The following variables are not endogenous leads: 'A' and 'ETA'."
+  expect_error(
+    ifn_mdl$set_ftrelax(0.77, names = c("A", "ETA")),
+    emsg,
+    fixed = TRUE
+  )
+
+
+  names <-  c("a", "etaa", paste0("abcdefhijilklmn", 1:8))
+  emsg <- paste0(
+    "The following variables are not endogenous leads: 'etaa', ",
+    "'abcdefhijilklmn1',\n    'abcdefhijilklmn2', 'abcdefhijilklmn3', ",
+    "'abcdefhijilklmn4',\n    'abcdefhijilklmn5', 'abcdefhijilklmn6', ",
+    "'abcdefhijilklmn7' and\n    'abcdefhijilklmn8'."
+  )
+  expect_error(
+    ifn_mdl$set_ftrelax(0.77, names = names),
+    emsg,
+    fixed = TRUE
+  )
+
+  # The relaxation factor should not have been modified
+  expected <- c(a = 0.25, eta = 0.25, lambda = 0.25, mzk = 0.25, px = 0.25,
+                rho = 0.25)
+  expect_identical(ifn_mdl$get_ftrelax(), expected)
 })
