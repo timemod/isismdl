@@ -856,16 +856,16 @@ IsisMdl <- R6Class("IsisMdl",
     set_ftrelax = function(value, pattern, names) {
       "Sets the Fair-Taylor relaxation criterion."
       if (missing(pattern) && missing(names)) {
-        names <- self$get_endo_names(type = "endolead", status = "all")
+        names <- self$get_endo_names(type = "leads", status = "all")
       } else if (!missing(pattern)) {
-        pvars <- self$get_endo_names(pattern, type = "endolead", status = "all")
+        pvars <- self$get_endo_names(pattern, type = "leads", status = "all")
         if (!missing(names)) {
           names <- union(pvars, names)
         } else {
           names <- pvars
         }
       }
-      if (!is.numeric(value) || length(value) != 1) {
+      if (!(is.numeric(value) || is.logical(value)) || length(value) != 1) {
         stop("value should be a single numerical value")
       }
       .Call("set_ftrelax_c", private$model_index, names,
