@@ -62,10 +62,10 @@ test_that("set_rms name_err", {
   rms_values_before <- mdl6$get_rms()
   rms_values_new <- rms_values_before * 2
   rms_values_new["y"] <- 2
-  msg <- "\"y\" is not a frml variable\\."
+  msg <- "'y' is not a frml variable\\."
   expect_error(mdl6$set_rms(rms_values_new, name_err = "stop"), msg)
   rms_values_new["x"] <- 3
-  msg <- "The following names are no frml variables: \"y\", \"x\"\\."
+  msg <- "The following names are not frml variables: 'y' and 'x'\\."
   expect_warning(mdl6$set_rms(rms_values_new, name_err = "warn"), msg)
   expect_silent(mdl6$set_rms(rms_values_new, name_err = "silent"))
   expect_warning(mdl6$set_rms(rms_values_new), msg)
@@ -88,7 +88,7 @@ test_that("set_rms_values", {
   mdl7$set_rms_values(3, names = "t", pattern = "^c$")
   expect_equal(mdl7$get_rms(), c(c = 3, i = 2, md = 2, t = 3))
   expect_error(mdl7$set_rms_values(666, names = "aap"),
-               '"aap" is not a frml variable.')
+               "'aap' is not a frml variable.")
   expect_warning(mdl7$set_rms_values(666, pattern = "xxx"),
                  "There are no frml variables that match pattern 'xxx'.")
   expect_equal(mdl7$get_rms(), c(c = 3, i = 2, md = 2, t = 3))

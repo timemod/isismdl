@@ -19,11 +19,11 @@ test_that("set_data update mode upd", {
   new_data2 <- cbind(new_data, x = 2)
   mdl3 <- mdl$copy()
   expect_warning(mdl3$set_data(new_data2, upd_mode = "upd", name_err = "warn"),
-                 '"x" is not a model variable')
+                 "'x' is not a model variable")
   expect_silent(mdl3$set_data(new_data2, upd_mode = "upd"))
   new_data3 <- cbind(new_data, x = 2, z = 2)
   expect_error(mdl3$set_data(new_data3, upd_mode = "upd", name_err = "stop"),
-               "The following names are no model variables: \"x\", \"z\".")
+               "The following names are not model variables: 'x' and 'z'.")
 
   expect_silent(mdl3$set_data(new_data2, upd_mode = "upd", name_err = "silent"))
   expect_equal(mdl3$get_data(), new_data)

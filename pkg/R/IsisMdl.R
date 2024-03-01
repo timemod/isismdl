@@ -867,7 +867,8 @@ IsisMdl <- R6Class("IsisMdl",
       } else {
         if (!missing(names)) {
           correct_names <- self$get_endo_names(type = "leads", status = "all")
-          check_names(names, correct_names = correct_names, type = "endolead")
+          check_names(names, correct_names = correct_names,
+                      type = "endogenous lead")
         } else {
           names <- character(0)
         }
@@ -1151,22 +1152,10 @@ IsisMdl <- R6Class("IsisMdl",
                       param = "parameter")
       type_text <- type_texts[var_type]
 
-      if (!missing(names) &&
-          length(error_vars <- setdiff(names, all_names)) > 0) {
+      if (!missing(names)) {
         if (name_err != "silent") {
-          error_vars <- paste0("\"", error_vars, "\"")
-          if (length(error_vars) == 1) {
-            a_word <- if (var_type %in% c("endo")) "an" else "a"
-            msg <- paste0(error_vars, " is not ", a_word, " ", type_text, ".")
-          } else {
-            msg <- paste0("The following names are no ", type_text, "s: ",
-                          paste(error_vars, collapse = ", "), ".")
-          }
-          if (name_err == "warn") {
-            warning(msg)
-          } else {
-            stop(msg)
-          }
+          check_names(names, correct_names = all_names,
+                      type = type_text, is_warning = name_err == "warn")
         }
         names <- intersect(names, all_names)
       }

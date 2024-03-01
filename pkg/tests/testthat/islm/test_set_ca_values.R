@@ -22,8 +22,10 @@ test_that("set_values works correctly", {
 
 test_that("set_ca_values handles errors correctly", {
   mdl2 <- mdl$copy()
-  msg <- "\"y\" is not a frml variable"
+  msg <- "'y' is not a frml variable"
   expect_error(mdl2$set_ca_values(1, names = "y"), msg)
-  msg <- "The following names are no frml variables: \"y\", \"xxx\"."
+  msg <- "The following names are not frml variables: 'y' and 'xxx'."
   expect_error(mdl2$set_ca_values(1, names = c("y", "xxx", "c")), msg)
+  msg <- "The following names are not frml variables: 'y', 'xxx' and 'zzz'."
+  expect_error(mdl2$set_ca_values(1, names = c("y", "xxx", "c", "zzz")), msg)
 })

@@ -52,9 +52,9 @@ test_that("warning when no variables match pattern", {
 
 test_that("set_values handles errors correctly", {
   mdl2 <- mdl$clone(deep = TRUE)
-  msg <- "\"xxx\" is not a model variable"
+  msg <- "'xxx' is not a model variable"
   expect_error(mdl2$set_values(1, names = c("y", "xxx")), msg)
-  msg <-  "The following names are no model variables: \"p\", \"xxx\"."
+  msg <-  "The following names are not model variables: 'p' and 'xxx'."
   expect_error(mdl2$set_values(1, names = c("p", "xxx")), msg)
 
   msg <- "Argument 'value' is not a numeric vector"
