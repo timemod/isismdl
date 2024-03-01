@@ -15,11 +15,10 @@ concat_names <- function(names) {
 
 # Check if the supplied names are existing model variables of the
 # correct type.
-check_names <- function(names, type = "endolead", model_index) {
+check_names <- function(names, correct_names, type = "endolead") {
   type <- match.arg(type)
   if (length(names) == 0) return(invisible())
   if (type == "endolead") {
-    correct_names <- .Call(get_var_names_c, "endolead", model_index)
     type_desc <- "endogenous lead"
     a_word <- "an"
   }
@@ -27,10 +26,10 @@ check_names <- function(names, type = "endolead", model_index) {
   n <- length(problem_names)
   if (n == 0) return(invisible())
   if (n == 1) {
-    stop("Variable '", problem_names, "' is not ", a_word, " ", type_desc, ".")
+    stop("'", problem_names, "' is not ", a_word, " ", type_desc, ".")
   }
   problem_names_text <- concat_names(problem_names)
-  msg <- paste0("The following variables are not ", type_desc, "s:\n",
+  msg <- paste0("The following names are not ", type_desc, "s:\n",
                 problem_names_text, ".")
   lines <- strwrap(msg, width = 80, exdent = 4)
   stop(paste(lines, collapse = "\n"))

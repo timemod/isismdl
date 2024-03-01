@@ -860,12 +860,14 @@ IsisMdl <- R6Class("IsisMdl",
         stop("value should be a single numerical value")
       }
       value <- as.numeric(value)
+      # TODO: check for valid value?
+      # TODO: use get_names_ approach
       if (missing(pattern) && missing(names)) {
         names <- self$get_endo_names(type = "leads", status = "all")
       } else {
         if (!missing(names)) {
-          check_names(names, type = "endolead",
-                      model_index = private$model_index)
+          correct_names <- self$get_endo_names(type = "leads", status = "all")
+          check_names(names, correct_names = correct_names, type = "endolead")
         } else {
           names <- character(0)
         }

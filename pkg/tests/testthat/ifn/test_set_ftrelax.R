@@ -58,11 +58,11 @@ test_that("errors", {
   expect_error(ifn_mdl$set_ftrelax(1:2), emsg)
   expect_error(
     ifn_mdl$set_ftrelax(0.15, names = "rhox"),
-    "Variable 'rhox' is not an endogenous lead.",
+    "'rhox' is not an endogenous lead.",
     fixed = TRUE
   )
 
-  emsg <- "The following variables are not endogenous leads: 'A' and 'ETA'."
+  emsg <- "The following names are not endogenous leads: 'A' and 'ETA'."
   expect_error(
     ifn_mdl$set_ftrelax(0.77, names = c("A", "ETA")),
     emsg,
@@ -72,7 +72,7 @@ test_that("errors", {
 
   names <-  c("a", "etaa", paste0("abcdefhijilklmn", 1:8))
   emsg <- paste0(
-    "The following variables are not endogenous leads: 'etaa', ",
+    "The following names are not endogenous leads: 'etaa', ",
     "'abcdefhijilklmn1',\n    'abcdefhijilklmn2', 'abcdefhijilklmn3', ",
     "'abcdefhijilklmn4',\n    'abcdefhijilklmn5', 'abcdefhijilklmn6', ",
     "'abcdefhijilklmn7' and\n    'abcdefhijilklmn8'."
