@@ -58,7 +58,7 @@ test_that("errors", {
   expect_error(ifn_mdl$set_ftrelax(1:2), emsg)
   expect_error(
     ifn_mdl$set_ftrelax(0.15, names = "rhox"),
-    "Variable 'rhox' is not a endogenous lead.",
+    "Variable 'rhox' is not an endogenous lead.",
     fixed = TRUE
   )
 

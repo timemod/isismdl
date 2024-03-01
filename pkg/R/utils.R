@@ -10,19 +10,21 @@ concat_names <- function(names) {
   }
 }
 
-# Check if the supplied names have the correct type
+# Check if the supplied names are existing model variables of the
+# correct type.
 check_names <- function(names, type = "endolead", model_index) {
   type <- match.arg(type)
   if (length(names) == 0) return(invisible())
   if (type == "endolead") {
     correct_names <- .Call(get_var_names_c, "endolead", model_index)
     type_desc <- "endogenous lead"
+    a_word <- "an"
   }
   problem_names <- setdiff(names, correct_names)
   n <- length(problem_names)
   if (n == 0) return(invisible())
   if (n == 1) {
-    stop("Variable '", problem_names, "' is not a ", type_desc, ".")
+    stop("Variable '", problem_names, "' is not ", a_word, " ", type_desc, ".")
   }
   problem_names <- paste0("'", problem_names, "'")
   problem_names_text <- paste(paste(problem_names[-n], collapse = ", "), "and",
