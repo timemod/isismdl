@@ -41,7 +41,11 @@ test_that("set_ftrelax", {
   expected[] <- NA
   expect_identical(ifn_mdl$get_ftrelax(), expected)
 
-  ifn_mdl$set_ftrelax(0.99, pattern = "xyz")
+  expect_warning(
+    ifn_mdl$set_ftrelax(0.99, pattern = "xyz"),
+    "There are no endogenous leads that match pattern 'xyz'.",
+    fixed = TRUE
+  )
   expect_identical(ifn_mdl$get_ftrelax(), expected)
 
   ifn_mdl$set_ftrelax(0.25, names = c("a", "eta"))

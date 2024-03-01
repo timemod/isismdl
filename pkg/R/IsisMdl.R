@@ -837,21 +837,15 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_cvgcrit = function(value, pattern, names) {
       "Sets the convergence criterion for some variables"
-      if (missing(pattern) && missing(names)) {
-        names <- self$get_var_names()
-      } else if (!missing(pattern)) {
-        pvars <- self$get_var_names(pattern)
-        if (!missing(names)) {
-          names <- union(pvars, names)
-        } else {
-          names <- pvars
-        }
-      }
       if (!is.numeric(value) || length(value) != 1) {
         stop("value should be a single numerical value")
       }
-      .Call("set_cvgcrit_c", private$model_index, names,
-            as.numeric(value))
+      # TODO: check for valid value? What is a possible valid value?
+      names <- private$get_names_(private$data_type, names = names,
+                                  pattern = pattern)
+      if (length(names) > 0) {
+        .Call("set_cvgcrit_c", private$model_index, names, as.numeric(value))
+      }
       return(invisible(self))
     },
     set_ftrelax = function(value, pattern, names) {
@@ -860,24 +854,12 @@ IsisMdl <- R6Class("IsisMdl",
         stop("value should be a single numerical value")
       }
       value <- as.numeric(value)
-      # TODO: check for valid value?
-      # TODO: use get_names_ approach
-      if (missing(pattern) && missing(names)) {
-        names <- self$get_endo_names(type = "leads", status = "all")
-      } else {
-        if (!missing(names)) {
-          correct_names <- self$get_endo_names(type = "leads", status = "all")
-          check_names(names, correct_names = correct_names,
-                      type = "endogenous lead")
-        } else {
-          names <- character(0)
-        }
-        if (!missing(pattern)) {
-          pvars <- self$get_endo_names(pattern, type = "leads", status = "all")
-          names <- union(pvars, names)
-        }
+      # TODO: check for valid value? What is a possible valid value?
+      names <- private$get_names_(private$endolead_type, names = names,
+                                  pattern = pattern)
+      if (length(names) > 0) {
+        .Call("set_ftrelax_c", private$model_index, names, value)
       }
-      .Call("set_ftrelax_c", private$model_index, names, value)
       return(invisible(self))
     },
     get_ftrelax = function() {
@@ -1013,6 +995,8 @@ IsisMdl <- R6Class("IsisMdl",
     fit_type = 4L,
     rms_type = 5L,
     param_type = 6L,
+    endo_type = 7L,
+    endolead_type = 8L,
 
     user_data = list(),
 
@@ -1132,15 +1116,19 @@ IsisMdl <- R6Class("IsisMdl",
       # and pattern. It gives an error if names contain any invalid name for the
       # specified type of model variable.
       name_err <- match.arg(name_err)
+      # TODO: use a switch for this?
       if (type %in% c(private$fix_type, private$ca_type, private$rms_type)) {
         var_type <- "frml"
         all_names <- self$get_endo_names(type = "frml", status = "all")
-      } else if (type == private$fit_type) {
+      } else if (type %in% c(private$endo_type, private$fit_type)) {
         var_type <- "endo"
         all_names <- self$get_endo_names(status = "all")
       } else if (type == private$param_type) {
         var_type <- "param"
         all_names <- self$get_par_names()
+      } else if (type == private$endolead_type) {
+        var_type <- "endolead"
+        all_names <- self$get_endo_names(type = "leads", status = "all")
       } else {
         var_type <- "endo_exo"
         all_names <- self$get_var_names()
@@ -1149,7 +1137,8 @@ IsisMdl <- R6Class("IsisMdl",
       type_texts <- c(endo = "endogenous variable",
                       frml = "frml variable",
                       endo_exo  = "model variable",
-                      param = "parameter")
+                      param = "parameter",
+                      endolead = "endogenous lead")
       type_text <- type_texts[var_type]
 
       if (!missing(names)) {
