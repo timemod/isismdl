@@ -27,6 +27,32 @@ test_that("set_data update mode upd", {
 
   expect_silent(mdl3$set_data(new_data2, upd_mode = "upd", name_err = "silent"))
   expect_equal(mdl3$get_data(), new_data)
+
+
+  names <-  c("c", "etaa", paste0("abcdefhijilklmn", 1:8))
+  new_data <- regts(matrix(555, ncol = length(names)), start = "2016Q1",
+                           names = names)
+  msg <- paste0(
+    "The following names are not model variables: 'etaa', ",
+    "'abcdefhijilklmn1',\n    'abcdefhijilklmn2', 'abcdefhijilklmn3', ",
+    "'abcdefhijilklmn4',\n    'abcdefhijilklmn5', 'abcdefhijilklmn6', ",
+    "'abcdefhijilklmn7' and\n    'abcdefhijilklmn8'."
+  )
+  data_before <- mdl3$get_data()
+  expect_error(
+    mdl3$set_data(new_data, upd_mod = "upd", name_err = "stop"),
+    msg
+  )
+  expect_equal(mdl3$get_data(), data_before)
+
+  data_before <- mdl3$get_data()
+  expect_warning(
+    mdl3$set_data(new_data, upd_mod = "upd", name_err = "warn"),
+    msg
+  )
+  data_expected <- data_before
+  data_expected[get_period_range(new_data), "c"] <- 555
+  expect_equal(mdl3$get_data(), data_expected)
 })
 
 test_that("set_data update mode updval", {

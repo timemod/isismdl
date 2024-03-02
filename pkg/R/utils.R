@@ -17,12 +17,12 @@ concat_names <- function(names) {
 # correct type.
 check_names <- function(names, correct_names, type, is_warning = FALSE) {
   if (length(names) == 0) return(invisible())
-  a_word <- if (startsWith(type, "endo")) "an" else "a"
   problem_names <- setdiff(names, correct_names)
   n <- length(problem_names)
   if (n == 0) return(invisible())
   error_fun <- if (is_warning) warning else stop
   if (n == 1) {
+    a_word <- if (startsWith(type, "endo")) "an" else "a"
     error_fun("'", problem_names, "' is not ", a_word, " ", type, ".")
   } else {
     problem_names_text <- concat_names(problem_names)
