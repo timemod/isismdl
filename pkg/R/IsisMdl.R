@@ -840,7 +840,8 @@ IsisMdl <- R6Class("IsisMdl",
       if (!is.numeric(value) || length(value) != 1) {
         stop("value should be a single numerical value")
       }
-      # TODO: check for valid value? What is a possible valid value?
+      if (is.na(value)) stop("value should not be a NA")
+      if (is.infinite(value)) stop("value should be a finite number")
       names <- private$get_names_(private$data_type, names = names,
                                   pattern = pattern)
       if (length(names) > 0) {
@@ -850,11 +851,11 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_ftrelax = function(value, pattern, names) {
       "Sets the Fair-Taylor relaxation criterion."
-      if (!(is.numeric(value) || is.logical(value)) || length(value) != 1) {
+      if (length(value) > 1 || !(is.numeric(value) || identical(value, NA))) {
         stop("value should be a single numerical value")
       }
+      if (is.infinite(value)) stop("value should be a finite number")
       value <- as.numeric(value)
-      # TODO: check for valid value? What is a possible valid value?
       names <- private$get_names_(private$endolead_type, names = names,
                                   pattern = pattern)
       if (length(names) > 0) {

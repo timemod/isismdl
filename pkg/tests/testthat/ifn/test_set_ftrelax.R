@@ -38,6 +38,10 @@ test_that("set_ftrelax", {
     ifn_mdl$set_ftrelax(NA),
     NA
   )
+  expect_warning(
+    ifn_mdl$set_ftrelax(NA_real_),
+    NA
+  )
   expected[] <- NA
   expect_identical(ifn_mdl$get_ftrelax(), expected)
 
@@ -59,12 +63,16 @@ test_that("errors", {
 
   emsg <- "value should be a single numerical value"
   expect_error(ifn_mdl$set_ftrelax("x"), emsg)
+  expect_error(ifn_mdl$set_ftrelax(FALSE), emsg)
   expect_error(ifn_mdl$set_ftrelax(1:2), emsg)
   expect_error(
     ifn_mdl$set_ftrelax(0.15, names = "rhox"),
     "'rhox' is not an endogenous lead.",
     fixed = TRUE
   )
+
+  emsg <- "value should be a finite number"
+  expect_error(ifn_mdl$set_ftrelax(1/0), emsg)
 
   emsg <- "The following names are not endogenous leads: 'A' and 'ETA'."
   expect_error(
