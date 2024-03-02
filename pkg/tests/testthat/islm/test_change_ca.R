@@ -41,8 +41,8 @@ test_that("change_ca works correctly (2)", {
 test_that("change_ca handles errors correctly", {
   f <- function(x) {x}
   mdl2 <- mdl$clone(deep = TRUE)
-  msg <- "\"y\" is not a frml variable"
+  msg <- "'y' is not a frml variable"
   expect_error(mdl2$change_ca(f, names = "y"), msg)
-  msg <- "The following names are no frml variables: \"y\", \"xxx\"."
+  msg <- "The following names are not frml variables: 'y' and 'xxx'."
   expect_error(mdl2$change_ca(f, names = c("y", "xxx", "c")), msg)
 })

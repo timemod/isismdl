@@ -39,5 +39,18 @@ test_that("effec on solving", {
   expect_true(dif3$equal)
 })
 
+test_that("errors", {
+  msg <- "value should be a single numerical value"
+  expect_error(mdl$set_cvgcrit(NA), msg)
+  expect_error(mdl$set_cvgcrit("2"), msg)
+  expect_error(mdl$set_cvgcrit(1:2), msg)
+
+  msg <- "value should not be a NA"
+  expect_error(mdl$set_cvgcrit(NA_real_), msg)
+
+  msg <- "value should be a finite number"
+  expect_error(mdl$set_cvgcrit(1/0), msg)
+})
+
 
 

@@ -529,7 +529,8 @@ IsisMdl <- R6Class("IsisMdl",
       is_not_num <- unlist(lapply(p, FUN = function(x) !is.numeric(x)))
       if (any(is_not_num)) {
         no_numeric <- names(p)[is_not_num]
-        stop(concat_names(no_numeric), " not numeric")
+        is_or_are <- if (length(no_numeric) == 1) "is" else "are"
+        stop(concat_names(no_numeric), " ", is_or_are, " not numeric")
       }
       # convert integer list elements to numeric
       p <- lapply(p, as.numeric)
@@ -836,40 +837,30 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_cvgcrit = function(value, pattern, names) {
       "Sets the convergence criterion for some variables"
-      if (missing(pattern) && missing(names)) {
-        names <- self$get_var_names()
-      } else if (!missing(pattern)) {
-        pvars <- self$get_var_names(pattern)
-        if (!missing(names)) {
-          names <- union(pvars, names)
-        } else {
-          names <- pvars
-        }
-      }
       if (!is.numeric(value) || length(value) != 1) {
         stop("value should be a single numerical value")
       }
-      .Call("set_cvgcrit_c", private$model_index, names,
-            as.numeric(value))
+      if (is.na(value)) stop("value should not be a NA")
+      if (is.infinite(value)) stop("value should be a finite number")
+      names <- private$get_names_(private$data_type, names = names,
+                                  pattern = pattern)
+      if (length(names) > 0) {
+        .Call("set_cvgcrit_c", private$model_index, names, as.numeric(value))
+      }
       return(invisible(self))
     },
     set_ftrelax = function(value, pattern, names) {
       "Sets the Fair-Taylor relaxation criterion."
-      if (missing(pattern) && missing(names)) {
-        names <- self$get_endo_names(type = "endolead", status = "all")
-      } else if (!missing(pattern)) {
-        pvars <- self$get_endo_names(pattern, type = "endolead", status = "all")
-        if (!missing(names)) {
-          names <- union(pvars, names)
-        } else {
-          names <- pvars
-        }
-      }
-      if (!is.numeric(value) || length(value) != 1) {
+      if (length(value) > 1 || !(is.numeric(value) || identical(value, NA))) {
         stop("value should be a single numerical value")
       }
-      .Call("set_ftrelax_c", private$model_index, names,
-            as.numeric(value))
+      if (is.infinite(value)) stop("value should be a finite number")
+      value <- as.numeric(value)
+      names <- private$get_names_(private$endolead_type, names = names,
+                                  pattern = pattern)
+      if (length(names) > 0) {
+        .Call("set_ftrelax_c", private$model_index, names, value)
+      }
       return(invisible(self))
     },
     get_ftrelax = function() {
@@ -1005,6 +996,8 @@ IsisMdl <- R6Class("IsisMdl",
     fit_type = 4L,
     rms_type = 5L,
     param_type = 6L,
+    endo_type = 7L,
+    endolead_type = 8L,
 
     user_data = list(),
 
@@ -1124,15 +1117,19 @@ IsisMdl <- R6Class("IsisMdl",
       # and pattern. It gives an error if names contain any invalid name for the
       # specified type of model variable.
       name_err <- match.arg(name_err)
+      # TODO: use a switch for this?
       if (type %in% c(private$fix_type, private$ca_type, private$rms_type)) {
         var_type <- "frml"
         all_names <- self$get_endo_names(type = "frml", status = "all")
-      } else if (type == private$fit_type) {
+      } else if (type %in% c(private$endo_type, private$fit_type)) {
         var_type <- "endo"
         all_names <- self$get_endo_names(status = "all")
       } else if (type == private$param_type) {
         var_type <- "param"
         all_names <- self$get_par_names()
+      } else if (type == private$endolead_type) {
+        var_type <- "endolead"
+        all_names <- self$get_endo_names(type = "leads", status = "all")
       } else {
         var_type <- "endo_exo"
         all_names <- self$get_var_names()
@@ -1141,25 +1138,14 @@ IsisMdl <- R6Class("IsisMdl",
       type_texts <- c(endo = "endogenous variable",
                       frml = "frml variable",
                       endo_exo  = "model variable",
-                      param = "parameter")
+                      param = "parameter",
+                      endolead = "endogenous lead")
       type_text <- type_texts[var_type]
 
-      if (!missing(names) &&
-          length(error_vars <- setdiff(names, all_names)) > 0) {
+      if (!missing(names)) {
         if (name_err != "silent") {
-          error_vars <- paste0("\"", error_vars, "\"")
-          if (length(error_vars) == 1) {
-            a_word <- if (var_type %in% c("endo")) "an" else "a"
-            msg <- paste0(error_vars, " is not ", a_word, " ", type_text, ".")
-          } else {
-            msg <- paste0("The following names are no ", type_text, "s: ",
-                          paste(error_vars, collapse = ", "), ".")
-          }
-          if (name_err == "warn") {
-            warning(msg)
-          } else {
-            stop(msg)
-          }
+          check_names(names, correct_names = all_names,
+                      type = type_text, is_warning = name_err == "warn")
         }
         names <- intersect(names, all_names)
       }
@@ -1561,15 +1547,3 @@ IsisMdl <- R6Class("IsisMdl",
     }
   )
 )
-
-# utility function for error / warning messages: concate a number of names,
-# separating the first n - 1 names with "," and the last with "and".
-# Finally, "is" or "are" are added depending on the number of names.
-concat_names <- function(names) {
-  n <- length(names)
-  if (n == 1) {
-    return(paste(names, "is"))
-  } else {
-    return(paste(paste(names[-n], collapse = ", "), "and", names[n], "are"))
-  }
-}

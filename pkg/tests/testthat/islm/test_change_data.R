@@ -81,9 +81,9 @@ test_that("change_data works correctly with timeseries input (3)", {
 test_that("change_data handles errors correctly", {
   f <- function(x) {x}
   mdl2 <- mdl$clone(deep = TRUE)
-  msg <- "\"xxx\" is not a model variable"
+  msg <- "'xxx' is not a model variable"
   expect_error(mdl2$change_data(f, names = c("y", "xxx")), msg)
-  msg <- "The following names are no model variables: \"p\", \"xxx\"."
+  msg <- "The following names are not model variables: 'p' and 'xxx'."
   expect_error(mdl2$change_data(f, names = c("p", "xxx")), msg)
   msg <- "Argument 'fun' is not a function"
   expect_error(mdl2$change_data(2, names), msg)

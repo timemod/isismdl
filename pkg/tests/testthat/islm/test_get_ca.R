@@ -27,12 +27,12 @@ test_that("get_ca works correctly", {
 })
 
 test_that("get_ca handles errors correctly", {
-  msg <- "\"xxx\" is not a frml variable"
+  msg <- "'xxx' is not a frml variable"
   expect_error(mdl$get_ca(names = "xxx"), msg)
-  msg <- "\"y\" is not a frml variable"
+  msg <- "'y' is not a frml variable"
   expect_error(mdl$get_ca(names = c("c", "y")), msg)
-  msg <- "\"y\" is not a frml variable"
+  msg <- "'y' is not a frml variable"
   expect_error(mdl$get_ca(names = "y", pattern = "^y"), msg)
-  msg <- "The following names are no frml variables: \"xxx\", \"y\"."
+  msg <- "The following names are not frml variables: 'xxx' and 'y'."
   expect_error(mdl$get_ca(names = c("xxx", "y")), msg)
 })

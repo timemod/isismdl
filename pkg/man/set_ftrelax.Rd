@@ -3,10 +3,19 @@
 \name{set_ftrelax}
 \alias{set_ftrelax}
 \alias{get_ftrelax}
-\title{\code{\link{IsisMdl}} method: Sets the Fair-Taylor relaxation factors}
+\title{\code{\link{IsisMdl}} method: Sets the Fair-Taylor relaxation factors for
+specific variables.}
 \description{
 This method of R6 class \code{\link{IsisMdl}} sets the
-Fair-Taylor relaxation factors for the endogenous leads.
+Fair-Taylor relaxation factors for specific endogenous leads.
+By default, the Fair-Taylor relaxation factor used for all variables
+is the value of solve option \code{xrelax}
+(see \code\link{set_solve_options}),
+which has the default value of 0.5. Method \code{set_ftrelax} can be used
+to change the Fair-Taylor relaxation factor for specific variables.
+If the relaxation factor for a specific variable is set to \code{NA}, then
+the general Fair-Taylor relaxation factor \code{xrelax} will be used for
+that variable.
 
 Method \code{get_ftrelax()} returns
 the Fair-Taylor relaxation factors
@@ -19,6 +28,8 @@ mdl$set_ftrelax(value, pattern, names)
 
 mdl$get_ftrelax()
 
+# Clear all relaxation factors for specific variables
+mdl$set_ftrelax(NA)
 }
 \code{mdl} is an \code{\link{IsisMdl}} object
 }

@@ -47,7 +47,7 @@ test_that("name error", {
   shock <- cbind(G, MS)
   mdl2 <- mdl$copy()
   expect_warning(mdl2$set_data(shock, name_err = "warn"),
-                 "The following names are no model variables: \"G\", \"MS\"\\.")
+                 "The following names are not model variables: 'G' and 'MS'\\.")
   expect_equal(mdl$get_data(), mdl2$get_data())
 })
 

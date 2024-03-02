@@ -40,7 +40,7 @@ fit <- islm_model$get_data()[islm_model$get_period(), ]
 fit[] <- NA
 
 test_that("set_fit", {
-  msg <- "The following names are no endogenous variables: \"g\", \"ms\"\\."
+  msg <- "The following names are not endogenous variables: 'g' and 'ms'\\."
   expect_error(islm_model$set_fit(fit, name_err = "stop"), msg)
   expect_warning(islm_model$set_fit(fit, name_err = "warn"), msg)
   expect_silent(islm_model$set_fit(fit, name_err = "silent"))
