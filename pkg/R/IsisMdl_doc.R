@@ -1834,7 +1834,7 @@ NULL
 #' Fair-Taylor relaxation factors for specific endogenous leads.
 #' By default, the Fair-Taylor relaxation factor used for all variables
 #' is the value of solve option `xrelax`
-#' (see \code\link{set_solve_options}),
+#' (see \code{\link{set_solve_options}}),
 #' which has the default value of 0.5. Method `set_ftrelax` can be used
 #' to change the Fair-Taylor relaxation factor for specific variables.
 #' If the relaxation factor for a specific variable is set to `NA`, then
