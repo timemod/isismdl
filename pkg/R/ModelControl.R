@@ -8,7 +8,7 @@ ModelControl <- R6Class("ModelControl",
                      self$index <- model_index
                      reg.finalizer(self, f = function(e) {
                          #cat(sprintf("Removing mdl %d\n", e$index))
-                         .Call("remove_mws_c", model_index = e$index)
+                         .Call(C_remove_mws_c, model_index = e$index)
                      }, onexit = TRUE)
                  }
             )

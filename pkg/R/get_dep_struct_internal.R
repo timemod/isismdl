@@ -1,6 +1,5 @@
 # internal function to create the dependency structure from the model_text
 #' @importFrom utils read.csv
-#' @useDynLib isismdl gen_dep_file
 get_dep_struct_internal <- function(model_text, active_endo_names) {
 
   mdl_file_tmp1 <- tempfile(pattern = "isismdl_", fileext = ".mdl")
@@ -12,11 +11,11 @@ get_dep_struct_internal <- function(model_text, active_endo_names) {
   # substitute user functions, the dependency structure cannot be determined for
   # models with user functiions
   #
-  ok <- .Call(convert_mdl_file_c, mdl_file_tmp1, mdl_file_tmp2, NULL,
+  ok <- .Call(C_convert_mdl_file_c, mdl_file_tmp1, mdl_file_tmp2, NULL,
               NULL, list(substitute = TRUE))
   stopifnot(ok)
 
-  ok <- .Call(gen_dep_file, mdl_file_tmp2, dep_file_tmp)
+  ok <- .Call(C_gen_dep_file, mdl_file_tmp2, dep_file_tmp)
   stopifnot(ok)
 
   dep_data <- read.csv(dep_file_tmp, header = FALSE,

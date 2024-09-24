@@ -336,7 +336,7 @@ NULL
 #'
 #' \describe{
 #' \item{\code{status}}{a character string specifying
-#' the equation status (\code{"active"} or code{"inactive"})}
+#' the equation status (\code{"active"} or \code{"inactive"})}
 #' \item{\code{pattern}}{a regular expression specifying the names
 #' of the equations}
 #' \item{\code{names}}{a character vector with the names of the equations}

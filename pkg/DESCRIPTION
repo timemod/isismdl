@@ -1,7 +1,7 @@
 Package: isismdl
 Type: Package
 Title: Solve macroeconomic models
-Version: 2.3.1
+Version: 2.3.2
 Date: 2016-02-18
 Author: Rob van Harrevelt [aut, cre]
 Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
@@ -11,7 +11,7 @@ Depends:
     regts
 SystemRequirements: GNU make
 License: GPL-3
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE, r6 = FALSE)
 Imports:
     methods,

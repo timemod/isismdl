@@ -30,7 +30,7 @@ update_data_ca <- function(mdl, period) {
 get_data <- function(mdl, period) {
     names <- mdl@names
     nper <- nperiod(period)
-    data <- .Call("get_data_c", type = "data", model_index = mdl@control$index,
+    data <- .Call(C_get_data_c, type = "data", model_index = mdl@control$index,
                   names = names, jtb = 1L, jte = nper)
     return(regts(data, period = period, names = names))
 }
@@ -48,7 +48,7 @@ get_ca <- function(mdl, period) {
         return(NULL)
     }
     nper  <- nperiod(period)
-    data <- .Call("get_data_c", type = "ca", model_index = mdl@control$index,
+    data <- .Call(C_get_data_c, type = "ca", model_index = mdl@control$index,
                   names = names, jtb = 1L, jte = nper)
     return(regts(data, period = period, names = names))
 }
