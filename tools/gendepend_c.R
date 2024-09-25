@@ -3,10 +3,6 @@
 # directory pkg/src on the include files in pkg/src and pkg/src/macro.
 # A dependency list is written file deps/deps.rds.
 
-if (!require(igraph)) {
-  install.packages("igraph", repos = "https://cloud.r-project.org")
-}
-
 library(igraph)
 library(stringr)
 library(tictoc)

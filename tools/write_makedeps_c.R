@@ -1,10 +1,6 @@
 # This scripts creates a Makefile with dependencies of source files in
 # directory pkg/src on the header files in directory pkg/src.
 
-if (!require(igraph)) {
-  install.packages("igraph", repos = "https://cloud.r-project.org")
-}
-
 library(igraph)
 library(tictoc)
 
