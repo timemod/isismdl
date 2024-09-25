@@ -1,5 +1,5 @@
-#' @useDynLib isismdl init_modules_c
+#' @useDynLib isismdl, .registration = TRUE,  .fixes = "C_"
 .onLoad <- function(libname, pkgname) {
     # initialise Fortran modules
-    .C("init_modules_c")
+    .C(C_init_modules_c)
 }

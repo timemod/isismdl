@@ -57,7 +57,6 @@
 #' See section "Parse options"
 #' @param silent A logical (default \code{FALSE}). If \code{TRUE}, then
 #' output of the model parser is suppressed.
-#' @useDynLib isismdl compile_mdl_c
 #'
 #' @section Parse options:
 #'
@@ -132,7 +131,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   include_dirs <- parse_options$include_dirs
 
   call_compile_mdl_c <- function() {
-    return(.Call(compile_mdl_c, model_file, mif_file, preproc_file,
+    return(.Call(C_compile_mdl_c, model_file, mif_file, preproc_file,
                  flags, include_dirs))
   }
   if (silent) {

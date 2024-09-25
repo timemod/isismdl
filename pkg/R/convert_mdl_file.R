@@ -10,7 +10,6 @@
 #' \code{\link{isis_mdl}}.
 #' @return Returns `TRUE` is the model has been converted successfully.
 #' @seealso \code{\link{isis_mdl}}.
-#' @useDynLib isismdl convert_mdl_file_c
 #' @export
 #'
 #' @section Conversion options:
@@ -38,6 +37,6 @@ convert_mdl_file <- function(model_file, output_file,
   flags <- parse_options$flags
   include_dirs <- parse_options$include_dirs
 
-  return(.Call(convert_mdl_file_c, model_file, output_file, flags,
+  return(.Call(C_convert_mdl_file_c, model_file, output_file, flags,
                include_dirs, conversion_options))
 }

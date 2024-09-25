@@ -115,7 +115,7 @@ convergence of endogenous leads cannot be tested to the accuracy used in
 testing for convergence in the solution of the model.
 This option specifies the multiplier to apply to the convergence criterion
 for each endogenous variable if the variable has an endogenous lead.
-Suppose for example that some variable has a convergence criterion of $10^{-5}$
+Suppose for example that some variable has a convergence criterion of \code{1e-5}
 and assume a value of 10 for the multiplier.
 Then its endogenous lead will be regarded as converged.}
 \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance

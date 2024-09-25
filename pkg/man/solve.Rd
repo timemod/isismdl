@@ -33,13 +33,13 @@ for example \code{list(maxiter = 50)}.
 The names are the corresponding argument names of
 method \code{\link{set_solve_options}}
 The specified options will only used in this call of
-{solve()} and will not be stored in the \code{IsisMdl} object}
+\code{solve()} and will not be stored in the \code{IsisMdl} object}
 \item{\code{fit_options}}{a named list with options for the fit procedure,
 for example \code{list(maxiter = 10)}.
 The names are the corresponding argument names of
 method \code{\link{set_fit_options}}
 The specified options will only used in this call of
-{solve()} and will not be stored in the \code{IsisMdl} object}
+\code{solve()} and will not be stored in the \code{IsisMdl} object}
 }
 }
 
