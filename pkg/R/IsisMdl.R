@@ -26,8 +26,8 @@ setOldClass("period_range")
 #' @importFrom "methods" "new"
 #' @export
 #' @keywords data
-#' @return Object of \code{\link{R6Class}} representing an Isis model.
-#' @format \code{\link{R6Class}} object.
+#' @return Object of \code{\link[R6]{R6Class}} representing an Isis model.
+#' @format \code{\link[R6]{R6Class}} object.
 #' @examples
 #' # create an example ISLM  model
 #' mdl <- islm_mdl()
@@ -260,11 +260,6 @@ IsisMdl <- R6Class("IsisMdl",
                     as.character(private$data_period)))
       }
       return(invisible(self))
-    },
-    finalize = function() {
-      if (isNamespaceLoaded("isismdl")) {
-        .Call(C_remove_mws_c, model_index = private$model_index)
-      }
     },
     get_text = function() {
       return(private$model_text)
@@ -967,6 +962,11 @@ IsisMdl <- R6Class("IsisMdl",
         return(.Call(C_clone_mws_c, model_index = value))
       } else {
         return(value)
+      }
+    },
+    finalize = function() {
+      if (isNamespaceLoaded("isismdl")) {
+        .Call(C_remove_mws_c, model_index = private$model_index)
       }
     },
     get_period_indices = function(period, extended = TRUE) {

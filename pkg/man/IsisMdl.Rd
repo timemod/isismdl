@@ -5,10 +5,10 @@
 \alias{IsisMdl}
 \title{An R6 class class representing an Isis model}
 \format{
-\code{\link{R6Class}} object.
+\code{\link[R6]{R6Class}} object.
 }
 \value{
-Object of \code{\link{R6Class}} representing an Isis model.
+Object of \code{\link[R6]{R6Class}} representing an Isis model.
 }
 \description{
 This class is used to solve a system of non-linear equations with lagged
