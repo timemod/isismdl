@@ -1,3 +1,8 @@
+# Use this statement to prevent error from lintr about
+# No visible binding for global variable .Generic
+utils::globalVariables(".Generic")
+
+
 #' Test if two \code{\link{IsisMdl}} objects are (nearly) equal
 #'
 #' \code{all.equal(x, y)} is a utility to compare R objects x and y testing
@@ -39,5 +44,6 @@ all.equal.IsisMdl <- function(target, current, ...) {
     stop("the second object compared is not an IsisMdl object")
   }
   current <- current$serialize()
+
   return(NextMethod(.Generic))
 }

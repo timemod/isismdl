@@ -160,7 +160,8 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
       # and the supplied period extended with a lag and lead period.
       data_period_2 <- period_range(
         start_period(period) - mdl$get_maxlag(),
-        end_period(period)   + mdl$get_maxlead())
+        end_period(period)   + mdl$get_maxlead()
+      )
       data_period <- range_union(data_period, data_period_2)
     }
     if (is.null(colnames(data))) {

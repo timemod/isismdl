@@ -709,14 +709,16 @@ NULL
 #' If `update_mode = "updval"`, the model data is only updated if the
 #' result is not `NA`.}
 #' \item{\code{by_period}}{A logical (default `FALSE`).
-#' If `TRUE`, and if `forwards` is `TRUE`, all equations are first evaluated at the first period, then all
-#' equations at the second period, and so on. If `by_period` is `FALSE`,
-#' the first equation is first run for all periods (starting at the first period,  then the second period etc.), then the second equation is solved
-#' for all periods, and so on.
-#' If `by_period` is `TRUE` and if `forwards` is `FALSE`, all equations are first evaluated at the last period, then all
-#' equations at the last but one period, and so on. If `by_period` is `FALSE`,
-#' the first equation is first run for all periods (starting at the last period,  then the last but one period etc.), then the second equation is solved
-#' for all periods, and so on.}
+#' If `TRUE`, and if `forwards` is `TRUE`, all equations are first evaluated at
+#' the first period, then all equations at the second period, and so on. If
+#' `by_period` is `FALSE`, the first equation is first run for all periods
+#' (starting at the first period,  then the second period etc.), then the second
+#' equation is solved for all periods, and so on.
+#' If `by_period` is `TRUE` and if `forwards` is `FALSE`, all equations are first
+#' evaluated at the last period, then all equations at the last but one period,
+#' and so on. If `by_period` is `FALSE`, the first equation is first run for
+#' all periods (starting at the last period, then the last but one period etc.),
+#' then the second equation is solved for all periods, and so on.}
 #' }
 #'
 #' Only one of the two arguments `pattern` and `names` can be specified.
@@ -2339,4 +2341,3 @@ NULL
 #' mdl <- islm_mdl()
 #' mdl$get_simul_names()
 NULL
-
