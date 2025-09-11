@@ -1,0 +1,23 @@
+param a 0.04;
+param b 0.06;
+param c 0.02;
+param d 0.08;
+param e 0.05;
+param f 0.05;
+
+frml error_stock = 0;
+frml error_bond = 0;
+
+ident dstock = a * stock[-2] + b * stock[-1] + c * bond[-1] + d * inflation + error_stock;
+ident dbond = e * bond[-1] + f * inflation + error_bond;
+
+ident stock = stock[-1] + dstock;
+? frml vanwege afleidbare startwaarde
+frml bond = bond[-1] + dbond;
+
+frml assets = stock + bond;
+
+ident management_fee = 0.05 * assets;
+
+ident total_fee = 0.01 * stock + management_fee;
+ident management_fee_quote = management_fee / total_fee;
