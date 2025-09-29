@@ -1,4 +1,8 @@
-cran_repo <- "https://cloud.r-project.org"
+# Set up Repositories: CPB and CRAN
+repos <- c(
+  "https://cloud.r-project.org",           # CRAN
+  "file:/usr/local/lib/R/cpblib/cpb_repo"  # CPB
+)
 
 # If the user library does not exist, then create it
 # and add it to the library path.
@@ -12,13 +16,14 @@ cat("\nLibrary paths:\n")
 print(.libPaths())
 
 if (!require(devtools, quietly = TRUE)) {
-  install.packages("devtools", repos = cran_repo)
+  install.packages("devtools", repos = repos)
 }
 if (!require(lintr, quietly = TRUE)) {
-  install.packages("lintr", repos = cran_repo)
+  install.packages("lintr", repos = repos)
 }
-devtools::install_deps("pkg", dependencies = TRUE, repos = cran_repo)
+
+# install and update all dependenencies
+devtools::install_deps("pkg", dependencies = TRUE, repos = repos)
 
 # make sure all packages (including devtools and lintr) are up-to-date.
-update.packages(lib.loc = user_lib_dir, repos = cran_repo,
-                ask = FALSE)
+update.packages(lib.loc = user_lib_dir, repos = repos, ask = FALSE)
