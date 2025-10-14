@@ -5,11 +5,11 @@ integer, parameter, private :: MIN_REP    = 2  ! minimal report
 integer, parameter, private :: PERIOD_REP = 3  ! report per period
 
 contains
-subroutine fill_mdl_data(jt1, jt2, report_type, idents_only)
+subroutine fill_mdl_data(jt1, jt2, report_type, include_frmls)
     use msvars
     use msimot
     integer, intent(in) :: jt1, jt2, report_type
-    logical, intent(in) :: idents_only
+    logical, intent(in) :: include_frmls
 
     ! fills missing values by running identities for period jt1 .. jt2
     ! skips inactive and behavioural equations
@@ -30,24 +30,24 @@ subroutine fill_mdl_data(jt1, jt2, report_type, idents_only)
        do
           itnum = itnum + 1
           ngain = 0
-          call msfilp(jtime, ngain, didfb, idents_only)
+          call msfilp(jtime, ngain, didfb, include_frmls)
           if (report_type == PERIOD_REP) call filot1(ngain, jtime, itnum)
           tgain = tgain + ngain
           if (ngain == 0 .or. mdl%nfb == 0 .or. .not. didfb) exit
         end do
 
      end do
-     if (report_type /= NO_REP) call filot2(tgain, idents_only)
+     if (report_type /= NO_REP) call filot2(tgain, include_frmls)
 
      return
      end subroutine fill_mdl_data
 
-     subroutine msfilp(jtime, ngain, didfb, idents_only)
+     subroutine msfilp(jtime, ngain, didfb, include_frmls)
         use mssneq
         integer, intent(in) :: jtime
         integer, intent(inout) :: ngain
         logical, intent(out) :: didfb
-        logical, intent(in) :: idents_only
+        logical, intent(in) :: include_frmls
 
         ! fills missing values by running identities for period jtime
         ! skips inactive and behavioural equations
@@ -76,7 +76,7 @@ subroutine fill_mdl_data(jt1, jt2, report_type, idents_only)
            ! ASCI with integer values > 96 are lowercase.
            if (ichar(eqtype) .gt. 96) cycle
 
-           if (idents_only .and. eqtype /= 'I' .and. eqtype /= 'N') cycle
+           if (.not. include_frmls .and. eqtype /= 'I' .and. eqtype /= 'N') cycle
 
            ! possibly something to do
            ! calculate index in mws%mdl_data array
@@ -90,7 +90,7 @@ subroutine fill_mdl_data(jt1, jt2, report_type, idents_only)
            elseif (eqtype == "N") then
                ! implicit identity (solve with newton)
                call msinwt(xresult, lhsvar, 0, iequ, jtime, ier)
-           elseif (eqtype == 'B' .or. eqtype == "M") then
+           elseif (eqtype == "B" .or. eqtype == "M") then
                ca_index = mdl%aci(lhsvar)
                xca = mws%constant_adjustments(ca_index, jtime)
                if (nuifna(xca)) then
@@ -114,7 +114,7 @@ subroutine fill_mdl_data(jt1, jt2, report_type, idents_only)
            ! a missing value has been replaced and therefore
            ! progress has been made
 
-           if (.not. nuifna(xresult) ) then
+           if (.not. nuifna(xresult)) then
                ngain = ngain + 1
                call set_var_value(mws, lhsvar, jtime, xresult, error)
                ! check for fill of feedback variable
@@ -143,19 +143,19 @@ subroutine fill_mdl_data(jt1, jt2, report_type, idents_only)
         return
     end subroutine filot1
 
-    subroutine filot2(tgain, idents_only)
+    subroutine filot2(tgain, include_frmls)
         use msimot
         integer, intent(in) :: tgain
-        logical, intent(in) :: idents_only
+        logical, intent(in) :: include_frmls
 
         integer, parameter :: MAX_INT_STR_LEN = 10
         character(len = MAX_INT_STR_LEN) :: istr
         character(len = 15) :: last_words
 
-        if (idents_only) then
-           last_words = " in identities"
-        else
+        if (include_frmls) then
            last_words = ""
+        else
+           last_words = " in identities"
         endif
 
         if (tgain /= 0) then

@@ -722,7 +722,7 @@ IsisMdl <- R6Class("IsisMdl",
     },
     fill_mdl_data = function(period = private$data_period,
                              report = c("period", "minimal", "no"),
-                             idents_only = TRUE) {
+                             include_frmls = FALSE) {
       # Calculates missing model data from identities.
       report <- match.arg(report)
       if (is.null(private$model_period)) stop(private$period_error_msg)
@@ -730,7 +730,7 @@ IsisMdl <- R6Class("IsisMdl",
       js <- private$get_period_indices(period)
       .Call(C_filmdt_c, model_index = private$model_index,
             jtb = js$startp, jte = js$end,
-            report = report, idents_only = as.integer(idents_only))
+            report = report, include_frmls = as.integer(include_frmls))
       return(invisible(self))
     },
     run_eqn = function(pattern, names, period = private$data_period,

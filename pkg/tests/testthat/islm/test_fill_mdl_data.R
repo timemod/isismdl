@@ -23,7 +23,7 @@ test_that("fill_mdl_data with frmls", {
   mdl2 <- mdl$copy()
   expect_output(
     mdl2$fill_mdl_data(period =  "2015Q2/2016Q1", report = "minimal",
-                       idents_only = FALSE),
+                       include_frmls = TRUE),
     "No missing/invalid values replaced",
     fixed = TRUE
   )
@@ -34,14 +34,14 @@ test_that("fill_mdl_data with frmls", {
   mdl2$set_eq_status("inactive", names = "c")
   expect_output(
     mdl2$fill_mdl_data(period =  "2015Q2/2016Q1", report = "minimal",
-                       idents_only = FALSE),
+                       include_frmls = TRUE),
     "No missing/invalid values replaced",
     fixed = TRUE
   )
   mdl2$set_eq_status("active", names = "c")
   expect_output(
     mdl2$fill_mdl_data(period =  "2015Q2/2016Q1", report = "minimal",
-                       idents_only = FALSE),
+                       include_frmls = TRUE),
     "Replaced a total of 2 missing/invalid values",
     fixed = TRUE
   )

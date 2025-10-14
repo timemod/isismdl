@@ -39,7 +39,7 @@ test_that("fill_mdl_data", {
   mdl2$set_values(1, names = "x", period = "2022")
   mdl2$set_values(c(4, 16, 25, 36), names = "a", period = "2022/2025")
   expect_output(
-    mdl2$fill_mdl_data(idents_only = FALSE, report = "minimal"),
+    mdl2$fill_mdl_data(include_frmls = TRUE, report = "minimal"),
     "Replaced a total of 5 missing/invalid values",
     fixed = TRUE
   )
@@ -51,7 +51,7 @@ test_that("fill_mdl_data", {
   mdl2$set_values(c(4, 16, 25, 36), names = "a", period = "2022/2025")
   mdl2$set_ca_values(1:4, names = "x", period = "2022/2025")
   expect_output(
-    mdl2$fill_mdl_data(idents_only = FALSE, report = "minimal"),
+    mdl2$fill_mdl_data(include_frmls = TRUE, report = "minimal"),
     "Replaced a total of 5 missing/invalid values",
     fixed = TRUE
   )
