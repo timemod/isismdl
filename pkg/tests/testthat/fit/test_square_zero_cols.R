@@ -6,7 +6,9 @@ rm(list = ls())
 update_expected <- FALSE
 
 source("../tools/convert_report.R")
+source("../tools/get_platform_variant.R")
 
+platform_variant <- get_platform_variant()
 
 mdl <- isis_mdl("mdl/square.mdl", period = 1000, silent = TRUE)
 
@@ -25,12 +27,16 @@ test_that("column with zeros", {
   mdl2 <- mdl$copy()
 
   # make third column exacty zero
-  param_new <- sapply(param, FUN = function(x) {x[3] <- 0; return(x)},
+  param_new <- sapply(param,
+                      FUN = function(x) {
+                        x[3] <- 0
+                        return(x)
+                      },
                       simplify = FALSE)
   mdl2$set_param(param_new)
   mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE,
-                      dbgopt = "prijac", warn_zero_col = TRUE,
-                      svdtest_tol = 1e-15)
+                       dbgopt = "prijac", warn_zero_col = TRUE,
+                       svdtest_tol = 1e-15)
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 
@@ -48,7 +54,7 @@ test_that("column with zeros", {
                  "Simulation not possible")
 
   file <- sprintf("expected_output/square_zero_cols_rep2_%s.txt",
-                  .Platform$OS.type)
+                  platform_variant)
   expect_known_output(cat_report(convert_report(report)), file = file,
                       update = update_expected)
 
@@ -56,7 +62,7 @@ test_that("column with zeros", {
                                                        list(warn_zero_col = FALSE))),
                  "Simulation not possible")
   file <- sprintf("expected_output/square_zero_cols_rep3_%s.txt",
-                  .Platform$OS.type)
+                  platform_variant)
   expect_known_output(cat_report(convert_report(report)),
                       file = file, update = update_expected)
 })
@@ -65,7 +71,11 @@ test_that("zero row and one less fit target", {
   mdl2 <- mdl$copy()
 
   # make third column exacty zero
-  param_new <- sapply(param, FUN = function(x) {x[3] <- 0; return(x)},
+  param_new <- sapply(param,
+                      FUN = function(x) {
+                        x[3] <- 0
+                        return(x)
+                      },
                       simplify = FALSE)
   mdl2$set_param(param_new)
   mdl2$set_fit_values(NA, names = "w6")
