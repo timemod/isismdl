@@ -610,7 +610,7 @@ NULL
 #' attempts to calculate missing data for endogenous
 #' variables of a model by evaluating the active equations in solution order. By
 #' default only identity equations are evaluated, but if argument
-#' `include_frmls = TRUE` then also all active equations are evaluated.
+#' `include_frmls = TRUE` then also all active behavioural equations are evaluated.
 #'
 #' The procedure can be used to fill in data before and beyond the
 #' model period (as set by method \code{set_period}) for as many
