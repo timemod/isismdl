@@ -18,7 +18,7 @@ Criterion for line search decisions etc.                 geometric
      x1 x2 x3
 Convergence for 1000 in    0 iterations
  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
-     0                                     w                   Abs  w1
+     0                                     w
 Warning: All derivatives with respect to fit instrument x2 are exactly zero.
 Warning: All derivatives with respect to fit instrument x3 are exactly zero.
 Error: too many columns of the fit jacobian are exactly zero.
