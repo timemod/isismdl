@@ -10,9 +10,11 @@ test_that("fill_mdl_data for identities", {
   mdl2 <- mdl$clone(deep = TRUE)
   mdl2$set_values(names = "y", value = NA, period = "2015Q3/2016Q1")
   mdl2$set_values(names = "yd", value = NA, period = "2015Q4")
-  report <- capture.output(mdl2$fill_mdl_data(report = "minimal"))
-  expect_identical(report,
-                   "Replaced a total of 4 missing/invalid values in identities")
+  expect_output(
+    mdl2$fill_mdl_data(report = "minimal"),
+    "Replaced a total of 4 missing/invalid values in identities",
+    fixed = TRUE
+  )
   expect_equal(mdl2$get_data(), mdl$get_data())
 })
 
