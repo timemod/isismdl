@@ -608,7 +608,9 @@ NULL
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}}
 #' attempts to calculate missing data for endogenous
-#' variables of a model by solving the identity equations in solution order.
+#' variables of a model by evaluating the active equations in solution order. By
+#' default only identity equations are evaluated, but if argument
+#' `idents_only = FALSE` then all equations are evaluated.
 #'
 #' The procedure can be used to fill in data before and beyond the
 #' model period (as set by method \code{set_period} for as many
@@ -617,7 +619,8 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$fill_mdl_data(period = mdl$get_data_period(),
-#'                   report = c("period", "minimal", "no"))
+#'                   report = c("period", "minimal", "no"),
+#'                   idents_only = TRUE)
 #'
 #' }
 #'
@@ -629,6 +632,9 @@ NULL
 #' \item{\code{period}}{a \code{\link[regts]{period_range}} object}
 #' \item{\code{report}}{Defines the type of report about the number of
 #' replaced missing values. See details.}
+#' \item{\code{idents_only}}{A logical (default `TRUE`). If `TRUE` only active identity
+#' equations are evaluated. If false all active equations, including the behavioural (frml)
+#' equations are evaluated.}
 #' }
 #'
 #' @section Details:

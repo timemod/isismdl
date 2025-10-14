@@ -170,7 +170,6 @@ subroutine run_eqn_fortran(model_index, neq, eqnums, jtb, jte, updval_, &
     logical :: updval, by_period
 
     call msvarsinit(mws_array(model_index))
-
     updval = updval_ /= 0
     by_period = by_period_ /= 0
 
@@ -225,16 +224,20 @@ subroutine solve_fortran(model_index, jtb, jte, opts_present, error)
     call msclear
 end subroutine solve_fortran
 
-subroutine filmdt_fortran(model_index, jtb, jte, report_type)
+subroutine filmdt_fortran(model_index, jtb, jte, report_type, idents_only_int)
     use modelworkspaces
     use msvars
     use msfill
     use iso_c_binding, only : c_int
-    integer(c_int), intent(in) :: model_index, jtb, jte, report_type
+    integer(c_int), intent(in) :: model_index, jtb, jte, report_type, &
+                                  idents_only_int
+
+    logical:: idents_only
+    idents_only = idents_only_int /= 0
 
     call check_active_equations(mws_array(model_index)%mdl)
     call msvarsinit(mws_array(model_index))
-    call fill_mdl_data(jtb, jte, report_type)
+    call fill_mdl_data(jtb, jte, report_type, idents_only)
 
 end subroutine filmdt_fortran
 

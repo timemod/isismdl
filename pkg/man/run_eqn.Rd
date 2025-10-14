@@ -57,14 +57,16 @@ if the result is an invalid number (\code{NA}). If \code{update_mode = "upd"}
 If \code{update_mode = "updval"}, the model data is only updated if the
 result is not \code{NA}.}
 \item{\code{by_period}}{A logical (default \code{FALSE}).
-If \code{TRUE}, and if \code{forwards} is \code{TRUE}, all equations are first evaluated at the first period, then all
-equations at the second period, and so on. If \code{by_period} is \code{FALSE},
-the first equation is first run for all periods (starting at the first period,  then the second period etc.), then the second equation is solved
-for all periods, and so on.
-If \code{by_period} is \code{TRUE} and if \code{forwards} is \code{FALSE}, all equations are first evaluated at the last period, then all
-equations at the last but one period, and so on. If \code{by_period} is \code{FALSE},
-the first equation is first run for all periods (starting at the last period,  then the last but one period etc.), then the second equation is solved
-for all periods, and so on.}
+If \code{TRUE}, and if \code{forwards} is \code{TRUE}, all equations are first evaluated at
+the first period, then all equations at the second period, and so on. If
+\code{by_period} is \code{FALSE}, the first equation is first run for all periods
+(starting at the first period,  then the second period etc.), then the second
+equation is solved for all periods, and so on.
+If \code{by_period} is \code{TRUE} and if \code{forwards} is \code{FALSE}, all equations are first
+evaluated at the last period, then all equations at the last but one period,
+and so on. If \code{by_period} is \code{FALSE}, the first equation is first run for
+all periods (starting at the last period, then the last but one period etc.),
+then the second equation is solved for all periods, and so on.}
 }
 
 Only one of the two arguments \code{pattern} and \code{names} can be specified.

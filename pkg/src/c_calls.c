@@ -57,7 +57,7 @@ extern void F77_NAME(set_fix_fit_fortran)(int *model_index, int *, int *ivar,
 extern void F77_NAME(solve_fortran)(int *model_index, int *startp, int *endp,
                                     int *opts_present, int *error);
 extern void F77_NAME(filmdt_fortran)(int *model_index, int *startp, int *endp,
-                                     int *report_type);
+                                     int *report_type, int *idents_only_int);
 extern void F77_NAME(set_rms_fortran)(int *model_index, int *var_index,
                                       double *value);
 extern int F77_NAME(has_rms_fortran)(int *model_index);
@@ -637,15 +637,17 @@ SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
 }
 
 
-SEXP filmdt_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP report_) {
+SEXP filmdt_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP report_,
+              SEXP idents_only_sexp) {
     const char *REPORT_OPTIONS[] = {"no", "minimal", "period"};
     const char *report = CHAR(STRING_ELT(report_, 0));
     int model_index = asInteger(model_index_);
     int startp = asInteger(startp_);
-    int endp= asInteger(endp_);
+    int endp = asInteger(endp_);
     int report_type = get_i_option("report", report, REPORT_OPTIONS,
                                    NO_ELM(REPORT_OPTIONS));
-    F77_CALL(filmdt_fortran)(&model_index, &startp, &endp, &report_type);
+    int idents_only_int = asInteger(idents_only_sexp);
+    F77_CALL(filmdt_fortran)(&model_index, &startp, &endp, &report_type, &idents_only_int);
     return R_NilValue;
 }
 

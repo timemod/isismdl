@@ -33,7 +33,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"set_rms_c", (DL_FUNC) &set_rms_c, 2},
     {"get_rms_c", (DL_FUNC) &get_rms_c, 1},
     {"solve_c", (DL_FUNC) &solve_c, 5},
-    {"filmdt_c", (DL_FUNC) &filmdt_c, 4},
+    {"filmdt_c", (DL_FUNC) &filmdt_c, 5},
     {"set_cvgcrit_c", (DL_FUNC) &set_cvgcrit_c, 3},
     {"set_cvgcrit_init_mws_c", (DL_FUNC) &set_cvgcrit_init_mws_c, 2},
     {"get_cvgcrit_c", (DL_FUNC) &get_cvgcrit_c, 2},
