@@ -612,6 +612,11 @@ NULL
 #' default only identity equations are evaluated, but if argument
 #' `include_frmls = TRUE` then also all active behavioural equations are evaluated.
 #'
+#' If also `frml` equations are evaluated, the fit targets specified
+#' with for example method \code{\link{set_fix}}  are ignored: if the value of the
+#' left hand side variable is missing a value is computed by evaluating
+#' the equation.
+#'
 #' The procedure can be used to fill in data before and beyond the
 #' model period (as set by method \code{set_period}) for as many
 #' variables as possible.
@@ -634,7 +639,7 @@ NULL
 #' replaced missing values. See details.}
 #' \item{\code{include_frmls}}{A logical. For the default value `FALSE` only active identity
 #' equations are evaluated. If `TRUE` all active equations, including the behavioural (frml)
-#' equations are evaluated.}
+#' equations, are evaluated.}
 #' }
 #'
 #' @section Details:
