@@ -21,7 +21,8 @@ SEXP set_rms_c(SEXP model_index_, SEXP values);
 SEXP get_rms_c(SEXP model_index_);
 SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
              SEXP fit_options);
-SEXP filmdt_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP report_);
+SEXP filmdt_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP report_,
+              SEXP include_frmls_sexp);
 SEXP set_cvgcrit_c(SEXP model_index_, SEXP names, SEXP value_);
 SEXP set_cvgcrit_init_mws_c(SEXP model_index_, SEXP values);
 SEXP get_cvgcrit_c(SEXP model_index_, SEXP alphabet_);

@@ -1,0 +1,2 @@
+frml 0(x) = x*x - a;
+ident idum = x[-2];

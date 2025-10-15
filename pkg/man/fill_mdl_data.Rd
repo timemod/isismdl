@@ -2,21 +2,29 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{fill_mdl_data}
 \alias{fill_mdl_data}
-\title{\code{\link{IsisMdl}} method: Calculates missing model data from identities}
+\title{\code{\link{IsisMdl}} method: Calculates missing model data.}
 \description{
 This method of R6 class \code{\link{IsisMdl}}
 attempts to calculate missing data for endogenous
-variables of a model by solving the identity equations in solution order.
+variables of a model by evaluating the active equations in solution order. By
+default only identity equations are evaluated, but if argument
+\code{include_frmls = TRUE} then also all active behavioural equations are evaluated.
+
+If also \code{frml} equations are evaluated, the fit targets specified
+with for example method \code{\link{set_fix}}  are ignored: if the value of the
+left hand side variable is missing a value is computed by evaluating
+the equation.
 
 The procedure can be used to fill in data before and beyond the
-model period (as set by method \code{set_period} for as many
+model period (as set by method \code{set_period}) for as many
 variables as possible.
 }
 \section{Usage}{
 
 \preformatted{
 mdl$fill_mdl_data(period = mdl$get_data_period(),
-                  report = c("period", "minimal", "no"))
+                  report = c("period", "minimal", "no"),
+                  include_frmls = TRUE)
 
 }
 
@@ -30,6 +38,9 @@ mdl$fill_mdl_data(period = mdl$get_data_period(),
 \item{\code{period}}{a \code{\link[regts]{period_range}} object}
 \item{\code{report}}{Defines the type of report about the number of
 replaced missing values. See details.}
+\item{\code{include_frmls}}{A logical. For the default value \code{FALSE} only active identity
+equations are evaluated. If \code{TRUE} all active equations, including the behavioural (frml)
+equations, are evaluated.}
 }
 }
 
