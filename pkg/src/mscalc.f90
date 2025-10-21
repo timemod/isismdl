@@ -664,26 +664,30 @@ contains
 
      case (E_MAX)
        nstack = nstack - 1
-       stack(nstack) = max(stack(nstack), stack(nstack+1))
-       if( .not. mws%dbgeqn ) cycle
-       if(nuifna( stack(nstack))) then
-           iskerr = 6
-           exit
+       ! When the left or right operand is NaN, the result is 
+       ! compiler dependent. Gnu fortran typically returns NaN,
+       ! but intel fortran may return the first non-NaN. Therefore check
+       ! if the operands are NA before.
+       if (nuifna(stack(nstack)) .or. nuifna(stack(nstack + 1))) then
+           retcod = 3
+           return
        endif
+       stack(nstack) = max(stack(nstack), stack(nstack + 1))
 
      case (E_MIN)
        nstack = nstack - 1
-       stack(nstack) = min(stack(nstack), stack(nstack+1))
-       if( .not. mws%dbgeqn ) cycle
-       if(nuifna( stack(nstack) ) ) iskerr = 6
-       if(nuifna( stack(nstack))) then
-           iskerr = 6
-           exit
+       ! When the left or right operand is NaN, the result is 
+       ! compiler dependent. Gnu fortran typically returns NaN,
+       ! but intel fortran may return the first non-NaN. Therefore check
+       ! if the operands are NA before.
+       if (nuifna(stack(nstack)) .or. nuifna(stack(nstack + 1))) then
+           retcod = 3
+           return
        endif
+       stack(nstack) = min(stack(nstack), stack(nstack + 1))
 
      case (E_ADDZ)
-!          special binary add/sub
-
+       ! special binary add/sub
        nstack = nstack - 1
        if (nuifna(stack(nstack)).and. nuifna(stack(nstack+1))) then
          stack(nstack) = stack(nstack) + stack(nstack+1)
