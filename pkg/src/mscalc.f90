@@ -667,7 +667,7 @@ contains
        ! When the left or right operand is NaN, the result is 
        ! compiler dependent. Gnu fortran typically returns NaN,
        ! but intel fortran may return the first non-NaN. Therefore check
-       ! the operand type before.
+       ! if the operands are NA before.
        if (nuifna(stack(nstack)) .or. nuifna(stack(nstack + 1))) then
            retcod = 3
            return
@@ -679,7 +679,7 @@ contains
        ! When the left or right operand is NaN, the result is 
        ! compiler dependent. Gnu fortran typically returns NaN,
        ! but intel fortran may return the first non-NaN. Therefore check
-       ! the operand type before.
+       ! if the operands are NA before.
        if (nuifna(stack(nstack)) .or. nuifna(stack(nstack + 1))) then
            retcod = 3
            return
