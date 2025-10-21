@@ -3,7 +3,7 @@ library(testthat)
 
 rm(list = ls())
 
-update_expected <- TRUE
+update_expected <- FALSE
 
 source("../tools/convert_report.R")
 
