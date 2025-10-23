@@ -1,0 +1,85 @@
+
+Model Solve Options
+Solution period               1000/1000
+Simulation mode               dynamic
+Feedback starting values      current period
+Maximum iterations per period 50
+Relaxation minimum            0.500E-01
+           maximum            1.00
+           shrinkage          0.500
+Criteria stepback             1.30
+          matrix              0.900
+Maximum updates Newton matrix per period                 10
+Maximum number of line searches with old Jacobian        5
+Criterion for line search decisions etc.                 geometric
+
+
+     6 CAs used by Fit:
+     x1 x2 x3 x4 x5 x6
+Convergence for 1000 in    0 iterations
+ Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
+     0                0.81300              w                   Abs  w3
+
+Fit jacobian (scaled with rms) in period 1000         at iteration    1
+
+             x1           x2           x3           x4           x5
+w1      0.27700      0.06500      0.00000      0.90700      0.58200
+w2      0.00000      0.00000      0.00000      0.00000      0.00000
+w3      0.51100      0.08600  1.00000E-12      0.73400      0.15800
+w4      0.01400      0.29000      0.00000      0.57400      0.48000
+w5      0.21100     -0.11000      0.00000      0.56700     -0.12000
+w6      0.44400      0.33300      0.00000     -0.12300      1.12300
+             x6
+w1      0.20400
+w2      0.00000
+w3      0.36400
+w4      0.35000
+w5      0.56700
+w6      0.35700
+
+Error: All derivatives of fit target w2 are exactly zero.
+Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
+Derivatives of fit targets are dependent or
+for one or more fit targets all derivatives are (almost) zero ...
+Tip: try to use svd analysis and/or fit option 'warn_zero_row' or warn_zero_col'.
+See documentation of method set_fit_options.
+
+*** SVD analysis ***
+=======================
+The purpose of the SVD analysis is to find linearly dependent rows or columns
+of the fit jacobian.
+A left singular vector is a linear combination of the rows of the jacobian
+that is (almost) zero.
+A right singular vector is a linear combination of the columns of the jacobian
+that is (almost) zero.
+Only components >=   0.15E-07  are shown.
+
+Left Singular vectors:
+----------------------
+Singular value X
+                              w2  -1.0
+
+Right Singular vectors:
+-----------------------
+Singular value X
+                              x3  -1.0
+
+
+The singularity may also be caused by (almost) zero rows or columns.
+Therefore we print the norm of "problem rows" and "problem columns"
+(rows and columns with significant components in left and right singular vectors resp.)
+
+Problem rows:
+-------------
+                        Variable     L1 norm of row
+                              w2   0.0
+
+Problem columns:
+----------------
+                        Variable  L1 norm of column
+                              x3  0.10E-11
+
+*** END SVD ANALYSIS ***
+
+Total number of iterations    0
+Solve model used X CPU secs

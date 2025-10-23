@@ -14,3 +14,5 @@ isismdl_*.tar.gz
 tmp/
 isismdl_*.zip
 archive
+.DS_Store
+

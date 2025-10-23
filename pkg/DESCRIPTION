@@ -3,6 +3,10 @@ Type: Package
 Title: Solve macroeconomic models
 Version: 2.4.0
 Date: 2016-02-18
+Authors@R: c(
+ person("Rob", "van Harrevelt", email = "rvanharrevelt@gmail.com", role = c("aut", "cre")),
+ person("Elanur", "Akbas", email = "ela.n.akbas@gmail.com", role = c("aut", "ctb"))
+ )
 Author: Rob van Harrevelt [aut, cre]
 Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
 Description: Solve macroeconomic models.
