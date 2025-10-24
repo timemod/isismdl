@@ -1,3 +1,7 @@
+# Workflow rules to prevent duplicate pipelines:
+# - Use MR pipeline when a merge request exists
+# - Use branch pipeline otherwise
+# This ensures only one pipeline runs per commit
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
