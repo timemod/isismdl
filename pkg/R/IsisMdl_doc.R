@@ -2232,18 +2232,32 @@ NULL
 #' column right hand side variables (rhs) that occur in the equations for the
 #' lhs variables on the same row, and the third column the lags (and
 #' possibly leads) with which the rhs variables occur, separated with a space.
+#' If argument one_lag_per_row is assigned to `TRUE`, the third column contains a
+#' single lag. For each rhs variable there is one row for each lag
+#' that occurs in the equation.
 #' For example, suppose you have
 #' an equation `a = b - b[-1];`, then the data frame has one row for lhs variable
 #' `a`: `"a"  "b"  "-1 0"`.
 #' @section Usage:
-#' \preformatted{
-#' mdl$get_dep_struct()
 #'
+#' \preformatted{
+#' mdl$get_dep_struct(one_lag_per_row = FALSE)
 #' }
+#'
 #' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{one_lag_per_row}}{A logical (default `FALSE`)
+#' If `TRUE` for each rhs variable there is one row for each lag
+#' that occurs in the equation.}
+#' }
 #' @examples
 #' mdl <- islm_mdl()
 #' print(mdl$get_dep_struct())
+#' print(mdl$get_dep_struct(one_lag_per_row = TRUE))
+#'
 NULL
 
 #' \code{\link{IsisMdl}} method: Returns the last solve period

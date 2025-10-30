@@ -42,6 +42,9 @@ test_that("get_dep_struct", {
   expect_known_output(mdl$get_dep_struct(),
                       file = "expected_output/complex1_mdl.dep",
                       update = update_expected, print = TRUE)
+  expect_known_output(mdl$get_dep_struct(one_lag_per_row = TRUE),
+                      file = "expected_output/complex1_mdl_long.dep",
+                      update = update_expected, print = TRUE)
 })
 
 test_that("get_simul_names", {

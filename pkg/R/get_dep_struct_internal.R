@@ -1,6 +1,9 @@
 # internal function to create the dependency structure from the model_text
 #' @importFrom utils read.csv
-get_dep_struct_internal <- function(model_text, active_endo_names) {
+#' @importFrom tidyr separate_rows
+#' @importFrom dplyr arrange select mutate lag desc
+#' @importFrom rlang .data
+get_dep_struct_internal <- function(model_text, active_endo_names, one_lag_per_row=FALSE) {
 
   mdl_file_tmp1 <- tempfile(pattern = "isismdl_", fileext = ".mdl")
   mdl_file_tmp2 <- tempfile(pattern = "isismdl_", fileext = ".mdl")
@@ -34,6 +37,14 @@ get_dep_struct_internal <- function(model_text, active_endo_names) {
   rownames(dep_data) <- NULL
 
   file.remove(c(mdl_file_tmp1, mdl_file_tmp2, dep_file_tmp))
+
+  if (one_lag_per_row) {
+    dep_data <- mutate(dep_data, lag = gsub('"', "", .data$lags)) |> # drop quotes
+      separate_rows("lag", sep = "\\s+") |> # split on spaces
+      mutate(lag = as.numeric(.data$lag)) |> # make numeric
+      select(-"lags") |> # drop lags column
+      arrange(desc(lag)) # sort lags 0, -1, -2
+  }
 
   return(dep_data)
 }
