@@ -30,3 +30,4 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr,
                  R.rsp
+Encoding: UTF-8
