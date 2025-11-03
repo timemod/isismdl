@@ -40,7 +40,10 @@ get_dep_struct_internal <- function(model_text, active_endo_names, one_lag_per_r
     lags_clean <- gsub('"', "", dep_data$lags)
     lags_list  <- strsplit(lags_clean, "\\s+")
     # handle possible empty strings safely
-    lens <- vapply(lags_list, function(x) if (length(x) == 1 && x == "") 0L else length(x), integer(1))
+    lens <- vapply(lags_list,
+      function(x) if (length(x) == 1 && x == "") 0L else length(x),
+      integer(1)
+    )
     # replicate lhs/rhs according to counts
     lhs_rep <- rep(dep_data$lhs, times = lens)
     rhs_rep <- rep(dep_data$rhs, times = lens)
