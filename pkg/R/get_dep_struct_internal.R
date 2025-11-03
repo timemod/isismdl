@@ -3,7 +3,7 @@
 #' @importFrom tidyr separate_rows
 #' @importFrom dplyr arrange select mutate lag desc
 #' @importFrom rlang .data
-get_dep_struct_internal <- function(model_text, active_endo_names, one_lag_per_row=FALSE) {
+get_dep_struct_internal <- function(model_text, active_endo_names, one_lag_per_row = FALSE) {
 
   mdl_file_tmp1 <- tempfile(pattern = "isismdl_", fileext = ".mdl")
   mdl_file_tmp2 <- tempfile(pattern = "isismdl_", fileext = ".mdl")
