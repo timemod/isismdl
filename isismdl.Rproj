@@ -21,3 +21,4 @@ PackageUseDevtools: Yes
 PackageCleanBeforeInstall: No
 PackagePath: pkg
 PackageInstallArgs: --no-multiarch --with-keep.source
+PackageRoxygenize: rd,collate,namespace

@@ -11,7 +11,7 @@ Author: Rob van Harrevelt [aut, cre]
 Maintainer: Rob van Harrevelt <rvanharrevelt@gmail.com>
 Description: Solve macroeconomic models.
 Depends:
-    R (>= 3.5.0),
+    R (>= 4.1.0),
     regts
 SystemRequirements: GNU make
 License: GPL-3
@@ -22,7 +22,10 @@ Imports:
     R6,
     readr,
     tools,
-    utils
+    utils,
+    tidyr,
+    dplyr,
+    rlang
 Suggests:
     testthat,
     knitr,
@@ -30,3 +33,4 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr,
                  R.rsp
+Encoding: UTF-8
