@@ -23,9 +23,6 @@ Imports:
     readr,
     tools,
     utils,
-    tidyr,
-    dplyr,
-    rlang
 Suggests:
     testthat,
     knitr,

@@ -1,8 +1,5 @@
 # internal function to create the dependency structure from the model_text
 #' @importFrom utils read.csv
-#' @importFrom tidyr separate_rows
-#' @importFrom dplyr arrange select mutate lag desc
-#' @importFrom rlang .data
 get_dep_struct_internal <- function(model_text, active_endo_names, one_lag_per_row = FALSE) {
 
   mdl_file_tmp1 <- tempfile(pattern = "isismdl_", fileext = ".mdl")
