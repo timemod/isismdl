@@ -3,7 +3,7 @@ library(isismdl)
 library(testthat)
 
 rm(list = ls())
-update_expected <- FALSE
+update_expected <- TRUE
 
 
 source("../tools/read_mrf.R")
