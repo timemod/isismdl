@@ -60,10 +60,5 @@ get_dep_struct_internal <- function(model_text, active_endo_names, one_lag_per_r
     }
   }
 
-  # final defensive coercion: force exact base data.frame class and remove other attributes
-  dep_data <- as.data.frame(dep_data, stringsAsFactors = FALSE)
-  rownames(dep_data) <- NULL
-  class(dep_data) <- "data.frame"
-
   return(dep_data)
 }
