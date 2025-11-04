@@ -7,7 +7,6 @@ update <- FALSE
 
 source("../tools/read_mrf.R")
 
-Sys.setlocale("LC_COLLATE", "C")
 
 mdl_file <- "mdl/mrf_example1.mdl"
 mdl <- isis_mdl(mdl_file, silent = TRUE)
@@ -15,12 +14,14 @@ mdl <- isis_mdl(mdl_file, silent = TRUE)
 mrf_data <- read_mrf(mdl_file)
 
 test_that("check_mrf", {
+  withr::local_collate("C")
   expect_known_output(cat(mrf_data),
                       file = "expected_output/mrf_example1_mrf.txt",
                       update = update, print = TRUE)
 })
 
 test_that("read old rds file", {
+  withr::local_collate("C")
   expect_output(mdl_old <- read_mdl("old_rds_files/mrf_example1.rds"),
                 "Model names will be reordered")
   expect_known_value(mdl_old$get_data(),
