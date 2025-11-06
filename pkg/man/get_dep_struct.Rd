@@ -5,18 +5,37 @@
 \title{\code{\link{IsisMdl}} method: Returns the dependency structure of the model
 variables}
 \description{
-This method of R6 class \code{\link{IsisMdl}} returns the dependency
+This method of the R6 class \code{\link{IsisMdl}} returns the dependency
 structure of the model. It returns a data frame with three columns:
-the first column contains the left hand side variables (lhs), the second
-column right hand side variables (rhs) that occur in the equations for the
-lhs variables on the same row, and the third column the lags (and
-possibly leads) with which the rhs variables occur, separated with a space.
-If argument one_lag_per_row is assigned to \code{TRUE}, the third column contains a
-single lag. For each rhs variable there is one row for each lag
-that occurs in the equation.
-For example, suppose you have
-an equation \code{a = b - b[-1];}, then the data frame has one row for lhs variable
-\code{a}: \verb{"a"  "b"  "-1 0"}.
+\itemize{
+\item \strong{lhs}: Left-hand side variables (the dependent variables)
+\item \strong{rhs}: Right-hand side variables (the variables appearing in the equation
+for the corresponding lhs)
+\item \strong{lag}: The lags (and possibly leads) with which the rhs variables appear.
+}
+
+If the argument \code{one_lag_per_row = TRUE}, then the output contains one row per
+rhs-variable–lag combination (i.e., each lag gets its own row). Otherwise,
+all lags for a given rhs variable appear in a single row.
+
+For example, consider the equation:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{a = b - b[-1];
+}\if{html}{\out{</div>}}
+
+When \code{one_lag_per_row = FALSE} (the default), multiple lags for the
+same rhs are separated by spaces and appear in one row:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  lhs   rhs   lag
+  a     b     0 -1
+}\if{html}{\out{</div>}}
+
+When \code{one_lag_per_row = TRUE}, each lag appears on its own row:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  lhs   rhs   lag
+  a     b     0
+  a     b    -1
+}\if{html}{\out{</div>}}
 }
 \section{Usage}{
 
