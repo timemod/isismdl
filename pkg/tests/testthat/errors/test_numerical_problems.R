@@ -17,7 +17,7 @@ test_that("output is correct", {
   expected_output_file <- "expected_output/numerical_problems.txt"
   expect_known_output(cat_report(report), expected_output_file,
                       update = update_expected)
-  data <- as_data_frame(mdl$get_data())
+  data <- regts::as_data_frame(mdl$get_data())
   data_expected <- data.frame(period = "2011")
   data_expected[, c("dum", "x", "x1", "x10", "x11", "x12", "x2", "x3", "x4",
                     "x5", "x6", "x7", "x8", "x9", "y")] <- NA_real_
