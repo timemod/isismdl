@@ -9,7 +9,7 @@ repos <- c(
 user_lib_dir <- Sys.getenv("R_LIBS_USER")
 if (!dir.exists(user_lib_dir)) {
   dir.create(user_lib_dir, recursive = TRUE)
-  .libPaths(user_lib_dir_user)
+  .libPaths(user_lib_dir)
 }
 
 cat("\nLibrary paths:\n")
