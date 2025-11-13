@@ -367,7 +367,7 @@ obs <- cbind(c, t)
 obs
 ```
 
-We can  fix `c` and `i` at these given values:
+We can  fix `c` and `t` at these given values:
 ```{r}
 mdl$set_fix(obs)
 mdl$solve(options = list(report = "none"))  # solve but suppress output

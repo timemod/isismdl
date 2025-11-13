@@ -51,7 +51,7 @@ mdl$get_dep_struct(one_lag_per_row = FALSE)
 
 
 \describe{
-\item{\code{one_lag_per_row}}{A logical (default \code{FALSE})
+\item{\code{one_lag_per_row}}{A logical (default \code{FALSE}).
 If \code{TRUE} for each rhs variable there is one row for each lag
 that occurs in the equation.}
 }

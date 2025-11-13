@@ -2272,7 +2272,7 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{one_lag_per_row}}{A logical (default `FALSE`)
+#' \item{\code{one_lag_per_row}}{A logical (default `FALSE`).
 #' If `TRUE` for each rhs variable there is one row for each lag
 #' that occurs in the equation.}
 #' }
