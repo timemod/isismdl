@@ -9,7 +9,7 @@ get_dep_struct_internal <- function(model_text, active_endo_names, one_lag_per_r
   writeLines(model_text, mdl_file_tmp1)
 
   # substitute user functions, the dependency structure cannot be determined for
-  # models with user functiions
+  # models with user functions
 
   ok <- .Call(C_convert_mdl_file_c, mdl_file_tmp1, mdl_file_tmp2, NULL,
               NULL, list(substitute = TRUE))
