@@ -243,7 +243,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
       children <- neighbors(g, vertex_name, mode = "in")
       # cat("\nWe hebben er eentje: ", vertex_name)
       ok <- all(V(g)[children]$ok |
-                  V(g)[children]$name %in% vertices_potentially_derivable
+          V(g)[children]$name %in% vertices_potentially_derivable
       )
       if (ok) {
         V(g)[name == vertex_name]$inferred <<- TRUE
@@ -254,8 +254,9 @@ find_deps <- function(final_destinations, final_sources = NULL,
     if (ok) {
       V(g)[name == vertex_name]$ok <<- TRUE
       V(g)[name == vertex_name]$calculable <<- calculable
-      V(g)[name == vertex_name]$color <<- if (vertex_name %in% vertices_potentially_derivable) "pink" else
-        color_ok
+      V(g)[name == vertex_name]$color <<-
+        if (vertex_name %in% vertices_potentially_derivable) "pink" else
+          color_ok
       return(TRUE)
     } else {
       V(g)[name == vertex_name]$ok <<- FALSE
@@ -295,7 +296,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
   return(g)
 }
 
-as_data_frame_deps<- function(g) {
+as_data_frame_deps <- function(g) {
   igraph::as_data_frame(g, what = "vertices") |>
     remove_rownames() |>
     #  select("name", "type", "is_final", "color") |>
