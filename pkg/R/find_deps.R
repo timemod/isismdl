@@ -74,8 +74,8 @@ find_deps <- function(final_destinations, final_sources = NULL,
     vertices_final_src <- paste0(final_sources$var, "[", periods, "]")
   }
 
-  has_potentially_derivable_vertices <- !is.null(potentially_derivable)
-  if (has_potentially_derivable_vertices) {
+  has_potentially_deriv_vertices <- !is.null(potentially_derivable)
+  if (has_potentially_deriv_vertices) {
     # TODO: give an error if potentially_derivable has overlap with observations.
     # Also check that they are endogenous variables.
     # TODO: also give an error in potentially_derivable has overlap with final_sources.
@@ -239,7 +239,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
     # If this node is not calculable, but only depends of vertices that are
     # either calculable or observed or in potentially_derivable_vertices,
     # then ignore this one.
-    if (!ok && has_potentially_derivable_vertices) {
+    if (!ok && has_potentially_deriv_vertices) {
       children <- neighbors(g, vertex_name, mode = "in")
       # cat("\nWe hebben er eentje: ", vertex_name)
       ok <- all(V(g)[children]$ok |
