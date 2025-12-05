@@ -11,6 +11,21 @@ new_var_period <- function(var, period) {
   return(structure(list(var = var, period = period), class = "var_period"))
 }
 
+
+as.character.var_period <- function(x) {
+  return(paste0(x$var, "[", x$period, "]"))
+}
+
+print.var_period <- function(x) {
+  return(print(as.character(x)))
+}
+
+as_var_period <- function(txt) {
+  pattern <- "^([a-zA-Z][a-zA-Z_]*)\\[(\\d+)\\]$"
+  x <- stringr::str_match(txt, pattern)
+  return(new_var_period(x[, 2], x[, 3]))
+}
+
 # Recursively find all dependencies.
 # INPUT
 # final_destinations
