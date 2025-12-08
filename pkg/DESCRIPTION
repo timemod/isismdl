@@ -23,7 +23,6 @@ Imports:
     dplyr,
     rlang,
     igraph,
-    magrittr,
     purrr,
     nleqslv,
     rlang,

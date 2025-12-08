@@ -5,7 +5,6 @@
 #' @importFrom dplyr group_split filter
 #' @importFrom purrr map_dbl
 #' @importFrom rlang set_names
-#' @importFrom magrittr %>%
 #' @importFrom rlang .data
 
 # TODO: Currently, the derived and observed value are for the same year, but is
@@ -175,11 +174,11 @@ fmds <- function(
   observed_data <- get_observed_data(mdl$get_data())
 
   # TODO: nested loop, first loop through period (so more than 1 period possible)
-  for (single_solve_period in fit_tbl %>% group_split(.data$solve_period)) {
-    for (group_data in single_solve_period %>% group_split(.data$group)) {
+  for (single_solve_period in fit_tbl |> group_split(.data$solve_period)) {
+    for (group_data in single_solve_period |> group_split(.data$group)) {
       # Following codeblock makes a numerical named list of initial_guess
       # which will be needed when calling nleqslv
-      initial_guess_num <- set_names(group_data$initial_guess, group_data$solve_variable) %>%
+      initial_guess_num <- set_names(group_data$initial_guess, group_data$solve_variable) |>
         map_dbl(~ {
           x <- .x
           if (is.null(x) || length(x) == 0 || is.na(x) || identical(x, "") || x == 0) return(0.1)
