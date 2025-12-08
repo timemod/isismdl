@@ -175,6 +175,7 @@ fmds <- function(
 
   # TODO: nested loop, first loop through period (so more than 1 period possible)
   for (single_solve_period in fit_tbl |> group_split(.data$solve_period)) {
+    this_period <- single_solve_period$solve_period[1]
     for (group_data in single_solve_period |> group_split(.data$group)) {
       # Following codeblock makes a numerical named list of initial_guess
       # which will be needed when calling nleqslv
@@ -193,8 +194,6 @@ fmds <- function(
           num
         })
 
-      this_period <- group_data$solve_period[1]
-
       solve_single_group(
         mdl,
         solve_period = this_period,
@@ -205,14 +204,12 @@ fmds <- function(
         initial_guess = initial_guess_num
       )
     }
+    mdl$order(silent = TRUE)
+    mdl$fill_mdl_data(period = this_period, report = report, include_frmls = TRUE)
   }
-  # fill again
-  #
   # mdl$fill_mdl_data() period= looped period with report = "period", include_frmls = TRUE
   # if minimal: hvlheid NA before after door before filles, after of solved soort summary
   #     no: niks afdrukken, ook niet dependencies enzo, gwn geen output. geen error is goed
   #     period: wel print(deps)
-  mdl$order()
-  mdl$fill_mdl_data(period = period, report = report, include_frmls = TRUE)
   return(mdl)
 }
