@@ -1,7 +1,8 @@
 #' @importFrom dplyr mutate select
 #' @importFrom igraph graph_from_data_frame all_simple_paths V
 #' @importFrom graphics plot
-
+#' @importFrom rlang .data
+#'
 find_paths <- function(derived_var, observable_var, dependency_structure) {
 
   # Create graph of model

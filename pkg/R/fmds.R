@@ -6,6 +6,7 @@
 #' @importFrom purrr map_dbl
 #' @importFrom rlang set_names
 #' @importFrom magrittr %>%
+#' @importFrom rlang .data
 
 # TODO: Currently, the derived and observed value are for the same year, but is
 # could be generalized to the situation where the period of the derived variable

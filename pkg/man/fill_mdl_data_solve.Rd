@@ -24,8 +24,10 @@ Defaults to 0.1 if not provided, "" or NULL}
 \item{report}{Character string controlling output verbosity. Options:
 \describe{
 \item{"no"}{Does not generate a report.}
-\item{"period"}{Print a report per period (default). For each period the number of replaced missing values is reported.}
-\item{"minimal"}{Print a minimal report. Only the total number of replaced missing values is reported.}
+\item{"period"}{Print a report per period (default).
+For each period the number of replaced missing values is reported.}
+\item{"minimal"}{Print a minimal report.
+Only the total number of replaced missing values is reported.}
 }}
 
 \item{...}{Additional arguments passed to the \code{nleqslv} solver (e.g., \code{control},

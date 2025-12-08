@@ -1,11 +1,12 @@
 #' @importFrom igraph add_edges make_empty_graph neighbors induced_subgraph
 #'   delete_edges incident subcomponent delete_vertices as_data_frame
-#'   add_vertices V
-#' @importFrom dplyr mutate anti_join
+#'   add_vertices V degree
+#' @importFrom dplyr rename mutate filter group_split set_names anti_join
 #' @importFrom tibble remove_rownames
 #' @importFrom tidyr separate
 #' @importFrom regts as.period
 #' @importFrom stringr str_match
+#' @importFrom rlang .data
 
 new_var_period <- function(var, period) {
   period <- regts::as.period(period)

@@ -21,11 +21,13 @@ Imports:
     utils,
     graphics,
     dplyr,
+    rlang,
+    igraph,
+    magrittr
     purrr,
     nleqslv,
     rlang,
     tibble,
-    igraph,
     tidyr,
     stringr
 Suggests:
