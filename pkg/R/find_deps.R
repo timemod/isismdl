@@ -1,7 +1,7 @@
 #' @importFrom igraph add_edges make_empty_graph neighbors induced_subgraph
-#'   delete_edges incident subcomponent delete_vertices as_data_frame
+#'   delete_edges incident subcomponent delete_vertices
 #'   add_vertices V degree set_vertex_attr
-#' @importFrom dplyr rename mutate filter group_split set_names anti_join
+#' @importFrom dplyr rename mutate anti_join
 #' @importFrom tibble remove_rownames
 #' @importFrom tidyr separate
 #' @importFrom regts as.period
