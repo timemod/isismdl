@@ -47,9 +47,8 @@ The method is particularly useful for calibration, where you have observed
 data for certain variables and want to determine the values of other variables
 (often exogenous variables or parameters) that would generate those observations.
 
-The function creates a copy of the model, solves the inverse problem using
-numerical optimization, and returns the modified model without affecting the
-original.
+The function solves the inverse problem using
+numerical optimization and returns the modified model.
 }
 \examples{
 \dontrun{
@@ -90,5 +89,5 @@ mdl_solved <- mdl$fill_mdl_data_solve(
 \seealso{
 \code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
 
-Related methods: \verb{$solve()}, \verb{$fill_mdl_data()}, \verb{$get_dep_struct()}
+Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
 }

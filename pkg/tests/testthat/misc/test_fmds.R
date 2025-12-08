@@ -260,36 +260,6 @@ test_that("fill_mdl_data_solve handles duplicate groups", {
   unlink(mdl_file)
 })
 
-test_that("fill_mdl_data_solve creates model copy", {
-
-  mdl_file <- create_simple_lag_model()
-  mdl <- isis_mdl(mdl_file, period, silent = TRUE)
-
-  var_names <- mdl$get_var_names()
-  data_init <- create_test_init_data(period, var_names)
-  mdl$init_data(data = data_init)
-
-  original_data <- mdl$get_data()
-
-  fit_tbl <- tribble(
-    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
-    test_period,      "A",             "obs1",            "y1",           ""
-  )
-
-  mdl_solved <- mdl$fill_mdl_data_solve(
-    fit_tbl = fit_tbl,
-    report = "no"
-  )
-
-  # Original model should not be modified (because fmds does mdl <- self$copy())
-  expect_equal(mdl$get_data(), original_data)
-
-  # Solved model should be different object
-  expect_false(identical(mdl_solved, mdl))
-
-  unlink(mdl_file)
-})
-
 test_that("fill_mdl_data_solve with period parameter", {
 
   mdl_file <- create_simple_lag_model()

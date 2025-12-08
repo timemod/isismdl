@@ -678,9 +678,8 @@ NULL
 #' data for certain variables and want to determine the values of other variables
 #' (often exogenous variables or parameters) that would generate those observations.
 #'
-#' The function creates a copy of the model, solves the inverse problem using
-#' numerical optimization, and returns the modified model without affecting the
-#' original.
+#' The function solves the inverse problem using
+#' numerical optimization and returns the modified model.
 #'
 #' @param period A period range object specifying the time period for the solution.
 #'   If missing, uses the model's data period obtained via `$get_data_period()`.
@@ -749,7 +748,7 @@ NULL
 #' @seealso
 #' \code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
 #'
-#' Related methods: `$solve()`, `$fill_mdl_data()`, `$get_dep_struct()`
+#' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
 NULL
 
 #' \code{\link{IsisMdl}} method: runs model equations
