@@ -87,7 +87,6 @@ mdl_solved <- mdl$fill_mdl_data_solve(
 
 }
 \seealso{
-\code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
-
 Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
+\code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
 }

@@ -746,9 +746,8 @@ NULL
 #' }
 #'
 #' @seealso
-#' \code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
-#'
 #' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
+#' \code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
 NULL
 
 #' \code{\link{IsisMdl}} method: runs model equations
