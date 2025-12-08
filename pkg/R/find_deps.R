@@ -1,6 +1,6 @@
 #' @importFrom igraph add_edges make_empty_graph neighbors induced_subgraph
 #'   delete_edges incident subcomponent delete_vertices as_data_frame
-#'   add_vertices V degree
+#'   add_vertices V degree set_vertex_attr
 #' @importFrom dplyr rename mutate filter group_split set_names anti_join
 #' @importFrom tibble remove_rownames
 #' @importFrom tidyr separate
@@ -151,36 +151,40 @@ find_deps <- function(final_destinations, final_sources = NULL,
     # Check if vertex is a final source
     if (has_final_sources) {
       is_final_src <- vertex_name %in% vertices_final_src
-      V(g)[name == vertex_name]$is_final_src <<- is_final_src
+      idx <- which(igraph::V(g)$name == vertex_name)
+      g <<- igraph::set_vertex_attr(g, "is_final_src", index = idx, value = is_final_src)
       if (is_final_src) {
-        V(g)[name == vertex_name]$ok <<- TRUE
-        V(g)[name == vertex_name]$color <<- "yellow"
+        g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
+        g <<- igraph::set_vertex_attr(g, "color", index = idx, value = "yellow")
         return(TRUE)
       }
     }
 
     # Check if the variable is in the data
     if (observed && (!is_final_dest || stop_if_final_dest_observed)) {
-      V(g)[name == vertex_name]$ok <<- TRUE
-      V(g)[name == vertex_name]$color <<- if (is_final_dest) "cyan" else "lightgrey"
+      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
+      g <<- igraph::set_vertex_attr(
+        g, "color", index = idx,
+        value = if (is_final_dest) "cyan" else "lightgrey"
+      )
       return(TRUE)
     }
 
     # Check if the variable is exogenous. If not in data, this
     # is an error
     if (!is_endo) {
-      V(g)[name == vertex_name]$ok <<- FALSE
-      V(g)[name == vertex_name]$msg <<- "Missing exo"
-      V(g)[name == vertex_name]$color <<- color_not_ok
+      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
+      g <<- igraph::set_vertex_attr(g, "msg", index = idx, value = "Missing exo")
+      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_not_ok)
       return(FALSE)
     }
 
     # Check if the period outside the period range
     if (per < min_period_obs - 1) {
-      V(g)[name == vertex_name]$ok <<- FALSE
-      V(g)[name == vertex_name]$calculable <<- FALSE
-      V(g)[name == vertex_name]$color <<- color_not_ok
-      V(g)[name == vertex_name]$msg <- "outside period range"
+      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
+      g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = FALSE)
+      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_not_ok)
+      g <<- igraph::set_vertex_attr(g, "msg", index = idx, value = "outside period range")
       return(FALSE)
     }
 
@@ -192,9 +196,9 @@ find_deps <- function(final_destinations, final_sources = NULL,
       # Als de variabele geen dependencies heeft en geen exogene variabele is,
       # heeft de variabele de structuur zoals x = 0 (aan de rechterkant alleen
       # getallen of parameters).
-      V(g)[name == vertex_name]$ok <<- TRUE
-      V(g)[name == vertex_name]$calculable <<- TRUE
-      V(g)[name == vertex_name]$color <<- color_ok
+      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
+      g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = TRUE)
+      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_ok)
       return(TRUE)
     }
 
@@ -205,9 +209,9 @@ find_deps <- function(final_destinations, final_sources = NULL,
       deps_new <- anti_join(deps_new, observed_data,  by = c("var", "period"))
       if (nrow(deps_new) == 0) {
         # The variable only depends on observed variables.
-        V(g)[name == vertex_name]$ok <<- TRUE
-        V(g)[name == vertex_name]$calculable <<- TRUE
-        V(g)[name == vertex_name]$color <<- color_ok
+        g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
+        g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = TRUE)
+        g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_ok)
         return(TRUE)
       }
     }
@@ -248,24 +252,24 @@ find_deps <- function(final_destinations, final_sources = NULL,
           V(g)[children]$name %in% vertices_potentially_derivable
       )
       if (ok) {
-        V(g)[name == vertex_name]$inferred <<- TRUE
+        g <<- igraph::set_vertex_attr(g, "inferred", index = idx, value = TRUE)
       }
     }
 
     # Updaten dependency structure
     if (ok) {
-      V(g)[name == vertex_name]$ok <<- TRUE
-      V(g)[name == vertex_name]$calculable <<- calculable
-      V(g)[name == vertex_name]$color <<-
-        if (vertex_name %in% vertices_potentially_derivable) "pink" else
-          color_ok
+      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
+      g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = calculable)
+      color <- if (vertex_name %in% vertices_potentially_derivable) "pink" else
+        color_ok
+      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color)
       return(TRUE)
     } else {
-      V(g)[name == vertex_name]$ok <<- FALSE
-      V(g)[name == vertex_name]$calculable <<- FALSE
+      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
+      g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = FALSE)
       color <- if (vertex_name %in% vertices_potentially_derivable) "pink" else
         color_not_ok
-      V(g)[name == vertex_name]$color <<- color
+      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color)
       # Remove incoming edges from an error node incalculable node, except if this is a final
       # node.
       if (!is_final_dest) {
