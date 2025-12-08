@@ -1,6 +1,6 @@
 #' @importFrom igraph add_edges make_empty_graph neighbors induced_subgraph
 #'   delete_edges incident subcomponent delete_vertices as_data_frame
-#'   add_vertices V V<- degree
+#'   add_vertices V
 #' @importFrom dplyr mutate anti_join
 #' @importFrom tibble remove_rownames
 #' @importFrom tidyr separate
