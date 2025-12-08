@@ -4,7 +4,7 @@ linters: linters_with_defaults(
     object_usage_linter = NULL,
     brace_linter = NULL,
     object_length_linter = NULL
-    line_length_linter = line_length_linter(100),
+    line_length_linter(100),
     commented_code_linter = NULL,
     trailing_whitespace_linter = NULL,
     return_linter = NULL
