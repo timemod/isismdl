@@ -28,7 +28,7 @@
 # Solve a single solve variable given an observed variable.
 solve_single_group <- function(
     mdl, solve_period, solve_variables, observed_variables,
-    initial_guess, observed_data, dep_struc, ...) {
+    initial_guess, observed_data, dep_struc, report, ...) {
 
   # Check arguments ------------------------------------------------------------
   # TODO: controleer het soort model: het moet recursief zijn en geen lags bevatten.
@@ -36,16 +36,20 @@ solve_single_group <- function(
   if (length(solve_variables) != length(observed_variables)) {
     stop("Number of solve and observed variables are not equal")
   }
-  cat("\n===============================================\n")
-  cat("Solving solve variables for period", solve_period, "\n")
-  cat(paste0("Solve variables: ", paste(solve_variables, collapse = ", "),
-             "\n"))
-  cat(paste0("Observed variables: ", paste(observed_variables, collapse = ", ")))
-  cat("\n===============================================\n")
+  if (report == "period") {
+    cat("\n===============================================\n")
+    cat("Solving solve variables for period", solve_period, "\n")
+    cat(paste0("Solve variables: ", paste(solve_variables, collapse = ", "),
+               "\n"))
+    cat(paste0("Observed variables: ", paste(observed_variables, collapse = ", ")))
+    cat("\n===============================================\n")
+  }
+
   # Get de dependency structure -----------------------------------------------
   deps <- get_fit_deps(observed_variables, solve_variables,
                        solve_period = solve_period,  mdl = mdl,
-                       dep_struc = dep_struc, observed_data = observed_data)
+                       dep_struc = dep_struc, observed_data = observed_data,
+                       report = report)
   # TODO: make overview observed, byproduct and solve
   if (!any(deps$ok)) {
     stop("Some dependencies are not calculable")
@@ -55,10 +59,10 @@ solve_single_group <- function(
   mdl$set_eq_status(status = "inactive", pattern = "*")
   mdl$set_eq_status(status = "active", names = active_equations)
   mdl$order(silent = TRUE)
-
-  cat(paste0("\nActive equations: ", paste(active_equations, collapse = ", "),
-             "\n\n"))
-
+  if (report == "period") {
+    cat(paste0("\nActive equations: ", paste(active_equations, collapse = ", "),
+               "\n\n"))
+  }
 
   observed_values <- mdl$get_data(names = observed_variables, period = solve_period) |>
     as.numeric()
@@ -90,7 +94,7 @@ solve_single_group <- function(
 }
 
 get_fit_deps <- function(observed_variable, derived_variable,
-                         solve_period,  mdl, dep_struc, observed_data) {
+                         solve_period,  mdl, dep_struc, observed_data, report) {
 
   observed <- data.frame(var = observed_variable,
                          period = as.character(solve_period))
@@ -116,9 +120,10 @@ get_fit_deps <- function(observed_variable, derived_variable,
     dplyr::filter(!.data$is_final_src)
 
   # TODO: controleer dat alle variabelen in deps 'calculable' zijn.
-
-  cat("\nfit dependencies:\n")
-  print(deps)
+  if (report == "period") {
+    cat("\nfit dependencies:\n")
+    print(deps)
+  }
 
   deps
 }

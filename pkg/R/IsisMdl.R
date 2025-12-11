@@ -176,8 +176,8 @@ setOldClass("period_range")
 #' \item{\code{\link{fill_mdl_data}}}{Calculates missing model
 #' data from identities}
 #'
-#' \item{\code{\link{fill_mdl_data_solve}}}{Solves for variables by matching
-#' calculated values to observed data (inverse modeling/calibration).}
+#' \item{\code{\link{fill_mdl_data_solve}}}{Fills model data and
+#' inverse solves for starting values}
 #'
 #' \item{\code{\link{write_mdl}}}{Serializes the model object and writes it
 #' to an RDS file}

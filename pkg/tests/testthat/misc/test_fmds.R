@@ -15,12 +15,16 @@ update_expected <- FALSE
 
 create_simple_lag_model <- function() {
   mdl_content <- "
-ident x1 = 0.5 * x1(-1) + 0.3 * y1;
-ident x2 = 0.6 * x2(-1) + 0.4 * y2;
-ident x3 = 0.4 * x3(-1) + 0.2 * y3;
-ident obs1 = 2.0 * x1;
-ident obs2 = 1.5 * x2;
-ident obs3 = 1.2 * x3;
+ident y1 = 0.8 * y1(-1) + 0.2 * z1;
+ident y2 = 0.7 * y2(-1) + 0.3 * z2;
+ident y3 = 0.6 * y3(-1) + 0.4 * z3;
+
+ident w1 = 0.5 * y1 + 0.3 * z1;
+ident w2 = 0.4 * y2 + 0.4 * z2;
+
+ident obs1 = w1 + x1;
+ident obs2 = w2 + x2;
+ident obs3 = y3 + x3;
 "
 
   mdl_file <- tempfile("test_fmds_", fileext = ".mdl")
@@ -139,6 +143,20 @@ test_that("fill_mdl_data_solve handles fit_tbl without initial_guess column", {
     )
   }, "No initial_guess is given")
 
+  # Test with invalid initial_guess (should error)
+  fit_tbl3 <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,        "A",   "obs1",            "y1",            " ",
+    test_period,        "B",   "obs2",            "y2",            "0.5",
+    test_period,        "C",   "obs3",            "y3",            "invalid"
+)
+
+  expect_error({
+    mdl_solved <- mdl$fill_mdl_data_solve(
+      fit_tbl = fit_tbl3,
+      report = "no"
+    )
+  }, "Use only numerical or NA values")
   unlink(mdl_file)
 })
 
@@ -153,9 +171,9 @@ test_that("fill_mdl_data_solve validates initial_guess values", {
 
   fit_tbl <- tribble(
     ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
-    test_period,        "A",   "obs1",            "y1",            "",
-    test_period,        "B",   "obs2",            "y2",            "0.5",
-    test_period,        "C",   "obs3",            "y3",            "0"
+    test_period,        "A",   "obs1",            "y1",            0,
+    test_period,        "B",   "obs2",            "y2",            NA,
+    test_period,        "C",   "obs3",            "y3",            NA
   )
 
   expect_no_error({
@@ -165,34 +183,8 @@ test_that("fill_mdl_data_solve validates initial_guess values", {
     )
   })
 
-  fit_tbl2 <- tribble(
-    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
-    test_period, "A", "obs1", "y1", 0.5
-  )
-
-  expect_no_error({
-    mdl_solved <- mdl$fill_mdl_data_solve(
-      fit_tbl = fit_tbl2,
-      report = "no"
-    )
-  })
-
-  # Test with invalid text (should error)
-  fit_tbl3 <- tribble(
-    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
-    test_period,        "A",   "obs1",            "y1",            " ",
-    test_period,        "B",   "obs2",            "y2",            "0.5",
-    test_period,        "C",   "obs3",            "y3",            "invalid"
-  )
-
-  expect_error({
-    mdl_solved <- mdl$fill_mdl_data_solve(
-      fit_tbl = fit_tbl3,
-      report = "no"
-    )
-  }, "Please do not enter white spaces or text")
-
   unlink(mdl_file)
+
 })
 
 test_that("fill_mdl_data_solve requires necessary columns in fit_tbl", {

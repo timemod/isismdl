@@ -11,9 +11,7 @@
 
 fmds <- function(
     mdl, period, fit_tbl, report, ...) {
-  dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
 
-  # function to check (required) columns in fit_tbl and add some if needed
   ensure_fit_tbl_cols <- function(fit_tbl, default_initial_guess = 0.1) {
     required_cols <- c("solve_period", "observed_variable", "solve_variable")
     missing_cols <- setdiff(required_cols, colnames(fit_tbl))
@@ -25,19 +23,37 @@ fmds <- function(
     }
     if (!("group" %in% colnames(fit_tbl))) {
       fit_tbl$group <- paste0("group_", seq_len(nrow(fit_tbl)))
-      message("There were no groups in the given tibble,
-              so each solve and derived variable are treated separately")
+      message(
+        "There were no groups in the given tibble,\n",
+        "so each solve and derived variable are treated separately"
+      )
     }
     if (!("initial_guess" %in% colnames(fit_tbl))) {
-      fit_tbl$initial_guess <- rep(as.numeric(default_initial_guess), nrow(fit_tbl))
+      fit_tbl$initial_guess <- rep(default_initial_guess, nrow(fit_tbl))
       message(
         "No initial_guess is given, so for each entry the initial guess is ",
         default_initial_guess
       )
+      return(fit_tbl)
     }
+
+    ig <- fit_tbl$initial_guess
+    if (!all(is.numeric(ig) | is.na(ig))) {
+      stop(
+        "Use only numerical or NA values in the initial_guess column.\n",
+        "Offending values at rows: ",
+        paste(which(!(is.numeric(ig) | is.na(ig))), collapse = ", ")
+      )
+    }
+
+    ig_clean <- ifelse(is.na(ig) | ig == 0, default_initial_guess, ig)
+    fit_tbl$initial_guess <- ig_clean
     return(fit_tbl)
   }
+
   fit_tbl <- ensure_fit_tbl_cols(fit_tbl)
+
+  dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
 
   if (missing(period)) {
     period <- mdl$get_data_period()
@@ -47,29 +63,14 @@ fmds <- function(
 
   mdl$fill_mdl_data(period = period, report = report, include_frmls = TRUE)
 
-  # TODO: observed_data to available_data
-  observed_data <- get_observed_data(mdl$get_data())
-
-  # TODO: nested loop, first loop through period (so more than 1 period possible)
   for (single_solve_period in fit_tbl |> group_split(.data$solve_period)) {
+    # TODO: observed_data to available_data
+    observed_data <- get_observed_data(mdl$get_data())
     this_period <- single_solve_period$solve_period[1]
     for (group_data in single_solve_period |> group_split(.data$group)) {
-      # Following codeblock makes a numerical named list of initial_guess
-      # which will be needed when calling nleqslv
-      initial_guess_num <- set_names(group_data$initial_guess, group_data$solve_variable) |>
-        map_dbl(~ {
-          x <- .x
-          if (is.null(x) || length(x) == 0 || is.na(x) || identical(x, "") || x == 0) return(0.1)
-          num <- suppressWarnings(as.numeric(x))
-          if (is.na(num)) {
-            stop(
-              "Please do not enter white spaces or text in `initial_guess`. ",
-              "Keep the type consistent: either all numeric values or
-              numeric values between quotes and empty strings ('')."
-            )
-          }
-          num
-        })
+      # numerical vector used in nleqslv
+      initial_guess_vector <- group_data$initial_guess
+
       # function solve_single_group is in fmds_single.R
       solve_single_group(
         mdl,
@@ -78,7 +79,8 @@ fmds <- function(
         observed_variables = group_data$observed_variable,
         observed_data = observed_data,
         dep_struc = dep_struc,
-        initial_guess = initial_guess_num
+        initial_guess = initial_guess_vector,
+        report = report
       )
     }
     mdl$order(silent = TRUE)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{fill_mdl_data_solve}
 \alias{fill_mdl_data_solve}
-\title{\code{\link{IsisMdl}} method: Inverse solves inputs.}
+\title{\code{\link{IsisMdl}} method: Fills model data and inverse solves for starting values}
 \arguments{
 \item{period}{A period range object specifying the time period for the solution.
 If missing, uses the model's data period obtained via \verb{$get_data_period()}.}
@@ -38,52 +38,84 @@ An \code{IsisMdl} object (copy of the original model) with solved values for
 the solve variables. The original model remains unchanged.
 }
 \description{
-This method solves for specific model variables (solve variables) by matching
-calculated values to observed data. It performs inverse modeling: instead of
-solving the model forward from inputs to outputs, it solves backward to find
-the inputs that would produce the observed outputs.
+This method extends \code{\link{fill_mdl_data}} by both filling missing model data
+and inverse solving for starting values. Like \code{\link{fill_mdl_data}}, it
+calculates missing data for endogenous variables by evaluating equations in
+solution order. Additionally, it solves backward to find starting values (typically
+lagged variables) that would produce observed outcomes in later periods.
 
-The method is particularly useful for calibration, where you have observed
-data for certain variables and want to determine the values of other variables
-(often exogenous variables or parameters) that would generate those observations.
+This method performs inverse modeling: instead of solving the model forward from
+known starting values to outputs, it solves backward to find the starting values
+that would produce the observed outputs. This is particularly useful for calibration
+when you need to determine historical values (lags) before your main model period
+begins, based on observed data in the initial period.
+
+The method is designed for situations where:
+\itemize{
+\item You have observed data for certain variables in an initial period
+\item You need to solve for lagged values to use as starting values
+\item Exogenous variables are already known for all periods
+\item You want to initialize the model properly before running forward simulations
+}
+
+Note: This method solves for starting values, not for exogenous variables.
+For solving exogenous variables, use the separate \code{solve_exo} method.
 
 The function solves the inverse problem using
 numerical optimization and returns the modified model.
 }
 \examples{
-\dontrun{
-# Load model and initialize data
-mdl <- isis_mdl("model.mdl", period = "2010/2020")
-data_init <- get_initial_data()
+# Simple example: solve for starting value y(2015) based on observed data
+# Model: y = y(-1), obs = y + z
+# z is known for all periods, obs is observed in 2016
+# We solve for y(2015) so we can run the model forward from 2016
+
+mdl_file <- tempfile(fileext = ".mdl")
+writeLines("
+ident y = y(-1);
+ident obs = y + z;
+", mdl_file)
+
+mdl <- isis_mdl(mdl_file, period = "2015/2020", silent = TRUE)
+
+# Create initial data: z is known, obs is observed only in 2016
+library(regts)
+data_init <- regts(
+  matrix(c(
+    NA, NA, NA, NA, NA, NA,  # y: unknown, to be solved/calculated
+    5, 6, 7, 8, 9, 10,       # z: known for all periods (exogenous)
+    NA, 100, NA, NA, NA, NA  # obs: observed only in 2016
+  ), ncol = 3),
+  names = c("y", "z", "obs"),
+  period = "2015/2020"
+)
 mdl$init_data(data = data_init)
 
-# Define variables to solve for
+# Solve for y(2015) based on obs(2016) = 100
 library(tibble)
 fit_tbl <- tribble(
   ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
-  "2015", "A", "consumption", "income_exog", "0.1",
-  "2015", "B", "investment", "interest_rate_exog", "0.05",
-  "2016", "A", "consumption", "income_exog", "",
-  "2016", "B", "investment", "interest_rate_exog", ""
+  "2016", "A", "obs", "y", 0.1
 )
 
-# Solve the model
-mdl_solved <- mdl$fill_mdl_data_solve(
+mdl_copy <- mdl$copy() # second example, using later with custom solver
+
+mdl$fill_mdl_data_solve(
   fit_tbl = fit_tbl,
-  report = "period"
+  report = "no"
 )
 
-# Compare original and solved data
-original_data <- mdl$get_data()
-solved_data <- mdl_solved$get_data()
+print(mdl$get_data())
 
-# With custom solver options
-mdl_solved <- mdl$fill_mdl_data_solve(
+# Clean up
+unlink(mdl_file)
+
+# Example with custom solver options
+mdl_copy$fill_mdl_data_solve(
   fit_tbl = fit_tbl,
-  report = "none",
-  control = list(trace = 1, maxit = 200)
+  report = "no",
+  control = list(trace = 0, maxit = 200)
 )
-}
 
 }
 \seealso{

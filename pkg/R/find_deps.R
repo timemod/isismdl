@@ -13,11 +13,14 @@ new_var_period <- function(var, period) {
   return(structure(list(var = var, period = period), class = "var_period"))
 }
 
-
+#' @keywords internal
+#' @exportS3Method as.character var_period
 as.character.var_period <- function(x) {
   return(paste0(x$var, "[", x$period, "]"))
 }
 
+#' @keywords internal
+#' @exportS3Method print var_period
 print.var_period <- function(x) {
   return(print(as.character(x)))
 }
