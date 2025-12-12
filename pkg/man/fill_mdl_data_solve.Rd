@@ -98,7 +98,7 @@ fit_tbl <- tribble(
   "2016", "A", "obs", "y", 0.1
 )
 
-mdl_copy <- mdl$copy() # second example, using later with custom solver
+mdl_copy < mdl$copy() # Using in a later example
 
 mdl$fill_mdl_data_solve(
   fit_tbl = fit_tbl,

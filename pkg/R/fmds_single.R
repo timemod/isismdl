@@ -112,8 +112,6 @@ get_fit_deps <- function(observed_variable, derived_variable,
     stop_if_final_dest_observed = FALSE
   )
 
-  plot(dep_graph)
-
   deps <- as_data_frame_deps(dep_graph) |>
     # derivable variables should not computed, they are based on the
     # initial value.

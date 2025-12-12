@@ -52,7 +52,12 @@ fmds <- function(
   }
 
   fit_tbl <- ensure_fit_tbl_cols(fit_tbl)
-
+  inactives <- mdl$get_endo_names(status = "inactive")
+  on.exit({
+    mdl$set_eq_status(status = "active", pattern = "*")
+    mdl$set_eq_status(status = "inactive", names = inactives)
+  }) # Restore original active and inactive equations
+  mdl_original_data <- mdl$get_data()
   dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
 
   if (missing(period)) {
@@ -86,9 +91,33 @@ fmds <- function(
     mdl$order(silent = TRUE)
     mdl$fill_mdl_data(period = this_period, report = report, include_frmls = TRUE)
   }
-  # mdl$fill_mdl_data() period = looped period with report = "period", include_frmls = TRUE
-  # if minimal: hvlheid NA before after door before files, after of solved soort summary
-  #     no: niks afdrukken, ook niet dependencies enzo, gwn geen output. geen error is goed
-  #     period: wel print(deps)
+  mdl_solved_data <- mdl$get_data()
+  # Create summary based on report type
+  if (report != "no") {
+    dif <- tsdif(mdl_original_data, mdl_solved_data, fun = cvgdif, tol = 1e-4)
+
+    if (length(dif$difnames) > 0) {
+      overview <- dif$dif_table |>
+        rename(initial = .data$value1,
+               solved = .data$value2)
+
+      n_solved <- sum(is.na(overview$initial) & !is.na(overview$solved))
+
+      if (report == "period") {
+        cat("\n===============================================\n")
+        cat("Summary of solved variables:\n")
+        cat("===============================================\n")
+        print(overview)
+        cat("\nTotal newly solved values: ", n_solved, "\n")
+      } else if (report == "minimal") {
+        cat("\nTotal newly solved values: ", n_solved, "\n")
+      }
+    } else {
+      if (report %in% c("period", "minimal")) {
+        cat("\nNo differences found between initial and solved data.\n")
+      }
+    }
+  }
+
   return(mdl)
 }
