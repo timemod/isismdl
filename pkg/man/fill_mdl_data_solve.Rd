@@ -2,7 +2,8 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{fill_mdl_data_solve}
 \alias{fill_mdl_data_solve}
-\title{\code{\link{IsisMdl}} method: Fills model data and inverse solves for starting values}
+\title{\code{\link{IsisMdl}} method: Fills model data and inverse solves
+to determine starting values for the model, i.e. the lags of the variables}
 \arguments{
 \item{period}{A period range object specifying the time period for the solution.
 If missing, uses the model's data period obtained via \verb{$get_data_period()}.}
