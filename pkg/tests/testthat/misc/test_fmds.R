@@ -295,7 +295,8 @@ test_that("fill_mdl_data_solve with known output", {
 
   solved_data <- mdl_solved$get_data()
 
-  expected_file <- testthat::test_path(
+  expected_file <- file.path(
+    testthat::test_path(),
     "misc",
     "expected_output",
     "fmds_simple.rds"
