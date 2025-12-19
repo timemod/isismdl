@@ -1,14 +1,6 @@
 library(testthat)
-library(dplyr)
+library(isismdl)
 library(tibble)
-library(regts)
-library(nleqslv)
-library(purrr)
-library(rlang)
-library(graphics)
-library(igraph)
-library(tidyr)
-library(stringr)
 
 rm(list = ls())
 update_expected <- FALSE
@@ -69,7 +61,7 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
   mdl$init_data(data = data_init)
 
 
-  fit_tbl <- tribble(
+  solve_df <- tribble(
     ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
     test_period,        "A",   "obs1",            "y1",            0.1,
     test_period,        "B",   "obs2",            "y2",            0.1,
@@ -80,7 +72,7 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
   expect_true("fill_mdl_data_solve" %in% names(mdl))
 
   mdl_solved <- mdl$fill_mdl_data_solve(
-    fit_tbl = fit_tbl,
+    solve_df = solve_df,
     report = "no"
   )
 
@@ -94,7 +86,7 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
 })
 
 
-test_that("fill_mdl_data_solve handles fit_tbl without group column", {
+test_that("fill_mdl_data_solve handles solve_df without group column", {
 
   mdl_file <- create_simple_lag_model()
   mdl <- isis_mdl(mdl_file, period, silent = TRUE)
@@ -103,7 +95,7 @@ test_that("fill_mdl_data_solve handles fit_tbl without group column", {
   data_init <- create_test_init_data(period, var_names)
   mdl$init_data(data = data_init)
 
-  fit_tbl <- tribble(
+  solve_df <- tribble(
     ~solve_period, ~observed_variable, ~solve_variable, ~initial_guess,
     test_period,        "obs1",            "y1",            0.1,
     test_period,        "obs2",            "y2",            0.1,
@@ -112,7 +104,7 @@ test_that("fill_mdl_data_solve handles fit_tbl without group column", {
 
   expect_message({
     mdl_solved <- mdl$fill_mdl_data_solve(
-      fit_tbl = fit_tbl,
+      solve_df = solve_df,
       report = "no"
     )
   }, "There were no groups")
@@ -120,7 +112,7 @@ test_that("fill_mdl_data_solve handles fit_tbl without group column", {
   unlink(mdl_file)
 })
 
-test_that("fill_mdl_data_solve handles fit_tbl without initial_guess column", {
+test_that("fill_mdl_data_solve handles solve_df without initial_guess column", {
 
   mdl_file <- create_simple_lag_model()
   mdl <- isis_mdl(mdl_file, period, silent = TRUE)
@@ -129,7 +121,7 @@ test_that("fill_mdl_data_solve handles fit_tbl without initial_guess column", {
   data_init <- create_test_init_data(period, var_names)
   mdl$init_data(data = data_init)
 
-  fit_tbl <- tribble(
+  solve_df <- tribble(
     ~solve_period, ~group, ~observed_variable, ~solve_variable,
     test_period,        "A",   "obs1",            "y1",
     test_period,        "B",   "obs2",            "y2",
@@ -138,22 +130,22 @@ test_that("fill_mdl_data_solve handles fit_tbl without initial_guess column", {
 
   expect_message({
     mdl_solved <- mdl$fill_mdl_data_solve(
-      fit_tbl = fit_tbl,
+      solve_df = solve_df,
       report = "no"
     )
   }, "No initial_guess is given")
 
   # Test with invalid initial_guess (should error)
-  fit_tbl3 <- tribble(
+  solve_df3 <- tribble(
     ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
     test_period,        "A",   "obs1",            "y1",            " ",
     test_period,        "B",   "obs2",            "y2",            "0.5",
     test_period,        "C",   "obs3",            "y3",            "invalid"
-)
+  )
 
   expect_error({
     mdl_solved <- mdl$fill_mdl_data_solve(
-      fit_tbl = fit_tbl3,
+      solve_df = solve_df3,
       report = "no"
     )
   }, "Use only numerical or NA values")
@@ -169,7 +161,7 @@ test_that("fill_mdl_data_solve validates initial_guess values", {
   data_init <- create_test_init_data(period, var_names)
   mdl$init_data(data = data_init)
 
-  fit_tbl <- tribble(
+  solve_df <- tribble(
     ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
     test_period,        "A",   "obs1",            "y1",            0,
     test_period,        "B",   "obs2",            "y2",            NA,
@@ -178,7 +170,7 @@ test_that("fill_mdl_data_solve validates initial_guess values", {
 
   expect_no_error({
     mdl_solved <- mdl$fill_mdl_data_solve(
-      fit_tbl = fit_tbl,
+      solve_df = solve_df,
       report = "no"
     )
   })
@@ -187,7 +179,7 @@ test_that("fill_mdl_data_solve validates initial_guess values", {
 
 })
 
-test_that("fill_mdl_data_solve requires necessary columns in fit_tbl", {
+test_that("fill_mdl_data_solve requires necessary columns in solve_df", {
 
   mdl_file <- create_simple_lag_model()
   mdl <- isis_mdl(mdl_file, period, silent = TRUE)
@@ -197,27 +189,27 @@ test_that("fill_mdl_data_solve requires necessary columns in fit_tbl", {
   mdl$init_data(data = data_init)
 
   # Missing solve_period
-  fit_tbl_bad1 <- tribble(
+  solve_df_bad1 <- tribble(
     ~observed_variable, ~solve_variable,
     "obs1", "y1"
   )
 
   expect_error({
     mdl$fill_mdl_data_solve(
-      fit_tbl = fit_tbl_bad1,
+      solve_df = solve_df_bad1,
       report = "no"
     )
   }, "Make sure the following column\\(s\\) exist")
 
   # Missing observed_variable
-  fit_tbl_bad2 <- tribble(
+  solve_df_bad2 <- tribble(
     ~solve_period, ~solve_variable,
     test_period, "y1"
   )
 
   expect_error({
     mdl$fill_mdl_data_solve(
-      fit_tbl = fit_tbl_bad2,
+      solve_df = solve_df_bad2,
       report = "no"
     )
   }, "Make sure the following column\\(s\\) exist")
@@ -235,7 +227,7 @@ test_that("fill_mdl_data_solve handles duplicate groups", {
   mdl$init_data(data = data_init)
 
 
-  fit_tbl <- tribble(
+  solve_df <- tribble(
     ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
     test_period,        "A",   "obs1",            "y1",            0.1,
     test_period,        "B",   "obs2",            "y2",            0.1,
@@ -244,7 +236,7 @@ test_that("fill_mdl_data_solve handles duplicate groups", {
 
   expect_no_error({
     mdl_solved <- mdl$fill_mdl_data_solve(
-      fit_tbl = fit_tbl,
+      solve_df = solve_df,
       report = "no"
     )
   })
@@ -264,14 +256,14 @@ test_that("fill_mdl_data_solve with period parameter", {
   data_init <- create_test_init_data(full_period, var_names)
   mdl$init_data(data = data_init)
 
-  fit_tbl <- tribble(
+  solve_df <- tribble(
     ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
     test_period,     "A",              "obs1",            "y1",           0.1
   )
 
   mdl_solved <- mdl$fill_mdl_data_solve(
     period = solve_period,
-    fit_tbl = fit_tbl,
+    solve_df = solve_df,
     report = "no"
   )
 
@@ -290,30 +282,29 @@ test_that("fill_mdl_data_solve with known output", {
   data_init <- create_test_init_data(period, var_names)
   mdl$init_data(data = data_init)
 
-  fit_tbl <- tribble(
+  solve_df <- tribble(
     ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
     test_period,      "A",             "obs1",            "y1",       0.1,
     test_period,      "B",             "obs2",            "y2",       0.1
   )
 
   mdl_solved <- mdl$fill_mdl_data_solve(
-    fit_tbl = fit_tbl,
+    solve_df = solve_df,
     report = "no"
   )
 
   solved_data <- mdl_solved$get_data()
 
-  expected_file <- "expected_output/fmds_simple.rds"
-  if (update_expected) {
-    dir.create("expected_output", showWarnings = FALSE, recursive = TRUE)
-    saveRDS(solved_data, file = expected_file)
-  }
+  expected_file <- testthat::test_path(
+    "misc",
+    "expected_output",
+    "fmds_simple.rds"
+  )
 
-  if (file.exists(expected_file)) {
-    expect_known_value(solved_data,
-                       file = expected_file,
-                       update = update_expected)
-  }
+  expect_known_value(
+    solved_data,
+    file = expected_file
+  )
 
   unlink(mdl_file)
 })

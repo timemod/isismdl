@@ -10,52 +10,15 @@
 # the accompanying observed variables.
 
 fmds <- function(
-    mdl, period, fit_tbl, report, ...) {
+    mdl, period, solve_df, report, default_initial_guess = 0.1, ...) {
 
-  ensure_fit_tbl_cols <- function(fit_tbl, default_initial_guess = 0.1) {
-    required_cols <- c("solve_period", "observed_variable", "solve_variable")
-    missing_cols <- setdiff(required_cols, colnames(fit_tbl))
-    if (length(missing_cols) > 0) {
-      stop(
-        "Make sure the following column(s) exist in fit_tbl: ",
-        paste(missing_cols, collapse = ", ")
-      )
-    }
-    if (!("group" %in% colnames(fit_tbl))) {
-      fit_tbl$group <- paste0("group_", seq_len(nrow(fit_tbl)))
-      message(
-        "There were no groups in the given tibble,\n",
-        "so each solve and derived variable are treated separately"
-      )
-    }
-    if (!("initial_guess" %in% colnames(fit_tbl))) {
-      fit_tbl$initial_guess <- rep(default_initial_guess, nrow(fit_tbl))
-      message(
-        "No initial_guess is given, so for each entry the initial guess is ",
-        default_initial_guess
-      )
-      return(fit_tbl)
-    }
-
-    ig <- fit_tbl$initial_guess
-    if (!all(is.numeric(ig) | is.na(ig))) {
-      stop(
-        "Use only numerical or NA values in the initial_guess column.\n",
-        "Offending values at rows: ",
-        paste(which(!(is.numeric(ig) | is.na(ig))), collapse = ", ")
-      )
-    }
-
-    ig_clean <- ifelse(is.na(ig) | ig == 0, default_initial_guess, ig)
-    fit_tbl$initial_guess <- ig_clean
-    return(fit_tbl)
-  }
-
-  fit_tbl <- ensure_fit_tbl_cols(fit_tbl)
+  solve_df <- ensure_solve_df_cols(solve_df,
+                                   default_initial_guess = default_initial_guess)
   inactives <- mdl$get_endo_names(status = "inactive")
   on.exit({
     mdl$set_eq_status(status = "active", pattern = "*")
     mdl$set_eq_status(status = "inactive", names = inactives)
+    mdl$order(silent = TRUE)
   }) # Restore original active and inactive equations
   mdl_original_data <- mdl$get_data()
   dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
@@ -68,7 +31,7 @@ fmds <- function(
 
   mdl$fill_mdl_data(period = period, report = report, include_frmls = TRUE)
 
-  for (single_solve_period in fit_tbl |> group_split(.data$solve_period)) {
+  for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
     # TODO: observed_data to available_data
     observed_data <- get_observed_data(mdl$get_data())
     this_period <- single_solve_period$solve_period[1]
@@ -85,7 +48,8 @@ fmds <- function(
         observed_data = observed_data,
         dep_struc = dep_struc,
         initial_guess = initial_guess_vector,
-        report = report
+        report = report,
+        ...
       )
     }
     mdl$order(silent = TRUE)
@@ -119,5 +83,5 @@ fmds <- function(
     }
   }
 
-  return(mdl)
+  return(invisible(mdl))
 }

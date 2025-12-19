@@ -90,7 +90,7 @@ solve_single_group <- function(
 
   mdl$set_eq_status(status = "active", pattern = "*")
 
-  return(ret)
+  return(invisible(ret))
 }
 
 get_fit_deps <- function(observed_variable, derived_variable,

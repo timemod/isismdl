@@ -21,7 +21,7 @@ as.character.var_period <- function(x) {
 
 #' @keywords internal
 #' @exportS3Method print var_period
-print.var_period <- function(x) {
+print.var_period <- function(x, ...) {
   return(print(as.character(x)))
 }
 

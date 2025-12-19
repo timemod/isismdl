@@ -7,7 +7,7 @@
 \item{period}{A period range object specifying the time period for the solution.
 If missing, uses the model's data period obtained via \verb{$get_data_period()}.}
 
-\item{fit_tbl}{A tibble defining the solve specifications. Must contain
+\item{solve_df}{A data frame defining the solve specifications. Must contain
 the following columns:
 \describe{
 \item{solve_period}{Character or period object indicating when to solve}
@@ -15,11 +15,14 @@ the following columns:
 \item{solve_variable}{Name of the variable to solve for (derive)}
 \item{group}{(Optional) Group identifier for solving multiple variables together.
 If omitted, each row is treated as a separate group}
-\item{initial_guess}{(Optional) Initial guess for the solve variable. Can be
-either all numeric or empty string "" in combination with numbers
-between quotation marks (e.g. "0.5").
-Defaults to 0.1 if not provided, "" or NULL}
+\item{initial_guess}{(Optional) Initial guess for the solve variable.
+Should be all numeric, including NA's.
+Defaults to \code{default_initial_guess} value.}
 }}
+
+\item{default_initial_guess}{(Optional) For rows in solve_df that do not have an
+initial guess, the default initial guess value will be used.
+Default is 0.1.}
 
 \item{report}{Character string controlling output verbosity. Options:
 \describe{
@@ -41,7 +44,7 @@ the solve variables. The original model remains unchanged.
 This method extends \code{\link{fill_mdl_data}} by both filling missing model data
 and inverse solving for starting values. Like \code{\link{fill_mdl_data}}, it
 calculates missing data for endogenous variables by evaluating equations in
-solution order. Additionally, it solves backward to find starting values (typically
+solution order. Additionally, it solves inversely to find starting values (typically
 lagged variables) that would produce observed outcomes in later periods.
 
 This method performs inverse modeling: instead of solving the model forward from
@@ -65,57 +68,59 @@ The function solves the inverse problem using
 numerical optimization and returns the modified model.
 }
 \examples{
-# Simple example: solve for starting value y(2015) based on observed data
-# Model: y = y(-1), obs = y + z
-# z is known for all periods, obs is observed in 2016
-# We solve for y(2015) so we can run the model forward from 2016
-
+library(isismdl)
 mdl_file <- tempfile(fileext = ".mdl")
 writeLines("
 ident y = y(-1);
 ident obs = y + z;
 ", mdl_file)
 
-mdl <- isis_mdl(mdl_file, period = "2015/2020", silent = TRUE)
+# We want to solve the model in  period 2017/2018
+mdl <- isis_mdl(mdl_file, period = "2017/2018", silent = TRUE)
+
+# We need the set the data period to period 2015/2018 to run this example.
+# TODO: we have to fix this problem in the code of fill_mdl_data.
+# See issue on Gitlab.
+mdl$init_data("2015/2018")
 
 # Create initial data: z is known, obs is observed only in 2016
-library(regts)
-data_init <- regts(
-  matrix(c(
-    NA, NA, NA, NA, NA, NA,  # y: unknown, to be solved/calculated
-    5, 6, 7, 8, 9, 10,       # z: known for all periods (exogenous)
-    NA, 100, NA, NA, NA, NA  # obs: observed only in 2016
-  ), ncol = 3),
-  names = c("y", "z", "obs"),
-  period = "2015/2020"
-)
-mdl$init_data(data = data_init)
-
-# Solve for y(2015) based on obs(2016) = 100
-library(tibble)
-fit_tbl <- tribble(
-  ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
-  "2016", "A", "obs", "y", 0.1
-)
+mdl$set_values(6:8, names = "z", period = "2016/2018")
+mdl$set_values(100, names = "obs", period = "2016")
 
 mdl_copy <- mdl$copy() # Using in a later example
 
-mdl$fill_mdl_data_solve(
-  fit_tbl = fit_tbl,
-  report = "no"
+print(mdl$get_data())
+
+# We cannot solve starting from 2017, because y(2016) is missing
+mdl$solve()
+
+# Solve for y(2016) based on obs(2016) = 100
+library(tibble)
+solve_df <- tribble(
+  ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+  "2016", "A", "obs", "y", 0.1
 )
+mdl$fill_mdl_data_solve(
+  period = "2016",
+  solve_df = solve_df,
+  report = "period"
+)
+
 
 print(mdl$get_data())
 
-# Clean up
-unlink(mdl_file)
+# Now we can solve starting from 2017
+mdl$solve()
 
 # Example with custom solver options
 mdl_copy$fill_mdl_data_solve(
-  fit_tbl = fit_tbl,
-  report = "no",
-  control = list(trace = 0, maxit = 200)
+  solve_df = solve_df,
+  report = "period",
+  control = list(trace = 1, maxit = 200)
 )
+
+# Clean up
+unlink(mdl_file)
 
 }
 \seealso{
