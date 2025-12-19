@@ -666,6 +666,127 @@ NULL
 #' print(mdl$get_data(names = "yd"))
 NULL
 
+#' \code{\link{IsisMdl}} method: Fills model data and inverse solves
+#' to determine starting values for the model, i.e. the lags of the variables
+#' @name fill_mdl_data_solve
+#' @description
+#' This method extends \code{\link{fill_mdl_data}} by both filling missing model data
+#' and inverse solving for starting values. Like \code{\link{fill_mdl_data}}, it
+#' calculates missing data for endogenous variables by evaluating equations in
+#' solution order. Additionally, it solves inversely to find starting values (typically
+#' lagged variables) that would produce observed outcomes in later periods.
+#'
+#' This method performs inverse modeling: instead of solving the model forward from
+#' known starting values to outputs, it solves backward to find the starting values
+#' that would produce the observed outputs. This is particularly useful for calibration
+#' when you need to determine historical values (lags) before your main model period
+#' begins, based on observed data in the initial period.
+#'
+#' The method is designed for situations where:
+#' - You have observed data for certain variables in an initial period
+#' - You need to solve for lagged values to use as starting values
+#' - Exogenous variables are already known for all periods
+#' - You want to initialize the model properly before running forward simulations
+#'
+#' Note: This method solves for starting values, not for exogenous variables.
+#' For solving exogenous variables, use the separate \code{solve_exo} method.
+#'
+#'
+#' The function solves the inverse problem using
+#' numerical optimization and returns the modified model.
+#'
+#' @param period A period range object specifying the time period for the solution.
+#'   If missing, uses the model's data period obtained via `$get_data_period()`.
+#' @param solve_df A data frame defining the solve specifications. Must contain
+#'   the following columns:
+#'   \describe{
+#'     \item{solve_period}{Character or period object indicating when to solve}
+#'     \item{observed_variable}{Name of the variable with observed data}
+#'     \item{solve_variable}{Name of the variable to solve for (derive)}
+#'     \item{group}{(Optional) Group identifier for solving multiple variables together.
+#'       If omitted, each row is treated as a separate group}
+#'     \item{initial_guess}{(Optional) Initial guess for the solve variable.
+#'       Should be all numeric, including NA's.
+#'       Defaults to `default_initial_guess` value.}
+#'   }
+#' @param default_initial_guess (Optional) For rows in solve_df that do not have an
+#'       initial guess, the default initial guess value will be used.
+#'       Default is 0.1.
+#' @param report Character string controlling output verbosity. Options:
+#'   \describe{
+#'     \item{"period"}{Print a report per period (default).
+#'     For each period the number of replaced missing values is reported.}
+#'     \item{"minimal"}{Print a minimal report.
+#'     Only the total number of replaced missing values is reported.}
+#'     \item{"no"}{Does not generate a report.}
+#'     Defaults to `period` if not provided.
+#'   }
+#' @param ... Additional arguments passed to the `nleqslv` solver (e.g., `control`,
+#'   `method`, `global`).
+#'
+#' @return An `IsisMdl` object (copy of the original model) with solved values for
+#'   the solve variables. The original model remains unchanged.
+#'
+#' @examples
+#' library(isismdl)
+#' mdl_file <- tempfile(fileext = ".mdl")
+#' writeLines("
+#' ident y = y(-1);
+#' ident obs = y + z;
+#' ", mdl_file)
+#'
+#' # We want to solve the model in  period 2017/2018
+#' mdl <- isis_mdl(mdl_file, period = "2017/2018", silent = TRUE)
+#'
+#' # We need the set the data period to period 2015/2018 to run this example.
+#' # TODO: we have to fix this problem in the code of fill_mdl_data.
+#' # See issue on Gitlab.
+#' mdl$init_data("2015/2018")
+#'
+#' # Create initial data: z is known, obs is observed only in 2016
+#' mdl$set_values(6:8, names = "z", period = "2016/2018")
+#' mdl$set_values(100, names = "obs", period = "2016")
+#'
+#' mdl_copy <- mdl$copy() # Using in a later example
+#'
+#' print(mdl$get_data())
+#'
+#' # We cannot solve starting from 2017, because y(2016) is missing
+#' mdl$solve()
+#'
+#' # Solve for y(2016) based on obs(2016) = 100
+#' library(tibble)
+#' solve_df <- tribble(
+#'   ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+#'   "2016", "A", "obs", "y", 0.1
+#' )
+#' mdl$fill_mdl_data_solve(
+#'   period = "2016",
+#'   solve_df = solve_df,
+#'   report = "period"
+#' )
+#'
+#'
+#' print(mdl$get_data())
+#'
+#' # Now we can solve starting from 2017
+#' mdl$solve()
+#'
+#' # Example with custom solver options
+#' mdl_copy$fill_mdl_data_solve(
+#'   solve_df = solve_df,
+#'   report = "period",
+#'   control = list(trace = 1, maxit = 200)
+#' )
+#'
+#' # Clean up
+#' unlink(mdl_file)
+#'
+#' @seealso
+#' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
+#' \code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
+NULL
+
 #' \code{\link{IsisMdl}} method: runs model equations
 #' @name run_eqn
 #'

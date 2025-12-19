@@ -176,6 +176,9 @@ setOldClass("period_range")
 #' \item{\code{\link{fill_mdl_data}}}{Calculates missing model
 #' data from identities}
 #'
+#' \item{\code{\link{fill_mdl_data_solve}}}{Fills model data and
+#' inverse solves for starting values}
+#'
 #' \item{\code{\link{write_mdl}}}{Serializes the model object and writes it
 #' to an RDS file}
 #'
@@ -260,6 +263,14 @@ IsisMdl <- R6Class("IsisMdl",
                     as.character(private$data_period)))
       }
       return(invisible(self))
+    },
+    fill_mdl_data_solve = function(period, solve_df, data_init,
+                                   report = c("period", "minimal", "no"),
+                                   default_initial_guess = 0.1, ...) {
+      report <- match.arg(report)
+      return(fmds(mdl = self, period = period,
+                  solve_df = solve_df, report = report,
+                  default_initial_guess = default_initial_guess, ...))
     },
     get_text = function() {
       return(private$model_text)
