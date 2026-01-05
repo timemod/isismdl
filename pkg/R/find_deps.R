@@ -37,15 +37,14 @@ as_var_period <- function(txt) {
 #     A data frame with variable names and periods of the final destinations.
 # final_source
 #     A data frame with variable names and periods of the final sources.
-# potentially_derivable
-#    A data frame with variable names and periods of potentially derivable
-#    values. These values may be derived by solve_derived_variables, in which
-#    case the user will supply initial guess values for these variables.
+# solvable
+#    A data frame with variable names and periods of values that we wish to
+#    solve in fill_mdl_data_sove.
 #    A vertex that is incalculable but only depends on either calculable vertices
-#    or potentially derivable vertices gets the status ok = TRUE and
-#    inferred = TRUE.
+#    or solvable vertices gets the status ok = TRUE.
+# TODO: create nice roxygen documentation.
 find_deps <- function(final_destinations, final_sources = NULL,
-                      potentially_derivable = NULL,
+                      solvable = NULL,
                       observed_data, dep_struc, mdl,
                       ignore_observed = FALSE,
                       stop_if_final_dest_observed = TRUE) {
@@ -79,24 +78,31 @@ find_deps <- function(final_destinations, final_sources = NULL,
     vertices_final_src <- paste0(final_sources$var, "[", periods, "]")
   }
 
-  has_potentially_deriv_vertices <- !is.null(potentially_derivable)
-  if (has_potentially_deriv_vertices) {
-    # TODO: give an error if potentially_derivable has overlap with observations.
+  has_solvable <- !is.null(solvable)
+  if (has_solvable) {
+    # TODO: give an error if solvable has overlap with observations.
     # Also check that they are endogenous variables.
-    # TODO: also give an error in potentially_derivable has overlap with final_sources.
-    periods <- as.character(potentially_derivable$period)
-    vertices_potentially_derivable <- paste0(potentially_derivable$var, "[", periods, "]")
+    # TODO: also give an error in solvable has overlap with final_sources.
+    periods <- as.character(solvable$period)
+    vertices_solvable <- paste0(solvable$var, "[", periods, "]")
   } else {
-    vertices_potentially_derivable <- character(0)
+    vertices_solvable <- character(0)
   }
 
-  # TODO: check that there is there is no overlap between vars and
-  # derivable.
+  # TODO: check that there is there is no overlap between final_destinations
+  # and solvable.
 
   min_period_obs <- min(period(observed_data$period))
 
   periods <- observed_data$period
   vertices_observed <- paste0(observed_data$var, "[", periods, "]")
+
+  problem_vertices <- intersect(vertices_solvable, vertices_observed)
+  if (length(problem_vertices)) {
+    stop("The following solvable vertices are actually observed",
+         paste(problem_vertices, collapse = ", "))
+  }
+
 
   # Convert dependency structure to a list (working with a list is more efficient)
   dep_struc <- split(dep_struc, dep_struc$lhs) |>
@@ -110,11 +116,17 @@ find_deps <- function(final_destinations, final_sources = NULL,
 
   # Function to create a new vertex.
   add_vertex <- function(g, vertex_name, observed, is_endo, is_final_dest) {
-    add_vertices(g, 1, name = vertex_name, ok = NA,
-                 observed = observed, calculable = NA,
-                 inferred = FALSE, is_endo = is_endo,
-                 is_final_dest = is_final_dest,
-                 msg = NA)
+    g <- add_vertices(g, 1, name = vertex_name, ok = NA,
+                      observed = observed, calculable = NA,
+                      is_endo = is_endo,
+                      is_final_dest = is_final_dest,
+                      msg = NA)
+    if (has_solvable) {
+      idx <- which(igraph::V(g)$name == vertex_name)
+      g <- igraph::set_vertex_attr(g, "solvable", index = idx,
+                                   value =  vertex_name %in% vertices_solvable)
+    }
+    g
   }
 
   .find_deps <- function(var_per) {
@@ -133,6 +145,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
     # Check if the variable is observed at the specified period
     observed <- vertex_name %in% vertices_observed
     is_final_dest <- vertex_name %in% vertices_final_dest
+    is_solvable <- vertex_name %in%  vertices_solvable
 
     color_ok <- if (is_final_dest) "cyan" else "green"
     color_not_ok <- if (is_final_dest) "purple" else "red"
@@ -154,7 +167,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
     # Compute the index the vertex with name 'vertex_name'
     idx <- which(igraph::V(g)$name == vertex_name)
 
-    # Check if vertex is a final source
+    # Check if vertex is a final source, in that case return.
     if (has_final_sources) {
       is_final_src <- vertex_name %in% vertices_final_src
       g <<- igraph::set_vertex_attr(g, "is_final_src", index = idx, value = is_final_src)
@@ -247,36 +260,32 @@ find_deps <- function(final_destinations, final_sources = NULL,
 
     ok <- calculable || observed
 
-    # If this node is not calculable, but only depends of vertices that are
-    # either calculable or observed or in potentially_derivable_vertices,
+    # If this node is not calculable, but only depends on vertices that are
+    # either calculable or observed or in solvable_vertices,
     # then ignore this one.
-    if (!ok && has_potentially_deriv_vertices) {
+    if (!ok && has_solvable) {
       children <- neighbors(g, vertex_name, mode = "in")
-      # cat("\nWe hebben er eentje: ", vertex_name)
       ok <- all(V(g)[children]$ok |
-          V(g)[children]$name %in% vertices_potentially_derivable
+          V(g)[children]$name %in% vertices_solvable
       )
-      if (ok) {
-        g <<- igraph::set_vertex_attr(g, "inferred", index = idx, value = TRUE)
-      }
     }
 
     # Updaten dependency structure
     if (ok) {
+      # Calculable or observed
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
       g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = calculable)
-      color <- if (vertex_name %in% vertices_potentially_derivable) "pink" else
-        color_ok
+      color <- if (is_solvable)  "pink" else color_ok
       g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color)
       return(TRUE)
     } else {
+      # Not calculable or observed.
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
       g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = FALSE)
-      color <- if (vertex_name %in% vertices_potentially_derivable) "pink" else
-        color_not_ok
+      color <- if (is_solvable) "pink" else color_not_ok
       g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color)
-      # Remove incoming edges from an error node incalculable node, except if this is a final
-      # node.
+      # Remove incoming edges from an incalculable node, except if this is a
+      # final node.
       if (!is_final_dest) {
         g <<- delete_edges(g, incident(g, vertex_name, mode = "in"))
       }
@@ -303,6 +312,34 @@ find_deps <- function(final_destinations, final_sources = NULL,
   # Remove isolated vertices (degree = 0) that are not final vertices.
   isolated <- which(degree(g) == 0 & !V(g)$name %in% vertices_final_dest)
   g <- delete_vertices(g, isolated)
+
+  # Remove solvable vertices without a path to final destinations.
+  if (has_solvable) {
+
+    is_final_dest <- NULL # prevent error
+
+    # Get vertices that are final destinations
+    final_dest_vertices <- V(g)[is_final_dest == TRUE]
+
+    # Get all vertices that can reach any final destination
+    # Use mode="out" to follow outgoing edges
+    reachable_from_any <- unique(unlist(lapply(final_dest_vertices, function(v) {
+      subcomponent(g, v, mode = "in")
+    })))
+
+    # Get solvable vertices
+    solvable_vertices <- V(g)[solvable == TRUE]
+
+    # Find solvable vertices that are NOT in the reachable set
+    to_remove <- setdiff(solvable_vertices, reachable_from_any)
+
+    # Remove these vertices
+    g <- delete_vertices(g, to_remove)
+
+    # TODO: print deleted vertices, these variables cannot be solved
+    # (but are bycatch).
+    # TODO: remove calculated nodes.
+  }
 
   return(g)
 }
