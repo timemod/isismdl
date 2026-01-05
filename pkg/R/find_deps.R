@@ -151,10 +151,12 @@ find_deps <- function(final_destinations, final_sources = NULL,
 
     name <- NULL # prevent messages
 
+    # Compute the index the vertex with name 'vertex_name'
+    idx <- which(igraph::V(g)$name == vertex_name)
+
     # Check if vertex is a final source
     if (has_final_sources) {
       is_final_src <- vertex_name %in% vertices_final_src
-      idx <- which(igraph::V(g)$name == vertex_name)
       g <<- igraph::set_vertex_attr(g, "is_final_src", index = idx, value = is_final_src)
       if (is_final_src) {
         g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
