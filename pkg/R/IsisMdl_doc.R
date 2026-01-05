@@ -666,34 +666,33 @@ NULL
 #' print(mdl$get_data(names = "yd"))
 NULL
 
-#' \code{\link{IsisMdl}} method: Fills model data and inverse solves
-#' to determine starting values for the model, i.e. the lags of the variables
+#' \code{\link{IsisMdl}} method: Calculate missing model data by numerical solution.
 #' @name fill_mdl_data_solve
 #' @description
-#' This method extends \code{\link{fill_mdl_data}} by both filling missing model data
-#' and inverse solving for starting values. Like \code{\link{fill_mdl_data}}, it
-#' calculates missing data for endogenous variables by evaluating equations in
-#' solution order. Additionally, it solves inversely to find starting values (typically
-#' lagged variables) that would produce observed outcomes in later periods.
+#' This method can be used to calculate missing model data. This is mainly
+#' used to calculate 'starting values', i.e. the values of endogenous variables
+#' with lags in the period before the solution period of the model.
 #'
-#' This method performs inverse modeling: instead of solving the model forward from
-#' known starting values to outputs, it solves backward to find the starting values
-#' that would produce the observed outputs. This is particularly useful for calibration
-#' when you need to determine historical values (lags) before your main model period
-#' begins, based on observed data in the initial period.
+#' Like \code{\link{fill_mdl_data}}, the missing values are computed by evaluating
+#' the active equations in solution order. Additionally, variables can be solved
+#' numerically. For example, suppose that the model contains the equations
+#' ```
+#' ident y = y(-1);
+#' ident obs = y + z;
+#' ````
+#' and  we need the value of `y` in 2015. If the values of  `obs` and `z` are
+#' known in 2015, the value of `y` can be easily computed by using the inverse of
+#' equation for `obs`. Method `fill_mdl_data_solve` can be used to solve this
+#' numerically. See the example below.
 #'
 #' The method is designed for situations where:
-#' - You have observed data for certain variables in an initial period
-#' - You need to solve for lagged values to use as starting values
-#' - Exogenous variables are already known for all periods
-#' - You want to initialize the model properly before running forward simulations
+#' - You have observed data for certain variables in the period before the
+#'   solution period of the model.
+#' - You need to solve for lagged values to use as starting values.
+#' - Exogenous variables are already known for all periods.
 #'
-#' Note: This method solves for starting values, not for exogenous variables.
+#' Note: This method is primarily designed to compute starting values.
 #' For solving exogenous variables, use the separate \code{solve_exo} method.
-#'
-#'
-#' The function solves the inverse problem using
-#' numerical optimization and returns the modified model.
 #'
 #' @param period A period range object specifying the time period for the solution.
 #'   If missing, uses the model's data period obtained via `$get_data_period()`.

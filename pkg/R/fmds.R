@@ -15,8 +15,15 @@ fmds <- function(
   solve_df <- ensure_solve_df_cols(solve_df,
                                    default_initial_guess = default_initial_guess)
 
-  # TODO: check that solve_variable does not have an NA value.
-  # The purpose of fill_mdl_data_solve is to replace NA values.
+  # TODO: check that solve_variable is NA.
+  # The purpose of fill_mdl_data_solve is to replace NA values with non-NA values,
+  # so the solve variable should not already have a value.
+
+  # TODO: this function currently assumes that the equation names are the same
+  # as the names of the left hand side equations (endogenous variables).
+  # This is the case for the current Zoem model. Check that this is the case,
+  # or generalize the function so that it also works with model with different
+  # equation names.
 
   inactives <- mdl$get_endo_names(status = "inactive")
   on.exit({
