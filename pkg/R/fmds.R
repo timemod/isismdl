@@ -28,12 +28,6 @@ fmds <- function(
   # TODO: controleer het soort model: het moet recursief zijn en geen lags bevatten.
   # TODO: check solved_variables and observed variables are endogenous.
 
-  inactives <- mdl$get_endo_names(status = "inactive")
-  on.exit({
-    mdl$set_eq_status(status = "active", pattern = "*")
-    mdl$set_eq_status(status = "inactive", names = inactives)
-    mdl$order(silent = TRUE)
-  }) # Restore original active and inactive equations
   mdl_original_data <- mdl$get_data()
   dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
 
@@ -97,7 +91,7 @@ fmds <- function(
       if (report == "period") {
         cat("\n===============================================\n")
         cat("Summary of replaced missing/invalid values:\n")
-        cat("===============================================\n")
+        cat("===============================================\n\n")
         print(overview)
       }
       cat("\nTotal number of replaced missing/invalid values: ", n_filled, "\n")

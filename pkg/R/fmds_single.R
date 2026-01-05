@@ -58,12 +58,9 @@ solve_single_group <- function(
     stop("Some dependencies are not calculable")
   }
 
-  active_equations <- deps[deps$calculable & deps$period == as.character(solve_period), ]$var
-  mdl$set_eq_status(status = "inactive", pattern = "*")
-  mdl$set_eq_status(status = "active", names = active_equations)
-  mdl$order(silent = TRUE)
+  equations <- deps[deps$calculable & deps$period == as.character(solve_period), ]$var
   if (report == "period") {
-    cat(paste0("\nActive equations: ", paste(active_equations, collapse = ", "),
+    cat(paste0("\nEquations to run: ", paste(equations, collapse = ", "),
                "\n\n"))
   }
 
@@ -82,8 +79,8 @@ solve_single_group <- function(
     data <- regts(matrix(x, ncol = n), names = solve_variables,
                   period = solve_period)
     mdl$set_data(data)
-    mdl$solve(period = solve_period,
-              options = list(erropt = "silent", report = "none"))
+    mdl$run_eqn(names = equations, period = solve_period,
+                solve_order = TRUE)
     retval <- observed_values -
       as.numeric(mdl$get_data(names = observed_variables, period = solve_period))
     return(retval)
@@ -95,11 +92,6 @@ solve_single_group <- function(
     # TODO: improve message. Use ret$message.
     stop("Failed to solve the starting value")
   }
-
-  # TODO: error when solve failed.
-  # And set derived variables to NA.
-
-  mdl$set_eq_status(status = "active", pattern = "*")
 
   return(invisible(ret))
 }
@@ -127,6 +119,11 @@ get_fit_deps <- function(observed_variable, derived_variable,
 
   deps <- as_data_frame_deps(dep_graph)
 
+  if (report == "period") {
+    cat("\nfit dependencies:\n")
+    print(deps[, c("var", "period", "is_final_dest", "is_final_src")])
+  }
+
   if (!any(deps$is_final_src)) {
     stop("The observed variable ", observed_variable,
          " does not depend on solve variable ", derived_variable,
@@ -136,11 +133,6 @@ get_fit_deps <- function(observed_variable, derived_variable,
   deps <- dplyr::filter(deps, !.data$is_final_src)
 
   # TODO: controleer dat alle variabelen in deps 'calculable' zijn.
-
-  if (report == "period") {
-    cat("\nfit dependencies:\n")
-    print(deps)
-  }
 
   deps
 }

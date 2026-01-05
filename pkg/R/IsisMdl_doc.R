@@ -737,11 +737,6 @@ NULL
 #' # We want to solve the model in  period 2017/2018
 #' mdl <- isis_mdl(mdl_file, period = "2017/2018", silent = TRUE)
 #'
-#' # We need the set the data period to period 2015/2018 to run this example.
-#' # TODO: we have to fix this problem in the code of fill_mdl_data.
-#' # See issue on Gitlab.
-#' mdl$init_data("2015/2018")
-#'
 #' # Create initial data: z is known, obs is observed only in 2016
 #' mdl$set_values(6:8, names = "z", period = "2016/2018")
 #' mdl$set_values(100, names = "obs", period = "2016")
