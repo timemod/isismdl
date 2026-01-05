@@ -31,11 +31,13 @@ solve_single_group <- function(
     initial_guess, observed_data, dep_struc, report, ...) {
 
   # Check arguments ------------------------------------------------------------
-  # TODO: controleer het soort model: het moet recursief zijn en geen lags bevatten.
-  # TODO: check derived variables and observed variables are endogenous.
+
+  # TODO: de onderstaande controle kan worden verwijderd, in de nieuwe opzet
+  # waarbij solve_df wordt gebruikt is de controle niet meer nodig.
   if (length(solve_variables) != length(observed_variables)) {
     stop("Number of solve and observed variables are not equal")
   }
+
   if (report == "period") {
     cat("\n===============================================\n")
     cat("Solving solve variables for period", solve_period, "\n")
