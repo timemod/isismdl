@@ -322,7 +322,6 @@ find_deps <- function(final_destinations, final_sources = NULL,
     final_dest_vertices <- V(g)[is_final_dest == TRUE]
 
     # Get all vertices that can reach any final destination
-    # Use mode="out" to follow outgoing edges
     reachable_from_any <- unique(unlist(lapply(final_dest_vertices, function(v) {
       subcomponent(g, v, mode = "in")
     })))
@@ -330,9 +329,19 @@ find_deps <- function(final_destinations, final_sources = NULL,
     # Get solvable vertices
     solvable_vertices <- V(g)[solvable == TRUE]
 
-    # Find solvable vertices that are NOT in the reachable set
-    to_remove <- setdiff(solvable_vertices, reachable_from_any)
+    all_vertices <- V(g)
 
+    # Find solvable vertices that are NOT in the reachable set
+    to_remove <- setdiff(all_vertices, reachable_from_any)
+
+    removed_vertex_names <- names(V(g))[to_remove]
+
+    removed_solvable <- intersect(removed_vertex_names, names(solvable_vertices))
+    if (length(removed_solvable)) {
+      message("The following solvable variables have been removed because ",
+              "there is not a path to the observations:\n",
+              paste(removed_solvable, collapse = ", "))
+    }
     # Remove these vertices
     g <- delete_vertices(g, to_remove)
 
