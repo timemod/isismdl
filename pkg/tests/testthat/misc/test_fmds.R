@@ -29,18 +29,16 @@ create_test_init_data <- function(period, var_names) {
   n_vars <- length(var_names)
 
   # Create initial values - simple sequences for each variable
-  data_matrix <- matrix(0, nrow = n_periods, ncol = n_vars)
+  data_matrix <- matrix(NA, nrow = n_periods, ncol = n_vars)
 
   # Set different initial values for different variables
   for (i in seq_along(var_names)) {
     if (grepl("^x", var_names[i])) {
       data_matrix[, i] <- seq(10, 10 + n_periods - 1)
-    } else if (grepl("^y", var_names[i])) {
-      data_matrix[, i] <- seq(5, 5 + n_periods - 1)
-    } else if (grepl("^obs", var_names[i])) {
-      data_matrix[, i] <- NA  # Will be calculated
-    } else {
+    } else if (grepl("^z", var_names[i])) {
       data_matrix[, i] <- seq(1, n_periods)
+    } else if (grepl("^obs", var_names[i])) {
+      data_matrix[, i] <- seq(12, 12 + n_periods - 1)
     }
   }
 
@@ -75,7 +73,6 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
     solve_df = solve_df,
     report = "no"
   )
-
 
   expect_s3_class(mdl_solved, "IsisMdl")
 
