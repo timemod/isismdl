@@ -9,6 +9,7 @@ ensure_solve_df_cols <- function(df, default_initial_guess = 0.1) {
   }
   if (!("group" %in% colnames(df))) {
     df$group <- paste0("group_", seq_len(nrow(df)))
+    # TODO: no message if argument report= "no"?
     message(
       "There were no groups in the given tibble,\n",
       "so each solve and derived variable are treated separately"

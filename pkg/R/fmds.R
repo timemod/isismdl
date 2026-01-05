@@ -14,6 +14,10 @@ fmds <- function(
 
   solve_df <- ensure_solve_df_cols(solve_df,
                                    default_initial_guess = default_initial_guess)
+
+  # TODO: check that solve_variable does not have an NA value.
+  # The purpose of fill_mdl_data_solve is to replace NA values.
+
   inactives <- mdl$get_endo_names(status = "inactive")
   on.exit({
     mdl$set_eq_status(status = "active", pattern = "*")
@@ -29,7 +33,7 @@ fmds <- function(
     period <- as.period_range(period)
   }
 
-  mdl$fill_mdl_data(period = period, report = report, include_frmls = TRUE)
+  mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
 
   for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
     # TODO: observed_data to available_data
@@ -53,33 +57,42 @@ fmds <- function(
       )
     }
     mdl$order(silent = TRUE)
-    mdl$fill_mdl_data(period = this_period, report = report, include_frmls = TRUE)
+    mdl$fill_mdl_data(period = this_period, report = "no", include_frmls = TRUE)
   }
+
+  # Finally solve for missing data for the full period.
+  mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
+
   mdl_solved_data <- mdl$get_data()
+
+  dif_table <- tsdif(mdl_original_data, mdl_solved_data, fun = cvgdif,
+                     tol = 1e-4)$dif_table
+
+  # Check that only NA values have been modified.
+  if (!is.null(dif_table) && !all(is.na(dif_table$value1))) {
+    # TODO: Improve error message
+    stop("One or more valid values has been modified, that is not allowed")
+  }
+
   # Create summary based on report type
   if (report != "no") {
-    dif <- tsdif(mdl_original_data, mdl_solved_data, fun = cvgdif, tol = 1e-4)
+    if (!is.null(dif_table)) {
+      overview <- dif_table |>
+        filter(!is.na(.data$value2)) |>
+        select("name", "period", "value2") |>
+        rename(replacement = .data$value2)
 
-    if (length(dif$difnames) > 0) {
-      overview <- dif$dif_table |>
-        rename(initial = .data$value1,
-               solved = .data$value2)
-
-      n_solved <- sum(is.na(overview$initial) & !is.na(overview$solved))
+      n_filled <- nrow(overview)
 
       if (report == "period") {
         cat("\n===============================================\n")
-        cat("Summary of solved variables:\n")
+        cat("Summary of replaced missing/invalid values:\n")
         cat("===============================================\n")
         print(overview)
-        cat("\nTotal newly solved values: ", n_solved, "\n")
-      } else if (report == "minimal") {
-        cat("\nTotal newly solved values: ", n_solved, "\n")
       }
+      cat("\nTotal number of replaced missing/invalid values: ", n_filled, "\n")
     } else {
-      if (report %in% c("period", "minimal")) {
-        cat("\nNo differences found between initial and solved data.\n")
-      }
+      cat("\nNo missing/invalid values have been replaced.\n")
     }
   }
 
