@@ -15,7 +15,7 @@ new_var_period <- function(var, period) {
 
 #' @keywords internal
 #' @exportS3Method as.character var_period
-as.character.var_period <- function(x) {
+as.character.var_period <- function(x, ...) {
   return(paste0(x$var, "[", x$period, "]"))
 }
 
