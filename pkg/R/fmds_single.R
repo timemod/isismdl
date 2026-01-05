@@ -52,6 +52,7 @@ solve_single_group <- function(
                        report = report)
   # TODO: make overview observed, byproduct and solve
   if (!any(deps$ok)) {
+    # TODO: improve error message.
     stop("Some dependencies are not calculable")
   }
 
@@ -67,8 +68,14 @@ solve_single_group <- function(
   observed_values <- mdl$get_data(names = observed_variables, period = solve_period) |>
     as.numeric()
 
+  if (anyNA(observed_variables)) {
+    stop("The observed variables contain NA values")
+  }
+
   n <- length(solve_variables)
-  # Verschil berekenen tussen observed en calculated observed value
+
+  # Function that returns the difference between the observed and calculated
+  # value of observed_variables.
   f_solve <- function(x) {
     data <- regts(matrix(x, ncol = n), names = solve_variables,
                   period = solve_period)
@@ -81,9 +88,11 @@ solve_single_group <- function(
   }
 
   ret <- nleqslv(initial_guess, fn = f_solve, ...)
-  # TODO: check output van ret if it succeeded
-  # cat("nleqslv\n")
-  # print(ret)
+
+  if (!ret$termcd %in% 1:2) {
+    # TODO: improve message. Use ret$message.
+    stop("Failed to solve the starting value")
+  }
 
   # TODO: error when solve failed.
   # And set derived variables to NA.
@@ -93,6 +102,8 @@ solve_single_group <- function(
   return(invisible(ret))
 }
 
+# TODO: rename derived_variable to solve_variable, to be consistent with
+# the name of the arguments in the original function.
 get_fit_deps <- function(observed_variable, derived_variable,
                          solve_period,  mdl, dep_struc, observed_data, report) {
 
@@ -112,12 +123,18 @@ get_fit_deps <- function(observed_variable, derived_variable,
     stop_if_final_dest_observed = FALSE
   )
 
-  deps <- as_data_frame_deps(dep_graph) |>
-    # derivable variables should not computed, they are based on the
-    # initial value.
-    dplyr::filter(!.data$is_final_src)
+  deps <- as_data_frame_deps(dep_graph)
+
+  if (!any(deps$is_final_src)) {
+    stop("The observed variable ", observed_variable,
+         " does not depend on solve variable ", derived_variable,
+         " in period ", as.character(solve_period))
+  }
+
+  deps <- dplyr::filter(deps, !.data$is_final_src)
 
   # TODO: controleer dat alle variabelen in deps 'calculable' zijn.
+
   if (report == "period") {
     cat("\nfit dependencies:\n")
     print(deps)
