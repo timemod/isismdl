@@ -10,7 +10,8 @@
 # the accompanying observed variables.
 
 fmds <- function(
-    mdl, period, solve_df, report, default_initial_guess = 0.1, ...) {
+    mdl, period, solve_df, report, default_initial_guess = 0.1, jacobian,
+    ...) {
 
   solve_df <- ensure_solve_df_cols(solve_df,
                                    default_initial_guess = default_initial_guess)
@@ -40,10 +41,11 @@ fmds <- function(
   mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
 
   for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
-    # TODO: observed_data to available_data
-    observed_data <- get_observed_data(mdl$get_data())
     this_period <- single_solve_period$solve_period[1]
     for (group_data in single_solve_period |> group_split(.data$group)) {
+
+      observed_data <- get_observed_data(mdl$get_data())
+
       # numerical vector used in nleqslv
       initial_guess_vector <- group_data$initial_guess
 
@@ -57,10 +59,10 @@ fmds <- function(
         dep_struc = dep_struc,
         initial_guess = initial_guess_vector,
         report = report,
+        jacobian = jacobian,
         ...
       )
     }
-    mdl$order(silent = TRUE)
     mdl$fill_mdl_data(period = this_period, report = "no", include_frmls = TRUE)
   }
 

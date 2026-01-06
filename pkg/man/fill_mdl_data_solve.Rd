@@ -34,6 +34,9 @@ Only the total number of replaced missing values is reported.}
 Defaults to \code{period} if not provided.
 }}
 
+\item{jacobian}{A logical. If \code{TRUE} and \code{report == "period"}, the
+final jacobian used for the numerical solution is printed. The default is \code{TRUE}.}
+
 \item{...}{Additional arguments passed to the \code{nleqslv} solver (e.g., \code{control},
 \code{method}, \code{global}).}
 }

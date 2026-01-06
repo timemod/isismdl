@@ -299,7 +299,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
     .find_deps(var_per)
   }
 
-  # TODO: give the vertices colour at this point
+  # TODO: set the vertices colour at this point
 
   # Find all vertices reachable from target vertices (including themselves)
   reachable <- unique(unlist(lapply(vertices_final_dest, function(v) {
@@ -339,15 +339,19 @@ find_deps <- function(final_destinations, final_sources = NULL,
     removed_solvable <- intersect(removed_vertex_names, names(solvable_vertices))
     if (length(removed_solvable)) {
       message("The following solvable variables have been removed because ",
-              "there is not a path to the observations:\n",
+              "there is not a calculable path to observations:\n",
               paste(removed_solvable, collapse = ", "))
     }
+
     # Remove these vertices
     g <- delete_vertices(g, to_remove)
 
-    # TODO: print deleted vertices, these variables cannot be solved
-    # (but are bycatch).
-    # TODO: remove calculated nodes.
+    # Only keep the vertices that can be reached from solvable_vertices.
+    solvable_vertices <- V(g)[solvable == TRUE]
+    can_reach_solvable <- unique(unlist(lapply(solvable_vertices, function(v) {
+      subcomponent(g, v, mode = "out")
+    })))
+    g <- induced_subgraph(g, can_reach_solvable)
   }
 
   return(g)

@@ -28,7 +28,8 @@
 # Solve a single solve variable given an observed variable.
 solve_single_group <- function(
     mdl, solve_period, solve_variables, observed_variables,
-    initial_guess, observed_data, dep_struc, report, ...) {
+    initial_guess, observed_data, dep_struc, report, jacobian,
+    ...) {
 
   # Check arguments ------------------------------------------------------------
 
@@ -46,6 +47,9 @@ solve_single_group <- function(
     cat(paste0("Observed variables: ", paste(observed_variables, collapse = ", ")))
     cat("\n===============================================\n")
   }
+
+  # If no report is printed it does not make sense to keep the jacobian.
+  if (report != "period") jacobian <- FALSE
 
   # Get de dependency structure -----------------------------------------------
   deps <- get_fit_deps(observed_variables, solve_variables,
@@ -86,11 +90,20 @@ solve_single_group <- function(
     return(retval)
   }
 
-  ret <- nleqslv(initial_guess, fn = f_solve, ...)
+  ret <- nleqslv(initial_guess, fn = f_solve, jacobian = jacobian, ...)
+
+  if (jacobian && report == "period") {
+    cat("Final jacobian:\n")
+    jac <- ret$jac
+    rownames(jac) <- observed_variables
+    colnames(jac) <- solve_variables
+    print(jac)
+    cat("\n")
+  }
 
   if (!ret$termcd %in% 1:2) {
-    # TODO: improve message. Use ret$message.
-    stop("Failed to solve the starting value")
+    stop("Failed to solve the starting value with nleqslv. Message:\n",
+         ret$message)
   }
 
   return(invisible(ret))
@@ -98,13 +111,13 @@ solve_single_group <- function(
 
 # TODO: rename derived_variable to solve_variable, to be consistent with
 # the name of the arguments in the original function.
-get_fit_deps <- function(observed_variable, derived_variable,
+get_fit_deps <- function(observed_variables, derived_variables,
                          solve_period,  mdl, dep_struc, observed_data, report) {
 
-  observed <- data.frame(var = observed_variable,
+  observed <- data.frame(var = observed_variables,
                          period = as.character(solve_period))
 
-  derivable <- data.frame(var = derived_variable,
+  derivable <- data.frame(var = derived_variables,
                           period = as.character(solve_period))
 
   dep_graph <- find_deps(
@@ -119,20 +132,29 @@ get_fit_deps <- function(observed_variable, derived_variable,
 
   deps <- as_data_frame_deps(dep_graph)
 
-  if (report == "period") {
-    cat("\nfit dependencies:\n")
-    print(deps[, c("var", "period", "is_final_dest", "is_final_src")])
-  }
-
-  if (!any(deps$is_final_src)) {
-    stop("The observed variable ", observed_variable,
-         " does not depend on solve variable ", derived_variable,
-         " in period ", as.character(solve_period))
+  # Check if the observed variables depend on the solve variables.
+  deps_final_src <- filter(deps, .data$is_final_src)
+  missing_final_src <- setdiff(derived_variables, deps_final_src$var)
+  if (length(missing_final_src) > 0) {
+    stop("The observed variable(s) do not depend on the following solve variables:\n",
+         paste(missing_final_src, collapse = ", "), ".")
   }
 
   deps <- dplyr::filter(deps, !.data$is_final_src)
 
-  # TODO: controleer dat alle variabelen in deps 'calculable' zijn.
+  if (report == "period") {
+    cat("\nRunning equations:\n")
+    print(deps[, c("var", "period", "is_final_dest", "is_final_src",
+                   "calculable")])
+  }
+
+  # Check if all equations are calculable.
+  if (!all(deps$calculable)) {
+    print(deps)
+    stop("Equations ",
+         paste(filter(deps, !.data$calculable)$var, collapse = ", "),
+         " are not calculable.")
+  }
 
   deps
 }

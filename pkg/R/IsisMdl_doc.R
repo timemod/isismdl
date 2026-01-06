@@ -720,6 +720,8 @@ NULL
 #'     \item{"no"}{Does not generate a report.}
 #'     Defaults to `period` if not provided.
 #'   }
+#' @param jacobian A logical. If `TRUE` and `report == "period"`, the
+#' final jacobian used for the numerical solution is printed. The default is `TRUE`.
 #' @param ... Additional arguments passed to the `nleqslv` solver (e.g., `control`,
 #'   `method`, `global`).
 #'
