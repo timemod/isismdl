@@ -4,13 +4,16 @@
 \alias{fill_mdl_data_solve}
 \title{\code{\link{IsisMdl}} method: Calculate missing model data by numerical solution.}
 \arguments{
-\item{period}{A period range object specifying the time period for the solution.
+\item{period}{A \code{\link[regts]{period}} range object specifying the
+period using to replace missing values by evaluating the equations.
 If missing, uses the model's data period obtained via \verb{$get_data_period()}.}
 
-\item{solve_df}{A data frame defining the solve specifications. Must contain
+\item{solve_df}{A data frame defining the solve specification. Must contain
 the following columns:
 \describe{
-\item{solve_period}{Character or period object indicating when to solve}
+\item{solve_period}{Character specifying the solve period according
+to the format of function \code{\link[regts]{period}} of the \code{regts} package
+(e.g. \code{"2014"} or \code{"2015Q1"})}
 \item{observed_variable}{Name of the variable with observed data}
 \item{solve_variable}{Name of the variable to solve for (derive)}
 \item{group}{(Optional) Group identifier for solving multiple variables together.
@@ -49,24 +52,36 @@ This method can be used to calculate missing model data. This is mainly
 used to calculate 'starting values', i.e. the values of endogenous variables
 with lags in the period before the solution period of the model.
 
-Like \code{\link{fill_mdl_data}}, the missing values are computed by evaluating
+Like in method \code{\link{fill_mdl_data}}, the missing values are computed by evaluating
 the active equations in solution order. Additionally, variables can be solved
 numerically. For example, suppose that the model contains the equations
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{ident y = y(-1);
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ident y = y[-1];
 ident obs = y + z;
 }\if{html}{\out{</div>}}
 
 and  we need the value of \code{y} in 2015. If the values of  \code{obs} and \code{z} are
-known in 2015, the value of \code{y} can be easily computed by using the inverse of
+known in 2015, the value of \code{y} in 2015 can be computed by using the inverse of
 equation for \code{obs}. Method \code{fill_mdl_data_solve} can be used to solve this
 numerically. See the example below.
+
+The function uses the following procedure:
+\itemize{
+\item First all active equations are evaluated in solution order for the
+periods specified with argument \code{period}. The equation values are used
+to replace missing values for the left hand side variable.
+\item Then for each year, the variables specified in argument \code{solve_df} are
+solved numerically. For this we employ function \code{\link[nleqslv]{nleqslv}}
+from \code{nleqslv} package.
+\item Finally, all active actions are again evaluated in solution order and the
+result is used to replace any further missing values.
+}
 
 The method is designed for situations where:
 \itemize{
 \item You have observed data for certain variables in the period before the
 solution period of the model.
-\item You need to solve for lagged values to use as starting values.
+\item You need to compute lagged values to use as starting values.
 \item Exogenous variables are already known for all periods.
 }
 
@@ -77,7 +92,7 @@ For solving exogenous variables, use the separate \code{solve_exo} method.
 library(isismdl)
 mdl_file <- tempfile(fileext = ".mdl")
 writeLines("
-ident y = y(-1);
+ident y = y[-1];
 ident obs = y + z;
 ", mdl_file)
 

@@ -63,10 +63,13 @@ fmds <- function(
         ...
       )
     }
+
+    # Fill model data for this period.
     mdl$fill_mdl_data(period = this_period, report = "no", include_frmls = TRUE)
   }
 
-  # Finally solve for missing data for the full period.
+  # Finally solve for missing data for the full period again, more variables
+  # may be calculated.
   mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
 
   mdl_solved_data <- mdl$get_data()

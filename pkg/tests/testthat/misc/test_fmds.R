@@ -77,7 +77,14 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
   expect_s3_class(mdl_solved, "IsisMdl")
 
   solved_data <- mdl_solved$get_data()
+
+  # TODO: check result, compare with analytical solution
+
+  # I do not understand the the test below. I think this can be removed.
   expect_false(is.null(solved_data))
+
+  # TODO: check that if we obtain the same result if we put all variables in
+  # a single group.
 
   unlink(mdl_file)
 })

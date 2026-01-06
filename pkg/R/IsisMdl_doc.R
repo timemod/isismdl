@@ -673,33 +673,46 @@ NULL
 #' used to calculate 'starting values', i.e. the values of endogenous variables
 #' with lags in the period before the solution period of the model.
 #'
-#' Like \code{\link{fill_mdl_data}}, the missing values are computed by evaluating
+#' Like in method \code{\link{fill_mdl_data}}, the missing values are computed by evaluating
 #' the active equations in solution order. Additionally, variables can be solved
 #' numerically. For example, suppose that the model contains the equations
 #' ```
-#' ident y = y(-1);
+#' ident y = y[-1];
 #' ident obs = y + z;
 #' ````
 #' and  we need the value of `y` in 2015. If the values of  `obs` and `z` are
-#' known in 2015, the value of `y` can be easily computed by using the inverse of
+#' known in 2015, the value of `y` in 2015 can be computed by using the inverse of
 #' equation for `obs`. Method `fill_mdl_data_solve` can be used to solve this
 #' numerically. See the example below.
+#'
+#' The function uses the following procedure:
+#'   - First all active equations are evaluated in solution order for the
+#'   periods specified with argument `period`. The equation values are used
+#'   to replace missing values for the left hand side variable.
+#'   - Then for each year, the variables specified in argument `solve_df` are
+#'   solved numerically. For this we employ function \code{\link[nleqslv]{nleqslv}}
+#'   from `nleqslv` package.
+#'   - Finally, all active actions are again evaluated in solution order and the
+#'   result is used to replace any further missing values.
 #'
 #' The method is designed for situations where:
 #' - You have observed data for certain variables in the period before the
 #'   solution period of the model.
-#' - You need to solve for lagged values to use as starting values.
+#' - You need to compute lagged values to use as starting values.
 #' - Exogenous variables are already known for all periods.
 #'
 #' Note: This method is primarily designed to compute starting values.
 #' For solving exogenous variables, use the separate \code{solve_exo} method.
 #'
-#' @param period A period range object specifying the time period for the solution.
-#'   If missing, uses the model's data period obtained via `$get_data_period()`.
-#' @param solve_df A data frame defining the solve specifications. Must contain
+#' @param period A \code{\link[regts]{period}} range object specifying the
+#' period using to replace missing values by evaluating the equations.
+#' If missing, uses the model's data period obtained via `$get_data_period()`.
+#' @param solve_df A data frame defining the solve specification. Must contain
 #'   the following columns:
 #'   \describe{
-#'     \item{solve_period}{Character or period object indicating when to solve}
+#'     \item{solve_period}{Character specifying the solve period according
+#'     to the format of function \code{\link[regts]{period}} of the `regts` package
+#'     (e.g. `"2014"` or `"2015Q1"`)}
 #'     \item{observed_variable}{Name of the variable with observed data}
 #'     \item{solve_variable}{Name of the variable to solve for (derive)}
 #'     \item{group}{(Optional) Group identifier for solving multiple variables together.
@@ -732,7 +745,7 @@ NULL
 #' library(isismdl)
 #' mdl_file <- tempfile(fileext = ".mdl")
 #' writeLines("
-#' ident y = y(-1);
+#' ident y = y[-1];
 #' ident obs = y + z;
 #' ", mdl_file)
 #'
