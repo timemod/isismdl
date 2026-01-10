@@ -682,8 +682,16 @@ NULL
 #' ````
 #' and  we need the value of `y` in 2015. If the values of  `obs` and `z` are
 #' known in 2015, the value of `y` in 2015 can be computed by using the inverse of
-#' equation for `obs`. Method `fill_mdl_data_solve` can be used to solve this
-#' numerically. See the example below.
+#' equation for `obs` (`y = obs - z`. Method `fill_mdl_data_solve` can be used to solve this
+#' numerically. The numerical solution process involves finding the value of `y[2015]`
+#' (the value of `y` in 2015) such that the difference between equation value for the
+#' equation for `obs` in 2015 and the value of  `obs[2015]` is zero.
+#'
+#' For the example above, a single equation (`obs`) has to be evaluated during
+#' the solution process. In general, there can be more than one equation that
+#' connects the value to solve to an observed value. Function `fill_mdl_data_solve`
+#' automatically determines which equations have to be evaluated. For a given period,
+#' an equation is only evaluated  when the value of the left hand side variable is `NA`.
 #'
 #' The function uses the following procedure:
 #'   - First all active equations are evaluated in solution order for the
@@ -700,6 +708,9 @@ NULL
 #'   solution period of the model.
 #' - You need to compute lagged values to use as starting values.
 #' - Exogenous variables are already known for all periods.
+#' - The  observed data should remain unchanged. `fill_mdl_data_solve`
+#'   (like `fill_mdl_data`) will never replace a non-missing value with
+#'   a new value.
 #'
 #' Note: This method is primarily designed to compute starting values.
 #' For solving exogenous variables, use the separate \code{solve_exo} method.
