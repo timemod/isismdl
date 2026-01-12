@@ -62,7 +62,7 @@ ident obs = y + z;
 
 and  we need the value of \code{y} in 2015. If the values of  \code{obs} and \code{z} are
 known in 2015, the value of \code{y} in 2015 can be computed by using the inverse of
-equation for \code{obs} (\code{y = obs - z}. Method \code{fill_mdl_data_solve} can be used to solve this
+equation for \code{obs} (\code{y = obs - z}). Method \code{fill_mdl_data_solve} can be used to solve this
 numerically. The numerical solution process involves finding the value of \code{y[2015]}
 (the value of \code{y} in 2015) such that the difference between equation value for the
 equation for \code{obs} in 2015 and the value of  \code{obs[2015]} is zero.

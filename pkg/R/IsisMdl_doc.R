@@ -682,7 +682,7 @@ NULL
 #' ````
 #' and  we need the value of `y` in 2015. If the values of  `obs` and `z` are
 #' known in 2015, the value of `y` in 2015 can be computed by using the inverse of
-#' equation for `obs` (`y = obs - z`. Method `fill_mdl_data_solve` can be used to solve this
+#' equation for `obs` (`y = obs - z`). Method `fill_mdl_data_solve` can be used to solve this
 #' numerically. The numerical solution process involves finding the value of `y[2015]`
 #' (the value of `y` in 2015) such that the difference between equation value for the
 #' equation for `obs` in 2015 and the value of  `obs[2015]` is zero.
