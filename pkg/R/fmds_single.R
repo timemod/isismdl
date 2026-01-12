@@ -28,14 +28,17 @@
 # Solve a single solve variable given an observed variable.
 solve_single_group <- function(
     mdl, solve_period, solve_variables, observed_variables,
-    initial_guess, observed_data, dep_struc, report, ...) {
+    initial_guess, observed_data, dep_struc, report, jacobian,
+    ...) {
 
   # Check arguments ------------------------------------------------------------
-  # TODO: controleer het soort model: het moet recursief zijn en geen lags bevatten.
-  # TODO: check derived variables and observed variables are endogenous.
+
+  # TODO: de onderstaande controle kan worden verwijderd, in de nieuwe opzet
+  # waarbij solve_df wordt gebruikt is de controle niet meer nodig.
   if (length(solve_variables) != length(observed_variables)) {
     stop("Number of solve and observed variables are not equal")
   }
+
   if (report == "period") {
     cat("\n===============================================\n")
     cat("Solving solve variables for period", solve_period, "\n")
@@ -45,6 +48,9 @@ solve_single_group <- function(
     cat("\n===============================================\n")
   }
 
+  # If no report is printed it does not make sense to keep the jacobian.
+  if (report != "period") jacobian <- FALSE
+
   # Get de dependency structure -----------------------------------------------
   deps <- get_fit_deps(observed_variables, solve_variables,
                        solve_period = solve_period,  mdl = mdl,
@@ -52,54 +58,66 @@ solve_single_group <- function(
                        report = report)
   # TODO: make overview observed, byproduct and solve
   if (!any(deps$ok)) {
+    # TODO: improve error message.
     stop("Some dependencies are not calculable")
   }
 
-  active_equations <- deps[deps$calculable & deps$period == as.character(solve_period), ]$var
-  mdl$set_eq_status(status = "inactive", pattern = "*")
-  mdl$set_eq_status(status = "active", names = active_equations)
-  mdl$order(silent = TRUE)
+  equations <- deps[deps$calculable & deps$period == as.character(solve_period), ]$var
   if (report == "period") {
-    cat(paste0("\nActive equations: ", paste(active_equations, collapse = ", "),
+    cat(paste0("\nEquations to run: ", paste(equations, collapse = ", "),
                "\n\n"))
   }
 
   observed_values <- mdl$get_data(names = observed_variables, period = solve_period) |>
     as.numeric()
 
+  if (anyNA(observed_variables)) {
+    stop("The observed variables contain NA values")
+  }
+
   n <- length(solve_variables)
-  # Verschil berekenen tussen observed en calculated observed value
+
+  # Function that returns the difference between the observed and calculated
+  # value of observed_variables.
   f_solve <- function(x) {
     data <- regts(matrix(x, ncol = n), names = solve_variables,
                   period = solve_period)
     mdl$set_data(data)
-    mdl$solve(period = solve_period,
-              options = list(erropt = "silent", report = "none"))
+    mdl$run_eqn(names = equations, period = solve_period,
+                solve_order = TRUE)
     retval <- observed_values -
       as.numeric(mdl$get_data(names = observed_variables, period = solve_period))
     return(retval)
   }
 
-  ret <- nleqslv(initial_guess, fn = f_solve, ...)
-  # TODO: check output van ret if it succeeded
-  # cat("nleqslv\n")
-  # print(ret)
+  ret <- nleqslv(initial_guess, fn = f_solve, jacobian = jacobian, ...)
 
-  # TODO: error when solve failed.
-  # And set derived variables to NA.
+  if (jacobian && report == "period") {
+    cat("Final jacobian:\n")
+    jac <- ret$jac
+    rownames(jac) <- observed_variables
+    colnames(jac) <- solve_variables
+    print(jac)
+    cat("\n")
+  }
 
-  mdl$set_eq_status(status = "active", pattern = "*")
+  if (!ret$termcd %in% 1:2) {
+    stop("Failed to solve the starting value with nleqslv. Message:\n",
+         ret$message)
+  }
 
   return(invisible(ret))
 }
 
-get_fit_deps <- function(observed_variable, derived_variable,
+# TODO: rename derived_variable to solve_variable, to be consistent with
+# the name of the arguments in the original function.
+get_fit_deps <- function(observed_variables, derived_variables,
                          solve_period,  mdl, dep_struc, observed_data, report) {
 
-  observed <- data.frame(var = observed_variable,
+  observed <- data.frame(var = observed_variables,
                          period = as.character(solve_period))
 
-  derivable <- data.frame(var = derived_variable,
+  derivable <- data.frame(var = derived_variables,
                           period = as.character(solve_period))
 
   dep_graph <- find_deps(
@@ -112,15 +130,30 @@ get_fit_deps <- function(observed_variable, derived_variable,
     stop_if_final_dest_observed = FALSE
   )
 
-  deps <- as_data_frame_deps(dep_graph) |>
-    # derivable variables should not computed, they are based on the
-    # initial value.
-    dplyr::filter(!.data$is_final_src)
+  deps <- as_data_frame_deps(dep_graph)
 
-  # TODO: controleer dat alle variabelen in deps 'calculable' zijn.
+  # Check if the observed variables depend on the solve variables.
+  deps_final_src <- filter(deps, .data$is_final_src)
+  missing_final_src <- setdiff(derived_variables, deps_final_src$var)
+  if (length(missing_final_src) > 0) {
+    stop("The observed variable(s) do not depend on the following solve variables:\n",
+         paste(missing_final_src, collapse = ", "), ".")
+  }
+
+  deps <- dplyr::filter(deps, !.data$is_final_src)
+
   if (report == "period") {
-    cat("\nfit dependencies:\n")
+    cat("\nRunning equations:\n")
+    print(deps[, c("var", "period", "is_final_dest", "is_final_src",
+                   "calculable")])
+  }
+
+  # Check if all equations are calculable.
+  if (!all(deps$calculable)) {
     print(deps)
+    stop("Equations ",
+         paste(filter(deps, !.data$calculable)$var, collapse = ", "),
+         " are not calculable.")
   }
 
   deps

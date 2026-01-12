@@ -2,16 +2,18 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{fill_mdl_data_solve}
 \alias{fill_mdl_data_solve}
-\title{\code{\link{IsisMdl}} method: Fills model data and inverse solves
-to determine starting values for the model, i.e. the lags of the variables}
+\title{\code{\link{IsisMdl}} method: Calculate missing model data by numerical solution.}
 \arguments{
-\item{period}{A period range object specifying the time period for the solution.
+\item{period}{A \code{\link[regts]{period}} range object specifying the
+period using to replace missing values by evaluating the equations.
 If missing, uses the model's data period obtained via \verb{$get_data_period()}.}
 
-\item{solve_df}{A data frame defining the solve specifications. Must contain
+\item{solve_df}{A data frame defining the solve specification. Must contain
 the following columns:
 \describe{
-\item{solve_period}{Character or period object indicating when to solve}
+\item{solve_period}{Character specifying the solve period according
+to the format of function \code{\link[regts]{period}} of the \code{regts} package
+(e.g. \code{"2014"} or \code{"2015Q1"})}
 \item{observed_variable}{Name of the variable with observed data}
 \item{solve_variable}{Name of the variable to solve for (derive)}
 \item{group}{(Optional) Group identifier for solving multiple variables together.
@@ -35,6 +37,9 @@ Only the total number of replaced missing values is reported.}
 Defaults to \code{period} if not provided.
 }}
 
+\item{jacobian}{A logical. If \code{TRUE} and \code{report == "period"}, the
+final jacobian used for the numerical solution is printed. The default is \code{TRUE}.}
+
 \item{...}{Additional arguments passed to the \code{nleqslv} solver (e.g., \code{control},
 \code{method}, \code{global}).}
 }
@@ -43,47 +48,67 @@ An \code{IsisMdl} object (copy of the original model) with solved values for
 the solve variables. The original model remains unchanged.
 }
 \description{
-This method extends \code{\link{fill_mdl_data}} by both filling missing model data
-and inverse solving for starting values. Like \code{\link{fill_mdl_data}}, it
-calculates missing data for endogenous variables by evaluating equations in
-solution order. Additionally, it solves inversely to find starting values (typically
-lagged variables) that would produce observed outcomes in later periods.
+This method can be used to calculate missing model data. This is mainly
+used to calculate 'starting values', i.e. the values of endogenous variables
+with lags in the period before the solution period of the model.
 
-This method performs inverse modeling: instead of solving the model forward from
-known starting values to outputs, it solves backward to find the starting values
-that would produce the observed outputs. This is particularly useful for calibration
-when you need to determine historical values (lags) before your main model period
-begins, based on observed data in the initial period.
+Like in method \code{\link{fill_mdl_data}}, the missing values are computed by evaluating
+the active equations in solution order. Additionally, variables can be solved
+numerically. For example, suppose that the model contains the equations
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{ident y = y[-1];
+ident obs = y + z;
+}\if{html}{\out{</div>}}
+
+and  we need the value of \code{y} in 2015. If the values of  \code{obs} and \code{z} are
+known in 2015, the value of \code{y} in 2015 can be computed by using the inverse of
+equation for \code{obs} (\code{y = obs - z}). Method \code{fill_mdl_data_solve} can be used to solve this
+numerically. The numerical solution process involves finding the value of \code{y[2015]}
+(the value of \code{y} in 2015) such that the difference between equation value for the
+equation for \code{obs} in 2015 and the value of  \code{obs[2015]} is zero.
+
+For the example above, a single equation (\code{obs}) has to be evaluated during
+the solution process. In general, there can be more than one equation that
+connects the value to solve to an observed value. Function \code{fill_mdl_data_solve}
+automatically determines which equations have to be evaluated. For a given period,
+an equation is only evaluated  when the value of the left hand side variable is \code{NA}.
+
+The function uses the following procedure:
+\itemize{
+\item First all active equations are evaluated in solution order for the
+periods specified with argument \code{period}. The equation values are used
+to replace missing values for the left hand side variable.
+\item Then for each year, the variables specified in argument \code{solve_df} are
+solved numerically. For this we employ function \code{\link[nleqslv]{nleqslv}}
+from \code{nleqslv} package.
+\item Finally, all active actions are again evaluated in solution order and the
+result is used to replace any further missing values.
+}
 
 The method is designed for situations where:
 \itemize{
-\item You have observed data for certain variables in an initial period
-\item You need to solve for lagged values to use as starting values
-\item Exogenous variables are already known for all periods
-\item You want to initialize the model properly before running forward simulations
+\item You have observed data for certain variables in the period before the
+solution period of the model.
+\item You need to compute lagged values to use as starting values.
+\item Exogenous variables are already known for all periods.
+\item The  observed data should remain unchanged. \code{fill_mdl_data_solve}
+(like \code{fill_mdl_data}) will never replace a non-missing value with
+a new value.
 }
 
-Note: This method solves for starting values, not for exogenous variables.
+Note: This method is primarily designed to compute starting values.
 For solving exogenous variables, use the separate \code{solve_exo} method.
-
-The function solves the inverse problem using
-numerical optimization and returns the modified model.
 }
 \examples{
 library(isismdl)
 mdl_file <- tempfile(fileext = ".mdl")
 writeLines("
-ident y = y(-1);
+ident y = y[-1];
 ident obs = y + z;
 ", mdl_file)
 
 # We want to solve the model in  period 2017/2018
 mdl <- isis_mdl(mdl_file, period = "2017/2018", silent = TRUE)
-
-# We need the set the data period to period 2015/2018 to run this example.
-# TODO: we have to fix this problem in the code of fill_mdl_data.
-# See issue on Gitlab.
-mdl$init_data("2015/2018")
 
 # Create initial data: z is known, obs is observed only in 2016
 mdl$set_values(6:8, names = "z", period = "2016/2018")

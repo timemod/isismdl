@@ -266,11 +266,13 @@ IsisMdl <- R6Class("IsisMdl",
     },
     fill_mdl_data_solve = function(period, solve_df, data_init,
                                    report = c("period", "minimal", "no"),
-                                   default_initial_guess = 0.1, ...) {
+                                   default_initial_guess = 0.1,
+                                   jacobian = TRUE, ...) {
       report <- match.arg(report)
       return(fmds(mdl = self, period = period,
                   solve_df = solve_df, report = report,
-                  default_initial_guess = default_initial_guess, ...))
+                  default_initial_guess = default_initial_guess,
+                  jacobian = jacobian, ...))
     },
     get_text = function() {
       return(private$model_text)
