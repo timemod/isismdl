@@ -43,6 +43,8 @@ as_var_period <- function(txt) {
 #    A vertex that is incalculable but only depends on either calculable vertices
 #    or solvable vertices gets the status ok = TRUE.
 # TODO: create nice roxygen documentation.
+# TODO: indien observed_data en dep_struc niet opgegeven, deze bepalen op
+#       basis van object mdl.
 find_deps <- function(final_destinations, final_sources = NULL,
                       solvable = NULL,
                       observed_data, dep_struc, mdl,
