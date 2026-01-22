@@ -854,7 +854,7 @@ IsisMdl <- R6Class("IsisMdl",
     get_last_solve_period = function() {
       jc <- .Call(C_get_jc_c, private$model_index)
       if (jc != -1) {
-        return(start_period(private$fortran_period)  + jc  - 1)
+        return(start_period(private$model_period_max)  + jc  - 1)
       } else {
         return(NULL)
       }
@@ -951,9 +951,11 @@ IsisMdl <- R6Class("IsisMdl",
     model_text = NA_character_,
     maxlag = NA_integer_,
     maxlead = NA_integer_,
-    model_period = NULL,
-    data_period = NULL,
-    fortran_period = NULL,
+    model_period = NULL, # default period for which the model is solved.
+    data_period = NULL,  # the period of the data.
+    model_period_max = NULL, # the maximum model period (this is the data period
+    #                          minus lag and lead periods). model_period should
+    #                          be in the range model_period_max.
     model_index = NA_integer_,
     var_names = NULL,
     var_count = NA_integer_,
@@ -989,7 +991,7 @@ IsisMdl <- R6Class("IsisMdl",
     get_period_indices = function(period, extended = TRUE) {
       startp <- start_period(period)
       endp <- end_period(period)
-      mdl_period_start <- start_period(private$fortran_period)
+      mdl_period_start <- start_period(private$model_period_max)
       startp <- as.integer(startp - mdl_period_start + 1)
       endp   <- as.integer(endp   - mdl_period_start + 1)
       return(list(startp = startp, endp = endp))
@@ -1270,7 +1272,7 @@ IsisMdl <- R6Class("IsisMdl",
       ret <- .Call(C_get_fix_fit_c, type = type,
                    model_index = private$model_index)
       if (!is.null(ret)) {
-        ret <- regts(ret[[2]], start = start_period(private$fortran_period)
+        ret <- regts(ret[[2]], start = start_period(private$model_period_max)
                      + ret[[1]] - 1, names = ret[[3]])
         ret <- ret[, sort(colnames(ret)), drop = FALSE]
         if (length(private$labels) > 0) {
@@ -1378,30 +1380,30 @@ IsisMdl <- R6Class("IsisMdl",
         stop(paste("The data period is too short. It should contain at least",
                    private$maxlag + private$maxlead + 1, "periods"))
       }
-      new_fortran_period <- period_range(startp, endp)
+      new_model_period_max <- period_range(startp, endp)
 
       # update jc
-      if (!is.null(private$fortran_period)) {
-        shift <- start_period(new_fortran_period) -
-          start_period(private$fortran_period)
+      if (!is.null(private$model_period_max)) {
+        shift <- start_period(new_model_period_max) -
+          start_period(private$model_period_max)
         old_jc <- .Call(C_get_jc_c, private$model_index)
         new_jc <- as.integer(old_jc - shift)
-        if (new_jc < 1 || new_jc > nperiod(new_fortran_period)) {
+        if (new_jc < 1 || new_jc > nperiod(new_model_period_max)) {
           # last solve period outside range of fortran period.
           new_jc <- -1L
         }
         .Call(C_set_jc_c, model_index = private$model_index, jc = new_jc)
       }
 
-      private$fortran_period <- new_fortran_period
+      private$model_period_max <- new_model_period_max
 
-      # fortran_period is the data period without lag and lead periods.
+      # model_period_max is the data period without lag and lead periods.
       start <- as.integer(c(get_year(startp), get_subperiod(startp)))
       end   <- as.integer(c(get_year(endp), get_subperiod(endp)))
       ierr <- .Call(C_set_period_c,
                     model_index = private$model_index,
                     start = start, end = end,
-                    freq  = as.integer(private$fortran_period[3]))
+                    freq  = as.integer(private$model_period_max[3]))
 
       return(invisible(NULL))
     },
@@ -1413,13 +1415,13 @@ IsisMdl <- R6Class("IsisMdl",
                     private$data_period, ")."))
       }
 
-      if ((start_period(period) < start_period(private$fortran_period))  ||
-            (end_period(period)   > end_period(private$fortran_period))) {
+      if ((start_period(period) < start_period(private$model_period_max))  ||
+            (end_period(period) > end_period(private$model_period_max))) {
         stop(paste0("The specified period (", period,
                     ") is not compatible with the data period (",
                     private$data_period, "). The period",
                     " should lie within the range ",
-                    private$fortran_period, "."))
+                    private$model_period_max, "."))
       }
       return(invisible(NULL))
     },
