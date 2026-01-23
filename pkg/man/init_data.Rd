@@ -4,53 +4,72 @@
 \alias{init_data}
 \title{\code{\link{IsisMdl}} method: initializes the model data.}
 \description{
-This method of R6 class \code{\link{IsisMdl}}
-initializes the model variables and constant adjustments for the whole
-data period. The model timeseries are set to \code{NA} and the constant
-adjustments to zero.
+This method of R6 class \code{\link{IsisMdl}} (re)initializes the
+model variables and constant adjustments for a specified data period.
 
-If arguments \code{data} or \code{ca} have been specified,
-then the model variables or constant adjustments are
-subsequently updated with the timeseries in \code{data} or \code{ca},
-respectively. Timeseries in \code{data} or \code{ca} that are no model variables
-or constant adjustments are silently skipped.
+Calling \code{init_data} has the following effects:
+\itemize{
+\item Sets the \strong{data period} of the model.
+\item Initializes all model timeseries to \code{NA}.
+\item Initializes all constant adjustments to \code{0}.
+\item \strong{Removes all existing fix values and fit targets.}
+\item If the model period has not been set yet, it is automatically set based on
+the \code{data_period} (subtracting the required lag and lead periods).
+}
 
-If the model period has not yet been specified (in function
-\code{\link{isis_mdl}} or method \code{\link{set_period}}), then
-this method also sets the model period, the standard period
-for which the model will be solved. The model period
-is obtained from the data period by subtracting the lag and lead periods.
+If arguments \code{data} or \code{ca} are provided, the model variables or
+constant adjustments are updated with these values after the initial reset.
+}
+\details{
+If \code{data_period} is not specified:
+\enumerate{
+\item If \code{data} is provided, the range is determined by combining (taking the
+union of) the period range of the data and the required range for the
+current model period (if set).
+\item Otherwise, the existing data period is used. An error is raised if no
+data period has been established yet.
+}
+
+The \code{data_period} must be long enough to cover the model period plus the
+maximum lag and lead required by the model.
 }
 \section{Usage}{
 
-\preformatted{
-mdl$init_data(data_period, data, ca)
 
-}
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{mdl$init_data(data_period, data, ca)
+}\if{html}{\out{</div>}}
 
-\code{mdl} is an \code{IsisMdl} object
+\code{mdl} is an \code{IsisMdl} object.
 }
 
 \section{Arguments}{
 
-
 \describe{
-\item{\code{data_period}}{a \code{\link[regts]{period_range}}
-object, or an object that can be coerced to \code{\link[regts]{period_range}}.
-If not specified then the data period is based on the period range of
-argument \code{data} (if this argument has been specified) and  the model period.}
-\item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
-object with model variables}
-\item{\code{ca}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
-object with constant adjustments}
+\item{\code{data_period}}{A \code{\link[regts]{period_range}} object or an
+object coercible to one. This defines the total range for which model data
+will be stored. If omitted, it is inferred from the \code{data} argument
+or the existing model period (see Details).}
+\item{\code{data}}{An optional \code{\link[stats]{ts}} or
+\code{\link[regts]{regts}} object containing values for model variables.
+Only variables present in the model are used.}
+\item{\code{ca}}{An optional \code{\link[stats]{ts}} or
+\code{\link[regts]{regts}} object containing values for constant adjustments.}
 }
 }
 
 \examples{
 mdl <- islm_mdl()
+
+# Initialize data for a specific period
 mdl$init_data("2017Q2/2021Q3")
+
+# Initialize and load data from a regts object
+# (Assuming my_data contains variables like 'y', 'c', etc.)
+# mdl$init_data(data = my_data)
+
 print(mdl)
 }
 \seealso{
-\code{\link{set_period}} and \code{\link{get_data_period}}.
+\code{\link{set_period}}, \code{\link{get_data_period}} and
+\code{\link{isis_mdl}}.
 }

@@ -76,11 +76,12 @@ the same length as the number of periods in the period range \code{period}.
 mdl <- islm_mdl(period = "2017Q1/2017Q3")
 
 # increase y and yd with 10\% for the full data period
-mdl$change_data(pattern = "^y.?$", fun = function(x) {x * 1.1})
+mdl$change_data(pattern = "^y.?$", fun = function(x) x * 1.1)
 
 # increase ms in 2017Q1 and 2017Q2 with 10 and 20, resp.
-mdl$change_data(names = "ms", fun = function(x, dx) {x + dx},
+mdl$change_data(names = "ms", fun = function(x, dx) x + dx,
                 dx = c(10, 20), period = "2017Q1/2017Q2")
+
 print(mdl$get_data())
 
 }

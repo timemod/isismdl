@@ -42,7 +42,7 @@ mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$set_values(NA, names = "y", period = "2017Q1")
 mdl$solve()
 if (mdl$get_solve_status() != "OK") {
-   stop("Error solving the model. Check the warnings!")
+    stop("Error solving the model. Check the warnings!")
 }
 }
 }
