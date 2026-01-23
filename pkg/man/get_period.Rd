@@ -17,5 +17,5 @@ mdl$get_period()
 }
 
 \seealso{
-\code{\link{set_period}}
+\code{\link{set_period}} and \code{\link{get_data_period}}.
 }

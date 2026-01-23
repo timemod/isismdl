@@ -80,4 +80,25 @@ test_that("errors", {
     fixed = TRUE
   )
   expect_true(isTRUE(all.equal(mdl, mdl2)))
+
+
+  mdl2 <- mdl$copy()
+  expect_error(
+    mdl2$solve("2017Q1"),
+    paste("The specified period (2017Q1) is not compatible with the data",
+          "period (2015Q1/2016Q3). The period should lie within the range",
+          "2015Q2/2016Q3."),
+    fixed = TRUE
+  )
+
+  mdl2 <- mdl$copy()
+  expect_error(
+    mdl2$solve("2011Q1"),
+    paste("The specified period (2011Q1) is not compatible with the data",
+          "period (2015Q1/2016Q3). The period should lie within the range",
+          "2015Q2/2016Q3."),
+    fixed = TRUE
+  )
+
+  expect_true(isTRUE(all.equal(mdl, mdl2)))
 })

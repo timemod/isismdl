@@ -70,3 +70,12 @@ fill_missing_range_bounds <- function(period, base_period) {
   }
   period_range(startp, endp)
 }
+
+#' Check whether a period range has missing bounds.
+#'
+#' @param period A period range to check.
+#' @return A logical, `TRUE` if either the start or end bound is NA.
+#' @noRd
+has_missing_bounds <- function(period) {
+  is.na(period[1]) || is.na(period[2])
+}

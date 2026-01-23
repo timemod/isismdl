@@ -6,9 +6,8 @@
 \description{
 This method of R6 class \code{\link{IsisMdl}}
 initializes the model variables and constant adjustments for the whole
-data period.
-The model timeseries are set to \code{NA} and the constant adjustments to
-zero.
+data period. The model timeseries are set to \code{NA} and the constant
+adjustments to zero.
 
 If arguments \code{data} or \code{ca} have been specified,
 then the model variables or constant adjustments are
@@ -37,10 +36,9 @@ mdl$init_data(data_period, data, ca)
 
 \describe{
 \item{\code{data_period}}{a \code{\link[regts]{period_range}}
-object, or an object that can be coerced to
-\code{\link[regts]{period_range}}.  If not specified then the data period
-is based on the period range of argument \code{data} (if this argument
-has been specified) and  the model period.}
+object, or an object that can be coerced to \code{\link[regts]{period_range}}.
+If not specified then the data period is based on the period range of
+argument \code{data} (if this argument has been specified) and  the model period.}
 \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
 object with model variables}
 \item{\code{ca}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}

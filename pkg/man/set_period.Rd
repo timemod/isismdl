@@ -6,7 +6,9 @@
 \description{
 This method of R6 class \code{\link{IsisMdl}} sets the model period.
 This is the default period used when solving the model with method
-\code{\link{solve}}.
+\code{\link{solve}}. In general, the model period is a subrange of
+the \strong{data period}, because the data period should also
+include the lag and lead periods.
 
 If the model data has not already been initialized with method
 \code{\link{init_data}}, then \code{set_period} also initializes

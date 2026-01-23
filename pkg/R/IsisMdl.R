@@ -382,43 +382,59 @@ IsisMdl <- R6Class("IsisMdl",
       return(.Call(C_get_dbgeqn_c, private$model_index))
     },
     init_data = function(data_period, data, ca) {
+
+      mp <- private$model_period
+
       if (missing(data_period) || is.null(data_period)) {
+
         if (!missing(data) && !is.null(data)) {
-          # determine the data period from data and the model period (if known)
-          if (is.null(private$model_period)) {
-            data_period <- get_period_range(data)
+          # Determine the data period from data and the model period (if known)
+          p_data <- get_period_range(data)
+          if (is.null(mp)) {
+            data_period <- p_data
           } else {
-            p <- private$model_period
-            p_data <- get_period_range(data)
-            data_period <- period_range(
-              min(start_period(p) - private$maxlag,
-                  start_period(p_data)),
-              max(end_period(p) + private$maxlead,
-                  end_period(p_data))
+            if (frequency(p_data) != frequency(mp)) {
+              stop("The data has a different frequency (", frequency(p_data),
+                   ") than the model period (", frequency(mp), ").")
+            }
+            data_period <- range_union(
+              p_data,
+              period_range(
+                start_period(mp) - private$maxlag,
+                end_period(mp)   + private$maxlead
+              )
             )
           }
         } else {
-          # neither data_period nor data specified.
-          if (is.null(private$data_period)) {
-            stop(paste("If neither data_period nor data have been specified,",
-                       "then the data period\nshould have been set before",
-                       "with method init_data or set_period."))
-          } else {
-            data_period <- private$data_period
+          # Neither data_period nor data specified, use existing data_period.
+          data_period <- private$data_period
+          if (is.null(data_period)) {
+            stop("If neither data_period nor data have been specified, ",
+                 "then the data period\nshould have been set before ",
+                 "with method init_data or set_period.")
           }
         }
+
       } else {
-        # data_period specified. Check if model_period is inside data_period
+
+        # Data_period specified.
         data_period <- as.period_range(data_period)
-        if (!is.null(private$model_period)) {
-          mp <- private$model_period
-          startp <- start_period(mp) - private$maxlag
-          endp <- end_period(mp) + private$maxlead
-          if (start_period(data_period) > startp ||
-                end_period(data_period)  < endp) {
-            p <- period_range(startp, endp)
-            stop(paste0("The data period should include the range ",
-                        as.character(p), "."))
+        if (has_missing_bounds(data_period)) {
+          stop("data_period should have a lower and upper bound")
+        }
+        # Check if compatible with existing model period
+        if (!is.null(mp)) {
+          if (frequency(data_period) != frequency(mp)) {
+            stop("data_period (", data_period, ") has a different frequency ",
+                 "than the model period (", mp, ").")
+          }
+          data_period_required <- period_range(
+            start_period(mp) - private$maxlag,
+            end_period(mp)   + private$maxlead
+          )
+          if (!period_range_is_within(data_period_required, data_period)) {
+            stop("The data period should include the range ",
+                 data_period_required, ".")
           }
         }
       }
@@ -427,15 +443,13 @@ IsisMdl <- R6Class("IsisMdl",
 
       # If the model period has not been set, then determine the model
       # period from the data period.
-      if (is.null(private$model_period)) {
+      if (is.null(mp)) {
         startp <- start_period(data_period) + private$maxlag
         endp <-   end_period(data_period)   - private$maxlead
         private$model_period <- period_range(startp, endp)
       }
 
-      #
-      # now update data and ca
-      #
+      # Update data and ca ----
       if (!missing(data) && !is.null(data)) {
         if (is.null(colnames(data))) {
           stop("data should be a timeseries with colnames")
@@ -456,7 +470,7 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_period = function(period) {
       period <- as.period_range(period)
-      if (is.na(period[1]) || is.na(period[2])) {
+      if (has_missing_bounds(period)) {
         stop("period should have a lower and upper bound")
       }
       if (is.null(private$data_period)) {
@@ -471,9 +485,8 @@ IsisMdl <- R6Class("IsisMdl",
         # Check if the frequency of the specified period is the same
         # as the frequency of the data period.
         if (frequency(period) != frequency(private$data_period)) {
-          stop(paste0("The specified period (", period,
-                      ") has a different frequency than the data period (",
-                      private$data_period, ")."))
+          stop("The specified period (", period, ") has a different frequency ",
+               "than the data period (", private$data_period, ").")
         }
         # Check if period lies within the range of `private$model_period_max`.
         private$check_period_solve(period)
@@ -1382,6 +1395,7 @@ IsisMdl <- R6Class("IsisMdl",
       # There should be at least one period between the lag and lead periods.
       startp <- start_period(data_period) + private$maxlag
       endp <-   end_period(data_period)   - private$maxlead
+      # TESTEN
       if (startp > endp) {
         stop("The data period is too short. It should contain at least ",
              private$maxlag + private$maxlead + 1, " periods")
