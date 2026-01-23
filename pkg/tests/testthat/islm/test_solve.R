@@ -71,11 +71,13 @@ test_that("no upper and lower bound in period argument", {
 })
 
 test_that("errors", {
+  mdl2 <- mdl$copy()
   expect_error(
-    mdl$solve("2016"),
+    mdl2$solve("2016"),
     paste("The specified period (2016Q1/2016Q4) is not compatible with the data",
           "period (2015Q1/2016Q3). The period should lie within the range",
           "2015Q2/2016Q3."),
     fixed = TRUE
   )
+  expect_true(isTRUE(all.equal(mdl, mdl2)))
 })

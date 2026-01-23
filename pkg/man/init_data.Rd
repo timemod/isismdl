@@ -54,5 +54,5 @@ mdl$init_data("2017Q2/2021Q3")
 print(mdl)
 }
 \seealso{
-\code{\link{set_period}}
+\code{\link{set_period}} and \code{\link{get_data_period}}.
 }
