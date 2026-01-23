@@ -35,7 +35,9 @@ mdl$fill_mdl_data(period = mdl$get_data_period(),
 
 
 \describe{
-\item{\code{period}}{a \code{\link[regts]{period_range}} object}
+\item{\code{period}}{a \code{\link[regts]{period_range}} object} or
+an object coercible to a \code{period_range}. This specifies the periods
+for which the model data should be filled.
 \item{\code{report}}{Defines the type of report about the number of
 replaced missing values. See details.}
 \item{\code{include_frmls}}{A logical. For the default value \code{FALSE} only active identity

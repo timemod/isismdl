@@ -40,8 +40,9 @@ mdl$run_eqn(pattern, names, period = mdl$get_data_period(),
 matching the regular expression are run.}
 \item{\code{names}}{a character vector with equation names}
 \item{\code{period}}{a \code{\link[regts]{period_range}} object
-or a single \code{\link[regts]{period}} specifying the period range.
-By default the equation are run for the whole data period.}
+or an object coercible to a \code{period_range}. This specifies
+the periods for which the equations are run.
+By default the equations are run for the whole data period.}
 \item{\code{solve_order}}{
 A logical: should the specified equations be run in solve order?
 The default value depends on whether argument \code{names} has been

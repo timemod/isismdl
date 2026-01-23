@@ -26,7 +26,7 @@ If \code{data_period} is not specified:
 \item If \code{data} is provided, the range is determined by combining (taking the
 union of) the period range of the data and the required range for the
 current model period, if set. If the model period was not yet established,
-than the data period is simply the period range of \code{data}.
+then the data period is simply the period range of \code{data}.
 \item Otherwise, the existing data period is used. An error is raised if no
 data period has been established yet.
 }
@@ -47,7 +47,7 @@ maximum lag and lead required by the model.
 
 \describe{
 \item{\code{data_period}}{A \code{\link[regts]{period_range}} object or an
-object coercible to one. This defines the total range for which model data
+object coercible a \code{period_range}. This defines the total range for which model data
 will be stored. If omitted, it is inferred from the \code{data} argument
 or the existing model period (see Details).}
 \item{\code{data}}{An optional \code{\link[stats]{ts}} or
@@ -67,11 +67,11 @@ print(mdl)
 
 # Initialize and load data from a regts object
 mdl <- islm_mdl()
-init_data <- cbind(
+initial_data <- cbind(
   y = regts(c(1000, 900, 800), period = "2017Q1/2017Q3"),
   c = regts(c(800, 767, 705), period = "2017Q1/2017Q3")
 )
-mdl$init_data(data = init_data)
+mdl$init_data(data = initial_data)
 print(mdl)
 }
 \seealso{

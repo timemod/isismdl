@@ -432,7 +432,7 @@ NULL
 #' @section Arguments:
 #' \describe{
 #' \item{\code{data_period}}{A \code{\link[regts]{period_range}} object or an
-#'   object coercible to one. This defines the total range for which model data
+#'   object coercible a `period_range`. This defines the total range for which model data
 #'   will be stored. If omitted, it is inferred from the \code{data} argument
 #'   or the existing model period (see Details).}
 #' \item{\code{data}}{An optional \code{\link[stats]{ts}} or
@@ -447,7 +447,7 @@ NULL
 #' 1. If \code{data} is provided, the range is determined by combining (taking the
 #'    union of) the period range of the data and the required range for the
 #'    current model period, if set. If the model period was not yet established,
-#'    than the data period is simply the period range of `data`.
+#'    then the data period is simply the period range of `data`.
 #' 2. Otherwise, the existing data period is used. An error is raised if no
 #'    data period has been established yet.
 #'
@@ -466,11 +466,11 @@ NULL
 #'
 #' # Initialize and load data from a regts object
 #' mdl <- islm_mdl()
-#' init_data <- cbind(
+#' initial_data <- cbind(
 #'   y = regts(c(1000, 900, 800), period = "2017Q1/2017Q3"),
 #'   c = regts(c(800, 767, 705), period = "2017Q1/2017Q3")
 #' )
-#' mdl$init_data(data = init_data)
+#' mdl$init_data(data = initial_data)
 #' print(mdl)
 NULL
 
@@ -660,7 +660,9 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{period}}{a \code{\link[regts]{period_range}} object}
+#' \item{\code{period}}{a \code{\link[regts]{period_range}} object} or
+#' an object coercible to a `period_range`. This specifies the periods
+#' for which the model data should be filled.
 #' \item{\code{report}}{Defines the type of report about the number of
 #' replaced missing values. See details.}
 #' \item{\code{include_frmls}}{A logical. For the default value `FALSE` only active identity
@@ -870,8 +872,9 @@ NULL
 #' matching the regular expression are run.}
 #' \item{\code{names}}{a character vector with equation names}
 #' \item{\code{period}}{a \code{\link[regts]{period_range}} object
-#' or a single \code{\link[regts]{period}} specifying the period range.
-#' By default the equation are run for the whole data period.}
+#' or an object coercible to a `period_range`. This specifies
+#' the periods for which the equations are run.
+#' By default the equations are run for the whole data period.}
 #' \item{\code{solve_order}}{
 #' A logical: should the specified equations be run in solve order?
 #' The default value depends on whether argument `names` has been

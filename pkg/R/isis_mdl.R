@@ -79,17 +79,17 @@
 #' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
 #' does not already have an extension
-#' @param period A \code{\link[regts]{period_range}} object coercible to one
-#' specifying the model period. This is the default period for which the model
-#' will be solved.
+#' @param period A \code{\link[regts]{period_range}} object coercible to a
+#' `period_range` specifying the model period. This is the default
+#' period for which the model will be solved.
 #' @param data the model data as a  \code{\link[regts]{regts}} object with
-#' column names
+#' column names.
 #' @param ca the constant adjustments as a  \code{\link[regts]{regts}} object
-#' with column names
+#' with column names.
 #' @param fix_values the fix values as a  \code{\link[regts]{regts}} object
-#' with column names
+#' with column names.
 #' @param parse_options a named list with options passed to the model parser.
-#' See section "Parse options"
+#' See section "Parse options".
 #' @param silent A logical (default \code{FALSE}). If \code{TRUE}, then
 #' output of the model parser is suppressed.
 #'
@@ -112,7 +112,7 @@
 #' It first searches in the same directory
 #' where the source file is located. If not found there,
 #' then the compiler searches in the directories specified with
-#' argument \code{include_dir}, in the order that the directories
+#' argument \code{include_dirs}, in the order that the directories
 #' have been specified.
 #' If the include file is still not found, the parser
 #' searches in the current directory}

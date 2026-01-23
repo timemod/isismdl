@@ -19,21 +19,21 @@ isis_mdl(
 An extension \code{mdl} is appended to the specified name if the filename
 does not already have an extension}
 
-\item{period}{A \code{\link[regts]{period_range}} object coercible to one
-specifying the model period. This is the default period for which the model
-will be solved.}
+\item{period}{A \code{\link[regts]{period_range}} object coercible to a
+\code{period_range} specifying the model period. This is the default
+period for which the model will be solved.}
 
 \item{data}{the model data as a  \code{\link[regts]{regts}} object with
-column names}
+column names.}
 
 \item{ca}{the constant adjustments as a  \code{\link[regts]{regts}} object
-with column names}
+with column names.}
 
 \item{fix_values}{the fix values as a  \code{\link[regts]{regts}} object
-with column names}
+with column names.}
 
 \item{parse_options}{a named list with options passed to the model parser.
-See section "Parse options"}
+See section "Parse options".}
 
 \item{silent}{A logical (default \code{FALSE}). If \code{TRUE}, then
 output of the model parser is suppressed.}
@@ -133,7 +133,7 @@ the model searches for the include file.
 It first searches in the same directory
 where the source file is located. If not found there,
 then the compiler searches in the directories specified with
-argument \code{include_dir}, in the order that the directories
+argument \code{include_dirs}, in the order that the directories
 have been specified.
 If the include file is still not found, the parser
 searches in the current directory}
