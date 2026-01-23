@@ -1404,8 +1404,11 @@ IsisMdl <- R6Class("IsisMdl",
       # Determine the new maximum model period.
       new_model_period_max <- period_range(startp, endp)
 
-      # Update jc in Fortran.
-      # TODO: I do not quite understand this code, check in Fortran.
+      # Update jc in Fortran. jc is the index of the last solve period,
+      # i.e. the last period for which method solve attempted to find a solution
+      # (whether successful or not). Index 1 corresponds to the first period
+      # in period range `private$model_period_max`. When model_period_max is modified,
+      # jc has to be shifted.
       if (!is.null(private$model_period_max)) {
         shift <- start_period(new_model_period_max) -
           start_period(private$model_period_max)
@@ -1429,7 +1432,9 @@ IsisMdl <- R6Class("IsisMdl",
                     start = start, end = end,
                     freq  = as.integer(private$model_period_max[3]))
 
-      # TODO: error handling?
+      if (ierr != 0) {
+        stop("Unable to allocate memory for the model data.")
+      }
       return(invisible(NULL))
     },
     check_period_solve = function(period) {
