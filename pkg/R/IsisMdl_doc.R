@@ -415,8 +415,8 @@ NULL
 #' - Sets the **data period** of the model.
 #' - Initializes all model timeseries to \code{NA}.
 #' - Initializes all constant adjustments to \code{0}.
-#' - **Removes all existing fix values and fit targets.**
-#' - If the model period has not been set yet, it is automatically set based on
+#' - Removes all existing fix values and fit targets.
+#' - If the **model period** has not been set yet, it is automatically set based on
 #'   the \code{data_period} (subtracting the required lag and lead periods).
 #'
 #' If arguments \code{data} or \code{ca} are provided, the model variables or
@@ -461,11 +461,15 @@ NULL
 #'
 #' # Initialize data for a specific period
 #' mdl$init_data("2017Q2/2021Q3")
+#' print(mdl)
 #'
 #' # Initialize and load data from a regts object
-#' # (Assuming my_data contains variables like 'y', 'c', etc.)
-#' # mdl$init_data(data = my_data)
-#'
+#' mdl <- islm_mdl()
+#' init_data <- cbind(
+#'   y = regts(c(1000, 900, 800), period = "2017Q1/2017Q3"),
+#'   c = regts(c(800, 767, 705), period = "2017Q1/2017Q3")
+#' )
+#' mdl$init_data(data = init_data)
 #' print(mdl)
 NULL
 

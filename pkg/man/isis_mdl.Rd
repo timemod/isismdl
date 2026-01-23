@@ -19,7 +19,9 @@ isis_mdl(
 An extension \code{mdl} is appended to the specified name if the filename
 does not already have an extension}
 
-\item{period}{a \code{\link[regts]{period_range}} object}
+\item{period}{A \code{\link[regts]{period_range}} object coercible to one
+specifying the model period. This is the default period for which the model
+will be solved.}
 
 \item{data}{the model data as a  \code{\link[regts]{regts}} object with
 column names}
@@ -41,6 +43,11 @@ This function creates an \code{\link{IsisMdl}} object.
 A model as defined on an external ASCII file is parsed, analyzed and
 converted into an internal code. This internal code is used to evaluate
 the model equations.
+
+If argument \code{period} or \code{data} (or both) have been specified, then the model
+data is also initialized. All model timeseries are initialized to \code{NA} and
+the model variables or constant adjustments are updated with these values
+after the initialization.
 }
 \details{
 The file containing the model must have an extension \code{mdl}.
@@ -123,6 +130,6 @@ unlink("islm.*")
 }
 }
 \seealso{
-\code{\link{IsisMdl}}, \code{\link{islm_mdl}} and
-\code{\link{ifn_mdl}}
+\code{\link{IsisMdl}}, \code{\link{islm_mdl}},
+\code{\link{ifn_mdl}} and \code{\link{init_data}}.
 }
