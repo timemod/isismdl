@@ -7,11 +7,35 @@
 #' converted into an internal code. This internal code is used to evaluate
 #' the model equations.
 #'
-#' If argument `period` or `data` (or both) have been specified, then the model
-#' data is also initialized. All model timeseries are initialized to `NA` and
-#  all constant adjustments to 0. If arguments `data` or `ca` are provided,
-#' the model variables or constant adjustments are updated with these values
-#' after the initialization.
+#' If argument `period` or `data` (or both) are specified, the model
+#' data is initialized. This initialization has the following effects:
+#' \itemize{
+#'  \item The \bold{model_period} (the default period range for
+#'   which the model will be solved) and the  \bold{data period} (the period range
+#'   of the model data) are established. See Section "The model and data period"
+#'   for more details.
+#'   \item All model timeseries are initialized to \code{NA} for the whole data period.
+#'   \item All constant adjustments are initialized to 0 for the whole data period.
+#' }
+#' After this initialization, the model variables and constant adjustments are
+#' updated with the values provided in arguments \code{data}, \code{ca} and
+#' \code{fix_values}.
+#'
+#' @section The model and data period:
+#'
+#' The following procedure is followed to establish the  \bold{model period} and \bold{data period}:
+#' \itemize{
+#'   \item If only \code{period} is specified, the model period is set to
+#'     \code{period}. The data period is automatically set to the model period
+#'     extended with the maximum lag and lead required by the model.
+#'   \item If only \code{data} is specified, the data period is set to the
+#'     range of the \code{data} object. The model period is automatically set
+#'     to this data period after subtracting the required lag and lead periods.
+#'   \item If both \code{period} and \code{data} are specified, the model
+#'     period is set to \code{period}. The data period is set to the union
+#'     of the range of the \code{data} object and the required range for the
+#'     model period (the model period extended with lags and leads).
+#' }
 #'
 #' @details
 #'
@@ -50,6 +74,7 @@
 #' If the parser encounters errors in the model, these are written
 #' to a file with an extension \code{err}.
 #' All generated files have the same base name as the model file.
+#'
 #'
 #' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
@@ -121,7 +146,6 @@
 #' @export
 isis_mdl <- function(model_file, period, data, ca, fix_values,
                      parse_options, silent = FALSE) {
-
   model_file <- check_mdl_file(model_file)
 
   if (!missing(period)) {
@@ -141,8 +165,10 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   include_dirs <- parse_options$include_dirs
 
   call_compile_mdl_c <- function() {
-    return(.Call(C_compile_mdl_c, model_file, mif_file, preproc_file,
-                 flags, include_dirs))
+    return(.Call(
+      C_compile_mdl_c, model_file, mif_file, preproc_file,
+      flags, include_dirs
+    ))
   }
   if (silent) {
     capture.output({
@@ -159,8 +185,10 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   model_text <- read_file(preproc_file)
   file.remove(preproc_file)
 
-  mdl <- IsisMdl$new(mif_file = mif_file, model_text = model_text,
-                     silent = silent)
+  mdl <- IsisMdl$new(
+    mif_file = mif_file, model_text = model_text,
+    silent = silent
+  )
   unlink(mif_file)
 
   if (!missing(data)) {
@@ -171,7 +199,7 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
       # and the supplied period extended with a lag and lead period.
       data_period_required <- period_range(
         start_period(period) - mdl$get_maxlag(),
-        end_period(period)   + mdl$get_maxlead()
+        end_period(period) + mdl$get_maxlead()
       )
       data_period <- range_union(data_period, data_period_required)
     }

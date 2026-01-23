@@ -446,7 +446,8 @@ NULL
 #' If \code{data_period} is not specified:
 #' 1. If \code{data} is provided, the range is determined by combining (taking the
 #'    union of) the period range of the data and the required range for the
-#'    current model period (if set).
+#'    current model period, if set. If the model period was not yet established,
+#'    than the data period is simply the period range of `data`.
 #' 2. Otherwise, the existing data period is used. An error is raised if no
 #'    data period has been established yet.
 #'
