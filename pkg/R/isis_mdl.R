@@ -17,9 +17,26 @@
 #'   \item All model timeseries are initialized to \code{NA} for the whole data period.
 #'   \item All constant adjustments are initialized to 0 for the whole data period.
 #' }
-#' After this initialization, the model variables and constant adjustments are
-#' updated with the values provided in arguments \code{data}, \code{ca} and
+#' After this initialization, the model variables, constant adjustments and fix values
+#' are updated with the values provided in arguments \code{data}, \code{ca} and
 #' \code{fix_values}.
+#'
+#' @param model_file The name of the model file.
+#' An extension \code{mdl} is appended to the specified name if the filename
+#' does not already have an extension
+#' @param period A \code{\link[regts]{period_range}} object or an object coercible to a
+#' `period_range`. This argument specifies the model period,
+#' the default period for which the model will be solved.
+#' @param data the model data as a  \code{\link[regts]{regts}} (or \code{\link[stats]{ts}})
+#' object with column names.
+#' @param ca the constant adjustments as a  (or \code{\link[stats]{ts}}) object
+#' with column names.
+#' @param fix_values the fix values as a  \code{\link[regts]{regts}} (or \code{\link[stats]{ts}})
+#' object with column names.
+#' @param parse_options a named list with options passed to the model parser.
+#' See section "Parse options".
+#' @param silent A logical (default \code{FALSE}). If \code{TRUE}, then
+#' output of the model parser is suppressed.
 #'
 #' @section The model and data period:
 #'
@@ -29,7 +46,7 @@
 #'     \code{period}. The data period is automatically set to the model period
 #'     extended with the maximum lag and lead required by the model.
 #'   \item If only \code{data} is specified, the data period is set to the
-#'     range of the \code{data} object. The model period is automatically set
+#'     period range of the \code{data} object. The model period is automatically set
 #'     to this data period after subtracting the required lag and lead periods.
 #'   \item If both \code{period} and \code{data} are specified, the model
 #'     period is set to \code{period}. The data period is set to the union
@@ -37,13 +54,11 @@
 #'     model period (the model period extended with lags and leads).
 #' }
 #'
-#' @details
-#'
-#' The file containing the model must have an extension \code{mdl}.
+#' @section The mrf and err files:
 #'
 #' Some technical information about the model and a
 #' cross reference of the model is written
-#' to an external file with extension \code{mrf}.
+#' to an external file with extension **\code{mrf}**.
 #' For each variable its maximum lag and lead are given and a list
 #' of equations (by name) in which it occurs.
 #'
@@ -72,26 +87,8 @@
 #' can be solved in one pass through the equations).
 #'
 #' If the parser encounters errors in the model, these are written
-#' to a file with an extension \code{err}.
+#' to a file with an extension **\code{err}**.
 #' All generated files have the same base name as the model file.
-#'
-#'
-#' @param model_file The name of the model file.
-#' An extension \code{mdl} is appended to the specified name if the filename
-#' does not already have an extension
-#' @param period A \code{\link[regts]{period_range}} object coercible to a
-#' `period_range` specifying the model period. This is the default
-#' period for which the model will be solved.
-#' @param data the model data as a  \code{\link[regts]{regts}} object with
-#' column names.
-#' @param ca the constant adjustments as a  \code{\link[regts]{regts}} object
-#' with column names.
-#' @param fix_values the fix values as a  \code{\link[regts]{regts}} object
-#' with column names.
-#' @param parse_options a named list with options passed to the model parser.
-#' See section "Parse options".
-#' @param silent A logical (default \code{FALSE}). If \code{TRUE}, then
-#' output of the model parser is suppressed.
 #'
 #' @section Parse options:
 #'
@@ -134,7 +131,7 @@
 #' unlink("islm.*")
 #' }
 #' @seealso \code{\link{IsisMdl}}, \code{\link{islm_mdl}},
-#' \code{\link{ifn_mdl}} and \code{\link{init_data}}.
+#' \code{\link{ifn_mdl}} and  \code{\link{init_data}}.
 #' @importFrom tools file_path_sans_ext
 #' @importFrom regts range_union
 #' @importFrom regts as.period_range
@@ -191,6 +188,8 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   )
   unlink(mif_file)
 
+  model_period_initialized <- FALSE
+
   if (!missing(data)) {
     if (is.null(colnames(data))) stop("data has no column names")
     data_period <- get_period_range(data)
@@ -204,21 +203,30 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
       data_period <- range_union(data_period, data_period_required)
     }
     mdl$init_data(data_period = data_period, data = data)
+    model_period_initialized <- TRUE
   }
+
 
   if (!missing(period)) {
     mdl$set_period(period)
+    model_period_initialized <- TRUE
   }
 
   if (!missing(ca)) {
-    if (!is.null(colnames(ca))) {
+    if (!model_period_initialized) {
+      stop("Argument 'ca' can only be specified if arguments ",
+           "'period' or 'data' have been specified")
+    } else if (!is.null(colnames(ca))) {
       mdl$set_ca(ca, colnames(ca))
     } else {
       stop("ca has no column names")
     }
   }
   if (!missing(fix_values)) {
-    if (!is.null(colnames(fix_values))) {
+    if (!model_period_initialized) {
+      stop("Argument 'fix_values' can only be specified if arguments ",
+           "'period' or 'data' have been specified")
+    } else if (!is.null(colnames(fix_values))) {
       mdl$set_fix(fix_values, colnames(fix_values))
     } else {
       stop("fix_values has no column names")

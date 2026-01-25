@@ -364,24 +364,25 @@ NULL
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} sets the model period.
 #' This is the default period used when solving the model with method
-#' \code{\link{solve}}. In general, the model period is a subrange of
-#' the **data period**, because the data period should also
-#' include the lag and lead periods.
+#' \code{\link{solve}}. It also initializes the model data if the model data has
+#' not already been initialized (see Details).
 #'
-#' If the model data has not already been initialized with method
-#' \code{\link{init_data}}, then \code{set_period} also initializes
-#' the model data. In that case the model data period is set to the
-#' specified model period extended with a lag and lead period.
-#' Model timeseries are initialized with \code{NA} and all constant
-#' adjustments with 0.
-#'
-#' If the model data has already been initialized with  method
-#' \code{\link{init_data}}, then the new model period
-#' should be compatible with the model data period:
-#' it should have the same frequency and the data period
-#' should be long enough to solve the model for new model period
-#' (the new model period extended with a lag and lead period
-#' should lie within the range of the data period).
+#' @details
+#' The behavior depends on whether model data has already been initialized with
+#' method \code{\link{init_data}} or a previous call of \code{\link{set_period}}:
+#' - If the model data has not already been initialized,
+#'   \code{set_period} also initializes the model data:
+#'     - The model data period is set to the specified model period extended
+#'       with a lag and lead period.
+#'     - Model timeseries are initialized to \code{NA}.
+#'     - Constant adjustments are initialized to 0.
+#' - If the model data has already been initialized,
+#'   \code{set_period} checks whether the new model period is be compatible
+#'   with the existing data period:
+#'     - It must have the same frequency as the data period.
+#'     - The data period must be long enough to solve the model for the new
+#'       model period (i.e., the new model period extended with a lag and lead
+#'       period must lie within the range of the data period).
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_period(period)
@@ -412,7 +413,7 @@ NULL
 #' model variables and constant adjustments for a specified data period.
 #'
 #' Calling \code{init_data} has the following effects:
-#' - Sets the **data period** of the model.
+#' - Sets the **data period** of the model (see Details).
 #' - Initializes all model timeseries to \code{NA}.
 #' - Initializes all constant adjustments to \code{0}.
 #' - Removes all existing fix values and fit targets.
@@ -443,16 +444,18 @@ NULL
 #' }
 #'
 #' @details
-#' If \code{data_period} is not specified:
-#' 1. If \code{data} is provided, the range is determined by combining (taking the
-#'    union of) the period range of the data and the required range for the
-#'    current model period, if set. If the model period was not yet established,
-#'    then the data period is simply the period range of `data`.
-#' 2. Otherwise, the existing data period is used. An error is raised if no
-#'    data period has been established yet.
 #'
-#' The \code{data_period} must be long enough to cover the model period plus the
-#' maximum lag and lead required by the model.
+#' If \code{data_period} is not specified, then the data period is determined
+#' according to the following procedure:
+#' - If `data` is provided:
+#'     - If the model period has not been set yet, the data period is set to the
+#'       period range of `data`.
+#'     - If the model period has already been set, the data period is determined by
+#'       combining (taking the union of) the period range of the data and the
+#'       required range for the current model period.
+#' - If `data` is not provided:
+#'     - The existing data period is used. An error is raised if no data period
+#'       has been established yet.
 #'
 #' @seealso \code{\link{set_period}}, \code{\link{get_data_period}} and
 #'   \code{\link{isis_mdl}}.
@@ -515,7 +518,7 @@ NULL
 #' This method of R6 class \code{\link{IsisMdl}} solves
 #' the model. It requires that the model period has been
 #' set with methods \code{\link{isis_mdl}}, \code{\link{init_data}}
-#' or \code{\link{set_period}}).
+#' or \code{\link{set_period}}.
 
 #' @section Usage:
 #' \code{IsisMdl} method:
@@ -530,9 +533,10 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{period}}{\code{\link[regts]{period_range}}
-#' object, or an object
-#' that can be coerced to \code{\link[regts]{period_range}}}
+#' \item{\code{period}}{A \code{\link[regts]{period_range}}
+#' object, or an object coercible to \code{\link[regts]{period_range}}.
+#' This specifies the periods for which the model is solved.
+#' If omitted the model period is used.}
 #' \item{\code{options}}{a named list with solve options,
 #' for example \code{list(maxiter = 50)}.
 #' The names are the corresponding argument names of
@@ -572,7 +576,8 @@ NULL
 #' The solve method outputs a report which the user should check.
 #'
 #' @seealso \code{\link{set_solve_options}},
-#' \code{\link{set_fit_options}} and \code{\link{get_solve_status}}
+#' \code{\link{set_fit_options}}, \code{\link{get_solve_status}} and
+#' \code{\link{set_period}}.
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$solve(options = list(report = "fullrep"))
@@ -660,9 +665,10 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{period}}{a \code{\link[regts]{period_range}} object} or
-#' an object coercible to a `period_range`. This specifies the periods
-#' for which the model data should be filled.
+#' \item{\code{period}}{A \code{\link[regts]{period_range}} object or
+#' an object coercible to a `period_range`. This specifies
+#' the periods for which missing model data are replaced.
+#' If omitted the full data period of the model is used.}
 #' \item{\code{report}}{Defines the type of report about the number of
 #' replaced missing values. See details.}
 #' \item{\code{include_frmls}}{A logical. For the default value `FALSE` only active identity
@@ -683,7 +689,7 @@ NULL
 #' \item{\code{no}}{to not generate a report}
 #' }
 #'
-#' @seealso \code{\link{run_eqn}}.
+#' @seealso \code{\link{run_eqn}} and \code{\link{fill_mdl_data_solve}}.
 #'
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")

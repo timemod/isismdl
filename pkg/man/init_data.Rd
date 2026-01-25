@@ -9,7 +9,7 @@ model variables and constant adjustments for a specified data period.
 
 Calling \code{init_data} has the following effects:
 \itemize{
-\item Sets the \strong{data period} of the model.
+\item Sets the \strong{data period} of the model (see Details).
 \item Initializes all model timeseries to \code{NA}.
 \item Initializes all constant adjustments to \code{0}.
 \item Removes all existing fix values and fit targets.
@@ -21,18 +21,23 @@ If arguments \code{data} or \code{ca} are provided, the model variables or
 constant adjustments are updated with these values after the initial reset.
 }
 \details{
-If \code{data_period} is not specified:
-\enumerate{
-\item If \code{data} is provided, the range is determined by combining (taking the
-union of) the period range of the data and the required range for the
-current model period, if set. If the model period was not yet established,
-then the data period is simply the period range of \code{data}.
-\item Otherwise, the existing data period is used. An error is raised if no
-data period has been established yet.
+If \code{data_period} is not specified, then the data period is determined
+according to the following procedure:
+\itemize{
+\item If \code{data} is provided:
+\itemize{
+\item If the model period has not been set yet, the data period is set to the
+period range of \code{data}.
+\item If the model period has already been set, the data period is determined by
+combining (taking the union of) the period range of the data and the
+required range for the current model period.
 }
-
-The \code{data_period} must be long enough to cover the model period plus the
-maximum lag and lead required by the model.
+\item If \code{data} is not provided:
+\itemize{
+\item The existing data period is used. An error is raised if no data period
+has been established yet.
+}
+}
 }
 \section{Usage}{
 
