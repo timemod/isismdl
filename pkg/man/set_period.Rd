@@ -13,7 +13,7 @@ not already been initialized (see Details).
 The behavior depends on whether model data has already been initialized with
 method \code{\link{init_data}} or a previous call of \code{\link{set_period}}:
 \itemize{
-\item If the model data has not already been initialized,
+\item If the model data \strong{has not been initialized} yet,
 \code{set_period} also initializes the model data:
 \itemize{
 \item The model data period is set to the specified model period extended
@@ -21,8 +21,8 @@ with a lag and lead period.
 \item Model timeseries are initialized to \code{NA}.
 \item Constant adjustments are initialized to 0.
 }
-\item If the model data has already been initialized,
-\code{set_period} checks whether the new model period is be compatible
+\item If the model data \strong{has already been initialized},
+\code{set_period} checks whether the new model period is compatible
 with the existing data period:
 \itemize{
 \item It must have the same frequency as the data period.

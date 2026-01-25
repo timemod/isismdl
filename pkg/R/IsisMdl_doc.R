@@ -370,14 +370,14 @@ NULL
 #' @details
 #' The behavior depends on whether model data has already been initialized with
 #' method \code{\link{init_data}} or a previous call of \code{\link{set_period}}:
-#' - If the model data has not already been initialized,
+#' - If the model data **has not been initialized** yet,
 #'   \code{set_period} also initializes the model data:
 #'     - The model data period is set to the specified model period extended
 #'       with a lag and lead period.
 #'     - Model timeseries are initialized to \code{NA}.
 #'     - Constant adjustments are initialized to 0.
-#' - If the model data has already been initialized,
-#'   \code{set_period} checks whether the new model period is be compatible
+#' - If the model data **has already been initialized**,
+#'   \code{set_period} checks whether the new model period is compatible
 #'   with the existing data period:
 #'     - It must have the same frequency as the data period.
 #'     - The data period must be long enough to solve the model for the new
