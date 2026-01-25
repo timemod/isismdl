@@ -1482,8 +1482,8 @@ IsisMdl <- R6Class("IsisMdl",
       period
     },
     convert_period_arg_data = function(period, check_range = TRUE) {
-      # Converts and checks argument `period` (a `period_range` object) methods
-      # `run_eqn` and `fill_mdl_data` and methods that are used to access
+      # Converts and checks argument `period` (a `period_range` object) of methods
+      # `run_eqn` and `fill_mdl_data` and of methods that are used to access
       # or modify the mode data. Converts the frequency, fills in missing bounds
       # and checks whether the period lies within the range of `private$data_period`
       # if check_range == TRUE.
