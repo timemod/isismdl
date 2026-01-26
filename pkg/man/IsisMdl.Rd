@@ -152,6 +152,8 @@ data from identities}
 \item{\code{\link{fill_mdl_data_solve}}}{Fills model data and
 inverse solves for starting values}
 
+\item{\code{\link{solve_exo}}}{Solves exogenous variables}
+
 \item{\code{\link{write_mdl}}}{Serializes the model object and writes it
 to an RDS file}
 
@@ -164,13 +166,17 @@ to an RDS file}
 mdl <- islm_mdl()
 
 # prepare input timeseries
-r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
-y  <- regts(980,  start = "2015Q1", end = "2016Q3", labels = "income")
+r <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
+y <- regts(980, start = "2015Q1", end = "2016Q3", labels = "income")
 yd <- regts(790, start = "2015Q1", labels = "disposable income")
-g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2015Q2",
-            labels = "government spending")
-ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2015Q2",
-           labels = "money supply")
+g <- regts(210 * cumprod(rep(1.015, 6)),
+  start = "2015Q2",
+  labels = "government spending"
+)
+ms <- regts(200 * cumprod(rep(1.015, 6)),
+  start = "2015Q2",
+  labels = "money supply"
+)
 islm_input <- cbind(r, y, yd, g, ms)
 print(islm_input)
 
@@ -178,8 +184,10 @@ print(islm_input)
 mdl$set_period("2015Q2/2016Q3")
 mdl$set_data(islm_input)
 
-mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
-                t = "tax"))
+mdl$set_labels(c(
+  i = "investment", c = "consumption", md = "money demand",
+  t = "tax"
+))
 
 mdl$solve()
 

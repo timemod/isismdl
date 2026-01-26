@@ -60,7 +60,7 @@ NULL
 #' left hand side of active equation. This behaviour can be modified
 #' by specifying \code{status}. The following options
 #' for argument \code{status} are recognized:
-#'\describe{
+#' \describe{
 #' \item{\code{"active"}}{active endogenous variables, the default}
 #' \item{\code{"inactive"}}{inactive endogenous variables}
 #' \item{\code{"all"}}{all endogenous variables}
@@ -597,7 +597,7 @@ NULL
 #' mdl$set_values(NA, names = "y", period = "2017Q1")
 #' mdl$solve()
 #' if (mdl$get_solve_status() != "OK") {
-#'    stop("Error solving the model. Check the warnings!")
+#'     stop("Error solving the model. Check the warnings!")
 #' }
 #' }
 NULL
@@ -661,7 +661,7 @@ NULL
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #'
 #' mdl$set_values(200, names = "t", period = "2017Q1")
-#
+#' #
 #' mdl$fill_mdl_data(period = "2017Q1")
 #' print(mdl$get_data(names = "yd"))
 NULL
@@ -777,13 +777,13 @@ NULL
 #' # Solve for y(2016) based on obs(2016) = 100
 #' library(tibble)
 #' solve_df <- tribble(
-#'   ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
-#'   "2016", "A", "obs", "y", 0.1
+#'     ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+#'     "2016", "A", "obs", "y", 0.1
 #' )
 #' mdl$fill_mdl_data_solve(
-#'   period = "2016",
-#'   solve_df = solve_df,
-#'   report = "period"
+#'     period = "2016",
+#'     solve_df = solve_df,
+#'     report = "period"
 #' )
 #'
 #'
@@ -794,9 +794,9 @@ NULL
 #'
 #' # Example with custom solver options
 #' mdl_copy$fill_mdl_data_solve(
-#'   solve_df = solve_df,
-#'   report = "period",
-#'   control = list(trace = 1, maxit = 200)
+#'     solve_df = solve_df,
+#'     report = "period",
+#'     control = list(trace = 1, maxit = 200)
 #' )
 #'
 #' # Clean up
@@ -805,6 +805,114 @@ NULL
 #' @seealso
 #' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
 #' \code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
+NULL
+
+#' \code{\link{IsisMdl}} method: Solve for exogenous variables numerically.
+#' @name solve_exo
+#'
+#' @description
+#' This method can be used to solve for exogenous variables numerically such that
+#' the model results for a set of target variables match their values in the
+#' model data.
+#'
+#' This is useful when you want to determine the required values of
+#' exogenous variables to hit specific targets for endogenous variables.
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$solve_exo(solve_period, exo_vars, target_vars,
+#'               report = c("period", "minimal", "no"),
+#'               jacobian = TRUE, ...)
+#'
+#' }
+#'
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{solve_period}}{A \code{\link[regts]{period}} object or a
+#' string specifying the
+#' period for which the exogenous variables should be solved.}
+#' \item{\code{exo_vars}}{A character vector with the names of the exogenous
+#' variables to solve for.}
+#' \item{\code{target_vars}}{A character vector with the names of the target
+#' variables. The target variables should have non-missing values in the
+#' model data for the specified solve period.}
+#' \item{\code{report}}{Character string controlling output verbosity. Options:
+#'   \describe{
+#'     \item{"period"}{Print a report per period (default). For each period
+#'     the final Jacobian is printed if \code{jacobian = TRUE}.}
+#'     \item{"minimal"}{Print a minimal report.}
+#'     \item{"no"}{Does not generate a report.}
+#'   }}
+#' \item{\code{jacobian}}{A logical. If `TRUE` and `report == "period"`, the
+#' final Jacobian used for the numerical solution is printed. The default is `TRUE`.}
+#' \item{\code{...}}{Additional arguments passed to the `nleqslv` solver (e.g., `control`,
+#'   `method`, `global`).}
+#' }
+#'
+#' @section Details:
+#'
+#' The method determines which equations need to be run based on the
+#' dependency structure of the model. It constructs a residual function that
+#' runs the necessary equations and computes the difference between the
+#' target variables' values in the model data and the values computed by
+#' the model.
+#'
+#' The numerical solution is found using the \code{\link[nleqslv]{nleqslv}}
+#' function. The initial values for the exogenous variables in the solve
+#' period are used as starting values for the numerical solver.
+#'
+#' If the numerical solver fails to converge, \code{solve_exo} stops with
+#' an error containing the termination code and message from \code{nleqslv},
+#' so that the user can adjust initial guesses or solver options.
+#'
+#' @return
+#' Returns the modified \code{IsisMdl} object, where the values
+#' of \code{exo_vars} in \code{solve_period} have been updated to the
+#' solution found by the numerical solver.
+#'
+#' @seealso \code{\link{solve}}, \code{\link{fill_mdl_data_solve}},
+#' \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
+#' and \code{\link[nleqslv]{nleqslv}} for details on the numerical
+#' solver and its options.
+#'
+#' @examples
+#' library(isismdl)
+#'
+#' # Example: Calibrating a policy variable to match target GDP
+#' mdl_file <- tempfile(fileext = ".mdl")
+#' writeLines(c(
+#'     "ident C = c0 + 0.8 * (Y - T);",
+#'     "ident Y = C + I + G;"
+#' ), mdl_file)
+#'
+#' mdl <- isis_mdl(mdl_file, period = "2020", silent = TRUE)
+#'
+#' # Set known parameters and components
+#' mdl$set_values(100, names = "I", period = "2020") # investment
+#' mdl$set_values(20, names = "T", period = "2020") # taxes
+#'
+#' # Target: Y(2020) should be 500
+#' mdl$set_values(500, names = "Y", period = "2020")
+#'
+#' # Solve for G (government spending) and c0 (autonomous consumption)
+#' # so that Y matches 500 and C (consumption) matches some dummy value
+#' # In this model C is endogenous, but we can treat it as target if we have two instruments
+#' mdl$set_values(400, names = "C", period = "2020")
+#'
+#' mdl$solve_exo(
+#'     exo_vars     = c("G", "c0"),
+#'     target_vars  = c("Y", "C"),
+#'     solve_period = "2020",
+#'     report       = "minimal"
+#' )
+#'
+#' # Check resulting G
+#' mdl$get_data(names = "G", period = "2020")
+#'
+#' unlink(mdl_file)
 NULL
 
 #' \code{\link{IsisMdl}} method: runs model equations
@@ -956,12 +1064,12 @@ NULL
 #' \itemize{
 #' \item \code{get_mdl_data}: Model data
 #'
-#'\item \code{get_ca}: Constant adjustments
+#' \item \code{get_ca}: Constant adjustments
 #'
-#'\item \code{get_fix_values}: Fix values
+#' \item \code{get_fix_values}: Fix values
 #'
-#'\item \code{get_fit_targets}: Fit targets
-#'}
+#' \item \code{get_fit_targets}: Fit targets
+#' }
 #'
 #' @examples
 #' mdl <- islm_mdl(period = "2016Q1/2017Q4")
@@ -1045,7 +1153,7 @@ NULL
 #' \item{\code{set_fit}}{Set fit targets for the fit procedure.
 #' A fit target value of \code{NA} implies
 #' that the corresponding variable is no fit target}
-#'}
+#' }
 #' @section Details:
 #'
 #' Method \code{set_data} transfers data from a timeseries object to the
@@ -1070,7 +1178,8 @@ NULL
 #'
 #' # create a multivariate regts object for exogenous variables g and md
 #' exo <- regts(matrix(c(200, 210, 220, 250, 260, 270), ncol = 2),
-#'              start = "2017Q1", names = c("g", "ms"))
+#'     start = "2017Q1", names = c("g", "ms")
+#' )
 #'
 #' # set and print data
 #' mdl$set_data(exo)
@@ -1088,13 +1197,16 @@ NULL
 #'
 #' # in the next example, we use argument fun to apply an additive shock to the
 #' # exogenous variables g and ms.
-#' shock <- regts(matrix(c(-5, -10, -15, 3 , 6, 6), ncol = 2),
-#'              start = "2017Q1", names = c("g", "ms"))
-#' mdl$set_data(shock, fun = function(x1, x2) {x1 + x2})
+#' shock <- regts(matrix(c(-5, -10, -15, 3, 6, 6), ncol = 2),
+#'     start = "2017Q1", names = c("g", "ms")
+#' )
+#' mdl$set_data(shock, fun = function(x1, x2) {
+#'     x1 + x2
+#' })
 #'
 #' # the statement above can be more concisely written as
 #' mdl$set_data(shock, fun = `+`)
-#' #`+` is a primitive function that adds its two arguments.
+#' # `+` is a primitive function that adds its two arguments.
 #'
 #'
 #' # fix c in 2017Q1/2017q2 and i in 2017q1 to specific values
@@ -1178,7 +1290,7 @@ NULL
 #'
 #' # set the values of ms and md in all quarters of 2017 (2017Q1/2017Q4)
 #' mdl$set_values(c(205, 206, 207, 208), pattern = "^m.$", period = "2017")
-#
+#' #
 #' print(mdl$get_data())
 #'
 #' # give the constant adjustment of variable c the value 1
@@ -1256,11 +1368,17 @@ NULL
 #' mdl <- islm_mdl(period = "2017Q1/2017Q3")
 #'
 #' # increase y and yd with 10% for the full data period
-#' mdl$change_data(pattern = "^y.?$", fun = function(x) {x * 1.1})
+#' mdl$change_data(pattern = "^y.?$", fun = function(x) {
+#'     x * 1.1
+#' })
 #'
 #' # increase ms in 2017Q1 and 2017Q2 with 10 and 20, resp.
-#' mdl$change_data(names = "ms", fun = function(x, dx) {x + dx},
-#'                 dx = c(10, 20), period = "2017Q1/2017Q2")
+#' mdl$change_data(
+#'     names = "ms", fun = function(x, dx) {
+#'         x + dx
+#'     },
+#'     dx = c(10, 20), period = "2017Q1/2017Q2"
+#' )
 #' print(mdl$get_data())
 #'
 #' @seealso \code{\link{get_data-methods}}, \code{\link{set_data-methods}} and
@@ -2484,12 +2602,16 @@ NULL
 #' @examples
 #' mdl <- islm_mdl(period = "2021q1/2021q2")
 #'
-#' mdl$set_user_data(date = Sys.Date(),
-#'                   note = "Example of user data")
+#' mdl$set_user_data(
+#'     date = Sys.Date(),
+#'     note = "Example of user data"
+#' )
 #'
 #' # the previous statement is equivalent to:
-#' mdl$set_user_data(list(date = Sys.Date(),
-#'                        note = "Example of user data"))
+#' mdl$set_user_data(list(
+#'     date = Sys.Date(),
+#'     note = "Example of user data"
+#' ))
 #'
 #' # add another user data element
 #' mdl$set_user_data(input_data = mdl$get_data())

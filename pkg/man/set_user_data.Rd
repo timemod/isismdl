@@ -42,12 +42,16 @@ To remove an element of the list, set it to \code{NULL} (see example)
 \examples{
 mdl <- islm_mdl(period = "2021q1/2021q2")
 
-mdl$set_user_data(date = Sys.Date(),
-                  note = "Example of user data")
+mdl$set_user_data(
+    date = Sys.Date(),
+    note = "Example of user data"
+)
 
 # the previous statement is equivalent to:
-mdl$set_user_data(list(date = Sys.Date(),
-                       note = "Example of user data"))
+mdl$set_user_data(list(
+    date = Sys.Date(),
+    note = "Example of user data"
+))
 
 # add another user data element
 mdl$set_user_data(input_data = mdl$get_data())

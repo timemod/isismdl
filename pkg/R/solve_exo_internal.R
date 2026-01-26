@@ -22,7 +22,7 @@ solve_exo_internal <- function(
 
   dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
 
-  for (per in periods) {
+  for (per in as.list(periods)) {
     observed_data <- get_observed_data(mdl$get_data())
 
     deps <- get_fit_deps(

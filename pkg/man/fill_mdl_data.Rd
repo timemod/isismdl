@@ -63,6 +63,7 @@ the number of replaced missing values is reported}
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 
 mdl$set_values(200, names = "t", period = "2017Q1")
+#
 mdl$fill_mdl_data(period = "2017Q1")
 print(mdl$get_data(names = "yd"))
 }

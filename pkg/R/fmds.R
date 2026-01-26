@@ -1,10 +1,11 @@
-# fmds = fill_model_data_solve internal
+#' fmds = fill_model_data_solve internal
 #' @import regts
 #' @import nleqslv
 #' @importFrom graphics plot
 #' @importFrom dplyr group_split filter
 #' @importFrom purrr map_dbl
 #' @importFrom rlang set_names .data
+#' @noRd
 
 # This function solves multiple groups of derived variables with
 # the accompanying observed variables.
