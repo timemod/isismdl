@@ -382,64 +382,74 @@ IsisMdl <- R6Class("IsisMdl",
       return(.Call(C_get_dbgeqn_c, private$model_index))
     },
     init_data = function(data_period, data, ca) {
+
+      mp <- private$model_period
+
       if (missing(data_period) || is.null(data_period)) {
+
         if (!missing(data) && !is.null(data)) {
-          # determine the data period from data and the model period (if known)
-          if (is.null(private$model_period)) {
-            data_period <- get_period_range(data)
+          # Determine the data period from data and the model period (if known)
+          p_data <- get_period_range(data)
+          if (is.null(mp)) {
+            data_period <- p_data
           } else {
-            p <- private$model_period
-            p_data <- get_period_range(data)
-            data_period <- period_range(
-              min(start_period(p) - private$maxlag,
-                  start_period(p_data)),
-              max(end_period(p) + private$maxlead,
-                  end_period(p_data))
+            if (frequency(p_data) != frequency(mp)) {
+              stop("The data has a different frequency (", frequency(p_data),
+                   ") than the model period (", frequency(mp), ").")
+            }
+            data_period <- range_union(
+              p_data,
+              period_range(
+                start_period(mp) - private$maxlag,
+                end_period(mp)   + private$maxlead
+              )
             )
           }
         } else {
-          # neither data_period nor data specified.
-          if (is.null(private$data_period)) {
-            stop(paste("If neither data_period nor data have been specified,",
-                       "then the data period\nshould have been set before",
-                       "with method init_data or set_period."))
-          } else {
-            data_period <- private$data_period
+          # Neither data_period nor data specified, use existing data_period.
+          data_period <- private$data_period
+          if (is.null(data_period)) {
+            stop("If neither data_period nor data have been specified, ",
+                 "then the data period\nshould have been set before ",
+                 "with method init_data or set_period.")
           }
         }
+
       } else {
-        # data_period specified. Check if model_period is inside data_period
+
+        # Data_period specified.
         data_period <- as.period_range(data_period)
-        if (!is.null(private$model_period)) {
-          mp <- private$model_period
-          startp <- start_period(mp) - private$maxlag
-          endp <- end_period(mp) + private$maxlead
-          if (start_period(data_period) > startp ||
-                end_period(data_period)  < endp) {
-            p <- period_range(startp, endp)
-            stop(paste0("The data period should include the range ",
-                        as.character(p), "."))
+        if (has_missing_bounds(data_period)) {
+          stop("data_period should have a lower and upper bound")
+        }
+        # Check if compatible with existing model period
+        if (!is.null(mp)) {
+          if (frequency(data_period) != frequency(mp)) {
+            stop("data_period (", data_period, ") has a different frequency ",
+                 "than the model period (", mp, ").")
+          }
+          data_period_required <- period_range(
+            start_period(mp) - private$maxlag,
+            end_period(mp)   + private$maxlead
+          )
+          if (!period_range_is_within(data_period_required, data_period)) {
+            stop("The data period should include the range ",
+                 data_period_required, ".")
           }
         }
       }
 
       private$init_data_(data_period)
 
-      # if the model period has not been set, then determine the model
-      # period from the data period
-      if (is.null(private$model_period)) {
+      # If the model period has not been set, then determine the model
+      # period from the data period.
+      if (is.null(mp)) {
         startp <- start_period(data_period) + private$maxlag
-        endp <- end_period(data_period) - private$maxlead
-        if (endp < startp) {
-          stop(paste("The data period is too short. It should contain at least",
-                     private$maxlag + private$maxlead + 1, "periods"))
-        }
+        endp <-   end_period(data_period)   - private$maxlead
         private$model_period <- period_range(startp, endp)
       }
 
-      #
-      # now update data and ca
-      #
+      # Update data and ca ----
       if (!missing(data) && !is.null(data)) {
         if (is.null(colnames(data))) {
           stop("data should be a timeseries with colnames")
@@ -460,17 +470,26 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_period = function(period) {
       period <- as.period_range(period)
-      if (is.na(period[1]) || is.na(period[2])) {
+      if (has_missing_bounds(period)) {
         stop("period should have a lower and upper bound")
       }
       if (is.null(private$data_period)) {
+        # Set data period
         data_period <- period_range(
           start_period(period) - private$maxlag,
           end_period(period)   + private$maxlead
         )
         private$init_data_(data_period)
       } else  {
-        private$check_model_period(period)
+        # The data period has already been set.
+        # Check if the frequency of the specified period is the same
+        # as the frequency of the data period.
+        if (frequency(period) != frequency(private$data_period)) {
+          stop("The specified period (", period, ") has a different frequency ",
+               "than the data period (", private$data_period, ").")
+        }
+        # Check if period lies within the range of `private$model_period_max`.
+        private$check_period_solve(period)
       }
       private$model_period <- period
       return(invisible(self))
@@ -669,7 +688,7 @@ IsisMdl <- R6Class("IsisMdl",
       }
     },
     fix_variables = function(names, pattern, period = self$get_period()) {
-      period <- private$convert_period_arg(period)
+      period <- private$convert_period_arg_data(period, check_range = FALSE)
       names <- private$get_names_(private$fix_type, names, pattern)
       if (length(names) == 0) {
         return(NULL)
@@ -723,8 +742,7 @@ IsisMdl <- R6Class("IsisMdl",
       if (is.null(private$model_period)) stop(private$period_error_msg)
       private$check_options(options, type = "solve_options")
       private$check_options(options, type = "fit_options")
-      period <- private$convert_period_arg(period, data_period = FALSE)
-      private$check_model_period(period)
+      period <- private$convert_period_arg_solve(period)
       js <- private$get_period_indices(period)
       .Call(C_solve_c, model_index = private$model_index,
             jtb = js$startp, jte = js$endp, options,
@@ -739,8 +757,7 @@ IsisMdl <- R6Class("IsisMdl",
                              include_frmls = FALSE) {
       # Calculates missing model data from identities.
       report <- match.arg(report)
-      if (is.null(private$model_period)) stop(private$period_error_msg)
-      period <- private$convert_period_arg(period)
+      period <- private$convert_period_arg_data(period)
       js <- private$get_period_indices(period)
       .Call(C_filmdt_c, model_index = private$model_index,
             jtb = js$startp, jte = js$end,
@@ -754,7 +771,7 @@ IsisMdl <- R6Class("IsisMdl",
       "Run model equations"
 
       update_mode <- match.arg(update_mode)
-      period <- private$convert_period_arg(period)
+      period <- private$convert_period_arg_data(period)
       if (!is.logical(forwards) || length(forwards) != 1 || is.na(forwards)) {
         stop("Argument 'forwards' should be a TRUE or FALSE")
       }
@@ -854,7 +871,7 @@ IsisMdl <- R6Class("IsisMdl",
     get_last_solve_period = function() {
       jc <- .Call(C_get_jc_c, private$model_index)
       if (jc != -1) {
-        return(start_period(private$fortran_period)  + jc  - 1)
+        return(start_period(private$model_period_max)  + jc  - 1)
       } else {
         return(NULL)
       }
@@ -951,9 +968,11 @@ IsisMdl <- R6Class("IsisMdl",
     model_text = NA_character_,
     maxlag = NA_integer_,
     maxlead = NA_integer_,
-    model_period = NULL,
-    data_period = NULL,
-    fortran_period = NULL,
+    model_period = NULL, # default period for which the model is solved.
+    data_period = NULL,  # the period of the data.
+    model_period_max = NULL, # the maximum model period (this is the data period
+    #                          minus lag and lead periods). model_period should
+    #                          be in the range model_period_max.
     model_index = NA_integer_,
     var_names = NULL,
     var_count = NA_integer_,
@@ -989,15 +1008,14 @@ IsisMdl <- R6Class("IsisMdl",
     get_period_indices = function(period, extended = TRUE) {
       startp <- start_period(period)
       endp <- end_period(period)
-      mdl_period_start <- start_period(private$fortran_period)
+      mdl_period_start <- start_period(private$model_period_max)
       startp <- as.integer(startp - mdl_period_start + 1)
       endp   <- as.integer(endp   - mdl_period_start + 1)
       return(list(startp = startp, endp = endp))
     },
     get_data_ = function(type, names, pattern, period) {
       # general function used to get model data or constant adjustments
-      if (is.null(private$model_period)) stop(private$period_error_msg)
-      period <- private$convert_period_arg(period)
+      period <- private$convert_period_arg_data(period, check_range = FALSE)
       names <- private$get_names_(type, names, pattern)
       if (length(names) == 0) {
         return(NULL)
@@ -1206,8 +1224,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(names)
     },
     set_values_ = function(set_type, value, names, pattern, period) {
-
-      period <- private$convert_period_arg(period)
+      period <- private$convert_period_arg_data(period, check_range = FALSE)
       if (is.null(range_intersect(period, private$data_period))) {
         warning(sprintf(paste("Specified period (%s) is completely outside the",
                               "data period (%s)."), period,
@@ -1235,7 +1252,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     change_data_ = function(set_type, fun, names, pattern, period, ...) {
-      period <- private$convert_period_arg(period)
+      period <- private$convert_period_arg_data(period, check_range = FALSE)
       if (is.null(range_intersect(period, private$data_period))) {
         warning(sprintf(paste("Specified period (%s) is completely outside the",
                               "data period (%s)."), period,
@@ -1270,7 +1287,7 @@ IsisMdl <- R6Class("IsisMdl",
       ret <- .Call(C_get_fix_fit_c, type = type,
                    model_index = private$model_index)
       if (!is.null(ret)) {
-        ret <- regts(ret[[2]], start = start_period(private$fortran_period)
+        ret <- regts(ret[[2]], start = start_period(private$model_period_max)
                      + ret[[1]] - 1, names = ret[[3]])
         ret <- ret[, sort(colnames(ret)), drop = FALSE]
         if (length(private$labels) > 0) {
@@ -1367,59 +1384,65 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     init_data_ = function(data_period) {
-      # Sets the data period, initializes all model data
-      # and constant adjustments, and removes fix values
+      # Sets the data period, updates model_period_max, initializes all
+      # model data and constant adjustments, and removes fix values
       # and fit targets. The model data is initialized with NA,
       # constant adjustments with 0.
-      private$data_period <- data_period
-      startp <- start_period(data_period) + private$maxlag
-      endp <- end_period(data_period) - private$maxlead
-      if (startp > endp) {
-        stop(paste("The data period is too short. It should contain at least",
-                   private$maxlag + private$maxlead + 1, "periods"))
-      }
-      new_fortran_period <- period_range(startp, endp)
 
-      # update jc
-      if (!is.null(private$fortran_period)) {
-        shift <- start_period(new_fortran_period) -
-          start_period(private$fortran_period)
+      private$data_period <- data_period
+
+      # Check if the data period is sufficiently long.
+      # There should be at least one period between the lag and lead periods.
+      startp <- start_period(data_period) + private$maxlag
+      endp <-   end_period(data_period)   - private$maxlead
+      if (startp > endp) {
+        stop("The data period is too short. It should contain at least ",
+             private$maxlag + private$maxlead + 1, " periods")
+      }
+
+      # Determine the new maximum model period.
+      new_model_period_max <- period_range(startp, endp)
+
+      # Update jc in Fortran. jc is the index of the last solve period,
+      # i.e. the last period for which method solve attempted to find a solution
+      # (whether successful or not). Index 1 corresponds to the first period
+      # in period range `private$model_period_max`. When model_period_max is modified,
+      # jc has to be shifted.
+      if (!is.null(private$model_period_max)) {
+        shift <- start_period(new_model_period_max) -
+          start_period(private$model_period_max)
         old_jc <- .Call(C_get_jc_c, private$model_index)
         new_jc <- as.integer(old_jc - shift)
-        if (new_jc < 1 || new_jc > nperiod(new_fortran_period)) {
-          # last solve period outside range of fortran period.
+        if (new_jc < 1 || new_jc > nperiod(new_model_period_max)) {
+          # last solve period outside range of new_model_period_max.
           new_jc <- -1L
         }
         .Call(C_set_jc_c, model_index = private$model_index, jc = new_jc)
       }
 
-      private$fortran_period <- new_fortran_period
+      # Update model_period_max, the data period without lag and lead periods.
+      private$model_period_max <- new_model_period_max
 
-      # fortran_period is the data period without lag and lead periods.
+      # Update the model period in Fortran memory.
       start <- as.integer(c(get_year(startp), get_subperiod(startp)))
       end   <- as.integer(c(get_year(endp), get_subperiod(endp)))
       ierr <- .Call(C_set_period_c,
                     model_index = private$model_index,
                     start = start, end = end,
-                    freq  = as.integer(private$fortran_period[3]))
+                    freq  = as.integer(private$model_period_max[3]))
 
+      if (ierr != 0) {
+        stop("Unable to allocate memory for the model data.")
+      }
       return(invisible(NULL))
     },
-    check_model_period = function(period) {
-
-      if (frequency(period) != frequency(private$data_period)) {
-        stop(paste0("The specified period (", period,
-                    ") has a different frequency than the data period (",
-                    private$data_period, ")."))
-      }
-
-      if ((start_period(period) < start_period(private$fortran_period))  ||
-            (end_period(period)   > end_period(private$fortran_period))) {
-        stop(paste0("The specified period (", period,
-                    ") is not compatible with the data period (",
-                    private$data_period, "). The period",
-                    " should lie within the range ",
-                    private$fortran_period, "."))
+    check_period_solve = function(period) {
+      # Check if period (a period range object) lies in the range of
+      # private$model_period_max.
+      if (!period_range_is_within(period, private$model_period_max)) {
+        stop("The specified period (", period, ") is not compatible with the ",
+             "data period (", private$data_period, "). The period should lie ",
+             "within the range ", private$model_period_max, ".")
       }
       return(invisible(NULL))
     },
@@ -1436,28 +1459,51 @@ IsisMdl <- R6Class("IsisMdl",
       }
       return(invisible(NULL))
     },
-    convert_period_arg = function(period, data_period = TRUE) {
+    convert_period_arg_solve = function(period) {
+      # Converts and checks argument `period` (a period_range object) of method
+      # `solve` and `solve_exo`. Converts the frequency, fills in missing
+      # bounds and check whether the period lies within the range of
+      # `private$model_period_max`.
       if (is.null(private$model_period)) {
         stop(private$period_error_msg)
       }
       period <- as.period_range(period)
+
+      # Convert to the same frequency as `private$model_period`.
+      period <- change_frequency(period, frequency(private$model_period))
+
+      # Fill in missing bounds
+      period <- fill_missing_range_bounds(period, private$model_period)
+
+      # Check range
+      private$check_period_solve(period)
+
+      period
+    },
+    convert_period_arg_data = function(period, check_range = TRUE) {
+      # Converts and checks argument `period` (a `period_range` object) of methods
+      # `run_eqn` and `fill_mdl_data` and of methods that are used to access
+      # or modify the mode data. Converts the frequency, fills in missing bounds
+      # and checks whether the period lies within the range of `private$data_period`
+      # if check_range == TRUE.
+      if (is.null(private$data_period)) {
+        stop(private$period_error_msg)
+      }
+      period <- as.period_range(period)
+
+      # Convert to the same frequency as `private$data_period`.
       period <- change_frequency(period, frequency(private$data_period))
 
-      if (data_period) {
-        defaultp <- private$data_period
-      } else {
-        defaultp <- private$model_period
+      # Fill in missing bounds
+      period <- fill_missing_range_bounds(period, private$data_period)
+
+      # Check range
+      if (check_range && !period_range_is_within(period, private$data_period)) {
+        stop("The specified period (", period, ") lies outside the range of ",
+             "the data period (", private$data_period, ").")
       }
 
-      startp <- start_period(period)
-      if (is.null(startp)) {
-        startp <- start_period(defaultp)
-      }
-      endp <- end_period(period)
-      if (is.null(endp)) {
-        endp <- end_period(defaultp)
-      }
-      return(period_range(startp, endp))
+      period
     },
     convert_data_internal = function(data, names) {
       # Used by set_data and set_fit: checks the period range of data and

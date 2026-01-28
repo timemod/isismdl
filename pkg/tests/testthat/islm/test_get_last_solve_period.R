@@ -5,7 +5,7 @@ library(testthat)
 rm(list = ls())
 
 
-test_that("new compiled moel", {
+test_that("new compiled model", {
   mdl <- isis_mdl("mdl/islm.mdl", silent = TRUE)
   expect_null(mdl$get_last_solve_period())
 })

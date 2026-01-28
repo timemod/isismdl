@@ -35,7 +35,10 @@ mdl$fill_mdl_data(period = mdl$get_data_period(),
 
 
 \describe{
-\item{\code{period}}{a \code{\link[regts]{period_range}} object}
+\item{\code{period}}{A \code{\link[regts]{period_range}} object or
+an object coercible to a \code{period_range}. This specifies
+the periods for which missing model data are replaced.
+If omitted the full data period of the model is used.}
 \item{\code{report}}{Defines the type of report about the number of
 replaced missing values. See details.}
 \item{\code{include_frmls}}{A logical. For the default value \code{FALSE} only active identity
@@ -63,9 +66,10 @@ the number of replaced missing values is reported}
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 
 mdl$set_values(200, names = "t", period = "2017Q1")
+
 mdl$fill_mdl_data(period = "2017Q1")
 print(mdl$get_data(names = "yd"))
 }
 \seealso{
-\code{\link{run_eqn}}.
+\code{\link{run_eqn}} and \code{\link{fill_mdl_data_solve}}.
 }

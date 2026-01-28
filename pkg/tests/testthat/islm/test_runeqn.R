@@ -4,8 +4,7 @@ library(testthat)
 
 rm(list = ls())
 
-
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 test_that("run_eqn for a small sample period", {
   mdl2 <- mdl$clone(deep = TRUE)
@@ -20,7 +19,7 @@ test_that("run_eqn for the full data period", {
 
   # fix t in the lag period, otherwise y and yd will be updated
   t <- mdl$get_data(period = "2015Q1", names = "y") -
-       mdl$get_data(period = "2015Q1", names =  "yd")
+    mdl$get_data(period = "2015Q1", names =  "yd")
   mdl2$set_fix(t, names = "t")
 
   mdl2$set_values(names = "c", value = NA, period = "2015Q3/2016Q1")
@@ -33,4 +32,13 @@ test_that("run_eqn for the full data period", {
                       names = "md", labels = "money demand")
   md <- mdl2$get_data(names = "md", period = "2015Q1")
   expect_equal(md, md_correct)
+})
+
+test_that("errors", {
+  expect_error(
+    mdl$run_eqn(period = "2014"),
+    paste("The specified period (2014Q1/2014Q4) lies outside the range of the",
+          "data period (2015Q1/2016Q3)."),
+    fixed = TRUE
+  )
 })

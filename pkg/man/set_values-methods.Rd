@@ -82,6 +82,7 @@ mdl$set_values(c(205, 206), pattern = "^m.$", period = "2017Q1/2017Q2")
 
 # set the values of ms and md in all quarters of 2017 (2017Q1/2017Q4)
 mdl$set_values(c(205, 206, 207, 208), pattern = "^m.$", period = "2017")
+
 print(mdl$get_data())
 
 # give the constant adjustment of variable c the value 1

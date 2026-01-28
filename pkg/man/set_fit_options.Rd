@@ -373,13 +373,13 @@ the fit Jacobian contains dependent rows.
 #>  
 #> Left Singular vectors:
 #> ----------------------
-#> Singular value   0.74E-15
+#> Singular value   0.73E-15
 #>                                y -0.62
 #>                               yd  0.79
 #>  
 #> Right Singular vectors:
 #> -----------------------
-#> Singular value   0.74E-15
+#> Singular value   0.73E-15
 #>                                c  0.26
 #>                               md  0.97
 #>  

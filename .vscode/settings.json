@@ -1,0 +1,5 @@
+{
+    "r.lintr.linter_file": ".lintr",
+    "r.alwaysUseActiveFileForWorkingDirectory": false,
+    "r.workingDirectory": "${workspaceFolder}"
+}

@@ -124,13 +124,13 @@ mdl$solve()
 # Solve for y(2016) based on obs(2016) = 100
 library(tibble)
 solve_df <- tribble(
-  ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
-  "2016", "A", "obs", "y", 0.1
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    "2016", "A", "obs", "y", 0.1
 )
 mdl$fill_mdl_data_solve(
-  period = "2016",
-  solve_df = solve_df,
-  report = "period"
+    period = "2016",
+    solve_df = solve_df,
+    report = "period"
 )
 
 
@@ -141,9 +141,9 @@ mdl$solve()
 
 # Example with custom solver options
 mdl_copy$fill_mdl_data_solve(
-  solve_df = solve_df,
-  report = "period",
-  control = list(trace = 1, maxit = 200)
+    solve_df = solve_df,
+    report = "period",
+    control = list(trace = 1, maxit = 200)
 )
 
 # Clean up

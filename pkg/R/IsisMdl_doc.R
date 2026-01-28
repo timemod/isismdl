@@ -60,7 +60,7 @@ NULL
 #' left hand side of active equation. This behaviour can be modified
 #' by specifying \code{status}. The following options
 #' for argument \code{status} are recognized:
-#'\describe{
+#' \describe{
 #' \item{\code{"active"}}{active endogenous variables, the default}
 #' \item{\code{"inactive"}}{inactive endogenous variables}
 #' \item{\code{"all"}}{all endogenous variables}
@@ -363,20 +363,26 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} sets the model period.
-#' This is the default period used when solving the model.
+#' This is the default period used when solving the model with method
+#' \code{\link{solve}}. It also initializes the model data if the model data has
+#' not already been initialized (see Details).
 #'
-#' If the model data has not already been initialized with method
-#' \code{\link{init_data}}, then \code{set_period} also initializes
-#' the model data. In that case the model data period is set to the
-#' specified model period extended with a lag and lead period.
-#' Model timeseries are initialized with \code{NA} and all constant
-#' adjustments with 0.
-#'
-#' If the model data has already been initialized with  method
-#' \code{\link{init_data}}, then the new model period
-#' should be compatible with the model data period.
-#' In particular, the new model period extended with a lag and lead period
-#' should not contain periods outside the model data period.
+#' @details
+#' The behavior depends on whether model data has already been initialized with
+#' method \code{\link{init_data}} or a previous call of \code{\link{set_period}}:
+#' - If the model data **has not been initialized** yet,
+#'   \code{set_period} also initializes the model data:
+#'     - The model data period is set to the specified model period extended
+#'       with a lag and lead period.
+#'     - Model timeseries are initialized to \code{NA}.
+#'     - Constant adjustments are initialized to 0.
+#' - If the model data **has already been initialized**,
+#'   \code{set_period} checks whether the new model period is compatible
+#'   with the existing data period:
+#'     - It must have the same frequency as the data period.
+#'     - The data period must be long enough to solve the model for the new
+#'       model period (i.e., the new model period extended with a lag and lead
+#'       period must lie within the range of the data period).
 #' @section Usage:
 #' \preformatted{
 #' mdl$set_period(period)
@@ -388,11 +394,13 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{period}}{\code{\link[regts]{period_range}}
+#' \item{\code{period}}{A \code{\link[regts]{period_range}}
 #' object, or an object that can be coerced to
-#' \code{\link[regts]{period_range}}}
+#' \code{\link[regts]{period_range}}.}
 #' }
 #'
+#' @seealso \code{\link{get_period}}, \code{\link{get_data_period}}
+#' and \code{\link{init_data}}.
 #' @examples
 #' mdl <- islm_mdl()
 #' mdl$set_period("2017Q2/2021Q3")
@@ -400,51 +408,72 @@ NULL
 
 #' \code{\link{IsisMdl}} method: initializes the model data.
 #' @name init_data
-#'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}}
-#' initializes the model variables and constant adjustments for the whole
-#' data period.
-#' The model timeseries are set to \code{NA} and the constant adjustments to
-#' zero.
+#' This method of R6 class \code{\link{IsisMdl}} (re)initializes the
+#' model variables and constant adjustments for a specified data period.
 #'
-#' If arguments \code{data} or \code{ca} have been specified,
-#' then the model variables or constant adjustments are
-#' subsequently updated with the timeseries in \code{data} or \code{ca},
-#' respectively. Timeseries in `data` or `ca` that are no model variables
-#' or constant adjustments are silently skipped.
+#' Calling \code{init_data} has the following effects:
+#' - Sets the **data period** of the model (see Details).
+#' - Initializes all model timeseries to \code{NA}.
+#' - Initializes all constant adjustments to \code{0}.
+#' - Removes all existing fix values and fit targets.
+#' - If the **model period** has not been set yet, it is automatically set based on
+#'   the \code{data_period} (subtracting the required lag and lead periods).
 #'
-#' If the model period has not yet been specified (in function
-#' \code{\link{isis_mdl}} or method \code{\link{set_period}}), then
-#' this method also sets the model period, the standard period
-#' for which the model will be solved. The model period
-#' is obtained from the data period by subtracting the lag and lead periods.
+#' If arguments \code{data} or \code{ca} are provided, the model variables or
+#' constant adjustments are updated with these values after the initial reset.
 #'
 #' @section Usage:
-#' \preformatted{
+#' ```r
 #' mdl$init_data(data_period, data, ca)
+#' ```
 #'
-#' }
-#'
-#' \code{mdl} is an \code{IsisMdl} object
+#' \code{mdl} is an \code{IsisMdl} object.
 #'
 #' @section Arguments:
-#'
 #' \describe{
-#' \item{\code{data_period}}{a \code{\link[regts]{period_range}}
-#' object, or an object that can be coerced to
-#' \code{\link[regts]{period_range}}.  If not specified then the data period
-#' is based on the period range of argument \code{data} (if this argument
-#' has been specified) and  the model period.}
-#' \item{\code{data}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
-#'  object with model variables}
-#' \item{\code{ca}}{a \code{\link[stats]{ts}} or \code{\link[regts]{regts}}
-#'  object with constant adjustments}
+#' \item{\code{data_period}}{A \code{\link[regts]{period_range}} object or an
+#'   object coercible to a `period_range`. This defines the total range for which model data
+#'   will be stored. If omitted, it is inferred from the \code{data} argument
+#'   or the existing model period (see Details).}
+#' \item{\code{data}}{An optional \code{\link[stats]{ts}} or
+#'   \code{\link[regts]{regts}} object containing values for model variables.
+#'   Only variables present in the model are used.}
+#' \item{\code{ca}}{An optional \code{\link[stats]{ts}} or
+#'   \code{\link[regts]{regts}} object containing values for constant adjustments.}
 #' }
-#' @seealso \code{\link{set_period}}
+#'
+#' @details
+#'
+#' If \code{data_period} is not specified, then the data period is determined
+#' according to the following procedure:
+#' - If `data` is provided:
+#'     - If the model period has not been set yet, the data period is set to the
+#'       period range of `data`.
+#'     - If the model period has already been set, the data period is determined by
+#'       combining (taking the union of) the period range of the data and the
+#'       required range for the current model period.
+#' - If `data` is not provided:
+#'     - The existing data period is used. An error is raised if no data period
+#'       has been established yet.
+#'
+#' @seealso \code{\link{set_period}}, \code{\link{get_data_period}} and
+#'   \code{\link{isis_mdl}}.
+#'
 #' @examples
 #' mdl <- islm_mdl()
+#'
+#' # Initialize data for a specific period
 #' mdl$init_data("2017Q2/2021Q3")
+#' print(mdl)
+#'
+#' # Initialize and load data from a regts object
+#' mdl <- islm_mdl()
+#' initial_data <- cbind(
+#'   y = regts(c(1000, 900, 800), period = "2017Q1/2017Q3"),
+#'   c = regts(c(800, 767, 705), period = "2017Q1/2017Q3")
+#' )
+#' mdl$init_data(data = initial_data)
 #' print(mdl)
 NULL
 
@@ -462,7 +491,7 @@ NULL
 #'
 #' \code{mdl} is an \code{IsisMdl} object
 #' @seealso
-#' \code{\link{set_period}}
+#' \code{\link{set_period}} and \code{\link{get_data_period}}.
 NULL
 
 #' \code{\link{IsisMdl}} method: returns the model data period
@@ -489,7 +518,7 @@ NULL
 #' This method of R6 class \code{\link{IsisMdl}} solves
 #' the model. It requires that the model period has been
 #' set with methods \code{\link{isis_mdl}}, \code{\link{init_data}}
-#' or \code{\link{set_period}}).
+#' or \code{\link{set_period}}.
 
 #' @section Usage:
 #' \code{IsisMdl} method:
@@ -504,9 +533,10 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{period}}{\code{\link[regts]{period_range}}
-#' object, or an object
-#' that can be coerced to \code{\link[regts]{period_range}}}
+#' \item{\code{period}}{A \code{\link[regts]{period_range}}
+#' object, or an object coercible to a \code{\link[regts]{period_range}}.
+#' This specifies the periods for which the model is solved.
+#' If omitted the model period is used.}
 #' \item{\code{options}}{a named list with solve options,
 #' for example \code{list(maxiter = 50)}.
 #' The names are the corresponding argument names of
@@ -546,7 +576,8 @@ NULL
 #' The solve method outputs a report which the user should check.
 #'
 #' @seealso \code{\link{set_solve_options}},
-#' \code{\link{set_fit_options}} and \code{\link{get_solve_status}}
+#' \code{\link{set_fit_options}}, \code{\link{get_solve_status}} and
+#' \code{\link{set_period}}.
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$solve(options = list(report = "fullrep"))
@@ -597,7 +628,7 @@ NULL
 #' mdl$set_values(NA, names = "y", period = "2017Q1")
 #' mdl$solve()
 #' if (mdl$get_solve_status() != "OK") {
-#'    stop("Error solving the model. Check the warnings!")
+#'     stop("Error solving the model. Check the warnings!")
 #' }
 #' }
 NULL
@@ -634,7 +665,10 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{period}}{a \code{\link[regts]{period_range}} object}
+#' \item{\code{period}}{A \code{\link[regts]{period_range}} object or
+#' an object coercible to a `period_range`. This specifies
+#' the periods for which missing model data are replaced.
+#' If omitted the full data period of the model is used.}
 #' \item{\code{report}}{Defines the type of report about the number of
 #' replaced missing values. See details.}
 #' \item{\code{include_frmls}}{A logical. For the default value `FALSE` only active identity
@@ -655,13 +689,13 @@ NULL
 #' \item{\code{no}}{to not generate a report}
 #' }
 #'
-#' @seealso \code{\link{run_eqn}}.
+#' @seealso \code{\link{run_eqn}} and \code{\link{fill_mdl_data_solve}}.
 #'
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #'
 #' mdl$set_values(200, names = "t", period = "2017Q1")
-#
+#'
 #' mdl$fill_mdl_data(period = "2017Q1")
 #' print(mdl$get_data(names = "yd"))
 NULL
@@ -777,13 +811,13 @@ NULL
 #' # Solve for y(2016) based on obs(2016) = 100
 #' library(tibble)
 #' solve_df <- tribble(
-#'   ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
-#'   "2016", "A", "obs", "y", 0.1
+#'     ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+#'     "2016", "A", "obs", "y", 0.1
 #' )
 #' mdl$fill_mdl_data_solve(
-#'   period = "2016",
-#'   solve_df = solve_df,
-#'   report = "period"
+#'     period = "2016",
+#'     solve_df = solve_df,
+#'     report = "period"
 #' )
 #'
 #'
@@ -794,9 +828,9 @@ NULL
 #'
 #' # Example with custom solver options
 #' mdl_copy$fill_mdl_data_solve(
-#'   solve_df = solve_df,
-#'   report = "period",
-#'   control = list(trace = 1, maxit = 200)
+#'     solve_df = solve_df,
+#'     report = "period",
+#'     control = list(trace = 1, maxit = 200)
 #' )
 #'
 #' # Clean up
@@ -844,8 +878,9 @@ NULL
 #' matching the regular expression are run.}
 #' \item{\code{names}}{a character vector with equation names}
 #' \item{\code{period}}{a \code{\link[regts]{period_range}} object
-#' or a single \code{\link[regts]{period}} specifying the period range.
-#' By default the equation are run for the whole data period.}
+#' or an object coercible to a `period_range`. This specifies
+#' the periods for which the equations are run.
+#' By default the equations are run for the whole data period.}
 #' \item{\code{solve_order}}{
 #' A logical: should the specified equations be run in solve order?
 #' The default value depends on whether argument `names` has been
@@ -956,12 +991,12 @@ NULL
 #' \itemize{
 #' \item \code{get_mdl_data}: Model data
 #'
-#'\item \code{get_ca}: Constant adjustments
+#' \item \code{get_ca}: Constant adjustments
 #'
-#'\item \code{get_fix_values}: Fix values
+#' \item \code{get_fix_values}: Fix values
 #'
-#'\item \code{get_fit_targets}: Fit targets
-#'}
+#' \item \code{get_fit_targets}: Fit targets
+#' }
 #'
 #' @examples
 #' mdl <- islm_mdl(period = "2016Q1/2017Q4")
@@ -1045,7 +1080,7 @@ NULL
 #' \item{\code{set_fit}}{Set fit targets for the fit procedure.
 #' A fit target value of \code{NA} implies
 #' that the corresponding variable is no fit target}
-#'}
+#' }
 #' @section Details:
 #'
 #' Method \code{set_data} transfers data from a timeseries object to the
@@ -1088,13 +1123,14 @@ NULL
 #'
 #' # in the next example, we use argument fun to apply an additive shock to the
 #' # exogenous variables g and ms.
-#' shock <- regts(matrix(c(-5, -10, -15, 3 , 6, 6), ncol = 2),
-#'              start = "2017Q1", names = c("g", "ms"))
-#' mdl$set_data(shock, fun = function(x1, x2) {x1 + x2})
+#' shock <- regts(matrix(c(-5, -10, -15, 3, 6, 6), ncol = 2),
+#'                start = "2017Q1", names = c("g", "ms"))
+#'
+#' mdl$set_data(shock, fun = function(x1, x2) x1 + x2)
 #'
 #' # the statement above can be more concisely written as
 #' mdl$set_data(shock, fun = `+`)
-#' #`+` is a primitive function that adds its two arguments.
+#' # `+` is a primitive function that adds its two arguments.
 #'
 #'
 #' # fix c in 2017Q1/2017q2 and i in 2017q1 to specific values
@@ -1178,7 +1214,7 @@ NULL
 #'
 #' # set the values of ms and md in all quarters of 2017 (2017Q1/2017Q4)
 #' mdl$set_values(c(205, 206, 207, 208), pattern = "^m.$", period = "2017")
-#
+#'
 #' print(mdl$get_data())
 #'
 #' # give the constant adjustment of variable c the value 1
@@ -1256,11 +1292,12 @@ NULL
 #' mdl <- islm_mdl(period = "2017Q1/2017Q3")
 #'
 #' # increase y and yd with 10% for the full data period
-#' mdl$change_data(pattern = "^y.?$", fun = function(x) {x * 1.1})
+#' mdl$change_data(pattern = "^y.?$", fun = function(x) x * 1.1)
 #'
 #' # increase ms in 2017Q1 and 2017Q2 with 10 and 20, resp.
-#' mdl$change_data(names = "ms", fun = function(x, dx) {x + dx},
+#' mdl$change_data(names = "ms", fun = function(x, dx) x + dx,
 #'                 dx = c(10, 20), period = "2017Q1/2017Q2")
+#'
 #' print(mdl$get_data())
 #'
 #' @seealso \code{\link{get_data-methods}}, \code{\link{set_data-methods}} and
@@ -2488,8 +2525,10 @@ NULL
 #'                   note = "Example of user data")
 #'
 #' # the previous statement is equivalent to:
-#' mdl$set_user_data(list(date = Sys.Date(),
-#'                        note = "Example of user data"))
+#' mdl$set_user_data(list(
+#'     date = Sys.Date(),
+#'     note = "Example of user data"
+#' ))
 #'
 #' # add another user data element
 #' mdl$set_user_data(input_data = mdl$get_data())

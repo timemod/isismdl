@@ -7,7 +7,7 @@
 This method of R6 class \code{\link{IsisMdl}} solves
 the model. It requires that the model period has been
 set with methods \code{\link{isis_mdl}}, \code{\link{init_data}}
-or \code{\link{set_period}}).
+or \code{\link{set_period}}.
 }
 \section{Usage}{
 
@@ -25,9 +25,10 @@ mdl$solve(period = mdl$get_period(), options = list(),
 
 
 \describe{
-\item{\code{period}}{\code{\link[regts]{period_range}}
-object, or an object
-that can be coerced to \code{\link[regts]{period_range}}}
+\item{\code{period}}{A \code{\link[regts]{period_range}}
+object, or an object coercible to a \code{\link[regts]{period_range}}.
+This specifies the periods for which the model is solved.
+If omitted the model period is used.}
 \item{\code{options}}{a named list with solve options,
 for example \code{list(maxiter = 50)}.
 The names are the corresponding argument names of
@@ -81,5 +82,6 @@ mdl$solve(period = "2017")
 }
 \seealso{
 \code{\link{set_solve_options}},
-\code{\link{set_fit_options}} and \code{\link{get_solve_status}}
+\code{\link{set_fit_options}}, \code{\link{get_solve_status}} and
+\code{\link{set_period}}.
 }

@@ -125,13 +125,14 @@ print(mdl$get_data())
 
 # in the next example, we use argument fun to apply an additive shock to the
 # exogenous variables g and ms.
-shock <- regts(matrix(c(-5, -10, -15, 3 , 6, 6), ncol = 2),
-             start = "2017Q1", names = c("g", "ms"))
-mdl$set_data(shock, fun = function(x1, x2) {x1 + x2})
+shock <- regts(matrix(c(-5, -10, -15, 3, 6, 6), ncol = 2),
+               start = "2017Q1", names = c("g", "ms"))
+
+mdl$set_data(shock, fun = function(x1, x2) x1 + x2)
 
 # the statement above can be more concisely written as
 mdl$set_data(shock, fun = `+`)
-#`+` is a primitive function that adds its two arguments.
+# `+` is a primitive function that adds its two arguments.
 
 
 # fix c in 2017Q1/2017q2 and i in 2017q1 to specific values
