@@ -26,7 +26,7 @@ mdl$solve(period = mdl$get_period(), options = list(),
 
 \describe{
 \item{\code{period}}{A \code{\link[regts]{period_range}}
-object, or an object coercible to \code{\link[regts]{period_range}}.
+object, or an object coercible to a \code{\link[regts]{period_range}}.
 This specifies the periods for which the model is solved.
 If omitted the model period is used.}
 \item{\code{options}}{a named list with solve options,

@@ -1395,7 +1395,6 @@ IsisMdl <- R6Class("IsisMdl",
       # There should be at least one period between the lag and lead periods.
       startp <- start_period(data_period) + private$maxlag
       endp <-   end_period(data_period)   - private$maxlead
-      # TESTEN
       if (startp > endp) {
         stop("The data period is too short. It should contain at least ",
              private$maxlag + private$maxlead + 1, " periods")
@@ -1415,7 +1414,7 @@ IsisMdl <- R6Class("IsisMdl",
         old_jc <- .Call(C_get_jc_c, private$model_index)
         new_jc <- as.integer(old_jc - shift)
         if (new_jc < 1 || new_jc > nperiod(new_model_period_max)) {
-          # last solve period outside range of current model_period_max.
+          # last solve period outside range of new_model_period_max.
           new_jc <- -1L
         }
         .Call(C_set_jc_c, model_index = private$model_index, jc = new_jc)

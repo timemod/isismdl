@@ -52,7 +52,7 @@ has been established yet.
 
 \describe{
 \item{\code{data_period}}{A \code{\link[regts]{period_range}} object or an
-object coercible a \code{period_range}. This defines the total range for which model data
+object coercible to a \code{period_range}. This defines the total range for which model data
 will be stored. If omitted, it is inferred from the \code{data} argument
 or the existing model period (see Details).}
 \item{\code{data}}{An optional \code{\link[stats]{ts}} or

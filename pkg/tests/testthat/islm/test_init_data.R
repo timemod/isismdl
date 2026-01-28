@@ -6,11 +6,19 @@ rm(list = ls())
 
 invisible(capture.output(mdl <- islm_mdl()))
 
-test_that("init_data gives an error if the data period has not been set", {
+test_that("errors", {
+
+  mdl2 <- mdl$copy()
   msg <- paste("If neither data_period nor data have been specified,",
                "then the data period\nshould have been set before",
                "with method init_data or set_period.")
-  expect_error(mdl$copy()$init_data(), msg)
+  expect_error(mdl2$init_data(), msg)
+
+  expect_error(
+    mdl2$init_data(data_period = "2019"),
+    "The data period is too short. It should contain at least 2 periods",
+    fixed = TRUE
+  )
 })
 
 mdl2 <- mdl$copy()
@@ -38,7 +46,7 @@ test_that("data period outside range required by solve", {
 
 test_that("only data specified", {
 
-  data <- cbind(c= regts(1:6, period = "2011q1/2012q1"))
+  data <- cbind(c = regts(1:6, period = "2011q1/2012q1"))
   mdl2 <- mdl$copy()
   mdl2$init_data(data = data)
   expect_equal(mdl2$get_period(), period_range("2011q2/2012q1"))
