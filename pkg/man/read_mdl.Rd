@@ -27,6 +27,10 @@ by base R function \code{\link[base]{readRDS}}.
 mdl <- islm_mdl("2017Q1/2019Q2")
 mdl$write_mdl("islm_mdl.ismdl")
 mdl2 <- read_mdl("islm_mdl.ismdl")
+
+\dontshow{
+unlink("islm_mdl.ismdl")
+}
 }
 \seealso{
 \code{\link{write_mdl}}
