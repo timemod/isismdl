@@ -433,7 +433,7 @@ NULL
 #' @section Arguments:
 #' \describe{
 #' \item{\code{data_period}}{A \code{\link[regts]{period_range}} object or an
-#'   object coercible a `period_range`. This defines the total range for which model data
+#'   object coercible to a `period_range`. This defines the total range for which model data
 #'   will be stored. If omitted, it is inferred from the \code{data} argument
 #'   or the existing model period (see Details).}
 #' \item{\code{data}}{An optional \code{\link[stats]{ts}} or
@@ -534,7 +534,7 @@ NULL
 #'
 #' \describe{
 #' \item{\code{period}}{A \code{\link[regts]{period_range}}
-#' object, or an object coercible to \code{\link[regts]{period_range}}.
+#' object, or an object coercible to a \code{\link[regts]{period_range}}.
 #' This specifies the periods for which the model is solved.
 #' If omitted the model period is used.}
 #' \item{\code{options}}{a named list with solve options,
