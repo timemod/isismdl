@@ -5,45 +5,44 @@
 #' @noRd
 
 solve_exo_internal <- function(
-  mdl, solve_period, exo_vars, target_vars, report, jacobian = TRUE,
+  mdl,
+  solve_period,
+  exo_vars,
+  target_vars,
+  report,
+  jacobian = TRUE,
   ...
 ) {
   if (length(exo_vars) != length(target_vars)) {
     stop("Length of 'exo_vars' must be equal to length of 'target_vars'.")
   }
-
-  # solve_period can be a single period or a period_range.
-  # Convert it to a sequence of periods.
-  solve_period_range <- regts::as.period_range(solve_period)
+  # Check target vars = endo & exo_vars = exo
   periods <- seq(
-    regts::start_period(solve_period_range),
-    regts::end_period(solve_period_range)
+    regts::start_period(solve_period),
+    regts::end_period(solve_period)
   )
 
-  dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
-
   for (per in as.list(periods)) {
-    observed_data <- get_observed_data(mdl$get_data())
-
-    deps <- get_fit_deps(
-      observed_variables = target_vars,
-      derived_variables  = exo_vars,
-      solve_period       = per,
-      mdl                = mdl,
-      dep_struc          = dep_struc,
-      observed_data      = observed_data,
-      report             = report
-    )
-
-    equations <- deps[deps$calculable &
-      deps$period == as.character(per), ]$var
-
     if (report == "period") {
       cat("\n===============================================\n")
-      cat("Solving exogenous variables for period ", as.character(per), "\n", sep = "")
-      cat("Exogenous variables: ", paste(exo_vars, collapse = ", "), "\n", sep = "")
-      cat("Target variables:    ", paste(target_vars, collapse = ", "), "\n", sep = "")
-      cat("Equations to run:    ", paste(equations, collapse = ", "), "\n", sep = "")
+      cat(
+        "Solving exogenous variables for period ",
+        as.character(per),
+        "\n",
+        sep = ""
+      )
+      cat(
+        "Exogenous variables: ",
+        paste(exo_vars, collapse = ", "),
+        "\n",
+        sep = ""
+      )
+      cat(
+        "Target variables:    ",
+        paste(target_vars, collapse = ", "),
+        "\n",
+        sep = ""
+      )
       cat("===============================================\n\n")
     }
 
@@ -53,8 +52,9 @@ solve_exo_internal <- function(
     if (any(is.na(target_values))) {
       missing_targets <- target_vars[is.na(target_values)]
       stop(
-        "solve_exo_internal: target variables contain NA values in period ",
-        as.character(per), ": ",
+        "solve_exo: target variables contain NA values in period ",
+        as.character(per),
+        ": ",
         paste(missing_targets, collapse = ", ")
       )
     }
@@ -78,13 +78,14 @@ solve_exo_internal <- function(
       )
       mdl$set_data(data_exo)
 
-      mdl$run_eqn(names = equations, period = per, solve_order = TRUE)
+      mdl$solve(period = per, options = list(report = "no"))
 
       # Compute residuals: observed/target - model value
       model_targets <- mdl$get_data(names = target_vars, period = per) |>
         as.numeric()
 
       retval <- target_values - model_targets
+      cat("x:", x, "residuals:", retval, "\n")
       return(retval)
     }
 
@@ -111,8 +112,10 @@ solve_exo_internal <- function(
     if (!ret$termcd %in% 1:2) {
       stop(
         "solve_exo_internal: Failed to solve exogenous variables for period ",
-        as.character(per), " with nleqslv.\n",
-        "Message from nleqslv: ", ret$message
+        as.character(per),
+        " with nleqslv.\n",
+        "Message from nleqslv: ",
+        ret$message
       )
     }
 
