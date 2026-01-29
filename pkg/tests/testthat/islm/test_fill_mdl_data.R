@@ -46,3 +46,12 @@ test_that("fill_mdl_data with frmls", {
     fixed = TRUE
   )
 })
+
+test_that("errors", {
+  expect_error(
+    mdl$run_eqn(period = "2014M1/2014M6"),
+    paste("The specified period (2014Q1/2014Q2) lies outside the range of the",
+          "data period (2015Q1/2016Q3)."),
+    fixed = TRUE
+  )
+})

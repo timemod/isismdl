@@ -5,20 +5,32 @@
 \title{\code{\link{IsisMdl}} method: sets the model period}
 \description{
 This method of R6 class \code{\link{IsisMdl}} sets the model period.
-This is the default period used when solving the model.
-
-If the model data has not already been initialized with method
-\code{\link{init_data}}, then \code{set_period} also initializes
-the model data. In that case the model data period is set to the
-specified model period extended with a lag and lead period.
-Model timeseries are initialized with \code{NA} and all constant
-adjustments with 0.
-
-If the model data has already been initialized with  method
-\code{\link{init_data}}, then the new model period
-should be compatible with the model data period.
-In particular, the new model period extended with a lag and lead period
-should not contain periods outside the model data period.
+This is the default period used when solving the model with method
+\code{\link{solve}}. It also initializes the model data if the model data has
+not already been initialized (see Details).
+}
+\details{
+The behavior depends on whether model data has already been initialized with
+method \code{\link{init_data}} or a previous call of \code{\link{set_period}}:
+\itemize{
+\item If the model data \strong{has not been initialized} yet,
+\code{set_period} also initializes the model data:
+\itemize{
+\item The model data period is set to the specified model period extended
+with a lag and lead period.
+\item Model timeseries are initialized to \code{NA}.
+\item Constant adjustments are initialized to 0.
+}
+\item If the model data \strong{has already been initialized},
+\code{set_period} checks whether the new model period is compatible
+with the existing data period:
+\itemize{
+\item It must have the same frequency as the data period.
+\item The data period must be long enough to solve the model for the new
+model period (i.e., the new model period extended with a lag and lead
+period must lie within the range of the data period).
+}
+}
 }
 \section{Usage}{
 
@@ -34,13 +46,17 @@ mdl$set_period(period)
 
 
 \describe{
-\item{\code{period}}{\code{\link[regts]{period_range}}
+\item{\code{period}}{A \code{\link[regts]{period_range}}
 object, or an object that can be coerced to
-\code{\link[regts]{period_range}}}
+\code{\link[regts]{period_range}}.}
 }
 }
 
 \examples{
 mdl <- islm_mdl()
 mdl$set_period("2017Q2/2021Q3")
+}
+\seealso{
+\code{\link{get_period}}, \code{\link{get_data_period}}
+and \code{\link{init_data}}.
 }

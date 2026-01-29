@@ -129,9 +129,8 @@ print(mdl$get_data())
 shock <- regts(matrix(c(-5, -10, -15, 3, 6, 6), ncol = 2),
     start = "2017Q1", names = c("g", "ms")
 )
-mdl$set_data(shock, fun = function(x1, x2) {
-    x1 + x2
-})
+
+mdl$set_data(shock, fun = function(x1, x2) x1 + x2)
 
 # the statement above can be more concisely written as
 mdl$set_data(shock, fun = `+`)
