@@ -19,6 +19,18 @@ test_that("errors", {
     "The data period is too short. It should contain at least 2 periods",
     fixed = TRUE
   )
+
+  expect_error(
+    mdl2$init_data(data_period = "2019/"),
+    "data_period should have a lower and upper bound",
+    fixed = TRUE
+  )
+
+  expect_error(
+    mdl2$init_data(data = 2),
+    "Argument 'data' should be a (reg)ts object",
+    fixed = TRUE
+  )
 })
 
 mdl2 <- mdl$copy()
