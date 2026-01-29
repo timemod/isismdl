@@ -2281,6 +2281,10 @@ NULL
 #' @examples
 #' mdl <- islm_mdl("2017Q1/2019Q2")
 #' mdl$write_mdl("islm_mdl.ismdl")
+#'
+#' \dontshow{
+#' unlink("islm_mdl.ismdl")
+#' }
 #' @seealso \code{\link{read_mdl}}
 NULL
 

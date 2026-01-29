@@ -484,13 +484,8 @@ IsisMdl <- R6Class("IsisMdl",
 
       private$init_data_(data_period)
 
-      # If the model period has not been set, then determine the model
-      # period from the data period.
-      if (is.null(mp)) {
-        startp <- start_period(data_period) + private$maxlag
-        endp <- end_period(data_period) - private$maxlead
-        private$model_period <- period_range(startp, endp)
-      }
+      # If the model period has not been set, set it to private$model_period_max.
+      if (is.null(mp)) private$model_period <- private$model_period_max
 
       # Update data and ca ----
       if (!missing(data) && !is.null(data)) {
