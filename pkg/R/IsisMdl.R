@@ -278,13 +278,14 @@ IsisMdl <- R6Class("IsisMdl",
       }
       return(invisible(self))
     },
-    fill_mdl_data_solve = function(period, solve_df, data_init,
+    fill_mdl_data_solve = function(period = private$data_period, solve_df,
+                                   data_init = NULL,
                                    report = c("period", "minimal", "no"),
                                    include_frmls = FALSE,
                                    default_initial_guess = 0.1,
                                    jacobian = TRUE, ...) {
       report <- match.arg(report)
-      period <- private$convert_period_arg(period)
+      period <- private$convert_period_arg_data(period)
       return(fmds(
         mdl = self, period = period,
         solve_df = solve_df, report = report,
@@ -296,8 +297,7 @@ IsisMdl <- R6Class("IsisMdl",
                          report = c("period", "minimal", "no"),
                          jacobian = TRUE, ...) {
       report <- match.arg(report)
-      solve_period <- private$convert_period_arg(solve_period, data_period = FALSE)
-      private$check_model_period(solve_period)
+      solve_period <- private$convert_period_arg_solve(solve_period)
       return(solve_exo_internal(
         mdl = self, solve_period = solve_period,
         exo_vars = exo_vars, target_vars = target_vars,
