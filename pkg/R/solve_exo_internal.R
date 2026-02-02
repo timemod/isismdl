@@ -19,7 +19,24 @@ solve_exo_internal <- function(
   if (length(mdl$get_endo_names(type = "feedback")) > 0) {
     stop("solve_exo does not support models with feedback variables.")
   }
-  # TODO: Check whether target vars are endogenous & exo_vars are exogenous
+  # Check whether target vars are endogenous & exo_vars are exogenous
+  all_endo <- mdl$get_endo_names(status = "active")
+  invalid_targets <- setdiff(target_vars, all_endo)
+  if (length(invalid_targets) > 0) {
+    stop(
+      "The following target variables are not active endogenous: ",
+      paste(invalid_targets, collapse = ", ")
+    )
+  }
+
+  all_exo <- mdl$get_exo_names()
+  invalid_exo <- setdiff(exo_vars, all_exo)
+  if (length(invalid_exo) > 0) {
+    stop(
+      "The following variables in 'exo_vars' are not exogenous: ",
+      paste(invalid_exo, collapse = ", ")
+    )
+  }
   periods <- seq(
     regts::start_period(solve_period),
     regts::end_period(solve_period)

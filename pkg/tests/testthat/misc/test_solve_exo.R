@@ -142,3 +142,35 @@ test_that("solve_exo errors when model has feedback variables", {
   )
   unlink(mdl_file)
 })
+
+test_that("solve_exo errors when target_vars are not endogenous", {
+  mdl_file <- tempfile(fileext = ".mdl")
+  writeLines("ident x = y;", mdl_file)
+  mdl <- isis_mdl(mdl_file, period = "2020", silent = TRUE)
+  
+  expect_error(
+    mdl$solve_exo(exo_vars = "y", target_vars = "y", report = "none"),
+    regexp = "The following target variables are not active endogenous: y"
+  )
+  expect_error(
+    mdl$solve_exo(exo_vars = "y", target_vars = "non_existent", report = "none"),
+    regexp = "The following target variables are not active endogenous: non_existent"
+  )
+  unlink(mdl_file)
+})
+
+test_that("solve_exo errors when exo_vars are not exogenous", {
+  mdl_file <- tempfile(fileext = ".mdl")
+  writeLines(c("ident x = y;", "ident z = x;"), mdl_file)
+  mdl <- isis_mdl(mdl_file, period = "2020", silent = TRUE)
+  
+  expect_error(
+    mdl$solve_exo(exo_vars = "x", target_vars = "z", report = "none"),
+    regexp = "The following variables in 'exo_vars' are not exogenous: x"
+  )
+  expect_error(
+    mdl$solve_exo(exo_vars = "non_existent", target_vars = "z", report = "none"),
+    regexp = "The following variables in 'exo_vars' are not exogenous: non_existent"
+  )
+  unlink(mdl_file)
+})
