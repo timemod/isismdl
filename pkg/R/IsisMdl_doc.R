@@ -898,9 +898,9 @@ NULL
 #' the model.
 #'
 #' The numerical solution is found using the \code{\link[nleqslv]{nleqslv}}
-#' function. The initial values for the exogenous variables in the solve
-#' period are used as starting values for the numerical solver. If the initial
-#' value is \code{NA}, then 0 is used as starting value.
+#' function. The initial guess for the exogenous variables in the solve
+#' period is the current value of the exogenous variable in the model data,
+#' or 0 if the value is \code{NA}.
 #'
 #' If the numerical solver fails to converge, \code{solve_exo} stops with
 #' an error containing the termination code and message from \code{nleqslv},

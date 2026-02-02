@@ -81,6 +81,8 @@ solve_exo_internal <- function(
 
     n <- length(exo_vars)
 
+    # Use current values in model data as starting values for the solver.
+    # If the current value is NA, use 0.
     current_exo <- mdl$get_data(names = exo_vars, period = per) |>
       as.numeric()
 
