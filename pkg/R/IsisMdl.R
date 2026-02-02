@@ -871,9 +871,9 @@ IsisMdl <- R6Class("IsisMdl",
     get_solve_status = function() {
       return(.Call(C_get_solve_status_c, model_index = private$model_index))
     },
-     fill_mdl_data = function(period = private$data_period,
+    fill_mdl_data = function(period = private$data_period,
                              report = c("period", "minimal", "no"),
-                              include_frmls = FALSE) {
+                             include_frmls = FALSE) {
       # Calculates missing model data from identities.
       report <- match.arg(report)
       period <- private$convert_period_arg_data(period)
@@ -897,7 +897,7 @@ IsisMdl <- R6Class("IsisMdl",
         stop("Argument 'forwards' should be a TRUE or FALSE")
       }
       if (!is.logical(by_period) || length(by_period) != 1 ||
-        is.na(by_period)) {
+            is.na(by_period)) {
         stop("Argument 'by_period' should be a TRUE or FALSE")
       }
 
@@ -1462,7 +1462,7 @@ IsisMdl <- R6Class("IsisMdl",
       )
       if (!is.null(ret)) {
         ret <- regts(ret[[2]], start = start_period(private$model_period_max)
-        + ret[[1]] - 1, names = ret[[3]])
+                     + ret[[1]] - 1, names = ret[[3]])
         ret <- ret[, sort(colnames(ret)), drop = FALSE]
         if (length(private$labels) > 0) {
           ret <- update_ts_labels(ret, private$labels)

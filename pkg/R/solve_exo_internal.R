@@ -19,7 +19,7 @@ solve_exo_internal <- function(
   if (length(mdl$get_endo_names(type = "feedback")) > 0) {
     stop("solve_exo does not support models with feedback variables.")
   }
-  # Check target vars = endo & exo_vars = exo
+  # TODO: Check whether target vars are endogenous & exo_vars are exogenous
   periods <- seq(
     regts::start_period(solve_period),
     regts::end_period(solve_period)
