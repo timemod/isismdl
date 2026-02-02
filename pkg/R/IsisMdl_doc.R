@@ -858,7 +858,7 @@ NULL
 #' @section Usage:
 #' \preformatted{
 #' mdl$solve_exo(solve_period, exo_vars, target_vars,
-#'               report = c("period", "minimal", "no"),
+#'               report = c("period", "minimal", "none"),
 #'               jacobian = TRUE, ...)
 #'
 #' }
@@ -881,7 +881,7 @@ NULL
 #'     \item{"period"}{Print a report per period (default). For each period
 #'     the final Jacobian is printed if \code{jacobian = TRUE}.}
 #'     \item{"minimal"}{Print a minimal report.}
-#'     \item{"no"}{Does not generate a report.}
+#'     \item{"none"}{Does not generate a report.}
 #'   }}
 #' \item{\code{jacobian}}{A logical. If `TRUE` and `report == "period"`, the
 #' final Jacobian used for the numerical solution is printed. The default is `TRUE`.}
@@ -920,10 +920,10 @@ NULL
 #' library(isismdl)
 #'
 #' # Example: Calibrating a policy variable to match target GDP
-#' # This defines a simultaneous Keynesian model (Feedback: Y <-> C)
+#' # This defines a recursive model
 #' mdl_file <- tempfile(fileext = ".mdl")
 #' writeLines(c(
-#'     "ident C = C_A + 0.8 * (Y - T);",
+#'     "ident C = C_A + 0.8 * I;",
 #'     "ident Y = C + I + G;"
 #' ), mdl_file)
 #'
@@ -931,7 +931,6 @@ NULL
 #'
 #' # Set values for known exogenous variables (Constants)
 #' mdl$set_values(100, names = "I", period = "2020") # Investment
-#' mdl$set_values(20,  names = "T", period = "2020") # Taxes
 #'
 #' # Initialize the instruments (variables we will solve for)
 #' mdl$set_values(100, names = "G",   period = "2020")
@@ -951,13 +950,12 @@ NULL
 #' )
 #'
 #' # Check results: G should have adjusted to balance the identity Y = C + I + G
-#' # 500 = 400 + 100 + G  => G should be 0
+#' # 500 = 130 + 100 + G  => G should be 270
 #' mdl$get_data(names = "G", period = "2020")
 #'
-#' # Check C_A: C = C_A + 0.8 * (Y - T)
-#' # 400 = C_A + 0.8 * (500 - 20)
-#' # 400 = C_A + 384 => C_A should be 16
-#' mdl$get_data(names = "C_A", period = "2020")
+#' # Check C: C = C_A + 0.8 * I
+#' # C = 50 + 0.8 * 100 = 130
+#' mdl$get_data(names = "C", period = "2020")
 #'
 #' unlink(mdl_file)
 NULL

@@ -293,8 +293,9 @@ IsisMdl <- R6Class("IsisMdl",
         jacobian = jacobian, ...
       ))
     },
-    solve_exo = function(solve_period, exo_vars, target_vars,
-                         report = c("period", "minimal", "no"),
+    solve_exo = function(solve_period = private$model_period,
+                         exo_vars, target_vars,
+                         report = c("period", "minimal", "none"),
                          jacobian = TRUE, ...) {
       report <- match.arg(report)
       solve_period <- private$convert_period_arg_solve(solve_period)
@@ -870,9 +871,9 @@ IsisMdl <- R6Class("IsisMdl",
     get_solve_status = function() {
       return(.Call(C_get_solve_status_c, model_index = private$model_index))
     },
-    fill_mdl_data = function(period = private$data_period,
+     fill_mdl_data = function(period = private$data_period,
                              report = c("period", "minimal", "no"),
-                             include_frmls = FALSE) {
+                              include_frmls = FALSE) {
       # Calculates missing model data from identities.
       report <- match.arg(report)
       period <- private$convert_period_arg_data(period)

@@ -9,7 +9,7 @@ solve_exo_internal <- function(
   solve_period,
   exo_vars,
   target_vars,
-  report,
+  report = c("period", "minimal", "none"),
   jacobian = TRUE,
   ...
 ) {
@@ -86,7 +86,9 @@ solve_exo_internal <- function(
         as.numeric()
 
       retval <- target_values - model_targets
-      cat("x:", x, "residuals:", retval, "\n")
+      if (report != "none") {
+        cat("x:", x, "residuals:", retval, "\n")
+      }
       return(retval)
     }
 

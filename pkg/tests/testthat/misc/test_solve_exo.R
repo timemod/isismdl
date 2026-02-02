@@ -78,7 +78,7 @@ test_that("solve_exo errors when target variables contain NA", {
       solve_period = "2020",
       exo_vars = "y1",
       target_vars = "obs1",
-      report = "no"
+      report = "none"
     ),
     regexp = "target variables contain NA values"
   )
@@ -106,7 +106,7 @@ test_that("solve_exo solves for a period range", {
     solve_period = "2020Q1/2020Q2",
     exo_vars = "y",
     target_vars = "obs",
-    report = "no"
+    report = "none"
   )
 
   # Verify values in both quarters
@@ -136,7 +136,7 @@ test_that("solve_exo errors when model has feedback variables", {
       solve_period = "2020",
       exo_vars = "y",
       target_vars = "obs",
-      report = "no"
+      report = "none"
     ),
     regexp = "solve_exo does not support models with feedback variables"
   )
