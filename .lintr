@@ -5,3 +5,4 @@ linters: linters_with_defaults(
     trailing_whitespace_linter = NULL,
     return_linter = NULL
   )
+cache: FALSE
