@@ -116,3 +116,29 @@ test_that("solve_exo solves for a period range", {
 
   unlink(mdl_file)
 })
+
+test_that("solve_exo errors when model has feedback variables", {
+  mdl_file <- tempfile(fileext = ".mdl")
+  # A simple model with a feedback loop
+  writeLines(
+    c(
+      "ident x = 0.5 * x + y;",
+      "ident obs = x;"
+    ),
+    mdl_file
+  )
+
+  mdl <- isismdl::isis_mdl(mdl_file, period = "2020", silent = TRUE)
+  mdl$set_values(100, names = "obs", period = "2020")
+
+  expect_error(
+    mdl$solve_exo(
+      solve_period = "2020",
+      exo_vars = "y",
+      target_vars = "obs",
+      report = "no"
+    ),
+    regexp = "solve_exo does not support models with feedback variables"
+  )
+  unlink(mdl_file)
+})

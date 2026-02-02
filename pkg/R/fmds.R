@@ -28,6 +28,9 @@ fmds <- function(
   # equation names.
 
   # TODO: controleer het soort model: het moet recursief zijn en geen lags bevatten.
+  if (length(mdl$get_endo_names(type = "feedback")) > 0) {
+    stop("fill_mdl_data_solve does not support models with feedback variables.")
+  }
   # TODO: check solved_variables and observed variables are endogenous.
 
   mdl_original_data <- mdl$get_data()

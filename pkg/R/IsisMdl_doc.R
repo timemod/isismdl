@@ -748,6 +748,7 @@ NULL
 #'
 #' Note: This method is primarily designed to compute starting values.
 #' For solving exogenous variables, use the separate \code{solve_exo} method.
+#' This method does not support models with feedback variables.
 #'
 #' @param period A \code{\link[regts]{period}} range object specifying the
 #' period using to replace missing values by evaluating the equations.
@@ -849,6 +850,8 @@ NULL
 #' the model results for a set of target variables match their values in the
 #' model data.
 #'
+#' This method does not support models with feedback variables.
+#'
 #' This is useful when you want to determine the required values of
 #' exogenous variables to hit specific targets for endogenous variables.
 #'
@@ -896,7 +899,8 @@ NULL
 #'
 #' The numerical solution is found using the \code{\link[nleqslv]{nleqslv}}
 #' function. The initial values for the exogenous variables in the solve
-#' period are used as starting values for the numerical solver.
+#' period are used as starting values for the numerical solver. If the initial
+#' value is \code{NA}, then 0 is used as starting value.
 #'
 #' If the numerical solver fails to converge, \code{solve_exo} stops with
 #' an error containing the termination code and message from \code{nleqslv},
@@ -916,35 +920,44 @@ NULL
 #' library(isismdl)
 #'
 #' # Example: Calibrating a policy variable to match target GDP
+#' # This defines a simultaneous Keynesian model (Feedback: Y <-> C)
 #' mdl_file <- tempfile(fileext = ".mdl")
 #' writeLines(c(
-#'     "ident C = c0 + 0.8 * (Y - T);",
+#'     "ident C = C_A + 0.8 * (Y - T);",
 #'     "ident Y = C + I + G;"
 #' ), mdl_file)
 #'
 #' mdl <- isis_mdl(mdl_file, period = "2020", silent = TRUE)
 #'
-#' # Set known parameters and components
-#' mdl$set_values(100, names = "I", period = "2020") # investment
-#' mdl$set_values(20, names = "T", period = "2020") # taxes
+#' # Set values for known exogenous variables (Constants)
+#' mdl$set_values(100, names = "I", period = "2020") # Investment
+#' mdl$set_values(20,  names = "T", period = "2020") # Taxes
 #'
-#' # Target: Y(2020) should be 500
+#' # Initialize the instruments (variables we will solve for)
+#' mdl$set_values(100, names = "G",   period = "2020")
+#' mdl$set_values(50,  names = "C_A", period = "2020")
+#'
+#' # Set the Target values we want to achieve
+#' # We want Y to be 500 and C to be 400
 #' mdl$set_values(500, names = "Y", period = "2020")
-#'
-#' # Solve for G (government spending) and c0 (autonomous consumption)
-#' # so that Y matches 500 and C (consumption) matches some dummy value
-#' # In this model C is endogenous, but we can treat it as target if we have two instruments
 #' mdl$set_values(400, names = "C", period = "2020")
 #'
+#' # This solves for 'G' and 'C_A' such that 'Y' == 500 and 'C' == 400
 #' mdl$solve_exo(
-#'     exo_vars     = c("G", "c0"),
+#'     exo_vars     = c("G", "C_A"),
 #'     target_vars  = c("Y", "C"),
 #'     solve_period = "2020",
 #'     report       = "minimal"
 #' )
 #'
-#' # Check resulting G
+#' # Check results: G should have adjusted to balance the identity Y = C + I + G
+#' # 500 = 400 + 100 + G  => G should be 0
 #' mdl$get_data(names = "G", period = "2020")
+#'
+#' # Check C_A: C = C_A + 0.8 * (Y - T)
+#' # 400 = C_A + 0.8 * (500 - 20)
+#' # 400 = C_A + 384 => C_A should be 16
+#' mdl$get_data(names = "C_A", period = "2020")
 #'
 #' unlink(mdl_file)
 NULL

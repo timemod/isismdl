@@ -16,6 +16,9 @@ solve_exo_internal <- function(
   if (length(exo_vars) != length(target_vars)) {
     stop("Length of 'exo_vars' must be equal to length of 'target_vars'.")
   }
+  if (length(mdl$get_endo_names(type = "feedback")) > 0) {
+    stop("solve_exo does not support models with feedback variables.")
+  }
   # Check target vars = endo & exo_vars = exo
   periods <- seq(
     regts::start_period(solve_period),
@@ -64,9 +67,7 @@ solve_exo_internal <- function(
     current_exo <- mdl$get_data(names = exo_vars, period = per) |>
       as.numeric()
 
-    if (all(is.na(current_exo))) {
-      current_exo[] <- 0
-    } else if (any(is.na(current_exo))) {
+    if (anyNA(current_exo)) {
       current_exo[is.na(current_exo)] <- 0
     }
 
@@ -78,7 +79,7 @@ solve_exo_internal <- function(
       )
       mdl$set_data(data_exo)
 
-      mdl$solve(period = per, options = list(report = "no"))
+      mdl$run_eqn(period = per)
 
       # Compute residuals: observed/target - model value
       model_targets <- mdl$get_data(names = target_vars, period = per) |>
