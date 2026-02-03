@@ -25,7 +25,7 @@
 #' An extension \code{mdl} is appended to the specified name if the filename
 #' does not already have an extension.
 #' This argument should be missing if argument \code{model_text} is specified.
-#' @param model_text A character string with the model definition.
+#' @param model_text A character vector with the model definition.
 #' This argument should be missing if argument \code{model_file} is specified.
 #' @param period A \code{\link[regts]{period_range}} object or an object coercible to a
 #' `period_range`. This argument specifies the model period,
@@ -154,8 +154,8 @@ isis_mdl <- function(model_file, model_text, period, data, ca, fix_values,
   }
 
   if (!missing(model_text)) {
-    if (!is.character(model_text) || length(model_text) > 1) {
-      stop("Argument 'model_text' must be a character vector of length 1.")
+    if (!is.character(model_text)) {
+      stop("Argument 'model_text' must be a character vector.")
     }
     model_file <- tempfile(pattern = "isismdl_", fileext = ".mdl")
     writeLines(model_text, model_file)

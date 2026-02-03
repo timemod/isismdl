@@ -8,7 +8,7 @@ rm(list = ls())
 period <- as.period_range("1550Y")
 
 mdl_filename <- "mdl/recursive.mdl"
-mdl <- isis_mdl(mdl_filename, period, silent = TRUE)
+mdl <- isis_mdl(mdl_filename = mdl_filename, period = period, silent = TRUE)
 mdl$set_solve_options(report = "none", maxiter = 0)
 mdl$set_eq_status("inactive", "x")
 mdl$set_values(2, names = "x")
@@ -23,7 +23,7 @@ test_that("run_eqn", {
   mdl2 <- mdl$copy()
   mdl2$run_eqn()
   expect_equal(mdl2$get_data(), expected_result)
-})
+}) 
 
 test_that("run_eqn with natural ordering", {
   mdl2 <- mdl$copy()

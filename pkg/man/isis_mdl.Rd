@@ -21,7 +21,7 @@ An extension \code{mdl} is appended to the specified name if the filename
 does not already have an extension.
 This argument should be missing if argument \code{model_text} is specified.}
 
-\item{model_text}{A character string with the model definition.
+\item{model_text}{A character vector with the model definition.
 This argument should be missing if argument \code{model_file} is specified.}
 
 \item{period}{A \code{\link[regts]{period_range}} object or an object coercible to a

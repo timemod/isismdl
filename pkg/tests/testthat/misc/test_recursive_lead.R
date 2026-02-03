@@ -11,7 +11,7 @@ source("../tools/read_mrf.R")
 period <- as.period_range("1550Y/1551y")
 
 mdl_filename <- "mdl/recursive_lead.mdl"
-mdl <- isis_mdl(mdl_filename, period, silent = TRUE)
+mdl <- isis_mdl(mdl_filename = mdl_filename, period = period, silent = TRUE)
 mdl$set_values(names = "a", value = 0)
 
 test_that("solving", {

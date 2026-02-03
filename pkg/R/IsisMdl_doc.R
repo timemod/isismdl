@@ -789,14 +789,13 @@ NULL
 #'
 #' @examples
 #' library(isismdl)
-#' mdl_file <- tempfile(fileext = ".mdl")
-#' writeLines("
+#' model_text <- "
 #' ident y = y[-1];
 #' ident obs = y + z;
-#' ", mdl_file)
+#' "
 #'
 #' # We want to solve the model in  period 2017/2018
-#' mdl <- isis_mdl(mdl_file, period = "2017/2018", silent = TRUE)
+#' mdl <- isis_mdl(model_text = model_text, period = "2017/2018", silent = TRUE)
 #'
 #' # Create initial data: z is known, obs is observed only in 2016
 #' mdl$set_values(6:8, names = "z", period = "2016/2018")
@@ -834,8 +833,6 @@ NULL
 #'     control = list(trace = 1, maxit = 200)
 #' )
 #'
-#' # Clean up
-#' unlink(mdl_file)
 #'
 #' @seealso
 #' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
@@ -921,13 +918,12 @@ NULL
 #'
 #' # Example: Calibrating a policy variable to match target GDP
 #' # This defines a recursive model
-#' mdl_file <- tempfile(fileext = ".mdl")
-#' writeLines(c(
-#'     "ident C = C_A + 0.8 * I;",
-#'     "ident Y = C + I + G;"
-#' ), mdl_file)
+#' model_text <- "
+#' ident C = C_A + 0.8 * I;
+#' ident Y = C + I + G;
+#' "
 #'
-#' mdl <- isis_mdl(mdl_file, period = "2020", silent = TRUE)
+#' mdl <- isis_mdl(model_text = model_text, period = "2020", silent = TRUE)
 #'
 #' # Set values for known exogenous variables (Constants)
 #' mdl$set_values(100, names = "I", period = "2020") # Investment
@@ -957,7 +953,7 @@ NULL
 #' # C = 50 + 0.8 * 100 = 130
 #' mdl$get_data(names = "C", period = "2020")
 #'
-#' unlink(mdl_file)
+#'
 NULL
 
 #' \code{\link{IsisMdl}} method: runs model equations
