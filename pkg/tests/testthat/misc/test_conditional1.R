@@ -31,7 +31,7 @@ test_that("the parse flags are handled correctly", {
 test_that("convert_mdl_file also handles flags correctly", {
   parse_options <- list(flags = c("two", "times_100"))
   convert_mdl_file(model_file = mdl_filename, 
-                   model_subst_file = mdl_subst_filename,
+                   output_file = mdl_subst_filename,
                    parse_options = parse_options)
   expect_known_output(cat(paste(readLines(mdl_subst_filename), collapse = "\n")),
                       file = "expected_output/conditional1_subst.mdl",

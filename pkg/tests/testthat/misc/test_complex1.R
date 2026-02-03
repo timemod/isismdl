@@ -21,7 +21,7 @@ mdl_subst_filename <- "mdl/complex1_subst.mdl"
 parse_options <- list(include_dirs= include_dirs)
 
 # create model
-mdl <- isis_mdl("mdl/complex1.mdl", period,
+mdl <- isis_mdl(model_file = "mdl/complex1.mdl", period = period,
                 parse_options = parse_options, silent = TRUE)
 data_per <- mdl$get_data_period()
 mdl$set_values(seq_len(nperiod(data_per)), names = paste0("x", 1:3))

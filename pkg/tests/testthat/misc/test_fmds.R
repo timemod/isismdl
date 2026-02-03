@@ -233,7 +233,8 @@ test_that("fill_mdl_data_solve handles duplicate groups", {
 })
 
 test_that("fill_mdl_data_solve with period parameter", {
-
+  full_period <- as.period_range("2010/2015")
+  solve_period <- as.period_range("2011")
   mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = full_period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
