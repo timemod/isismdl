@@ -16,7 +16,7 @@ mdl_filename <- "mdl/complex2.mdl"
 mdl_subst_filename <- "mdl/complex2_subst.mdl"
 
 # create model
-mdl <- isis_mdl(model_file = mdl_filename, period = period, silent = TRUE)
+mdl <- isis_mdl(mdl_filename, period, silent = TRUE)
 data_per <- mdl$get_data_period()
 mdl$set_values(seq_len(nperiod(data_per)), names = paste0("x", 1:3))
 mdl$set_solve_options(report = "none")

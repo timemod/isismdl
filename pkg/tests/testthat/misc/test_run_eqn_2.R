@@ -12,7 +12,7 @@ mdl_file <- "mdl/test_run_eqn_2.mdl"
 solve_per <- "2021/2022"
 
 test_that("run_eqn correctly handles fixed variables for updval", {
-  mdl <- isis_mdl(model_file = mdl_file, silent = TRUE, period = solve_per)
+  mdl <- isis_mdl(mdl_file, silent = TRUE, period = solve_per)
   mdl$set_values(1, names = "x", period = "2022")
   mdl$set_fix_values(10, names = "y", period = "2021")
   mdl$set_values(99, names = "y", period = "2022")
