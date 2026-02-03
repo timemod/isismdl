@@ -8,7 +8,7 @@ rm(list = ls())
 period <- as.period_range("1550Y")
 
 mdl_filename <- "mdl/recursive.mdl"
-mdl <- isis_mdl(mdl_filename = mdl_filename, period = period, silent = TRUE)
+mdl <- isis_mdl(model_file = mdl_filename, period = period, silent = TRUE)
 mdl$set_solve_options(report = "none", maxiter = 0)
 mdl$set_eq_status("inactive", "x")
 mdl$set_values(2, names = "x")
