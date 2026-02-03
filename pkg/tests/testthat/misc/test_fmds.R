@@ -25,7 +25,7 @@ ident obs3 = y3 + x3;
 }
 
 create_test_init_data <- function(period, var_names) {
-  n_periods <- nperiod(period)
+  n_periods <- regts::nperiod(period)
   n_vars <- length(var_names)
 
   # Create initial values - simple sequences for each variable
@@ -42,7 +42,7 @@ create_test_init_data <- function(period, var_names) {
     }
   }
 
-  data <- regts(data_matrix, names = var_names, period = period)
+  data <- regts::regts(data_matrix, names = var_names, period = period)
   return(data)
 }
 
@@ -304,5 +304,33 @@ test_that("fill_mdl_data_solve with known output", {
     "expected_output/fmds_simple.rds"
   )
 
+  unlink(mdl_file)
+})
+
+test_that("fill_mdl_data_solve errors when model has feedback variables", {
+  mdl_file <- tempfile(fileext = ".mdl")
+  # A simple model with a feedback loop
+  writeLines(
+    c(
+      "ident x = 0.5 * x + y;",
+      "ident obs = x;"
+    ),
+    mdl_file
+  )
+
+  mdl <- isismdl::isis_mdl(mdl_file, period = "2020", silent = TRUE)
+
+  solve_df <- tribble(
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+    "2020"        , "A"    , "obs"              , "y"             , 0.1
+  )
+
+  expect_error(
+    mdl$fill_mdl_data_solve(
+      solve_df = solve_df,
+      report = "no"
+    ),
+    regexp = "fill_mdl_data_solve does not support models with feedback variables"
+  )
   unlink(mdl_file)
 })

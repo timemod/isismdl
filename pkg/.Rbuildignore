@@ -1,1 +1,3 @@
 \.gitkeep$
+^doc$
+^Meta$

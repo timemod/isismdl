@@ -33,13 +33,17 @@ setOldClass("period_range")
 #' mdl <- islm_mdl()
 #'
 #' # prepare input timeseries
-#' r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
-#' y  <- regts(980,  start = "2015Q1", end = "2016Q3", labels = "income")
+#' r <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
+#' y <- regts(980, start = "2015Q1", end = "2016Q3", labels = "income")
 #' yd <- regts(790, start = "2015Q1", labels = "disposable income")
-#' g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2015Q2",
-#'             labels = "government spending")
-#' ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2015Q2",
-#'            labels = "money supply")
+#' g <- regts(210 * cumprod(rep(1.015, 6)),
+#'   start = "2015Q2",
+#'   labels = "government spending"
+#' )
+#' ms <- regts(200 * cumprod(rep(1.015, 6)),
+#'   start = "2015Q2",
+#'   labels = "money supply"
+#' )
 #' islm_input <- cbind(r, y, yd, g, ms)
 #' print(islm_input)
 #'
@@ -47,8 +51,10 @@ setOldClass("period_range")
 #' mdl$set_period("2015Q2/2016Q3")
 #' mdl$set_data(islm_input)
 #'
-#' mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
-#'                 t = "tax"))
+#' mdl$set_labels(c(
+#'   i = "investment", c = "consumption", md = "money demand",
+#'   t = "tax"
+#' ))
 #'
 #' mdl$solve()
 #'
@@ -179,6 +185,8 @@ setOldClass("period_range")
 #' \item{\code{\link{fill_mdl_data_solve}}}{Fills model data and
 #' inverse solves for starting values}
 #'
+#' \item{\code{\link{solve_exo}}}{Solves exogenous variables}
+#'
 #' \item{\code{\link{write_mdl}}}{Serializes the model object and writes it
 #' to an RDS file}
 #'
@@ -189,10 +197,8 @@ setOldClass("period_range")
 #'
 IsisMdl <- R6Class("IsisMdl",
   public = list(
-
     initialize = function(serialized_mdl, mif_file, model_text,
                           silent = FALSE) {
-
       if (!missing(mif_file) && !missing(serialized_mdl)) {
         stop("Specify either argument mif_name or serialized_mdl, but not both")
       }
@@ -217,8 +223,10 @@ IsisMdl <- R6Class("IsisMdl",
       if (!silent) {
         cat("Reading mif file ...\n")
         if (reorder_names) {
-          cat(paste0("\nModel names will be reordered because the IsisMdl ",
-                     "object\nwas created with isismdl version < 1.9.0.\n\n"))
+          cat(paste0(
+            "\nModel names will be reordered because the IsisMdl ",
+            "object\nwas created with isismdl version < 1.9.0.\n\n"
+          ))
         }
         private$model_index <- .Call(C_read_mdl_c, mif_file, reorder_names)
         cat("\n")
@@ -235,10 +243,12 @@ IsisMdl <- R6Class("IsisMdl",
       ret <- .Call(C_get_max_lag_lead_c, model_index = private$model_index)
       private$maxlag <- ret[1]
       private$maxlead <- ret[2]
-      private$var_names <- sort(.Call(C_get_var_names_c, "all",
-                                      private$model_index))
+      private$var_names <- sort(.Call(
+        C_get_var_names_c, "all",
+        private$model_index
+      ))
       private$var_count <- length(private$var_names)
-      private$labels    <- character(0)
+      private$labels <- character(0)
       names(private$labels) <- character(0)
       if (!missing(serialized_mdl)) {
         private$init_mws(serialized_mdl$mws)
@@ -257,29 +267,51 @@ IsisMdl <- R6Class("IsisMdl",
       cat(sprintf("%-60s%d\n", "Maximum lag:", private$maxlag))
       cat(sprintf("%-60s%d\n", "Maximum lead:", private$maxlead))
       if (!is.null(private$model_period)) {
-        cat(sprintf("%-60s%s\n", "Model period:",
-                    as.character(private$model_period)))
-        cat(sprintf("%-60s%s\n", "Model data period:",
-                    as.character(private$data_period)))
+        cat(sprintf(
+          "%-60s%s\n", "Model period:",
+          as.character(private$model_period)
+        ))
+        cat(sprintf(
+          "%-60s%s\n", "Model data period:",
+          as.character(private$data_period)
+        ))
       }
       return(invisible(self))
     },
-    fill_mdl_data_solve = function(period, solve_df, data_init,
+    fill_mdl_data_solve = function(period = private$data_period, solve_df,
+                                   data_init = NULL,
                                    report = c("period", "minimal", "no"),
+                                   include_frmls = FALSE,
                                    default_initial_guess = 0.1,
                                    jacobian = TRUE, ...) {
       report <- match.arg(report)
-      return(fmds(mdl = self, period = period,
-                  solve_df = solve_df, report = report,
-                  default_initial_guess = default_initial_guess,
-                  jacobian = jacobian, ...))
+      period <- private$convert_period_arg_data(period)
+      return(fmds(
+        mdl = self, period = period,
+        solve_df = solve_df, report = report,
+        default_initial_guess = default_initial_guess,
+        jacobian = jacobian, ...
+      ))
+    },
+    solve_exo = function(solve_period = private$model_period,
+                         exo_vars, target_vars,
+                         report = c("period", "minimal", "none"),
+                         jacobian = TRUE, ...) {
+      report <- match.arg(report)
+      solve_period <- private$convert_period_arg_solve(solve_period)
+      return(solve_exo_internal(
+        mdl = self, solve_period = solve_period,
+        exo_vars = exo_vars, target_vars = target_vars,
+        report = report, jacobian = jacobian, ...
+      ))
     },
     get_text = function() {
       return(private$model_text)
     },
     get_dep_struct = function(one_lag_per_row = FALSE) {
       return(get_dep_struct_internal(private$model_text, self$get_endo_names(),
-                                     one_lag_per_row = one_lag_per_row))
+        one_lag_per_row = one_lag_per_row
+      ))
     },
     get_maxlag = function() {
       return(private$maxlag)
@@ -301,15 +333,19 @@ IsisMdl <- R6Class("IsisMdl",
       return(sort(names))
     },
     get_endo_names = function(pattern = ".*",
-                              type = c("all", "frml", "lags", "leads",
-                                       "feedback", "endolead"),
+                              type = c(
+                                "all", "frml", "lags", "leads",
+                                "feedback", "endolead"
+                              ),
                               status = c("active", "inactive", "all")) {
       type <- match.arg(type)
       status <- match.arg(status)
 
       if (type == "endolead") {
-        warning(paste("Type 'endolead' is obsolete and has been ",
-                      "replaced by 'leads'."))
+        warning(paste(
+          "Type 'endolead' is obsolete and has been ",
+          "replaced by 'leads'."
+        ))
         type <- "leads"
       }
 
@@ -324,8 +360,10 @@ IsisMdl <- R6Class("IsisMdl",
         names <- .Call(C_get_var_names_c, type_, private$model_index)
         if (status != "all") {
           # If status != "all", select only activated or deactivated equations.
-          endo_names_status <- .Call(C_get_eq_names_c, private$model_index,
-                                     status, 0L, 1L)
+          endo_names_status <- .Call(
+            C_get_eq_names_c, private$model_index,
+            status, 0L, 1L
+          )
           names <- intersect(names, endo_names_status)
         }
       }
@@ -359,12 +397,14 @@ IsisMdl <- R6Class("IsisMdl",
     get_eq_names = function(pattern = ".*",
                             status = c("all", "active", "inactive"),
                             order = c("sorted", "solve", "natural")) {
-      status  <- match.arg(status)
+      status <- match.arg(status)
       order <- match.arg(order)
 
       solve_order <- if (order == "solve") 1L else 0L
-      names <- .Call(C_get_eq_names_c, private$model_index, status,
-                     solve_order,  0L)
+      names <- .Call(
+        C_get_eq_names_c, private$model_index, status,
+        solve_order, 0L
+      )
 
       if (!missing(pattern)) names <- grep(pattern, names, value = TRUE)
 
@@ -382,7 +422,6 @@ IsisMdl <- R6Class("IsisMdl",
       return(.Call(C_get_dbgeqn_c, private$model_index))
     },
     init_data = function(data_period, data, ca) {
-
       # Check arguments ----
       data_period_specified <- !missing(data_period) && !is.null(data_period)
       data_specified <- !missing(data) && !is.null(data)
@@ -401,55 +440,62 @@ IsisMdl <- R6Class("IsisMdl",
       mp <- private$model_period
 
       if (is.null(mp)) {
-
         ## Model period has not yet been set ----
 
         if (!data_period_specified) {
           if (data_specified) {
             data_period <- get_period_range(data)
           } else {
-            stop("If neither data_period nor data have been specified, ",
-                 "then the data period\nshould have been set before ",
-                 "with method init_data or set_period.")
+            stop(
+              "If neither data_period nor data have been specified, ",
+              "then the data period\nshould have been set before ",
+              "with method init_data or set_period."
+            )
           }
         }
 
         data_period_min_len <- private$maxlag + private$maxlead + 1
         if (nperiod(data_period) < data_period_min_len) {
-          stop("The data period is too short. It should contain at least ",
-               data_period_min_len, " periods")
+          stop(
+            "The data period is too short. It should contain at least ",
+            data_period_min_len, " periods"
+          )
         }
-
       } else {
-
         ## Model period has already been set ----
 
         if (data_period_specified) {
           ### Check specified data period -----
           if (frequency(data_period) != frequency(mp)) {
-            stop("data_period (", data_period, ") has a different frequency ",
-                 "than the model period (", mp, ").")
+            stop(
+              "data_period (", data_period, ") has a different frequency ",
+              "than the model period (", mp, ")."
+            )
           }
           data_period_required <- period_range(
             start_period(mp) - private$maxlag,
-            end_period(mp)   + private$maxlead
+            end_period(mp) + private$maxlead
           )
           if (!period_range_is_within(data_period_required, data_period)) {
-            stop("The data period should include the range ",
-                 data_period_required, ".")
+            stop(
+              "The data period should include the range ",
+              data_period_required, "."
+            )
           }
         } else if (data_specified) {
           ### Determine data period from data and model period ----
           p_data <- get_period_range(data)
           if (frequency(p_data) != frequency(mp)) {
-            stop("The data has a different frequency (", frequency(p_data),
-                 ") than the model period (", frequency(mp), ").")
+            stop(
+              "The data has a different frequency (", frequency(p_data),
+              ") than the model period (", frequency(mp), ")."
+            )
           }
           data_period <- range_union(
             p_data,
             period_range(
               start_period(mp) - private$maxlag,
-              end_period(mp)   + private$maxlead
+              end_period(mp) + private$maxlead
             )
           )
         } else {
@@ -470,7 +516,9 @@ IsisMdl <- R6Class("IsisMdl",
           stop("data should be a timeseries with colnames")
         }
         data <- private$convert_data_internal(data)
-        if (is.null(data)) return(invisible(self))
+        if (is.null(data)) {
+          return(invisible(self))
+        }
         private$set_data_(private$data_type, data)
       }
       if (!missing(ca) && !is.null(ca) && NCOL(ca) > 0) {
@@ -478,7 +526,9 @@ IsisMdl <- R6Class("IsisMdl",
           stop("ca should be a timeseries with colnames")
         }
         ca <- private$convert_data_internal(ca)
-        if (is.null(ca)) return(invisible(self))
+        if (is.null(ca)) {
+          return(invisible(self))
+        }
         private$set_data_(private$ca_type, ca)
       }
       return(invisible(self))
@@ -492,16 +542,18 @@ IsisMdl <- R6Class("IsisMdl",
         # Set data period
         data_period <- period_range(
           start_period(period) - private$maxlag,
-          end_period(period)   + private$maxlead
+          end_period(period) + private$maxlead
         )
         private$init_data_(data_period)
-      } else  {
+      } else {
         # The data period has already been set.
         # Check if the frequency of the specified period is the same
         # as the frequency of the data period.
         if (frequency(period) != frequency(private$data_period)) {
-          stop("The specified period (", period, ") has a different frequency ",
-               "than the data period (", private$data_period, ").")
+          stop(
+            "The specified period (", period, ") has a different frequency ",
+            "than the data period (", private$data_period, ")."
+          )
         }
         # Check if period lies within the range of `private$model_period_max`.
         private$check_period_solve(period)
@@ -522,11 +574,15 @@ IsisMdl <- R6Class("IsisMdl",
         stop("Argument p has no names")
       }
 
-      names <- private$get_names_(private$param_type, names = names(p),
-                                  name_err = name_err)
+      names <- private$get_names_(private$param_type,
+        names = names(p),
+        name_err = name_err
+      )
 
       npar <- length(names)
-      if (npar == 0) return(invisible(self))
+      if (npar == 0) {
+        return(invisible(self))
+      }
       p <- p[names]
 
       # check if the list contains any non-numeric elements
@@ -566,17 +622,25 @@ IsisMdl <- R6Class("IsisMdl",
       } else if (!missing(pattern)) {
         names <- union(names, self$get_par_names(pattern))
       }
-      return(.Call(C_get_param_c, model_index = private$model_index,
-                   names = names))
+      return(.Call(C_get_param_c,
+        model_index = private$model_index,
+        names = names
+      ))
     },
     set_data = function(data, names, upd_mode = c("upd", "updval"), fun,
                         name_err = "silent") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
-      if (is.null(data)) return(invisible(self))
-      names <- private$get_names_(private$data_type, names = colnames(data),
-                                  name_err = name_err)
-      if (length(names) == 0) return(invisible(self))
+      if (is.null(data)) {
+        return(invisible(self))
+      }
+      names <- private$get_names_(private$data_type,
+        names = colnames(data),
+        name_err = name_err
+      )
+      if (length(names) == 0) {
+        return(invisible(self))
+      }
       data <- data[, names, drop = FALSE]
       return(private$set_data_(private$data_type, data, upd_mode, fun))
     },
@@ -584,10 +648,16 @@ IsisMdl <- R6Class("IsisMdl",
                       name_err = "silent") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
-      if (is.null(data)) return(invisible(self))
-      names <- private$get_names_(private$ca_type, names = colnames(data),
-                                  name_err = name_err)
-      if (length(names) == 0) return(invisible(self))
+      if (is.null(data)) {
+        return(invisible(self))
+      }
+      names <- private$get_names_(private$ca_type,
+        names = colnames(data),
+        name_err = name_err
+      )
+      if (length(names) == 0) {
+        return(invisible(self))
+      }
       data <- data[, names, drop = FALSE]
       return(private$set_data_(private$ca_type, data, upd_mode, fun))
     },
@@ -595,10 +665,16 @@ IsisMdl <- R6Class("IsisMdl",
                        name_err = "silent") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
-      if (is.null(data)) return(invisible(self))
-      names <- private$get_names_(private$fix_type, names = colnames(data),
-                                  name_err = name_err)
-      if (length(names) == 0) return(invisible(self))
+      if (is.null(data)) {
+        return(invisible(self))
+      }
+      names <- private$get_names_(private$fix_type,
+        names = colnames(data),
+        name_err = name_err
+      )
+      if (length(names) == 0) {
+        return(invisible(self))
+      }
       data <- data[, names, drop = FALSE]
       return(private$set_data_(private$fix_type, data, upd_mode))
     },
@@ -606,10 +682,16 @@ IsisMdl <- R6Class("IsisMdl",
                        name_err = "silent") {
       upd_mode <- match.arg(upd_mode)
       data <- private$convert_data_internal(data, names)
-      if (is.null(data)) return(invisible(self))
-      names <- private$get_names_(private$fit_type, names = colnames(data),
-                                  name_err = name_err)
-      if (length(names) == 0) return(invisible(self))
+      if (is.null(data)) {
+        return(invisible(self))
+      }
+      names <- private$get_names_(private$fit_type,
+        names = colnames(data),
+        name_err = name_err
+      )
+      if (length(names) == 0) {
+        return(invisible(self))
+      }
       data <- data[, names, drop = FALSE]
       return(private$set_data_(private$fit_type, data, upd_mode))
     },
@@ -627,33 +709,45 @@ IsisMdl <- R6Class("IsisMdl",
       return(private$get_fix_fit(type = "fit"))
     },
     set_values = function(value, names, pattern, period = private$data_period) {
-      return(private$set_values_(private$data_type, value, names, pattern,
-                                 period))
+      return(private$set_values_(
+        private$data_type, value, names, pattern,
+        period
+      ))
     },
     set_ca_values = function(value, names, pattern,
                              period = private$data_period) {
-      return(private$set_values_(private$ca_type, value, names, pattern,
-                                 period))
+      return(private$set_values_(
+        private$ca_type, value, names, pattern,
+        period
+      ))
     },
     set_fix_values = function(value, names, pattern,
                               period = private$data_period) {
-      return(private$set_values_(private$fix_type, value, names, pattern,
-                                 period))
+      return(private$set_values_(
+        private$fix_type, value, names, pattern,
+        period
+      ))
     },
     set_fit_values = function(value, names, pattern,
                               period = private$data_period) {
-      return(private$set_values_(private$fit_type, value, names, pattern,
-                                 period))
+      return(private$set_values_(
+        private$fit_type, value, names, pattern,
+        period
+      ))
     },
     change_data = function(fun, names, pattern, period = private$data_period,
                            ...) {
-      return(private$change_data_(private$data_type, fun, names, pattern,
-                                  period, ...))
+      return(private$change_data_(
+        private$data_type, fun, names, pattern,
+        period, ...
+      ))
     },
     change_ca = function(fun, names, pattern, period = private$data_period,
                          ...) {
-      return(private$change_data_(private$ca_type, fun, names, pattern,
-                                  period, ...))
+      return(private$change_data_(
+        private$ca_type, fun, names, pattern,
+        period, ...
+      ))
     },
     set_rms = function(values, name_err = "warn") {
       if (is.integer(values) || (is.logical(values) && all(is.na(values)))) {
@@ -664,9 +758,13 @@ IsisMdl <- R6Class("IsisMdl",
       if (is.null(names(values))) {
         stop("Argument values is not a named numeric vector")
       }
-      names <- private$get_names_(private$rms_type, names = names(values),
-                                  name_err = name_err)
-      if (length(names) == 0) return(invisible(self))
+      names <- private$get_names_(private$rms_type,
+        names = names(values),
+        name_err = name_err
+      )
+      if (length(names) == 0) {
+        return(invisible(self))
+      }
       values <- values[names]
       .Call(C_set_rms_c, private$model_index, values)
       return(invisible(self))
@@ -709,20 +807,25 @@ IsisMdl <- R6Class("IsisMdl",
         return(NULL)
       }
       js <- private$get_period_indices(period)
-      fix_data <- .Call(C_get_data_c, type = private$data_type,
-                        model_index = private$model_index,
-                        names = names, jtb = js$startp, jte = js$endp)
+      fix_data <- .Call(C_get_data_c,
+        type = private$data_type,
+        model_index = private$model_index,
+        names = names, jtb = js$startp, jte = js$endp
+      )
       fix_data <- regts(fix_data, start = start_period(period), names = names)
       if (any(is.na(fix_data))) {
         na_names <- colnames(fix_data)[apply(fix_data,
-                                             FUN = function(x) any(is.na(x)),
-                                             MARGIN = 2)]
+          FUN = function(x) any(is.na(x)),
+          MARGIN = 2
+        )]
         na_names_text <- paste(na_names, collapse = " ")
         na_names_lines <- strwrap(na_names_text, width = 80)
         na_names_text <- paste(na_names_lines, collapse = "\n")
-        stop(paste0("The following variables can't be fixed in ", period,
-                    "\nbecause of NA values in the model data:\n",
-                    na_names_text), ".")
+        stop(paste0(
+          "The following variables can't be fixed in ", period,
+          "\nbecause of NA values in the model data:\n",
+          na_names_text
+        ), ".")
       }
       self$set_fix(fix_data)
       return(invisible(self))
@@ -733,7 +836,6 @@ IsisMdl <- R6Class("IsisMdl",
                                  report, ratreport, ratreport_rep,
                                  ratfullreport_rep, bktmax, xtfac,
                                  svdtest_tol) {
-
       # create a list of supplied options
       names <- names(match.call()[-1])
       options <- lapply(names, FUN = function(x) eval(parse(text = x)))
@@ -759,9 +861,11 @@ IsisMdl <- R6Class("IsisMdl",
       private$check_options(options, type = "fit_options")
       period <- private$convert_period_arg_solve(period)
       js <- private$get_period_indices(period)
-      .Call(C_solve_c, model_index = private$model_index,
-            jtb = js$startp, jte = js$endp, options,
-            fit_options)
+      .Call(C_solve_c,
+        model_index = private$model_index,
+        jtb = js$startp, jte = js$endp, options,
+        fit_options
+      )
       return(invisible(self))
     },
     get_solve_status = function() {
@@ -774,9 +878,11 @@ IsisMdl <- R6Class("IsisMdl",
       report <- match.arg(report)
       period <- private$convert_period_arg_data(period)
       js <- private$get_period_indices(period)
-      .Call(C_filmdt_c, model_index = private$model_index,
-            jtb = js$startp, jte = js$end,
-            report = report, include_frmls = as.integer(include_frmls))
+      .Call(C_filmdt_c,
+        model_index = private$model_index,
+        jtb = js$startp, jte = js$end,
+        report = report, include_frmls = as.integer(include_frmls)
+      )
       return(invisible(self))
     },
     run_eqn = function(pattern, names, period = private$data_period,
@@ -797,8 +903,10 @@ IsisMdl <- R6Class("IsisMdl",
 
       if (missing(names)) {
         order <- if (missing(solve_order) || solve_order) "solve" else "natural"
-        eq_names <- self$get_eq_names(pattern = pattern, status = "active",
-                                      order = order)
+        eq_names <- self$get_eq_names(
+          pattern = pattern, status = "active",
+          order = order
+        )
       } else {
         if (!missing(pattern)) {
           stop("Only one of arguments 'pattern' and 'names' can be specified")
@@ -819,8 +927,10 @@ IsisMdl <- R6Class("IsisMdl",
           jte <- js$startp
         }
         updval <- if (update_mode == "updval") 1L else 0L
-        .Call(C_run_eqn_c, private$model_index, eqnums = as.integer(eqnums),
-              jtb_ = jtb, jte_ = jte, updval__ = updval, by_period__ = by_period)
+        .Call(C_run_eqn_c, private$model_index,
+          eqnums = as.integer(eqnums),
+          jtb_ = jtb, jte_ = jte, updval__ = updval, by_period__ = by_period
+        )
       }
       return(invisible(self))
     },
@@ -831,7 +941,8 @@ IsisMdl <- R6Class("IsisMdl",
     get_fit_options = function() {
       "Returns the default fit options"
       return(.Call(C_get_fit_opts_c,
-                   model_index = private$model_index))
+        model_index = private$model_index
+      ))
     },
     get_cvgcrit = function() {
       values <- .Call(C_get_cvgcrit_c, private$model_index, 1L)
@@ -845,8 +956,10 @@ IsisMdl <- R6Class("IsisMdl",
       }
       if (is.na(value)) stop("value should not be a NA")
       if (is.infinite(value)) stop("value should be a finite number")
-      names <- private$get_names_(private$data_type, names = names,
-                                  pattern = pattern)
+      names <- private$get_names_(private$data_type,
+        names = names,
+        pattern = pattern
+      )
       if (length(names) > 0) {
         .Call(C_set_cvgcrit_c, private$model_index, names, as.numeric(value))
       }
@@ -859,8 +972,10 @@ IsisMdl <- R6Class("IsisMdl",
       }
       if (is.infinite(value)) stop("value should be a finite number")
       value <- as.numeric(value)
-      names <- private$get_names_(private$endolead_type, names = names,
-                                  pattern = pattern)
+      names <- private$get_names_(private$endolead_type,
+        names = names,
+        pattern = pattern
+      )
       if (length(names) > 0) {
         .Call(C_set_ftrelax_c, private$model_index, names, value)
       }
@@ -886,7 +1001,7 @@ IsisMdl <- R6Class("IsisMdl",
     get_last_solve_period = function() {
       jc <- .Call(C_get_jc_c, private$model_index)
       if (jc != -1) {
-        return(start_period(private$model_period_max)  + jc  - 1)
+        return(start_period(private$model_period_max) + jc - 1)
       } else {
         return(NULL)
       }
@@ -901,11 +1016,15 @@ IsisMdl <- R6Class("IsisMdl",
       size <- file.info(mif_file)$size
       mif_data <- readBin(mif_file, what = "raw", n = size)
       unlink(mif_file)
-      return(structure(list(version = packageVersion("isismdl"),
-                            model_text = private$model_text,
-                            mif_data = mif_data, mws = private$get_mws(),
-                            user_data = private$user_data),
-                       class = "serialized_isismdl"))
+      return(structure(
+        list(
+          version = packageVersion("isismdl"),
+          model_text = private$model_text,
+          mif_data = mif_data, mws = private$get_mws(),
+          user_data = private$user_data
+        ),
+        class = "serialized_isismdl"
+      ))
     },
     clear_fit = function() {
       .Call(C_clear_fit_c, model_index = private$model_index)
@@ -925,8 +1044,10 @@ IsisMdl <- R6Class("IsisMdl",
         }
       }
       call_order_mdl_c <- function() {
-        .Call(C_order_mdl_c, model_index = private$model_index,
-              orfnam = orfnam)
+        .Call(C_order_mdl_c,
+          model_index = private$model_index,
+          orfnam = orfnam
+        )
         return(invisible())
       }
       if (silent) {
@@ -971,8 +1092,10 @@ IsisMdl <- R6Class("IsisMdl",
           unknown_keys <- setdiff(key, user_data_keys)
           if (length(unknown_keys) > 0) {
             unknown_keys <- paste0("'", unknown_keys, "'")
-            stop("The following keys are not present in user data:\n",
-                 paste(unknown_keys, collapse = ", "))
+            stop(
+              "The following keys are not present in user data:\n",
+              paste(unknown_keys, collapse = ", ")
+            )
           }
           return(private$user_data[key])
         }
@@ -984,7 +1107,7 @@ IsisMdl <- R6Class("IsisMdl",
     maxlag = NA_integer_,
     maxlead = NA_integer_,
     model_period = NULL, # default period for which the model is solved.
-    data_period = NULL,  # the period of the data.
+    data_period = NULL, # the period of the data.
     model_period_max = NULL, # the maximum model period (this is the data period
     #                          minus lag and lead periods). model_period should
     #                          be in the range model_period_max.
@@ -992,9 +1115,11 @@ IsisMdl <- R6Class("IsisMdl",
     var_names = NULL,
     var_count = NA_integer_,
     labels = NULL,
-    period_error_msg = paste("The model period has not been set.",
-                             "Set the model period with set_period() or",
-                             "init_data()."),
+    period_error_msg = paste(
+      "The model period has not been set.",
+      "Set the model period with set_period() or",
+      "init_data()."
+    ),
     data_type = 1L,
     ca_type = 2L,
     fix_type = 3L,
@@ -1003,9 +1128,7 @@ IsisMdl <- R6Class("IsisMdl",
     param_type = 6L,
     endo_type = 7L,
     endolead_type = 8L,
-
     user_data = list(),
-
     deep_clone = function(name, value) {
       if (name == "model_index") {
         has_free_mws <- .Call(C_has_free_mws_c)
@@ -1025,7 +1148,7 @@ IsisMdl <- R6Class("IsisMdl",
       endp <- end_period(period)
       mdl_period_start <- start_period(private$model_period_max)
       startp <- as.integer(startp - mdl_period_start + 1)
-      endp   <- as.integer(endp   - mdl_period_start + 1)
+      endp <- as.integer(endp - mdl_period_start + 1)
       return(list(startp = startp, endp = endp))
     },
     get_data_ = function(type, names, pattern, period) {
@@ -1036,9 +1159,11 @@ IsisMdl <- R6Class("IsisMdl",
         return(NULL)
       }
       js <- private$get_period_indices(period)
-      data <- .Call(C_get_data_c, type = type,
-                    model_index = private$model_index,
-                    names = names, jtb = js$startp, jte = js$endp)
+      data <- .Call(C_get_data_c,
+        type = type,
+        model_index = private$model_index,
+        names = names, jtb = js$startp, jte = js$endp
+      )
       ret <- regts(data, start = start_period(period), names = names)
       if (length(private$labels) > 0) {
         lbls <- private$labels
@@ -1074,14 +1199,18 @@ IsisMdl <- R6Class("IsisMdl",
           vartype <- "all"
           msg <- "used as fit targets"
         }
-        inactive <- intersect(names, self$get_endo_names(type = vartype,
-                                                         status = "inactive"))
+        inactive <- intersect(names, self$get_endo_names(
+          type = vartype,
+          status = "inactive"
+        ))
         if (length(inactive) > 0) {
           if (length(inactive) == 1) {
             stop(paste("Variable", inactive, "is inactive and cannot be", msg))
           } else {
-            stop(paste("The variables", paste(inactive, collapse = " "),
-                       "are inactive and cannot be", msg))
+            stop(paste(
+              "The variables", paste(inactive, collapse = " "),
+              "are inactive and cannot be", msg
+            ))
           }
         }
       }
@@ -1098,8 +1227,10 @@ IsisMdl <- R6Class("IsisMdl",
           names <- intersect(names, self$get_var_names())
           old_data <- self$get_data(period = p, names = names)
         } else {
-          names <- intersect(names,
-                             self$get_endo_names(type = "frml", status = "all"))
+          names <- intersect(
+            names,
+            self$get_endo_names(type = "frml", status = "all")
+          )
           old_data <- self$get_ca(period = p, names = names)
         }
         if (length(names) == 0) {
@@ -1115,8 +1246,10 @@ IsisMdl <- R6Class("IsisMdl",
 
       # finally transfer new data to the model workspace
       shift <- private$get_period_indices(get_period_range(data))$startp
-      .Call(C_set_data_c, set_type, private$model_index, data, names, shift,
-            upd_mode)
+      .Call(
+        C_set_data_c, set_type, private$model_index, data, names, shift,
+        upd_mode
+      )
 
       return(invisible(self))
     },
@@ -1144,17 +1277,21 @@ IsisMdl <- R6Class("IsisMdl",
         all_names <- self$get_var_names()
       }
 
-      type_texts <- c(endo = "endogenous variable",
-                      frml = "frml variable",
-                      endo_exo  = "model variable",
-                      param = "parameter",
-                      endolead = "endogenous lead")
+      type_texts <- c(
+        endo = "endogenous variable",
+        frml = "frml variable",
+        endo_exo = "model variable",
+        param = "parameter",
+        endolead = "endogenous lead"
+      )
       type_text <- type_texts[var_type]
 
       if (!missing(names)) {
         if (name_err != "silent") {
-          check_names(names, correct_names = all_names,
-                      type = type_text, is_warning = name_err == "warn")
+          check_names(names,
+            correct_names = all_names,
+            type = type_text, is_warning = name_err == "warn"
+          )
         }
         names <- intersect(names, all_names)
       }
@@ -1163,8 +1300,10 @@ IsisMdl <- R6Class("IsisMdl",
       } else if (!missing(pattern)) {
         sel <- grep(pattern, all_names)
         if (length(sel) == 0) {
-          warning("There are no ", type_text, "s that match pattern '",
-                  pattern, "'.")
+          warning(
+            "There are no ", type_text, "s that match pattern '",
+            pattern, "'."
+          )
         }
         pattern_names <- all_names[sel]
         if (!missing(names)) {
@@ -1210,8 +1349,10 @@ IsisMdl <- R6Class("IsisMdl",
           if (length(error_vars) == 1) {
             stop(error_vars, " is not an", type_text, "equation.")
           } else {
-            stop("The following names are no", type_text, "equations: ",
-                 paste(error_vars, collapse = ", "), ".")
+            stop(
+              "The following names are no", type_text, "equations: ",
+              paste(error_vars, collapse = ", "), "."
+            )
           }
         }
       }
@@ -1220,8 +1361,10 @@ IsisMdl <- R6Class("IsisMdl",
       } else if (pattern_specified) {
         sel <- grep(pattern, all_names)
         if (length(sel) == 0) {
-          warning("There are no", type_text, "equations that match pattern '",
-                  pattern, "'.")
+          warning(
+            "There are no", type_text, "equations that match pattern '",
+            pattern, "'."
+          )
         }
         pattern_names <- all_names[sel]
         if (names_specified) {
@@ -1241,9 +1384,13 @@ IsisMdl <- R6Class("IsisMdl",
     set_values_ = function(set_type, value, names, pattern, period) {
       period <- private$convert_period_arg_data(period, check_range = FALSE)
       if (is.null(range_intersect(period, private$data_period))) {
-        warning(sprintf(paste("Specified period (%s) is completely outside the",
-                              "data period (%s)."), period,
-                        private$data_period))
+        warning(sprintf(
+          paste(
+            "Specified period (%s) is completely outside the",
+            "data period (%s)."
+          ), period,
+          private$data_period
+        ))
         return(invisible(self))
       }
 
@@ -1255,23 +1402,31 @@ IsisMdl <- R6Class("IsisMdl",
       nper <- nperiod(period)
       vlen <- length(value)
       if (vlen != 1 && vlen != nper) {
-        stop(paste("Argument value should have length 1 or the same",
-                   "length as the number of periods"))
+        stop(paste(
+          "Argument value should have length 1 or the same",
+          "length as the number of periods"
+        ))
       }
       names <- private$get_names_(set_type, names, pattern)
       names <- unique(names)
       nvar <- length(names)
-      data <- regts(matrix(value, nrow = nper, ncol = nvar), period = period,
-                    names = names)
+      data <- regts(matrix(value, nrow = nper, ncol = nvar),
+        period = period,
+        names = names
+      )
       private$set_data_(set_type, data)
       return(invisible(self))
     },
     change_data_ = function(set_type, fun, names, pattern, period, ...) {
       period <- private$convert_period_arg_data(period, check_range = FALSE)
       if (is.null(range_intersect(period, private$data_period))) {
-        warning(sprintf(paste("Specified period (%s) is completely outside the",
-                              "data period (%s)."), period,
-                        private$data_period))
+        warning(sprintf(
+          paste(
+            "Specified period (%s) is completely outside the",
+            "data period (%s)."
+          ), period,
+          private$data_period
+        ))
         return(invisible(self))
       }
       if (!is.function(fun)) {
@@ -1289,8 +1444,10 @@ IsisMdl <- R6Class("IsisMdl",
         fun_result <- fun(as.numeric(data[, c]), ...)
         result_len <- length(fun_result)
         if (result_len != 1 && result_len != nper) {
-          stop(sprintf(paste("The function result has length %d but should have",
-                             "length 1 or %d."), result_len, nper))
+          stop(sprintf(paste(
+            "The function result has length %d but should have",
+            "length 1 or %d."
+          ), result_len, nper))
         }
         data[, c] <- fun_result
       }
@@ -1299,8 +1456,10 @@ IsisMdl <- R6Class("IsisMdl",
     },
     get_fix_fit = function(type) {
       # general function for getting fix or fit values
-      ret <- .Call(C_get_fix_fit_c, type = type,
-                   model_index = private$model_index)
+      ret <- .Call(C_get_fix_fit_c,
+        type = type,
+        model_index = private$model_index
+      )
       if (!is.null(ret)) {
         ret <- regts(ret[[2]], start = start_period(private$model_period_max)
                      + ret[[1]] - 1, names = ret[[3]])
@@ -1321,17 +1480,16 @@ IsisMdl <- R6Class("IsisMdl",
       # Returns an mws object, containing all information
       # about the model that is not written to the mif file.
       if (!is.null(private$model_period)) {
-
         data <- self$get_data()
         # remove columns /rows with only NA from data
-        data <- data[, ! apply(is.na(data), 2, all), drop = FALSE]
+        data <- data[, !apply(is.na(data), 2, all), drop = FALSE]
         if (ncol(data) > 0) {
           # remove leading and trailing rows with only NAs
           data <- na_trim(data)
         } else {
           data <- NULL
         }
-        ca   <- self$get_ca()
+        ca <- self$get_ca()
 
         if (!is.null(ca)) {
           # remove columns with only 0 from ca
@@ -1339,23 +1497,24 @@ IsisMdl <- R6Class("IsisMdl",
           # remove leading and trailing rows with only zero
           if (ncol(ca) > 0) ca <- zero_trim(ca)
         }
-
       } else {
         data <- NULL
-        ca   <- NULL
+        ca <- NULL
       }
-      l <- list(labels = private$labels,
-                model_period = private$model_period,
-                data_period = private$data_period,
-                debug_eqn = self$get_debug_eqn(),
-                solve_options = self$get_solve_options(),
-                fit_options = self$get_fit_options(),
-                cvgcrit = .Call(C_get_cvgcrit_c, private$model_index, 0L),
-                ftrelax = .Call(C_get_ftrelax_c, private$model_index),
-                jc = .Call(C_get_jc_c, private$model_index),
-                data = data, ca = ca,
-                fix = self$get_fix(), fit = self$get_fit(),
-                rms = self$get_rms())
+      l <- list(
+        labels = private$labels,
+        model_period = private$model_period,
+        data_period = private$data_period,
+        debug_eqn = self$get_debug_eqn(),
+        solve_options = self$get_solve_options(),
+        fit_options = self$get_fit_options(),
+        cvgcrit = .Call(C_get_cvgcrit_c, private$model_index, 0L),
+        ftrelax = .Call(C_get_ftrelax_c, private$model_index),
+        jc = .Call(C_get_jc_c, private$model_index),
+        data = data, ca = ca,
+        fix = self$get_fix(), fit = self$get_fit(),
+        rms = self$get_rms()
+      )
       return(structure(l, class = "mws"))
     },
     init_mws = function(x) {
@@ -1380,8 +1539,10 @@ IsisMdl <- R6Class("IsisMdl",
           # x$data should be transferred to the model data again after
           # set_fix() has been called, because set_fix also transfers the
           # fix values to the model data:
-          private$set_data_(private$data_type,
-                            x$data[, colnames(x$fix), drop = FALSE])
+          private$set_data_(
+            private$data_type,
+            x$data[, colnames(x$fix), drop = FALSE]
+          )
         }
         if (!is.null(x$fit)) {
           self$set_fit(x$fit)
@@ -1392,8 +1553,10 @@ IsisMdl <- R6Class("IsisMdl",
 
         # jc (last period solved, part of the mws since version 1.4)
         if (!is.null(x$jc)) {
-          .Call(C_set_jc_c, model_index = private$model_index,
-                jc = x$jc)
+          .Call(C_set_jc_c,
+            model_index = private$model_index,
+            jc = x$jc
+          )
         }
       }
       return(invisible(self))
@@ -1409,7 +1572,7 @@ IsisMdl <- R6Class("IsisMdl",
 
       # Determine the new maximium model period.
       startp <- start_period(data_period) + private$maxlag
-      endp <-   end_period(data_period)   - private$maxlead
+      endp <- end_period(data_period) - private$maxlead
       new_model_period_max <- period_range(startp, endp)
 
       # Update jc in Fortran. jc is the index of the last solve period,
@@ -1433,11 +1596,12 @@ IsisMdl <- R6Class("IsisMdl",
 
       # Update the model period in Fortran memory.
       start <- as.integer(c(get_year(startp), get_subperiod(startp)))
-      end   <- as.integer(c(get_year(endp), get_subperiod(endp)))
+      end <- as.integer(c(get_year(endp), get_subperiod(endp)))
       ierr <- .Call(C_set_period_c,
-                    model_index = private$model_index,
-                    start = start, end = end,
-                    freq  = as.integer(private$model_period_max[3]))
+        model_index = private$model_index,
+        start = start, end = end,
+        freq = as.integer(private$model_period_max[3])
+      )
 
       if (ierr != 0) {
         stop("Unable to allocate memory for the model data.")
@@ -1448,9 +1612,11 @@ IsisMdl <- R6Class("IsisMdl",
       # Check if period (a period range object) lies in the range of
       # private$model_period_max.
       if (!period_range_is_within(period, private$model_period_max)) {
-        stop("The specified period (", period, ") is not compatible with the ",
-             "data period (", private$data_period, "). The period should lie ",
-             "within the range ", private$model_period_max, ".")
+        stop(
+          "The specified period (", period, ") is not compatible with the ",
+          "data period (", private$data_period, "). The period should lie ",
+          "within the range ", private$model_period_max, "."
+        )
       }
       return(invisible(NULL))
     },
@@ -1507,8 +1673,10 @@ IsisMdl <- R6Class("IsisMdl",
 
       # Check range
       if (check_range && !period_range_is_within(period, private$data_period)) {
-        stop("The specified period (", period, ") lies outside the range of ",
-             "the data period (", private$data_period, ").")
+        stop(
+          "The specified period (", period, ") lies outside the range of ",
+          "the data period (", private$data_period, ")."
+        )
       }
 
       period
@@ -1526,17 +1694,23 @@ IsisMdl <- R6Class("IsisMdl",
         stop("Argument data is not a timeseries object")
       }
 
-      if (NCOL(data) == 0) return(NULL)
+      if (NCOL(data) == 0) {
+        return(NULL)
+      }
 
       data <- as.regts(data)
 
       if (frequency(data) != frequency(private$data_period)) {
-        stop(paste0("The frequency of data does not agree with the data",
-                    " period ", as.character(private$data_period), "."))
+        stop(paste0(
+          "The frequency of data does not agree with the data",
+          " period ", as.character(private$data_period), "."
+        ))
       }
 
       per <- range_intersect(get_period_range(data), private$data_period)
-      if (is.null(per)) return(NULL)
+      if (is.null(per)) {
+        return(NULL)
+      }
       data <- data[per]
 
       # convert data to a matrix if necessary
@@ -1548,13 +1722,17 @@ IsisMdl <- R6Class("IsisMdl",
         if (is.null(names)) {
           stop("names is null")
         } else if (length(names) < NCOL(data)) {
-          stop(paste("The length of argument names is less than the number of",
-                     "columns of data"))
+          stop(paste(
+            "The length of argument names is less than the number of",
+            "columns of data"
+          ))
         }
         colnames(data) <- names
       } else if (is.null(colnames(data))) {
-        stop(paste("Argument data has no colnames.",
-                   "In that case, argument names should be specified"))
+        stop(paste(
+          "Argument data has no colnames.",
+          "In that case, argument names should be specified"
+        ))
       } else {
         names <- colnames(data)
       }
@@ -1563,9 +1741,13 @@ IsisMdl <- R6Class("IsisMdl",
       if (anyDuplicated(names)) {
         dupl <- duplicated(names)
         data <- data[, !dupl, drop = FALSE]
-        warning(sprintf(paste("Data contains duplicate names. The first column",
-                              "is used.\nThe duplicated names are: %s."),
-                        paste(unique(names[dupl]), collapse = ", ")))
+        warning(sprintf(
+          paste(
+            "Data contains duplicate names. The first column",
+            "is used.\nThe duplicated names are: %s."
+          ),
+          paste(unique(names[dupl]), collapse = ", ")
+        ))
       }
 
       if (is.integer(data) || !is.numeric(data)) {

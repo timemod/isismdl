@@ -1,10 +1,11 @@
-# fmds = fill_model_data_solve internal
+#' fmds = fill_model_data_solve internal
 #' @import regts
 #' @import nleqslv
 #' @importFrom graphics plot
 #' @importFrom dplyr group_split filter
 #' @importFrom purrr map_dbl
 #' @importFrom rlang set_names .data
+#' @noRd
 
 # This function solves multiple groups of derived variables with
 # the accompanying observed variables.
@@ -27,6 +28,9 @@ fmds <- function(
   # equation names.
 
   # TODO: controleer het soort model: het moet recursief zijn en geen lags bevatten.
+  if (length(mdl$get_endo_names(type = "feedback")) > 0) {
+    stop("fill_mdl_data_solve does not support models with feedback variables.")
+  }
   # TODO: check solved_variables and observed variables are endogenous.
 
   mdl_original_data <- mdl$get_data()

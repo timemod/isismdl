@@ -98,6 +98,7 @@ a new value.
 
 Note: This method is primarily designed to compute starting values.
 For solving exogenous variables, use the separate \code{solve_exo} method.
+This method does not support models with feedback variables.
 }
 \examples{
 library(isismdl)

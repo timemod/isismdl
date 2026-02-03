@@ -73,8 +73,8 @@ print(mdl)
 # Initialize and load data from a regts object
 mdl <- islm_mdl()
 initial_data <- cbind(
-  y = regts(c(1000, 900, 800), period = "2017Q1/2017Q3"),
-  c = regts(c(800, 767, 705), period = "2017Q1/2017Q3")
+    y = regts(c(1000, 900, 800), period = "2017Q1/2017Q3"),
+    c = regts(c(800, 767, 705), period = "2017Q1/2017Q3")
 )
 mdl$init_data(data = initial_data)
 print(mdl)
