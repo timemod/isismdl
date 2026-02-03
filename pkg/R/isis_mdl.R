@@ -144,8 +144,8 @@
 #' @importFrom tools file_ext
 #' @importFrom utils capture.output
 #' @export
-isis_mdl <- function(model_file, model_text, period, data, ca, fix_values,
-                     parse_options, silent = FALSE) {
+isis_mdl <- function(model_file, period, data, ca, fix_values,
+                     parse_options, silent = FALSE, model_text) {
   if (missing(model_file) && missing(model_text)) {
     stop("Either 'model_file' or 'model_text' must be specified.")
   }
