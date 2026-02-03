@@ -891,9 +891,9 @@ NULL
 #'
 #' @section Details:
 #'
-#' The method determines which equations need to be run based on the
-#' dependency structure of the model. It constructs a residual function that
-#' runs the necessary equations and computes the difference between the
+#' The method works by running all active equations of the model for the
+#' specified solve period. It constructs a residual function that
+#' runs these equations and computes the difference between the
 #' target variables' values in the model data and the values computed by
 #' the model.
 #'
@@ -912,7 +912,7 @@ NULL
 #' solution found by the numerical solver.
 #'
 #' @seealso \code{\link{solve}}, \code{\link{fill_mdl_data_solve}},
-#' \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
+#' \code{\link{fill_mdl_data}}
 #' and \code{\link[nleqslv]{nleqslv}} for details on the numerical
 #' solver and its options.
 #'
