@@ -6,6 +6,7 @@
 \usage{
 isis_mdl(
   model_file,
+  model_text,
   period,
   data,
   ca,
@@ -17,7 +18,11 @@ isis_mdl(
 \arguments{
 \item{model_file}{The name of the model file.
 An extension \code{mdl} is appended to the specified name if the filename
-does not already have an extension}
+does not already have an extension.
+This argument should be missing if argument \code{model_text} is specified.}
+
+\item{model_text}{A character string with the model definition.
+This argument should be missing if argument \code{model_file} is specified.}
 
 \item{period}{A \code{\link[regts]{period_range}} object or an object coercible to a
 \code{period_range}. This argument specifies the model period,
