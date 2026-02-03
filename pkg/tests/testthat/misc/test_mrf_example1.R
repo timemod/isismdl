@@ -9,7 +9,7 @@ source("../tools/read_mrf.R")
 
 
 mdl_file <- "mdl/mrf_example1.mdl"
-mdl <- isis_mdl(mdl_file, silent = TRUE)
+mdl <- isis_mdl(model_file = mdl_file, silent = TRUE)
 
 mrf_data <- read_mrf(mdl_file)
 

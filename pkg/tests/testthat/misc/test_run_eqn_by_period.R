@@ -7,7 +7,7 @@ rm(list = ls())
 mdl_file <- "mdl/test_run_eqn_by_period.mdl"
 
 solve_per <- period_range(2021, 2023)
-mdl <- isis_mdl(mdl_file, silent = TRUE, period = solve_per)
+mdl <- isis_mdl(model_file = mdl_file, silent = TRUE, period = solve_per)
 
 mdp <- period_range(2021, 2024)
 

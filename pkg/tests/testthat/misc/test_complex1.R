@@ -34,7 +34,7 @@ ok <- convert_mdl_file(mdl_filename, mdl_subst_filename,
                        conversion_options = list(substitute = TRUE),
                       parse_options = parse_options)
 expect_true(ok)
-mdl_subst <- isis_mdl(mdl_subst_filename, period, silent = TRUE)
+mdl_subst <- isis_mdl(mdl_subst_filename, period = period, silent = TRUE)
 mdl_subst$set_values(seq_len(nperiod(data_per)), names = paste0("x", 1:3))
 mdl_subst$set_solve_options(report = "none")
 

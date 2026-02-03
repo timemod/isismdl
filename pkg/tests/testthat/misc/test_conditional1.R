@@ -19,7 +19,7 @@ test_that("the parse flags are handled correctly", {
   results <- numeric(length(flags_1))
   for (i in seq_along(flags_1)) {
     parse_options <- list(flags = c(flags_1[i], flags_2[i]))
-    mdl <- isis_mdl(mdl_filename, period = period,
+    mdl <- isis_mdl(model_file = mdl_filename, period = period,
                     parse_options = parse_options, silent = TRUE)
     mdl$solve(options = list(report = "none"))
     results[i] <- as.numeric(mdl$get_data(names = "x_copy"))
@@ -30,13 +30,14 @@ test_that("the parse flags are handled correctly", {
 
 test_that("convert_mdl_file also handles flags correctly", {
   parse_options <- list(flags = c("two", "times_100"))
-  convert_mdl_file(mdl_filename, mdl_subst_filename,
-                                  parse_options = parse_options)
+  convert_mdl_file(model_file = mdl_filename, 
+                   model_subst_file = mdl_subst_filename,
+                   parse_options = parse_options)
   expect_known_output(cat(paste(readLines(mdl_subst_filename), collapse = "\n")),
                       file = "expected_output/conditional1_subst.mdl",
                       update = update_expected, print = TRUE)
-  mdl_subst <- isis_mdl(mdl_subst_filename, period = period,
-                  parse_options = parse_options, silent = TRUE)
+  mdl_subst <- isis_mdl(model_file = mdl_subst_filename, period = period,
+                        parse_options = parse_options, silent = TRUE)
   mdl_subst$solve(options = list(report = "none"))
   expected_data <- regts(matrix(200, ncol = 2), period = "476",
                          names = mdl_subst$get_var_names())
@@ -45,7 +46,7 @@ test_that("convert_mdl_file also handles flags correctly", {
 
 test_that("test get_text", {
   parse_options <- list(flags = c("two", "times_100"))
-  mdl <- isis_mdl(mdl_filename, period = period,
+  mdl <- isis_mdl(model_file = mdl_filename, period = period,
                   parse_options = parse_options, silent = TRUE)
   mdl_text <- mdl$get_text()
   # for using expect_known_output we have to remove the carriage return

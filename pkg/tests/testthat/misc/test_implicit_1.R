@@ -4,7 +4,7 @@ library(testthat)
 rm(list = ls())
 
 mdl_file <- "mdl/implicit_example1.mdl"
-mdl <- isis_mdl(mdl_file, period = "2020/2025", silent = TRUE)
+mdl <- isis_mdl(model_file = mdl_file, period = "2020/2025", silent = TRUE)
 
 test_that("solve", {
   mdl2 <- mdl$copy()
