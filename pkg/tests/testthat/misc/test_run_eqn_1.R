@@ -14,7 +14,7 @@ lead_data <- regts(matrix(3:4, ncol = 2), start = 2025,
 init_data <- cbind(lag_data, lead_data)
 
 solve_per <- period_range(2021, 2023)
-mdl <- isis_mdl(mdl_file, silent = TRUE, period = solve_per,
+mdl <- isis_mdl(model_file = mdl_file, silent = TRUE, period = solve_per,
                 data = init_data)
 
 test_that("run_eqn with correct solve order and forwards", {

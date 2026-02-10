@@ -12,7 +12,7 @@ source("../tools/read_mrf.R")
 
 period <- period_range(2018, 2019)
 mdl_file <- "mdl/missing_exo_lag1.mdl"
-rep <- capture_output(mdl <- isis_mdl(mdl_file, period))
+rep <- capture_output(mdl <- isis_mdl(model_file = mdl_file, period = period))
 
 mdl$set_values(c(0, 1), names = "switch", period = period)
 mdl$set_values(1, names = "z1", period = 2019)

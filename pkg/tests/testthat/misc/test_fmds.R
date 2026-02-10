@@ -5,7 +5,7 @@ library(tibble)
 rm(list = ls())
 update_expected <- FALSE
 
-create_simple_lag_model <- function() {
+get_simple_lag_model_text <- function() {
   mdl_content <- "
 ident y1 = 0.8 * y1(-1) + 0.2 * z1;
 ident y2 = 0.7 * y2(-1) + 0.3 * z2;
@@ -18,10 +18,7 @@ ident obs1 = w1 + x1;
 ident obs2 = w2 + x2;
 ident obs3 = y3 + x3;
 "
-
-  mdl_file <- tempfile("test_fmds_", fileext = ".mdl")
-  writeLines(mdl_content, mdl_file)
-  return(mdl_file)
+  return(mdl_content)
 }
 
 create_test_init_data <- function(period, var_names) {
@@ -52,8 +49,7 @@ test_period <- "2011"
 
 test_that("fill_mdl_data_solve basic functionality with missing period parameter", {
 
-  mdl_file <- create_simple_lag_model()
-  mdl <- isis_mdl(mdl_file, period, silent = TRUE)
+  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
   mdl$init_data(data = data_init)
@@ -86,14 +82,12 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
   # TODO: check that if we obtain the same result if we put all variables in
   # a single group.
 
-  unlink(mdl_file)
 })
 
 
 test_that("fill_mdl_data_solve handles solve_df without group column", {
 
-  mdl_file <- create_simple_lag_model()
-  mdl <- isis_mdl(mdl_file, period, silent = TRUE)
+  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -113,13 +107,11 @@ test_that("fill_mdl_data_solve handles solve_df without group column", {
     )
   }, "There were no groups")
 
-  unlink(mdl_file)
 })
 
 test_that("fill_mdl_data_solve handles solve_df without initial_guess column", {
 
-  mdl_file <- create_simple_lag_model()
-  mdl <- isis_mdl(mdl_file, period, silent = TRUE)
+  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -153,13 +145,11 @@ test_that("fill_mdl_data_solve handles solve_df without initial_guess column", {
       report = "no"
     )
   }, "Use only numerical or NA values")
-  unlink(mdl_file)
 })
 
 test_that("fill_mdl_data_solve validates initial_guess values", {
 
-  mdl_file <- create_simple_lag_model()
-  mdl <- isis_mdl(mdl_file, period, silent = TRUE)
+  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -179,14 +169,11 @@ test_that("fill_mdl_data_solve validates initial_guess values", {
     )
   })
 
-  unlink(mdl_file)
-
 })
 
 test_that("fill_mdl_data_solve requires necessary columns in solve_df", {
 
-  mdl_file <- create_simple_lag_model()
-  mdl <- isis_mdl(mdl_file, period, silent = TRUE)
+  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -218,13 +205,11 @@ test_that("fill_mdl_data_solve requires necessary columns in solve_df", {
     )
   }, "Make sure the following column\\(s\\) exist")
 
-  unlink(mdl_file)
 })
 
 test_that("fill_mdl_data_solve handles duplicate groups", {
 
-  mdl_file <- create_simple_lag_model()
-  mdl <- isis_mdl(mdl_file, period, silent = TRUE)
+  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -245,16 +230,12 @@ test_that("fill_mdl_data_solve handles duplicate groups", {
     )
   })
 
-  unlink(mdl_file)
 })
 
 test_that("fill_mdl_data_solve with period parameter", {
-
-  mdl_file <- create_simple_lag_model()
   full_period <- as.period_range("2010/2015")
-  solve_period <- as.period_range("2011/2013")
-
-  mdl <- isis_mdl(mdl_file, full_period, silent = TRUE)
+  solve_period <- as.period_range("2011")
+  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = full_period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(full_period, var_names)
@@ -274,13 +255,11 @@ test_that("fill_mdl_data_solve with period parameter", {
   expect_s3_class(mdl_solved, "IsisMdl")
   expect_false(is.null(mdl_solved$get_data()))
 
-  unlink(mdl_file)
 })
 
 test_that("fill_mdl_data_solve with known output", {
 
-  mdl_file <- create_simple_lag_model()
-  mdl <- isis_mdl(mdl_file, period, silent = TRUE)
+  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -304,21 +283,15 @@ test_that("fill_mdl_data_solve with known output", {
     "expected_output/fmds_simple.rds"
   )
 
-  unlink(mdl_file)
 })
 
 test_that("fill_mdl_data_solve errors when model has feedback variables", {
-  mdl_file <- tempfile(fileext = ".mdl")
-  # A simple model with a feedback loop
-  writeLines(
-    c(
-      "ident x = 0.5 * x + y;",
-      "ident obs = x;"
-    ),
-    mdl_file
+  mdl_content <- c(
+    "ident x = 0.5 * x + y;",
+    "ident obs = x;"
   )
 
-  mdl <- isismdl::isis_mdl(mdl_file, period = "2020", silent = TRUE)
+  mdl <- isismdl::isis_mdl(model_text = mdl_content, period = "2020", silent = TRUE)
 
   solve_df <- tribble(
     ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
@@ -332,5 +305,4 @@ test_that("fill_mdl_data_solve errors when model has feedback variables", {
     ),
     regexp = "fill_mdl_data_solve does not support models with feedback variables"
   )
-  unlink(mdl_file)
 })

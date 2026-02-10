@@ -11,13 +11,15 @@ isis_mdl(
   ca,
   fix_values,
   parse_options,
-  silent = FALSE
+  silent = FALSE,
+  model_text
 )
 }
 \arguments{
 \item{model_file}{The name of the model file.
 An extension \code{mdl} is appended to the specified name if the filename
-does not already have an extension}
+does not already have an extension.
+This argument should be missing if argument \code{model_text} is specified.}
 
 \item{period}{A \code{\link[regts]{period_range}} object or an object coercible to a
 \code{period_range}. This argument specifies the model period,
@@ -37,6 +39,9 @@ See section "Parse options".}
 
 \item{silent}{A logical (default \code{FALSE}). If \code{TRUE}, then
 output of the model parser is suppressed.}
+
+\item{model_text}{A character vector with the model definition.
+This argument should be missing if argument \code{model_file} is specified.}
 }
 \description{
 This function creates an \code{\link{IsisMdl}} object.

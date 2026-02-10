@@ -23,7 +23,7 @@ test_that("run_eqn", {
   mdl2 <- mdl$copy()
   mdl2$run_eqn()
   expect_equal(mdl2$get_data(), expected_result)
-})
+}) 
 
 test_that("run_eqn with natural ordering", {
   mdl2 <- mdl$copy()

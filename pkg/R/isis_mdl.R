@@ -23,7 +23,10 @@
 #'
 #' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename
-#' does not already have an extension
+#' does not already have an extension.
+#' This argument should be missing if argument \code{model_text} is specified.
+#' @param model_text A character vector with the model definition.
+#' This argument should be missing if argument \code{model_file} is specified.
 #' @param period A \code{\link[regts]{period_range}} object or an object coercible to a
 #' `period_range`. This argument specifies the model period,
 #' the default period for which the model will be solved.
@@ -142,7 +145,28 @@
 #' @importFrom utils capture.output
 #' @export
 isis_mdl <- function(model_file, period, data, ca, fix_values,
-                     parse_options, silent = FALSE) {
+                     parse_options, silent = FALSE, model_text) {
+  if (missing(model_file) && missing(model_text)) {
+    stop("Either 'model_file' or 'model_text' must be specified.")
+  }
+  if (!missing(model_file) && !missing(model_text)) {
+    stop("Arguments 'model_file' and 'model_text' cannot both be specified.")
+  }
+
+  if (!missing(model_text)) {
+    if (!is.character(model_text)) {
+      stop("Argument 'model_text' must be a character vector.")
+    }
+    model_file <- tempfile(pattern = "isismdl_", fileext = ".mdl")
+    writeLines(model_text, model_file)
+    on.exit({
+      unlink(model_file)
+      base_name <- tools::file_path_sans_ext(model_file)
+      unlink(paste0(base_name, ".mrf"))
+      unlink(paste0(base_name, ".err"))
+    }, add = TRUE)
+  }
+
   model_file <- check_mdl_file(model_file)
 
   if (!missing(period)) {

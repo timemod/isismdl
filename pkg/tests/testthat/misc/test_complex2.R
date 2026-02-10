@@ -26,7 +26,11 @@ outp <- capture.output(convert_mdl_file(mdl_filename, mdl_subst_filename,
                        conversion_options = list(substitute = TRUE)))
 
 # create model with substituted user functions
-outp <- capture.output(mdl_subst <- isis_mdl(mdl_subst_filename, period))
+outp <- capture.output(mdl_subst <- isis_mdl(
+  model_file = mdl_subst_filename,
+  period = period,
+  silent = TRUE
+))
 mdl_subst$set_values(seq_len(nperiod(data_per)), names = paste0("x", 1:3))
 mdl_subst$set_solve_options(report = "none")
 

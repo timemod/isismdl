@@ -102,14 +102,13 @@ This method does not support models with feedback variables.
 }
 \examples{
 library(isismdl)
-mdl_file <- tempfile(fileext = ".mdl")
-writeLines("
+model_text <- "
 ident y = y[-1];
 ident obs = y + z;
-", mdl_file)
+"
 
 # We want to solve the model in  period 2017/2018
-mdl <- isis_mdl(mdl_file, period = "2017/2018", silent = TRUE)
+mdl <- isis_mdl(model_text = model_text, period = "2017/2018", silent = TRUE)
 
 # Create initial data: z is known, obs is observed only in 2016
 mdl$set_values(6:8, names = "z", period = "2016/2018")
@@ -147,8 +146,6 @@ mdl_copy$fill_mdl_data_solve(
     control = list(trace = 1, maxit = 200)
 )
 
-# Clean up
-unlink(mdl_file)
 
 }
 \seealso{

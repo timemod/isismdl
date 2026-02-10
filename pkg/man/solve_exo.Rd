@@ -80,13 +80,12 @@ library(isismdl)
 
 # Example: Calibrating a policy variable to match target GDP
 # This defines a recursive model
-mdl_file <- tempfile(fileext = ".mdl")
-writeLines(c(
-    "ident C = C_A + 0.8 * I;",
-    "ident Y = C + I + G;"
-), mdl_file)
+model_text <- "
+ident C = C_A + 0.8 * I;
+ident Y = C + I + G;
+"
 
-mdl <- isis_mdl(mdl_file, period = "2020", silent = TRUE)
+mdl <- isis_mdl(model_text = model_text, period = "2020", silent = TRUE)
 
 # Set values for known exogenous variables (Constants)
 mdl$set_values(100, names = "I", period = "2020") # Investment
@@ -116,7 +115,7 @@ mdl$get_data(names = "G", period = "2020")
 # C = 50 + 0.8 * 100 = 130
 mdl$get_data(names = "C", period = "2020")
 
-unlink(mdl_file)
+
 }
 \seealso{
 \code{\link{solve}}, \code{\link{fill_mdl_data_solve}},
