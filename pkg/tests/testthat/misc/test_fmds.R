@@ -291,6 +291,7 @@ test_that("fill_mdl_data_solve with known output", {
 test_that("fill_mdl_data_solve errors when model has feedback variables", {
   mdl_content <- c(
     "ident x = 0.5 * x + y;",
+    "ident y = 0.5 * z;",
     "ident obs = x;"
   )
 
