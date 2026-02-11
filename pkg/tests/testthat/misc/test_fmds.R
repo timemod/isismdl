@@ -311,12 +311,12 @@ test_that("fill_mdl_data_solve errors when model has feedback variables", {
 })
 test_that("fill_mdl_data_solve errors when solve variable is not NA", {
   mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
-  var_names <- mdl()
+  var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
-  mdl(data = data_init)
+  mdl$init_data(data = data_init)
 
   # Set y1 to not NA
-  mdl(1.0, names = "y1", period = "2011")
+  mdl$set_values(1.0, names = "y1", period = "2011")
 
   solve_df <- tribble(
     ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
@@ -324,16 +324,16 @@ test_that("fill_mdl_data_solve errors when solve variable is not NA", {
   )
 
   expect_error(
-    mdl(solve_df = solve_df, report = "no"),
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
     regexp = "The solve variable 'y1' at period 2011 is not NA"
   )
 })
 
 test_that("fill_mdl_data_solve errors when variables are not endogenous", {
   mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
-  var_names <- mdl()
+  var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
-  mdl(data = data_init)
+  mdl$init_data(data = data_init)
 
   # Solve variable is exogenous
   solve_df_exo_solve <- tribble(
@@ -342,7 +342,7 @@ test_that("fill_mdl_data_solve errors when variables are not endogenous", {
   )
 
   expect_error(
-    mdl(solve_df = solve_df_exo_solve, report = "no"),
+    mdl$fill_mdl_data_solve(solve_df = solve_df_exo_solve, report = "no"),
     regexp = "The following solve variables are not endogenous variables"
   )
 
@@ -353,7 +353,7 @@ test_that("fill_mdl_data_solve errors when variables are not endogenous", {
   )
 
   expect_error(
-    mdl(solve_df = solve_df_exo_obs, report = "no"),
+    mdl$fill_mdl_data_solve(solve_df = solve_df_exo_obs, report = "no"),
     regexp = "The following observed variables are not endogenous variables"
   )
 })
