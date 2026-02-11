@@ -80,6 +80,9 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
   solve_df_single_group <- solve_df
   solve_df_single_group$group <- "SingleGroup"
 
+  # Reset data before calling again
+  mdl$init_data(data = data_init)
+
   mdl_solved2 <- mdl$fill_mdl_data_solve(
     solve_df = solve_df_single_group,
     report = "no"
