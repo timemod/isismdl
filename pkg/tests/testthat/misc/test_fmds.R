@@ -361,6 +361,7 @@ test_that("fill_mdl_data_solve errors when variables are not endogenous", {
 test_that("fill_mdl_data_solve errors when model has leads", {
   mdl_content <- c(
     "ident x = 0.5 * x(1) + y;",
+    "ident y = 0.5 * z;",
     "ident obs = x;"
   )
 
