@@ -55,8 +55,8 @@ find_deps <- function(final_destinations, final_sources = NULL,
   # corresponding color.
 
   # TODO: give an error if mdl is not a recursive, backward looking model.
-  # This implementation has not been tested yet for models with feedback or forward
-  # looking methods.
+  # This implementation has not been tested yet for models with feedback.
+  # For models with leads (forward looking), fmds() now throws an error.
 
   endo_names <- mdl$get_endo_names()
 

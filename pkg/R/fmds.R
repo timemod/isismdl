@@ -17,21 +17,52 @@ fmds <- function(
   solve_df <- ensure_solve_df_cols(solve_df,
                                    default_initial_guess = default_initial_guess)
 
-  # TODO: check that solve_variables are NA.
-  # The purpose of fill_mdl_data_solve is to replace NA values with non-NA values,
-  # so the solve variable should not already have a value.
+  # Check that solve_variables and observed_variables are endogenous.
+  all_endo <- mdl$get_endo_names()
+  missing_v <- setdiff(solve_df$solve_variable, all_endo)
+  if (length(missing_v) > 0) {
+    stop(
+      "The following solve variables are not endogenous variables of the model: ",
+      paste(missing_v, collapse = ", ")
+    )
+  }
+  missing_o <- setdiff(solve_df$observed_variable, all_endo)
+  if (length(missing_o) > 0) {
+    stop(
+      "The following observed variables are not endogenous variables of the model: ",
+      paste(missing_o, collapse = ", ")
+    )
+  }
 
-  # TODO: this function currently assumes that the equation names are the same
-  # as the names of the left hand side equations (endogenous variables).
-  # This is the case for the current Zoem model. Check that this is the case,
-  # or generalize the function so that it also works with model with different
-  # equation names.
+  # Check that each equation name is the same as the name of the corresponding
+  # endogenous variable (LHS).
+  # This IS the case for the current implementation of fmds.
+  eq_names <- mdl$get_eq_names()
+  if (!all(all_endo %in% eq_names)) {
+    stop(paste(
+      "Currently, fill_mdl_data_solve requires that all endogenous",
+      "variables have an equation with the same name."
+    ))
+  }
 
-  # TODO: controleer het soort model: het moet recursief zijn en geen lags bevatten.
+  # Check that solve_variables are NA at their respective solve_periods.
+  for (i in seq_len(nrow(solve_df))) {
+    v <- solve_df$solve_variable[i]
+    p <- solve_df$solve_period[i]
+    val <- mdl$get_data(names = v, period = p)
+    if (!is.na(val)) {
+      stop(sprintf("The solve variable '%s' at period %s is not NA.",
+                   v, as.character(p)))
+    }
+  }
+
+  # Check the model type: it must be recursive (no feedback variables and no leads).
   if (length(mdl$get_endo_names(type = "feedback")) > 0) {
     stop("fill_mdl_data_solve does not support models with feedback variables.")
   }
-  # TODO: check solved_variables and observed variables are endogenous.
+  if (mdl$get_maxlead() > 0) {
+    stop("fill_mdl_data_solve does not support models with leads.")
+  }
 
   mdl_original_data <- mdl$get_data()
   dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
@@ -83,8 +114,11 @@ fmds <- function(
 
   # Check that only NA values have been modified.
   if (!is.null(dif_table) && !all(is.na(dif_table$value1))) {
-    # TODO: Improve error message
-    stop("One or more valid values has been modified, that is not allowed")
+    stop(paste(
+      "One or more valid (non-NA) values have been modified during the solve",
+      "process. This is not allowed. Offending variables:",
+      paste(unique(dif_table$name[!is.na(dif_table$value1)]), collapse = ", ")
+    ))
   }
 
   # Create summary based on report type

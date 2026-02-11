@@ -5,8 +5,7 @@ library(tibble)
 rm(list = ls())
 update_expected <- FALSE
 
-get_simple_lag_model_text <- function() {
-  mdl_content <- "
+simple_lag_model_text <- "
 ident y1 = 0.8 * y1(-1) + 0.2 * z1;
 ident y2 = 0.7 * y2(-1) + 0.3 * z2;
 ident y3 = 0.6 * y3(-1) + 0.4 * z3;
@@ -18,8 +17,6 @@ ident obs1 = w1 + x1;
 ident obs2 = w2 + x2;
 ident obs3 = y3 + x3;
 "
-  return(mdl_content)
-}
 
 create_test_init_data <- function(period, var_names) {
   n_periods <- regts::nperiod(period)
@@ -49,7 +46,7 @@ test_period <- "2011"
 
 test_that("fill_mdl_data_solve basic functionality with missing period parameter", {
 
-  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
   mdl$init_data(data = data_init)
@@ -75,19 +72,25 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
   solved_data <- mdl_solved$get_data()
 
   # TODO: check result, compare with analytical solution
+  expect_equal(as.numeric(solved_data["2011", "y1"]), 2.8)
+  expect_equal(as.numeric(solved_data["2011", "y2"]), 3.0)
+  expect_equal(as.numeric(solved_data["2011", "y3"]), 2.0)
 
-  # I do not understand the the test below. I think this can be removed.
-  expect_false(is.null(solved_data))
+  # Check that if we put all variables in a single group, we get the same result.
+  solve_df_single_group <- solve_df
+  solve_df_single_group$group <- "SingleGroup"
 
-  # TODO: check that if we obtain the same result if we put all variables in
-  # a single group.
-
+  mdl_solved2 <- mdl$fill_mdl_data_solve(
+    solve_df = solve_df_single_group,
+    report = "no"
+  )
+  expect_equal(solved_data, mdl_solved2$get_data())
 })
 
 
 test_that("fill_mdl_data_solve handles solve_df without group column", {
 
-  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -111,7 +114,7 @@ test_that("fill_mdl_data_solve handles solve_df without group column", {
 
 test_that("fill_mdl_data_solve handles solve_df without initial_guess column", {
 
-  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -149,7 +152,7 @@ test_that("fill_mdl_data_solve handles solve_df without initial_guess column", {
 
 test_that("fill_mdl_data_solve validates initial_guess values", {
 
-  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -173,7 +176,7 @@ test_that("fill_mdl_data_solve validates initial_guess values", {
 
 test_that("fill_mdl_data_solve requires necessary columns in solve_df", {
 
-  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -209,7 +212,7 @@ test_that("fill_mdl_data_solve requires necessary columns in solve_df", {
 
 test_that("fill_mdl_data_solve handles duplicate groups", {
 
-  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -235,7 +238,7 @@ test_that("fill_mdl_data_solve handles duplicate groups", {
 test_that("fill_mdl_data_solve with period parameter", {
   full_period <- as.period_range("2010/2015")
   solve_period <- as.period_range("2011")
-  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = full_period, silent = TRUE)
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = full_period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(full_period, var_names)
@@ -259,7 +262,7 @@ test_that("fill_mdl_data_solve with period parameter", {
 
 test_that("fill_mdl_data_solve with known output", {
 
-  mdl <- isis_mdl(model_text = get_simple_lag_model_text(), period = period, silent = TRUE)
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
 
   var_names <- mdl$get_var_names()
   data_init <- create_test_init_data(period, var_names)
@@ -304,5 +307,75 @@ test_that("fill_mdl_data_solve errors when model has feedback variables", {
       report = "no"
     ),
     regexp = "fill_mdl_data_solve does not support models with feedback variables"
+  )
+})
+test_that("fill_mdl_data_solve errors when solve variable is not NA", {
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl()
+  data_init <- create_test_init_data(period, var_names)
+  mdl(data = data_init)
+
+  # Set y1 to not NA
+  mdl(1.0, names = "y1", period = "2011")
+
+  solve_df <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,        "A",   "obs1",            "y1",            0.1
+  )
+
+  expect_error(
+    mdl(solve_df = solve_df, report = "no"),
+    regexp = "The solve variable 'y1' at period 2011 is not NA"
+  )
+})
+
+test_that("fill_mdl_data_solve errors when variables are not endogenous", {
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl()
+  data_init <- create_test_init_data(period, var_names)
+  mdl(data = data_init)
+
+  # Solve variable is exogenous
+  solve_df_exo_solve <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,        "A",   "obs1",            "x1",            0.1
+  )
+
+  expect_error(
+    mdl(solve_df = solve_df_exo_solve, report = "no"),
+    regexp = "The following solve variables are not endogenous variables"
+  )
+
+  # Observed variable is exogenous
+  solve_df_exo_obs <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,        "A",   "x1",            "y1",            0.1
+  )
+
+  expect_error(
+    mdl(solve_df = solve_df_exo_obs, report = "no"),
+    regexp = "The following observed variables are not endogenous variables"
+  )
+})
+
+test_that("fill_mdl_data_solve errors when model has leads", {
+  mdl_content <- c(
+    "ident x = 0.5 * x(1) + y;",
+    "ident obs = x;"
+  )
+
+  mdl <- isismdl::isis_mdl(model_text = mdl_content, period = "2020/2021", silent = TRUE)
+
+  solve_df <- tribble(
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+    "2020"        , "A"    , "obs"              , "y"             , 0.1
+  )
+
+  expect_error(
+    mdl$fill_mdl_data_solve(
+      solve_df = solve_df,
+      report = "no"
+    ),
+    regexp = "fill_mdl_data_solve does not support models with leads"
   )
 })
