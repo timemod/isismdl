@@ -352,7 +352,7 @@ test_that("fill_mdl_data_solve reports multiple non-NA solve variables", {
   output <- capture.output({
     expect_error(
       mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-      regexp = "Some solve variables are not NA"
+      regexp = "Some solve variables are not NA .... See the table above."
     )
   })
 
