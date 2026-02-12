@@ -349,16 +349,10 @@ test_that("fill_mdl_data_solve reports multiple non-NA solve variables", {
     "2012",        "B",   "obs2",            "y2",            0.1
   )
 
-  output <- capture.output({
-    expect_error(
-      mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-      regexp = "Some solve variables are not NA. See the table above."
-    )
-  })
-
-  expect_true(any(grepl("Non-NA values for the following variables and periods", output)))
-  expect_true(any(grepl("y1", output) & grepl("2011", output)))
-  expect_true(any(grepl("y2", output) & grepl("2012", output)))
+  expect_error(
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
+    regexp = "Non-NA values for the following variables and periods.*y1.*2011.*y2.*2012"
+  )
 })
 
 test_that("fill_mdl_data_solve errors when variables are not endogenous", {
