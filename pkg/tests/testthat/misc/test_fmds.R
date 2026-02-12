@@ -329,8 +329,36 @@ test_that("fill_mdl_data_solve errors when solve variable is not NA", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-    regexp = "The solve variable 'y1' at period 2011 is not NA"
+    regexp = "Some solve variables not NA"
   )
+})
+
+test_that("fill_mdl_data_solve reports multiple non-NA solve variables", {
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl$get_var_names()
+  data_init <- create_test_init_data(period, var_names)
+  mdl$init_data(data = data_init)
+
+  # Set y1 and y2 to not NA
+  mdl$set_values(1.0, names = "y1", period = "2011")
+  mdl$set_values(2.0, names = "y2", period = "2012")
+
+  solve_df <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    "2011",        "A",   "obs1",            "y1",            0.1,
+    "2012",        "B",   "obs2",            "y2",            0.1
+  )
+
+  output <- capture.output({
+    expect_error(
+      mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
+      regexp = "Some solve variables are not NA"
+    )
+  })
+
+  expect_true(any(grepl("Non-NA values for the following variables and periods", output)))
+  expect_true(any(grepl("y1", output) & grepl("2011", output)))
+  expect_true(any(grepl("y2", output) & grepl("2012", output)))
 })
 
 test_that("fill_mdl_data_solve errors when variables are not endogenous", {

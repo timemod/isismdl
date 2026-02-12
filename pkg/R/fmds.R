@@ -2,7 +2,7 @@
 #' @import regts
 #' @import nleqslv
 #' @importFrom graphics plot
-#' @importFrom dplyr group_split filter
+#' @importFrom dplyr group_split filter inner_join select
 #' @importFrom purrr map_dbl
 #' @importFrom rlang set_names .data
 #' @noRd
@@ -46,14 +46,19 @@ fmds <- function(
   }
 
   # Check that solve_variables are NA at their respective solve_periods.
-  for (i in seq_len(nrow(solve_df))) {
-    v <- solve_df$solve_variable[i]
-    p <- solve_df$solve_period[i]
-    val <- mdl$get_data(names = v, period = p)
-    if (!is.na(val)) {
-      stop(sprintf("The solve variable '%s' at period %s is not NA.",
-                   v, as.character(p)))
-    }
+  mdl_data_long <- regts::as_data_frame(mdl$get_data(), format = "long",
+                                        name_col = "solve_variable",
+                                        period_col = "solve_period") |>
+    dplyr::filter(!is.na(.data$value))
+
+  offending_values <- solve_df |>
+    dplyr::inner_join(mdl_data_long, by = c("solve_period", "solve_variable")) |>
+    dplyr::select("solve_variable", "solve_period")
+
+  if (nrow(offending_values) > 0) {
+    cat("\nNon-NA values for the following variables and periods:\n")
+    print(as.data.frame(offending_values))
+    stop("Some solve variables are not NA .... See the table above.")
   }
 
   # Check the model type: it must be recursive (no feedback variables and no leads).
