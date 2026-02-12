@@ -58,7 +58,7 @@ fmds <- function(
   if (nrow(offending_values) > 0) {
     cat("\nNon-NA values for the following variables and periods:\n")
     print(as.data.frame(offending_values))
-    stop("Some solve variables are not NA .... See the table above.")
+    stop("Some solve variables are not NA: See the table above.")
   }
 
   # Check the model type: it must be recursive (no feedback variables and no leads).
