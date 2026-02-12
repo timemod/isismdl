@@ -329,7 +329,7 @@ test_that("fill_mdl_data_solve errors when solve variable is not NA", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-    regexp = "Some solve variables are not NA"
+    regexp = "Non-NA values for the following variables and periods.*y1.*2011.*y2.*2012"
   )
 })
 
