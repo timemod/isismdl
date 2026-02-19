@@ -21,7 +21,7 @@ fmds <- function(
     period <- as.period_range(period)
     solve_periods <- as.period(solve_df$solve_period)
     outside <- solve_periods < start_period(period) |
-               solve_periods > end_period(period)
+      solve_periods > end_period(period)
     if (any(outside)) {
       offending_periods <- unique(solve_df$solve_period[outside])
       stop(
