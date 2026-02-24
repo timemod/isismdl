@@ -7,6 +7,7 @@ update_expected <- FALSE
 
 source("../tools/convert_report.R")
 source("../tools/get_platform_variant.R")
+source("../tools/expect_known_output_multi.R")
 
 platform_variant <- get_platform_variant()
 
@@ -40,9 +41,9 @@ test_that("column with zeros", {
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 
-  expect_known_output(cat_report(convert_report(report,
+  expect_known_output_multi(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
-                      "expected_output/square_zero_cols_rep1.txt",
+                      "expected_output/square_zero_cols_rep1",
                       update = update_expected)
 
   # make third column almost zero, and second row zero
@@ -53,18 +54,16 @@ test_that("column with zeros", {
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 
-  file <- sprintf("expected_output/square_zero_cols_rep2_%s.txt",
-                  platform_variant)
-  expect_known_output(cat_report(convert_report(report)), file = file,
-                      update = update_expected)
+  expect_known_output_multi(cat_report(convert_report(report)),
+                            "expected_output/square_zero_cols_rep2",
+                            update = update_expected)
 
   expect_warning(report <- capture.output(mdl2$solve(fit_options =
                                                        list(warn_zero_col = FALSE))),
                  "Simulation not possible")
-  file <- sprintf("expected_output/square_zero_cols_rep3_%s.txt",
-                  platform_variant)
-  expect_known_output(cat_report(convert_report(report)),
-                      file = file, update = update_expected)
+  expect_known_output_multi(cat_report(convert_report(report)),
+                            "expected_output/square_zero_cols_rep3",
+                            update = update_expected)
 })
 
 test_that("zero row and one less fit target", {
