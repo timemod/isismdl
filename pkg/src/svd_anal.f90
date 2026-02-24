@@ -51,6 +51,7 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     real(kind = ISIS_RKIND), dimension(1) :: rlwork
     real(kind = ISIS_RKIND), dimension(:), allocatable :: minc, minr
     integer :: info, lwork, i, j, min_m_n, max_m_n, stat
+    real(kind = ISIS_RKIND) :: cond_svd
 
     error = 0
 
@@ -58,30 +59,17 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     max_m_n = max(m, n)
 
     ! Allocate arrays
-    allocate(u(m, m), stat = stat)
-    if (stat /= 0) goto 999
-
-    allocate(vt(n, n), stat = stat)
-    if (stat /= 0) goto 999
-
-    allocate(sv(min_m_n), stat = stat)
-    if (stat /= 0) goto 999
-
-    allocate(minc(n), stat = stat)
-    if (stat /= 0) goto 999
-
-    allocate(minr(m), stat = stat)
-    if (stat /= 0) goto 999
-
-    allocate(vec(max_m_n), stat = stat)
+    allocate(u(m, m), vt(n, n), sv(min_m_n), minc(n), minr(m), vec(max_m_n), &
+             stat = stat)
     if (stat /= 0) goto 999
 
     ! get 1-norm of the columns of mat
     do i = 1, n
         minc(i) = dasum(int(m, ISIS_IKIND), mat(1, i), 1)
+        ! check if the matrix contains invalid numbers
         if (nuifna(minc(i))) then
             call svdout(7, fit)
-            goto 1000
+            return
         endif
     enddo
 
@@ -102,18 +90,24 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     call dgesvd('A', 'A', m, n, mat, ldm, sv, u, m, vt, n, work, lwork, info)
     if (info /= 0) then
        error = 2
-       goto 1000
+       call isismdl_error('Not enough memory for the svd analysis')
+       return
     endif
 
     if (sv(1) == 0.0_ISIS_RKIND) then
         ! mat is de nulmatrix
         call svdout(8, fit)
-        goto 1000
+        return
     endif
 
-    ! Return silently if the actual condition of the  matrix is larger than
+    ! Return silently if the reciprocal condition of the matrix is larger than
     ! svd_tol.
-    if (sv(min_m_n)/sv(1) > svd_tol) goto 1000
+    cond_svd = sv(min_m_n) / sv(1)
+    ! TODO: print message about condition
+    if (cond_svd > svd_tol) then
+        ! TODO: print message about condition SVD > SVD_TOL
+        return
+    endif
 
     call svdout(1, fit)
 
@@ -169,31 +163,13 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     call svdout(6, fit)
 
     ! successful termination
-    goto 1000
+    return
 
    999 continue
 
     ! Memory allocation error
     error = 1
-
-  1000 continue
-
-    ! cleanup memory
-    if (allocated(work)) deallocate(work)
-    if (allocated(u))    deallocate(u)
-    if (allocated(vt))   deallocate(vt)
-    if (allocated(sv))   deallocate(sv)
-    if (allocated(minc)) deallocate(minc)
-    if (allocated(minr)) deallocate(minr)
-    if (allocated(vec))  deallocate(vec)
-
-    ! Error handling
-    select case (error)
-    case (1)
-        call isismdl_error('Not enough memory for the svd analysis')
-    case (2)
-        call isismdl_error('Failure of LAPACK-routine dgesvd for SVD')
-    end select
+    call isismdl_error('Not enough memory for the svd analysis')
 
     return
 end subroutine svd_analysis
