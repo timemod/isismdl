@@ -105,14 +105,19 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
    
     if (sv(1) == 0.0_ISIS_RKIND) then
         ! The rank of the matrix is 0.
-        !call svdout(9, fit) 
+        ! call svdout(9, fit) 
+        ! print *, "rank0"
         ! TODO
         goto 1000
     endif
 
     ! Return silently if the actual condition of the  matrix is larger than
     ! svd_tol. 
-    if (sv(n)/sv(1) > svd_tol) goto 1000
+    ! print *, "svn = ", sv(n)
+    ! print *, "sv1 = ", sv(1)
+    if (sv(n)/sv(1) > svd_tol) then 
+    goto 1000
+    endif
     
     call svdout(1, fit)
     
