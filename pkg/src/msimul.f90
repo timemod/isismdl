@@ -35,7 +35,7 @@ module msimul
     !     variable can be used for cleanup purposes
     
     logical ::  quit
-    integer ::  usedat,ndiver, retcod, fit_err
+    integer ::  usedat, ndiver, retcod, fit_err
     real    ::  told, tnew
     
     ! set error flag in global common to 0
@@ -156,7 +156,8 @@ module msimul
     !     5     if Fair Taylor has NOT converged
     !     0     if all ok
     
-    integer ::  ndiver, retcod
+    integer, intent(out) ::  ndiver, retcod
+
     integer ::  usedat, iratex, noncvg, imax, jmax, ratfullrep
     
     real(kind = SOLVE_RKIND) :: xomax, xnmax, dismax
@@ -371,9 +372,10 @@ module msimul
     
     ! simulates the model under current settings
     ! no rational expectations
-    
-    integer ::  ndiver, retcod
-    integer ::  usedat
+
+    integer, intent(in) :: usedat
+    integer, intent(out) :: ndiver, retcod
+
     logical ::  quit
     integer  :: jstart, jend, jt, step, jtd
     
@@ -520,7 +522,7 @@ module msimul
     
     !-----------------------------------------------------------------------
     
-    subroutine soljtc(retcod,ndiver,jt)
+    subroutine soljtc(retcod, ndiver, jt)
     use mssolve
     use msfix
     use nucnst
@@ -537,9 +539,11 @@ module msimul
     ! alternate return 2 for numerical problems or non-convergence
     ! alternate return 3 for other errors (write)
     
-    integer ::  retcod,ndiver, jt
+    integer, intent(out) :: retcod
+    integer, intent(inout) :: ndiver
+    integer, intent(in) :: jt
+
     integer ::  ndiverp
-    
     logical ::  dofit_now
     
     call solot1
@@ -572,7 +576,7 @@ module msimul
         endif
     
         ndiverp = ndiver
-        call solone(retcod,ndiver)
+        call solone(retcod, ndiver)
     
         ! if going to execute fit procedure
         ! but no convergence achieved for this period
