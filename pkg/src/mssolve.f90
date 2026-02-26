@@ -4,7 +4,7 @@ private :: solnw, solve_gauss_seidel
 
 contains
 
-subroutine solone(retcod,ndiver)
+subroutine solone(retcod, ndiver)
  
     ! solves the model for the current period (jc)
     ! calls required solving subroutine depending on method
@@ -16,7 +16,8 @@ subroutine solone(retcod,ndiver)
     ! alternate return 2 for numerical problems or non-convergence
     ! alternate return 3 for other errors (write)
      
-    integer ::  retcod,ndiver
+    integer, intent(out) :: retcod
+    integer, intent(inout) :: ndiver
     
     if (method == 'G') then
         call solve_gauss_seidel(retcod, ndiver)
@@ -59,7 +60,8 @@ use msolot
 !      1 for missing/invalid exo's or starting values
 !      2 for numerical problems or non-convergence
 
-integer ::        retcod,ndiver
+integer, intent(out) :: retcod
+integer, intent(inout) :: ndiver
 
 logical ::        matlst
 logical ::        convgd, quit
