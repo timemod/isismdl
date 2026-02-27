@@ -30,11 +30,8 @@ build-job:
   stage: build
   script:
     # The package is build and tested using a the local packages of gitlab-runner.
-    - echo "HOME=$HOME"
-    - env | grep -E 'GITHUB|GH|TOKEN' || true
-    - Rscript -e "cat('R HOME:', path.expand('~'), '\n'); cat('GITHUB_PAT set:', nzchar(Sys.getenv('GITHUB_PAT')), '\n'); cat('GITHUB_TOKEN set:', nzchar(Sys.getenv('GITHUB_TOKEN')), '\n')"
     - mkdir -p ~/R/zoemlib
-    - Rscript -e "remotes::install_github('timemod/isismdl', subdir = 'pkg', dependencies = FALSE, lib = 'R/zoemlib', auth_token = NULL)"
+    - Rscript -e remotes::install_url("https://github.com/timemod/isismdl/archive/refs/heads/master.tar.gz", subdir = "pkg", dependencies = FALSE, force = TRUE, lib = R/zoemlib)"
     - export R_LIBS_SITE=~/R/zoemlib
     - Rscript ci_scripts/prepare_local_lib.R
     - R CMD build pkg 
