@@ -30,6 +30,9 @@ build-job:
   stage: build
   script:
     # The package is build and tested using a the local packages of gitlab-runner.
+    - mkdir -p ~/R/zoemlib
+    - Rscript -e "remotes::install_github('https://github.com/timemod/isismdl', subdir = 'pkg', dependencies = FALSE, lib = 'R/zoemlib')"
+    - export R_LIBS_SITE=~/R/zoemlib
     - Rscript ci_scripts/prepare_local_lib.R
     - R CMD build pkg 
     - mkdir $BUILD_DIR
