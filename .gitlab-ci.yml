@@ -11,7 +11,7 @@ workflow:
 
 variables:
   BUILD_DIR: build
-  R_PROFILE_USER: "$CI_PROJECT_DIR/ci/Rprofile.ci"
+  R_PROFILE_USER: "ci_scripts/Rprofile.ci"
 
 stages:
     - build
