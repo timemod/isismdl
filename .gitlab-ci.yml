@@ -19,8 +19,6 @@ stages:
     - test_with_cpblib
 
 before_script:
-    - echo "R_LIBS_USER=~/R/cpb_r_packages/%v" > .Renviron
-    - echo "R_LIBS_SITE=''" >> .Renviron
     # Copy the .Renviron file to the testthat directory,
     # this makes it possible to manually run the test job as gitlab
     # runner in case of problems:
