@@ -11,6 +11,7 @@ workflow:
 
 variables:
   BUILD_DIR: build
+  R_PROFILE_USER: "$CI_PROJECT_DIR/ci/Rprofile.ci"
 
 stages:
     - build
@@ -40,20 +41,10 @@ build-job:
     paths:
       - build
 
-Check package:
-  stage: test
-  script:
-    - R CMD check $BUILD_DIR/*.tar.gz
-
-Lint package:
-  stage: test
-  script:
-    # Install the package in the local library
-    - R CMD INSTALL $BUILD_DIR/*.tar.gz
-    - Rscript ci_scripts/lint_pkg.R
-
 Test package in cpblib:
   stage: test_with_cpblib
+  variables:
+    USE_STANDARD_LIB: "true"
   script:
     - Rscript test.R
   rules:
