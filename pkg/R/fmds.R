@@ -25,7 +25,7 @@ fmds <- function(
     offending_periods <- unique(solve_df$solve_period[outside])
     stop(
       "One or more solve periods in solve_df are outside the specified ",
-      "period range (", as.character(period), "). Offending periods: ",
+      "period range (", as.character(period), "). Offending periods:\n ",
       paste(offending_periods, collapse = ", ")
     )
   }
@@ -143,7 +143,7 @@ fmds <- function(
   if (!is.null(dif_table) && !all(is.na(dif_table$value1))) {
     stop(paste(
       "One or more valid (non-NA) values have been modified during the solve",
-      "process. This is not allowed. Offending variables:",
+      "process. This is not allowed. Offending variables:\n ",
       paste(unique(dif_table$name[!is.na(dif_table$value1)]), collapse = ", ")
     ))
   }

@@ -150,7 +150,7 @@ test_that("fill_mdl_data_solve handles solve_df without initial_guess column", {
       solve_df = solve_df3,
       report = "no"
     )
-  }, "Use only numerical or NA values")
+  }, "Use only numerical or NA values in the initial_guess column.\nOffending values at rows: 1, 2, 3", fixed = TRUE)
 })
 
 test_that("fill_mdl_data_solve validates initial_guess values", {
@@ -196,7 +196,7 @@ test_that("fill_mdl_data_solve requires necessary columns in solve_df", {
       solve_df = solve_df_bad1,
       report = "no"
     )
-  }, "Make sure the following column\\(s\\) exist")
+  }, "Make sure the following column(s) exist in df: solve_period", fixed = TRUE)
 
   # Missing observed_variable
   solve_df_bad2 <- tribble(
@@ -209,7 +209,7 @@ test_that("fill_mdl_data_solve requires necessary columns in solve_df", {
       solve_df = solve_df_bad2,
       report = "no"
     )
-  }, "Make sure the following column\\(s\\) exist")
+  }, "Make sure the following column(s) exist in df: observed_variable", fixed = TRUE)
 
 })
 
@@ -310,7 +310,8 @@ test_that("fill_mdl_data_solve errors when model has feedback variables", {
       solve_df = solve_df,
       report = "no"
     ),
-    regexp = "fill_mdl_data_solve does not support models with feedback variables"
+    "fill_mdl_data_solve does not support models with feedback variables.",
+    fixed = TRUE
   )
 })
 test_that("fill_mdl_data_solve errors when solve variable is not NA", {
@@ -329,7 +330,8 @@ test_that("fill_mdl_data_solve errors when solve variable is not NA", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-    regexp = "Some solve variables are not NA."
+    "Some solve variables are not NA. Non-NA values for the following variables and periods:\n  solve_variable solve_period\n1             y1         2011",
+    fixed = TRUE
   )
 })
 
@@ -351,7 +353,8 @@ test_that("fill_mdl_data_solve reports multiple non-NA solve variables", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-    regexp = "Some solve variables are not NA."
+    "Some solve variables are not NA. Non-NA values for the following variables and periods:\n  solve_variable solve_period\n1             y1         2011\n2             y2         2012",
+    fixed = TRUE
   )
 })
 
@@ -369,7 +372,8 @@ test_that("fill_mdl_data_solve errors when variables are not endogenous", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df_exo_solve, report = "no"),
-    regexp = "The following solve variables are not endogenous variables"
+    "The following solve variables are not endogenous variables of the model: x1",
+    fixed = TRUE
   )
 
   # Observed variable is exogenous
@@ -380,7 +384,8 @@ test_that("fill_mdl_data_solve errors when variables are not endogenous", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df_exo_obs, report = "no"),
-    regexp = "The following observed variables are not endogenous variables"
+    "The following observed variables are not endogenous variables of the model: x1",
+    fixed = TRUE
   )
 })
 
@@ -403,7 +408,8 @@ test_that("fill_mdl_data_solve errors when model has leads", {
       solve_df = solve_df,
       report = "no"
     ),
-    regexp = "fill_mdl_data_solve does not support models with leads"
+    "fill_mdl_data_solve does not support models with leads.",
+    fixed = TRUE
   )
 })
 
@@ -422,6 +428,7 @@ test_that("fill_mdl_data_solve errors when solve_period is outside period argume
 
   expect_error(
     mdl$fill_mdl_data_solve(period = "2011/2012", solve_df = solve_df, report = "no"),
-    regexp = "One or more solve periods in solve_df are outside the specified period range"
+    "One or more solve periods in solve_df are outside the specified period range (2011/2012). Offending periods:\n 2013",
+    fixed = TRUE
   )
 })
