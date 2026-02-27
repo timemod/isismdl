@@ -46,6 +46,8 @@ Test package in cpblib:
   variables:
     USE_STANDARD_LIB: "true"
   script:
+    - Rscript -e "Sys.getenv('R_PROFILE_USER')"
+    - Rscript -e "Sys.getenv('USE_STANDARD_LIB')"
     - Rscript test.R
   rules:
     # Sometimes this check should be skipped (when Mimosigereedschap
