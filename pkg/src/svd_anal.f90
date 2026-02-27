@@ -1,17 +1,21 @@
  module svd_anal
+ implicit none
 
  private :: svdout_problemc, svdout_vector, svdout
 
  contains
- 
+
 !     Use the SVD of matrix mat to determine which columns or rows cause
 !     rank loss. This routine should only be called when the matrix
 !     is (nearly) ill-conditioned.
- 
+
 subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
- 
+
+    !     Input/Output:
+    !       mat matrix with dimensions ldm x n
+    !           On Input: the matrix.
+    !           On output: the contents of mat are destroyed.
     !     Input:
-    !       mat matrix with dimensions m x n
     !       ldm : leading dimension of mat.
     !       m and n : row and column dimension of mat
     !       num_row an array with the model variable indices for the
@@ -21,9 +25,11 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     !       fit     true if matrix is transpose of the fit jacobian, false if the
     !               matrix is the Newton jacobian
     !       svd_tol tolerance for singular values
-    !     Outout:
+    !
+    !     Output:
     !       error   0 ok
     !               1 not enough memory
+    !               2 failure of dgesvd
 
     use model_params
     use mdl_name_utils
@@ -31,66 +37,80 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     use nuv
     use nuna
     use nucnst
-    
-    integer(kind = MC_IKIND), intent(in) :: m, n, ldm
-    integer(kind = MC_IKIND), intent(in) :: num_col(*), num_row(*)
+    use output_utils
+
+    real(kind = ISIS_RKIND), intent(inout) :: mat(ldm, *)
+    integer(kind = ISIS_IKIND), intent(in) :: m, n, ldm
+    integer(kind = ISIS_IKIND), intent(in) :: num_col(*), num_row(*)
     logical, intent(in) :: fit
-    real(kind = ISIS_RKIND), intent(in) :: mat(ldm, *), svd_tol
+    real(kind = ISIS_RKIND), intent(in) :: svd_tol
     integer, intent(out) :: error
-    
+
     real(kind = ISIS_RKIND), dimension(:,:), allocatable :: u, vt
     real(kind = ISIS_RKIND), dimension(:), allocatable :: sv, work, vec
     real(kind = ISIS_RKIND), dimension(1) :: rlwork
     real(kind = ISIS_RKIND), dimension(:), allocatable :: minc, minr
     integer :: info, lwork, i, j, min_m_n, max_m_n, stat
-    
+    real(kind = ISIS_RKIND) :: cond_svd
+
     error = 0
-    
+
     min_m_n = min(m, n)
     max_m_n = max(m, n)
-    
-    allocate(u(m, m), stat = stat)
-    if (stat == 0) allocate(vt(n, n), stat = stat)
-    if (stat == 0) allocate(sv(min_m_n), stat = stat)
-    if (stat == 0) allocate(minc(n), stat = stat)
-    if (stat == 0) allocate(minr(m), stat = stat)
-    if (stat == 0) allocate(vec(max_m_n), stat = stat)
-    if (stat /= 0) then
-        call svdot1
-        error = 1
-        return
-    endif
-    
+
+    ! Allocate arrays
+    allocate(u(m, m), vt(n, n), sv(min_m_n), minc(n), minr(m), vec(max_m_n), &
+             stat = stat)
+    if (stat /= 0) goto 999
+
     ! get 1-norm of the columns of mat
     do i = 1, n
         minc(i) = dasum(int(m, ISIS_IKIND), mat(1, i), 1)
+        ! check if the matrix contains invalid numbers
         if (nuifna(minc(i))) then
             call svdout(7, fit)
-            goto 999
+            return
         endif
     enddo
 
     ! get 1-norm of the rows of mat
     do i = 1, m
-        minr(i) = dasum(int(n, ISIS_IKIND), mat(i, 1), int(m, ISIS_IKIND))
+        minr(i) = dasum(int(n, ISIS_IKIND), mat(i, 1), int(ldm, ISIS_IKIND))
     enddo
-    
-    call dgesvd('A', 'A', m, n, mat, m, sv, u, m, vt, n, rlwork, -1, info)
+
+    ! determine the required size of the work array
+    call dgesvd('A', 'A', m, n, mat, ldm, sv, u, m, vt, n, rlwork, -1, info)
     lwork = nint(rlwork(1))
+
+    ! allocate the work array
     allocate(work(lwork), stat = stat)
-    if (stat /= 0) then
-        call svdot1
-        error = 1
+    if (stat /= 0) goto 999
+
+    ! perform SVD analysis
+    call dgesvd('A', 'A', m, n, mat, ldm, sv, u, m, vt, n, work, lwork, info)
+    if (info /= 0) then
+       error = 2
+       call isismdl_error('Not enough memory for the svd analysis')
+       return
+    endif
+
+    if (sv(1) == 0.0_ISIS_RKIND) then
+        ! mat is de nulmatrix
+        call svdout(8, fit)
         return
     endif
-    call dgesvd('A', 'A', m, n, mat, m, sv, u, m, vt, n, work, lwork, info)
-    
-    if (sv(n)/sv(1) > svd_tol) then
-        goto 999
+
+    ! Return silently if the reciprocal condition of the matrix is larger than
+    ! svd_tol.
+    cond_svd = sv(min_m_n) / sv(1)
+    ! TODO: print message about condition
+    if (cond_svd > svd_tol) then
+        ! TODO: print message about condition SVD > SVD_TOL
+        return
     endif
-    
+
     call svdout(1, fit)
-    
+
     ! print left singular vectors
     call svdout(2, fit)
     do i = 1, min_m_n
@@ -103,7 +123,7 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     end do
 
     call svdout(100, fit)
-    
+
     ! print right  singular vectors
     call svdout(3, fit)
     do i = 1, min_m_n
@@ -127,12 +147,12 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
             endif
         enddo
     enddo
-    
+
     ! print the L1-norm of "problem columns"
     call svdout(5, fit)
     do i = 1, n
         do j = 1, min_m_n
-            if  (( (sv(j)/sv(1)) <= svd_tol) &
+            if  (((sv(j)/sv(1)) <= svd_tol) &
                   .and. (abs(vt(j, i)) >= sqrt(Rmeps))) then
                 call svdout_problemc(num_col(i), minc(i))
                exit
@@ -141,16 +161,15 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     enddo
 
     call svdout(6, fit)
-    
-    999 continue
-    
-    deallocate(work, stat = stat)
-    deallocate(u, stat = stat)
-    deallocate(vt, stat = stat)
-    deallocate(sv, stat = stat)
-    deallocate(minc, stat = stat)
-    deallocate(minr, stat = stat)
-    deallocate(vec, stat = stat)
+
+    ! successful termination
+    return
+
+   999 continue
+
+    ! Memory allocation error
+    error = 1
+    call isismdl_error('Not enough memory for the svd analysis')
 
     return
 end subroutine svd_analysis
@@ -160,8 +179,8 @@ end subroutine svd_analysis
 subroutine svdout(imsg, fit)
     use msimot
     use nucnst
-integer ::  imsg
-logical ::  fit
+    integer, intent(in) ::  imsg
+    logical, intent(in) ::  fit
 
    if (imsg == 1) then
 
@@ -256,6 +275,17 @@ logical ::  fit
        str = ''
        call strout(O_OUTN)
 
+   elseif (imsg == 8) then
+
+       str = ''
+       call strout(O_OUTN)
+       str = 'Matrix is the zero matrix'
+       call strout(O_OUTN)
+       str = 'All elements of the matrix are zero'
+       call strout(O_OUTN)
+       str = ''
+       call strout(O_OUTN)
+
    else
 
        str = ''
@@ -272,11 +302,12 @@ subroutine svdout_problemc(iv, column_sum)
 use msvars
 use msimot
 use mdl_name_utils
+use kinds
 
-!     print message about problem column of derivatives in fit jacobian
+! print message about problem column of derivatives in fit jacobian
 
-integer(kind = MC_IKIND) ::  iv
-real(kind = ISIS_RKIND) :: column_sum
+integer(kind = ISIS_IKIND), intent(in) ::  iv
+real(kind = ISIS_RKIND), intent(in) :: column_sum
 
 call mcf7ex(name, nlen, mdl%ivnames(iv), mdl%vnames)
 write(str, '(A32, g10.2)', round = 'compatible' ) name(:nlen), column_sum
@@ -291,15 +322,16 @@ subroutine svdout_vector(n, sv, vector, num_col)
     use msimot
     use mdl_name_utils
     use nucnst
-    integer(kind = ISIS_IKIND) ::  n, num_col(*)
-    real(kind = ISIS_RKIND) :: sv, vector(n)
-    real(kind = 8) :: tol
-    
+    use kinds
+
+    integer(kind = ISIS_IKIND), intent(in) ::  n, num_col(*)
+    real(kind = ISIS_RKIND), intent(in) :: sv, vector(n)
+
+    real(kind = ISIS_RKIND) :: tol
     integer ::  i
 
     write(str, '(A15, g10.2)', round = 'compatible') "Singular value ", sv
     call strout(O_OUTN)
-
 
     tol = sqrt(Rmeps)
 
@@ -313,17 +345,5 @@ subroutine svdout_vector(n, sv, vector, num_col)
    end do
 
 end subroutine svdout_vector
-
-!-----------------------------------------------------------------------
-
-subroutine svdot1
-   use output_utils
-
-   ! print message about insufficient memory for svd analysis
-
-   call isismdl_error('Not enough memory for the svd analysis')
-
-
-end subroutine svdot1
 
 end module svd_anal

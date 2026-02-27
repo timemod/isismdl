@@ -192,14 +192,15 @@ end subroutine msbjac
 
 !-----------------------------------------------------------------------
 
-subroutine msbrup(n,q,r,ldr,fp,wa,ier)
+subroutine msbrup(n, q, r, ldr, fp, wa, ier)
 use liqrup
 use msjcot
 use nuv
 integer(kind = LI_IKIND), intent(in) :: n, ldr
 integer, intent(out) :: ier
-real(kind = ISIS_RKIND) :: q(ldr,*),r(ldr,*)
-real(kind = ISIS_RKIND) :: fp(*),wa(*)
+real(kind = ISIS_RKIND), intent(inout) :: q(ldr, *), r(ldr, *)
+real(kind = ISIS_RKIND), intent(in) :: fp(*)
+real(kind = ISIS_RKIND), intent(out) :: wa(*)
 
 !***********************************************************************
 
@@ -208,7 +209,7 @@ real(kind = ISIS_RKIND) :: fp(*),wa(*)
 
 !     Arguments
 
-!     In       n       Integer         size of xc() etc.
+!     In       n       Integer         dimension of the matrix
 !     Inout    Q       Real(ldr,n)     orthogonal matrix Q from QR
 !                                      On output updated Q
 !     Inout    R       Real(ldr,n)     upper triangular R from QR
