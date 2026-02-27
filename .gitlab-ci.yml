@@ -58,6 +58,7 @@ Test package in cpblib:
     # Set R_LIBS_USER, so that the package is installed in the 
     # correct location.
     - export R_LIBS_SITE=~/R/zoemlib
+    - Rscript -e "print(.libPaths())"
     - echo "R_LIBS_USER=~/R/cpb_r_packages/%v" > .Renviron
     # install the package, to ensure that the Fortran code is compiled.
     - R CMD INSTALL pkg
