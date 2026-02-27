@@ -17,20 +17,19 @@ fmds <- function(
   solve_df <- ensure_solve_df_cols(solve_df,
                                    default_initial_guess = default_initial_guess)
 
-  if (!missing(period)) {
-    period <- as.period_range(period)
-    solve_periods <- as.period(solve_df$solve_period)
-    outside <- solve_periods < start_period(period) |
-      solve_periods > end_period(period)
-    if (any(outside)) {
-      offending_periods <- unique(solve_df$solve_period[outside])
-      stop(
-        "One or more solve periods in solve_df are outside the specified ",
-        "period range (", as.character(period), "). Offending periods: ",
-        paste(offending_periods, collapse = ", ")
-      )
-    }
+  period <- as.period_range(period)
+  solve_periods <- as.period(solve_df$solve_period)
+  outside <- solve_periods < start_period(period) |
+    solve_periods > end_period(period)
+  if (any(outside)) {
+    offending_periods <- unique(solve_df$solve_period[outside])
+    stop(
+      "One or more solve periods in solve_df are outside the specified ",
+      "period range (", as.character(period), "). Offending periods: ",
+      paste(offending_periods, collapse = ", ")
+    )
   }
+
 
   # Check that solve_variables and observed_variables are endogenous.
   all_endo <- mdl$get_endo_names()
