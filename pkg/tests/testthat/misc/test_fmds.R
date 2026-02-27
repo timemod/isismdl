@@ -2,8 +2,6 @@ library(testthat)
 library(isismdl)
 library(tibble)
 
-print(.libPaths())
-
 rm(list = ls())
 update_expected <- FALSE
 
