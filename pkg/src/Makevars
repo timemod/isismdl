@@ -1,6 +1,7 @@
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)  $(FLIBS)
 PKG_CFLAGS =
 PKG_FCFLAGS = -fimplicit-none -cpp -J mod -I include
+$(shell mkdir -p mod)
 
 # options for lex and yacc
 LEX_CMD = flex

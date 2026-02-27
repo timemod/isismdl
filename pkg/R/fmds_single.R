@@ -33,11 +33,6 @@ solve_single_group <- function(
 
   # Check arguments ------------------------------------------------------------
 
-  # TODO: de onderstaande controle kan worden verwijderd, in de nieuwe opzet
-  # waarbij solve_df wordt gebruikt is de controle niet meer nodig.
-  if (length(solve_variables) != length(observed_variables)) {
-    stop("Number of solve and observed variables are not equal")
-  }
 
   if (report == "period") {
     cat("\n===============================================\n")
@@ -56,11 +51,6 @@ solve_single_group <- function(
                        solve_period = solve_period,  mdl = mdl,
                        dep_struc = dep_struc, observed_data = observed_data,
                        report = report)
-  # TODO: make overview observed, byproduct and solve
-  if (!any(deps$ok)) {
-    # TODO: improve error message.
-    stop("Some dependencies are not calculable")
-  }
 
   equations <- deps[deps$calculable & deps$period == as.character(solve_period), ]$var
   if (report == "period") {
@@ -109,15 +99,13 @@ solve_single_group <- function(
   return(invisible(ret))
 }
 
-# TODO: rename derived_variable to solve_variable, to be consistent with
-# the name of the arguments in the original function.
-get_fit_deps <- function(observed_variables, derived_variables,
+get_fit_deps <- function(observed_variables, solve_variables,
                          solve_period,  mdl, dep_struc, observed_data, report) {
 
   observed <- data.frame(var = observed_variables,
                          period = as.character(solve_period))
 
-  derivable <- data.frame(var = derived_variables,
+  derivable <- data.frame(var = solve_variables,
                           period = as.character(solve_period))
 
   dep_graph <- find_deps(
@@ -134,7 +122,7 @@ get_fit_deps <- function(observed_variables, derived_variables,
 
   # Check if the observed variables depend on the solve variables.
   deps_final_src <- filter(deps, .data$is_final_src)
-  missing_final_src <- setdiff(derived_variables, deps_final_src$var)
+  missing_final_src <- setdiff(solve_variables, deps_final_src$var)
   if (length(missing_final_src) > 0) {
     stop("The observed variable(s) do not depend on the following solve variables:\n",
          paste(missing_final_src, collapse = ", "), ".")
