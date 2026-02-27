@@ -31,7 +31,7 @@ build-job:
   script:
     # The package is build and tested using a the local packages of gitlab-runner.
     - mkdir -p ~/R/zoemlib
-    - Rscript -e "remotes::install_url('https://github.com/timemod/isismdl/archive/refs/heads/master.tar.gz', subdir = 'pkg', dependencies = FALSE, force = TRUE, lib = '~/R/zoemlib')"
+    - Rscript -e "remotes::install_url('https://github.com/timemod/isismdl/archive/refs/heads/master.tar.gz', subdir = 'pkg', dependencies = FALSE, lib = '~/R/zoemlib')"
     - Rscript ci_scripts/prepare_local_lib.R
     - R CMD build pkg 
     - mkdir $BUILD_DIR
@@ -54,17 +54,6 @@ Lint package:
 
 Test package in cpblib:
   stage: test_with_cpblib
-  before_script:
-    # Set R_LIBS_USER, so that the package is installed in the 
-    # correct location.
-    - export R_LIBS_SITE=~/R/zoemlib
-    - Rscript -e "print(.libPaths())"
-    - echo "R_LIBS_USER=~/R/cpb_r_packages/%v" > .Renviron
-    # install the package, to ensure that the Fortran code is compiled.
-    - R CMD INSTALL pkg
-    - echo "cpblib::use_cpblib(cpb_only = TRUE)" > .Rprofile
-    - cp .Rprofile pkg/tests/testthat
-    - Rscript -e "print(.libPaths())"
   script:
     - Rscript test.R
   rules:
