@@ -1,0 +1,14 @@
+cat("\nusing the CI-profile:\n")
+use_standard <- tolower(Sys.getenv("USE_STANDARD_LIB", "")) %in% c("1","true","t","yes","y")
+
+cat("\nuse_standard:\n")
+print(use_standard)
+
+if (use_standard) {
+  cpblib::use_cpblib()
+  print(file.path(Sys.getenv('HOME'), "R/zoemlib"))
+  .libPaths(c(file.path(Sys.getenv("HOME"), "R/zoemlib"), .libPaths()))
+  cat("\nlib Paths:\n")
+  print(.libPaths())
+}
+
