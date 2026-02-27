@@ -22,7 +22,6 @@ before_script:
     # Copy the .Renviron file to the testthat directory,
     # this makes it possible to manually run the test job as gitlab
     # runner in case of problems:
-    - cp .Renviron pkg/tests/testthat
     - Rscript -e "print(.libPaths())"
 
 build-job:
