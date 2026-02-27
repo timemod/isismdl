@@ -1,19 +1,20 @@
  module svd_anal
+ implicit none
 
  private :: svdout_problemc, svdout_vector, svdout
 
  contains
- 
+
 !     Use the SVD of matrix mat to determine which columns or rows cause
 !     rank loss. This routine should only be called when the matrix
 !     is (nearly) ill-conditioned.
- 
+
 subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
- 
+
     !     Input/Output:
     !       mat matrix with dimensions ldm x n
-    !           On Input the matrix, on output the contents of mat 
-    !           are destroyed.
+    !           On Input: the matrix.
+    !           On output: the contents of mat are destroyed.
     !     Input:
     !       ldm : leading dimension of mat.
     !       m and n : row and column dimension of mat
@@ -28,6 +29,7 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     !     Output:
     !       error   0 ok
     !               1 not enough memory
+    !               2 failure of dgesvd
 
     use model_params
     use mdl_name_utils
@@ -36,50 +38,38 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     use nuna
     use nucnst
     use output_utils
-   
+
     real(kind = ISIS_RKIND), intent(inout) :: mat(ldm, *)
     integer(kind = ISIS_IKIND), intent(in) :: m, n, ldm
     integer(kind = ISIS_IKIND), intent(in) :: num_col(*), num_row(*)
     logical, intent(in) :: fit
     real(kind = ISIS_RKIND), intent(in) :: svd_tol
     integer, intent(out) :: error
-    
+
     real(kind = ISIS_RKIND), dimension(:,:), allocatable :: u, vt
     real(kind = ISIS_RKIND), dimension(:), allocatable :: sv, work, vec
     real(kind = ISIS_RKIND), dimension(1) :: rlwork
     real(kind = ISIS_RKIND), dimension(:), allocatable :: minc, minr
     integer :: info, lwork, i, j, min_m_n, max_m_n, stat
+    real(kind = ISIS_RKIND) :: cond_svd
 
     error = 0
-    
+
     min_m_n = min(m, n)
     max_m_n = max(m, n)
 
     ! Allocate arrays
-    allocate(u(m, m), stat = stat)
-    if (stat /= 0) goto 999
-    
-    allocate(vt(n, n), stat = stat)
-    if (stat /= 0) goto 999
-    
-    allocate(sv(min_m_n), stat = stat)
-    if (stat /= 0) goto 999
-    
-    allocate(minc(n), stat = stat)
-    if (stat /= 0) goto 999
-    
-    allocate(minr(m), stat = stat)
-    if (stat /= 0) goto 999
-    
-    allocate(vec(max_m_n), stat = stat)
+    allocate(u(m, m), vt(n, n), sv(min_m_n), minc(n), minr(m), vec(max_m_n), &
+             stat = stat)
     if (stat /= 0) goto 999
 
     ! get 1-norm of the columns of mat
     do i = 1, n
         minc(i) = dasum(int(m, ISIS_IKIND), mat(1, i), 1)
+        ! check if the matrix contains invalid numbers
         if (nuifna(minc(i))) then
             call svdout(7, fit)
-            goto 1000
+            return
         endif
     enddo
 
@@ -87,7 +77,7 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     do i = 1, m
         minr(i) = dasum(int(n, ISIS_IKIND), mat(i, 1), int(ldm, ISIS_IKIND))
     enddo
-    
+
     ! determine the required size of the work array
     call dgesvd('A', 'A', m, n, mat, ldm, sv, u, m, vt, n, rlwork, -1, info)
     lwork = nint(rlwork(1))
@@ -99,28 +89,28 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     ! perform SVD analysis
     call dgesvd('A', 'A', m, n, mat, ldm, sv, u, m, vt, n, work, lwork, info)
     if (info /= 0) then
-       ! TODO: foutmelding
-       goto 1000
-    endif
-   
-    if (sv(1) == 0.0_ISIS_RKIND) then
-        ! The rank of the matrix is 0.
-        ! call svdout(9, fit) 
-        ! print *, "rank0"
-        ! TODO
-        goto 1000
+       error = 2
+       call isismdl_error('Not enough memory for the svd analysis')
+       return
     endif
 
-    ! Return silently if the actual condition of the  matrix is larger than
-    ! svd_tol. 
-    ! print *, "svn = ", sv(n)
-    ! print *, "sv1 = ", sv(1)
-    if (sv(n)/sv(1) > svd_tol) then 
-    goto 1000
+    if (sv(1) == 0.0_ISIS_RKIND) then
+        ! mat is de nulmatrix
+        call svdout(8, fit)
+        return
     endif
-    
+
+    ! Return silently if the reciprocal condition of the matrix is larger than
+    ! svd_tol.
+    cond_svd = sv(min_m_n) / sv(1)
+    ! TODO: print message about condition
+    if (cond_svd > svd_tol) then
+        ! TODO: print message about condition SVD > SVD_TOL
+        return
+    endif
+
     call svdout(1, fit)
-    
+
     ! print left singular vectors
     call svdout(2, fit)
     do i = 1, min_m_n
@@ -133,7 +123,7 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     end do
 
     call svdout(100, fit)
-    
+
     ! print right  singular vectors
     call svdout(3, fit)
     do i = 1, min_m_n
@@ -157,7 +147,7 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
             endif
         enddo
     enddo
-    
+
     ! print the L1-norm of "problem columns"
     call svdout(5, fit)
     do i = 1, n
@@ -171,27 +161,15 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     enddo
 
     call svdout(6, fit)
-   
-    ! succesfull termination
-    goto 1000
-    
+
+    ! successful termination
+    return
+
    999 continue
 
-    ! memory allocation error
+    ! Memory allocation error
     error = 1
-
     call isismdl_error('Not enough memory for the svd analysis')
-  
-  1000 continue
-
-    ! cleanup memory 
-    if (allocated(work)) deallocate(work)
-    if (allocated(u))    deallocate(u)
-    if (allocated(vt))   deallocate(vt)
-    if (allocated(sv))   deallocate(sv)
-    if (allocated(minc)) deallocate(minc)
-    if (allocated(minr)) deallocate(minr)
-    if (allocated(vec))  deallocate(vec)
 
     return
 end subroutine svd_analysis
@@ -297,6 +275,17 @@ subroutine svdout(imsg, fit)
        str = ''
        call strout(O_OUTN)
 
+   elseif (imsg == 8) then
+
+       str = ''
+       call strout(O_OUTN)
+       str = 'Matrix is the zero matrix'
+       call strout(O_OUTN)
+       str = 'All elements of the matrix are zero'
+       call strout(O_OUTN)
+       str = ''
+       call strout(O_OUTN)
+
    else
 
        str = ''
@@ -333,6 +322,8 @@ subroutine svdout_vector(n, sv, vector, num_col)
     use msimot
     use mdl_name_utils
     use nucnst
+    use kinds
+
     integer(kind = ISIS_IKIND), intent(in) ::  n, num_col(*)
     real(kind = ISIS_RKIND), intent(in) :: sv, vector(n)
 
