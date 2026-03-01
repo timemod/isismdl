@@ -1,6 +1,12 @@
-PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS)  $(FLIBS)
-PKG_CFLAGS =
-PKG_FCFLAGS = -fimplicit-none -cpp -J mod -I include -I mod
+# Directory for module files
+MOD_DIR = mod
+
+# create directory 'mod' in a platform independent way using R
+$(shell "$(R_HOME)/bin/Rscript" -e "dir.create('$(MOD_DIR)', showWarnings = FALSE)")
+
+# Fortran and C options:
+PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
+PKG_FCFLAGS = -fimplicit-none -cpp -Iinclude -J$(MOD_DIR) -I$(MOD_DIR)
 
 # options for lex and yacc
 LEX_CMD = flex
@@ -8,13 +14,7 @@ YACC_CMD = bison
 LYPREFIX = mc
 LEX_YACC_DIR = lex_yacc
 
-MODDIR = mod
-
-all: $(MODDIR) $(SHLIB)
-
-$(MODDIR):
-	@echo creating module directoy mod
-	"$(R_HOME)/bin/Rscript" -e "dir.create('$(MODDIR)', showWarnings=FALSE, recursive=TRUE)"
+all: $(SHLIB)
 
 # rules for lex and yacc
 scan.c : $(LEX_YACC_DIR)/scan.l
