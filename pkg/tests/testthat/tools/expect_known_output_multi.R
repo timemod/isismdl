@@ -17,7 +17,7 @@ expect_known_output_multi <- function(expr, base_path, update = FALSE) {
   dir <- dirname(base_path)
   base <- basename(base_path)
   pattern <- paste0("^", base, "_\\d+\\.txt$")
-  expected_files <- file.path(dir, list.files(dir, pattern = pattern))
+  expected_files <- list.files(dir, pattern = pattern, full.names = TRUE)
 
   # Check if actual output matches any of the expected files
   match_found <- any(vapply(expected_files, function(f) {
