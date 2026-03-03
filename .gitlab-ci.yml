@@ -11,6 +11,10 @@ workflow:
 
 variables:
   BUILD_DIR: build
+  R_PROFILE_USER: "$CI_PROJECT_DIR/ci_scripts/Rprofile.ci"
+  # define the development and production version of R
+  R_DEV: "4.5.1"
+  R_PROD: "4.5.1"
 
 stages:
     - build
@@ -18,53 +22,64 @@ stages:
     - test_with_cpblib
 
 before_script:
-    - echo "R_LIBS_USER=~/R/cpb_r_packages/%v" > .Renviron
-    - echo "R_LIBS_SITE=''" >> .Renviron
-    # Copy the .Renviron file to the testthat directory,
-    # this makes it possible to manually run the test job as gitlab
-    # runner in case of problems:
-    - cp .Renviron pkg/tests/testthat
     - Rscript -e "print(.libPaths())"
 
 build-job:
   stage: build
+  variables:
+    USE_CPB_LIB: "false"
   script:
     # The package is build and tested using a the local packages of gitlab-runner.
     - Rscript ci_scripts/prepare_local_lib.R
     - R CMD build pkg 
     - mkdir $BUILD_DIR
     - mv *.tar.gz $BUILD_DIR
+    # Install the package in the local library
+    - R CMD INSTALL $BUILD_DIR/*.tar.gz
   artifacts:
     paths:
       - build
 
 Check package:
   stage: test
+  variables:
+    USE_CPB_LIB: "false"
   script:
     - R CMD check $BUILD_DIR/*.tar.gz
 
 Lint package:
   stage: test
+  variables:
+    USE_CPB_LIB: "false"
   script:
-    # Install the package in the local library
-    - R CMD INSTALL $BUILD_DIR/*.tar.gz
     - Rscript ci_scripts/lint_pkg.R
 
 Test package in cpblib:
   stage: test_with_cpblib
+  variables:
+    ISISMDL_LIB: "$CI_PROJECT_DIR/isismdllib"
   before_script:
-    # Set R_LIBS_USER, so that the package is installed in the 
-    # correct location.
-    - echo "R_LIBS_USER=~/R/cpb_r_packages/%v" > .Renviron
-    # install the package, to ensure that the Fortran code is compiled.
-    - R CMD INSTALL pkg
-    - echo "cpblib::use_cpblib(cpb_only = TRUE)" > .Rprofile
-    - cp .Rprofile pkg/tests/testthat
-    - Rscript -e "print(.libPaths())"
   script:
-    - Rscript test.R
+
+    # Step 1: install isismdl in directory isismdllib.
+
+    # First make sure that all required packages are need for this R-version,
+    # this is required if R_PROD != R_DEV.
+    - export USE_CPBLIB=false
+    - Rscript_$R_PROD ci_scripts/prepare_local_lib.R
+    - mkdir -p $ISISMDL_LIB
+    - R_$R_PROD CMD INSTALL --preclean --clean --install-tests -l $ISISMDL_LIB $BUILD_DIR/*.tar.gz
+    - ls -l $ISISMDL_LIB
+
+    # Now use cpblib to test regts
+    - export R_LIBS_USER=$ISISMDL_LIB
+    - export USE_CPBLIB=true
+    - Rscript_$R_PROD -e 'pkgs <- dir(Sys.getenv("R_LIBS_USER")); print(pkgs); if (!identical(pkgs, "isismdl")) stop("Expected only isismdl")'
+    - Rscript_$R_PROD -e "cat('library-paths:\n');print(.libPaths())"
+    - Rscript_$R_PROD -e "testthat::test_package('isismdl', report = 'check', stop_on_failure = TRUE)"
+
   rules:
-    # Sometimes this check should be skipped (when Mimosigereedschap
+    # Sometimes this check should be skipped (when regts
     # needs versions of packages not in cpblib)
     - if: '$test_within_cpblib == "skip"'
       when: never
