@@ -30,7 +30,6 @@ fmds <- function(
     )
   }
 
-
   # Check that solve_variables and observed_variables are endogenous.
   all_endo <- mdl$get_endo_names()
   missing_v <- setdiff(solve_df$solve_variable, all_endo)
@@ -84,6 +83,30 @@ fmds <- function(
       paste(offending_table, collapse = "\n")
     )
   }
+
+  # Check that observed_variables are not NA at their respective solve_periods.
+  obs_data_long <- regts::as_data_frame(
+    mdl$get_data(names = unique(solve_df$observed_variable),
+                 period = solve_period_range),
+    format = "long",
+    name_col = "observed_variable",
+    period_col = "solve_period"
+  ) |>
+    dplyr::filter(is.na(.data$value))
+
+  offending_obs <- solve_df |>
+    dplyr::inner_join(obs_data_long, by = c("solve_period", "observed_variable")) |>
+    dplyr::select("observed_variable", "solve_period")
+
+  if (nrow(offending_obs) > 0) {
+    offending_table <- capture.output(print(as.data.frame(offending_obs)))
+    stop(
+      "Some observed variables are NA. NA values for the following ",
+      "variables and periods:\n",
+      paste(offending_table, collapse = "\n")
+    )
+  }
+
 
   # Check the model type: it must be recursive (no feedback variables and no leads).
   if (length(mdl$get_endo_names(type = "feedback")) > 0) {

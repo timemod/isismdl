@@ -7,6 +7,11 @@ ensure_solve_df_cols <- function(df, default_initial_guess = 0.1) {
       paste(missing_cols, collapse = ", ")
     )
   }
+
+  if (any(is.na(df$observed_variable))) {
+    stop("The column 'observed_variable' in 'solve_df' contains one or more NA values.")
+  }
+
   if (!("group" %in% colnames(df))) {
     df$group <- paste0("group_", seq_len(nrow(df)))
     # TODO: no message if argument report= "no"?
