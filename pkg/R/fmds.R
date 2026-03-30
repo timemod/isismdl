@@ -58,7 +58,16 @@ fmds <- function(
     ))
   }
 
+  # Check the model type: it must be recursive (no feedback variables and no leads).
+  if (length(mdl$get_endo_names(type = "feedback")) > 0) {
+    stop("fill_mdl_data_solve does not support models with feedback variables.")
+  }
+  if (mdl$get_maxlead() > 0) {
+    stop("fill_mdl_data_solve does not support models with leads.")
+  }
+
   # Check that solve_variables are NA at their respective solve_periods.
+
   solve_periods <- as.period(solve_df$solve_period)
   solve_period_range <- period_range(min(solve_periods),
                                      max(solve_periods))
@@ -108,15 +117,9 @@ fmds <- function(
   }
 
 
-  # Check the model type: it must be recursive (no feedback variables and no leads).
-  if (length(mdl$get_endo_names(type = "feedback")) > 0) {
-    stop("fill_mdl_data_solve does not support models with feedback variables.")
-  }
-  if (mdl$get_maxlead() > 0) {
-    stop("fill_mdl_data_solve does not support models with leads.")
-  }
 
   mdl_original_data <- mdl$get_data()
+
   dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
 
   if (missing(period)) {
