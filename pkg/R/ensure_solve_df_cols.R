@@ -8,8 +8,10 @@ ensure_solve_df_cols <- function(df, default_initial_guess = 0.1) {
     )
   }
 
-  if (any(is.na(df$observed_variable))) {
-    stop("The column 'observed_variable' in 'solve_df' contains one or more NA values.")
+  for (col in required_cols) {
+    if (any(is.na(df[[col]]))) {
+      stop("The column '", col, "' in 'solve_df' contains one or more NA values.")
+    }
   }
 
   if (!("group" %in% colnames(df))) {
