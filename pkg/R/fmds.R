@@ -30,7 +30,6 @@ fmds <- function(
     )
   }
 
-
   # Check that solve_variables and observed_variables are endogenous.
   all_endo <- mdl$get_endo_names()
   missing_v <- setdiff(solve_df$solve_variable, all_endo)
@@ -59,7 +58,16 @@ fmds <- function(
     ))
   }
 
+  # Check the model type: it must be recursive (no feedback variables and no leads).
+  if (length(mdl$get_endo_names(type = "feedback")) > 0) {
+    stop("fill_mdl_data_solve does not support models with feedback variables.")
+  }
+  if (mdl$get_maxlead() > 0) {
+    stop("fill_mdl_data_solve does not support models with leads.")
+  }
+
   # Check that solve_variables are NA at their respective solve_periods.
+
   solve_periods <- as.period(solve_df$solve_period)
   solve_period_range <- period_range(min(solve_periods),
                                      max(solve_periods))
@@ -85,15 +93,33 @@ fmds <- function(
     )
   }
 
-  # Check the model type: it must be recursive (no feedback variables and no leads).
-  if (length(mdl$get_endo_names(type = "feedback")) > 0) {
-    stop("fill_mdl_data_solve does not support models with feedback variables.")
-  }
-  if (mdl$get_maxlead() > 0) {
-    stop("fill_mdl_data_solve does not support models with leads.")
+  # Check that observed_variables are not NA at their respective solve_periods.
+  obs_data_long <- regts::as_data_frame(
+    mdl$get_data(names = unique(solve_df$observed_variable),
+                 period = solve_period_range),
+    format = "long",
+    name_col = "observed_variable",
+    period_col = "solve_period"
+  ) |>
+    dplyr::filter(is.na(.data$value))
+
+  offending_obs <- solve_df |>
+    dplyr::inner_join(obs_data_long, by = c("solve_period", "observed_variable")) |>
+    dplyr::select("observed_variable", "solve_period")
+
+  if (nrow(offending_obs) > 0) {
+    offending_table <- capture.output(print(as.data.frame(offending_obs)))
+    stop(
+      "Some observed variables are NA. NA values for the following ",
+      "variables and periods:\n",
+      paste(offending_table, collapse = "\n")
+    )
   }
 
+
+
   mdl_original_data <- mdl$get_data()
+
   dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
 
   if (missing(period)) {
