@@ -296,7 +296,7 @@ IsisMdl <- R6Class("IsisMdl",
     solve_exo = function(solve_period = private$model_period,
                          exo_vars, target_vars,
                          report = c("period", "minimal", "none"),
-                         jacobian = TRUE, ...) {
+                         jacobian = FALSE, ...) {
       report <- match.arg(report)
       solve_period <- private$convert_period_arg_solve(solve_period)
       return(solve_exo_internal(

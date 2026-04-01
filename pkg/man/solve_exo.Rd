@@ -51,7 +51,8 @@ the final Jacobian is printed if \code{jacobian = TRUE}.}
 }}
 \item{\code{jacobian}}{A logical. If \code{TRUE} and \code{report == "period"}, the
 final Jacobian used for the numerical solution is printed. The default is \code{TRUE}.}
-\item{\code{...}}{Additional arguments passed to the \code{nleqslv} solver (e.g., \code{control},
+\item{\code{...}}{Additional arguments passed to the
+\code{\link[nleqslv]{nleqslv}} solver (e.g., \code{control},
 \code{method}, \code{global}).}
 }
 }

@@ -9,8 +9,8 @@ solve_exo_internal <- function(
   solve_period,
   exo_vars,
   target_vars,
-  report = c("period", "minimal", "none"),
-  jacobian = TRUE,
+  report,
+  jacobian,
   ...
 ) {
   if (length(exo_vars) != length(target_vars)) {
@@ -37,33 +37,40 @@ solve_exo_internal <- function(
       paste(invalid_exo, collapse = ", ")
     )
   }
+
+  if (report != "none") {
+    cat("\n===============================================\n")
+    cat(
+      "Solving exogenous variables for period ",
+      as.character(solve_period),
+      "\n",
+      sep = ""
+    )
+    cat("===============================================\n\n")
+    cat(
+      "Exogenous variables: ",
+      paste(exo_vars, collapse = ", "),
+      "\n",
+      sep = ""
+    )
+    cat(
+      "Target variables:    ",
+      paste(target_vars, collapse = ", "),
+      "\n",
+      sep = ""
+    )
+  }
+
   periods <- seq(
     regts::start_period(solve_period),
     regts::end_period(solve_period)
   )
 
   for (per in as.list(periods)) {
+
     if (report == "period") {
-      cat("\n===============================================\n")
-      cat(
-        "Solving exogenous variables for period ",
-        as.character(per),
-        "\n",
-        sep = ""
-      )
-      cat(
-        "Exogenous variables: ",
-        paste(exo_vars, collapse = ", "),
-        "\n",
-        sep = ""
-      )
-      cat(
-        "Target variables:    ",
-        paste(target_vars, collapse = ", "),
-        "\n",
-        sep = ""
-      )
-      cat("===============================================\n\n")
+      cat(paste0("\nPeriod:", per, "\n"))
+      cat("---------------------------------------------\n\n")
     }
 
     target_values <- mdl$get_data(names = target_vars, period = per) |>
@@ -105,9 +112,6 @@ solve_exo_internal <- function(
         as.numeric()
 
       retval <- target_values - model_targets
-      if (report != "none") {
-        cat("x:", x, "residuals:", retval, "\n")
-      }
       return(retval)
     }
 

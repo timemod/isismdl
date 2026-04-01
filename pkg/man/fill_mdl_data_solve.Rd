@@ -40,8 +40,8 @@ Defaults to \code{period} if not provided.
 \item{jacobian}{A logical. If \code{TRUE} and \code{report == "period"}, the
 final jacobian used for the numerical solution is printed. The default is \code{TRUE}.}
 
-\item{...}{Additional arguments passed to the \code{nleqslv} solver (e.g., \code{control},
-\code{method}, \code{global}).}
+\item{...}{Additional arguments passed to the \code{\link[nleqslv]{nleqslv}}
+solver (e.g., \code{control},  \code{method}, \code{global}).}
 }
 \value{
 An \code{IsisMdl} object (copy of the original model) with solved values for
