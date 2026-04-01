@@ -3,6 +3,7 @@
 #' @import nleqslv
 #' @importFrom rlang .data
 #' @noRd
+#'
 
 solve_exo_internal <- function(
   mdl,
@@ -61,10 +62,30 @@ solve_exo_internal <- function(
     )
   }
 
+  # TODO: check for model eq names equal to endo_names
+
+
+  run_eq_all <- TRUE
+  # Check which equations have to run:
+
+  if (!run_eq_all) {
+    dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
+    dep_lag0 <- dplyr::filter(dep_struc, .data$lag == 0)
+    g <- igraph::graph_from_data_frame(dep_lag0[, c("rhs", "lhs")], directed = TRUE)
+
+    all_paths <- lapply(exo_vars, function(src) {
+      igraph::all_simple_paths(g, from = src, to = target_vars, mode = "out")
+    })
+    # Flatten into a single list
+    all_paths <- names(unlist(all_paths, recursive = TRUE))
+    all_paths <- setdiff(unique(all_paths), exo_vars)
+  }
+
   periods <- seq(
     regts::start_period(solve_period),
     regts::end_period(solve_period)
   )
+
 
   for (per in as.list(periods)) {
 
@@ -97,6 +118,8 @@ solve_exo_internal <- function(
       current_exo[is.na(current_exo)] <- 0
     }
 
+    if (!run_eq_all) mdl$run_eqn(period = per)
+
     f_exo <- function(x) {
       data_exo <- regts::regts(
         matrix(x, ncol = n),
@@ -105,7 +128,11 @@ solve_exo_internal <- function(
       )
       mdl$set_data(data_exo)
 
-      mdl$run_eqn(period = per)
+      if (run_eq_all) {
+        mdl$run_eqn(period = per)
+      } else {
+        mdl$run_eqn(period = per, names = all_paths, solve_order = TRUE)
+      }
 
       # Compute residuals: observed/target - model value
       model_targets <- mdl$get_data(names = target_vars, period = per) |>
@@ -146,12 +173,15 @@ solve_exo_internal <- function(
     }
 
     # On success, set the solved exogenous values in the model
-    solved_exo <- regts::regts(
-      matrix(ret$x, ncol = n),
-      names = exo_vars,
-      period = per
-    )
-    mdl$set_data(solved_exo)
+    # Dit kan weg, de data zit al in het model.
+    # solved_exo <- regts::regts(
+    #   matrix(ret$x, ncol = n),
+    #   names = exo_vars,
+    #   period = per
+    # )
+    # mdl$set_data(solved_exo)
+
+    if (!run_eq_all) mdl$run_eqn(period = per)
   }
 
   invisible(NULL)
