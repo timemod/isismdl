@@ -859,7 +859,7 @@ NULL
 #' \preformatted{
 #' mdl$solve_exo(solve_period, exo_vars, target_vars,
 #'               report = c("period", "minimal", "none"),
-#'               jacobian = TRUE, ...)
+#'               jacobian = FALSE, ...)
 #'
 #' }
 #'
