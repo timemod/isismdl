@@ -47,19 +47,19 @@ solve_exo_internal <- function(
       sep = ""
     )
     cat("===============================================\n\n")
-    cat(
+    msg <- paste0(
       "Exogenous variables: ",
-      paste(exo_vars, collapse = ", "),
-      "\n",
-      sep = ""
+      paste(exo_vars, collapse = ", ")
     )
-    cat(
+    writeLines(strwrap(msg,  width = 80, exdent = 2))
+    msg <- paste0(
       "Target variables:    ",
-      paste(target_vars, collapse = ", "),
-      "\n",
-      sep = ""
+      paste(target_vars, collapse = ", ")
     )
+    writeLines(strwrap(msg,  width = 80, exdent = 2))
   }
+
+  if (report == "period") cat("\n")
 
   periods <- seq(
     regts::start_period(solve_period),
@@ -87,8 +87,6 @@ solve_exo_internal <- function(
     if (anyNA(data_exo)) {
       data_exo[is.na(data_exo)] <- 0
     }
-
-    if (report == "period") cat("\n")
 
     f_exo <- function(x) {
 
