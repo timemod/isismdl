@@ -2,9 +2,8 @@
 #' @import regts
 #' @import nleqslv
 #' @importFrom rlang .data
+#' @importFrom glue glue
 #' @noRd
-#'
-
 solve_exo_internal <- function(
   mdl,
   solve_period,
@@ -62,37 +61,12 @@ solve_exo_internal <- function(
     )
   }
 
-  # TODO: check for model eq names equal to endo_names
-
-
-  run_eq_all <- TRUE
-  # Check which equations have to run:
-
-  if (!run_eq_all) {
-    dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
-    dep_lag0 <- dplyr::filter(dep_struc, .data$lag == 0)
-    g <- igraph::graph_from_data_frame(dep_lag0[, c("rhs", "lhs")], directed = TRUE)
-
-    all_paths <- lapply(exo_vars, function(src) {
-      igraph::all_simple_paths(g, from = src, to = target_vars, mode = "out")
-    })
-    # Flatten into a single list
-    all_paths <- names(unlist(all_paths, recursive = TRUE))
-    all_paths <- setdiff(unique(all_paths), exo_vars)
-  }
-
   periods <- seq(
     regts::start_period(solve_period),
     regts::end_period(solve_period)
   )
 
-
   for (per in as.list(periods)) {
-
-    if (report == "period") {
-      cat(paste0("\nPeriod:", per, "\n"))
-      cat("---------------------------------------------\n\n")
-    }
 
     target_values <- mdl$get_data(names = target_vars, period = per) |>
       as.numeric()
@@ -107,32 +81,24 @@ solve_exo_internal <- function(
       )
     }
 
-    n <- length(exo_vars)
-
     # Use current values in model data as starting values for the solver.
     # If the current value is NA, use 0.
-    current_exo <- mdl$get_data(names = exo_vars, period = per) |>
-      as.numeric()
-
-    if (anyNA(current_exo)) {
-      current_exo[is.na(current_exo)] <- 0
+    data_exo <-  mdl$get_data(names = exo_vars, period = per)
+    if (anyNA(data_exo)) {
+      data_exo[is.na(data_exo)] <- 0
     }
 
-    if (!run_eq_all) mdl$run_eqn(period = per)
+    if (report == "period") cat("\n")
 
     f_exo <- function(x) {
-      data_exo <- regts::regts(
-        matrix(x, ncol = n),
-        names = exo_vars,
-        period = per
-      )
+
+      # Update data_exo with numeric vector x. This is more efficient
+      # than creating a new regts object.
+      data_exo[] <- x
+
       mdl$set_data(data_exo)
 
-      if (run_eq_all) {
-        mdl$run_eqn(period = per)
-      } else {
-        mdl$run_eqn(period = per, names = all_paths, solve_order = TRUE)
-      }
+      mdl$run_eqn(period = per)
 
       # Compute residuals: observed/target - model value
       model_targets <- mdl$get_data(names = target_vars, period = per) |>
@@ -146,7 +112,7 @@ solve_exo_internal <- function(
     current_jacobian <- if (report == "period") jacobian else FALSE
 
     ret <- nleqslv::nleqslv(
-      x = current_exo,
+      x = as.numeric(data_exo),
       fn = f_exo,
       jacobian = current_jacobian,
       ...
@@ -172,17 +138,11 @@ solve_exo_internal <- function(
       )
     }
 
-    # On success, set the solved exogenous values in the model
-    # Dit kan weg, de data zit al in het model.
-    # solved_exo <- regts::regts(
-    #   matrix(ret$x, ncol = n),
-    #   names = exo_vars,
-    #   period = per
-    # )
-    # mdl$set_data(solved_exo)
-
-    if (!run_eq_all) mdl$run_eqn(period = per)
+    if (report == "period") {
+      cat(glue("Convergence for {per} in {ret$iter} iterations",
+               ".\n", .trim = FALSE))
+    }
   }
 
-  invisible(NULL)
+  invisible(mdl)
 }

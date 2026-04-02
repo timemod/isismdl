@@ -28,7 +28,8 @@ Imports:
     rlang,
     tibble,
     tidyr,
-    stringr
+    stringr,
+    glue
 Suggests:
     testthat,
     knitr,

@@ -279,9 +279,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     fill_mdl_data_solve = function(period = private$data_period, solve_df,
-                                   data_init = NULL,
                                    report = c("period", "minimal", "no"),
-                                   include_frmls = FALSE,
                                    default_initial_guess = 0.1,
                                    jacobian = TRUE, ...) {
       report <- match.arg(report)

@@ -11,7 +11,7 @@
 # the accompanying observed variables.
 
 fmds <- function(
-    mdl, period, solve_df, report, default_initial_guess = 0.1, jacobian,
+    mdl, period, solve_df, report, default_initial_guess, jacobian,
     ...) {
 
   solve_df <- ensure_solve_df_cols(solve_df,

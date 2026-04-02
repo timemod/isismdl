@@ -852,6 +852,9 @@ NULL
 #' This is useful when you want to determine the required values of
 #' exogenous variables to hit specific targets for endogenous variables.
 #'
+#' During the solution process all active equations are evaluated in
+#' solution order.
+#'
 #' @section Usage:
 #' \preformatted{
 #' mdl$solve_exo(solve_period, exo_vars, target_vars,
@@ -1025,6 +1028,8 @@ NULL
 #' }
 #'
 #' Only one of the two arguments `pattern` and `names` can be specified.
+#' If neither `pattern` and `names` have been specified, all active equations
+#' are evaluated.
 #'
 #' @section Equation order:
 #'

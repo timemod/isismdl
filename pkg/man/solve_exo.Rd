@@ -17,6 +17,9 @@ This method does not support models with feedback variables.
 
 This is useful when you want to determine the required values of
 exogenous variables to hit specific targets for endogenous variables.
+
+During the solution process all active equations are evaluated in
+solution order.
 }
 \section{Usage}{
 
