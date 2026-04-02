@@ -2,15 +2,15 @@
 #' @import regts
 #' @import nleqslv
 #' @importFrom rlang .data
+#' @importFrom glue glue
 #' @noRd
-
 solve_exo_internal <- function(
   mdl,
   solve_period,
   exo_vars,
   target_vars,
-  report = c("period", "minimal", "none"),
-  jacobian = TRUE,
+  report,
+  jacobian,
   ...
 ) {
   if (length(exo_vars) != length(target_vars)) {
@@ -37,34 +37,36 @@ solve_exo_internal <- function(
       paste(invalid_exo, collapse = ", ")
     )
   }
+
+  if (report != "none") {
+    cat("\n===============================================\n")
+    cat(
+      "Solving exogenous variables for period ",
+      as.character(solve_period),
+      "\n",
+      sep = ""
+    )
+    cat("===============================================\n\n")
+    msg <- paste0(
+      "Exogenous variables: ",
+      paste(exo_vars, collapse = ", ")
+    )
+    writeLines(strwrap(msg,  width = 80, exdent = 2))
+    msg <- paste0(
+      "Target variables:    ",
+      paste(target_vars, collapse = ", ")
+    )
+    writeLines(strwrap(msg,  width = 80, exdent = 2))
+  }
+
+  if (report == "period") cat("\n")
+
   periods <- seq(
     regts::start_period(solve_period),
     regts::end_period(solve_period)
   )
 
   for (per in as.list(periods)) {
-    if (report == "period") {
-      cat("\n===============================================\n")
-      cat(
-        "Solving exogenous variables for period ",
-        as.character(per),
-        "\n",
-        sep = ""
-      )
-      cat(
-        "Exogenous variables: ",
-        paste(exo_vars, collapse = ", "),
-        "\n",
-        sep = ""
-      )
-      cat(
-        "Target variables:    ",
-        paste(target_vars, collapse = ", "),
-        "\n",
-        sep = ""
-      )
-      cat("===============================================\n\n")
-    }
 
     target_values <- mdl$get_data(names = target_vars, period = per) |>
       as.numeric()
@@ -79,23 +81,19 @@ solve_exo_internal <- function(
       )
     }
 
-    n <- length(exo_vars)
-
     # Use current values in model data as starting values for the solver.
     # If the current value is NA, use 0.
-    current_exo <- mdl$get_data(names = exo_vars, period = per) |>
-      as.numeric()
-
-    if (anyNA(current_exo)) {
-      current_exo[is.na(current_exo)] <- 0
+    data_exo <-  mdl$get_data(names = exo_vars, period = per)
+    if (anyNA(data_exo)) {
+      data_exo[is.na(data_exo)] <- 0
     }
 
     f_exo <- function(x) {
-      data_exo <- regts::regts(
-        matrix(x, ncol = n),
-        names = exo_vars,
-        period = per
-      )
+
+      # Update data_exo with numeric vector x. This is more efficient
+      # than creating a new regts object.
+      data_exo[] <- x
+
       mdl$set_data(data_exo)
 
       mdl$run_eqn(period = per)
@@ -105,9 +103,6 @@ solve_exo_internal <- function(
         as.numeric()
 
       retval <- target_values - model_targets
-      if (report != "none") {
-        cat("x:", x, "residuals:", retval, "\n")
-      }
       return(retval)
     }
 
@@ -115,7 +110,7 @@ solve_exo_internal <- function(
     current_jacobian <- if (report == "period") jacobian else FALSE
 
     ret <- nleqslv::nleqslv(
-      x = current_exo,
+      x = as.numeric(data_exo),
       fn = f_exo,
       jacobian = current_jacobian,
       ...
@@ -141,14 +136,11 @@ solve_exo_internal <- function(
       )
     }
 
-    # On success, set the solved exogenous values in the model
-    solved_exo <- regts::regts(
-      matrix(ret$x, ncol = n),
-      names = exo_vars,
-      period = per
-    )
-    mdl$set_data(solved_exo)
+    if (report == "period") {
+      cat(glue("Convergence for {per} in {ret$iter} iterations",
+               ".\n", .trim = FALSE))
+    }
   }
 
-  invisible(NULL)
+  invisible(mdl)
 }

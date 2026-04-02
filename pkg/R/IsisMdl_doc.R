@@ -781,8 +781,8 @@ NULL
 #'   }
 #' @param jacobian A logical. If `TRUE` and `report == "period"`, the
 #' final jacobian used for the numerical solution is printed. The default is `TRUE`.
-#' @param ... Additional arguments passed to the `nleqslv` solver (e.g., `control`,
-#'   `method`, `global`).
+#' @param ... Additional arguments passed to the \code{\link[nleqslv]{nleqslv}}
+#' solver (e.g., `control`,  `method`, `global`).
 #'
 #' @return An `IsisMdl` object (copy of the original model) with solved values for
 #'   the solve variables. The original model remains unchanged.
@@ -852,11 +852,14 @@ NULL
 #' This is useful when you want to determine the required values of
 #' exogenous variables to hit specific targets for endogenous variables.
 #'
+#' During the solution process all active equations are evaluated in
+#' solution order.
+#'
 #' @section Usage:
 #' \preformatted{
 #' mdl$solve_exo(solve_period, exo_vars, target_vars,
 #'               report = c("period", "minimal", "none"),
-#'               jacobian = TRUE, ...)
+#'               jacobian = FALSE, ...)
 #'
 #' }
 #'
@@ -882,8 +885,9 @@ NULL
 #'   }}
 #' \item{\code{jacobian}}{A logical. If `TRUE` and `report == "period"`, the
 #' final Jacobian used for the numerical solution is printed. The default is `TRUE`.}
-#' \item{\code{...}}{Additional arguments passed to the `nleqslv` solver (e.g., `control`,
-#'   `method`, `global`).}
+#' \item{\code{...}}{Additional arguments passed to the
+#' \code{\link[nleqslv]{nleqslv}} solver (e.g., `control`,
+#' `method`, `global`).}
 #' }
 #'
 #' @section Details:
@@ -1024,6 +1028,8 @@ NULL
 #' }
 #'
 #' Only one of the two arguments `pattern` and `names` can be specified.
+#' If neither `pattern` and `names` have been specified, all active equations
+#' are evaluated.
 #'
 #' @section Equation order:
 #'

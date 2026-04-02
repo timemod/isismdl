@@ -71,6 +71,8 @@ then the second equation is solved for all periods, and so on.}
 }
 
 Only one of the two arguments \code{pattern} and \code{names} can be specified.
+If neither \code{pattern} and \code{names} have been specified, all active equations
+are evaluated.
 }
 
 \section{Equation order}{

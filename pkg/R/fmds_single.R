@@ -5,10 +5,6 @@
 #' @importFrom purrr map_dbl
 #' @importFrom rlang set_names .data
 
-# TODO: Currently, the derived and observed value are for the same year, but is
-# could be generalized to the situation where the period of the derived variable
-# is different from that of the observed variable.
-
 # INPUT:
 #    mdl
 #       A reference to an IsisMdl object. NOTE: the IsisMdl object is modified
@@ -32,7 +28,6 @@ solve_single_group <- function(
     ...) {
 
   # Check arguments ------------------------------------------------------------
-
 
   if (report == "period") {
     cat("\n===============================================\n")
@@ -67,12 +62,18 @@ solve_single_group <- function(
 
   n <- length(solve_variables)
 
+  # nolint start
+  data_solve <- regts(matrix(NA, ncol = n), names = solve_variables,
+                      period = solve_period)
+  # nolint end
+
   # Function that returns the difference between the observed and calculated
   # value of observed_variables.
   f_solve <- function(x) {
-    data <- regts(matrix(x, ncol = n), names = solve_variables,
-                  period = solve_period)
-    mdl$set_data(data)
+    # Update data_solve with numeric vector x. This is more efficient
+    # than creating a new regts object.
+    data_solve[] <- x
+    mdl$set_data(data_solve)
     mdl$run_eqn(names = equations, period = solve_period,
                 solve_order = TRUE)
     retval <- observed_values -
@@ -94,6 +95,11 @@ solve_single_group <- function(
   if (!ret$termcd %in% 1:2) {
     stop("Failed to solve the starting value with nleqslv. Message:\n",
          ret$message)
+  }
+
+  if (report == "period") {
+    cat(glue("Convergence for {solve_period} in {ret$iter} iterations",
+             ".\n", .trim = FALSE))
   }
 
   return(invisible(ret))

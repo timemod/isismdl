@@ -17,13 +17,16 @@ This method does not support models with feedback variables.
 
 This is useful when you want to determine the required values of
 exogenous variables to hit specific targets for endogenous variables.
+
+During the solution process all active equations are evaluated in
+solution order.
 }
 \section{Usage}{
 
 \preformatted{
 mdl$solve_exo(solve_period, exo_vars, target_vars,
               report = c("period", "minimal", "none"),
-              jacobian = TRUE, ...)
+              jacobian = FALSE, ...)
 
 }
 
@@ -51,7 +54,8 @@ the final Jacobian is printed if \code{jacobian = TRUE}.}
 }}
 \item{\code{jacobian}}{A logical. If \code{TRUE} and \code{report == "period"}, the
 final Jacobian used for the numerical solution is printed. The default is \code{TRUE}.}
-\item{\code{...}}{Additional arguments passed to the \code{nleqslv} solver (e.g., \code{control},
+\item{\code{...}}{Additional arguments passed to the
+\code{\link[nleqslv]{nleqslv}} solver (e.g., \code{control},
 \code{method}, \code{global}).}
 }
 }
