@@ -5,6 +5,7 @@ library(tibble)
 # Remove all objects from the global environment to ensure a clean start
 rm(list = ls())
 
+
 simple_model_text <- "ident y = 0.5 * y(-1) + x;"
 
 test_that("get_residuals basic functionality", {
@@ -40,6 +41,12 @@ test_that("get_residuals handles NA and custom tolerance", {
   mdl <- isis_mdl(model_text = simple_model_text, period = period, silent = TRUE)
 
   # Induce NA
+  # RVH: niet echt handige test, want alles is nu NA (zowel lhs als rhs).
+  # Apart de situatie testen dat:
+  #  - Alleen x NA.
+  #  - Alleen y NA.
+  #  - Allebei NA.
+
   mdl$set_values(NA, names = "y", period = "2011")
   expect_message(res <- mdl$get_residuals(period = "2011", fun = function(x1, x2) (x1 - x2)), "resulted in missing values")
   expect_equal(nrow(res), 1)
@@ -66,3 +73,7 @@ test_that("get_residuals handles NA and custom tolerance", {
   expect_equal(nrow(res_strict), 1)
   expect_equal(res_strict$dif, 0.001, tolerance = 1e-7)
 })
+
+# RVH: ik denk dat je ook een test moet maken met twee vergelijkingen. Waarbij
+# bijvoorbeeld voor een vergelijking een NA staat in een van de variabelen in
+# de rhs,.
