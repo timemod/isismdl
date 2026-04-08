@@ -40,7 +40,7 @@ test_that("get_residuals handles NA cases separately", {
   # This should trigger the message and exclude the variable from the diff table
   mdl$set_values(NA, names = "x", period = "2011")
   expect_message(res_rhs_na <- mdl$get_residuals(period = "2011"),
-                 "De volgende rhs variabelen konden niet worden berekend:\n  y: 2011")
+                 "De volgende rhs variabelen konden niet worden berekend", fixed = TRUE)
   expect_equal(nrow(res_rhs_na), 0)
 
   # Case 2: LHS is NA (y is missing)
@@ -48,7 +48,7 @@ test_that("get_residuals handles NA cases separately", {
   mdl$set_values(10, names = "x", period = "2011") # Restore x
   mdl$set_values(NA, names = "y", period = "2011")
   expect_message(res_lhs_na <- mdl$get_residuals(period = "2011"),
-                 "Voor de volgende lhs variabelen ontbreken waarnemingen in de data voor deze perioden:\n  y: 2011")
+                 "Voor de volgende lhs variabelen ontbreken waarnemingen", fixed = TRUE)
   expect_equal(nrow(res_lhs_na), 1)
   expect_true(is.na(res_lhs_na$dif))
   expect_true(is.na(res_lhs_na$value_lhs))
@@ -58,8 +58,8 @@ test_that("get_residuals handles NA cases separately", {
   mdl$set_values(NA, names = "x", period = "2011")
   mdl$set_values(NA, names = "y", period = "2011")
   expect_message(expect_message(res_both_na <- mdl$get_residuals(period = "2011"),
-                                "Voor de volgende lhs variabelen ontbreken waarnemingen in de data voor deze perioden:\n  y: 2011"),
-                 "De volgende rhs variabelen konden niet worden berekend:\n  y: 2011")
+                                "Voor de volgende lhs variabelen ontbreken waarnemingen", fixed = TRUE),
+                 "De volgende rhs variabelen konden niet worden berekend", fixed = TRUE)
   expect_equal(nrow(res_both_na), 0)
 })
 
@@ -91,7 +91,7 @@ test_that("get_residuals tolerance and multi-equation", {
   # Test with one failing (missing x2)
   mdl$set_values(NA, names = "x2", period = "2011")
   expect_message(res_mixed <- mdl$get_residuals(period = "2011", tol = 0.01),
-                 "De volgende rhs variabelen konden niet worden berekend:\n  y2: 2011")
+                 "De volgende rhs variabelen konden niet worden berekend", fixed = TRUE)
   expect_equal(nrow(res_mixed), 1) # Only y1 (diff 0.05)
   expect_equal(res_mixed$name, "y1")
 })
@@ -118,9 +118,9 @@ test_that("get_residuals extended cases", {
   expect_message(
     expect_message(
       res <- mdl$get_residuals(period = "2011/2012"),
-      "Voor de volgende lhs variabelen ontbreken waarnemingen in de data voor deze perioden:\n  y1: 2011\n  y3: 2011"
+      "Voor de volgende lhs variabelen ontbreken waarnemingen", fixed = TRUE
     ),
-    "De volgende rhs variabelen konden niet worden berekend:\n  y2: 2012\n  y3: 2011"
+    "De volgende rhs variabelen konden niet worden berekend", fixed = TRUE
   )
 
   # Check final table

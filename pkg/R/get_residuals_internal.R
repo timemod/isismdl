@@ -11,7 +11,7 @@
 #'
 #' @return A data frame with columns `name`, `period`, `dif`, `value_lhs`, and `value_rhs`.
 #'
-#' @importFrom dplyr filter mutate inner_join arrange desc
+#' @importFrom dplyr filter mutate inner_join arrange desc group_by summarize pull
 #' @importFrom rlang .data
 #' @import regts
 #' @noRd
@@ -60,13 +60,13 @@ get_residual_internal <- function(mdl, period, tol, fun) {
 
   # Alleen namen/perioden waarvoor lhs berekenbaar is (rhs_long_ok).
   # Gebruik suffixes _lhs en _rhs voor de waarden.
-  residuals <- inner_join(lhs_long, rhs_long_ok,
-                          by = c("name", "period"),
-                          suffix = c("_lhs", "_rhs")) |>
-    mutate(dif = fun(.data$value_lhs, .data$value_rhs), .after = "period") |>
+  residuals <- dplyr::inner_join(lhs_long, rhs_long_ok,
+                                 by = c("name", "period"),
+                                 suffix = c("_lhs", "_rhs")) |>
+    dplyr::mutate(dif = fun(.data$value_lhs, .data$value_rhs), .after = "period") |>
     dplyr::filter(abs(.data$dif) >= tol | is.na(.data$dif)) |>
     # NA-waarden komen alleen voor als de lhs NA is. Komen bovenaan.
-    arrange(desc(is.na(.data$dif)), desc(abs(.data$dif)))
+    dplyr::arrange(dplyr::desc(is.na(.data$dif)), dplyr::desc(abs(.data$dif)))
 
   return(residuals)
 }
