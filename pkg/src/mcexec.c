@@ -52,13 +52,12 @@ static void do_zrf(FILE *);      /* for zrf output   */
 
 static  void vmessage(const char *fmt , va_list args);
 
-static  char msgname[FILENAME_MAX + 1];  /* name of the .err file */
+static  char *msgname = NULL;  /* name of the .err file */
 
-static  FILE *ferr = NULL;               /* warning output stream    */
+static  FILE *ferr = NULL;     /* warning output stream    */
 
-size_t  warncnt    = 0;                  /* # of warnings written    */
-size_t   errcnt    = 0;                  /* # of errors   written    */
-
+size_t  warncnt    = 0;        /* # of warnings written    */
+size_t   errcnt    = 0;        /* # of errors   written    */
 
 static void reset(void) {
 
@@ -100,6 +99,11 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
     char path[FILENAME_MAX + 1];
     char base[FILENAME_MAX + 1];
     char ext[FILENAME_MAX + 1];
+    char msgname_local[FILENAME_MAX + 1];
+
+    /* Let msgname point to msgname_local. msgname_local is automatically destroyed
+     * when function mcexec ends, but while mcexec is active, the pointer is valid. */
+    msgname = msgname_local;
 
     clock_t tb = clock(), te;
     double  cpusecs;
@@ -108,7 +112,7 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
 
     /* check output options */
     int output_cnt = options.McPreproc + options.Showecode + 
-	             options.Showocode + options.MakeTroll + 
+	                   options.Showocode + options.MakeTroll + 
 		     options.MakeEviews + options.MakeDynare +
 		     options.gen_dep;
     if (output_cnt > 1) {
@@ -145,8 +149,7 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
      */
 
     mp = fopen(msgname, "r");
-    if (mp)
-    {
+    if (mp) {
         fclose(mp);
         remove(msgname);
     }
@@ -217,10 +220,10 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
     }
 
     if (warncnt || errcnt) {
+        reset();
         if (!options.McIsisMdl) {
             ERROR("Warnings and/or errors written to .err file\n");
         }
-        reset();
         return SYNTAX_ERROR;
     }
 
@@ -301,7 +304,6 @@ char *mkfname( char *fname, char *path, char *base, char *ext) {
 static void vmessage(const char *fmt , va_list args) {
 
     if (ferr == NULL) {
-
         ferr = fopen(msgname, "w");
         if (ferr == NULL) {
             ERROR("Unable to open the error file\n");
