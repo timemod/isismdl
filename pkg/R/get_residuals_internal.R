@@ -1,11 +1,19 @@
 #' Function to calculate residuals for a model's endogenous variables
-# RVH: je moet nooit een heel pakket importeren, alleen een individuele functie.
-# Ik krijg anders waarschuwingen als
-# Warning: replacing previous import ‘dplyr::as_data_frame’ by ‘regts::as_data_frame’ when loading ‘isismdl’
-#** checking absolute paths in shared objects and dynamic libraries
-#** testing if installed package can be loaded from final location
-# @import regts
-# @import dplyr
+#'
+#' This function calculates the difference between the values of endogenous
+#' variables in the model data and the values calculated from the model
+#' equations (residual check mode).
+#'
+#' @param mdl An IsisMdl object.
+#' @param period The period range for which to calculate residuals.
+#' @param tol The tolerance for including residuals in the output.
+#' @param fun The function used to calculate the difference (e.g., `regts::cvgdif`).
+#'
+#' @return A data frame with columns `name`, `period`, `dif`, `value_lhs`, and `value_rhs`.
+#'
+#' @importFrom dplyr filter mutate inner_join arrange desc
+#' @importFrom rlang .data
+#' @import regts
 #' @noRd
 get_residual_internal <- function(mdl, period, tol, fun) {
 
@@ -21,55 +29,43 @@ get_residual_internal <- function(mdl, period, tol, fun) {
   lhs_long <- regts::as_data_frame(lhs_data, format = "long")
   rhs_long <- regts::as_data_frame(rhs_data, format = "long")
 
-  # RVH: foutmelding is niet duidelijk. Je wilt de namen van de lhs-variabelen
-  # en de perioden.
-  #na_rows <- rhs_long[is.na(rhs_long$value), ]
-  #if (nrow(na_rows) > 0) {
-  #  message(sprintf("The following %d calculation(s) resulted in missing values
-  #                  (NA) and have been excluded from the comparison:", nrow(na_rows)))
-  #  print(na_rows)
-  #}
-  rhs_long_na <- filter(rhs_long, is.na(.data$value))
-  #  TODO: geef een message waarin een overzicht met alle namen en perioden
-  # in lhs_long_na. De boodschap moet iets zijn zoalsals :
-  # De volgende lhs variabelen konden niet worden berekend in perioden.
+  # Check for NA values
+  lhs_long_na <- lhs_long |> dplyr::filter(is.na(.data$value))
+  if (nrow(lhs_long_na) > 0) {
+    msg <- lhs_long_na |>
+      dplyr::group_by(.data$name) |>
+      dplyr::summarize(periods = paste(as.character(.data$period), collapse = ", "),
+                       .groups = "drop") |>
+      dplyr::mutate(line = paste0("  ", .data$name, ": ", .data$periods)) |>
+      dplyr::pull(.data$line) |>
+      paste(collapse = "\n")
+    message("Voor de volgende lhs variabelen ontbreken waarnemingen in de data voor deze perioden:\n", msg)
+  }
 
+  rhs_long_na <- rhs_long |> dplyr::filter(is.na(.data$value))
+  if (nrow(rhs_long_na) > 0) {
+    msg <- rhs_long_na |>
+      dplyr::group_by(.data$name) |>
+      dplyr::summarize(periods = paste(as.character(.data$period), collapse = ", "),
+                       .groups = "drop") |>
+      dplyr::mutate(line = paste0("  ", .data$name, ": ", .data$periods)) |>
+      dplyr::pull(.data$line) |>
+      paste(collapse = "\n")
+    message("De volgende rhs variabelen konden niet worden berekend:\n", msg)
+  }
 
+  rhs_long_ok <- rhs_long |>
+    dplyr::filter(!is.na(.data$value))
 
-  # RVH: deze boodschap vind ik niet nodig, resultaat komt is verschil
-  # intersect_vars <- intersect(colnames(lhs_data), colnames(rhs_data))
-  # message("The following variables were found in both datasets
-  #         and will be included in the comparison:")
-  # print(intersect_vars)
-  #
-
-  # dif <- fun(lhs_data, rhs_data)
-  #
-  # residuals <- dif |>
-  #   regts::as_data_frame(format = "long", value_col = "dif") |>
-  #   dplyr::filter(abs(dif) >= tol | is.na(abs(dif))) |>
-  #   dplyr::arrange(dplyr::desc(abs(dif))) |>
-  #   dplyr::left_join(lhs_long, by = c("name", "period")) |>
-  #   dplyr::rename(value_derived = "value") |>
-  #   dplyr::left_join(rhs_long, by = c("name", "period")) |>
-  #   dplyr::rename(value_reschk = "value")
-
-
-  # Met bovenstaande code komen rijen waarvoor de rhs NA is nog steeds voor, want
-  # dif bevat alle verschillen.
-  # En de namen van de kolommen moeten zijn: value_lhs en value_rhs, niet value_derived
-  # en value_reschk. Bovendien kan de code veel simpeler:
-  rhs_long_ok <-  filter(rhs_long, !is.na(.data$value))
-
-  # Alleen namen/perioden waarvoor lhs berekenbaar is! Daarom right_join.
-  residuals <- dplyr::right_join(lhs_long, rhs_long_ok, by = c("name", "period"),
-                       suffix = c("_lhs", "_rhs")) |>
+  # Alleen namen/perioden waarvoor lhs berekenbaar is (rhs_long_ok).
+  # Gebruik suffixes _lhs en _rhs voor de waarden.
+  residuals <- inner_join(lhs_long, rhs_long_ok,
+                                 by = c("name", "period"),
+                                 suffix = c("_lhs", "_rhs")) |>
     mutate(dif = fun(.data$value_lhs, .data$value_rhs), .after = "period") |>
-    filter(abs(dif) >= tol | is.na(abs(dif))) |>
-    # RVH: vraagje: wat gebeurt er met NA-waarden? Komen deze bovenaan of onderaan?
-    # Bovenaan lijkt me OK. NA-waarden komen alleen
-    # voor als de lhs NA is. Ik weet het niet, even testen,
-    dplyr::arrange(dplyr::desc(abs(dif)))
+    dplyr::filter(abs(.data$dif) >= tol | is.na(.data$dif)) |>
+    # NA-waarden komen alleen voor als de lhs NA is. Komen bovenaan.
+    arrange(desc(is.na(.data$dif)), desc(abs(.data$dif)))
 
   return(residuals)
 }
