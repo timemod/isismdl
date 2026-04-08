@@ -960,15 +960,19 @@ NULL
 #'
 NULL
 
-#' \code{\link{IsisMdl}} method: Calculates residuals for a model's endogenous variables.
+#' \code{\link{IsisMdl}} method: Calculates residuals for the model's equations.
 #' @name get_residuals
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}} calculates residuals by
-#' performing a residual check (run \code{\link{solve}} with \code{mode = "reschk"}).
-#' It compares the values of the endogenous variables in the model data with the
-#' values computed by the solver and returns a long-format
-#' data frame of the differences.
+#' This method of R6 class \code{\link{IsisMdl}} calculates the residuals of the
+#' equations. The residual is the difference between the left hand side (lhs)
+#' and right hand side (rhs) of the equation. For each equation the rhs value
+#' is computed from the values of the original model data (i.e. the values of
+#' the model data before this method is called).  The residuals are returned
+#' as a long-format data frame. This method does **not** modify the model data.
+#'
+#' The residuals for *inactive* equations are always zero.  The same applies to
+#' equations that are *fixed* (see method \code{\link{set_fix}}).
 #'
 #' @section Usage:
 #' \preformatted{
@@ -985,31 +989,37 @@ NULL
 #' \item{\code{period}}{A \code{\link[regts]{period_range}} object or an
 #' object coercible to a `period_range`. Specifies the periods for which
 #' residuals are calculated. If omitted, the model period is used.}
-#' \item{\code{tol}}{The tolerance for filtering residuals. Only differences
+#' \item{\code{tol}}{The tolerance for filtering residuals. Only residuals
 #' with an absolute value greater than or equal to \code{tol} (or \code{NA}
 #' values) are returned. If omitted, a default of \code{1e-2} is used.}
-#' \item{\code{fun}}{A function used to calculate the difference between the
-#' original data and the calculated results. Defaults to subtraction:
+#' \item{\code{fun}}{A function used to calculate the difference between
+#' the lhs and rhs. Defaults to subtraction:
 #' \code{x1 - x2}. When working with values many orders
 #' of magnitude larger than 1, using \code{regts::cvgdif} is recommended.}
 #' }
 #'
+#' @section Value
+#'
+#' A long-format data frame with columns `"name"`, `"period"`, `"res"`
+#' (the residuals), "`lhs_value"` and `"rhs_value"`.
+#'
 #' @section Details:
 #'
+#' RVH: updaten op basis van aanpassing. Ook melden dat lhs-waarden die NA
+#' zijn worden gerapporteerd. Uitleg dat alleen residuals waarvoor zowel de lhs
+#' als rhs niet NA zijn ontbreken.
 #' The method works by:
 #' 1.  Copying the model and solving it in \code{reschk} mode for the
 #'     specified period.
 #' 2.  Identifying rows where the calculation resulted in \code{NA} and
 #'     reporting them.
-#' 3.  Calculating the difference (\code{dif}) between the original model data
-#'     and the "reschk" results.
+#' 3.  Calculating the residuals (\code{res}), the difference between
+#'     the lhs and rhs values, using the function specified with argument `fun`.
 #' 4.  Filtering the results based on the \code{tol} parameter.
-#' 5.  Returning a long-format data frame with columns: \code{name},
-#'     \code{period}, \code{dif}, \code{value_derived} (original), and
-#'     \code{value_reschk} (calculated).
+#' 5.  Returning a long-format data frame.
 #'
-#' @return A data frame in long format containing the calculated residuals.
-#'
+#' RVH: ik zou fill_mdl_data_solve hier weglaten. solve is wel een goede
+#' referentie (vanwege de reschk-mode).
 #' @seealso \code{\link{solve}} and \code{\link{fill_mdl_data_solve}}.
 #'
 #' @examples
