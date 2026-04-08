@@ -39,7 +39,8 @@ get_residual_internal <- function(mdl, period, tol, fun) {
       dplyr::mutate(line = paste0("  ", .data$name, ": ", .data$periods)) |>
       dplyr::pull(.data$line) |>
       paste(collapse = "\n")
-    message("Voor de volgende lhs variabelen ontbreken waarnemingen in de data voor deze perioden:\n", msg)
+    message("Voor de volgende lhs variabelen ontbreken
+            waarnemingen in de data voor deze perioden:\n", msg)
   }
 
   rhs_long_na <- rhs_long |> dplyr::filter(is.na(.data$value))
@@ -60,8 +61,8 @@ get_residual_internal <- function(mdl, period, tol, fun) {
   # Alleen namen/perioden waarvoor lhs berekenbaar is (rhs_long_ok).
   # Gebruik suffixes _lhs en _rhs voor de waarden.
   residuals <- inner_join(lhs_long, rhs_long_ok,
-                                 by = c("name", "period"),
-                                 suffix = c("_lhs", "_rhs")) |>
+                          by = c("name", "period"),
+                          suffix = c("_lhs", "_rhs")) |>
     mutate(dif = fun(.data$value_lhs, .data$value_rhs), .after = "period") |>
     dplyr::filter(abs(.data$dif) >= tol | is.na(.data$dif)) |>
     # NA-waarden komen alleen voor als de lhs NA is. Komen bovenaan.
