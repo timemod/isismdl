@@ -40,22 +40,11 @@
 int scanning;  /* 1 if scanning model for parameters, 0 otherwise */
 Mcopt options; /* compilation options */
 
-/*
- * for filename handling
- */
+static char *mkfname(char *fname, char *path, char *base, char *ext);
 
-char    path [FILENAME_MAX + 1];
-char    base [FILENAME_MAX + 1];
-char    ext  [FILENAME_MAX + 1];
-char    xtra [FILENAME_MAX + 1];
-
-char    *mkfname(char *fname, char *path, char *base, char *ext);
-
-static void do_dep(FILE *);               /* for dependency output   */
-static void do_dep_free(void);            /* free dependency trees   */
-
-static void do_zrf(FILE *);               /* for zrf output   */
-
+static void do_dep(FILE *);      /* for dependency output   */
+static void do_dep_free(void);   /* free dependency trees   */
+static void do_zrf(FILE *);      /* for zrf output   */
 
 /*
  * warnings and errors
@@ -63,11 +52,12 @@ static void do_zrf(FILE *);               /* for zrf output   */
 
 static  void vmessage(const char *fmt , va_list args);
 
-char    msgname[FILENAME_MAX + 1];      /* warning message filename     */
-static  FILE *ferr = NULL;              /* warning output stream        */
+static  char msgname[FILENAME_MAX + 1];  /* name of the .err file */
 
-size_t  warncnt    = 0;                 /* # of warnings written        */
-size_t   errcnt    = 0;                 /* # of errors   written        */
+static  FILE *ferr = NULL;               /* warning output stream    */
+
+size_t  warncnt    = 0;                  /* # of warnings written    */
+size_t   errcnt    = 0;                  /* # of errors   written    */
 
 
 static void reset(void) {
@@ -92,7 +82,6 @@ static void reset(void) {
     clear_flags();
 }
 
-
 /* Call the model parsers.
  * mfname: name of the mdl file
  * outputfile: if this function is called by mcisis, outputfile is the name
@@ -101,9 +90,16 @@ static void reset(void) {
  *             name of the ouptu file with converted mdl.
  */
 int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) {
-    FILE    *mp;
-    char    *fnmdl;
-    char    fname[FILENAME_MAX + 1];
+
+    FILE  *mp;
+
+    /*
+     * local variables for filename handling
+    */
+    char fname[FILENAME_MAX + 1];
+    char path[FILENAME_MAX + 1];
+    char base[FILENAME_MAX + 1];
+    char ext[FILENAME_MAX + 1];
 
     clock_t tb = clock(), te;
     double  cpusecs;
@@ -139,20 +135,20 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
     
     /* if the input filename fname does not have an extension, 
      * then add extension "mdl" */
-    fnmdl = (*ext == 0 ) ? mkfname(fname, path, base, "mdl") : fname;
-
-    /* create error file */
-    mkfname(msgname, path, base, "err" );   /* for errors and warnings */
+    if (strlen(ext) == 0) mkfname(fname, path, base, "mdl");
+  
+    /* create the name of the error file */
+    mkfname(msgname, path, base, "err");   /* for errors and warnings */
 
     /*
      * delete message file if present
      */
 
-    mp = fopen( msgname, "r" );
-    if( mp )
+    mp = fopen(msgname, "r");
+    if (mp)
     {
-        fclose( mp );
-        remove( msgname );
+        fclose(mp);
+        remove(msgname);
     }
 
     /*
@@ -163,10 +159,9 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
     yydebug = options.Debug;
 #endif
 
-
-    if (!file_exists(fnmdl)) {
+    if (!file_exists(fname)) {
         if (!options.McIsisMdl) {
-            ERROR("File %s does not exist\n", fnmdl);
+            ERROR("File %s does not exist\n", fname);
         }
         return FILE_ERROR;
     }
@@ -182,7 +177,7 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
             Rprintf("Scanning model for parameters ...\n" );
             tb = clock();
         }
-        init_scanner(fnmdl, NULL);
+        init_scanner(fname, NULL);
         scanning = 1;
         mc_scan_params();
         scanning = 0;
@@ -204,9 +199,9 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
     }
 
     if (options.McPreproc) {
-      init_scanner(fnmdl, outputfile);
+      init_scanner(fname, outputfile);
     } else {
-      init_scanner(fnmdl, NULL);
+      init_scanner(fname, NULL);
     }
  
     /* initialise parser (needed when mcexec is called more than once)
@@ -253,40 +248,11 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
         fclose(foco);
     }
 
-    /*
-
-    if (options.MakeTroll) {
-    
-        ERROR("It is not yet possible to generate Troll output");
-
-
-        mkfname(outputfile, path, base, "inp" ); 
-        foco = efopen(outputfile, "w" );
-
-        strcpy(xtra, base);
-        strcat(xtra, "param");
-
-        mkfname( xtrname, path, xtra, "inp" ); 
-        fxtr = efopen( xtrname, "w" );
-
-        out_tmdl(foco, fxtr);
-        fclose(foco);
-    }
-    */
-
     if (options.MakeDynare) {
         FILE *foco = efopen(outputfile, "w" );
         out_dmdl(foco, options.Substufunc);
         fclose(foco);
     }
-
-    /*
-    if( options.MakeEviews) {
-        FILE *foco = efopen(outputfile, "w" );
-        out_vmdl(foco, options.mdlname);
-        fclose(foco);
-    }
-    */
 
     if (options.gen_dep) {
         FILE *fdep = efopen(outputfile, "w" );
@@ -335,7 +301,8 @@ char *mkfname( char *fname, char *path, char *base, char *ext) {
 static void vmessage(const char *fmt , va_list args) {
 
     if (ferr == NULL) {
-        ferr = fopen( msgname, "w" );
+
+        ferr = fopen(msgname, "w");
         if (ferr == NULL) {
             ERROR("Unable to open the error file\n");
         }
