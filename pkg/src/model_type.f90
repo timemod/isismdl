@@ -66,7 +66,7 @@ contains
 
        integer(kind = MC_IKIND) ::  kmaxe, kmaxv, kmaxp, kmaxf, kmaxulf
        integer :: stat
-
+       integer(kind = MC_IKIND) :: i
        call deallocate_model(mdl)
 
        allocate(mdl%ienames(eqCount), stat = stat)
@@ -76,6 +76,15 @@ contains
        if (stat == 0) allocate(mdl%indexe(eqCount), stat = stat)
        if (stat == 0) allocate(mdl%indexv(varCount), stat = stat)
        if (stat == 0) allocate(mdl%indexp(parCount), stat = stat)
+       if (stat == 0) allocate(mdl%indexe(eqCount), stat = stat)
+       if (stat == 0) allocate(mdl%indexv(varCount), stat = stat)
+       if (stat == 0) allocate(mdl%indexp(parCount), stat = stat)
+       ! initialize index arrays to identity permutation before sorting
+       if (stat == 0) then
+         mdl%indexe = [(i, i = 1, eqCount)]
+         mdl%indexv = [(i, i = 1, varCount)]
+         mdl%indexp = [(i, i = 1, parCount)]
+       end if
        if (stat == 0) allocate(mdl%lhsnum(eqCount), stat = stat)
        if (stat == 0) allocate(mdl%eqnum(eqCount), stat = stat)
        if (stat == 0) allocate(mdl%etype(eqCount / MCNYI4 + 1), stat = stat)
@@ -183,7 +192,7 @@ contains
          end do
          return
     end function has_endo_lead
-    
+
     ! This subroutine is used to extract the name of model
     ! variable i. The name is put as a byte string in nam,
     ! and nlen is set to its length. If a name does not
@@ -270,8 +279,8 @@ contains
 
     ! This subroutine is used to extract the name of model
     ! parameter i. The name is put as a byte string in nam,
-   
-    logical function is_frml(mdl, iv) 
+
+    logical function is_frml(mdl, iv)
         ! returns true if variable iv is a frml equation
         type(model), intent(in) :: mdl
         integer, intent(in) :: iv
@@ -288,7 +297,7 @@ contains
 
 
         eqtyp = bysget(mdl%etype, eqnum)
-        ! eqtyp is lowercase for active eqaution and uppercase for an 
+        ! eqtyp is lowercase for active eqaution and uppercase for an
         ! inactive equaiton
         is_active = eqtyp <= 96
     end function is_active
@@ -322,34 +331,34 @@ contains
         eqtyp  = bysget(mdl%etype, eqnum)
         lhsvar = mdl%lhsnum(eqnum)
 
-        ! eqtyp is lowercase for active eqaution and uppercase for an 
+        ! eqtyp is lowercase for active eqaution and uppercase for an
         ! inactive equaiton
         if (action == ACTIVATE) then
             call bysset(mdl%etype, eqnum, eqtyp - 32)
-        else 
+        else
             call bysset(mdl%etype, eqnum, eqtyp + 32)
         endif
         mdl%lik(lhsvar) = action == ACTIVATE
 
         !
-        ! now update mdl%iendex and mdl%ica: lhsvar should be replaced by -lhsvar if 
+        ! now update mdl%iendex and mdl%ica: lhsvar should be replaced by -lhsvar if
         ! the variable is deactivated, and +lhsvar if the equation is activated
         !
         if (action == ACTIVATE) then
             lhsvar_signed = lhsvar
-        else 
+        else
             lhsvar_signed = -lhsvar
         endif
-        
+
         if (mdl%ibx2(lhsvar + 1) > mdl%ibx2(lhsvar)) then
             ! The variable has leads: look up index in iendex (to make exogenous)
             ! Note that we use -lhsvar_signed: we use the sign of the variable
-            ! before activation / deactivation 
+            ! before activation / deactivation
             jen = idxlzuk(mdl%iendex, mdl%nendex, -lhsvar_signed)
             if (jen == 0) then
                 call rexit("Internal error in activate_deactivate_eq: iendex array error")
             endif
-        else 
+        else
             jen = 0
         endif
         if (jen > 0) mdl%iendex(jen) = lhsvar_signed
@@ -371,13 +380,13 @@ contains
 
        ! equations
        call hsortmvn(mdl%indexe, mdl%neq, mdl%ienames, mdl%enames)
-    
+
        ! variables
        call hsortmvn(mdl%indexv, mdl%nrv, mdl%ivnames, mdl%vnames)
-    
+
        ! parameters
        call hsortmvn(mdl%indexp, mdl%nrp, mdl%ipnames, mdl%pnames)
-    
+
     end subroutine sort_names
 
     subroutine set_order_inv(mdl)
@@ -395,11 +404,11 @@ contains
 
 
     ! check if active equations are in solve order
-    subroutine check_active_equations(mdl) 
+    subroutine check_active_equations(mdl)
        type(model), intent(in) :: mdl
 
        integer :: ieq
-      
+
        do ieq = 1, mdl%neq
            if (mdl%order_inv(ieq) == 0) then
                if (is_active(mdl, ieq)) then
