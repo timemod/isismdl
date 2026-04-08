@@ -76,15 +76,6 @@ contains
        if (stat == 0) allocate(mdl%indexe(eqCount), stat = stat)
        if (stat == 0) allocate(mdl%indexv(varCount), stat = stat)
        if (stat == 0) allocate(mdl%indexp(parCount), stat = stat)
-       if (stat == 0) allocate(mdl%indexe(eqCount), stat = stat)
-       if (stat == 0) allocate(mdl%indexv(varCount), stat = stat)
-       if (stat == 0) allocate(mdl%indexp(parCount), stat = stat)
-       ! initialize index arrays to identity permutation before sorting
-       if (stat == 0) then
-         mdl%indexe = [(i, i = 1, eqCount)]
-         mdl%indexv = [(i, i = 1, varCount)]
-         mdl%indexp = [(i, i = 1, parCount)]
-       end if
        if (stat == 0) allocate(mdl%lhsnum(eqCount), stat = stat)
        if (stat == 0) allocate(mdl%eqnum(eqCount), stat = stat)
        if (stat == 0) allocate(mdl%etype(eqCount / MCNYI4 + 1), stat = stat)
