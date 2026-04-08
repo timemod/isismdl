@@ -43,7 +43,8 @@ get_residual_internal <- function(mdl, period, tol, fun) {
       paste(collapse = "\n")
     all_na_msg <- paste(
       all_na_msg,
-      paste0("Voor de volgende lhs variabelen ontbreken waarnemingen in de data voor deze perioden:\n", msg),
+      paste0("Voor de volgende lhs variabelen ontbreken waarnemingen
+             in de data voor deze perioden:\n", msg),
       sep = if (nchar(all_na_msg) > 0) "\n\n" else ""
     )
   }
