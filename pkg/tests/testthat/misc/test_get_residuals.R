@@ -57,9 +57,9 @@ test_that("get_residuals handles NA cases separately", {
   # Case 3: Both NA
   mdl$set_values(NA, names = "x", period = "2011")
   mdl$set_values(NA, names = "y", period = "2011")
-  expect_message(expect_message(res_both_na <- mdl$get_residuals(period = "2011"),
-                                "Voor de volgende lhs variabelen ontbreken waarnemingen", fixed = TRUE),
-                 "De volgende rhs variabelen konden niet worden berekend", fixed = TRUE)
+  expect_message(res_both_na <- mdl$get_residuals(period = "2011"),
+                 "(?s)Voor de volgende lhs variabelen ontbreken waarnemingen.*De volgende rhs variabelen konden niet worden berekend",
+                 perl = TRUE)
   expect_equal(nrow(res_both_na), 0)
 })
 
@@ -116,11 +116,9 @@ test_that("get_residuals extended cases", {
   mdl$set_values(NA, names = "x3", period = "2011")
 
   expect_message(
-    expect_message(
-      res <- mdl$get_residuals(period = "2011/2012"),
-      "Voor de volgende lhs variabelen ontbreken waarnemingen", fixed = TRUE
-    ),
-    "De volgende rhs variabelen konden niet worden berekend", fixed = TRUE
+    res <- mdl$get_residuals(period = "2011/2012"),
+    "(?s)Voor de volgende lhs variabelen ontbreken waarnemingen.*De volgende rhs variabelen konden niet worden berekend",
+    perl = TRUE
   )
 
   # Check final table

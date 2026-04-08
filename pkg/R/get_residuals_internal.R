@@ -30,6 +30,8 @@ get_residual_internal <- function(mdl, period, tol, fun) {
   rhs_long <- regts::as_data_frame(rhs_data, format = "long")
 
   # Check for NA values
+  all_na_msg <- ""
+
   lhs_long_na <- lhs_long |> dplyr::filter(is.na(.data$value))
   if (nrow(lhs_long_na) > 0) {
     msg <- lhs_long_na |>
@@ -39,8 +41,11 @@ get_residual_internal <- function(mdl, period, tol, fun) {
       dplyr::mutate(line = paste0("  ", .data$name, ": ", .data$periods)) |>
       dplyr::pull(.data$line) |>
       paste(collapse = "\n")
-    message("Voor de volgende lhs variabelen ontbreken
-            waarnemingen in de data voor deze perioden:\n", msg)
+    all_na_msg <- paste(
+      all_na_msg,
+      paste0("Voor de volgende lhs variabelen ontbreken waarnemingen in de data voor deze perioden:\n", msg),
+      sep = if (nchar(all_na_msg) > 0) "\n\n" else ""
+    )
   }
 
   rhs_long_na <- rhs_long |> dplyr::filter(is.na(.data$value))
@@ -52,7 +57,15 @@ get_residual_internal <- function(mdl, period, tol, fun) {
       dplyr::mutate(line = paste0("  ", .data$name, ": ", .data$periods)) |>
       dplyr::pull(.data$line) |>
       paste(collapse = "\n")
-    message("De volgende rhs variabelen konden niet worden berekend:\n", msg)
+    all_na_msg <- paste(
+      all_na_msg,
+      paste0("De volgende rhs variabelen konden niet worden berekend:\n", msg),
+      sep = if (nchar(all_na_msg) > 0) "\n\n" else ""
+    )
+  }
+
+  if (nchar(all_na_msg) > 0) {
+    message(all_na_msg)
   }
 
   rhs_long_ok <- rhs_long |>
