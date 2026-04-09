@@ -303,6 +303,12 @@ IsisMdl <- R6Class("IsisMdl",
         report = report, jacobian = jacobian, ...
       ))
     },
+    get_residuals = function(period = private$model_period, names = NULL, tol = 1e-2,
+                             fun = function(x1, x2) (x1 - x2)) {
+      period <- private$convert_period_arg_solve(period)
+      return(get_residual_internal(mdl = self, names = names,
+                                   period = period, tol = tol, fun = fun))
+    },
     get_text = function() {
       return(private$model_text)
     },
