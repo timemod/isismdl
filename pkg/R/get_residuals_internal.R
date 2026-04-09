@@ -45,8 +45,8 @@ get_residual_internal <- function(mdl, names, period, tol, fun) {
       paste(collapse = "\n")
     all_na_msg <- paste(
       all_na_msg,
-      paste0("Voor de volgende lhs variabelen ontbreken waarnemingen
-             in de data voor deze perioden:\n", msg),
+      paste0("For the following lhs variables, observations
+             are missing in the data for these periods:\n", msg),
       sep = if (nchar(all_na_msg) > 0) "\n\n" else ""
     )
   }
@@ -62,7 +62,7 @@ get_residual_internal <- function(mdl, names, period, tol, fun) {
       paste(collapse = "\n")
     all_na_msg <- paste(
       all_na_msg,
-      paste0("De volgende rhs variabelen konden niet worden berekend:\n", msg),
+      paste0("The following rhs variables could not be calculated:\n", msg),
       sep = if (nchar(all_na_msg) > 0) "\n\n" else ""
     )
   }
@@ -74,7 +74,7 @@ get_residual_internal <- function(mdl, names, period, tol, fun) {
   rhs_long_ok <- rhs_long |>
     dplyr::filter(!is.na(.data$value)) |>
     dplyr::select(-dplyr::any_of("label"))
-  
+
   lhs_long_ok <- lhs_long |>
     dplyr::filter(!is.na(.data$value))
 

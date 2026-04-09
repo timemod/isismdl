@@ -51,14 +51,19 @@ of magnitude larger than 1, using \code{regts::cvgdif} is recommended.}
 \examples{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 
-# Set a value to induce a residual
+# Solve the model to get a baseline consistent solution
+mdl$solve()
+
+# Now forcibly overwrite a solved value with something inconsistent.
+# This breaks the equation balance, creating a genuine residual.
 mdl$set_values(1000, names = "y", period = "2017Q2")
 
-# Get residuals with default tolerance (1e-2)
+# Get residuals — "y" in 2017Q2 no longer satisfies its equation,
+# so the residual will be non-zero
 res <- mdl$get_residuals(period = "2017Q2")
 print(res)
 
-# Get residuals for a specific variable with custom tolerance
+# Get residual for "y" only, with a custom tolerance
 res_y <- mdl$get_residuals(names = "y", period = "2017Q2", tol = 0.1)
 print(res_y)
 }
