@@ -130,7 +130,6 @@ filios = 0
 mcrcod = 0
 ier    = 0
 mc_alloc_stat = 0
-mdl_alloc_stat = 0
 
 call mcimsg(1, 0)
 
@@ -448,7 +447,6 @@ close(polunt,iostat=ios)
 close(ufnunt,iostat=ios)
 
 call deallocate_model(mdl)
-mdl_alloc_stat = 0
 call clear_edep
 call clear_mcvars
 return
