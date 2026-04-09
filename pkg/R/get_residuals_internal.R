@@ -9,22 +9,24 @@
 #' @param tol The tolerance for including residuals in the output.
 #' @param fun The function used to calculate the difference (e.g., `regts::cvgdif`).
 #'
-#' @return A data frame with columns `name`, `period`, `dif`, `value_lhs`, and `value_rhs`.
+#' @return A data frame with columns `name`, `period`, `residuals`, `value_lhs`, and `value_rhs`.
 #'
-#' @importFrom dplyr filter mutate inner_join arrange desc group_by summarize pull
+#' @importFrom dplyr filter mutate inner_join arrange desc group_by summarize pull select any_of
 #' @importFrom rlang .data
 #' @import regts
 #' @noRd
-get_residual_internal <- function(mdl, period, tol, fun) {
+get_residual_internal <- function(mdl, names, period, tol, fun) {
 
-  endos <- mdl$get_endo_names()
-  lhs_data <- mdl$get_data(names = endos, period = period)
+  if (is.null(names)) {
+    names <- mdl$get_endo_names()
+  }
+  lhs_data <- mdl$get_data(names = names, period = period)
   mdl_temp <- mdl$copy()
   mdl_temp$solve(
     period  = period,
-    options = list(mode = "reschk", erropt = "silent")
+    options = list(mode = "reschk", erropt = "silent", report = "none")
   )
-  rhs_data <- mdl_temp$get_data(names = endos, period = period)
+  rhs_data <- mdl_temp$get_data(names = names, period = period)
 
   lhs_long <- regts::as_data_frame(lhs_data, format = "long")
   rhs_long <- regts::as_data_frame(rhs_data, format = "long")
@@ -70,16 +72,20 @@ get_residual_internal <- function(mdl, period, tol, fun) {
   }
 
   rhs_long_ok <- rhs_long |>
+    dplyr::filter(!is.na(.data$value)) |>
+    dplyr::select(-dplyr::any_of("label"))
+  
+  lhs_long_ok <- lhs_long |>
     dplyr::filter(!is.na(.data$value))
 
   # Only names and periods that are not calculable (rhs_long_ok).
   # Use suffixes _lhs en _rhs for the values.
-  residuals <- dplyr::inner_join(lhs_long, rhs_long_ok,
+  residuals <- dplyr::inner_join(lhs_long_ok, rhs_long_ok,
                                  by = c("name", "period"),
                                  suffix = c("_lhs", "_rhs")) |>
-    dplyr::mutate(dif = fun(.data$value_lhs, .data$value_rhs), .after = "period") |>
-    dplyr::filter(abs(.data$dif) >= tol | is.na(.data$dif)) |>
-    dplyr::arrange(dplyr::desc(is.na(.data$dif)), dplyr::desc(abs(.data$dif)))
+    dplyr::mutate(residuals = fun(.data$value_lhs, .data$value_rhs), .after = "period") |>
+    dplyr::filter(abs(.data$residuals) >= tol | is.na(.data$residuals)) |>
+    dplyr::arrange(dplyr::desc(is.na(.data$residuals)), dplyr::desc(abs(.data$residuals)))
 
   return(residuals)
 }

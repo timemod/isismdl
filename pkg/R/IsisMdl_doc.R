@@ -971,6 +971,9 @@ NULL
 #' the model data before this method is called).  The residuals are returned
 #' as a long-format data frame. This method does **not** modify the model data.
 #'
+#' For rhs and lhs values that are NA, the residual is also NA. These rows are
+#' reported via console messages and are excluded from the returned data frame.
+#' 
 #' The residuals for *inactive* equations are always zero.  The same applies to
 #' equations that are *fixed* (see method \code{\link{set_fix}}).
 #'
@@ -986,6 +989,9 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
+#' \item{\code{names}}{A character vector with variable names for which the
+#' residuals should be calculated. If omitted, residuals are calculated for all
+#' active endogenous variables.}
 #' \item{\code{period}}{A \code{\link[regts]{period_range}} object or an
 #' object coercible to a `period_range`. Specifies the periods for which
 #' residuals are calculated. If omitted, the model period is used.}
@@ -1000,38 +1006,24 @@ NULL
 #'
 #' @section Value
 #'
-#' A long-format data frame with columns `"name"`, `"period"`, `"res"`
-#' (the residuals), "`lhs_value"` and `"rhs_value"`.
+#' A long-format data frame with columns `"name"`, `"period"`, 
+#' `"residuals"`, `"value_lhs"` and `"value_rhs"`.
 #'
-#' @section Details:
-#'
-#' RVH: updaten op basis van aanpassing. Ook melden dat lhs-waarden die NA
-#' zijn worden gerapporteerd. Uitleg dat alleen residuals waarvoor zowel de lhs
-#' als rhs niet NA zijn ontbreken.
-#' The method works by:
-#' 1.  Copying the model and solving it in \code{reschk} mode for the
-#'     specified period.
-#' 2.  Identifying rows where the calculation resulted in \code{NA} and
-#'     reporting them.
-#' 3.  Calculating the residuals (\code{res}), the difference between
-#'     the lhs and rhs values, using the function specified with argument `fun`.
-#' 4.  Filtering the results based on the \code{tol} parameter.
-#' 5.  Returning a long-format data frame.
-#'
-#' RVH: ik zou fill_mdl_data_solve hier weglaten. solve is wel een goede
-#' referentie (vanwege de reschk-mode).
-#' @seealso \code{\link{solve}} and \code{\link{fill_mdl_data_solve}}.
+#' @seealso \code{\link{solve}}
 #'
 #' @examples
-#' \dontrun{
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #'
-#' # Get residuals with default tolerance (1e-2)
-#' res <- mdl$get_residuals()
+#' # Set a value to induce a residual
+#' mdl$set_values(1000, names = "y", period = "2017Q2")
 #'
-#' # Get residuals with custom tolerance and a specific function (e.g., from regts)
-#' res <- mdl$get_residuals(tol = 0.1, fun = regts::cvgdif)
-#' }
+#' # Get residuals with default tolerance (1e-2)
+#' res <- mdl$get_residuals(period = "2017Q2")
+#' print(res)
+#'
+#' # Get residuals for a specific variable with custom tolerance
+#' res_y <- mdl$get_residuals(names = "y", period = "2017Q2", tol = 0.1)
+#' print(res_y)
 NULL
 
 #' \code{\link{IsisMdl}} method: runs model equations

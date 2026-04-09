@@ -15,15 +15,15 @@ test_that("get_residuals basic functionality", {
   # Test structure and column names
   res <- mdl$get_residuals(period = "2011", fun = function(x1, x2) (x1 - x2))
   expect_s3_class(res, "data.frame")
-  expect_true(all(c("name", "period", "dif", "value_lhs", "value_rhs") %in% colnames(res)))
+  expect_true(all(c("name", "period", "residuals", "value_lhs", "value_rhs") %in% colnames(res)))
 
-  # Induce difference: LHS = 15, RHS = 12.5 -> dif = 2.5
+  # Induce difference: LHS = 15, RHS = 12.5 -> residuals = 2.5
   mdl$set_values(15, names = "y", period = "2011")
   res <- mdl$get_residuals(period = "2011", fun = function(x1, x2) (x1 - x2))
   expect_equal(nrow(res), 1)
   expect_equal(res$name, "y")
   expect_equal(res$period, "2011")
-  expect_equal(res$dif, 2.5)
+  expect_equal(res$residuals, 2.5)
   expect_equal(res$value_lhs, 15)
   expect_equal(res$value_rhs, 12.5)
 })
@@ -50,7 +50,7 @@ test_that("get_residuals handles NA cases separately", {
   expect_message(res_lhs_na <- mdl$get_residuals(period = "2011"),
                  "Voor de volgende lhs variabelen ontbreken waarnemingen", fixed = TRUE)
   expect_equal(nrow(res_lhs_na), 1)
-  expect_true(is.na(res_lhs_na$dif))
+  expect_true(is.na(res_lhs_na$residuals))
   expect_true(is.na(res_lhs_na$value_lhs))
   expect_equal(res_lhs_na$value_rhs, 12.5)
 
@@ -73,26 +73,26 @@ test_that("get_residuals tolerance and multi-equation", {
   mdl$set_values(10, names = "x1", period = "2011")
   mdl$set_values(11, names = "y1", period = "2011")
   mdl$set_values(20, names = "x2", period = "2011")
-  mdl$set_values(22, names = "y2", period = "2011") # diff 1 (should be 21)
+  mdl$set_values(22, names = "y2", period = "2011") 
 
   res <- mdl$get_residuals(period = "2011")
   expect_equal(nrow(res), 1)
   expect_equal(res$name, "y2")
 
   # Test custom tolerance
-  mdl$set_values(11.05, names = "y1", period = "2011") # diff 0.05
+  mdl$set_values(11.05, names = "y1", period = "2011") # residual 0.05
   res_default <- mdl$get_residuals(period = "2011") # tol = 0.01
   expect_equal(nrow(res_default), 2)
 
   res_loose <- mdl$get_residuals(period = "2011", tol = 0.1)
-  expect_equal(nrow(res_loose), 1) # Only y2 (diff 1)
+  expect_equal(nrow(res_loose), 1) # Only y2 (residual 1)
   expect_equal(res_loose$name, "y2")
 
   # Test with one failing (missing x2)
   mdl$set_values(NA, names = "x2", period = "2011")
   expect_message(res_mixed <- mdl$get_residuals(period = "2011", tol = 0.01),
                  "De volgende rhs variabelen konden niet worden berekend", fixed = TRUE)
-  expect_equal(nrow(res_mixed), 1) # Only y1 (diff 0.05)
+  expect_equal(nrow(res_mixed), 1) # Only y1 (residuals 0.05)
   expect_equal(res_mixed$name, "y1")
 })
 
@@ -121,16 +121,23 @@ test_that("get_residuals extended cases", {
     perl = TRUE
   )
 
-  # Check final table
-  # y1: 2011 (LHS NA) -> in table
-  # y1: 2012 -> not in table (dif=0)
-  # y2: 2011 -> not in table (dif=0)
-  # y2: 2012 (RHS NA) -> NOT in table
-  # y3: 2011 (Both NA) -> NOT in table (because RHS NA is filtered out)
-  # y3: 2012 -> not in table (dif=0)
-
   expect_equal(nrow(res), 1)
   expect_equal(res$name, "y1")
   expect_equal(res$period, "2011")
-  expect_true(is.na(res$dif))
+  expect_true(is.na(res$residuals))
+})
+
+# 5. Label existence and duplication check
+test_that("get_residuals includes one label column", {
+  mdl <- islm_mdl()
+  mdl$set_values(1000, names = "y", period = "2015Q2")
+  res <- mdl$get_residuals(period = "2015Q2")
+
+  expect_true("label" %in% colnames(res))
+  expect_false("label_lhs" %in% colnames(res))
+  expect_false("label_rhs" %in% colnames(res))
+  expect_true("residuals" %in% colnames(res))
+
+  # Check if label is correct
+  expect_equal(res$label[res$name == "y"], "income")
 })
