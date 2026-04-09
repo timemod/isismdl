@@ -128,7 +128,8 @@ SEXP read_mdl_c(SEXP filename, SEXP reorder_names_) {
     }
 }
 
-/* Write the model to a mif file */
+/* Write the model to a mif file,
+ * used in methods write_mdl() and serialize(). */
 SEXP write_mdl_c(SEXP filename, SEXP model_index_) {
 
     int model_index = asInteger(model_index_);
