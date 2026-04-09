@@ -14,27 +14,23 @@
 	#define max( a, b ) ( ((a) > (b)) ? (a) : (b) )
 #endif
 
-static char *standard_path;
 static int include_dir_count = 0;
 static char **include_dirs;
 static int include_dirs_size;
 static int max_path_length = 0;
 
-void set_standard_path(char *path)
-{
-    /*
-     * Specifies the first path in the search path
-     */
-    standard_path = path;
-}
-
-void init_include_dirs(void) 
-{
-    include_dir_count = 0;
-    if (include_dirs != NULL) {
-        free(include_dirs);
-        include_dirs = NULL;
+void init_include_dirs(void) {
+  int i;
+  if (include_dirs != NULL) {
+    for (i = 0; i < include_dir_count; i++) {
+      free(include_dirs[i]);    /* free each individual path string */
     }
+    free(include_dirs);           /* then free the array itself */
+    include_dirs = NULL;
+  }
+  include_dir_count = 0;
+  include_dirs_size = 0;
+  max_path_length = 0;
 }
 
 void add_include_path(const char *dirname) {
@@ -47,7 +43,7 @@ void add_include_path(const char *dirname) {
         include_dirs_size = SEARCH_PATHS_INC;
     } else if (include_dir_count >= include_dirs_size) {
         include_dirs_size = include_dir_count + SEARCH_PATHS_INC - 1;
-        include_dirs = realloc(include_dirs, 
+        include_dirs = realloc(include_dirs,
                                include_dirs_size * sizeof(char *));
     }
 
@@ -60,13 +56,19 @@ void add_include_path(const char *dirname) {
 }
 
 
-char * get_includefilename(char *includename) 
+/* Returns the path of an include file.
+ * Arguments:
+ *   includename:      Pointer to string with the name of the include file.
+ *   current_dirname:  Pointer to a string with the name of the directory of
+ *                     file for the current buffer.
+*/
+char * get_includefilename(char *includename, char *current_dirname)
 {
 
     /* First check the standard directory
      */
-     char *filename = malloc(strlen(includename) + strlen(standard_path) + 1);
-     strcpy(filename, standard_path);
+     char *filename = malloc(strlen(includename) + strlen(current_dirname) + 1);
+     strcpy(filename, current_dirname);
      filename = strcat(filename, includename);
      if (file_exists(filename)) {
         return filename;
