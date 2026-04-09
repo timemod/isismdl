@@ -72,14 +72,13 @@ get_residual_internal <- function(mdl, period, tol, fun) {
   rhs_long_ok <- rhs_long |>
     dplyr::filter(!is.na(.data$value))
 
-  # Alleen namen/perioden waarvoor lhs berekenbaar is (rhs_long_ok).
-  # Gebruik suffixes _lhs en _rhs voor de waarden.
+  # Only names and periods that are not calculable (rhs_long_ok).
+  # Use suffixes _lhs en _rhs for the values.
   residuals <- dplyr::inner_join(lhs_long, rhs_long_ok,
                                  by = c("name", "period"),
                                  suffix = c("_lhs", "_rhs")) |>
     dplyr::mutate(dif = fun(.data$value_lhs, .data$value_rhs), .after = "period") |>
     dplyr::filter(abs(.data$dif) >= tol | is.na(.data$dif)) |>
-    # NA-waarden komen alleen voor als de lhs NA is. Komen bovenaan.
     dplyr::arrange(dplyr::desc(is.na(.data$dif)), dplyr::desc(abs(.data$dif)))
 
   return(residuals)
