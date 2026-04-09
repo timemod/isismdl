@@ -14,8 +14,8 @@ as a long-format data frame. This method does \strong{not} modify the model data
 For rhs and lhs values that are NA, the residual is also NA. These rows are
 reported via console messages and are excluded from the returned data frame.
 
-The residuals for \emph{inactive} equations are always zero.  The same applies to
-equations that are \emph{fixed} (see method \code{\link{set_fix}}).
+The residuals of equations that are \emph{fixed} (see method \code{\link{set_fix}})
+are always zero. The same applies to \emph{inactive} equations.
 }
 \section{Usage}{
 
@@ -32,9 +32,9 @@ mdl$get_residuals(period = mdl$get_period(), tol,
 
 
 \describe{
-\item{\code{names}}{A character vector with variable names for which the
-residuals should be calculated. If omitted, residuals are calculated for all
-active endogenous variables.}
+\item{\code{names}}{A character vector with the names of endogenous variables
+for which the residuals should be calculated. If omitted, residuals are
+calculated for all active endogenous variables.}
 \item{\code{period}}{A \code{\link[regts]{period_range}} object or an
 object coercible to a \code{period_range}. Specifies the periods for which
 residuals are calculated. If omitted, the model period is used.}
@@ -46,6 +46,14 @@ the lhs and rhs. Defaults to subtraction:
 \code{x1 - x2}. When working with values many orders
 of magnitude larger than 1, using \code{regts::cvgdif} is recommended.}
 }
+}
+
+\section{Value}{
+
+
+A long-format data frame with columns \code{"name"}, \code{"period"},
+\code{"residual"}, \code{"value_lhs"} and \code{"value_rhs"}. If the model has labels,
+the result has an additional column \code{"label"} after the \code{"name"} column.
 }
 
 \examples{

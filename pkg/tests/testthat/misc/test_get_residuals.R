@@ -15,15 +15,15 @@ test_that("get_residuals basic functionality", {
   # Test structure and column names
   res <- mdl$get_residuals(period = "2011", fun = function(x1, x2) (x1 - x2))
   expect_s3_class(res, "data.frame")
-  expect_true(all(c("name", "period", "residuals", "value_lhs", "value_rhs") %in% colnames(res)))
+  expect_true(all(c("name", "period", "residual", "value_lhs", "value_rhs") %in% colnames(res)))
 
-  # Induce difference: LHS = 15, RHS = 12.5 -> residuals = 2.5
+  # Induce difference: LHS = 15, RHS = 12.5 -> residual = 2.5
   mdl$set_values(15, names = "y", period = "2011")
   res <- mdl$get_residuals(period = "2011", fun = function(x1, x2) (x1 - x2))
   expect_equal(nrow(res), 1)
   expect_equal(res$name, "y")
   expect_equal(res$period, "2011")
-  expect_equal(res$residuals, 2.5)
+  expect_equal(res$residual, 2.5)
   expect_equal(res$value_lhs, 15)
   expect_equal(res$value_rhs, 12.5)
 })
@@ -54,9 +54,12 @@ test_that("get_residuals handles NA cases separately", {
   # Case 3: Both NA
   mdl$set_values(NA, names = "x", period = "2011")
   mdl$set_values(NA, names = "y", period = "2011")
-  expect_message(res_both_na <- mdl$get_residuals(period = "2011"),
-                 "(?s)For the following lhs variables, observations.*The following rhs variables could not be calculated",
-                 perl = TRUE)
+  expect_message(
+    res_both_na <- mdl$get_residuals(period = "2011"),
+    paste("(?s)For the following lhs variables, observations.*The following",
+          "rhs variables could not be calculated"),
+    perl = TRUE
+  )
   expect_equal(nrow(res_both_na), 0)
 })
 
@@ -114,7 +117,8 @@ test_that("get_residuals extended cases", {
 
   expect_message(
     res <- mdl$get_residuals(period = "2011/2012"),
-    "(?s)For the following lhs variables, observations.*The following rhs variables could not be calculated",
+    paste("(?s)For the following lhs variables, observations.*The following",
+          "rhs variables could not be calculated"),
     perl = TRUE
   )
 
@@ -131,7 +135,7 @@ test_that("get_residuals includes one label column", {
   expect_true("label" %in% colnames(res))
   expect_false("label_lhs" %in% colnames(res))
   expect_false("label_rhs" %in% colnames(res))
-  expect_true("residuals" %in% colnames(res))
+  expect_true("residual" %in% colnames(res))
   expect_equal(nrow(res), 5)
 
   # Check if label is correct

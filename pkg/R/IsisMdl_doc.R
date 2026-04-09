@@ -1008,7 +1008,7 @@ NULL
 #' @section Value:
 #'
 #' A long-format data frame with columns `"name"`, `"period"`,
-#' `"residuals"`, `"value_lhs"` and `"value_rhs"`. If the model has labels,
+#' `"residual"`, `"value_lhs"` and `"value_rhs"`. If the model has labels,
 #' the result has an additional column `"label"` after the `"name"` column.
 #'
 #'

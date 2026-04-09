@@ -9,7 +9,7 @@
 #' @param tol The tolerance for including residuals in the output.
 #' @param fun The function used to calculate the difference (e.g., `regts::cvgdif`).
 #'
-#' @return A data frame with columns `name`, `period`, `residuals`, `value_lhs`, and `value_rhs`.
+#' @return A data frame with columns `name`, `period`, `residual`, `value_lhs`, and `value_rhs`.
 #'
 #' @importFrom dplyr filter mutate inner_join arrange desc group_by summarize pull select any_of
 #' @importFrom rlang .data
@@ -83,9 +83,10 @@ get_residual_internal <- function(mdl, names, period, tol, fun) {
   residuals <- dplyr::inner_join(lhs_long_ok, rhs_long_ok,
                                  by = c("name", "period"),
                                  suffix = c("_lhs", "_rhs")) |>
-    dplyr::mutate(residuals = fun(.data$value_lhs, .data$value_rhs), .after = "period") |>
-    dplyr::filter(abs(.data$residuals) >= tol | is.na(.data$residuals)) |>
-    dplyr::arrange(dplyr::desc(is.na(.data$residuals)), dplyr::desc(abs(.data$residuals)))
+    dplyr::mutate(residual = fun(.data$value_lhs, .data$value_rhs), .after = "period") |>
+    dplyr::filter(abs(.data$residual) >= tol) |>
+    dplyr::arrange(dplyr::desc(is.na(.data$residual)),
+                   dplyr::desc(abs(.data$residual)))
 
   return(residuals)
 }
