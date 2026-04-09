@@ -30,10 +30,6 @@ subroutine mdgfbo(mdl, errflg)
 
     if (errflg == 3) then
          call isismdl_out("ERROR: out of memory generating feedback ordering in mcfbor.")
-    else if (errflg == 4) then
-         call isismdl_out("ERROR: array boundaries exceeded in gen_fb_order.")
-    else if (errflg /= 0 .and. errflg /= 1 .and. errflg /= 2) then
-         call isismdl_out("ERROR: unknown error originating from gen_fb_order.")
     endif
 
 999 continue

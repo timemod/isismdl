@@ -128,6 +128,7 @@ SEXP read_mdl_c(SEXP filename, SEXP reorder_names_) {
     }
 }
 
+/* Write the model to a mif file */
 SEXP write_mdl_c(SEXP filename, SEXP model_index_) {
 
     int model_index = asInteger(model_index_);
@@ -137,12 +138,11 @@ SEXP write_mdl_c(SEXP filename, SEXP model_index_) {
 
     F77_CALL(write_model_fortran)(&modelnmlen, modelnm, &model_index, &ier);
 
-    // TODO: add correct error handling
     if (ier != 0) {
-        if (ier == 1) {
+        if (ier == 5) {
             error("Cannot open Mif file %s for writing\n", modelnm);
-        } else if (ier == 4) {
-             error("Out of memory writing Mif file %s\n", modelnm);
+        } else if (ier == 6) {
+             error("Error writing MIF file %s\n", modelnm);
         } else {
              error("Unknown error %d writing Mif file %s\n", ier, modelnm);
         }

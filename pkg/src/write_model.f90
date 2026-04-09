@@ -1,6 +1,6 @@
 subroutine write_model_fortran(mifnmlen, mifnm, model_index, ier)
     ! 
-    ! read the model from the file
+    ! write the model workspace to a mif file
     !
     use modelworkspaces
     use mdl_flen
