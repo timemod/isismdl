@@ -2,6 +2,7 @@ subroutine mdgfbo(mdl, errflg)
     use mccedp
     use mcfbor
     use model_type
+    use output_utils
     type(model), intent(inout) :: mdl
     integer, intent(out) :: errflg
 
@@ -18,7 +19,7 @@ subroutine mdgfbo(mdl, errflg)
     !
     call mcgedp(mdl, .false., errflg)
     if (errflg /= 0) then
-        ! todo: error handling
+        call isismdl_out("ERROR: mcgedp generated dependency structure failed.")
         goto 999
     endif
 
@@ -28,9 +29,12 @@ subroutine mdgfbo(mdl, errflg)
     call gen_fb_order(0, mdl, errflg)
 
     if (errflg == 3) then
-         ! out of memory
-         ! todo: error handling
-     endif
+         call isismdl_out("ERROR: out of memory generating feedback ordering in mcfbor.")
+    else if (errflg == 4) then
+         call isismdl_out("ERROR: array boundaries exceeded in gen_fb_order.")
+    else if (errflg /= 0 .and. errflg /= 1 .and. errflg /= 2) then
+         call isismdl_out("ERROR: unknown error originating from gen_fb_order.")
+    endif
 
 999 continue
 

@@ -118,15 +118,31 @@ integer ::  i,j,k,vn,fbp,jb,je, idum
 
     do i = 1, mdl%nfb
 
+       if (mdl%numfb(i) < 1 .or. mdl%numfb(i) > mdl%nrv) then
+           ier = 4
+           goto 999
+       end if
        work(:mdl%nrv) = 0
        work(mdl%numfb(i))  = 1
 
        do j = jb, je
 
           equ = mdl%order(j)
+          if (equ < 1 .or. equ > mdl%neq) then
+              ier = 4
+              goto 999
+          end if
           do k = edptr(equ), edptr(equ + 1) - 1
              vn = eqdep(k)
+             if (vn < 1 .or. vn > mdl%nrv) then
+                 ier = 4
+                 goto 999
+             end if
              if (work(vn) .gt. 0 ) then
+                 if (mdl%lhsnum(equ) < 1 .or. mdl%lhsnum(equ) > mdl%nrv) then
+                     ier = 4
+                     goto 999
+                 end if
                  work(mdl%lhsnum(equ)) = 1
                  fbp = fbp + 1
                  mdl%fbordr(fbp) = equ
@@ -151,14 +167,30 @@ integer ::  i,j,k,vn,fbp,jb,je, idum
 
             do i = 1, mdl%nfb
 
+                if (mdl%numfb(i) < 1 .or. mdl%numfb(i) > mdl%nrv) then
+                    ier = 4
+                    return
+                end if
                 work(:mdl%nrv) = 0
                 work(mdl%numfb(i))  = 1
 
                 do j = jb, je
                    equ = mdl%order(j)
+                   if (equ < 1 .or. equ > mdl%neq) then
+                       ier = 4
+                       return
+                   end if
                    do k = edptr(equ), edptr(equ + 1) - 1
                        vn = eqdep(k)
+                       if (vn < 1 .or. vn > mdl%nrv) then
+                           ier = 4
+                           return
+                       end if
                        if (work(vn) .gt. 0 ) then
+                           if (mdl%lhsnum(equ) < 1 .or. mdl%lhsnum(equ) > mdl%nrv) then
+                               ier = 4
+                               return
+                           end if
                            work(mdl%lhsnum(equ)) = 1
                            get_fbomem = get_fbomem + 1
                            exit

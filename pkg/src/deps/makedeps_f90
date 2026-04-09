@@ -55,7 +55,7 @@ mcwmif.o : invpol.o mcpars.o model_type.o
 mcxref.o : kinds.o mcdep.o mcjsbl.o mcpars.o mcvars.o mdl_name_utils.o \
     model_params.o
 
-mdgfbo.o : mccedp.o mcfbor.o model_type.o
+mdgfbo.o : mccedp.o mcfbor.o model_type.o output_utils.o
 
 mdl_name_utils.o : mdl_nlen.o model_params.o
 

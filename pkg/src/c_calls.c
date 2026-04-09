@@ -139,7 +139,13 @@ SEXP write_mdl_c(SEXP filename, SEXP model_index_) {
 
     // TODO: add correct error handling
     if (ier != 0) {
-        error("Unknown error writing Mif file %s\n", modelnm);
+        if (ier == 1) {
+            error("Cannot open Mif file %s for writing\n", modelnm);
+        } else if (ier == 4) {
+             error("Out of memory writing Mif file %s\n", modelnm);
+        } else {
+             error("Unknown error %d writing Mif file %s\n", ier, modelnm);
+        }
     }
     return R_NilValue;
 }
@@ -365,10 +371,11 @@ SEXP get_param_c(SEXP model_index_, SEXP names) {
         SEXP value = PROTECT(allocVector(REALSXP,  par_len));
         F77_CALL(get_param_fortran)(&model_index, ipar + i, REAL(value), &par_len);
         SET_VECTOR_ELT(retval,  i, value);
+        UNPROTECT(1);
     }
 
     setAttrib(retval, R_NamesSymbol, names);
-    UNPROTECT(npar + 1);
+    UNPROTECT(1);
     return retval;
 }
 

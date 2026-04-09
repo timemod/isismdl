@@ -2,5 +2,5 @@
 # In contrast devtools::test(), this will use the installed version of the
 # package and not the local source of the package.
 
-library(cbsots)
+library(isismdl)
 testthat::test_dir("pkg/tests/testthat")

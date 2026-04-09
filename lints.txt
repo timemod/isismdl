@@ -1,0 +1,1236 @@
+R/all.equal.R:48:21: warning: [object_usage_linter] no visible binding for global variable '.Generic'
+  return(NextMethod(.Generic))
+                    ^~~~~~~~
+R/convert_mdl_file.R:30:17: warning: [object_usage_linter] no visible global function definition for 'check_mdl_file'
+  model_file <- check_mdl_file(model_file)
+                ^~~~~~~~~~~~~~
+R/convert_mdl_file.R:31:20: warning: [object_usage_linter] no visible global function definition for 'check_parse_options'
+  parse_options <- check_parse_options(parse_options)
+                   ^~~~~~~~~~~~~~~~~~~
+R/convert_mdl_file.R:40:16: warning: [object_usage_linter] no visible binding for global variable 'C_convert_mdl_file_c'
+  return(.Call(C_convert_mdl_file_c, model_file, output_file, flags,
+               ^~~~~~~~~~~~~~~~~~~~
+R/find_deps.R:97:25: warning: [object_usage_linter] no visible global function definition for 'period'
+  min_period_obs <- min(period(observed_data$period))
+                        ^~~~~~
+R/find_deps.R:112:7: warning: [object_usage_linter] no visible global function definition for 'rename'
+      rename(x, var = "rhs", period = "lag") |>
+      ^~~~~~
+R/find_deps.R:113:9: warning: [object_usage_linter] no visible global function definition for 'select'
+        select(-c("lhs"))
+        ^~~~~~
+R/find_deps.R:117:8: warning: [object_usage_linter] no visible global function definition for 'make_empty_graph'
+  g <- make_empty_graph()
+       ^~~~~~~~~~~~~~~~
+R/find_deps.R:121:10: warning: [object_usage_linter] no visible global function definition for 'add_vertices'
+    g <- add_vertices(g, 1, name = vertex_name, ok = NA,
+         ^~~~~~~~~~~~
+R/find_deps.R:155:26: warning: [object_usage_linter] no visible global function definition for 'V'
+    if (vertex_name %in% V(g)$name) {
+                         ^
+R/find_deps.R:156:13: warning: [object_usage_linter] no visible global function definition for 'V'
+      ok <- V(g)[name == vertex_name]$ok
+            ^
+R/find_deps.R:225:17: warning: [object_usage_linter] no visible global function definition for 'mutate'
+    deps_new <- mutate(deps_new, period = as.character(.data$period + per))
+                ^~~~~~
+R/find_deps.R:225:56: warning: [object_usage_linter] no visible binding for global variable '.data'
+    deps_new <- mutate(deps_new, period = as.character(.data$period + per))
+                                                       ^~~~~
+R/find_deps.R:229:19: warning: [object_usage_linter] no visible global function definition for 'anti_join'
+      deps_new <- anti_join(deps_new, observed_data,  by = c("var", "period"))
+                  ^~~~~~~~~
+R/find_deps.R:245:33: warning: [object_usage_linter] no visible global function definition for 'V'
+      if (!vertex_name_dep %in% V(g)$name) {
+                                ^
+R/find_deps.R:254:13: warning: [object_usage_linter] no visible global function definition for 'add_edges'
+      g <<- add_edges(g, c(vertex_name_dep, vertex_name))
+            ^~~~~~~~~
+R/find_deps.R:269:19: warning: [object_usage_linter] no visible global function definition for 'neighbors'
+      children <- neighbors(g, vertex_name, mode = "in")
+                  ^~~~~~~~~
+R/find_deps.R:270:17: warning: [object_usage_linter] no visible global function definition for 'V'
+      ok <- all(V(g)[children]$ok |
+                ^
+R/find_deps.R:270:17: warning: [object_usage_linter] no visible global function definition for 'V'
+      ok <- all(V(g)[children]$ok |
+                ^
+R/find_deps.R:292:15: warning: [object_usage_linter] no visible global function definition for 'delete_edges'
+        g <<- delete_edges(g, incident(g, vertex_name, mode = "in"))
+              ^~~~~~~~~~~~
+R/find_deps.R:292:31: warning: [object_usage_linter] no visible global function definition for 'incident'
+        g <<- delete_edges(g, incident(g, vertex_name, mode = "in"))
+                              ^~~~~~~~
+R/find_deps.R:308:5: warning: [object_usage_linter] no visible global function definition for 'subcomponent'
+    subcomponent(g, v, mode = "all")
+    ^~~~~~~~~~~~
+R/find_deps.R:312:8: warning: [object_usage_linter] no visible global function definition for 'induced_subgraph'
+  g <- induced_subgraph(g, reachable)
+       ^~~~~~~~~~~~~~~~
+R/find_deps.R:315:21: warning: [object_usage_linter] no visible global function definition for 'degree'
+  isolated <- which(degree(g) == 0 & !V(g)$name %in% vertices_final_dest)
+                    ^~~~~~
+R/find_deps.R:315:39: warning: [object_usage_linter] no visible global function definition for 'V'
+  isolated <- which(degree(g) == 0 & !V(g)$name %in% vertices_final_dest)
+                                      ^
+R/find_deps.R:316:8: warning: [object_usage_linter] no visible global function definition for 'delete_vertices'
+  g <- delete_vertices(g, isolated)
+       ^~~~~~~~~~~~~~~
+R/find_deps.R:324:28: warning: [object_usage_linter] no visible global function definition for 'V'
+    final_dest_vertices <- V(g)[is_final_dest == TRUE]
+                           ^
+R/find_deps.R:328:7: warning: [object_usage_linter] no visible global function definition for 'subcomponent'
+      subcomponent(g, v, mode = "in")
+      ^~~~~~~~~~~~
+R/find_deps.R:332:26: warning: [object_usage_linter] no visible global function definition for 'V'
+    solvable_vertices <- V(g)[solvable == TRUE]
+                         ^
+R/find_deps.R:334:21: warning: [object_usage_linter] no visible global function definition for 'V'
+    all_vertices <- V(g)
+                    ^
+R/find_deps.R:339:35: warning: [object_usage_linter] no visible global function definition for 'V'
+    removed_vertex_names <- names(V(g))[to_remove]
+                                  ^
+R/find_deps.R:349:10: warning: [object_usage_linter] no visible global function definition for 'delete_vertices'
+    g <- delete_vertices(g, to_remove)
+         ^~~~~~~~~~~~~~~
+R/find_deps.R:352:26: warning: [object_usage_linter] no visible global function definition for 'V'
+    solvable_vertices <- V(g)[solvable == TRUE]
+                         ^
+R/find_deps.R:354:7: warning: [object_usage_linter] no visible global function definition for 'subcomponent'
+      subcomponent(g, v, mode = "out")
+      ^~~~~~~~~~~~
+R/find_deps.R:356:10: warning: [object_usage_linter] no visible global function definition for 'induced_subgraph'
+    g <- induced_subgraph(g, can_reach_solvable)
+         ^~~~~~~~~~~~~~~~
+R/find_deps.R:364:5: warning: [object_usage_linter] no visible global function definition for 'remove_rownames'
+    remove_rownames() |>
+    ^~~~~~~~~~~~~~~
+R/find_deps.R:366:5: warning: [object_usage_linter] no visible global function definition for 'separate'
+    separate("name", into = c("var", "period"), sep = "\\[|\\]",
+    ^~~~~~~~
+R/find_paths.R:10:5: warning: [object_usage_linter] no visible global function definition for 'mutate'
+    mutate(rhs = ifelse(.data$lag == 0, .data$rhs,
+    ^~~~~~
+R/find_paths.R:10:25: warning: [object_usage_linter] no visible binding for global variable '.data'
+    mutate(rhs = ifelse(.data$lag == 0, .data$rhs,
+                        ^~~~~
+R/find_paths.R:10:25: warning: [object_usage_linter] no visible binding for global variable '.data'
+    mutate(rhs = ifelse(.data$lag == 0, .data$rhs,
+                        ^~~~~
+R/find_paths.R:10:25: warning: [object_usage_linter] no visible binding for global variable '.data'
+    mutate(rhs = ifelse(.data$lag == 0, .data$rhs,
+                        ^~~~~
+R/find_paths.R:10:25: warning: [object_usage_linter] no visible binding for global variable '.data'
+    mutate(rhs = ifelse(.data$lag == 0, .data$rhs,
+                        ^~~~~
+R/find_paths.R:12:5: warning: [object_usage_linter] no visible global function definition for 'select'
+    select("rhs", "lhs")
+    ^~~~~~
+R/find_paths.R:13:8: warning: [object_usage_linter] no visible global function definition for 'graph_from_data_frame'
+  g <- graph_from_data_frame(struc[, c("rhs", "lhs")], directed = TRUE)
+       ^~~~~~~~~~~~~~~~~~~~~
+R/find_paths.R:17:19: warning: [object_usage_linter] no visible global function definition for 'V'
+    path <- names(V(g))[path]
+                  ^
+R/find_paths.R:19:12: warning: [object_usage_linter] no visible global function definition for 'str_match'
+    ret <- str_match(path, lag_pattern)
+           ^~~~~~~~~
+R/find_paths.R:27:12: warning: [object_usage_linter] no visible global function definition for 'all_simple_paths'
+  paths <- all_simple_paths(g, from = derived_var, to = observable_var)
+           ^~~~~~~~~~~~~~~~
+R/fmds_single.R:84:10: warning: [object_usage_linter] no visible global function definition for 'nleqslv'
+  ret <- nleqslv(initial_guess, fn = f_solve, jacobian = jacobian, ...)
+         ^~~~~~~
+R/fmds_single.R:101:9: warning: [object_usage_linter] no visible global function definition for 'glue'
+    cat(glue("Convergence for {solve_period} in {ret$iter} iterations",
+        ^~~~
+R/fmds_single.R:117:16: warning: [object_usage_linter] no visible global function definition for 'find_deps'
+  dep_graph <- find_deps(
+               ^~~~~~~~~
+R/fmds_single.R:127:11: warning: [object_usage_linter] no visible global function definition for 'as_data_frame_deps'
+  deps <- as_data_frame_deps(dep_graph)
+          ^~~~~~~~~~~~~~~~~~
+R/fmds_single.R:130:34: warning: [object_usage_linter] no visible binding for global variable '.data'
+  deps_final_src <- filter(deps, .data$is_final_src)
+                                 ^~~~~
+R/fmds_single.R:137:32: warning: [object_usage_linter] no visible binding for global variable '.data'
+  deps <- dplyr::filter(deps, !.data$is_final_src)
+                               ^~~~~
+R/fmds_single.R:149:30: warning: [object_usage_linter] no visible binding for global variable '.data'
+         paste(filter(deps, !.data$calculable)$var, collapse = ", "),
+                             ^~~~~
+R/fmds.R:17:15: warning: [object_usage_linter] no visible global function definition for 'ensure_solve_df_cols'
+  solve_df <- ensure_solve_df_cols(solve_df,
+              ^~~~~~~~~~~~~~~~~~~~
+R/fmds.R:20:13: warning: [object_usage_linter] no visible global function definition for 'as.period_range'
+  period <- as.period_range(period)
+            ^~~~~~~~~~~~~~~
+R/fmds.R:21:20: warning: [object_usage_linter] no visible global function definition for 'as.period'
+  solve_periods <- as.period(solve_df$solve_period)
+                   ^~~~~~~~~
+R/fmds.R:22:30: warning: [object_usage_linter] no visible global function definition for 'start_period'
+  outside <- solve_periods < start_period(period) |
+                             ^~~~~~~~~~~~
+R/fmds.R:23:21: warning: [object_usage_linter] no visible global function definition for 'end_period'
+    solve_periods > end_period(period)
+                    ^~~~~~~~~~
+R/fmds.R:71:20: warning: [object_usage_linter] no visible global function definition for 'as.period'
+  solve_periods <- as.period(solve_df$solve_period)
+                   ^~~~~~~~~
+R/fmds.R:72:25: warning: [object_usage_linter] no visible global function definition for 'period_range'
+  solve_period_range <- period_range(min(solve_periods),
+                        ^~~~~~~~~~~~
+R/fmds.R:81:26: warning: [object_usage_linter] no visible binding for global variable '.data'
+    dplyr::filter(!is.na(.data$value))
+                         ^~~~~
+R/fmds.R:104:25: warning: [object_usage_linter] no visible binding for global variable '.data'
+    dplyr::filter(is.na(.data$value))
+                        ^~~~~
+R/fmds.R:131:43: warning: [object_usage_linter] no visible global function definition for 'group_split'
+  for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
+                                          ^~~~~~~~~~~
+R/fmds.R:131:55: warning: [object_usage_linter] no visible binding for global variable '.data'
+  for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
+                                                      ^~~~~
+R/fmds.R:133:47: warning: [object_usage_linter] no visible global function definition for 'group_split'
+    for (group_data in single_solve_period |> group_split(.data$group)) {
+                                              ^~~~~~~~~~~
+R/fmds.R:133:59: warning: [object_usage_linter] no visible binding for global variable '.data'
+    for (group_data in single_solve_period |> group_split(.data$group)) {
+                                                          ^~~~~
+R/fmds.R:135:24: warning: [object_usage_linter] no visible global function definition for 'get_observed_data'
+      observed_data <- get_observed_data(mdl$get_data())
+                       ^~~~~~~~~~~~~~~~~
+R/fmds.R:141:7: warning: [object_usage_linter] no visible global function definition for 'solve_single_group'
+      solve_single_group(
+      ^~~~~~~~~~~~~~~~~~
+R/fmds.R:165:16: warning: [object_usage_linter] no visible global function definition for 'tsdif'
+  dif_table <- tsdif(mdl_original_data, mdl_solved_data, fun = cvgdif,
+               ^~~~~
+R/fmds.R:165:64: warning: [object_usage_linter] no visible binding for global variable 'cvgdif'
+  dif_table <- tsdif(mdl_original_data, mdl_solved_data, fun = cvgdif,
+                                                               ^~~~~~
+R/fmds.R:181:23: warning: [object_usage_linter] no visible binding for global variable '.data'
+        filter(!is.na(.data$value2)) |>
+                      ^~~~~
+R/fmds.R:181:23: warning: [object_usage_linter] no visible binding for global variable '.data'
+        filter(!is.na(.data$value2)) |>
+                      ^~~~~
+R/fmds.R:182:9: warning: [object_usage_linter] no visible global function definition for 'select'
+        select("name", "period", "value2") |>
+        ^~~~~~
+R/fmds.R:183:9: warning: [object_usage_linter] no visible global function definition for 'rename'
+        rename(replacement = .data$value2)
+        ^~~~~~
+R/get_dep_struct_internal.R:14:15: warning: [object_usage_linter] no visible binding for global variable 'C_convert_mdl_file_c'
+  ok <- .Call(C_convert_mdl_file_c, mdl_file_tmp1, mdl_file_tmp2, NULL,
+              ^~~~~~~~~~~~~~~~~~~~
+R/get_dep_struct_internal.R:18:15: warning: [object_usage_linter] no visible binding for global variable 'C_gen_dep_file'
+  ok <- .Call(C_gen_dep_file, mdl_file_tmp2, dep_file_tmp)
+              ^~~~~~~~~~~~~~
+R/get_observed_data.R:7:26: warning: [object_usage_linter] no visible binding for global variable '.data'
+    dplyr::filter(!is.na(.data$value))
+                         ^~~~~
+R/ifn_mdl.R:12:13: warning: [object_usage_linter] no visible global function definition for 'isis_mdl'
+  retval <- isis_mdl(mdl_file)
+            ^~~~~~~~
+R/ifn_mdl.R:16:16: warning: [object_usage_linter] no visible global function definition for 'file_path_sans_ext'
+  base_name <- file_path_sans_ext(mdl_file)
+               ^~~~~~~~~~~~~~~~~~
+R/isis_mdl.R:170:17: warning: [object_usage_linter] no visible global function definition for 'check_mdl_file'
+  model_file <- check_mdl_file(model_file)
+                ^~~~~~~~~~~~~~
+R/isis_mdl.R:173:15: warning: [object_usage_linter] no visible global function definition for 'as.period_range'
+    period <- as.period_range(period)
+              ^~~~~~~~~~~~~~~
+R/isis_mdl.R:176:20: warning: [object_usage_linter] no visible global function definition for 'check_parse_options'
+  parse_options <- check_parse_options(parse_options)
+                   ^~~~~~~~~~~~~~~~~~~
+R/isis_mdl.R:190:7: warning: [object_usage_linter] no visible binding for global variable 'C_compile_mdl_c'
+      C_compile_mdl_c, model_file, mif_file, preproc_file,
+      ^~~~~~~~~~~~~~~
+R/isis_mdl.R:206:17: warning: [object_usage_linter] no visible global function definition for 'read_file'
+  model_text <- read_file(preproc_file)
+                ^~~~~~~~~
+R/isis_mdl.R:209:10: warning: [object_usage_linter] no visible binding for global variable 'IsisMdl'
+  mdl <- IsisMdl$new(
+         ^~~~~~~
+R/isis_mdl.R:219:20: warning: [object_usage_linter] no visible global function definition for 'get_period_range'
+    data_period <- get_period_range(data)
+                   ^~~~~~~~~~~~~~~~
+R/isis_mdl.R:223:31: warning: [object_usage_linter] no visible global function definition for 'period_range'
+      data_period_required <- period_range(
+                              ^~~~~~~~~~~~
+R/isis_mdl.R:224:9: warning: [object_usage_linter] no visible global function definition for 'start_period'
+        start_period(period) - mdl$get_maxlag(),
+        ^~~~~~~~~~~~
+R/isis_mdl.R:225:9: warning: [object_usage_linter] no visible global function definition for 'end_period'
+        end_period(period) + mdl$get_maxlead()
+        ^~~~~~~~~~
+R/isis_mdl.R:227:22: warning: [object_usage_linter] no visible global function definition for 'range_union'
+      data_period <- range_union(data_period, data_period_required)
+                     ^~~~~~~~~~~
+R/islm_mdl.R:17:10: warning: [object_usage_linter] no visible global function definition for 'isis_mdl'
+  mdl <- isis_mdl(mdl_file)
+         ^~~~~~~~
+R/islm_mdl.R:22:16: warning: [object_usage_linter] no visible global function definition for 'file_path_sans_ext'
+  base_name <- file_path_sans_ext(mdl_file)
+               ^~~~~~~~~~~~~~~~~~
+R/islm_mdl.R:27:15: warning: [object_usage_linter] no visible global function definition for 'as.period_range'
+    period <- as.period_range(period)
+              ^~~~~~~~~~~~~~~
+R/islm_mdl.R:29:13: warning: [object_usage_linter] no visible global function definition for 'nperiod'
+    nper <- nperiod(period)
+            ^~~~~~~
+R/islm_mdl.R:31:11: warning: [object_usage_linter] no visible global function definition for 'regts'
+    r  <- regts(3.35, period = data_per, labels = "interest rate")
+          ^~~~~
+R/islm_mdl.R:32:11: warning: [object_usage_linter] no visible global function definition for 'regts'
+    y  <- regts(980,  period = data_per, labels = "income")
+          ^~~~~
+R/islm_mdl.R:33:11: warning: [object_usage_linter] no visible global function definition for 'regts'
+    yd <- regts(790, start = start_period(data_per), labels = "disposable income")
+          ^~~~~
+R/islm_mdl.R:33:30: warning: [object_usage_linter] no visible global function definition for 'start_period'
+    yd <- regts(790, start = start_period(data_per), labels = "disposable income")
+                             ^~~~~~~~~~~~
+R/islm_mdl.R:34:11: warning: [object_usage_linter] no visible global function definition for 'regts'
+    g  <- regts(210 * cumprod(rep(1.015, nper)), period = period,
+          ^~~~~
+R/islm_mdl.R:36:11: warning: [object_usage_linter] no visible global function definition for 'regts'
+    ms <- regts(200 * cumprod(rep(1.015, nper)), period = period,
+          ^~~~~
+R/onLoad.R:4:6: warning: [object_usage_linter] no visible binding for global variable 'C_init_modules_c'
+  .C(C_init_modules_c)
+     ^~~~~~~~~~~~~~~~
+R/onUnload.R:2:6: warning: [object_usage_linter] no visible binding for global variable 'C_remove_all_mwss_c'
+  .C(C_remove_all_mwss_c)
+     ^~~~~~~~~~~~~~~~~~~
+R/period_utils.R:2:23: warning: [object_usage_linter] no visible global function definition for 'start_period'
+  mdl_period_start <- start_period(mdl_period)
+                      ^~~~~~~~~~~~
+R/period_utils.R:3:24: warning: [object_usage_linter] no visible global function definition for 'start_period'
+  startp <- as.integer(start_period(period) - mdl_period_start + 1)
+                       ^~~~~~~~~~~~
+R/period_utils.R:4:24: warning: [object_usage_linter] no visible global function definition for 'end_period'
+  endp   <- as.integer(end_period(period)   - mdl_period_start + 1)
+                       ^~~~~~~~~~
+R/read_mdl.R:25:10: warning: [object_usage_linter] no visible binding for global variable 'IsisMdl'
+  return(IsisMdl$new(serialized_mdl, silent = silent))
+         ^~~~~~~
+R/solve_exo_internal.R:140:11: warning: [object_usage_linter] no visible global function definition for 'glue'
+      cat(glue("Convergence for {per} in {ret$iter} iterations",
+          ^~~~
+R/solve_mdl.R:28:10: warning: [object_usage_linter] no visible global function definition for 'isis_mdl'
+  mdl <- isis_mdl(model_file = model_file, data = data)
+         ^~~~~~~~
+R/update_data_ca.R:32:11: warning: [object_usage_linter] no visible global function definition for 'nperiod'
+  nper <- nperiod(period)
+          ^~~~~~~
+R/update_data_ca.R:33:17: warning: [object_usage_linter] no visible binding for global variable 'C_get_data_c'
+  data <- .Call(C_get_data_c, type = "data", model_index = mdl@control$index,
+                ^~~~~~~~~~~~
+R/update_data_ca.R:35:10: warning: [object_usage_linter] no visible global function definition for 'regts'
+  return(regts(data, period = period, names = names))
+         ^~~~~
+R/update_data_ca.R:50:12: warning: [object_usage_linter] no visible global function definition for 'nperiod'
+  nper  <- nperiod(period)
+           ^~~~~~~
+R/update_data_ca.R:51:17: warning: [object_usage_linter] no visible binding for global variable 'C_get_data_c'
+  data <- .Call(C_get_data_c, type = "ca", model_index = mdl@control$index,
+                ^~~~~~~~~~~~
+R/update_data_ca.R:53:10: warning: [object_usage_linter] no visible global function definition for 'regts'
+  return(regts(data, period = period, names = names))
+         ^~~~~
+R/utils.R:47:3: warning: [object_usage_linter] no visible global function definition for 'start_period'
+  start_period(period) >= start_period(long_period)  &&
+  ^~~~~~~~~~~~
+R/utils.R:47:3: warning: [object_usage_linter] no visible global function definition for 'start_period'
+  start_period(period) >= start_period(long_period)  &&
+  ^~~~~~~~~~~~
+R/utils.R:48:6: warning: [object_usage_linter] no visible global function definition for 'end_period'
+    (end_period(period) <= end_period(long_period))
+     ^~~~~~~~~~
+R/utils.R:48:6: warning: [object_usage_linter] no visible global function definition for 'end_period'
+    (end_period(period) <= end_period(long_period))
+     ^~~~~~~~~~
+R/utils.R:63:13: warning: [object_usage_linter] no visible global function definition for 'start_period'
+  startp <- start_period(period)
+            ^~~~~~~~~~~~
+R/utils.R:65:15: warning: [object_usage_linter] no visible global function definition for 'start_period'
+    startp <- start_period(base_period)
+              ^~~~~~~~~~~~
+R/utils.R:67:11: warning: [object_usage_linter] no visible global function definition for 'end_period'
+  endp <- end_period(period)
+          ^~~~~~~~~~
+R/utils.R:69:13: warning: [object_usage_linter] no visible global function definition for 'end_period'
+    endp <- end_period(base_period)
+            ^~~~~~~~~~
+R/utils.R:71:3: warning: [object_usage_linter] no visible global function definition for 'period_range'
+  period_range(startp, endp)
+  ^~~~~~~~~~~~
+tests/testthat/dslnex/test_solve.R:35:44: style: [indentation_linter] Hanging indent should be 43 spaces but is 44 spaces.
+                                            report = "none")))
+                                           ^
+tests/testthat/dslnex/test_solve.R:40:43: style: [indentation_linter] Hanging indent should be 42 spaces but is 43 spaces.
+                                           report = "none")), msg)
+                                          ^
+tests/testthat/dslnex/test_solve.R:49:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/dslnex/test_solve.R:50:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/dslnex/test_solve.R:51:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/errors/test_include.R:57:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/errors/test_include.R:58:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/errors/test_singular1.R:14:23: style: [indentation_linter] Hanging indent should be 22 spaces but is 23 spaces.
+                       svdtest_tol = 1e-10)
+                      ^
+tests/testthat/errors/test_singular1.R:31:17: style: [indentation_linter] Hanging indent should be 31 spaces but is 17 spaces.
+                 "Simulation stopped"))
+                ^~~~~~~~~~~~~~~
+tests/testthat/errors/test_ufunc1.R:22:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/errors/test_varia1.R:21:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/fit/test_square_singular.R:40:16: style: [indentation_linter] Hanging indent should be 27 spaces but is 16 spaces.
+                fit_options = list(svdtest_tol = 1e-10)))
+               ^~~~~~~~~~~~
+tests/testthat/fit/test_square_singular.R:57:27: style: [indentation_linter] Hanging indent should be 28 spaces but is 27 spaces.
+                           fit_options = list(svdtest_tol = 1e-6)))
+                          ^~
+tests/testthat/fit/test_square_singular.R:64:28: style: [indentation_linter] Hanging indent should be 17 spaces but is 28 spaces.
+                            "Simulation stopped")
+                 ~~~~~~~~~~^
+tests/testthat/fit/test_square_zero_cols.R:45:48: style: [indentation_linter] Hanging indent should be 54 spaces but is 48 spaces.
+                                                replace_all_numbers = TRUE)),
+                                               ^~~~~~~
+tests/testthat/fit/test_square_zero_rows.R:38:5: style: [indentation_linter] Hanging indent should be 44 spaces but is 5 spaces.
+     mdl2$solve(fit_options = list(warn_zero_row = TRUE))),
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/testthat/fit/test_square_zero_rows.R:39:17: style: [indentation_linter] Indentation should be 2 spaces but is 17 spaces.
+                 "Simulation not possible")
+  ~~~~~~~~~~~~~~^
+tests/testthat/ifn/helper_compile.R:19:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/ifn/test_set_ftrelax.R:75:37: style: [infix_spaces_linter] Put spaces around all infix operators.
+  expect_error(ifn_mdl$set_ftrelax(1/0), emsg)
+                                    ^
+tests/testthat/ifn/test_solve.R:27:4: style: [indentation_linter] Hanging indent should be 17 spaces but is 4 spaces.
+    expect_identical(ifn_mdl$get_endo_names(type = "endolead"), endo_leads),
+   ^~~~~~~~~~~~~~
+tests/testthat/ifn/test_solve.R:59:27: style: [indentation_linter] Hanging indent should be 17 spaces but is 27 spaces.
+                           "Fair-Taylor has not converged")
+                 ~~~~~~~~~^
+tests/testthat/ifn/test_solve.R:63:1: style: [indentation_linter] Indentation should be 2 spaces but is 1 spaces.
+ ifn_mdl2 <- ifn_mdl$copy()
+^~
+tests/testthat/ifn/test_solve.R:76:67: style: [indentation_linter] Hanging indent should be 68 spaces but is 67 spaces.
+                                                                   c("eta", "px")))
+                                                                  ^~
+tests/testthat/ifn/test_solve.R:119:37: style: [commas_linter] Put a space after a comma.
+  sim_names_expected <- c("x", "ys","py", "zcap", "cfcap", "kgv", "bzcap",
+                                    ^
+tests/testthat/islm/test_change_ca.R:12:30: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_ca(function(x) {x + 10}, names = "c")
+                             ^
+tests/testthat/islm/test_change_ca.R:13:34: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_ca(function(x, dx) {x + dx}, names = c("t", "i"),
+                                 ^
+tests/testthat/islm/test_change_ca.R:15:30: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_ca(function(x) {sin(x) +8}, pattern = "^t$", period = "2016Q2")
+                             ^
+tests/testthat/islm/test_change_ca.R:15:38: style: [infix_spaces_linter] Put spaces around all infix operators.
+  mdl2$change_ca(function(x) {sin(x) +8}, pattern = "^t$", period = "2016Q2")
+                                     ^
+tests/testthat/islm/test_change_ca.R:18:12: style: [commas_linter] Remove spaces before a comma.
+  expected[ , "c" ] <- 10
+           ^
+tests/testthat/islm/test_change_ca.R:18:12: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  expected[ , "c" ] <- 10
+           ^
+tests/testthat/islm/test_change_ca.R:18:18: style: [spaces_inside_linter] Do not place spaces before square brackets.
+  expected[ , "c" ] <- 10
+                 ^
+tests/testthat/islm/test_change_ca.R:27:30: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_ca(function(x) {x + 10}, names = "c", period = "2015")
+                             ^
+tests/testthat/islm/test_change_ca.R:28:34: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_ca(function(x, dx) {x + dx}, names = c("t", "i"),
+                                 ^
+tests/testthat/islm/test_change_ca.R:30:30: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_ca(function(x) {sin(x) + 8}, pattern = "^t$", period = "/2016M3")
+                             ^
+tests/testthat/islm/test_change_ca.R:33:27: style: [commas_linter] Remove spaces before a comma.
+  expected["2015Q1/2015Q4" , "c" ] <- 10
+                          ^
+tests/testthat/islm/test_change_ca.R:33:33: style: [spaces_inside_linter] Do not place spaces before square brackets.
+  expected["2015Q1/2015Q4" , "c" ] <- 10
+                                ^
+tests/testthat/islm/test_change_ca.R:42:20: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  f <- function(x) {x}
+                   ^
+tests/testthat/islm/test_change_ca.R:42:22: style: [brace_linter] Closing curly-braces should always be on their own line, unless they are followed by an else.
+  f <- function(x) {x}
+                     ^
+tests/testthat/islm/test_change_data.R:13:10: style: [commas_linter] Remove spaces before a comma.
+new_data[ , "c" ] <- new_data[, "c"] * c_multipliers
+         ^
+tests/testthat/islm/test_change_data.R:13:10: style: [spaces_inside_linter] Do not place spaces after square brackets.
+new_data[ , "c" ] <- new_data[, "c"] * c_multipliers
+         ^
+tests/testthat/islm/test_change_data.R:13:16: style: [spaces_inside_linter] Do not place spaces before square brackets.
+new_data[ , "c" ] <- new_data[, "c"] * c_multipliers
+               ^
+tests/testthat/islm/test_change_data.R:20:37: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x, fac) {x * fac}, names = "c", fac = c_multipliers)
+                                    ^
+tests/testthat/islm/test_change_data.R:21:32: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x) {x + m_additions}, names = c("ms", "md"),
+                               ^
+tests/testthat/islm/test_change_data.R:23:32: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x) {x * 1.1}, pattern = "^y", period = "2016Q2")
+                               ^
+tests/testthat/islm/test_change_data.R:29:37: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x, fac) {x * fac}, names = "c", fac = c_multipliers)
+                                    ^
+tests/testthat/islm/test_change_data.R:31:32: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x) {x + m_ts}, names = c("ms", "md"),
+                               ^
+tests/testthat/islm/test_change_data.R:33:32: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x) {x * 1.1}, pattern = "^y", period = "2016Q2")
+                               ^
+tests/testthat/islm/test_change_data.R:39:37: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x, fac) {x * fac}, names = "c", fac = c_multipliers)
+                                    ^
+tests/testthat/islm/test_change_data.R:42:4: style: [indentation_linter] Hanging indent should be 15 spaces but is 4 spaces.
+    expect_warning(mdl2$change_data(function(x) {x + m_ts}, names = c("ms", "md"),
+   ^~~~~~~~~~~~
+tests/testthat/islm/test_change_data.R:42:49: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+    expect_warning(mdl2$change_data(function(x) {x + m_ts}, names = c("ms", "md"),
+                                                ^
+tests/testthat/islm/test_change_data.R:45:4: style: [indentation_linter] Hanging indent should be 15 spaces but is 4 spaces.
+    "The function result has length 6 but should have length 1 or 4\\.")
+   ^~~~~~~~~~~~
+tests/testthat/islm/test_change_data.R:47:32: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x) {x * 1.1}, pattern = "^y", period = "2016Q2")
+                               ^
+tests/testthat/islm/test_change_data.R:49:32: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x) {x + m_ts["2015q3/2016q2"]}, names = c("ms", "md"),
+                               ^
+tests/testthat/islm/test_change_data.R:56:37: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x, fac) {x * fac}, names = "c", fac = c_multipliers,
+                                    ^
+tests/testthat/islm/test_change_data.R:60:45: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  expect_error(mdl2$change_data(function(x) {x + m_ts["2015q3"]},
+                                            ^
+tests/testthat/islm/test_change_data.R:65:34: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+    mdl2$change_data(function(x) {x + m_ts[per]}, names = c("ms", "md"),
+                                 ^
+tests/testthat/islm/test_change_data.R:69:32: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  mdl2$change_data(function(x) {x * 1.1}, pattern = "^y", period = "2016Q2")
+                               ^
+tests/testthat/islm/test_change_data.R:73:14: style: [indentation_linter] Hanging indent should be 15 spaces but is 14 spaces.
+              "data period \\(2015Q1/2016Q3\\)\\.")
+             ^~
+tests/testthat/islm/test_change_data.R:74:47: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  expect_warning(mdl2$change_data(function(x) {x * 1.1}, pattern = "^y",
+                                              ^
+tests/testthat/islm/test_change_data.R:82:20: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+  f <- function(x) {x}
+                   ^
+tests/testthat/islm/test_change_data.R:82:22: style: [brace_linter] Closing curly-braces should always be on their own line, unless they are followed by an else.
+  f <- function(x) {x}
+                     ^
+tests/testthat/islm/test_change_data.R:91:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_change_data.R:92:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_cvgcrit.R:52:33: style: [infix_spaces_linter] Put spaces around all infix operators.
+  expect_error(mdl$set_cvgcrit(1/0), msg)
+                                ^
+tests/testthat/islm/test_cvgcrit.R:54:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_cvgcrit.R:55:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_cvgcrit.R:56:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_fit_lazy.R:9:25: style: [quotes_linter] Only use double-quotes.
+i <- regts(200, start = '2015Q2')
+                        ^~~~~~~~
+tests/testthat/islm/test_fit_lazy.R:10:38: style: [quotes_linter] Only use double-quotes.
+y <- regts(c(990, NA, 1010), start = '2015Q2')
+                                     ^~~~~~~~
+tests/testthat/islm/test_fit_options.R:25:27: style: [quotes_linter] Only use double-quotes.
+  i <- regts(200, start = '2015Q2')
+                          ^~~~~~~~
+tests/testthat/islm/test_fit_options.R:26:40: style: [quotes_linter] Only use double-quotes.
+  y <- regts(c(990, NA, 1010), start = '2015Q2')
+                                       ^~~~~~~~
+tests/testthat/islm/test_fit_scale_method.R:28:27: style: [commas_linter] Remove spaces before a comma.
+mdl$set_rms(c(c = 50000000 , t = 20000000, i = 13000000, md = 20000000))
+                          ^
+tests/testthat/islm/test_fit_scale_method.R:38:6: style: [indentation_linter] Hanging indent should be 19 spaces but is 6 spaces.
+      mdl$solve(options = list(report = "none")),
+     ^~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:13:25: style: [quotes_linter] Only use double-quotes.
+i <- regts(200, start = '2015Q2')
+                        ^~~~~~~~
+tests/testthat/islm/test_fit.R:14:38: style: [quotes_linter] Only use double-quotes.
+y <- regts(c(990, NA, 1010), start = '2015Q2')
+                                     ^~~~~~~~
+tests/testthat/islm/test_fit.R:69:2: style: [indentation_linter] Indentation should be 12 spaces but is 2 spaces.
+  expect_identical(dif$missing_names1, character(0))
+ ^~~~~~~~~~~
+tests/testthat/islm/test_fit.R:79:35: style: [commas_linter] Remove spaces before a comma.
+  expect_equal(mdl$get_fit(), fit[ , c("i", "y")])
+                                  ^
+tests/testthat/islm/test_fit.R:79:35: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  expect_equal(mdl$get_fit(), fit[ , c("i", "y")])
+                                  ^
+tests/testthat/islm/test_fit.R:103:28: style: [quotes_linter] Only use double-quotes.
+  y <- regts(200, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:104:28: style: [quotes_linter] Only use double-quotes.
+  r <- regts(3.5, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:119:67: style: [commas_linter] Remove spaces before a comma.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:119:67: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:159:28: style: [quotes_linter] Only use double-quotes.
+  y <- regts(200, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:160:28: style: [quotes_linter] Only use double-quotes.
+  r <- regts(3.5, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:175:67: style: [commas_linter] Remove spaces before a comma.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:175:67: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:189:16: style: [indentation_linter] Hanging indent should be 17 spaces but is 16 spaces.
+                "Simulation not possible")
+               ^~
+tests/testthat/islm/test_fit.R:199:28: style: [quotes_linter] Only use double-quotes.
+  y <- regts(200, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:200:28: style: [quotes_linter] Only use double-quotes.
+  r <- regts(3.5, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:215:67: style: [commas_linter] Remove spaces before a comma.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:215:67: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:233:28: style: [quotes_linter] Only use double-quotes.
+  y <- regts(200, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:234:28: style: [quotes_linter] Only use double-quotes.
+  r <- regts(3.5, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:249:67: style: [commas_linter] Remove spaces before a comma.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:249:67: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:275:28: style: [quotes_linter] Only use double-quotes.
+  y <- regts(200, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:276:28: style: [quotes_linter] Only use double-quotes.
+  r <- regts(3.5, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:291:67: style: [commas_linter] Remove spaces before a comma.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:291:67: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:303:28: style: [quotes_linter] Only use double-quotes.
+  y <- regts(200, period = '2015q2/2016q3')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:304:28: style: [quotes_linter] Only use double-quotes.
+  r <- regts(3.5, period = '2015q2/2016q3')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:320:67: style: [commas_linter] Remove spaces before a comma.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:320:67: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  expected_result <- update_ts(fit_fixed, data, method = "updna")[ , colnames(fit_fixed)]
+                                                                  ^
+tests/testthat/islm/test_fit.R:326:28: style: [quotes_linter] Only use double-quotes.
+  y <- regts(200, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:327:28: style: [quotes_linter] Only use double-quotes.
+  r <- regts(3.5, period = '2015q2/2015q4')
+                           ^~~~~~~~~~~~~~~
+tests/testthat/islm/test_fit.R:339:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_fix_variables.R:36:7: style: [indentation_linter] Hanging indent should be 16 spaces but is 7 spaces.
+       "The model variables contain\\(s\\) NA values in period 2015Q3/2015Q4")
+      ^~~~~~~~~~
+tests/testthat/islm/test_fix.R:8:25: style: [quotes_linter] Only use double-quotes.
+i <- regts(200, start = '2015Q2')
+                        ^~~~~~~~
+tests/testthat/islm/test_fix.R:9:37: style: [quotes_linter] Only use double-quotes.
+c <- regts(c(600, NA, 600), start = '2015Q2')
+                                    ^~~~~~~~
+tests/testthat/islm/test_fix.R:22:4: style: [indentation_linter] Indentation should be 2 spaces but is 4 spaces.
+    expect_identical(islm_model$get_fix(), fix[ , c("c", "i")])
+  ~^
+tests/testthat/islm/test_fix.R:22:48: style: [commas_linter] Remove spaces before a comma.
+    expect_identical(islm_model$get_fix(), fix[ , c("c", "i")])
+                                               ^
+tests/testthat/islm/test_fix.R:22:48: style: [spaces_inside_linter] Do not place spaces after square brackets.
+    expect_identical(islm_model$get_fix(), fix[ , c("c", "i")])
+                                               ^
+tests/testthat/islm/test_fix.R:26:4: style: [indentation_linter] Indentation should be 2 spaces but is 4 spaces.
+    expect_identical(dif$missing_names1, character(0))
+  ~^
+tests/testthat/islm/test_fix.R:41:4: style: [indentation_linter] Indentation should be 2 spaces but is 4 spaces.
+    expect_identical(dif$missing_names1, character(0))
+  ~^
+tests/testthat/islm/test_get_data.R:40:7: style: [infix_spaces_linter] Put spaces around all infix operators.
+  msg <-"The following names are not model variables: 'xxx' and 'yyy'."
+      ^~
+tests/testthat/islm/test_inactive_order.R:59:45: style: [commas_linter] Remove spaces before a comma.
+               regts(c(980, rep(1000, nmsp)) , period = mdp, labels = "income"))
+                                            ^
+tests/testthat/islm/test_inactive.R:61:36: style: [indentation_linter] Hanging indent should be 19 spaces but is 36 spaces.
+                                    setdiff(all_eqs, c("y", "yd")))
+                   ~~~~~~~~~~~~~~~~^
+tests/testthat/islm/test_inactive.R:153:16: style: [indentation_linter] Hanging indent should be 15 spaces but is 16 spaces.
+                "The following names are no equations: \"yyy\", \"x\".")
+               ^
+tests/testthat/islm/test_inactive.R:155:16: style: [indentation_linter] Hanging indent should be 17 spaces but is 16 spaces.
+                "There are no equations that match pattern '\\^z'.")
+               ^~
+tests/testthat/islm/test_param.R:39:44: style: [commas_linter] Put a space after a comma.
+  expect_error(islm_model$set_param(list(2,3)), "Argument p has no names")
+                                           ^
+tests/testthat/islm/test_param.R:40:63: style: [commas_linter] Put a space after a comma.
+  expect_warning(islm_model$set_param(list(c0 = 120, xx = c(1,2))),
+                                                              ^
+tests/testthat/islm/test_param.R:42:61: style: [commas_linter] Put a space after a comma.
+  expect_error(islm_model$set_param(list(c0 = 120, xx = c(1,2)), name_err = "stop"),
+                                                            ^
+tests/testthat/islm/test_param.R:45:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 102 characters.
+               "Value for parameter c0 has an incorrect length. Required length: 1. Actual length: 2")
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+tests/testthat/islm/test_param.R:89:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 102 characters.
+               "Value for parameter c0 has an incorrect length. Required length: 1. Actual length: 2")
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~
+tests/testthat/islm/test_read_mdl_fix_and_fit.R:12:25: style: [quotes_linter] Only use double-quotes.
+i <- regts(200, start = '2015Q2')
+                        ^~~~~~~~
+tests/testthat/islm/test_read_mdl_fix_and_fit.R:13:38: style: [quotes_linter] Only use double-quotes.
+y <- regts(c(990, NA, 1010), start = '2015Q2')
+                                     ^~~~~~~~
+tests/testthat/islm/test_read_mdl_fix_and_fit.R:16:37: style: [quotes_linter] Only use double-quotes.
+c <- regts(c(600, NA, 600), start = '2015Q2')
+                                    ^~~~~~~~
+tests/testthat/islm/test_read_mdl_fix_and_fit.R:17:26: style: [quotes_linter] Only use double-quotes.
+md <- regts(205, start = '2015Q2')
+                         ^~~~~~~~
+tests/testthat/islm/test_rms.R:100:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_rms.R:101:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_rms.R:102:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_rms.R:103:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_ca_values.R:11:8: style: [commas_linter] Remove spaces before a comma.
+new_ca[ , "c" ] <- 10
+       ^
+tests/testthat/islm/test_set_ca_values.R:11:8: style: [spaces_inside_linter] Do not place spaces after square brackets.
+new_ca[ , "c" ] <- 10
+       ^
+tests/testthat/islm/test_set_ca_values.R:11:14: style: [spaces_inside_linter] Do not place spaces before square brackets.
+new_ca[ , "c" ] <- 10
+             ^
+tests/testthat/islm/test_set_ca.R:35:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_ca.R:36:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_ca.R:37:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_data_fun.R:45:23: style: [commas_linter] Put a space after a comma.
+  G <- regts(c(1.1, 1,2), period = "2015Q2/2015Q3")
+                      ^
+tests/testthat/islm/test_set_data_fun.R:68:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_data_fun.R:69:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_data_fun.R:70:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_data.R:34:27: style: [indentation_linter] Hanging indent should be 20 spaces but is 27 spaces.
+                           names = names)
+                    ~~~~~~^
+tests/testthat/islm/test_set_data.R:67:22: style: [indentation_linter] Hanging indent should be 23 spaces but is 22 spaces.
+                      "used.\nThe duplicated names are: t."))
+                     ^~
+tests/testthat/islm/test_set_data.R:72:42: style: [infix_spaces_linter] Put spaces around all infix operators.
+  ydat <- regts(matrix(0, ncol = 2, nrow =2), names = c("i", "c"),
+                                         ^
+tests/testthat/islm/test_set_data.R:73:17: style: [indentation_linter] Hanging indent should be 16 spaces but is 17 spaces.
+                 period = "2017/2018")
+                ^
+tests/testthat/islm/test_set_fit_1.R:10:25: style: [quotes_linter] Only use double-quotes.
+i <- regts(200, start = '2015Q2')
+                        ^~~~~~~~
+tests/testthat/islm/test_set_fit_1.R:11:37: style: [quotes_linter] Only use double-quotes.
+c <- regts(c(600, NA, 600), start = '2015Q2')
+                                    ^~~~~~~~
+tests/testthat/islm/test_set_fit_1.R:12:38: style: [quotes_linter] Only use double-quotes.
+y <- regts(c(990, NA, 1010), start = '2015Q2')
+                                     ^~~~~~~~
+tests/testthat/islm/test_set_fit_1.R:47:53: style: [commas_linter] Remove spaces before a comma.
+  fit_combi <- update_ts(fit, fit2, method = "upd")[ ,  c("c", "y")]
+                                                    ^
+tests/testthat/islm/test_set_fit_1.R:47:53: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  fit_combi <- update_ts(fit, fit2, method = "upd")[ ,  c("c", "y")]
+                                                    ^
+tests/testthat/islm/test_set_fit_1.R:72:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_fit_1.R:73:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_fit_1.R:74:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_fit_2.R:8:25: style: [quotes_linter] Only use double-quotes.
+i <- regts(200, start = '2015Q2')
+                        ^~~~~~~~
+tests/testthat/islm/test_set_fit_2.R:9:38: style: [quotes_linter] Only use double-quotes.
+y <- regts(c(990, NA, 1010), start = '2015Q2')
+                                     ^~~~~~~~
+tests/testthat/islm/test_set_fit_2.R:27:27: style: [quotes_linter] Only use double-quotes.
+  c <- regts(200, start = '2015Q2')
+                          ^~~~~~~~
+tests/testthat/islm/test_set_fit_2.R:28:40: style: [quotes_linter] Only use double-quotes.
+  t <- regts(c(990, NA, 1010), start = '2015Q2')
+                                       ^~~~~~~~
+tests/testthat/islm/test_set_fit_2.R:44:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_fit_values.R:10:25: style: [quotes_linter] Only use double-quotes.
+i <- regts(200, start = '2015Q2')
+                        ^~~~~~~~
+tests/testthat/islm/test_set_fit_values.R:11:37: style: [quotes_linter] Only use double-quotes.
+c <- regts(c(600, NA, 600), start = '2015Q2')
+                                    ^~~~~~~~
+tests/testthat/islm/test_set_fit_values.R:12:38: style: [quotes_linter] Only use double-quotes.
+y <- regts(c(990, NA, 1010), start = '2015Q2')
+                                     ^~~~~~~~
+tests/testthat/islm/test_set_fit_values.R:18:9: style: [commas_linter] Remove spaces before a comma.
+new_fit[ , "t" ] <- 210
+        ^
+tests/testthat/islm/test_set_fit_values.R:18:9: style: [spaces_inside_linter] Do not place spaces after square brackets.
+new_fit[ , "t" ] <- 210
+        ^
+tests/testthat/islm/test_set_fit_values.R:18:15: style: [spaces_inside_linter] Do not place spaces before square brackets.
+new_fit[ , "t" ] <- 210
+              ^
+tests/testthat/islm/test_set_fit_values.R:33:55: style: [commas_linter] Remove spaces before a comma.
+  expect_equal(mdl2$get_fit(), new_fit["2015Q2/2016Q2" , c("c", "i", "y")])
+                                                      ^
+tests/testthat/islm/test_set_fit_values.R:35:55: style: [commas_linter] Remove spaces before a comma.
+  expect_equal(mdl2$get_fit(), new_fit["2015Q2/2015Q4" , c("c", "i", "y")])
+                                                      ^
+tests/testthat/islm/test_set_fix_1.R:10:25: style: [quotes_linter] Only use double-quotes.
+i <- regts(200, start = '2015Q2')
+                        ^~~~~~~~
+tests/testthat/islm/test_set_fix_1.R:11:37: style: [quotes_linter] Only use double-quotes.
+c <- regts(c(600, NA, 600), start = '2015Q2')
+                                    ^~~~~~~~
+tests/testthat/islm/test_set_fix_1.R:12:38: style: [quotes_linter] Only use double-quotes.
+y <- regts(c(990, NA, 1010), start = '2015Q2')
+                                     ^~~~~~~~
+tests/testthat/islm/test_set_fix_2.R:6:25: style: [quotes_linter] Only use double-quotes.
+i <- regts(200, start = '2015Q2')
+                        ^~~~~~~~
+tests/testthat/islm/test_set_fix_2.R:7:38: style: [quotes_linter] Only use double-quotes.
+c <- regts(c(990, NA, 1010), start = '2015Q2')
+                                     ^~~~~~~~
+tests/testthat/islm/test_set_fix_2.R:23:28: style: [quotes_linter] Only use double-quotes.
+  md <- regts(200, start = '2015Q2')
+                           ^~~~~~~~
+tests/testthat/islm/test_set_fix_2.R:24:40: style: [quotes_linter] Only use double-quotes.
+  t <- regts(c(990, NA, 1010), start = '2015Q2')
+                                       ^~~~~~~~
+tests/testthat/islm/test_set_fix_2.R:36:3: style: [indentation_linter] Indentation should be 2 spaces but is 3 spaces.
+   mdl$write_mdl("temp.ismdl")
+  ^
+tests/testthat/islm/test_set_fix_2.R:41:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/islm/test_set_fix_values.R:10:25: style: [quotes_linter] Only use double-quotes.
+i <- regts(200, start = '2015Q2')
+                        ^~~~~~~~
+tests/testthat/islm/test_set_fix_values.R:11:37: style: [quotes_linter] Only use double-quotes.
+c <- regts(c(600, NA, 600), start = '2015Q2')
+                                    ^~~~~~~~
+tests/testthat/islm/test_set_fix_values.R:12:33: style: [quotes_linter] Only use double-quotes.
+t <- regts(c(190, 195), start = '2015Q3')
+                                ^~~~~~~~
+tests/testthat/islm/test_set_fix_values.R:18:9: style: [commas_linter] Remove spaces before a comma.
+new_fix[ , "c" ] <- 620
+        ^
+tests/testthat/islm/test_set_fix_values.R:18:9: style: [spaces_inside_linter] Do not place spaces after square brackets.
+new_fix[ , "c" ] <- 620
+        ^
+tests/testthat/islm/test_set_fix_values.R:18:15: style: [spaces_inside_linter] Do not place spaces before square brackets.
+new_fix[ , "c" ] <- 620
+              ^
+tests/testthat/islm/test_set_fix_values.R:36:22: style: [indentation_linter] Hanging indent should be 15 spaces but is 22 spaces.
+                      "data period \\(2015Q1/2016Q3\\)\\.")
+               ~~~~~~^
+tests/testthat/islm/test_set_fix_values.R:40:55: style: [commas_linter] Remove spaces before a comma.
+  expect_equal(mdl2$get_fix(), new_fix["2015Q1/2015Q4" , c("c", "i")])
+                                                      ^
+tests/testthat/islm/test_set_values.R:10:43: style: [commas_linter] Remove spaces before a comma.
+test_that("set_values works correctly (1)" , {
+                                          ^
+tests/testthat/islm/test_set_values.R:18:12: style: [commas_linter] Remove spaces before a comma.
+  expected[ , "c" ] <- 600
+           ^
+tests/testthat/islm/test_set_values.R:18:12: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  expected[ , "c" ] <- 600
+           ^
+tests/testthat/islm/test_set_values.R:18:18: style: [spaces_inside_linter] Do not place spaces before square brackets.
+  expected[ , "c" ] <- 600
+                 ^
+tests/testthat/islm/test_set_values.R:33:27: style: [commas_linter] Remove spaces before a comma.
+  expected["2016q1/2016q3" , "c" ] <- 600
+                          ^
+tests/testthat/islm/test_set_values.R:33:33: style: [spaces_inside_linter] Do not place spaces before square brackets.
+  expected["2016q1/2016q3" , "c" ] <- 600
+                                ^
+tests/testthat/islm/test_solve_options.R:14:22: style: [indentation_linter] Hanging indent should be 21 spaces but is 22 spaces.
+                      file = "expected_output/default_solve_opts.rds")
+                     ^
+tests/testthat/islm/test_user_data.R:52:17: style: [indentation_linter] Hanging indent should be 15 spaces but is 17 spaces.
+                 "Argument 'user_data' must be a named list")
+               ~^
+tests/testthat/laxo/test_fit.R:80:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/laxo/test_param.R:24:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 107 characters.
+               "Value for parameter omega has an incorrect length. Required length: 180. Actual length: 1")
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~
+tests/testthat/laxo/test_param.R:29:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 104 characters.
+               "Value for parameter wg10 has an incorrect length. Required length: 4. Actual length: 3")
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~
+tests/testthat/laxo/test_param.R:33:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 107 characters.
+               "Value for parameter omega has an incorrect length. Required length: 180. Actual length: 1")
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~
+tests/testthat/misc/old_rds_files/make_rds_capitals.R:8:6: style: [assignment_linter] Use one of <-, <<- for assignment, not =.
+data = mdl$get_data()
+     ^
+tests/testthat/misc/old_rds_files/make_rds_mrf_example1.R:8:6: style: [assignment_linter] Use one of <-, <<- for assignment, not =.
+data = mdl$get_data()
+     ^
+tests/testthat/misc/test_capitals.R:16:18: style: [commas_linter] Remove spaces before a comma.
+test_that("solve" , {
+                 ^
+tests/testthat/misc/test_capitals.R:53:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/misc/test_complex1.R:21:35: style: [infix_spaces_linter] Put spaces around all infix operators.
+parse_options <- list(include_dirs= include_dirs)
+                                  ^
+tests/testthat/misc/test_complex1.R:35:22: style: [indentation_linter] Hanging indent should be 23 spaces but is 22 spaces.
+                      parse_options = parse_options)
+                     ^~
+tests/testthat/misc/test_complex1.R:87:1: style: [whitespace_linter] Use spaces to indent, not tabs.
+       update = update_expected)
+^~
+tests/testthat/misc/test_complex1.R:87:7: style: [indentation_linter] Hanging indent should be 21 spaces but is 7 spaces.
+       update = update_expected)
+      ^~~~~~~~~~~~~~~
+tests/testthat/misc/test_complex1.R:117:51: style: [indentation_linter] Hanging indent should be 56 spaces but is 51 spaces.
+                                                   gep_dep_file = TRUE)),
+                                                  ^~~~~~
+tests/testthat/misc/test_complex2.R:26:23: style: [indentation_linter] Hanging indent should be 40 spaces but is 23 spaces.
+                       conversion_options = list(substitute = TRUE)))
+                      ^~~~~~~~~~~~~~~~~~
+tests/testthat/misc/test_complex2.R:58:1: style: [whitespace_linter] Use spaces to indent, not tabs.
+        update = update)
+^~
+tests/testthat/misc/test_complex2.R:58:8: style: [indentation_linter] Hanging indent should be 21 spaces but is 8 spaces.
+        update = update)
+       ^~~~~~~~~~~~~~
+tests/testthat/misc/test_complex3.R:26:23: style: [indentation_linter] Hanging indent should be 40 spaces but is 23 spaces.
+                       conversion_options = list(substitute = TRUE)))
+                      ^~~~~~~~~~~~~~~~~~
+tests/testthat/misc/test_complex3.R:54:1: style: [whitespace_linter] Use spaces to indent, not tabs.
+        update = update)
+^~
+tests/testthat/misc/test_complex3.R:54:8: style: [indentation_linter] Hanging indent should be 21 spaces but is 8 spaces.
+        update = update)
+       ^~~~~~~~~~~~~~
+tests/testthat/misc/test_complex3.R:66:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/misc/test_conditional1.R:13:34: style: [commas_linter] Remove spaces before a comma.
+flags_1 <- c("no_flag", "no_flag" , "one"    , "one"     , "two"    , "two" ,
+                                 ^
+tests/testthat/misc/test_conditional1.R:13:42: style: [commas_linter] Remove spaces before a comma.
+flags_1 <- c("no_flag", "no_flag" , "one"    , "one"     , "two"    , "two" ,
+                                         ^~~~
+tests/testthat/misc/test_conditional1.R:13:53: style: [commas_linter] Remove spaces before a comma.
+flags_1 <- c("no_flag", "no_flag" , "one"    , "one"     , "two"    , "two" ,
+                                                    ^~~~~
+tests/testthat/misc/test_conditional1.R:13:65: style: [commas_linter] Remove spaces before a comma.
+flags_1 <- c("no_flag", "no_flag" , "one"    , "one"     , "two"    , "two" ,
+                                                                ^~~~
+tests/testthat/misc/test_conditional1.R:13:76: style: [commas_linter] Remove spaces before a comma.
+flags_1 <- c("no_flag", "no_flag" , "one"    , "one"     , "two"    , "two" ,
+                                                                           ^
+tests/testthat/misc/test_conditional1.R:16:12: style: [indentation_linter] Hanging indent should be 13 spaces but is 12 spaces.
+            "times_100")
+           ^~
+tests/testthat/misc/test_fmds.R:2:1: warning: [object_usage_linter] Could not find exported symbols for package "isismdl" in libraries '/home/rnh/R/x86_64-pc-linux-gnu-library/4.3', '/opt/R/4.3.2/lib/R/library' (there is no package called ‘isismdl’). This may lead to false positives.
+library(isismdl)
+^~~~~~~~~~~~~~~~
+tests/testthat/misc/test_fmds.R:153:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 117 characters.
+  }, "Use only numerical or NA values in the initial_guess column.\nOffending values at rows: 1, 2, 3", fixed = TRUE)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
+tests/testthat/misc/test_fmds.R:304:18: style: [commas_linter] Remove spaces before a comma.
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+                 ^
+tests/testthat/misc/test_fmds.R:304:27: style: [commas_linter] Remove spaces before a comma.
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+                          ^
+tests/testthat/misc/test_fmds.R:304:48: style: [commas_linter] Remove spaces before a comma.
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+                                               ^
+tests/testthat/misc/test_fmds.R:304:66: style: [commas_linter] Remove spaces before a comma.
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+                                                                 ^
+tests/testthat/misc/test_fmds.R:304:83: style: [commas_linter] Remove spaces before a comma.
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+                                                                                  ^
+tests/testthat/misc/test_fmds.R:305:11: style: [commas_linter] Remove spaces before a comma.
+    "2020"        , "A"    , "obs"              , "y"             , 0.1
+          ^~~~~~~~
+tests/testthat/misc/test_fmds.R:305:24: style: [commas_linter] Remove spaces before a comma.
+    "2020"        , "A"    , "obs"              , "y"             , 0.1
+                       ^~~~
+tests/testthat/misc/test_fmds.R:305:35: style: [commas_linter] Remove spaces before a comma.
+    "2020"        , "A"    , "obs"              , "y"             , 0.1
+                                  ^~~~~~~~~~~~~~
+tests/testthat/misc/test_fmds.R:305:54: style: [commas_linter] Remove spaces before a comma.
+    "2020"        , "A"    , "obs"              , "y"             , 0.1
+                                                     ^~~~~~~~~~~~~
+tests/testthat/misc/test_fmds.R:333:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 156 characters.
+    "Some solve variables are not NA. Non-NA values for the following variables and periods:\n  solve_variable solve_period\n1             y1         2011",
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/testthat/misc/test_fmds.R:356:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 187 characters.
+    "Some solve variables are not NA. Non-NA values for the following variables and periods:\n  solve_variable solve_period\n1             y1         2011\n2             y2         2012",
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/testthat/misc/test_fmds.R:402:18: style: [commas_linter] Remove spaces before a comma.
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+                 ^
+tests/testthat/misc/test_fmds.R:402:27: style: [commas_linter] Remove spaces before a comma.
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+                          ^
+tests/testthat/misc/test_fmds.R:402:48: style: [commas_linter] Remove spaces before a comma.
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+                                               ^
+tests/testthat/misc/test_fmds.R:402:66: style: [commas_linter] Remove spaces before a comma.
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+                                                                 ^
+tests/testthat/misc/test_fmds.R:402:83: style: [commas_linter] Remove spaces before a comma.
+    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
+                                                                                  ^
+tests/testthat/misc/test_fmds.R:403:11: style: [commas_linter] Remove spaces before a comma.
+    "2020"        , "A"    , "obs"              , "y"             , 0.1
+          ^~~~~~~~
+tests/testthat/misc/test_fmds.R:403:24: style: [commas_linter] Remove spaces before a comma.
+    "2020"        , "A"    , "obs"              , "y"             , 0.1
+                       ^~~~
+tests/testthat/misc/test_fmds.R:403:35: style: [commas_linter] Remove spaces before a comma.
+    "2020"        , "A"    , "obs"              , "y"             , 0.1
+                                  ^~~~~~~~~~~~~~
+tests/testthat/misc/test_fmds.R:403:54: style: [commas_linter] Remove spaces before a comma.
+    "2020"        , "A"    , "obs"              , "y"             , 0.1
+                                                     ^~~~~~~~~~~~~
+tests/testthat/misc/test_fmds.R:431:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 122 characters.
+    "One or more solve periods in solve_df are outside the specified period range (2011/2012). Offending periods:\n 2013",
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+tests/testthat/misc/test_fmds.R:452:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 157 characters.
+    "Some observed variables are NA. NA values for the following variables and periods:\n  observed_variable solve_period\n1              obs3         2011",
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/testthat/misc/test_fmds.R:474:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/misc/test_fmds.R:475:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/misc/test_missing_exo_lag1.R:25:2: style: [indentation_linter] Hanging indent should be 27 spaces but is 2 spaces.
+  expect_warning(mdl2$solve(),
+ ^~~~~~~~~~~~~~~~~~~~~~~~~~
+tests/testthat/misc/test_missing_exo_lag1.R:35:3: style: [indentation_linter] Hanging indent should be 27 spaces but is 3 spaces.
+   expect_warning(mdl2$solve(options = list(erropt = "cont")), NA))
+  ^~~~~~~~~~~~~~~~~~~~~~~~~
+tests/testthat/misc/test_missing_exo_lag1.R:37:3: style: [indentation_linter] Indentation should be 2 spaces but is 3 spaces.
+   expect_known_output(cat(paste(report, collapse = "\n")),
+  ^
+tests/testthat/misc/test_missing_exo_lag1.R:40:3: style: [indentation_linter] Indentation should be 2 spaces but is 3 spaces.
+   y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
+  ^
+tests/testthat/misc/test_missing_exo_lag1.R:40:62: style: [commas_linter] Remove spaces before a comma.
+   y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
+                                                             ^
+tests/testthat/misc/test_missing_exo_lag1.R:40:62: style: [spaces_inside_linter] Do not place spaces after square brackets.
+   y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
+                                                             ^
+tests/testthat/misc/test_missing_exo_lag1.R:40:64: style: [commas_linter] Put a space after a comma.
+   y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
+                                                               ^
+tests/testthat/misc/test_missing_exo_lag1.R:47:4: style: [indentation_linter] Hanging indent should be 27 spaces but is 4 spaces.
+    expect_warning(mdl2$solve(options = list(erropt = "silent")), NA))
+   ^~~~~~~~~~~~~~~~~~~~~~~~
+tests/testthat/misc/test_missing_exo_lag1.R:52:61: style: [commas_linter] Remove spaces before a comma.
+  y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
+                                                            ^
+tests/testthat/misc/test_missing_exo_lag1.R:52:61: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
+                                                            ^
+tests/testthat/misc/test_missing_exo_lag1.R:52:63: style: [commas_linter] Put a space after a comma.
+  y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
+                                                              ^
+tests/testthat/misc/test_missing_exo_lag1.R:59:61: style: [commas_linter] Remove spaces before a comma.
+  y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
+                                                            ^
+tests/testthat/misc/test_missing_exo_lag1.R:59:61: style: [spaces_inside_linter] Do not place spaces after square brackets.
+  y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
+                                                            ^
+tests/testthat/misc/test_missing_exo_lag1.R:59:63: style: [commas_linter] Put a space after a comma.
+  y3_result <- mdl2$get_data(names = "y3", period = period)[ ,1]
+                                                              ^
+tests/testthat/misc/test_recursive_inactive.R:20:24: style: [indentation_linter] Hanging indent should be 25 spaces but is 24 spaces.
+                        period = period, names = names)
+                       ^~
+tests/testthat/misc/test_recursive_inactive.R:35:27: style: [indentation_linter] Hanging indent should be 31 spaces but is 27 spaces.
+                           period = period, names = names)
+                          ^~~~~
+tests/testthat/misc/test_recursive_lead.R:19:14: style: [indentation_linter] Hanging indent should be 16 spaces but is 14 spaces.
+              "Convergence for consistent expectations after   2 rounds")
+             ^~~
+tests/testthat/misc/test_recursive.R:21:24: style: [indentation_linter] Hanging indent should be 25 spaces but is 24 spaces.
+                        period = period, names = names)
+                       ^~
+tests/testthat/misc/test_run_eqn_1.R:11:19: style: [indentation_linter] Hanging indent should be 18 spaces but is 19 spaces.
+                   names = c("x1", "y1"))
+                  ^
+tests/testthat/misc/test_run_eqn_1.R:47:18: style: [indentation_linter] Hanging indent should be 19 spaces but is 18 spaces.
+                  data = init_data)
+                 ^~
+tests/testthat/misc/test_run_eqn_1.R:51:14: style: [indentation_linter] Hanging indent should be 15 spaces but is 14 spaces.
+              forwards = FALSE)
+             ^~
+tests/testthat/misc/test_run_eqn_1.R:67:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/misc/test_run_eqn_1.R:68:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/misc/test_run_eqn_1.R:69:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/misc/test_run_eqn_by_period.R:72:4: style: [indentation_linter] Hanging indent should be 15 spaces but is 4 spaces.
+    mdl1$run_eqn(names = c("x2", "x0", "x1"),
+   ^~~~~~~~~~~~
+tests/testthat/misc/test_run_eqn_by_period.R:73:15: style: [indentation_linter] Hanging indent should be 17 spaces but is 15 spaces.
+               by_period = TRUE, forwards = FALSE),
+              ^~~
+tests/testthat/misc/test_run_eqn_by_period.R:74:4: style: [indentation_linter] Hanging indent should be 15 spaces but is 4 spaces.
+    "\"x1\" is not an active equation.", fixed = TRUE)
+   ^~~~~~~~~~~~
+tests/testthat/misc/test_run_eqn_by_period.R:95:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/misc/test_run_eqn_by_period.R:96:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/tools/expect_known_output_multi.R:28:5: warning: [object_usage_linter] no visible global function definition for 'expect_true'
+    expect_true(TRUE)
+    ^~~~~~~~~~~
+tests/testthat/tools/expect_known_output_multi.R:34:5: warning: [object_usage_linter] no visible global function definition for 'fail'
+    fail("Output does not match any existing expected output files.")
+    ^~~~
+tests/testthat/tools/expect_known_output_multi.R:39:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 105 characters.
+  nums <- as.integer(regmatches(expected_files, regexpr("\\d+(?=\\.txt$)", expected_files, perl = TRUE)))
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~
+tests/testthat/tools/expect_known_output_multi.R:46:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 106 characters.
+    warning(sprintf("No expected output files found. Created initial expected output file: %s", new_file))
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+tests/testthat/tools/expect_known_output_multi.R:49:5: warning: [object_usage_linter] no visible global function definition for 'fail'
+    fail(sprintf(
+    ^~~~
+tests/testthat/tools/expect_known_output_multi.R:50:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 104 characters.
+      "Output does not match any existing expected output files.\nNew expected output file created: %s",
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~
+tests/testthat/tools/read_mrf.R:9:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/tools/read_mrf.R:10:1: style: [trailing_blank_lines_linter] Remove trailing blank lines.
+
+^
+tests/testthat/unit_tests/test-fill_missing_range_bounds.R:13:101: style: [line_length_linter] Lines should not be more than 100 characters. This line is 101 characters.
+  expect_equal(isismdl:::fill_missing_range_bounds(p_no_start, base_p), as.period_range("2010/2014"))
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+vignettes/isismdl.Rmd:131:15: style: [quotes_linter] Only use double-quotes.
+cat(readLines('islm.mdl'), sep = '\n')
+              ^~~~~~~~~~
+vignettes/isismdl.Rmd:131:34: style: [quotes_linter] Only use double-quotes.
+cat(readLines('islm.mdl'), sep = '\n')
+                                 ^~~~
+vignettes/isismdl.Rmd:168:15: style: [quotes_linter] Only use double-quotes.
+cat(readLines('islm.mrf'), sep = '\n')
+              ^~~~~~~~~~
+vignettes/isismdl.Rmd:168:34: style: [quotes_linter] Only use double-quotes.
+cat(readLines('islm.mrf'), sep = '\n')
+                                 ^~~~
+vignettes/isismdl.Rmd:722:1: style: [indentation_linter] Indentation should be 0 spaces but is 1 spaces.
+ # give all variables starting with m (ms and md) the value 200 for all periods:
+^
+vignettes/isismdl.Rmd:739:35: style: [brace_linter] Opening curly braces should never go on their own line and should always be followed by a new line.
+mdl$change_data(fun = function(x) {x * 1.1}, names = "g", period = "2020Q1/2020Q2")
+                                  ^
