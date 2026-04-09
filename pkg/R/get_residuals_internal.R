@@ -1,4 +1,4 @@
-#' Function to calculate residuals for a model's endogenous variables
+#' Function to calculate residuals for the equations of the model.
 #'
 #' This function calculates the difference between the values of endogenous
 #' variables in the model data and the values calculated from the model
@@ -18,7 +18,7 @@
 get_residual_internal <- function(mdl, names, period, tol, fun) {
 
   if (is.null(names)) {
-    names <- mdl$get_endo_names()
+    names <- mdl$get_endo_names(status = "active")
   }
   lhs_data <- mdl$get_data(names = names, period = period)
   mdl_temp <- mdl$copy()

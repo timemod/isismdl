@@ -974,8 +974,9 @@ NULL
 #' For rhs and lhs values that are NA, the residual is also NA. These rows are
 #' reported via console messages and are excluded from the returned data frame.
 #'
-#' The residuals for *inactive* equations are always zero.  The same applies to
-#' equations that are *fixed* (see method \code{\link{set_fix}}).
+#' The residuals of equations that are *fixed* (see method \code{\link{set_fix}})
+#' are always zero. The same applies to *inactive* equations.
+#'
 #'
 #' @section Usage:
 #' \preformatted{
@@ -989,9 +990,9 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{names}}{A character vector with variable names for which the
-#' residuals should be calculated. If omitted, residuals are calculated for all
-#' active endogenous variables.}
+#' \item{\code{names}}{A character vector with the names of endogenous variables
+#' for which the residuals should be calculated. If omitted, residuals are
+#' calculated for all active endogenous variables.}
 #' \item{\code{period}}{A \code{\link[regts]{period_range}} object or an
 #' object coercible to a `period_range`. Specifies the periods for which
 #' residuals are calculated. If omitted, the model period is used.}
@@ -1004,10 +1005,12 @@ NULL
 #' of magnitude larger than 1, using \code{regts::cvgdif} is recommended.}
 #' }
 #'
-#' @section Value
+#' @section Value:
 #'
 #' A long-format data frame with columns `"name"`, `"period"`,
-#' `"residuals"`, `"value_lhs"` and `"value_rhs"`.
+#' `"residuals"`, `"value_lhs"` and `"value_rhs"`. If the model has labels,
+#' the result has an additional column `"label"` after the `"name"` column.
+#'
 #'
 #' @seealso \code{\link{solve}}
 #'
