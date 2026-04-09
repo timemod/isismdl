@@ -2,16 +2,20 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{get_residuals}
 \alias{get_residuals}
-\title{\code{\link{IsisMdl}} method: Calculates residuals for a model's endogenous variables.}
-\value{
-A data frame in long format containing the calculated residuals.
-}
+\title{\code{\link{IsisMdl}} method: Calculates residuals for the model's equations.}
 \description{
-This method of R6 class \code{\link{IsisMdl}} calculates residuals by
-performing a residual check (run \code{\link{solve}} with \code{mode = "reschk"}).
-It compares the values of the endogenous variables in the model data with the
-values computed by the solver and returns a long-format
-data frame of the differences.
+This method of R6 class \code{\link{IsisMdl}} calculates the residuals of the
+equations. The residual is the difference between the left hand side (lhs)
+and right hand side (rhs) of the equation. For each equation the rhs value
+is computed from the values of the original model data (i.e. the values of
+the model data before this method is called).  The residuals are returned
+as a long-format data frame. This method does \strong{not} modify the model data.
+
+For rhs and lhs values that are NA, the residual is also NA. These rows are
+reported via console messages and are excluded from the returned data frame.
+
+The residuals for \emph{inactive} equations are always zero.  The same applies to
+equations that are \emph{fixed} (see method \code{\link{set_fix}}).
 }
 \section{Usage}{
 
@@ -28,48 +32,36 @@ mdl$get_residuals(period = mdl$get_period(), tol,
 
 
 \describe{
+\item{\code{names}}{A character vector with variable names for which the
+residuals should be calculated. If omitted, residuals are calculated for all
+active endogenous variables.}
 \item{\code{period}}{A \code{\link[regts]{period_range}} object or an
 object coercible to a \code{period_range}. Specifies the periods for which
 residuals are calculated. If omitted, the model period is used.}
-\item{\code{tol}}{The tolerance for filtering residuals. Only differences
+\item{\code{tol}}{The tolerance for filtering residuals. Only residuals
 with an absolute value greater than or equal to \code{tol} (or \code{NA}
 values) are returned. If omitted, a default of \code{1e-2} is used.}
-\item{\code{fun}}{A function used to calculate the difference between the
-original data and the calculated results. Defaults to subtraction:
+\item{\code{fun}}{A function used to calculate the difference between
+the lhs and rhs. Defaults to subtraction:
 \code{x1 - x2}. When working with values many orders
 of magnitude larger than 1, using \code{regts::cvgdif} is recommended.}
 }
 }
 
-\section{Details}{
-
-
-The method works by:
-\enumerate{
-\item Copying the model and solving it in \code{reschk} mode for the
-specified period.
-\item Identifying rows where the calculation resulted in \code{NA} and
-reporting them.
-\item Calculating the difference (\code{dif}) between the original model data
-and the "reschk" results.
-\item Filtering the results based on the \code{tol} parameter.
-\item Returning a long-format data frame with columns: \code{name},
-\code{period}, \code{dif}, \code{value_derived} (original), and
-\code{value_reschk} (calculated).
-}
-}
-
 \examples{
-\dontrun{
 mdl <- islm_mdl(period = "2017Q1/2018Q4")
 
-# Get residuals with default tolerance (1e-2)
-res <- mdl$get_residuals()
+# Set a value to induce a residual
+mdl$set_values(1000, names = "y", period = "2017Q2")
 
-# Get residuals with custom tolerance and a specific function (e.g., from regts)
-res <- mdl$get_residuals(tol = 0.1, fun = regts::cvgdif)
-}
+# Get residuals with default tolerance (1e-2)
+res <- mdl$get_residuals(period = "2017Q2")
+print(res)
+
+# Get residuals for a specific variable with custom tolerance
+res_y <- mdl$get_residuals(names = "y", period = "2017Q2", tol = 0.1)
+print(res_y)
 }
 \seealso{
-\code{\link{solve}} and \code{\link{fill_mdl_data_solve}}.
+\code{\link{solve}}
 }
