@@ -1,4 +1,5 @@
 library(utils)
+library(isismdl)
 
 capture.output(islm_model <- islm_mdl("2015Q2/2016Q3"))
 islm_model$write_mdl("islm_model.ismdl")

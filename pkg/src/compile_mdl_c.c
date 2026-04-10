@@ -6,7 +6,7 @@
 extern void F77_NAME(mcisis)(int *modelnmlen, const char *modelnm,
                              int *mifnmlen, const char *mifnm,
                              int *ppfnmlen, const char *ppfnm,
-                             int *idofbrd, int *igenfbo, int *ifbomif,
+                             int *idofbrd, int *igenfbo, 
                              int *iprifb, int *iprisjc, int *mrfopt,
                              int *fbcopt, int *mcstat);
 
@@ -21,11 +21,10 @@ SEXP compile_mdl_c(SEXP filename, SEXP mifname, SEXP ppfname,
     int ppfnmlen = strlen(ppfnm);
 
     /* initialise options */
-    int idofbrd, igenfbo, ifbomif, iprifbi, iprisjc, mrfopt[2], fbcopt[2];
+    int idofbrd, igenfbo, iprifbi, iprisjc, mrfopt[2], fbcopt[2];
 
     idofbrd = 1;
     igenfbo = 1;
-    ifbomif = 0;
     iprifbi = 0;
     iprisjc = 0;
     fbcopt[0] = 0;
@@ -37,9 +36,8 @@ SEXP compile_mdl_c(SEXP filename, SEXP mifname, SEXP ppfname,
 
     int mcstat;
     F77_CALL(mcisis)(&modelnmlen, modelnm, &mifnmlen, mifnm, 
-		     &ppfnmlen, ppfnm, 
-		     &idofbrd, &igenfbo, &ifbomif,
-                     &iprifbi, &iprisjc, mrfopt, fbcopt, &mcstat);
+		     &ppfnmlen, ppfnm, &idofbrd, &igenfbo, 
+         &iprifbi, &iprisjc, mrfopt, fbcopt, &mcstat);
 
     if (mcstat != 0) {
         char *format;

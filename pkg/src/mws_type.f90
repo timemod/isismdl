@@ -232,6 +232,23 @@ module mws_type
             value = mws%mdl_data(ivar, itime + mws%mdl%mxlag)
         end subroutine get_var_value
 
+        subroutine get_ca_value(mws, ca_index, itime, value, error)
+            type(modelworkspace), intent(in) :: mws
+            integer, intent(in) :: ca_index, itime
+            real(kind = MWS_RKIND), intent(out) :: value
+            logical, intent(out) :: error
+
+            error = .false.
+            if (.not. period_ok(mws, itime)) then
+                error = .true.
+                value = NA
+                return
+            endif
+
+            value = mws%constant_adjustments(ca_index, itime + mws%mdl%mxlag)
+        end subroutine get_ca_value
+
+
         subroutine set_var_value(mws, ivar, itime, value, error)
             type(modelworkspace), intent(inout) :: mws
             integer, intent(in) :: ivar, itime

@@ -14,6 +14,10 @@ subroutine mdgfbo(mdl, errflg)
     !           > 0: some error has occurred
     !
 
+
+    ! Initialize fbomem. fbomem will be computed in gen_fb_order.
+    mdl%fbomem = 0
+
     !
     ! generate dependency structure
     !
