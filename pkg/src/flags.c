@@ -1,5 +1,5 @@
 /*
- * Code for managing the model compiler flags for the model preprocessor 
+ * Code for managing the model compiler flags for the model preprocessor
  */
 
 #include <ctype.h>
@@ -28,9 +28,9 @@ static unsigned char hash(const char *s) {
 
 static struct nlist *lookup(const char *s)  {
 
-    /* look for s in hashtab. The function returns a pointer to the 
+    /* look for s in hashtab. The function returns a pointer to the
      * element containing string s */
-    
+
     struct nlist *np;
     for (np = hashtab[hash(s)]; np != NULL; np = np->next) {
         if (strcmp(s, np->flag) == 0) {
@@ -45,21 +45,23 @@ int add_flag(const char *flag) {
     /* adds a flag to the hash table. Returns 0 on succes, and
      * 1 if there is not enough memory to add the flag to the table */
 
-    struct nlist *np;
-    unsigned int hashval;
+  struct nlist *np;
+  unsigned int hashval;
+  if ((np = lookup(flag)) == NULL) {
+    np = (struct nlist *) malloc(sizeof(struct nlist));
+    if (np == NULL) return 1;
 
-    if ((np = lookup(flag)) == NULL) { /* flag not yet present */
-        np = (struct nlist *) malloc(sizeof(struct nlist));
-        if (np == NULL) {
-            return 1;  /* not enough memory */
-        }
-        np->flag = flag;
-        hashval = hash(flag);
-        np->next = hashtab[hashval];
-        hashtab[hashval] = np;
+    np->flag = strdup(flag);    /* COPY the string, don't store raw pointer */
+    if (np->flag == NULL) {
+      free(np);
+      return 1;
     }
 
-    return 0;
+    hashval = hash(flag);
+    np->next = hashtab[hashval];
+    hashtab[hashval] = np;
+  }
+  return 0;
 }
 
 int flag_present(const char *flag) {
@@ -70,22 +72,20 @@ int flag_present(const char *flag) {
 }
 
 void clear_flags(void) {
-     
-    /* Remove all flags */
-
-    unsigned int hashval;
-    struct nlist *head;
-    struct nlist *to_free;
-
-    for (hashval =  0; hashval < HASHSIZE; hashval++) {
-       head = hashtab[hashval];
-       if (head != NULL) {
-           while (head != NULL) {
-               to_free = head;
-               head = head->next;
-               free(to_free);
-           }
-           hashtab[hashval] = NULL;
-       }
+  unsigned int hashval;
+  struct nlist *head;
+  struct nlist *to_free;
+  for (hashval = 0; hashval < HASHSIZE; hashval++) {
+    head = hashtab[hashval];
+    if (head != NULL) {
+      while (head != NULL) {
+        to_free = head;
+        head = head->next;
+        free((void *)to_free->flag);
+        to_free->flag = NULL;
+        free(to_free);
+      }
+      hashtab[hashval] = NULL;
     }
+  }
 }

@@ -221,7 +221,6 @@ IsisMdl <- R6Class("IsisMdl",
       if (!has_free_mws) gc(verbose = FALSE)
 
       if (!silent) {
-        cat("Reading mif file ...\n")
         if (reorder_names) {
           cat(paste0(
             "\nModel names will be reordered because the IsisMdl ",
@@ -1012,6 +1011,7 @@ IsisMdl <- R6Class("IsisMdl",
     },
     write_mdl = function(file) {
       saveRDS(self$serialize(), file)
+      message("IsisMdl object written to file '", file, "'")
       return(invisible(self))
     },
     serialize = function() {

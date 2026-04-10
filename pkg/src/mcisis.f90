@@ -1,6 +1,6 @@
 subroutine mcisis(modelnaml,modelnams, &
 &                 mifnaml, mifnams, ppfnaml, ppfnams, &
-&                 idofbrd, igenfbo, ifbomif, iprifbi, iprisjc, &
+&                 idofbrd, igenfbo, iprifbi, iprisjc, &
 &                 mrfopt, fbcopt, mcstat)
 use mcvars
 use mccedp
@@ -35,9 +35,6 @@ end interface
 !         In    igenfbo     Integer     1 for generate feedback ordering
 !                                       0 to NOT generate fb ordering
 
-!         In    ifbomif     Integer     1  for write feedback ordering on mif
-!                                       0 to  NOT write feedback ordering on mif
-
 !         In    iprifbi     Integer     0 to print in crossreference info
 !                                             on how each fb var was chosen
 !                                       1 to not print this info
@@ -56,8 +53,8 @@ end interface
 !                                         1 model file does not exist
 !                                         2 error in model compilation
 !                                         3 other errors
-!                                         (model ordering, writing mif
-!                                          or mrf)
+!                                           (model ordering, writing mif
+!                                            or mrf)
 !                                         4 not enough memory to compile
 !                                           the model
 
@@ -68,17 +65,17 @@ end interface
 !     different error handling
 !     different intermediate code and output files
 
-integer, intent(out) ::  mcstat
+integer, intent(out) :: mcstat
 integer, intent(in) ::  modelnaml, modelnams(*)
 integer, intent(in) ::  mifnaml, mifnams(*)
 integer, intent(in) ::  ppfnaml, ppfnams(*)
-integer, intent(in) ::  idofbrd, igenfbo, ifbomif, iprifbi, iprisjc
+integer, intent(in) ::  idofbrd, igenfbo, iprifbi, iprisjc
 integer, intent(in) ::  mrfopt(*), fbcopt(*)
 
 
 logical ::  dofbrd, genfbo, fbomif, prifbi, prisjc
 
-!     for copy of fbcopt
+! for copy of fbcopt
 
 integer ::  fbcpar(2)
 
@@ -93,18 +90,13 @@ integer ::  fbcpar(2)
 !   maxnfb = maximum no of feedback variables in ordering
 
 
-!     Dynamic arrays for Pass 2 of model compiler
+! name of model file with path
+character(len = MAXFLEN + 1) pathnm, ppfname
 
-logical ::  davail
-external davail
+integer :: ios
+integer :: ier, errpar, mcrcod, orderr
 
-!     name of model file with path
-character*(MAXFLEN + 1) pathnm, ppfname
-
-integer ::   ios
-integer ::   ier,errpar,mcrcod,orderr
-
-integer ::  istrict
+integer :: istrict
 
 !*IF TIMER
 !     for time measurements
@@ -118,7 +110,6 @@ integer ::  fbor_err
 ! convert integers (passed from C) to logicals
 dofbrd = idofbrd > 0
 genfbo = igenfbo > 0
-fbomif = ifbomif > 0
 prifbi = iprifbi > 0
 prisjc = iprisjc > 0
 
@@ -129,7 +120,6 @@ filerr = 0
 filios = 0
 mcrcod = 0
 ier    = 0
-mc_alloc_stat = 0
 
 call mcimsg(1, 0)
 
@@ -180,7 +170,7 @@ if(ios.ne.0) goto 980
 open(ufnunt,form='UNFORMATTED',status='scratch',iostat=ios)
 if(ios.ne.0) goto 980
 
-!     initialise variables for name administration
+! initialise variables for name administration
 mdl%ivlast = 0
 mdl%iplast = 0
 mdl%ielast = 0
@@ -195,40 +185,33 @@ mdl%nuf = 0
 mdl%nulf = 0
 mdl%ufblen = 0
 mdl%eqblen = 0
-mdl%fboflg = 0
 mdl%fbomem = 0
 
 if (genfbo) then
-    if (fbomif) then
-        mdl%fboflg = 1
-    else
-        mdl%fboflg = 2
-    endif
+    mdl%fboflg = 2
+else 
+    mdl%fboflg = 0
 endif
 
 !*IF TIMER
 !      call xtime(told)
 !*ENDIF
 
-
 ! call the xpc model compiler
 
-istrict = 1
+call mcimsg(3, 0)
 
+istrict = 1
 mcstat = mcip(trim(pathnm) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR,  &
               istrict)
 
-call mcimsg(3, 0)
 
 !*IF TIMER
 !      call xtime(tnew)
 !      call mctimer('Model compilation             ', told, tnew)
 !*ENDIF
+
 if (mcstat /= 0) goto 2000
-if (mdl_alloc_stat > 0 .or. mc_alloc_stat > 0) then
-    mcstat = 4
-    goto 2000
-endif
 
 mdl%neq = nre
 
@@ -250,7 +233,6 @@ call mcimsg(8, int(mdl%neq, ISIS_IKIND))
 
 if (mdl%neq .le. 0) goto 850
 
-call mcimsg(4, 0)
 
 ! set unused bytes in string memory to zero
 call mcszer(mdl%enames, mdl%ielast, size(mdl%enames))
@@ -263,8 +245,11 @@ if (mdl%nulf > 0) call mcszer(mdl%ulfnames, mdl%iulflast, size(mdl%ulfnames))
 !      call xtime(told)
 !*ENDIF
 
+
 !     analyse dependency structure and write dependencies to scratch
 !     file depunt
+
+call mcimsg(4, 0)
 
 call mc_analyse_model(ier)
 
@@ -330,8 +315,6 @@ if (genfbo .and. mdl%nfb > 1 .and. fbor_err /= 0) then
     call mcimsg(15,0)
 endif
 
-call mcimsg(5, 0)
-
 call datim(mdl%time, 1)
 call datim(mdl%date, 2)
 
@@ -357,7 +340,7 @@ if (ier .ne. 0 ) then
     goto 976
 endif
 
-!     write cross-reference file
+! write cross-reference file
 call mcimsg(6, 0)
 
 
@@ -365,7 +348,7 @@ call mcimsg(6, 0)
 !      turn print feedback chain on
 !      set max print length to   something reasonable
 
-if( mdl%fbomem .gt. 0 ) then
+if (mdl%fbomem .gt. 0) then
     fbcpar(1) = fbcopt(1)
     fbcpar(2) = fbcopt(2)
 else
@@ -373,14 +356,15 @@ else
     fbcpar(2) = 0
 endif
 
-!     release memory not needed for writing the cross reference
+! release memory not needed for writing the cross reference
 
 deallocate(mdl%indexe, mdl%coef)
-!     if fbcpar(1) .eq. 0, the cross reference does not need full information
-!     on feedback ordering.
-!     for very large models and a long cross reference there may not
-!     be enough memory..
-!     if there is a feedback ordering remember only the pointers (length)
+
+! if fbcpar(1) .eq. 0, the cross reference does not need full information
+! on feedback ordering.
+! for very large models and a long cross reference there may not
+! be enough memory..
+! if there is a feedback ordering remember only the pointers (length)
 if (mdl%fboflg > 0 .and. fbcpar(1) .eq. 0 ) then
     if (allocated(mdl%fbordr)) deallocate(mdl%fbordr)
 endif
@@ -404,21 +388,21 @@ endif
 call mcimsg(7, 0)
 
 
-!     FINISHED
+! FINISHED
 goto 2000
 
 850 continue
-!     no equations
+! no equations
 mcrcod = 1
 goto 999
 
 975 continue
-!     error in ordering model
+! error in ordering model
 mcrcod = 101
 goto 999
 
 976 continue
-!     errors in mcwmif
+! errors in mcwmif
 call mcxerr
 mcrcod = 3
 goto 999
@@ -428,12 +412,12 @@ filerr = 2
 filios = ios
 goto 999
 
-!     FALL THROUGH
+! FALL THROUGH
 
 999 continue
-if( filerr .ne. 0 ) then
+if (filerr .ne. 0) then
    call mcferr
-elseif( mcrcod .gt. 100 ) then
+elseif (mcrcod .gt. 100) then
    call mcoerr(orderr)
 else
    call mcgerr(mcrcod)
@@ -741,17 +725,11 @@ select case (msgnum)
 case (1)
     str = 'Isis Model Compiler 3.00'
 
-case (2) 
-    str = 'Scanning model ...'
-
 case (3) 
     str = 'Compiling model ...'
 
 case (4)
     str = 'Ordering equations ...'
-
-case(5)
-    str = 'Writing MIF file ...'
 
 case (6)
     str = 'Writing cross-reference file ...'
@@ -817,14 +795,15 @@ subroutine mcszer(names, lastp, kmax)
 
     ! set unused bytes to 0 in names
 
-    integer(kind = MC_IKIND) :: names(*), lastp, kmax
+    integer(kind = MC_IKIND), intent(inout) :: names(*)
+    integer(kind = MC_IKIND), intent(in) :: lastp, kmax
 
-    integer ::  end
+    integer :: end
 
     ! last used byte
     end = lastp / 64
 
-    call byszer(names, end+1, kmax*MCNYI4 - (end+1) + 1)
+    call byszer(names, end + 1, kmax * MCNYI4 - (end + 1) + 1)
 
     return
 end subroutine mcszer
@@ -954,7 +933,7 @@ subroutine mc_alloc(eqCount, varCount, parCount, coefCount, &
 &       parCount, coefCount, funCount, ulFunCount, &
 &       eqCharCount, varCharCount, parCharCount, funCharCount, &
 &       ulFunCharCount, caCount, leadVarCount
-   integer(kind = MC_IKIND), intent(out) :: stat
+   integer, intent(out) :: stat
 
 #ifdef DEBUG_COMPILER
          print *
@@ -977,17 +956,9 @@ subroutine mc_alloc(eqCount, varCount, parCount, coefCount, &
    call allocate_model(mdl, eqCount, varCount, parCount, &
 &                      coefCount, funCount, ulFunCount, &
 &                      eqCharCount, varCharCount, parCharCount, &
-&                      funCharCount, ulFunCharCount, caCount, leadVarCount)
-   stat = mdl_alloc_stat
-   if (mdl_alloc_stat ==  0) then
-       allocate(vtype((varCount - 1) / MCNYI4 + 1), stat = mc_alloc_stat)
-       if (mc_alloc_stat == 0) then
-           allocate(maxlag(varCount), stat = mc_alloc_stat)
-       endif
-       if (mc_alloc_stat == 0) then
-           allocate(mxlead(varCount), stat = mc_alloc_stat)
-       endif
-   endif
+&                      funCharCount, ulFunCharCount, caCount, leadVarCount, stat)
+
+   if (stat == 0) call allocate_mcvars(varCount, stat = stat)
 
 end subroutine mc_alloc
 
@@ -1086,8 +1057,7 @@ subroutine add_ulfuncname(k, nmlen, name)
    !
 
 #ifdef DEBUG_COMPILER
-   print *,'add_ulfunname: k, argCount, nmlen', k, argCount, &
-                 nmlen, name(1)
+   print *,'add_ulfunname: k, nmlen, name(1)', k, nmlen, name(1)
 #endif
 
    i = add_name(name, nmlen, k, mdl%ulfnames, mdl%iulfnames, &

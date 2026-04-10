@@ -49,8 +49,8 @@ subroutine gen_fb_order(fbotp, mdl, ier)
 !                                                dense
 !                                             3  not enough memory
 
-integer ::  stat, equ
-integer ::  i,j,k,vn,fbp,jb,je, idum
+    integer ::  stat, equ
+    integer ::  i,j,k,vn,fbp,jb,je, idum
     integer(kind = MC_IKIND), dimension(:), allocatable :: work
 
     mdl%fbomem = 0

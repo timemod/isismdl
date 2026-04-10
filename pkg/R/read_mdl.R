@@ -21,6 +21,9 @@
 #' @seealso \code{\link{write_mdl}}
 #' @export
 read_mdl <- function(file, silent = FALSE) {
+  if (!silent) {
+    cat("Reading IsisMdl from file '", file, "' ...\n", sep = "")
+  }
   serialized_mdl <- readRDS(file)
   return(IsisMdl$new(serialized_mdl, silent = silent))
 }

@@ -24,6 +24,7 @@ mdl$order(orfnam = 'aap.orf', silent = FALSE)
 
 mdl$write_mdl("islm_basis.ismdl")
 
-x <- read_mdl("islm_basis.ismdl", silent = TRUE)
+x <- read_mdl("islm_basis.ismdl", silent = FALSE)
 
-print(mdl$get_data(period = "2015"))
+cat("\ncopying model\n")
+y <- x$copy()
