@@ -246,8 +246,8 @@ if (mdl%nulf > 0) call mcszer(mdl%ulfnames, mdl%iulflast, size(mdl%ulfnames))
 !*ENDIF
 
 
-!     analyse dependency structure and write dependencies to scratch
-!     file depunt
+! analyse dependency structure and write dependencies to scratch
+! file depunt
 
 call mcimsg(4, 0)
 

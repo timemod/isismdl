@@ -186,6 +186,7 @@ contains
         if (alloc_stat == 0) allocate(deact_list(nrms), stat = alloc_stat)
         if (alloc_stat == 0) allocate(fix_list(nrms), stat = alloc_stat)
         if (alloc_stat /= 0) then
+            call clear_fit_work
             error = 1
             call fitot11
             return
@@ -196,10 +197,11 @@ contains
         call mknumu_tot(mws, numu_tot, numr_tot, nu_max, deact_list, ndeact, &
                         fix_list, nfix, jf, jl, do_fix)
         call fitonu_tot(numu_tot, nu_max, deact_list, ndeact, fix_list, nfix)
-        deallocate(deact_list, stat = alloc_stat)
-        deallocate(fix_list, stat = alloc_stat)
+        deallocate(deact_list)
+        deallocate(fix_list)
 
         if (nu_max == 0) then
+           call clear_fit_work
            error = 2
            call fitot3(3)
            return
@@ -209,6 +211,7 @@ contains
         if (alloc_stat == 0) allocate(numr(nu_max), stat = alloc_stat)
         if (alloc_stat == 0 .and. do_fix) allocate(numu_fixed(nu_max), stat = alloc_stat)
         if (alloc_stat /= 0) then
+            call clear_fit_work
             error = 1
             call fitot11
             return
@@ -221,6 +224,7 @@ contains
             ! is updated in subroutine mknumu_t called by subroutine wfinit.
             allocate(numu_fixed_prev(nu_max), stat = alloc_stat)
             if (alloc_stat /= 0) then
+                call clear_fit_work
                 error = 1
                 call fitot11
                return
@@ -234,15 +238,16 @@ contains
         endif
 
         ! numr_tot is not needed any more 
-        deallocate(numr_tot, stat = alloc_stat)
+        deallocate(numr_tot)
 
         if (.not. do_fix) then
             ! in this case, numu_tot is also not needed any more 
-            deallocate(numu_tot, stat = alloc_stat)
+            deallocate(numu_tot)
         else if (nrms > nu_max) then
             ! decrease the size of numu_tot
             allocate(temp(nu_max), stat = alloc_stat)
             if (alloc_stat /= 0) then
+                call clear_fit_work
                 error = 1
                 call fitot11
                 return
@@ -254,6 +259,7 @@ contains
        ! allocate work arrays for the fit
        call allocate_fit_work(alloc_stat)
        if (alloc_stat /= 0) then
+           call clear_fit_work
            error = 1
            call fitot11
        endif
@@ -261,30 +267,29 @@ contains
 
     subroutine clear_fit_work
 
-        integer :: stat
+        if (allocated(numu))             deallocate(numu)
+        if (allocated(numr))             deallocate(numr)
+        if (allocated(numw))             deallocate(numw)
+        if (allocated(numu_tot))         deallocate(numu_tot)
+        if (allocated(numu_fixed))       deallocate(numu_fixed)
+        if (allocated(numu_fixed_prev))  deallocate(numu_fixed_prev)
+        if (allocated(w))                deallocate(w)
+        if (allocated(delw))             deallocate(delw)
+        if (allocated(dddelw))           deallocate(dddelw)
+        if (allocated(b))                deallocate(b)
+        if (allocated(du0))              deallocate(du0)
+        if (allocated(djtau))            deallocate(djtau)
+        if (allocated(delu))             deallocate(delu)
+        if (allocated(resold))           deallocate(resold)
+        if (allocated(zsav))             deallocate(zsav)
+        if (allocated(work_fit))         deallocate(work_fit)
+        if (allocated(u_scale))          deallocate(u_scale)
+        if (allocated(w_scale))          deallocate(w_scale)
+        if (allocated(dj))               deallocate(dj)
+        if (allocated(dj_rownorm))       deallocate(dj_rownorm)
+        if (allocated(dj_colnorm))       deallocate(dj_colnorm)
+        if (allocated(fit_jac))          deallocate(fit_jac)
 
-        deallocate(numu, stat = stat)
-        deallocate(numr, stat = stat)
-        deallocate(numw, stat = stat)
-        deallocate(numu_tot, stat = stat)
-        deallocate(numu_fixed, stat = stat)
-        deallocate(numu_fixed_prev, stat = stat)
-        deallocate(w, stat = stat)
-        deallocate(delw, stat = stat)
-        deallocate(dddelw, stat = stat)
-        deallocate(b, stat = stat)
-        deallocate(du0, stat = stat)
-        deallocate(djtau, stat = stat)
-        deallocate(delu, stat = stat)
-        deallocate(resold, stat = stat)
-        deallocate(zsav, stat = stat)
-        deallocate(work_fit, stat = stat)
-        deallocate(u_scale, stat = stat)
-        deallocate(w_scale, stat = stat)
-        deallocate(dj, stat = stat)
-        deallocate(dj_rownorm, stat = stat)
-        deallocate(dj_colnorm, stat = stat)
-        deallocate(fit_jac, stat = stat)
         nu = 0
         nw = 0
         nu_max = 0
