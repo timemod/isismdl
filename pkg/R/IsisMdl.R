@@ -1011,6 +1011,7 @@ IsisMdl <- R6Class("IsisMdl",
     },
     write_mdl = function(file) {
       saveRDS(self$serialize(), file)
+      message("IsisMdl object written to file '", file, "'")
       return(invisible(self))
     },
     serialize = function() {

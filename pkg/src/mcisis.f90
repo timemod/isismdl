@@ -1,6 +1,6 @@
 subroutine mcisis(modelnaml,modelnams, &
 &                 mifnaml, mifnams, ppfnaml, ppfnams, &
-&                 idofbrd, igenfbo, ifbomif, iprifbi, iprisjc, &
+&                 idofbrd, igenfbo, iprifbi, iprisjc, &
 &                 mrfopt, fbcopt, mcstat)
 use mcvars
 use mccedp
@@ -34,9 +34,6 @@ end interface
 
 !         In    igenfbo     Integer     1 for generate feedback ordering
 !                                       0 to NOT generate fb ordering
-
-!         In    ifbomif     Integer     1  for write feedback ordering on mif
-!                                       0 to  NOT write feedback ordering on mif
 
 !         In    iprifbi     Integer     0 to print in crossreference info
 !                                             on how each fb var was chosen
@@ -72,7 +69,7 @@ integer, intent(out) :: mcstat
 integer, intent(in) ::  modelnaml, modelnams(*)
 integer, intent(in) ::  mifnaml, mifnams(*)
 integer, intent(in) ::  ppfnaml, ppfnams(*)
-integer, intent(in) ::  idofbrd, igenfbo, ifbomif, iprifbi, iprisjc
+integer, intent(in) ::  idofbrd, igenfbo, iprifbi, iprisjc
 integer, intent(in) ::  mrfopt(*), fbcopt(*)
 
 
@@ -113,7 +110,6 @@ integer ::  fbor_err
 ! convert integers (passed from C) to logicals
 dofbrd = idofbrd > 0
 genfbo = igenfbo > 0
-fbomif = ifbomif > 0
 prifbi = iprifbi > 0
 prisjc = iprisjc > 0
 
@@ -174,7 +170,7 @@ if(ios.ne.0) goto 980
 open(ufnunt,form='UNFORMATTED',status='scratch',iostat=ios)
 if(ios.ne.0) goto 980
 
-!     initialise variables for name administration
+! initialise variables for name administration
 mdl%ivlast = 0
 mdl%iplast = 0
 mdl%ielast = 0
@@ -189,21 +185,17 @@ mdl%nuf = 0
 mdl%nulf = 0
 mdl%ufblen = 0
 mdl%eqblen = 0
-mdl%fboflg = 0
 mdl%fbomem = 0
 
 if (genfbo) then
-    if (fbomif) then
-        mdl%fboflg = 1
-    else
-        mdl%fboflg = 2
-    endif
+    mdl%fboflg = 2
+else 
+    mdl%fboflg = 0
 endif
 
 !*IF TIMER
 !      call xtime(told)
 !*ENDIF
-
 
 ! call the xpc model compiler
 
