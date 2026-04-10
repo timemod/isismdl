@@ -323,8 +323,6 @@ if (genfbo .and. mdl%nfb > 1 .and. fbor_err /= 0) then
     call mcimsg(15,0)
 endif
 
-call mcimsg(5, 0)
-
 call datim(mdl%time, 1)
 call datim(mdl%date, 2)
 
@@ -740,9 +738,6 @@ case (3)
 
 case (4)
     str = 'Ordering equations ...'
-
-case(5)
-    str = 'Writing MIF file ...'
 
 case (6)
     str = 'Writing cross-reference file ...'

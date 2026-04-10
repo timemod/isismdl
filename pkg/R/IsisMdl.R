@@ -221,7 +221,6 @@ IsisMdl <- R6Class("IsisMdl",
       if (!has_free_mws) gc(verbose = FALSE)
 
       if (!silent) {
-        cat("Reading mif file ...\n")
         if (reorder_names) {
           cat(paste0(
             "\nModel names will be reordered because the IsisMdl ",
