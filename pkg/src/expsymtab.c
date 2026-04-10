@@ -139,7 +139,7 @@ static int addVarParName(Symbol *sp) {
 }
 
 /* export symbol table.
- * Returns 0 on success, and 1 if out-of-memory */
+ * Returns 0 on success, and > 0 if out-of-memory */
 int  export_symtab() {
 
     /*  count size of arrays */
