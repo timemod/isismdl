@@ -32,6 +32,7 @@
 /* return codes of mcexec: */
 #define FILE_ERROR    1
 #define SYNTAX_ERROR  2
+#define OUT_OF_MEMORY 4
 
 /*
  * global variables
@@ -107,6 +108,7 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
 
     clock_t tb = clock(), te;
     double  cpusecs;
+
 
     options = *options_in;
 
@@ -263,9 +265,14 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
         fclose(fdep);
     }
 
+    int retcod;
+    retcod = 0;
+
     if (options.McIsisMdl) {
         /* export the symbol table to the fortran subroutines */
-        export_symtab();
+        int error;
+        error = export_symtab();
+        if (error != 0) retcod = OUT_OF_MEMORY;
     } else {
          if( options.Makezrf) {
             /*
@@ -288,7 +295,7 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
     }
     
     reset();
-    return 0;
+    return retcod;
     }
     
 char *mkfname( char *fname, char *path, char *base, char *ext) {

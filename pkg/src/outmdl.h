@@ -14,4 +14,4 @@ void out_dmdl(FILE *fp, int subst);    /* Dynare */
  */
 void out_ipcode(Symbol *sp); /* generate ip-code */
 void free_polish(void);  /* free memory used to generate ip-code */
-void export_symtab (void); /* export symbol table to arrays in rf7-code */
+int export_symtab (void); /* export symbol table to arrays in rf7-code */

@@ -41,10 +41,6 @@ module model_type
          real(kind = MC_RKIND), dimension(:), allocatable :: coef
     end type model
 
-    ! if mdl_alloc_stat > 0, then there was not enough memory to
-    ! allocate all model variables
-    integer, save :: mdl_alloc_stat
-
     integer, parameter, private :: ACTIVATE = 1
     integer, parameter, private :: DEACTIVATE = 2
 
@@ -55,7 +51,7 @@ contains
     subroutine allocate_model(mdl, eqCount, varCount, parCount, &
 &       coefCount, funCount, ulFunCount, eqCharCount, &
 &       varCharCount, parCharCount, funCharCount, ulFunCharCount, &
-&       caCount, leadVarCount)
+&       caCount, leadVarCount, stat)
 
        type(model), intent(inout) :: mdl
        integer(kind = MC_IKIND), intent(in) :: eqCount, varCount, &
@@ -63,9 +59,10 @@ contains
        integer(kind = MC_IKIND), intent(in) ::  eqCharCount, &
 &               varCharCount, parCharCount, funCharCount, &
 &               ulFunCharCount, caCount, leadVarCount
+       integer, intent(out) :: stat
 
        integer(kind = MC_IKIND) ::  kmaxe, kmaxv, kmaxp, kmaxf, kmaxulf
-       integer :: stat
+
        call deallocate_model(mdl)
 
        allocate(mdl%ienames(eqCount), stat = stat)
@@ -90,9 +87,7 @@ contains
        if (stat == 0) allocate(mdl%ica(caCount), stat = stat)
        if (stat == 0) allocate(mdl%aci(varCount), stat = stat)
 
-       mdl_alloc_stat = stat
-
-       if (mdl_alloc_stat > 0) return
+       if (stat > 0) return
 
        kmaxp  =  (parCharCount - 1)   / MCNYI4 + 1
        kmaxe  =  (eqCharCount  - 1)   / MCNYI4 + 1
@@ -103,63 +98,61 @@ contains
        if (stat == 0) allocate(mdl%vnames(kmaxv), stat = stat)
        if (stat == 0) allocate(mdl%pnames(kmaxp), stat = stat)
        if (stat == 0) allocate(mdl%fnames(kmaxf), stat = stat)
-       mdl_alloc_stat = stat
-       if (mdl_alloc_stat > 0) return
+       if (stat > 0) return
 
        if (leadVarCount > 0) then
-           allocate(mdl%iendex(leadVarCount), stat = mdl_alloc_stat)
-           if (mdl_alloc_stat > 0) return
+           allocate(mdl%iendex(leadVarCount), stat = stat)
+           if (stat > 0) return
        endif
 
        if (ulFunCount > 0) then
            kmaxulf = (ulFunCharCount - 1) / MCNYI4 + 1
            allocate(mdl%iulfnames(ulFunCount), stat = stat)
-           if (stat == 0) allocate(mdl%ulfnames(kmaxulf), stat= stat)
-           mdl_alloc_stat = stat
+           if (stat == 0) allocate(mdl%ulfnames(kmaxulf), stat = stat)
        endif
-
 
     end subroutine allocate_model
 
     subroutine deallocate_model(mdl)
         type(model), intent(inout) :: mdl
+
         integer :: stat
 
-        if (allocated(mdl%enames))    deallocate(mdl%enames,    stat = stat)
-        if (allocated(mdl%vnames))    deallocate(mdl%vnames,    stat = stat)
-        if (allocated(mdl%pnames))    deallocate(mdl%pnames,    stat = stat)
-        if (allocated(mdl%fnames))    deallocate(mdl%fnames,    stat = stat)
-        if (allocated(mdl%ulfnames))  deallocate(mdl%ulfnames,  stat = stat)
-        if (allocated(mdl%ienames))   deallocate(mdl%ienames,   stat = stat)
-        if (allocated(mdl%ivnames))   deallocate(mdl%ivnames,   stat = stat)
-        if (allocated(mdl%ipnames))   deallocate(mdl%ipnames,   stat = stat)
-        if (allocated(mdl%ifnames))   deallocate(mdl%ifnames,   stat = stat)
-        if (allocated(mdl%iulfnames)) deallocate(mdl%iulfnames, stat = stat)
-        if (allocated(mdl%indexe))    deallocate(mdl%indexe,    stat = stat)
-        if (allocated(mdl%indexv))    deallocate(mdl%indexv,    stat = stat)
-        if (allocated(mdl%indexp))    deallocate(mdl%indexp,    stat = stat)
-        if (allocated(mdl%lhsnum))    deallocate(mdl%lhsnum,    stat = stat)
-        if (allocated(mdl%eqnum))     deallocate(mdl%eqnum,     stat = stat)
-        if (allocated(mdl%narguf))    deallocate(mdl%narguf,    stat = stat)
-        if (allocated(mdl%nvalp))     deallocate(mdl%nvalp,     stat = stat)
-        if (allocated(mdl%cfptr))     deallocate(mdl%cfptr,     stat = stat)
-        if (allocated(mdl%etype))     deallocate(mdl%etype,     stat = stat)
-        if (allocated(mdl%numfb))     deallocate(mdl%numfb,     stat = stat)
-        if (allocated(mdl%fbtype))    deallocate(mdl%fbtype,    stat = stat)
-        if (allocated(mdl%iendex))    deallocate(mdl%iendex,    stat = stat)
-        if (allocated(mdl%ica))       deallocate(mdl%ica,       stat = stat)
-        if (allocated(mdl%aci))       deallocate(mdl%aci,       stat = stat)
-        if (allocated(mdl%ibx1))      deallocate(mdl%ibx1,      stat = stat)
-        if (allocated(mdl%ibx2))      deallocate(mdl%ibx2,      stat = stat)
-        if (allocated(mdl%order))     deallocate(mdl%order,     stat = stat)
-        if (allocated(mdl%order_inv)) deallocate(mdl%order_inv, stat = stat)
-        if (allocated(mdl%fboptr))    deallocate(mdl%fboptr,    stat = stat)
-        if (allocated(mdl%fbordr))    deallocate(mdl%fbordr,    stat = stat)
-        if (allocated(mdl%nrecp))     deallocate(mdl%nrecp,     stat = stat)
-        if (allocated(mdl%nrecuf))    deallocate(mdl%nrecuf,    stat = stat)
-        if (allocated(mdl%equat))     deallocate(mdl%equat,     stat = stat)
-        if (allocated(mdl%lik))       deallocate(mdl%lik,       stat = stat)
-        if (allocated(mdl%coef))      deallocate(mdl%coef,      stat = stat)
+        deallocate(mdl%enames, stat = stat)
+        deallocate(mdl%vnames, stat = stat)
+        deallocate(mdl%pnames, stat = stat)
+        deallocate(mdl%fnames, stat = stat)
+        deallocate(mdl%ulfnames,stat = stat)
+        deallocate(mdl%ienames, stat = stat)
+        deallocate(mdl%ivnames, stat = stat)
+        deallocate(mdl%ipnames, stat = stat)
+        deallocate(mdl%ifnames, stat = stat)
+        deallocate(mdl%iulfnames, stat = stat)
+        deallocate(mdl%indexe, stat = stat)
+        deallocate(mdl%indexv, stat = stat)
+        deallocate(mdl%indexp, stat = stat)
+        deallocate(mdl%lhsnum, stat = stat)
+        deallocate(mdl%eqnum, stat = stat)
+        deallocate(mdl%narguf, stat = stat)
+        deallocate(mdl%nvalp, stat = stat)
+        deallocate(mdl%cfptr, stat = stat)
+        deallocate(mdl%etype, stat = stat)
+        deallocate(mdl%numfb, stat = stat)
+        deallocate(mdl%fbtype, stat = stat)
+        deallocate(mdl%iendex, stat = stat)
+        deallocate(mdl%ica, stat = stat)
+        deallocate(mdl%aci, stat = stat)
+        deallocate(mdl%ibx1, stat = stat)
+        deallocate(mdl%ibx2, stat = stat)
+        deallocate(mdl%order, stat = stat)
+        deallocate(mdl%order_inv, stat = stat)
+        deallocate(mdl%fboptr, stat = stat)
+        deallocate(mdl%fbordr, stat = stat)
+        deallocate(mdl%nrecp, stat = stat)
+        deallocate(mdl%nrecuf, stat = stat)
+        deallocate(mdl%equat, stat = stat)
+        deallocate(mdl%lik, stat = stat)
+        deallocate(mdl%coef, stat = stat)
 
     end subroutine deallocate_model
 
@@ -181,7 +174,7 @@ contains
          end do
          return
     end function has_endo_lead
-
+    
     ! This subroutine is used to extract the name of model
     ! variable i. The name is put as a byte string in nam,
     ! and nlen is set to its length. If a name does not
@@ -268,8 +261,8 @@ contains
 
     ! This subroutine is used to extract the name of model
     ! parameter i. The name is put as a byte string in nam,
-
-    logical function is_frml(mdl, iv)
+   
+    logical function is_frml(mdl, iv) 
         ! returns true if variable iv is a frml equation
         type(model), intent(in) :: mdl
         integer, intent(in) :: iv
@@ -286,7 +279,7 @@ contains
 
 
         eqtyp = bysget(mdl%etype, eqnum)
-        ! eqtyp is lowercase for active eqaution and uppercase for an
+        ! eqtyp is lowercase for active eqaution and uppercase for an 
         ! inactive equaiton
         is_active = eqtyp <= 96
     end function is_active
@@ -320,34 +313,34 @@ contains
         eqtyp  = bysget(mdl%etype, eqnum)
         lhsvar = mdl%lhsnum(eqnum)
 
-        ! eqtyp is lowercase for active eqaution and uppercase for an
+        ! eqtyp is lowercase for active eqaution and uppercase for an 
         ! inactive equaiton
         if (action == ACTIVATE) then
             call bysset(mdl%etype, eqnum, eqtyp - 32)
-        else
+        else 
             call bysset(mdl%etype, eqnum, eqtyp + 32)
         endif
         mdl%lik(lhsvar) = action == ACTIVATE
 
         !
-        ! now update mdl%iendex and mdl%ica: lhsvar should be replaced by -lhsvar if
+        ! now update mdl%iendex and mdl%ica: lhsvar should be replaced by -lhsvar if 
         ! the variable is deactivated, and +lhsvar if the equation is activated
         !
         if (action == ACTIVATE) then
             lhsvar_signed = lhsvar
-        else
+        else 
             lhsvar_signed = -lhsvar
         endif
-
+        
         if (mdl%ibx2(lhsvar + 1) > mdl%ibx2(lhsvar)) then
             ! The variable has leads: look up index in iendex (to make exogenous)
             ! Note that we use -lhsvar_signed: we use the sign of the variable
-            ! before activation / deactivation
+            ! before activation / deactivation 
             jen = idxlzuk(mdl%iendex, mdl%nendex, -lhsvar_signed)
             if (jen == 0) then
                 call rexit("Internal error in activate_deactivate_eq: iendex array error")
             endif
-        else
+        else 
             jen = 0
         endif
         if (jen > 0) mdl%iendex(jen) = lhsvar_signed
@@ -369,13 +362,13 @@ contains
 
        ! equations
        call hsortmvn(mdl%indexe, mdl%neq, mdl%ienames, mdl%enames)
-
+    
        ! variables
        call hsortmvn(mdl%indexv, mdl%nrv, mdl%ivnames, mdl%vnames)
-
+    
        ! parameters
        call hsortmvn(mdl%indexp, mdl%nrp, mdl%ipnames, mdl%pnames)
-
+    
     end subroutine sort_names
 
     subroutine set_order_inv(mdl)
@@ -393,11 +386,11 @@ contains
 
 
     ! check if active equations are in solve order
-    subroutine check_active_equations(mdl)
+    subroutine check_active_equations(mdl) 
        type(model), intent(in) :: mdl
 
        integer :: ieq
-
+      
        do ieq = 1, mdl%neq
            if (mdl%order_inv(ieq) == 0) then
                if (is_active(mdl, ieq)) then

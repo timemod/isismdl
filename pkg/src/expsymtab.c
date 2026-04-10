@@ -138,9 +138,11 @@ static int addVarParName(Symbol *sp) {
     return NXTSYM;
 }
 
-void export_symtab() {
+/* export symbol table.
+ * Returns 0 on success, and 1 if out-of-memory */
+int  export_symtab() {
 
-/*  count size of arrays */
+    /*  count size of arrays */
     varCount = 0;
     varCharCount = 0;
     eqCount = 0;
@@ -168,4 +170,6 @@ void export_symtab() {
         sym_walk(Eqntp, addEquationName, NULL );
         sym_walk(Stp, addVarParName, NULL );
     }
+
+    return error;
 }

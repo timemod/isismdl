@@ -56,8 +56,8 @@ end interface
 !                                         1 model file does not exist
 !                                         2 error in model compilation
 !                                         3 other errors
-!                                         (model ordering, writing mif
-!                                          or mrf)
+!                                           (model ordering, writing mif
+!                                            or mrf)
 !                                         4 not enough memory to compile
 !                                           the model
 
@@ -68,7 +68,7 @@ end interface
 !     different error handling
 !     different intermediate code and output files
 
-integer, intent(out) ::  mcstat
+integer, intent(out) :: mcstat
 integer, intent(in) ::  modelnaml, modelnams(*)
 integer, intent(in) ::  mifnaml, mifnams(*)
 integer, intent(in) ::  ppfnaml, ppfnams(*)
@@ -78,7 +78,7 @@ integer, intent(in) ::  mrfopt(*), fbcopt(*)
 
 logical ::  dofbrd, genfbo, fbomif, prifbi, prisjc
 
-!     for copy of fbcopt
+! for copy of fbcopt
 
 integer ::  fbcpar(2)
 
@@ -93,18 +93,13 @@ integer ::  fbcpar(2)
 !   maxnfb = maximum no of feedback variables in ordering
 
 
-!     Dynamic arrays for Pass 2 of model compiler
+! name of model file with path
+character(len = MAXFLEN + 1) pathnm, ppfname
 
-logical ::  davail
-external davail
+integer :: ios
+integer :: ier, errpar, mcrcod, orderr
 
-!     name of model file with path
-character*(MAXFLEN + 1) pathnm, ppfname
-
-integer ::   ios
-integer ::   ier,errpar,mcrcod,orderr
-
-integer ::  istrict
+integer :: istrict
 
 !*IF TIMER
 !     for time measurements
@@ -129,8 +124,6 @@ filerr = 0
 filios = 0
 mcrcod = 0
 ier    = 0
-mc_alloc_stat = 0
-mdl_alloc_stat = 0
 
 call mcimsg(1, 0)
 
@@ -214,22 +207,19 @@ endif
 
 ! call the xpc model compiler
 
-istrict = 1
+call mcimsg(3, 0)
 
+istrict = 1
 mcstat = mcip(trim(pathnm) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR,  &
               istrict)
 
-call mcimsg(3, 0)
 
 !*IF TIMER
 !      call xtime(tnew)
 !      call mctimer('Model compilation             ', told, tnew)
 !*ENDIF
+
 if (mcstat /= 0) goto 2000
-if (mdl_alloc_stat > 0 .or. mc_alloc_stat > 0) then
-    mcstat = 4
-    goto 2000
-endif
 
 mdl%neq = nre
 
@@ -251,7 +241,6 @@ call mcimsg(8, int(mdl%neq, ISIS_IKIND))
 
 if (mdl%neq .le. 0) goto 850
 
-call mcimsg(4, 0)
 
 ! set unused bytes in string memory to zero
 call mcszer(mdl%enames, mdl%ielast, size(mdl%enames))
@@ -264,8 +253,11 @@ if (mdl%nulf > 0) call mcszer(mdl%ulfnames, mdl%iulflast, size(mdl%ulfnames))
 !      call xtime(told)
 !*ENDIF
 
+
 !     analyse dependency structure and write dependencies to scratch
 !     file depunt
+
+call mcimsg(4, 0)
 
 call mc_analyse_model(ier)
 
@@ -358,7 +350,7 @@ if (ier .ne. 0 ) then
     goto 976
 endif
 
-!     write cross-reference file
+! write cross-reference file
 call mcimsg(6, 0)
 
 
@@ -374,14 +366,15 @@ else
     fbcpar(2) = 0
 endif
 
-!     release memory not needed for writing the cross reference
+! release memory not needed for writing the cross reference
 
 deallocate(mdl%indexe, mdl%coef)
-!     if fbcpar(1) .eq. 0, the cross reference does not need full information
-!     on feedback ordering.
-!     for very large models and a long cross reference there may not
-!     be enough memory..
-!     if there is a feedback ordering remember only the pointers (length)
+
+! if fbcpar(1) .eq. 0, the cross reference does not need full information
+! on feedback ordering.
+! for very large models and a long cross reference there may not
+! be enough memory..
+! if there is a feedback ordering remember only the pointers (length)
 if (mdl%fboflg > 0 .and. fbcpar(1) .eq. 0 ) then
     if (allocated(mdl%fbordr)) deallocate(mdl%fbordr)
 endif
@@ -405,21 +398,21 @@ endif
 call mcimsg(7, 0)
 
 
-!     FINISHED
+! FINISHED
 goto 2000
 
 850 continue
-!     no equations
+! no equations
 mcrcod = 1
 goto 999
 
 975 continue
-!     error in ordering model
+! error in ordering model
 mcrcod = 101
 goto 999
 
 976 continue
-!     errors in mcwmif
+! errors in mcwmif
 call mcxerr
 mcrcod = 3
 goto 999
@@ -429,12 +422,12 @@ filerr = 2
 filios = ios
 goto 999
 
-!     FALL THROUGH
+! FALL THROUGH
 
 999 continue
-if( filerr .ne. 0 ) then
+if (filerr .ne. 0) then
    call mcferr
-elseif( mcrcod .gt. 100 ) then
+elseif (mcrcod .gt. 100) then
    call mcoerr(orderr)
 else
    call mcgerr(mcrcod)
@@ -448,7 +441,6 @@ close(polunt,iostat=ios)
 close(ufnunt,iostat=ios)
 
 call deallocate_model(mdl)
-mdl_alloc_stat = 0
 call clear_edep
 call clear_mcvars
 return
@@ -743,9 +735,6 @@ select case (msgnum)
 case (1)
     str = 'Isis Model Compiler 3.00'
 
-case (2) 
-    str = 'Scanning model ...'
-
 case (3) 
     str = 'Compiling model ...'
 
@@ -957,7 +946,7 @@ subroutine mc_alloc(eqCount, varCount, parCount, coefCount, &
 &       parCount, coefCount, funCount, ulFunCount, &
 &       eqCharCount, varCharCount, parCharCount, funCharCount, &
 &       ulFunCharCount, caCount, leadVarCount
-   integer(kind = MC_IKIND), intent(out) :: stat
+   integer, intent(out) :: stat
 
 #ifdef DEBUG_COMPILER
          print *
@@ -980,17 +969,9 @@ subroutine mc_alloc(eqCount, varCount, parCount, coefCount, &
    call allocate_model(mdl, eqCount, varCount, parCount, &
 &                      coefCount, funCount, ulFunCount, &
 &                      eqCharCount, varCharCount, parCharCount, &
-&                      funCharCount, ulFunCharCount, caCount, leadVarCount)
-   stat = mdl_alloc_stat
-   if (mdl_alloc_stat ==  0) then
-       allocate(vtype((varCount - 1) / MCNYI4 + 1), stat = mc_alloc_stat)
-       if (mc_alloc_stat == 0) then
-           allocate(maxlag(varCount), stat = mc_alloc_stat)
-       endif
-       if (mc_alloc_stat == 0) then
-           allocate(mxlead(varCount), stat = mc_alloc_stat)
-       endif
-   endif
+&                      funCharCount, ulFunCharCount, caCount, leadVarCount, stat)
+
+   if (stat == 0) call allocate_mcvars(varCount, stat = stat)
 
 end subroutine mc_alloc
 
