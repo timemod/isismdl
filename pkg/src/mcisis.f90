@@ -819,14 +819,15 @@ subroutine mcszer(names, lastp, kmax)
 
     ! set unused bytes to 0 in names
 
-    integer(kind = MC_IKIND) :: names(*), lastp, kmax
+    integer(kind = MC_IKIND), intent(inout) :: names(*)
+    integer(kind = MC_IKIND), intent(in) :: lastp, kmax
 
-    integer ::  end
+    integer :: end
 
     ! last used byte
     end = lastp / 64
 
-    call byszer(names, end+1, kmax*MCNYI4 - (end+1) + 1)
+    call byszer(names, end + 1, kmax * MCNYI4 - (end + 1) + 1)
 
     return
 end subroutine mcszer
