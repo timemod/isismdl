@@ -1,7 +1,7 @@
 module mdl_name_utils
 use model_params
 use mdl_nlen
-private :: putnam, mcswap, heapifymvn
+private :: putnam, mcswap, heapifymvn, mvncmp, mcncmp
 
 contains
 
@@ -333,19 +333,22 @@ subroutine hsortmvn(ivar, nvar, nameptrs, names)
      implicit none
      integer(kind = MC_IKIND), intent(inout) :: ivar(*)
      integer(kind = MC_IKIND), intent(in) :: l, r, nameptrs(*), names(*)
+
      integer(kind = MC_IKIND) :: p, c
 
      p = l
-     c = 2*p
+     c = 2 * p
      do while (c <= r)
-        if (c < r .and. mvncmp(ivar(c+1), ivar(c), nameptrs, names) .eq. 1) then
-            c = c + 1
+        if (c < r) then
+           if (mvncmp(ivar(c + 1), ivar(c), nameptrs, names) .eq. 1) then
+               c = c + 1
+           endif
         endif
         if (mvncmp(ivar(p), ivar(c), nameptrs, names) .eq. -1)  then
             call mcswap(ivar, c, p)
         endif
         p = c
-        c = 2*p
+        c = 2 * p
      end do
      return
  end subroutine heapifymvn
@@ -353,7 +356,7 @@ subroutine hsortmvn(ivar, nvar, nameptrs, names)
 ! -----------------------------------------------------------------------------
 
  subroutine mcswap(x, i, j)
-     integer(kind = MC_IKIND), intent(inout) ::  x(*)
+     integer(kind = MC_IKIND), intent(inout) :: x(*)
      integer(kind = MC_IKIND), intent(in) ::  i, j
 
      integer(kind = MC_IKIND) ::  tmp
@@ -395,5 +398,4 @@ subroutine hsortmvn(ivar, nvar, nameptrs, names)
   end function find_name
 
 end module mdl_name_utils
-
 

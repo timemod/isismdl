@@ -6,7 +6,7 @@ $(shell "$(R_HOME)/bin/Rscript" -e "dir.create('$(MOD_DIR)', showWarnings = FALS
 
 # Fortran and C options:
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)
-PKG_FCFLAGS = -fimplicit-none -cpp -Iinclude -J$(MOD_DIR) -I$(MOD_DIR) -cpp -DDEBUG_COMPILER
+PKG_FCFLAGS = -fimplicit-none -cpp -Iinclude -J$(MOD_DIR) -I$(MOD_DIR)
 
 # options for lex and yacc
 LEX_CMD = flex

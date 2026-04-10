@@ -66,7 +66,6 @@ contains
 
        integer(kind = MC_IKIND) ::  kmaxe, kmaxv, kmaxp, kmaxf, kmaxulf
        integer :: stat
-       integer(kind = MC_IKIND) :: i
        call deallocate_model(mdl)
 
        allocate(mdl%ienames(eqCount), stat = stat)
