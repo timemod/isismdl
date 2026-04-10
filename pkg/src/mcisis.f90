@@ -348,7 +348,7 @@ call mcimsg(6, 0)
 !      turn print feedback chain on
 !      set max print length to   something reasonable
 
-if( mdl%fbomem .gt. 0 ) then
+if (mdl%fbomem .gt. 0) then
     fbcpar(1) = fbcopt(1)
     fbcpar(2) = fbcopt(2)
 else
