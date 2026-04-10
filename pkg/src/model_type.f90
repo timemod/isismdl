@@ -6,10 +6,12 @@ module model_type
     !
     ! Model paramters
     !    fboflg feedback ordering flag
-    !             0 : do not generate feedback ordering
-    !             1 : generate feedback ordering but do not write
-    !                 to mif
-    !             2 : generate fb ordering and write to mif
+    !             0 : Do not generate feedback ordering
+    !             1 : Generate feedback ordering and write to
+    !                 mif.
+    !             2 : Generate fb ordering, but do not write
+    !                 to mif. The fb ordering will be generated
+    !                 again after reading the model. 
     !             WARNING: if fboflg > 0, the model does not
     !             always have a feedback ordering. See argument
     !             fbomem.
