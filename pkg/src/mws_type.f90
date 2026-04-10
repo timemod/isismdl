@@ -627,7 +627,6 @@ module mws_type
 
         function update_value(value, update_val, upd_mode)
             use mws_params
-            use nuna
             real(kind = MWS_RKIND), intent(inout) :: value
             real(kind = MWS_RKIND), intent(in) :: update_val
             real(kind = MWS_RKIND) :: update_value
@@ -648,8 +647,6 @@ module mws_type
                 else 
                     update_value =  value
                 endif
-            case default
-               update_value = NA
             end select
         end function update_value
 

@@ -23,7 +23,7 @@ subroutine mdgfbo(mdl, errflg)
     !
     call mcgedp(mdl, .false., errflg)
     if (errflg /= 0) then
-        call isismdl_out("ERROR: mcgedp generated dependency structure failed.")
+        call isismdl_out("failed to generate dependency structure for feedback ordering.")
         goto 999
     endif
 
@@ -33,7 +33,7 @@ subroutine mdgfbo(mdl, errflg)
     call gen_fb_order(0, mdl, errflg)
 
     if (errflg == 3) then
-         call isismdl_out("ERROR: out of memory generating feedback ordering in mcfbor.")
+         call isismdl_out("out of memory generating feedback ordering in mcfbor.")
     endif
 
 999 continue
