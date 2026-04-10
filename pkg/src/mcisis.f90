@@ -1088,8 +1088,7 @@ subroutine add_ulfuncname(k, nmlen, name)
    !
 
 #ifdef DEBUG_COMPILER
-   print *,'add_ulfunname: k, argCount, nmlen', k, argCount, &
-                 nmlen, name(1)
+   print *,'add_ulfunname: k, nmlen, name(1)', k, nmlen, name(1)
 #endif
 
    i = add_name(name, nmlen, k, mdl%ulfnames, mdl%iulfnames, &
