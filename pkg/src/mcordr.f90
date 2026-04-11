@@ -5,9 +5,11 @@ module mcordr
     use kinds
     use model_type
     use mccedp
-    integer(kind = SOLVE_IKIND), dimension(:), allocatable, save &
-&          :: icode, nrow, ncol, lrow1, lcol1, irow, jcol, lrow, lcol
-    integer, save :: ordr_alloc_stat
+
+    integer(kind = SOLVE_IKIND), dimension(:), allocatable, save, &
+          private :: icode, nrow, ncol, lrow1, lcol1, irow, jcol, lrow, lcol
+
+    logical, save, private :: mcordr_work_allocated = .false.
 
     contains
 
@@ -72,6 +74,7 @@ subroutine order_equations(ier, errpar, mdl, usinac, fixepi, &
 !     12  non zero element in mcosgl
 !     13  cannot choose feedback variable
 !     20  not enough memory
+!     30  inernal error
 
 !     All of these errors are internal with possible exception of 6
 
@@ -93,6 +96,7 @@ character(len = 1) :: eqtyp
 
 logical ::    usinac_tmp, fixepi_tmp
 integer ::    fbctyp
+integer :: alloc_stat
 
 if (present(numfix)) then
     numfix_tmp = numfix
@@ -109,19 +113,23 @@ if (present(fixepi)) then
 else
     fixepi_tmp = .true.
 endif
+
+!
+! Check if mcordr_work has been allocated
+! 
+if (.not. mcordr_work_allocated) then
+    ier = 30
+    return
+endif 
+
 !
 ! allocate mdl%numfb and mdl%fbtype with maximum possible size
 !
-deallocate(mdl%numfb, stat = idum)
-deallocate(mdl%fbtype, stat = idum)
-allocate(mdl%numfb(mdl%neq), stat = ordr_alloc_stat)
-if (ordr_alloc_stat == 0) then
-    allocate(mdl%fbtype(mdl%neq), stat = ordr_alloc_stat)
-endif
-if (ordr_alloc_stat == 0 .and. .not. allocated(icode)) then
-    call allocate_mcordr_work(mdl)
-endif
-if (ordr_alloc_stat > 0) then
+if (allocated(mdl%numfb)) deallocate(mdl%numfb)
+if (allocated(mdl%fbtype)) deallocate(mdl%fbtype)
+allocate(mdl%numfb(mdl%neq), stat = alloc_stat)
+if (alloc_stat == 0) allocate(mdl%fbtype(mdl%neq), stat = alloc_stat)
+if (alloc_stat > 0) then
     ier = 20
     return
 endif
@@ -129,7 +137,7 @@ endif
 ier = 0
 errpar = 0
 
-!     initialize icode; construct structural graph matrix
+! initialize icode; construct structural graph matrix
 
 mdl%order(:mdl%neq) = 0
 
@@ -367,20 +375,25 @@ enddo
 call set_order_inv(mdl)
 
 900 continue
+
 !
 ! adjust the size of mdl%numfb and mdl%fbtype
 !
-allocate(tmp(mdl%nfb), stat = ordr_alloc_stat)
-if (ordr_alloc_stat > 0) then
+allocate(tmp(mdl%nfb), stat = alloc_stat)
+if (alloc_stat > 0) then
     ier = 20
     return
 endif
 tmp(1: mdl%nfb) = mdl%numfb(1: mdl%nfb)
 call move_alloc(tmp, mdl%numfb)
-allocate(tmp(mdl%nfb))
+
+allocate(tmp(mdl%nfb), stat = alloc_stat)
+if (alloc_stat > 0) then
+    ier = 20
+    return
+endif
 tmp(1: mdl%nfb) = mdl%fbtype(1: mdl%nfb)
 call move_alloc(tmp, mdl%fbtype)
-
 
 return
 
@@ -885,8 +898,9 @@ end subroutine mcochs
 
 end subroutine order_equations
 
-subroutine allocate_mcordr_work(mdl)
+subroutine allocate_mcordr_work(mdl, alloc_stat)
     type(model), intent(in) :: mdl
+    integer, intent(out) :: alloc_stat
 
     integer :: stat
     !
@@ -902,7 +916,12 @@ subroutine allocate_mcordr_work(mdl)
     if (stat == 0) allocate(jcol(maxarc), stat = stat)
     if (stat == 0) allocate(lrow(maxarc), stat = stat)
     if (stat == 0) allocate(lcol(maxarc), stat = stat)
-    ordr_alloc_stat = stat
+
+    mcordr_work_allocated = stat == 0
+
+    if (stat /= 0) call deallocate_mcordr_work
+
+    alloc_stat = stat
 
 end subroutine allocate_mcordr_work
 
@@ -910,11 +929,19 @@ subroutine deallocate_mcordr_work
     !
     ! deallocate work arrays for ordering the equation of a model
     !
-    integer :: stat
-    deallocate(icode, nrow, ncol, lrow1, lcol1, irow, &
-&              jcol, lrow,  lcol, stat = stat)
+
+    mcordr_work_allocated = .false.
+
+    if (allocated(icode))  deallocate(icode)
+    if (allocated(nrow))   deallocate(nrow)
+    if (allocated(ncol))   deallocate(ncol)
+    if (allocated(lrow1))  deallocate(lrow1)
+    if (allocated(lcol1))  deallocate(lcol1)
+    if (allocated(irow))   deallocate(irow)
+    if (allocated(jcol))   deallocate(jcol)
+    if (allocated(lrow))   deallocate(lrow)
+    if (allocated(lcol))   deallocate(lcol)
 
 end subroutine deallocate_mcordr_work
-
 
 end module mcordr
