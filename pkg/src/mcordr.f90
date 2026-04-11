@@ -384,7 +384,7 @@ if (alloc_stat > 0) then
     ier = 20
     return
 endif
-tmp(1: mdl%nfb) = mdl%numfb(1: mdl%nfb)
+tmp = mdl%numfb(1: mdl%nfb)
 call move_alloc(tmp, mdl%numfb)
 
 allocate(tmp(mdl%nfb), stat = alloc_stat)
@@ -392,7 +392,7 @@ if (alloc_stat > 0) then
     ier = 20
     return
 endif
-tmp(1: mdl%nfb) = mdl%fbtype(1: mdl%nfb)
+tmp = mdl%fbtype(1: mdl%nfb)
 call move_alloc(tmp, mdl%fbtype)
 
 return
