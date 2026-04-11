@@ -192,6 +192,7 @@ module mws_type
 &                                                        mws%data_perlen), &
 &                                   stat = stat)
             if (stat /= 0) then
+                call clear_mws(mws)
                 call isismdl_error("Not enough memory to allocate the mws")
                 error = .true.
                 return

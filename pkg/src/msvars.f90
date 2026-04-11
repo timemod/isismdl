@@ -57,6 +57,8 @@ module msvars
             integer, external :: ms_get_lwork_nwto, ms_get_lwork_nwqr
             integer :: stat
 
+            error = 0
+
             jf = jf_in
             jl = jl_in
             opts => opts_in
@@ -89,28 +91,18 @@ module msvars
                     "model with no feedback variables. Using the Seidel method.")
             endif
 
-            error = 0
-
             allocate(yp(mdl%nrv), stat = stat)
             if (stat == 0) allocate(curvars(mdl%nrv), stat = stat)
             if (stat == 0) allocate(fixvars(mdl%nrv), stat = stat)
             if (stat == 0) allocate(lags_leads(mdl%nd), stat = stat)
             if (stat == 0) allocate(ca(mdl%nrv), stat = stat)
-            if (stat /= 0) then
-                call msclear
-                error = 1
-                return
-            endif
+            if (stat /= 0) goto 999
 
             if (mode == 'X' .and. mdl%nendex > 0) then
                 ! endogenous leads for the Fair-Taylor
                 ! method
                 allocate(endo_leads(mws%mdl%nendex, mws%perlen), stat = stat)
-                if (stat /= 0) then
-                    call msclear
-                    error = 1
-                    return
-                endif
+                if (stat /= 0) goto 999
             endif
 
             if (mode == 'R' .or. method == 'G') return
@@ -123,22 +115,19 @@ module msvars
             if (stat == 0) allocate(scale(mdl%nfb), stat = stat)
             if (stat == 0) allocate(fbwork(mdl%nfb), stat = stat)
             if (stat == 0) allocate(fbstep(mdl%nfb) , stat = stat)
-            if (stat /= 0) then
-                call msclear
-                error = 1
-                return
-            endif
+            if (stat /= 0) goto 999
 
             if (method == 'B') then
                 allocate(dx(mdl%nfb), stat = stat)
                 if (stat == 0) allocate(df(mdl%nfb), stat = stat)
-                if (stat /= 0) then
-                    call msclear
-                    error = 1
-                    return
-                endif
+                if (stat /= 0) goto 999
             endif
 
+            return
+
+999         continue ! out of memory
+            error = 1
+            call msclear
 
         end subroutine prepare_solve
 

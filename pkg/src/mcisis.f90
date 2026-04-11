@@ -960,6 +960,8 @@ subroutine mc_alloc(eqCount, varCount, parCount, coefCount, &
 
    if (stat == 0) call allocate_mcvars(varCount, stat = stat)
 
+   if (stat /= 0) call deallocate_model(mdl)
+
 end subroutine mc_alloc
 
 !------------------------------------------------------------------------------
