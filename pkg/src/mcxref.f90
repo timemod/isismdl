@@ -675,12 +675,6 @@ goto 999
 1000 continue
 close(xrfunt)
 
-if (allocated(ixref))  deallocate(ixref)
-if (allocated(ieref))  deallocate(ieref)
-if (allocated(ipref))  deallocate(ipref)
-if (allocated(ivref))  deallocate(ivref)
-if (allocated(equno))  deallocate(equno)
-if (allocated(fbsjac)) deallocate(fbsjac)
 return
 end subroutine write_xref
 
