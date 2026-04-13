@@ -358,7 +358,8 @@ endif
 
 ! release memory not needed for writing the cross reference
 
-deallocate(mdl%indexe, mdl%coef)
+if (allocated(mdl%indexe)) deallocate(mdl%indexe)
+if (allocated(mdl%coef)) deallocate(mdl%coef)
 
 ! if fbcpar(1) .eq. 0, the cross reference does not need full information
 ! on feedback ordering.
@@ -741,20 +742,6 @@ case (8)
     str = '         equations processed'
     write(str(4:8),'(i5)' ) mpar
 
-case (9) 
-    str = 'Checking redundant feedback variables'
-
-case (10)
-    str = '         redundant feedback variables detected'
-    write(str(4:8),'(i5)' ) mpar
-
-case (11)
-    if (mpar == 0) then
-        str = 'Removing redundant feedback variables'
-    else
-        str = 'Not removing redundant feedback variables'
-    endif
-
 case (12)
     str = 'Generating feedback variable ordering'
 
@@ -766,17 +753,6 @@ case (14)
 
 case (15)
     str = 'NO feedback ordering generated and installed'
-
-case (16)
-    str = '         feedback variables added'
-    write(str(3:8),'(i6)' ) mpar
-
-case (17)
-    str = 'Redundancies resolved in    passes'
-    write(str(26:27),'(i2)' ) mpar
-
-case (18)
-    str = 'More than 5 passes for redundant feedbacks'
 
 case default
 return

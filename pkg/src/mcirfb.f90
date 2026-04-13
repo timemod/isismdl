@@ -45,13 +45,13 @@ subroutine rm_redundant_fb(mdl, orderr, errpar, usinac, fixepi, dofbrd)
     
     ! Determine if feedback set + order has redundant feedbacks
     
-    call mcimsg(9,0)
+    call rfb_msg(9, 0)
     
     xpass = 1
     
     call mcfbrd
     
-    call mcimsg(10, fbrc)
+    call rfb_msg(10, fbrc)
     
     ! no redundant feedback variables detected: return
     if (fbrc == 0) return
@@ -62,11 +62,11 @@ subroutine rm_redundant_fb(mdl, orderr, errpar, usinac, fixepi, dofbrd)
 
     if( .not. dofbrd_tmp)  then
        !  don't remove redundant feedback variables so quit
-       call mcimsg(11, 1)
+       call rfb_msg(11, 1)
        return
     endif
 
-    call mcimsg(11,0)
+    call rfb_msg(11, 0)
 
     ! iterate until no more redundant feedback variables are detected
     do
@@ -82,7 +82,7 @@ subroutine rm_redundant_fb(mdl, orderr, errpar, usinac, fixepi, dofbrd)
 
         if (mdl%nfb > nfbp) then
             ! message that feedback size has increased
-            call mcimsg(16, mdl%nfb - nfbp)
+            call rfb_msg(16, mdl%nfb - nfbp)
             ! The size of the work arrays should be increased
             ! Therefore allocate the arrays again.
             if (mdl%nfb > size(fbred)) then
@@ -95,24 +95,24 @@ subroutine rm_redundant_fb(mdl, orderr, errpar, usinac, fixepi, dofbrd)
             ! check for redundancies again
             call mcfbrd
             if (fbrc /= 0) then
-                call mcimsg(10, fbrc)
+                call rfb_msg(10, fbrc)
                 if (xpass < 5) then
                     call mcfrms
                     xpass = xpass + 1
                     cycle          ! <-- next iteration
                 else
-                    call mcimsg(18, 0)
+                    call rfb_msg(18, 0)
                     exit           ! <-- done, leave loop
                 endif
             endif
         else
             ! No additional feedbacks created ==> done
-            call mcimsg(16, mdl%nfb - nfbp)
+            call rfb_msg(16, mdl%nfb - nfbp)
             exit                   ! <-- done, leave loop
         endif
     end do
 
-    call mcimsg(17, xpass)
+    call rfb_msg(17, xpass)
 
     return
 
@@ -271,6 +271,52 @@ integer ::  i,rp
 
         error = stat /= 0
     end subroutine alloc_fb_work
+
+! ---------------------------------------------------------------------
+
+    subroutine rfb_msg(msgnum, mpar)
+        use output_utils
+        integer, intent(in) :: msgnum, mpar
+    
+        character(len = 80) :: str
+    
+        select case (msgnum)
+    
+        case (9)
+            str = 'Checking redundant feedback variables'
+    
+        case (10)
+            str = '         redundant feedback variables detected'
+            write(str(4:8),'(i5)' ) mpar
+    
+        case (11)
+            if (mpar == 0) then
+                str = 'Removing redundant feedback variables'
+            else
+                str = 'Not removing redundant feedback variables'
+            endif
+    
+        case (16)
+            str = '         feedback variables added'
+            write(str(3:8),'(i6)' ) mpar
+    
+        case (17)
+            str = 'Redundancies resolved in    passes'
+            write(str(26:27),'(i2)' ) mpar
+    
+        case (18)
+            str = 'More than 5 passes for redundant feedbacks'
+    
+        case default
+            return
+
+        end select
+    
+        call isismdl_out(str)
+    
+        return
+
+    end subroutine rfb_msg
 
 end subroutine rm_redundant_fb
 

@@ -211,11 +211,13 @@ ipol = 0
 ! equat should contain the code of all user functions
 ! plus the code for one equation (max. size is maxpol)
 if (allocated(mdl%nrecuf)) deallocate(mdl%nrecuf)
-if (allocated(mdl%equat)) deallocate(mdl%equat)
+if (allocated(mdl%equat))  deallocate(mdl%equat)
 allocate(mdl%nrecuf(mdl%nuf + 1), stat = stat)
 if (stat == 0) allocate(mdl%equat(mdl%ufblen + maxpol), stat = stat)
 if (stat > 0) then
     if (allocated(mdl%nrecuf)) deallocate(mdl%nrecuf)
+    ier = 10
+    return
 endif
 
 ! read polish code user functions from file ufnunt
