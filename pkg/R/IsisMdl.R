@@ -302,6 +302,19 @@ IsisMdl <- R6Class("IsisMdl",
         report = report, jacobian = jacobian, ...
       ))
     },
+    find_deps = function(final_destinations, final_sources = NULL,
+                         solvable = NULL, observed_data = NULL,
+                         ignore_observed = FALSE,
+                         stop_if_final_dest_observed = TRUE) {
+      return(find_deps_internal(mdl = self, final_destinations = final_destinations,
+                                final_sources = final_sources,
+                                solvable = solvable, observed_data = observed_data,
+                                ignore_observed = ignore_observed,
+                                stop_if_final_dest_observed = stop_if_final_dest_observed))
+    },
+    get_observed_data = function(period = self$get_data_period()) {
+      return(get_observed_data(self$get_data(period = period)))
+    },
     get_residuals = function(period = private$model_period, names = NULL, tol = 1e-2,
                              fun = function(x1, x2) (x1 - x2)) {
       period <- private$convert_period_arg_solve(period)

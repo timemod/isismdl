@@ -1146,20 +1146,25 @@ NULL
 NULL
 
 
-#' \code{\link{IsisMdl}} methods: Retrieve timeseries from the model data,
-#' constant adjustments, fix values or fit targets
+#' Retrieve timeseries from the model data,
+#' constant adjustments, fix values or fit targets.
 #' @name get_data-methods
-#' @aliases get_data get_ca get_fix get_fit
+#' @aliases get_data get_ca get_fix get_fit get_observed_data
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}}
 #' can be used to retrieve timeseries from the model data,
 #' constant adjustments, fix values or fit targets.
+#'
+#' Method \code{get_observed_data} returns a data frame in long format
+#' containing all non-missing values.
 #'
 #' @section Usage:
 #' \preformatted{
 #' mdl$get_data(pattern, names, period = mdl$get_data_period())
 #'
 #' mdl$get_ca(pattern, names, period = mdl$get_data_period())
+#'
+#' mdl$get_observed_data(period = mdl$get_data_period())
 #'
 #' mdl$get_fix()
 #'
@@ -1184,13 +1189,16 @@ NULL
 #' }
 #' @section Methods:
 #' \itemize{
-#' \item \code{get_mdl_data}: Model data
+#' \item \code{get_data}: Model data (as \code{regts})
 #'
-#' \item \code{get_ca}: Constant adjustments
+#' \item \code{get_ca}: Constant adjustments (as \code{regts})
 #'
-#' \item \code{get_fix_values}: Fix values
+#' \item \code{get_fix}: Fix values
 #'
-#' \item \code{get_fit_targets}: Fit targets
+#' \item \code{get_fit}: Fit targets
+#'
+#' \item \code{get_observed_data}: Model data in long format (data frame with
+#' non-missing values)
 #' }
 #'
 #' @examples
@@ -2662,6 +2670,62 @@ NULL
 #' print(mdl$get_dep_struct(one_lag_per_row = TRUE))
 #'
 NULL
+
+
+#' \code{\link{IsisMdl}} method: Analysing dependencies of model variables
+#' @name find_deps
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} recursively finds all
+#' dependencies for a specified set of "final destinations".
+#'
+#' It returns a dependency graph as an \code{igraph} object.
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$find_deps(final_destinations, final_sources = NULL,
+#'               solvable = NULL, observed_data = NULL,
+#'               ignore_observed = FALSE,
+#'               stop_if_final_dest_observed = TRUE)
+#' }
+#'
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{final_destinations}}{A data frame with columns \code{var}
+#'   (variable names) and \code{period} (periods) of the final destinations
+#'   for which dependencies should be found.}
+#' \item{\code{final_sources}}{An optional data frame with variable names and
+#'   periods of the final sources. If specified, the search stops when a
+#'   final source is reached.}
+#' \item{\code{solvable}}{An optional data frame with variable names and periods
+#'   of values that are considered "solvable". A vertex that only depends on
+#'   calculable or solvable vertices is marked as OK.}
+#' \item{\code{observed_data}}{An optional data frame containing observed data.
+#'   If missing, the data currently stored in the model object is used.}
+#' \item{\code{ignore_observed}}{A logical. If \code{TRUE}, observed variables
+#'   are ignored when determining dependencies.}
+#' \item{\code{stop_if_final_dest_observed}}{A logical. If \code{TRUE} (the default),
+#'   the search stops if a final destination is already observed in the data.}
+#' }
+#'
+#' @return A dependency graph as an \code{igraph} object.
+#'
+#' @examples
+#' mdl <- islm_mdl(period = "2017Q1/2018Q4")
+#'
+#' # Define final destinations
+#' final_dest <- data.frame(var = "y", period = "2018Q4")
+#'
+#' # Find dependencies
+#' g <- mdl$find_deps(final_dest)
+#'
+#' # The result is an igraph object
+#' print(g)
+NULL
+
 
 #' \code{\link{IsisMdl}} method: Returns the last solve period
 

@@ -1,54 +1,29 @@
+#' Recursively find all dependencies.
+#'
+#' @param final_destinations A data frame with variable names and periods of
+#' the final destinations.
+#' @param final_sources A data frame with variable names and periods of the
+#' final sources.
+#' @param solvable A data frame with variable names and periods of values that
+#' we wish to solve in \code{fill_mdl_data_solve}.
+#' @param observed_data A data frame containing observed values.
+#' @param dep_struc Dependency structure of the model.
+#' @param mdl The \code{IsisMdl} object.
+#' @param ignore_observed Logical, should observed variables be ignored?
+#' @param stop_if_final_dest_observed Logical, should the search stop if a
+#' final destination is already observed?
+#' @return A dependency graph as an igraph object.
+#'
 #' @importFrom igraph add_edges make_empty_graph neighbors induced_subgraph
 #'   delete_edges incident subcomponent delete_vertices
 #'   add_vertices V degree set_vertex_attr
 #' @importFrom dplyr rename mutate anti_join
-#' @importFrom tibble remove_rownames
-#' @importFrom tidyr separate
-#' @importFrom regts as.period
-#' @importFrom stringr str_match
 #' @importFrom rlang .data
-
-new_var_period <- function(var, period) {
-  period <- regts::as.period(period)
-  return(structure(list(var = var, period = period), class = "var_period"))
-}
-
-#' @keywords internal
-#' @exportS3Method as.character var_period
-as.character.var_period <- function(x, ...) {
-  return(paste0(x$var, "[", x$period, "]"))
-}
-
-#' @keywords internal
-#' @exportS3Method print var_period
-print.var_period <- function(x, ...) {
-  return(print(as.character(x)))
-}
-
-as_var_period <- function(txt) {
-  pattern <- "^([a-zA-Z][a-zA-Z_]*)\\[(\\d+)\\]$"
-  x <- stringr::str_match(txt, pattern)
-  return(new_var_period(x[, 2], x[, 3]))
-}
-
-# Recursively find all dependencies.
-# INPUT
-# final_destinations
-#     A data frame with variable names and periods of the final destinations.
-# final_source
-#     A data frame with variable names and periods of the final sources.
-# solvable
-#    A data frame with variable names and periods of values that we wish to
-#    solve in fill_mdl_data_sove.
-#    A vertex that is incalculable but only depends on either calculable vertices
-#    or solvable vertices gets the status ok = TRUE.
-# TODO: create nice roxygen documentation.
-# TODO: indien observed_data en dep_struc niet opgegeven, deze bepalen op
-#       basis van object mdl.
+#'
+#' @noRd
 find_deps <- function(final_destinations, final_sources = NULL,
-                      solvable = NULL,
-                      observed_data, dep_struc, mdl,
-                      ignore_observed = FALSE,
+                      solvable = NULL, observed_data,
+                      dep_struc, mdl, ignore_observed = FALSE,
                       stop_if_final_dest_observed = TRUE) {
 
   # TODO: use a data frame with possible vertex types and the
@@ -357,12 +332,4 @@ find_deps <- function(final_destinations, final_sources = NULL,
   }
 
   return(g)
-}
-
-as_data_frame_deps <- function(g) {
-  igraph::as_data_frame(g, what = "vertices") |>
-    remove_rownames() |>
-    #  select("name", "type", "is_final", "color") |>
-    separate("name", into = c("var", "period"), sep = "\\[|\\]",
-             extra = "drop")
 }
