@@ -942,12 +942,11 @@ end subroutine mc_alloc
 
 !------------------------------------------------------------------------------
 
-subroutine add_eqname(k, nmlen, name, lhs_num, type)
+subroutine add_eqname(k, nmlen, name, lhs_num, type_int)
    use mcvars
    use kinds
    use mdl_name_utils
-   integer(kind = MC_IKIND) :: k, nmlen, name(*), lhs_num
-   character type
+   integer(kind = MC_IKIND), intent(in) :: k, nmlen, name(*), lhs_num, type_int
 
    integer :: i
 
@@ -961,18 +960,17 @@ subroutine add_eqname(k, nmlen, name, lhs_num, type)
    i = add_name(name, nmlen, k, mdl%enames, mdl%ienames, &
 &               nre, size(mdl%enames), mdl%ielast)
    mdl%lhsnum(k) =  lhs_num
-   call bysset(mdl%etype, int(k, ISIS_IKIND), ichar(type))
+   call bysset(mdl%etype, int(k, ISIS_IKIND), type_int)
 
 end subroutine add_eqname
 
 ! -----------------------------------------------------------
 
-subroutine add_varname(k, nmlen, name, type)
+subroutine add_varname(k, nmlen, name, type_int)
     use mcvars
     use kinds
     use mdl_name_utils
-    integer(kind = MC_IKIND) ::  k, nmlen, name(*)
-    character type
+    integer(kind = MC_IKIND), intent(in) ::  k, nmlen, name(*), type_int
 
    integer :: i
 
@@ -985,7 +983,7 @@ subroutine add_varname(k, nmlen, name, type)
 
    i = add_name(name, nmlen, k, mdl%vnames, mdl%ivnames, &
 &               mdl%nrv, size(mdl%vnames), mdl%ivlast)
-   call bysset(vtype, int(k, ISIS_IKIND), ichar(type))
+   call bysset(vtype, int(k, ISIS_IKIND), type_int)
 
 end subroutine add_varname
 
