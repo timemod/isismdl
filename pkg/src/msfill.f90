@@ -90,19 +90,20 @@ subroutine fill_mdl_data(jt1, jt2, report_type, include_frmls)
            elseif (eqtype == "N") then
                ! implicit identity (solve with newton)
                call msinwt(xresult, lhsvar, 0, iequ, jtime, ier)
-           elseif (eqtype == "B" .or. eqtype == "M") then
+           elseif (eqtype == "B") then
+               ! behavourial equation
                ca_index = mdl%aci(lhsvar)
-               call get_ca_value(mws, ca_index, jtime, xca, error)
+               xca = mws%constant_adjustments(ca_index, jtime + mdl%mxlag)
                if (nuifna(xca)) then
-                   xresult = xca
-               elseif (eqtype == "B") then
-                   ! normal behavourial equation
+                   xresult = NA
+               else 
                    call msisng(xresult, iequ, jtime, ier)
                    xresult = xresult + xca
-               else
-                   ! implicit equation
-                   call msinwt(xresult, lhsvar, ca_index, iequ, jtime, ier)
                endif
+           elseif (eqtype == "M") then
+               ! implicit behavioural equation
+               ca_index = mdl%aci(lhsvar)
+               call msinwt(xresult, lhsvar, ca_index, iequ, jtime, ier)
            endif
 
            if (ier /= 0 .and. ier /= 3 .and. ier /= 7) then

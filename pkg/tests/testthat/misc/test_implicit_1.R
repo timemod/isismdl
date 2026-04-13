@@ -34,7 +34,7 @@ test_that("run_eqn", {
                sqrt(c(3, 14, 22, 32)))
 })
 
-test_that("fill_mdl_data", {
+test_that("fill_mdl_data include_frmls", {
   mdl2 <- mdl$copy()
   mdl2$set_values(1, names = "x", period = "2022")
   mdl2$set_values(c(4, 16, 25, 36), names = "a", period = "2022/2025")
@@ -57,4 +57,27 @@ test_that("fill_mdl_data", {
   )
   expect_equal(as.numeric(mdl2$get_data(period = "2022/2025", names = "x")),
                c(1, sqrt(c(14, 22, 32))))
+
+  mdl2 <- mdl$copy()
+  mdl2$set_values(1, names = "x", period = "2022")
+  mdl2$set_values(c(4, 16, 25, 36), names = "a", period = "2022/2025")
+  mdl2$set_ca_values(c(1, 2, NA, 4), names = "x", period = "2022/2025")
+  expect_output(
+    mdl2$fill_mdl_data(include_frmls = TRUE, report = "minimal"),
+    "Replaced a total of 3 missing/invalid values",
+    fixed = TRUE
+  )
+  expect_equal(as.numeric(mdl2$get_data(period = "2022/2025", names = "x")),
+               c(1, sqrt(14), NA, NA))
+
+  mdl2 <- mdl$copy()
+  mdl2$set_values(c(4, 16, 25, 36), names = "a", period = "2022/2025")
+  mdl2$set_ca_values(c(1, 2, NA, 4), names = "x", period = "2022/2025")
+  expect_output(
+    mdl2$fill_mdl_data(include_frmls = TRUE, report = "minimal"),
+    "No missing/invalid values replaced",
+    fixed = TRUE
+  )
+  expect_equal(as.numeric(mdl2$get_data(period = "2022/2025", names = "x")),
+               rep(NA_real_, 4))
 })
