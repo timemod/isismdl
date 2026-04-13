@@ -1137,7 +1137,9 @@ IsisMdl <- R6Class("IsisMdl",
       if (name == "model_index") {
         has_free_mws <- .Call(C_has_free_mws_c)
         if (!has_free_mws) gc(verbose = FALSE)
-        return(.Call(C_clone_mws_c, model_index = value))
+        retval = .Call(C_clone_mws_c, model_index = value)
+        if (retval <= 0) stop("Internal error in clone_mwc_c")
+        return(retval)
       } else {
         return(value)
       }
