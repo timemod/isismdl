@@ -75,7 +75,7 @@ subroutine order_equations(ier, errpar, mdl, usinac, fixepi, &
 !     12  non zero element in mcosgl
 !     13  cannot choose feedback variable
 !     20  not enough memory
-!     30  inernal error
+!     30  internal error
 
 !     All of these errors are internal with possible exception of 6
 
