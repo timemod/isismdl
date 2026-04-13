@@ -355,6 +355,8 @@ function clone_mws_fortran(model_index)
     integer(c_int) :: clone_mws_fortran
     integer ::  model_index_clone
 
+    clone_mws_fortran = -1
+
     model_index_clone = create_mws()
     if (model_index_clone < 0) return
 

@@ -57,6 +57,8 @@ module msvars
             integer, external :: ms_get_lwork_nwto, ms_get_lwork_nwqr
             integer :: stat
 
+            error = 0
+
             jf = jf_in
             jl = jl_in
             opts => opts_in
@@ -89,26 +91,18 @@ module msvars
                     "model with no feedback variables. Using the Seidel method.")
             endif
 
-            error = 0
-
             allocate(yp(mdl%nrv), stat = stat)
             if (stat == 0) allocate(curvars(mdl%nrv), stat = stat)
             if (stat == 0) allocate(fixvars(mdl%nrv), stat = stat)
             if (stat == 0) allocate(lags_leads(mdl%nd), stat = stat)
             if (stat == 0) allocate(ca(mdl%nrv), stat = stat)
-            if (stat /= 0) then
-                error = 1
-                return
-            endif
+            if (stat /= 0) goto 999
 
             if (mode == 'X' .and. mdl%nendex > 0) then
                 ! endogenous leads for the Fair-Taylor
                 ! method
                 allocate(endo_leads(mws%mdl%nendex, mws%perlen), stat = stat)
-                if (stat /= 0) then
-                    error = 1
-                    return
-                endif
+                if (stat /= 0) goto 999
             endif
 
             if (mode == 'R' .or. method == 'G') return
@@ -121,46 +115,43 @@ module msvars
             if (stat == 0) allocate(scale(mdl%nfb), stat = stat)
             if (stat == 0) allocate(fbwork(mdl%nfb), stat = stat)
             if (stat == 0) allocate(fbstep(mdl%nfb) , stat = stat)
-            if (stat /= 0) then
-                error = 1
-                return
-            endif
+            if (stat /= 0) goto 999
 
             if (method == 'B') then
                 allocate(dx(mdl%nfb), stat = stat)
                 if (stat == 0) allocate(df(mdl%nfb), stat = stat)
-                if (stat /= 0) then
-                    error = 1
-                    return
-                endif
+                if (stat /= 0) goto 999
             endif
 
+            return
+
+999         continue ! out of memory
+            error = 1
+            call msclear
 
         end subroutine prepare_solve
 
         subroutine msclear
 
-            integer :: stat
-
             matrix = .false.
 
-            deallocate(jacob, stat = stat)
-            deallocate(pivot, stat = stat)
-            deallocate(qrtau, stat = stat)
-            deallocate(la_work, stat = stat)
-            deallocate(yp, stat = stat)
-            deallocate(curvars, stat = stat)
-            deallocate(fixvars, stat = stat)
-            deallocate(lags_leads, stat = stat)
-            deallocate(ca, stat = stat)
-            deallocate(fbval, stat = stat)
-            deallocate(fbfun, stat = stat)
-            deallocate(scale, stat = stat)
-            deallocate(fbwork, stat = stat)
-            deallocate(fbstep, stat = stat)
-            deallocate(dx, stat = stat)
-            deallocate(df, stat = stat)
-            deallocate(endo_leads, stat = stat)
+            if (allocated(jacob))      deallocate(jacob)
+            if (allocated(pivot))      deallocate(pivot)
+            if (allocated(qrtau))      deallocate(qrtau)
+            if (allocated(la_work))    deallocate(la_work)
+            if (allocated(yp))         deallocate(yp)
+            if (allocated(curvars))    deallocate(curvars)
+            if (allocated(fixvars))    deallocate(fixvars)
+            if (allocated(lags_leads)) deallocate(lags_leads)
+            if (allocated(ca))         deallocate(ca)
+            if (allocated(fbval))      deallocate(fbval)
+            if (allocated(fbfun))      deallocate(fbfun)
+            if (allocated(scale))      deallocate(scale)
+            if (allocated(fbwork))     deallocate(fbwork)
+            if (allocated(fbstep))     deallocate(fbstep)
+            if (allocated(dx))         deallocate(dx)
+            if (allocated(df))         deallocate(df)
+            if (allocated(endo_leads)) deallocate(endo_leads)
 
         end subroutine msclear
 

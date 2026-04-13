@@ -24,13 +24,14 @@ module mcvars
             allocate(vtype((varCount - 1) / MCNYI4 + 1), stat = stat)
             if (stat == 0) allocate(maxlag(varCount), stat = stat)
             if (stat == 0) allocate(mxlead(varCount), stat = stat)
+             
+            if (stat /= 0) call clear_mcvars
         end subroutine allocate_mcvars
 
         subroutine clear_mcvars
-            integer :: stat
-            deallocate(vtype,  stat = stat)
-            deallocate(maxlag, stat = stat)
-            deallocate(mxlead, stat = stat)
+            if (allocated(vtype))  deallocate(vtype)
+            if (allocated(maxlag)) deallocate(maxlag)
+            if (allocated(mxlead)) deallocate(mxlead)
         end subroutine clear_mcvars
 
 end module mcvars

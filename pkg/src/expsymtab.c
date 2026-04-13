@@ -13,6 +13,9 @@
 #include "xpcdef.h"
 #include "mcinit.h"
 
+#define Is_Frmleqn(e)   (e)->eqtype & 1
+#define Is_Impleqn(e)   (e)->eqtype & 2
+
 /* 
  * Declaration of Fortran subroutines (see file src/libf7/mcisis.rf7)
  * called in the functions in this file.
@@ -20,8 +23,8 @@
 void FNAME(mc_alloc)(MCINT *, MCINT *, MCINT *, MCINT *, MCINT *, 
                      MCINT *, MCINT *, MCINT *, MCINT *, MCINT *,
                      MCINT *, MCINT *, MCINT *, MCINT *);
-void FNAME(add_eqname)(MCINT *, MCINT *, FUCHAR *, MCINT *, FUCHAR *);
-void FNAME(add_varname)(MCINT *, MCINT *, FUCHAR *, FUCHAR *);
+void FNAME(add_eqname)(MCINT *, MCINT *, FUCHAR *, MCINT *, MCINT *);
+void FNAME(add_varname)(MCINT *, MCINT *, FUCHAR *, MCINT *);
 void FNAME(add_parname)(MCINT *, MCINT *, FUCHAR *);
 void FNAME(add_funcname)(MCINT *, MCINT *, FUCHAR *, MCINT *);
 void FNAME(add_ulfuncname)(MCINT *, MCINT *, FUCHAR *);
@@ -59,10 +62,10 @@ static MCINT addEquationName(Symbol *sp) {
         type = (Is_Impleqn(eqnp)) ? 'N' : 'I';
     }
 
-#define Is_Frmleqn(e)   (e)->eqtype & 1
-#define Is_Impleqn(e)   (e)->eqtype & 2
+    MCINT type_int = (MCINT) type;
+
     FNAME(add_eqname)(&eq_index, &name_len, (FUCHAR *) sp->name, &lhs_num, 
-                      (FUCHAR *) &type);
+                      &type_int);
     return NXTSYM;
 }
 
@@ -114,8 +117,8 @@ static int addVarParName(Symbol *sp) {
             case ENDO_IDENT : type = 'I'; break;
             case ENDO_FRML  : type = 'B'; break;
         }
-        FNAME(add_varname)(&idx, &name_len, (FUCHAR *) sp->name, 
-                          (FUCHAR *) &type);
+        MCINT type_int = (MCINT) type;
+        FNAME(add_varname)(&idx, &name_len, (FUCHAR *) sp->name, &type_int);
     } else if (sp->xpctype == XP_PARAM) {
         p = sp->u.parp;
         idx = (MCINT) (p->par_index + 1);

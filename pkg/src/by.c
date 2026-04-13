@@ -20,7 +20,7 @@ int F77_SUB(bysget)(char *str, int *fb) {
  *
  */
 
-void F77_SUB(bysset)(FUCHAR *str, FINT *fb, FUINT *bv)
+void F77_SUB(bysset)(FUCHAR *str, FINT *fb, FINT *bv)
 {
     *(str+*fb-1) = (FUCHAR)(*bv);
 }
