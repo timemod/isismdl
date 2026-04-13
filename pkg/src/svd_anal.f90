@@ -59,8 +59,12 @@ subroutine svd_analysis(mat, ldm, m, n, num_row, num_col, fit, svd_tol, error)
     max_m_n = max(m, n)
 
     ! Allocate arrays
-    allocate(u(m, m), vt(n, n), sv(min_m_n), minc(n), minr(m), vec(max_m_n), &
-             stat = stat)
+    allocate(u(m, m), stat = stat)
+    if (stat == 0) allocate(vt(n, n), stat = stat)
+    if (stat == 0) allocate(sv(min_m_n), stat = stat)
+    if (stat == 0) allocate(minc(n), stat = stat)
+    if (stat == 0) allocate(minr(m), stat = stat)
+    if (stat == 0) allocate(vec(max_m_n), stat = stat)
     if (stat /= 0) goto 999
 
     ! get 1-norm of the columns of mat

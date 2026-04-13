@@ -89,7 +89,10 @@ contains
        if (stat == 0) allocate(mdl%ica(caCount), stat = stat)
        if (stat == 0) allocate(mdl%aci(varCount), stat = stat)
 
-       if (stat > 0) return
+       if (stat > 0) then
+          call deallocate_model(mdl)
+          return
+       endif
 
        kmaxp  =  (parCharCount - 1)   / MCNYI4 + 1
        kmaxe  =  (eqCharCount  - 1)   / MCNYI4 + 1
@@ -100,61 +103,59 @@ contains
        if (stat == 0) allocate(mdl%vnames(kmaxv), stat = stat)
        if (stat == 0) allocate(mdl%pnames(kmaxp), stat = stat)
        if (stat == 0) allocate(mdl%fnames(kmaxf), stat = stat)
-       if (stat > 0) return
 
-       if (leadVarCount > 0) then
+       if (stat == 0 .and. leadVarCount > 0) then
            allocate(mdl%iendex(leadVarCount), stat = stat)
-           if (stat > 0) return
        endif
 
-       if (ulFunCount > 0) then
+       if (stat == 0 .and. ulFunCount > 0) then
            kmaxulf = (ulFunCharCount - 1) / MCNYI4 + 1
            allocate(mdl%iulfnames(ulFunCount), stat = stat)
            if (stat == 0) allocate(mdl%ulfnames(kmaxulf), stat = stat)
        endif
+
+       if (stat > 0) call deallocate_model(mdl)
 
     end subroutine allocate_model
 
     subroutine deallocate_model(mdl)
         type(model), intent(inout) :: mdl
 
-        integer :: stat
-
-        deallocate(mdl%enames, stat = stat)
-        deallocate(mdl%vnames, stat = stat)
-        deallocate(mdl%pnames, stat = stat)
-        deallocate(mdl%fnames, stat = stat)
-        deallocate(mdl%ulfnames,stat = stat)
-        deallocate(mdl%ienames, stat = stat)
-        deallocate(mdl%ivnames, stat = stat)
-        deallocate(mdl%ipnames, stat = stat)
-        deallocate(mdl%ifnames, stat = stat)
-        deallocate(mdl%iulfnames, stat = stat)
-        deallocate(mdl%indexe, stat = stat)
-        deallocate(mdl%indexv, stat = stat)
-        deallocate(mdl%indexp, stat = stat)
-        deallocate(mdl%lhsnum, stat = stat)
-        deallocate(mdl%eqnum, stat = stat)
-        deallocate(mdl%narguf, stat = stat)
-        deallocate(mdl%nvalp, stat = stat)
-        deallocate(mdl%cfptr, stat = stat)
-        deallocate(mdl%etype, stat = stat)
-        deallocate(mdl%numfb, stat = stat)
-        deallocate(mdl%fbtype, stat = stat)
-        deallocate(mdl%iendex, stat = stat)
-        deallocate(mdl%ica, stat = stat)
-        deallocate(mdl%aci, stat = stat)
-        deallocate(mdl%ibx1, stat = stat)
-        deallocate(mdl%ibx2, stat = stat)
-        deallocate(mdl%order, stat = stat)
-        deallocate(mdl%order_inv, stat = stat)
-        deallocate(mdl%fboptr, stat = stat)
-        deallocate(mdl%fbordr, stat = stat)
-        deallocate(mdl%nrecp, stat = stat)
-        deallocate(mdl%nrecuf, stat = stat)
-        deallocate(mdl%equat, stat = stat)
-        deallocate(mdl%lik, stat = stat)
-        deallocate(mdl%coef, stat = stat)
+        if (allocated(mdl%enames))    deallocate(mdl%enames)
+        if (allocated(mdl%vnames))    deallocate(mdl%vnames)
+        if (allocated(mdl%pnames))    deallocate(mdl%pnames)
+        if (allocated(mdl%fnames))    deallocate(mdl%fnames)
+        if (allocated(mdl%ulfnames))  deallocate(mdl%ulfnames)
+        if (allocated(mdl%ienames))   deallocate(mdl%ienames)
+        if (allocated(mdl%ivnames))   deallocate(mdl%ivnames)
+        if (allocated(mdl%ipnames))   deallocate(mdl%ipnames)
+        if (allocated(mdl%ifnames))   deallocate(mdl%ifnames)
+        if (allocated(mdl%iulfnames)) deallocate(mdl%iulfnames)
+        if (allocated(mdl%indexe))    deallocate(mdl%indexe)
+        if (allocated(mdl%indexv))    deallocate(mdl%indexv)
+        if (allocated(mdl%indexp))    deallocate(mdl%indexp)
+        if (allocated(mdl%lhsnum))    deallocate(mdl%lhsnum)
+        if (allocated(mdl%eqnum))     deallocate(mdl%eqnum)
+        if (allocated(mdl%narguf))    deallocate(mdl%narguf)
+        if (allocated(mdl%nvalp))     deallocate(mdl%nvalp)
+        if (allocated(mdl%cfptr))     deallocate(mdl%cfptr)
+        if (allocated(mdl%etype))     deallocate(mdl%etype)
+        if (allocated(mdl%numfb))     deallocate(mdl%numfb)
+        if (allocated(mdl%fbtype))    deallocate(mdl%fbtype)
+        if (allocated(mdl%iendex))    deallocate(mdl%iendex)
+        if (allocated(mdl%ica))       deallocate(mdl%ica)
+        if (allocated(mdl%aci))       deallocate(mdl%aci)
+        if (allocated(mdl%ibx1))      deallocate(mdl%ibx1)
+        if (allocated(mdl%ibx2))      deallocate(mdl%ibx2)
+        if (allocated(mdl%order))     deallocate(mdl%order)
+        if (allocated(mdl%order_inv)) deallocate(mdl%order_inv)
+        if (allocated(mdl%fboptr))    deallocate(mdl%fboptr)
+        if (allocated(mdl%fbordr))    deallocate(mdl%fbordr)
+        if (allocated(mdl%nrecp))     deallocate(mdl%nrecp)
+        if (allocated(mdl%nrecuf))    deallocate(mdl%nrecuf)
+        if (allocated(mdl%equat))     deallocate(mdl%equat)
+        if (allocated(mdl%lik))       deallocate(mdl%lik)
+        if (allocated(mdl%coef))      deallocate(mdl%coef)
 
     end subroutine deallocate_model
 

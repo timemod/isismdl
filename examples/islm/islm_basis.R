@@ -28,3 +28,6 @@ x <- read_mdl("islm_basis.ismdl", silent = FALSE)
 
 cat("\ncopying model\n")
 y <- x$copy()
+
+y$order(orfnam = "piet.orf")
+y$order(orfnam = "piet.orf")

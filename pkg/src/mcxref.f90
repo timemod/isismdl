@@ -62,7 +62,7 @@ real(kind = SOLVE_RKIND) :: avgfbo, z
 
 character(len = 1) :: vartyp
 
-integer  :: cntrdv, nzrcnt, idum
+integer  :: cntrdv, nzrcnt
 integer(kind = MC_IKIND) :: lhsnum
 integer :: stat, retcod
 
@@ -675,12 +675,6 @@ goto 999
 1000 continue
 close(xrfunt)
 
-deallocate(ixref, stat = idum)
-deallocate(ieref, stat = idum)
-deallocate(ipref, stat = idum)
-deallocate(ivref, stat = idum)
-deallocate(equno, stat = idum)
-deallocate(fbsjac, stat = idum)
 return
 end subroutine write_xref
 

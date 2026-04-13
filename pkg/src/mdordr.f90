@@ -70,12 +70,13 @@
         !                                  dense
         !                               3  not enough memory
     
-        integer :: ier, errval, nfbprev
+        integer :: errval, nfbprev
         integer, dimension(:), allocatable :: fbtypfix
         logical :: checkfbrd_tmp
         integer :: fbrdcnt_tmp, alloc_stat
         character(len = 255) :: msg
         
+        errflg = 0
         fbrdcnt_tmp = 0
         
         !
@@ -90,51 +91,60 @@
         if (present(fixcnt)) then
             allocate(fbtypfix(fixcnt), stat = alloc_stat)
             if (alloc_stat > 0) then
-                ier = 20
+                errflg = 20
                 goto 999
             endif
             fbtypfix = 1
         endif
+
+        call allocate_mcordr_work(mdl, alloc_stat)
+        if (alloc_stat > 0) then
+            errflg = 20
+            goto 999
+        endif
     
-        call order_equations(ier, errval, mdl, usinac = usinac, &
+        call order_equations(errflg, errval, mdl, usinac = usinac, &
                          fixepi = fixepi, numfix = fixcnt, &
                          fbfix = fbfix, fbtypfix = fbtypfix)
-        errflg = ier
-        if (ier /= 0)  goto 999
+        if (errflg /= 0) then
+             call deallocate_mcordr_work
+             goto 999
+        endif
+
         fbrdcnt_tmp = 0
         nfbprev = mdl%nfb
         if (checkfbrd_tmp .and. mdl%nfb > 1) then
             !
             ! check for redundant feedback variables
             !
-            call rm_redundant_fb(mdl, ier, errval, usinac = usinac, &
+            call rm_redundant_fb(mdl, errflg, errval, usinac = usinac, &
     &                            fixepi = fixepi, dofbrd = dofbrd)
-            errflg = ier
-            if (ier /= 0) goto 999
+            call deallocate_mcordr_work ! release memory no longer needed
+            if (errflg /= 0) goto 999
             fbrdcnt_tmp = nfbprev - mdl%nfb
         endif
-    
+
         if (mdl%fboflg > 0) then
             call gen_fb_order(0, mdl, fbor_err)
         else
             fbor_err = 0
             mdl%fbomem = 0
-            deallocate(mdl%fboptr, mdl%fbordr, stat = alloc_stat)
+            if (allocated(mdl%fboptr)) deallocate(mdl%fboptr)
+            if (allocated(mdl%fbordr)) deallocate(mdl%fbordr)
         endif
     
-  999 continue
-    
+  999   continue
+
         if (present(fbrdcnt)) fbrdcnt = fbrdcnt_tmp
         
-        call deallocate_mcordr_work
         if (allocated(fbtypfix)) deallocate(fbtypfix)
         
-        if (ier /= 0) then
-            select case (ier)
+        if (errflg /= 0) then
+            select case (errflg)
             case(20)
                 msg =  "Not enough memory for ordering the model equations."
             case default
-                write(msg,'(a, i2, a)') 'Internal error ', ier,  &
+                write(msg,'(a, i2, a)') 'Internal error ', errflg,  &
                                     ' occurred while ordering the model.'
             end select
             call isismdl_error(msg)

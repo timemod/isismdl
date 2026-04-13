@@ -47,6 +47,7 @@ module mws_type
             allocate(mws%test(mws%mdl%nrv), stat = stat)
             if (stat == 0) allocate(mws%ftrelax(mws%mdl%nendex), stat = stat)
             if (stat /= 0) then
+                call clear_mws(mws)
                 call isismdl_error("Not enough memory to allocate the mws")
                 error = 1
                 return
@@ -61,16 +62,15 @@ module mws_type
 
         subroutine clear_mws(mws)
             type(modelworkspace), intent(inout) :: mws
-            integer :: stat
             mws%perlen = 0
             mws%data_perlen = 0
             mws%simerr = -1
             mws%dbgeqn = .false.
             mws%jc = -1
-            deallocate(mws%mdl_data, stat = stat)
-            deallocate(mws%constant_adjustments, stat = stat)
-            deallocate(mws%test, stat = stat)
-            deallocate(mws%ftrelax, stat = stat)
+            if (allocated(mws%mdl_data))             deallocate(mws%mdl_data)
+            if (allocated(mws%constant_adjustments)) deallocate(mws%constant_adjustments)
+            if (allocated(mws%test))                 deallocate(mws%test)
+            if (allocated(mws%ftrelax))              deallocate(mws%ftrelax)
             call clear_fit(mws)
             call clear_fix(mws)
             call deallocate_model(mws%mdl)
@@ -78,8 +78,7 @@ module mws_type
 
         subroutine clear_fit(mws)
             type(modelworkspace), intent(inout) :: mws
-            integer :: stat
-            deallocate(mws%rmsu, stat = stat)
+            if (allocated(mws%rmsu)) deallocate(mws%rmsu)
             call clear_mdl_variables(mws%fit_targets)
         end subroutine clear_fit
 
@@ -158,8 +157,8 @@ module mws_type
             mws%perlen = get_period_count(mws%start_period, mws%end_period)
             mws%data_perlen = mws%perlen + mws%mdl%mxlag + mws%mdl%mxlead
 
-            deallocate(mws%mdl_data, stat = stat)
-            deallocate(mws%constant_adjustments, stat = stat)
+            if (allocated(mws%mdl_data)) deallocate(mws%mdl_data)
+            if (allocated(mws%constant_adjustments)) deallocate(mws%constant_adjustments)
             call mddata(mws, error)
 
             call clear_mdl_variables(mws%fix_vars)
@@ -193,6 +192,7 @@ module mws_type
 &                                                        mws%data_perlen), &
 &                                   stat = stat)
             if (stat /= 0) then
+                call clear_mws(mws)
                 call isismdl_error("Not enough memory to allocate the mws")
                 error = .true.
                 return

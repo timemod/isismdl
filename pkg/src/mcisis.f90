@@ -246,8 +246,8 @@ if (mdl%nulf > 0) call mcszer(mdl%ulfnames, mdl%iulflast, size(mdl%ulfnames))
 !*ENDIF
 
 
-!     analyse dependency structure and write dependencies to scratch
-!     file depunt
+! analyse dependency structure and write dependencies to scratch
+! file depunt
 
 call mcimsg(4, 0)
 
@@ -358,7 +358,8 @@ endif
 
 ! release memory not needed for writing the cross reference
 
-deallocate(mdl%indexe, mdl%coef)
+if (allocated(mdl%indexe)) deallocate(mdl%indexe)
+if (allocated(mdl%coef)) deallocate(mdl%coef)
 
 ! if fbcpar(1) .eq. 0, the cross reference does not need full information
 ! on feedback ordering.
@@ -741,20 +742,6 @@ case (8)
     str = '         equations processed'
     write(str(4:8),'(i5)' ) mpar
 
-case (9) 
-    str = 'Checking redundant feedback variables'
-
-case (10)
-    str = '         redundant feedback variables detected'
-    write(str(4:8),'(i5)' ) mpar
-
-case (11)
-    if (mpar == 0) then
-        str = 'Removing redundant feedback variables'
-    else
-        str = 'Not removing redundant feedback variables'
-    endif
-
 case (12)
     str = 'Generating feedback variable ordering'
 
@@ -766,17 +753,6 @@ case (14)
 
 case (15)
     str = 'NO feedback ordering generated and installed'
-
-case (16)
-    str = '         feedback variables added'
-    write(str(3:8),'(i6)' ) mpar
-
-case (17)
-    str = 'Redundancies resolved in    passes'
-    write(str(26:27),'(i2)' ) mpar
-
-case (18)
-    str = 'More than 5 passes for redundant feedbacks'
 
 case default
 return
@@ -960,16 +936,17 @@ subroutine mc_alloc(eqCount, varCount, parCount, coefCount, &
 
    if (stat == 0) call allocate_mcvars(varCount, stat = stat)
 
+   if (stat /= 0) call deallocate_model(mdl)
+
 end subroutine mc_alloc
 
 !------------------------------------------------------------------------------
 
-subroutine add_eqname(k, nmlen, name, lhs_num, type)
+subroutine add_eqname(k, nmlen, name, lhs_num, type_int)
    use mcvars
    use kinds
    use mdl_name_utils
-   integer(kind = MC_IKIND) :: k, nmlen, name(*), lhs_num
-   character type
+   integer(kind = MC_IKIND), intent(in) :: k, nmlen, name(*), lhs_num, type_int
 
    integer :: i
 
@@ -983,18 +960,17 @@ subroutine add_eqname(k, nmlen, name, lhs_num, type)
    i = add_name(name, nmlen, k, mdl%enames, mdl%ienames, &
 &               nre, size(mdl%enames), mdl%ielast)
    mdl%lhsnum(k) =  lhs_num
-   call bysset(mdl%etype, int(k, ISIS_IKIND), ichar(type))
+   call bysset(mdl%etype, int(k, ISIS_IKIND), type_int)
 
 end subroutine add_eqname
 
 ! -----------------------------------------------------------
 
-subroutine add_varname(k, nmlen, name, type)
+subroutine add_varname(k, nmlen, name, type_int)
     use mcvars
     use kinds
     use mdl_name_utils
-    integer(kind = MC_IKIND) ::  k, nmlen, name(*)
-    character type
+    integer(kind = MC_IKIND), intent(in) ::  k, nmlen, name(*), type_int
 
    integer :: i
 
@@ -1007,7 +983,7 @@ subroutine add_varname(k, nmlen, name, type)
 
    i = add_name(name, nmlen, k, mdl%vnames, mdl%ivnames, &
 &               mdl%nrv, size(mdl%vnames), mdl%ivlast)
-   call bysset(vtype, int(k, ISIS_IKIND), ichar(type))
+   call bysset(vtype, int(k, ISIS_IKIND), type_int)
 
 end subroutine add_varname
 

@@ -5,9 +5,12 @@ module mcordr
     use kinds
     use model_type
     use mccedp
-    integer(kind = SOLVE_IKIND), dimension(:), allocatable, save &
-&          :: icode, nrow, ncol, lrow1, lcol1, irow, jcol, lrow, lcol
-    integer, save :: ordr_alloc_stat
+
+    integer(kind = SOLVE_IKIND), dimension(:), allocatable, save, &
+          private :: numfb, fbtypes, icode, nrow, ncol, lrow1, lcol1, &
+                     irow, jcol, lrow, lcol
+
+    logical, save, private :: mcordr_work_allocated = .false.
 
     contains
 
@@ -72,6 +75,7 @@ subroutine order_equations(ier, errpar, mdl, usinac, fixepi, &
 !     12  non zero element in mcosgl
 !     13  cannot choose feedback variable
 !     20  not enough memory
+!     30  internal error
 
 !     All of these errors are internal with possible exception of 6
 
@@ -93,6 +97,7 @@ character(len = 1) :: eqtyp
 
 logical ::    usinac_tmp, fixepi_tmp
 integer ::    fbctyp
+integer :: alloc_stat
 
 if (present(numfix)) then
     numfix_tmp = numfix
@@ -109,27 +114,23 @@ if (present(fixepi)) then
 else
     fixepi_tmp = .true.
 endif
+
+! Deallocate existing feedbackvariables from mdl.
+if (allocated(mdl%numfb)) deallocate(mdl%numfb)
+if (allocated(mdl%fbtype)) deallocate(mdl%fbtype)
+
 !
-! allocate mdl%numfb and mdl%fbtype with maximum possible size
-!
-deallocate(mdl%numfb, stat = idum)
-deallocate(mdl%fbtype, stat = idum)
-allocate(mdl%numfb(mdl%neq), stat = ordr_alloc_stat)
-if (ordr_alloc_stat == 0) then
-    allocate(mdl%fbtype(mdl%neq), stat = ordr_alloc_stat)
-endif
-if (ordr_alloc_stat == 0 .and. .not. allocated(icode)) then
-    call allocate_mcordr_work(mdl)
-endif
-if (ordr_alloc_stat > 0) then
-    ier = 20
+! Check if mcordr_work has been allocated
+! 
+if (.not. mcordr_work_allocated) then
+    ier = 30
     return
-endif
+endif 
 
 ier = 0
 errpar = 0
 
-!     initialize icode; construct structural graph matrix
+! initialize icode; construct structural graph matrix
 
 mdl%order(:mdl%neq) = 0
 
@@ -139,7 +140,7 @@ if (usinac_tmp) then
    do  i=1,mdl%neq
       eqtyp = char(bysget(mdl%etype,i))
       if( ichar(eqtyp) .gt. 96 ) then
-!              skip inactive equation
+         ! skip inactive equation
          icode(i) = 1
          inactv  = inactv + 1
       else
@@ -153,9 +154,9 @@ else
 endif
 
 call mcotab
-if( ier .ne. 0 ) goto 900
+if (ier .ne. 0) return
 
-!     find pro- and epilogue blocks
+! find pro- and epilogue blocks
 
 mdl%loops  = 1
 mdl%loope  = mdl%neq - inactv
@@ -163,9 +164,9 @@ nrest  = mdl%neq - inactv
 mdl%nfb    = 0
 nvcode = 1
 
-!     implicit equations (if done properly by model developer)
-!     should have the lefthandside variable on the righthand side
-!     this causes the equation NOT to be included in pro/epilogue
+! implicit equations (if done properly by model developer)
+! should have the lefthandside variable on the righthand side
+! this causes the equation NOT to be included in pro/epilogue
 
 if (fixepi_tmp) then
     call mcopre
@@ -173,130 +174,133 @@ else
     call mcoprx
 endif
 
-if( ier .ne. 0 ) goto 900
+if (ier .ne. 0) return
 
-if(nrest .eq. 0) then
-!        model is recursive; can be checked by caller (mdl%nfb == 0)
-!        it may be possible that some equations are in epilogue
-!        ensure that model only has prologue
-!        for cosmetic reasons
-
-   if( mdl%loope .ne. mdl%neq - inactv) then
+if (nrest .eq. 0) then
+   ! model is recursive; can be checked by caller (mdl%nfb == 0)
+   ! it may be possible that some equations are in epilogue
+   ! ensure that model only has prologue
+   ! for cosmetic reasons
+   if (mdl%loope .ne. mdl%neq - inactv) then
        mdl%loops = mdl%neq - inactv + 1
        mdl%loope = mdl%neq - inactv
    endif
    goto 810
 endif
 
+! handle fixed feedback variables (if any)
 
-!     handle fixed feedback variables (if any)
-
-do  i=1,numfix_tmp
+do  i =1, numfix_tmp
    fx = fbfix(i)
    if( fx .ge. 1 .and. fx .le. mdl%nrv ) then
        eqfnum = equno(fx)
-       if(eqfnum .ne. 0 ) then
-!                active and/or endogenous
-           if( icode(eqfnum) .eq. 0 ) then
-!                    not in pro-/epilogue
+       if (eqfnum .ne. 0) then
+           ! active and/or endogenous
+           if (icode(eqfnum) .eq. 0) then
+               ! not in pro-/epilogue
                fbctyp = fbtypfix(i)
                call mcofbk(eqfnum,fbctyp, nrow,ncol,lrow1,lcol1,irow,jcol,lrow, &
 &                          lcol)
-               if( ier .ne. 0 ) goto 900
+               if (ier .ne. 0) return
            endif
        endif
    endif
 enddo
 
-!     find feedback variables
+! find feedback variables
 
-!     1. check for diagonal elements
+! 1. check for diagonal elements
 
 call mcorim
-if( ier .ne. 0 ) goto 901
+if (ier .ne. 0) then
+   ier = 1
+   return
+endif
 
-do  i=1,mdl%neq
-   if(icode(i) .eq. 0) then
+do  i =1, mdl%neq
+   if (icode(i) .eq. 0) then
       lri = lrow1(i)
       call mcorrc(i,lrow,jcol,icode,lri,last)
-      if(lri .ne. 0) then
-!              self explanatory feedback variable
+      if (lri .ne. 0) then
+         ! self explanatory feedback variable
          call mcofbk(i, 2, nrow,ncol,lrow1,lcol1,irow,jcol,lrow,lcol)
-         if( ier .ne. 0 ) goto 900
+         if (ier .ne. 0)  return
       endif
-      if(nrest .eq. 0) goto 730
+      if (nrest .eq. 0) goto 730
    endif
 enddo
 
-!     2. perform reduction rules
+! 2. perform reduction rules
 
 !  !! nvcode = 9 signals to mcozer to not adjust mdl%loops/mdl%loope
 
 nvcode = 9
-do  mm=1,mdl%neq
+do  mm = 1, mdl%neq
+
    nresto = nrest
    nsingl = 0
 
-   do  m=1,mdl%neq
+   do  m =1, mdl%neq
 
       if(icode(m) .gt. 0) cycle
       if(nrow(m) .eq. 0 .or. ncol(m) .eq. 0) then
 
-!              no incoming/outgoing arc
+         ! no incoming/outgoing arc
 
          call mcozer(m)
 
       else if(nrow(m) .eq. 1) then
 
-!              1 incoming arc
+         ! 1 incoming arc
 
          call mcosgl(m,irow,lrow,lrow1,jcol,lcol,lcol1, nrow,ncol)
-         if( ier .ne. 0 ) goto 900
+         if (ier .ne. 0) return
          nsingl = nsingl + 1
 
       else if(ncol(m) .eq. 1) then
 
-!              1 outgoing arc
+         ! 1 outgoing arc
 
          call mcosgl(m,jcol,lcol,lcol1,irow,lrow,lrow1, ncol,nrow)
-         if( ier .ne. 0 ) goto 900
+         if (ier .ne. 0) return
          nsingl = nsingl + 1
 
       endif
 
    enddo
 
-   if(nrest .eq. 0) goto 600
-   if(nrest .eq. nresto .and. nsingl .eq. 0) then
-
-!              choose feedback variable heuristically
-
+   if (nrest .eq. 0) exit
+   if (nrest .eq. nresto .and. nsingl .eq. 0) then
+         ! choose feedback variable heuristically
          call mcochs
-         if( ier .ne. 0 ) goto 900
+         if (ier .ne. 0) return
    endif
 enddo
 
-!     No ordering found (error)
-goto 902
+if (nrest /= 0) then
+   ! No ordering found (error)
+   ier = 2
+   return
+endif
 
-600 continue
+! rebuild graph for simultaneous part(excluding feedback variables)
 
-!     rebuild graph for simultaneous part(excluding feedback variables)
-
-do  i=1,mdl%neq
-   if(icode(i) .ne. 1) icode(i) = 0
+do  i =1, mdl%neq
+   if (icode(i) .ne. 1) icode(i) = 0
 enddo
 
 call mcotab
-if( ier .ne. 0 ) goto 900
+if (ier .ne. 0) return
 
 call mcorim
-if( ier .ne. 0 ) goto 903
+if (ier .ne. 0) then
+  ier = 3
+  return
+endif
 
-
-!     mdl%order the simultaneous part given feedback variables
-!     nvcode = 1 signals to mcozer that mdl%loops/mdl%loope should be adjusted
-!                ==> so save current values
+! mdl%order the simultaneous part given feedback variables
+! nvcode = 1 signals to mcozer that mdl%loops/mdl%loope should be adjusted
+!               ==> so save current values
 
 nvcode = 1
 loopso = mdl%loops
@@ -304,20 +308,23 @@ loopeo = mdl%loope
 mdl%loope  = mdl%loope - mdl%nfb
 nrest  = mdl%loope - mdl%loops + 1
 call mcopre
-if( ier .ne. 0 ) goto 900
+if (ier .ne. 0) return 
 
-!     nrest equations unordered
-if(nrest .ne. 0) goto 904
+!  nrest equations unordered
+if (nrest .ne. 0) then
+   ier = 4
+   return
+endif
 
-!     reset to original values
+! reset to original values
 
 mdl%loops = loopso
 mdl%loope = loopeo
 
-!     rebuild graph for feedback variables, and mdl%order them
-!     not needed if mdl%nfb <= 1
+! rebuild graph for feedback variables, and mdl%order them
+! not needed if mdl%nfb <= 1
 
-if(mdl%nfb .gt. 1) then
+if (mdl%nfb .gt. 1) then
 
    nfbold = mdl%nfb
    mdl%nfb   = 0
@@ -328,10 +335,10 @@ if(mdl%nfb .gt. 1) then
    enddo
 
    call mcotab
-   if( ier .ne. 0 ) goto 900
+   if (ier .ne. 0) return
 
    call mcopre
-   if( ier .ne. 0 ) goto 900
+   if (ier .ne. 0) return
 
    if(nrest .ne. 0) then
       do  i=1,mdl%neq
@@ -341,9 +348,11 @@ if(mdl%nfb .gt. 1) then
          endif
       enddo
 
-!           error assigning mdl%order to feedbacks
-      if(mdl%loops .ne. mdl%loope+1) goto 905
-
+      ! error assigning mdl%order to feedbacks
+      if (mdl%loops .ne. mdl%loope + 1) then
+          ier = 5
+          return
+      endif
    endif
    mdl%loops = loopso
    mdl%loope = loopeo
@@ -353,47 +362,31 @@ endif
 
 730 continue
 
-!     convert equation numbers in mdl%numfb(*) to variable numbers
+! convert equation numbers in numfb(*) to variable numbers
 
-do  i=1,mdl%nfb
-   mdl%numfb(i) = mdl%lhsnum(mdl%numfb(i))
+do i =1, mdl%nfb
+   numfb(i) = mdl%lhsnum(numfb(i))
 enddo
 
-!     ordering completed
+! ordering completed
 
 810 continue
 
 ! construct the inverse order array
 call set_order_inv(mdl)
 
-900 continue
 !
-! adjust the size of mdl%numfb and mdl%fbtype
+! Now store numfb and fbtyp the mdl object
 !
-allocate(tmp(mdl%nfb), stat = ordr_alloc_stat)
-if (ordr_alloc_stat > 0) then
+allocate(mdl%numfb(mdl%nfb), stat = alloc_stat)
+if (alloc_stat == 0) allocate(mdl%fbtype(mdl%nfb), stat = alloc_stat)
+if (alloc_stat > 0) then
+    if (allocated(mdl%numfb)) deallocate(mdl%numfb)
     ier = 20
     return
 endif
-tmp(1: mdl%nfb) = mdl%numfb(1: mdl%nfb)
-call move_alloc(tmp, mdl%numfb)
-allocate(tmp(mdl%nfb))
-tmp(1: mdl%nfb) = mdl%fbtype(1: mdl%nfb)
-call move_alloc(tmp, mdl%fbtype)
-
-
-return
-
-901 ier = 1
-goto 900
-902 ier = 2
-goto 900
-903 ier = 3
-goto 900
-904 ier = 4
-goto 900
-905 ier = 5
-goto 900
+mdl%numfb = numfb(1: mdl%nfb)
+mdl%fbtype = fbtypes(1: mdl%nfb)
 
 return
 
@@ -761,7 +754,7 @@ integer(kind = MC_IKIND) :: nrow(*),ncol(*), irow(*),jcol(*)
 integer(kind = MC_IKIND) :: lrow1(*),lcol1(*),lrow(*),lcol(*)
 
 mdl%nfb = mdl%nfb + 1
-if(mdl%nfb .gt. size(mdl%numfb)) then
+if(mdl%nfb .gt. size(numfb)) then
    ier = 11
 else
    mdl%order(mdl%loope-mdl%nfb+1) = m
@@ -769,8 +762,8 @@ else
    call mcodel(m,irow,lcol,lcol1,nrow)
    call mcodel(m,jcol,lrow,lrow1,ncol)
    nrest = nrest - 1
-   mdl%numfb(mdl%nfb) = m
-   mdl%fbtype(mdl%nfb) = fbtype
+   numfb(mdl%nfb) = m
+   fbtypes(mdl%nfb) = fbtype
 endif
 
 return
@@ -885,15 +878,18 @@ end subroutine mcochs
 
 end subroutine order_equations
 
-subroutine allocate_mcordr_work(mdl)
+subroutine allocate_mcordr_work(mdl, alloc_stat)
     type(model), intent(in) :: mdl
+    integer, intent(out) :: alloc_stat
 
     integer :: stat
     !
     ! allocate work arrays for ordering the equation of a model
     !
     call deallocate_mcordr_work
-    allocate(icode(mdl%neq), stat = stat)
+    allocate(numfb(mdl%neq), stat = stat)
+    if (stat == 0) allocate(fbtypes(mdl%neq), stat = stat)
+    if (stat == 0) allocate(icode(mdl%neq), stat = stat)
     if (stat == 0) allocate(nrow(mdl%neq), stat = stat)
     if (stat == 0) allocate(ncol(mdl%neq), stat = stat)
     if (stat == 0) allocate(lrow1(mdl%neq), stat = stat)
@@ -902,7 +898,12 @@ subroutine allocate_mcordr_work(mdl)
     if (stat == 0) allocate(jcol(maxarc), stat = stat)
     if (stat == 0) allocate(lrow(maxarc), stat = stat)
     if (stat == 0) allocate(lcol(maxarc), stat = stat)
-    ordr_alloc_stat = stat
+
+    mcordr_work_allocated = stat == 0
+
+    if (stat /= 0) call deallocate_mcordr_work
+
+    alloc_stat = stat
 
 end subroutine allocate_mcordr_work
 
@@ -910,11 +911,21 @@ subroutine deallocate_mcordr_work
     !
     ! deallocate work arrays for ordering the equation of a model
     !
-    integer :: stat
-    deallocate(icode, nrow, ncol, lrow1, lcol1, irow, &
-&              jcol, lrow,  lcol, stat = stat)
+
+    mcordr_work_allocated = .false.
+
+    if (allocated(numfb))  deallocate(numfb)
+    if (allocated(fbtypes))  deallocate(fbtypes)
+    if (allocated(icode))  deallocate(icode)
+    if (allocated(nrow))   deallocate(nrow)
+    if (allocated(ncol))   deallocate(ncol)
+    if (allocated(lrow1))  deallocate(lrow1)
+    if (allocated(lcol1))  deallocate(lcol1)
+    if (allocated(irow))   deallocate(irow)
+    if (allocated(jcol))   deallocate(jcol)
+    if (allocated(lrow))   deallocate(lrow)
+    if (allocated(lcol))   deallocate(lcol)
 
 end subroutine deallocate_mcordr_work
-
 
 end module mcordr
