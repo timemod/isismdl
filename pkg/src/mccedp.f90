@@ -5,7 +5,6 @@ module mccedp
     integer(kind = SOLVE_IKIND), dimension(:), allocatable, save &
 &              :: equno, eqdep, edptr
 
-    integer, private, save :: dep_alloc_stat
     private :: init_dep
 
     contains
@@ -20,6 +19,7 @@ use mcpars
 type(model), intent(in) :: mdl
 integer, intent(out) :: ier, errpar
 
+!     Called from mcisis.
 !     Read dependency structure from file depunt.
 !     This procedure is used for a model that has just
 !     been compiled and is in model compiler memory.
@@ -43,12 +43,12 @@ integer, intent(out) :: ier, errpar
 
 
 integer(kind = MC_IKIND) :: i, k, curep,vn, ii
-integer :: ios
+integer :: ios, stat
 
 ier = 0
 
-call init_dep(mdl)
-if (dep_alloc_stat > 0) then
+call init_dep(mdl, stat)
+if (stat > 0) then
     ier = 1
     return
 endif
@@ -121,15 +121,15 @@ integer, intent(out) :: ier
 !                                             other: see mcodep.rf7
 
 
-integer ::  i,k, curep,vn
+integer ::  i,k, curep,vn, stat
 
 ier = 0
 
 maxarc = get_maxarc(useleads, ier)
 if (ier /= 0) return
 
-call init_dep(mdl)
-if (dep_alloc_stat > 0) then
+call init_dep(mdl, stat)
+if (stat > 0) then
     ier = 10
     return
 endif
@@ -184,7 +184,8 @@ use mcodep
 
 integer, intent(out) :: ier
 
-!     Analyse dependcies of model just compiled with procedure
+!     Called from mcisis.
+!     Analyse dependencies of model just compiled with procedure
 !     compile_model and write dependencies to scratch file depunt.
 !     The function and equation code is read from scratch files
 !     ufnunt and polunt.
@@ -197,7 +198,7 @@ integer, intent(out) :: ier
 !                                             other: see mcodep.rf7
 
 
-integer ::  i, j, ios, fstat, idum
+integer ::  i, j, ios, fstat, stat
 integer(kind = MC_IKIND) :: ipol
 
 ier = 0
@@ -209,12 +210,12 @@ ipol = 0
 
 ! equat should contain the code of all user functions
 ! plus the code for one equation (max. size is maxpol)
-deallocate(mdl%nrecuf, mdl%equat, stat = idum)
-allocate(mdl%nrecuf(mdl%nuf + 1), stat = dep_alloc_stat)
-if (dep_alloc_stat == 0) then
-    allocate(mdl%equat(mdl%ufblen + maxpol), stat = dep_alloc_stat)
-endif
-if (dep_alloc_stat > 0) then
+if (allocated(mdl%nrecuf)) deallocate(mdl%nrecuf)
+if (allocated(mdl%equat))  deallocate(mdl%equat)
+allocate(mdl%nrecuf(mdl%nuf + 1), stat = stat)
+if (stat == 0) allocate(mdl%equat(mdl%ufblen + maxpol), stat = stat)
+if (stat > 0) then
+    if (allocated(mdl%nrecuf)) deallocate(mdl%nrecuf)
     ier = 10
     return
 endif
@@ -243,7 +244,6 @@ do i = 1, mdl%neq
        mxlead(iv(j)) = max(mxlead(iv(j)),  imaxld(j))
    end do
 
-
    ! nsimv: number of simultaneous variables for normal solve
    maxarc = maxarc + nsimv
    maxref = maxref + nv + nparv
@@ -259,24 +259,30 @@ goto 920
 
 920 continue
 
-deallocate(mdl%nrecuf, mdl%equat)
+if (allocated(mdl%nrecuf)) deallocate(mdl%nrecuf)
+if (allocated(mdl%equat)) deallocate(mdl%equat)
 
 return
 end subroutine mc_analyse_model
 
 !-----------------------------------------------------------------------
 
-subroutine init_dep(mdl)
+subroutine init_dep(mdl, stat)
     type(model), intent(in) :: mdl
+    integer, intent(out) :: stat
 
     integer :: i
 
     call clear_edep
 
-    allocate(equno(mdl%nrv), stat = dep_alloc_stat)
-    if (dep_alloc_stat == 0) allocate(edptr(mdl%neq + 1), stat = dep_alloc_stat)
-    if (dep_alloc_stat == 0) allocate(eqdep(maxarc), stat = dep_alloc_stat)
-    if (dep_alloc_stat > 0) return
+    allocate(equno(mdl%nrv), stat = stat)
+    if (stat == 0) allocate(edptr(mdl%neq + 1), stat = stat)
+    if (stat == 0) allocate(eqdep(maxarc), stat = stat)
+
+    if (stat > 0) then
+       call clear_edep
+       return
+    endif
 
     equno = 0
     do i = 1, mdl%neq
@@ -289,7 +295,9 @@ end subroutine init_dep
 
 subroutine clear_edep
     integer :: stat
-    deallocate(equno, edptr, eqdep, stat = stat)
+    if (allocated(equno)) deallocate(equno)
+    if (allocated(edptr)) deallocate(edptr)
+    if (allocated(eqdep)) deallocate(eqdep)
 end subroutine clear_edep
 
 !-----------------------------------------------------------------------

@@ -22,7 +22,7 @@ module msorpr
         integer, parameter, dimension(2) :: fbcopt = (/0, 200/)
         integer ::    inactv
         integer ::    i, j, ios, ldum, npro, nepi, nsim
-        integer ::    p, leadsp, cnt, tcnt, ier
+        integer ::    p, leadsp, cnt, tcnt, ier, stat
         
         integer ::    lp, lenxrf
         character(len = 256) :: line
@@ -40,42 +40,44 @@ module msorpr
         logical ::   exist
         
         character(len = MCMXNM) name
-        character(len = MAXFLEN) :: orfnam
+        character(len = orfnmlen) :: orfnam
         integer(kind = MC_IKIND), dimension(:,:), allocatable :: sjac
         integer(kind = MC_IKIND), dimension(:), allocatable :: work
         integer ::  nzrcnt
 
+        ier = 0
         
-        orfnam = ' '
         call byasf7(orfnm, 1, orfnmlen, orfnam)
 
         if (mdl%nfb > 0) then
-            allocate(work(mdl%nrv))
+            allocate(work(mdl%nrv), stat = stat)
+            if (stat /= 0) then 
+               ier = 3
+               goto 1000
+            endif
             call mcjzct(mdl, nzrcnt, work)
             deallocate(work)
         endif
 
         if (prisjc .and. mdl%nfb > 0) then
            ! calculate symbolic rhs Jacobian
-           allocate(sjac(mdl%nfb, mdl%nfb))
+           allocate(sjac(mdl%nfb, mdl%nfb), stat = stat)
+           if (stat /= 0) then 
+               ier = 3
+               goto 1000
+           endif
            call gen_sjac(mdl, sjac, mdl%nfb)
         endif
         
         lenxrf = max(mrfopt(1),50)
         
-        ier = 0
-
-        inquire(file=orfnam,exist=exist)
-        if(exist) then
-           open(xrfunt,file=orfnam)
-           close(xrfunt,status='DELETE', iostat=ios)
-           if( ios .ne. 0 ) goto 910
+        ! create the ordering file
+        open(xrfunt, file = orfnam, form = 'formatted', &
+             status = 'REPLACE', iostat = ios, round = 'compatible')
+        if (ios /= 0) then
+           ier = 1
+           goto 1000
         endif
-
-        
-        open(xrfunt,file=orfnam,form='formatted', &
-        &    status='NEW',iostat=ios, round = 'compatible')
-        if(ios.ne.0) goto 910
         
         write(xrfunt,'(6a/)',err=990,iostat=ios) ' ISIS model ordering information: ', &
         & mdl%cname(:mdl%cnamelen)
@@ -83,7 +85,6 @@ module msorpr
         ! count number of inactive equations
         inactv = 0
 
-        
         if (usinac) then
             do i = 1, mdl%neq
                eqtyp = char(bysget(mdl%etype, i))
@@ -119,7 +120,7 @@ module msorpr
         
         if (mdl%fboflg > 0 .and. allocated(mdl%fboptr)) then
         
-        !        feedback ordering calculated ==> print summary statistics
+           ! feedback ordering calculated ==> print summary statistics
         
            maxfbo = 0
            minfbo = mdl%loope - mdl%loops + 1
@@ -129,7 +130,8 @@ module msorpr
               minfbo = min(minfbo, j)
            end do
            avgfbo = dble(mdl%fboptr(mdl%nfb + 1) - 1) / dble(mdl%nfb)
-        !        effective number of steps for jacobian (rounded up)
+
+           ! effective number of steps for jacobian (rounded up)
            fbostp = (mdl%fboptr(mdl%nfb + 1) - 1 + mdl%nfb * mdl%nfb - 1) / nsim + 1
         
            write(xrfunt,'(1x,a)',err=990,iostat=ios) 'Statistics of feedback ordering'
@@ -336,25 +338,26 @@ module msorpr
         
         goto 1000
         
-  910 continue
-        ier = 1
-        goto 1000
-        
   990 continue
+        ! Write error
         ier = 2
-        
+
  1000 continue
+
         close(xrfunt)
        
         if (allocated(sjac)) deallocate(sjac)
-    
+
         if (ier /= 0) then
             if (ier == 1) then
-                write(line, "(a, a, a)") "Cannot open file ", trim(orfnam), &
+                write(line, "(a, a, a)") "Cannot open file ", orfnam, &
                           " for writing ordering information"
-            else 
+            else if (ier == 2) then
                 write(line, "(a, a)") &
                     "Error writing ordering information to file ", orfnam
+            else 
+                write(line, "(a, a)") &
+                    "Out of memory when writing ordering information to file ", orfnam
             endif
             call isismdl_error(line)
         endif

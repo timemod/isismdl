@@ -1,130 +1,120 @@
-module mcirfb
-
+module  mcirfb
 contains
 
+! Model has been ordered and has feedback variables
+! Check for redundant fbvars ansd iterate until no more redundancies
+! Error code in orderr:
+!    0        OK
+!   20        Out of memory
+!  other > 0: See mcordr.f90.
+
 subroutine rm_redundant_fb(mdl, orderr, errpar, usinac, fixepi, dofbrd)
-use model_type
-use kinds
-use mcordr
+    use model_type
+    use kinds
+    use mcordr
+    
+    type(model), intent(inout) :: mdl
+    integer, intent(out) :: orderr, errpar
+    logical, intent(in), optional :: usinac, fixepi, dofbrd
+    
+    ! Locals
+    logical :: mem_error
+    integer ::  fbrc, xpass, fixcnt, nfbp, stat
+    
+    integer, dimension(:), allocatable :: fbred, fbrpos, fbrfix, fbtypfix
+    integer(kind = SOLVE_IKIND), dimension(:), allocatable :: owork
+    logical :: dofbrd_tmp
 
-!     Model has been ordered and has feedback variables
-!     Check for redundant fbvars ansd iterate until no more redundancies
+    orderr = 0
+    
+    if (present(dofbrd)) then
+        dofbrd_tmp = dofbrd
+    else
+        dofbrd_tmp = .true.
+    endif
+    
+    call alloc_fb_work(mem_error)
+    if (.not. mem_error) then
+        allocate(owork(mdl%nrv), stat = stat)
+        if (stat /= 0) mem_error = .true.
+    endif
+    if (mem_error) then
+        orderr = 20
+        return
+    endif
+    
+    ! Determine if feedback set + order has redundant feedbacks
+    
+    call rfb_msg(9, 0)
+    
+    xpass = 1
+    
+    call mcfbrd
+    
+    call rfb_msg(10, fbrc)
+    
+    ! no redundant feedback variables detected: return
+    if (fbrc == 0) return
+        
+    ! redundant feedback variables detected ==> print
 
-type(model), intent(inout) :: mdl
-integer, intent(out) :: orderr, errpar
-logical, intent(in), optional :: usinac, fixepi, dofbrd
-logical :: mem_error
+    call mcfrms
 
-!     Locals
+    if( .not. dofbrd_tmp)  then
+       !  don't remove redundant feedback variables so quit
+       call rfb_msg(11, 1)
+       return
+    endif
 
-integer ::  fbrc, xpass, fixcnt, nfbp, stat
+    call rfb_msg(11, 0)
 
-integer, dimension(:), allocatable :: fbred, fbrpos, fbrfix, fbtypfix
-integer(kind = SOLVE_IKIND), dimension(:), allocatable :: owork
-logical :: dofbrd_tmp
+    ! iterate until no more redundant feedback variables are detected
+    do
+        ! remove redundancies and fix remaining feedback variables
+        call mcfrfx
 
-if (present(dofbrd)) then
-    dofbrd_tmp = dofbrd
-else
-    dofbrd_tmp = .true.
-endif
+        ! record number of feedbacks after removing the redundants
+        nfbp = mdl%nfb - fbrc
+        call order_equations(orderr, errpar, mdl, usinac = usinac, &
+&                            fixepi = fixepi, numfix = fixcnt, &
+&                            fbfix = fbrfix, fbtypfix = fbtypfix)
+        if (orderr /= 0) return
 
-call alloc_fb_work(mem_error)
-if (.not. mem_error) then
-    allocate(owork(mdl%nrv), stat = stat)
-    if (stat /= 0) mem_error = .true.
-endif
-if (mem_error) then
-    orderr = 20
-    goto 200
-endif
+        if (mdl%nfb > nfbp) then
+            ! message that feedback size has increased
+            call rfb_msg(16, mdl%nfb - nfbp)
+            ! The size of the work arrays should be increased
+            ! Therefore allocate the arrays again.
+            if (mdl%nfb > size(fbred)) then
+                call alloc_fb_work(mem_error)
+                if (mem_error) then
+                    orderr = 20
+                    return
+                endif
+            endif
+            ! check for redundancies again
+            call mcfbrd
+            if (fbrc /= 0) then
+                call rfb_msg(10, fbrc)
+                if (xpass < 5) then
+                    call mcfrms
+                    xpass = xpass + 1
+                    cycle          ! <-- next iteration
+                else
+                    call rfb_msg(18, 0)
+                    exit           ! <-- done, leave loop
+                endif
+            endif
+        else
+            ! No additional feedbacks created ==> done
+            call rfb_msg(16, mdl%nfb - nfbp)
+            exit                   ! <-- done, leave loop
+        endif
+    end do
 
-!     Determine if feedback set + order has redundant feedbacks
+    call rfb_msg(17, xpass)
 
-call mcimsg(9,0)
-
-xpass = 1
-
-call mcfbrd
-
-call mcimsg(10,fbrc)
-
-if (fbrc .gt. 0 ) then
-!        redundant feedback variables detected ==> print
-
-   call mcfrms
-
-   if( .not. dofbrd_tmp)  then
-!           don't remove redundant feedback variables so quit
-      call mcimsg(11, 1)
-      goto 200
-   endif
-
-   call mcimsg(11,0)
-
-!        iterate until no more redundant feedback variables are detected
-
-100 continue
-
-!           remove redundancies and fix remaining feedback variables
-
-      call mcfrfx
-
-!           record number of feedbacks after removing the redundants
-
-      nfbp = mdl%nfb - fbrc
-      call order_equations(orderr, errpar, mdl, usinac = usinac, &
-&                          fixepi = fixepi, numfix = fixcnt, &
-&                          fbfix = fbrfix, fbtypfix = fbtypfix)
-
-      if (orderr .ne. 0 ) goto 200
-
-      if (mdl%nfb .gt. nfbp ) then
-!              message that feedback sized has increased
-
-         call mcimsg(16, mdl%nfb - nfbp)
-
-!              increase size of work arrays
-         if (mdl%nfb > size(fbred)) then
-             call alloc_fb_work(mem_error)
-             if (mem_error) then
-                 orderr = 20
-                 goto 200
-             endif
-         endif
-
-!              check for redundancies again
-
-         call mcfbrd
-
-         if (fbrc .ne. 0 ) then
-             call mcimsg(10,fbrc)
-             if( xpass .lt. 5) then
-                call mcfrms
-                xpass = xpass + 1
-                goto 100
-             else
-                call mcimsg(18,0)
-             endif
-         else
-         endif
-      else
-!               No additional feedbacks created ==> done
-           call mcimsg(16, mdl%nfb - nfbp)
-      endif
-
-      call mcimsg(17,xpass)
-
-endif
-
-200 continue
-deallocate(fbred, stat = stat)
-deallocate(fbrfix, stat = stat)
-deallocate(fbrpos, stat = stat)
-deallocate(fbtypfix, stat = stat)
-deallocate(owork, stat = stat)
-
-return
+    return
 
 contains
 
@@ -139,9 +129,9 @@ contains
 !           Fbrpos[1..fbrc] will hold position in original numfb[]
 !           array.
 
-integer ::  equ
-integer ::  i,j,k,vn,fbnum
-logical ::  chkfb
+    integer ::  equ
+    integer ::  i,j,k,vn,fbnum
+    logical ::  chkfb
 
 !         for each feedback variable
 !            mark feedback variable as changed
@@ -206,14 +196,14 @@ logical ::  chkfb
     subroutine mcfrms
     use mdl_name_utils
 
-!         print overview of redundant feedback variables
+    ! print overview of redundant feedback variables
 
 
     character(len = 80) :: str
-integer ::  i
-integer ::  nlen1,nlen2
+    integer ::  i
+    integer ::  nlen1,nlen2
 
-    character*(mcmxnm) fbrnam, fbpnam
+    character(len = MCMXNM) :: fbrnam, fbpnam
 
     do i = 1, fbrc
       call mcf7ex(fbrnam, nlen1, mdl%ivnames(fbred(i)), mdl%vnames)
@@ -269,10 +259,10 @@ integer ::  i,rp
 
         integer :: stat
 
-        deallocate(fbred, stat = stat)
-        deallocate(fbrfix, stat = stat)
-        deallocate(fbrpos, stat = stat)
-        deallocate(fbtypfix, stat = stat)
+        if (allocated(fbred))    deallocate(fbred)
+        if (allocated(fbrfix))   deallocate(fbrfix)
+        if (allocated(fbrpos))   deallocate(fbrpos)
+        if (allocated(fbtypfix)) deallocate(fbtypfix)
 
         allocate(fbred(mdl%nfb), stat = stat)
         if (stat == 0) allocate(fbrfix(mdl%nfb),   stat = stat)
@@ -281,6 +271,52 @@ integer ::  i,rp
 
         error = stat /= 0
     end subroutine alloc_fb_work
+
+! ---------------------------------------------------------------------
+
+    subroutine rfb_msg(msgnum, mpar)
+        use output_utils
+        integer, intent(in) :: msgnum, mpar
+    
+        character(len = 80) :: str
+    
+        select case (msgnum)
+    
+        case (9)
+            str = 'Checking redundant feedback variables'
+    
+        case (10)
+            str = '         redundant feedback variables detected'
+            write(str(4:8),'(i5)' ) mpar
+    
+        case (11)
+            if (mpar == 0) then
+                str = 'Removing redundant feedback variables'
+            else
+                str = 'Not removing redundant feedback variables'
+            endif
+    
+        case (16)
+            str = '         feedback variables added'
+            write(str(3:8),'(i6)' ) mpar
+    
+        case (17)
+            str = 'Redundancies resolved in    passes'
+            write(str(26:27),'(i2)' ) mpar
+    
+        case (18)
+            str = 'More than 5 passes for redundant feedbacks'
+    
+        case default
+            return
+
+        end select
+    
+        call isismdl_out(str)
+    
+        return
+
+    end subroutine rfb_msg
 
 end subroutine rm_redundant_fb
 
