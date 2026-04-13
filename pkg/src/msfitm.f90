@@ -60,9 +60,11 @@ contains
             lwork_fit = get_lwork_fit(nu_max, nw_max)
             allocate(work_fit(lwork_fit), stat = stat)
         endif
-        alloc_stat = stat
+
 
         if (stat /= 0) call clear_fit_work
+
+        alloc_stat = stat
 
     end subroutine allocate_fit_work
 
