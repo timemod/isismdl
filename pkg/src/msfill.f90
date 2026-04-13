@@ -92,7 +92,7 @@ subroutine fill_mdl_data(jt1, jt2, report_type, include_frmls)
                call msinwt(xresult, lhsvar, 0, iequ, jtime, ier)
            elseif (eqtype == "B" .or. eqtype == "M") then
                ca_index = mdl%aci(lhsvar)
-               xca = mws%constant_adjustments(ca_index, jtime)
+               call get_ca_value(mws, ca_index, jtime, xca, error)
                if (nuifna(xca)) then
                    xresult = xca
                elseif (eqtype == "B") then

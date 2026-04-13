@@ -22,7 +22,7 @@ module mcrmif
     !   2  read error mif file (iostat in fstat)
     !   3  invalid identification string on file
     !   5  file is corrupt
-    !       10 not enough memory for reading the model
+    !  10  not enough memory for reading the model
   
     integer(kind = MC_IKIND) :: maxeqt, fbosiz, stat
   
@@ -44,9 +44,9 @@ module mcrmif
     call allocate_model(mdl, mdl%neq, mdl%nrv, mdl%nrp, mdl%nrc, &
   &                     mdl%nuf, mdl%nulf, eqCharCount, &
   &                     varCharCount, parCharCount, funCharCount, &
-  &                     ulFunCharCount, mdl%nca, mdl%nendex)
-    allocate(mdl%numfb(mdl%nfb), stat = stat)
-    if (mdl_alloc_stat > 0 .or. stat > 0) then
+  &                     ulFunCharCount, mdl%nca, mdl%nendex, stat)
+    if (stat == 0) allocate(mdl%numfb(mdl%nfb), stat = stat)
+    if (stat /= 0) then
         call deallocate_model(mdl)
         ier = 10
         return

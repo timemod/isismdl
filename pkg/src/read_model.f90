@@ -44,8 +44,8 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, &
         goto 999
     endif
     
-    str = "Model with       equations read"
-    write(str(12:16), '(I5)') mws_array(model_index)%mdl%neq
+    str = "Model has       equations"
+    write(str(11:15), '(I5)') mws_array(model_index)%mdl%neq
     call isismdl_out(str)
 
     !
@@ -71,7 +71,7 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, &
             call isismdl_out("Feedback ordering NOT generated ...")
         endif
     elseif (mws_array(model_index)%mdl%fboflg == 1) then
-        call isismdl_out("Feedback ordering read from mif file ...")
+        call isismdl_out("Feedback ordering read from file...")
     endif
 
     call mwsinit(mws_array(model_index), ier)

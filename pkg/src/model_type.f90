@@ -6,10 +6,12 @@ module model_type
     !
     ! Model paramters
     !    fboflg feedback ordering flag
-    !             0 : do not generate feedback ordering
-    !             1 : generate feedback ordering but do not write
-    !                 to mif
-    !             2 : generate fb ordering and write to mif
+    !             0 : Do not generate feedback ordering
+    !             1 : Generate feedback ordering and write to
+    !                 mif.
+    !             2 : Generate fb ordering, but do not write
+    !                 to mif. The fb ordering will be generated
+    !                 again after reading the model. 
     !             WARNING: if fboflg > 0, the model does not
     !             always have a feedback ordering. See argument
     !             fbomem.
@@ -41,10 +43,6 @@ module model_type
          real(kind = MC_RKIND), dimension(:), allocatable :: coef
     end type model
 
-    ! if mdl_alloc_stat > 0, then there was not enough memory to
-    ! allocate all model variables
-    integer, save :: mdl_alloc_stat
-
     integer, parameter, private :: ACTIVATE = 1
     integer, parameter, private :: DEACTIVATE = 2
 
@@ -55,7 +53,7 @@ contains
     subroutine allocate_model(mdl, eqCount, varCount, parCount, &
 &       coefCount, funCount, ulFunCount, eqCharCount, &
 &       varCharCount, parCharCount, funCharCount, ulFunCharCount, &
-&       caCount, leadVarCount)
+&       caCount, leadVarCount, stat)
 
        type(model), intent(inout) :: mdl
        integer(kind = MC_IKIND), intent(in) :: eqCount, varCount, &
@@ -63,9 +61,9 @@ contains
        integer(kind = MC_IKIND), intent(in) ::  eqCharCount, &
 &               varCharCount, parCharCount, funCharCount, &
 &               ulFunCharCount, caCount, leadVarCount
+       integer, intent(out) :: stat
 
        integer(kind = MC_IKIND) ::  kmaxe, kmaxv, kmaxp, kmaxf, kmaxulf
-       integer :: stat
 
        call deallocate_model(mdl)
 
@@ -91,9 +89,7 @@ contains
        if (stat == 0) allocate(mdl%ica(caCount), stat = stat)
        if (stat == 0) allocate(mdl%aci(varCount), stat = stat)
 
-       mdl_alloc_stat = stat
-
-       if (mdl_alloc_stat > 0) return
+       if (stat > 0) return
 
        kmaxp  =  (parCharCount - 1)   / MCNYI4 + 1
        kmaxe  =  (eqCharCount  - 1)   / MCNYI4 + 1
@@ -104,21 +100,18 @@ contains
        if (stat == 0) allocate(mdl%vnames(kmaxv), stat = stat)
        if (stat == 0) allocate(mdl%pnames(kmaxp), stat = stat)
        if (stat == 0) allocate(mdl%fnames(kmaxf), stat = stat)
-       mdl_alloc_stat = stat
-       if (mdl_alloc_stat > 0) return
+       if (stat > 0) return
 
        if (leadVarCount > 0) then
-           allocate(mdl%iendex(leadVarCount), stat = mdl_alloc_stat)
-           if (mdl_alloc_stat > 0) return
+           allocate(mdl%iendex(leadVarCount), stat = stat)
+           if (stat > 0) return
        endif
 
        if (ulFunCount > 0) then
            kmaxulf = (ulFunCharCount - 1) / MCNYI4 + 1
            allocate(mdl%iulfnames(ulFunCount), stat = stat)
-           if (stat == 0) allocate(mdl%ulfnames(kmaxulf), stat= stat)
-           mdl_alloc_stat = stat
+           if (stat == 0) allocate(mdl%ulfnames(kmaxulf), stat = stat)
        endif
-
 
     end subroutine allocate_model
 

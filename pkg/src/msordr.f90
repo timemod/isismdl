@@ -34,8 +34,7 @@ subroutine msordr(model_index, genfbo_specified, genfbo, &
     call mcgedp(mdl, .false., ier)
     if (ier == 10) then
         ! not enough memory to generate the dependency structure
-        call isismdl_error("Not enough memory for ordering the model" // &
-                           "equations.")
+        call isismdl_error("Not enough memory to generate the dependency structure")
         return
     else if (ier /= 0) then
         ! internal error in mcgedp

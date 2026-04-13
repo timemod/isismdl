@@ -2555,7 +2555,7 @@ void open_buffer(char *new_filename) {
      */
 
     if (include_level >= 0) {
-	/*
+	      /*
          * save current buffer information on stack
          */
         include_stack[include_level].fin         = fin;
@@ -2582,10 +2582,6 @@ void open_buffer(char *new_filename) {
     buf[0] = 0;
     bufp = buf;
     line_number = 0;
-
-    /* The first path to be searched for include files should be the
-     * directory of the current include file */
-    set_standard_path(dirname);
 }
 
 static void close_buffer(void) {
@@ -2595,11 +2591,12 @@ static void close_buffer(void) {
     fclose(fin);
     free(buf);
     bufp = NULL;
+    /* if include_level = 0: filename is a pointer to the local stack variable fname in mcexec. */
+    /* if include_level > 0: filename was allocated with malloc in get_includefilename(). */
     if (include_level > 0) {
-        /* filename was allocated with malloc in get_includefile(). */
-	free(filename);
+      	free(filename);
     }
-    free(dirname);
+    free(dirname); /* dirname was allocated in get_path_name */
     
     if (--include_level >= 0) {	
         /* restore previous buffer information */
@@ -2610,10 +2607,6 @@ static void close_buffer(void) {
         buf         = include_stack[include_level].buf;
         bufp        = include_stack[include_level].bufp;
         line_number = include_stack[include_level].line_number;
-
-	/* make directory of current file the first directory to be searched
-         * for include files */ 
-        set_standard_path(dirname);
     } 
 }
 
@@ -2705,7 +2698,7 @@ static char * get_includefile(void) {
    *(includename + len) = 0;
 
    /* search for the include file based on the include search paths */
-   includefile = get_includefilename(includename);
+   includefile = get_includefilename(includename, dirname);
    if (includefile == NULL) {
        mcerror("Include file %s not found", includename);
    }
