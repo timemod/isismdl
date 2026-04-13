@@ -64,7 +64,7 @@ module mssneq
         real(kind = SOLVE_RKIND), intent(out) :: xresult
 
         real(kind = SOLVE_RKIND) :: result, result2, delres, caval
-        real(kind = SOLVE_RKIND) :: xsave, zsave, zsave2, delta
+        real(kind = SOLVE_RKIND) :: xsave, zsave, zsave2, delta, xprev
         real(kind = SOLVE_RKIND), pointer  :: xdst
         
         ! loop for implicit equation with lik(lhs)=true
@@ -80,28 +80,31 @@ module mssneq
         ier = 0
 
         xdst => mws%mdl_data(lhs, jtime + mdl%mxlag) 
+
+        ! save current value of destination
+        ! for restoring at end of loop
+        xsave = xdst
         
         ! test if xdst contains valid starting value
         ! if not try 1 period lagged value
         ! if still not valid then quit with ier = 7
         
         if (nuifna(xdst)) then
-           call get_var_value(mws, lhs, jtime - 1, xsave, error)
-           if (nuifna(xsave)) then
-               xresult = xsave
+           call get_var_value(mws, lhs, jtime - 1, xprev, error)
+           if (nuifna(xprev)) then
+               xresult = NA
                ier = 7
                return
            endif
-           xdst = xsave
+           xdst = xprev
         endif
         
-        ! save current value of destination
-        ! for restoring at end of loop
-        
-        xsave = xdst
         zsave = xdst
         
-        if (jca /= 0) caval = mws%constant_adjustments(jca, jtime + mdl%mxlag)
+        if (jca /= 0) then
+            caval = mws%constant_adjustments(jca, jtime + mdl%mxlag)
+            if (nuifna(caval)) goto 600
+        endif
         
         ipb = mdl%nrecp(iequ) + 1
         ipe = mdl%nrecp(iequ + 1)
