@@ -12,8 +12,8 @@ default only identity equations are evaluated, but if argument
 
 If also \code{frml} equations are evaluated, the fit targets specified
 with for example method \code{\link{set_fix}}  are ignored: if the value of the
-left hand side variable is missing a value is computed by evaluating
-the equation.
+left hand side variable is missing, a value is computed by evaluating
+the right hand side of the equation (including the CA value).
 
 The procedure can be used to fill in data before and beyond the
 model period (as set by method \code{set_period}) for as many
