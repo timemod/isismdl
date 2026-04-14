@@ -80,7 +80,10 @@ test_that("run_eqn", {
   mdl2$set_ca_values(0, names = "x")
   mdl2$set_values(1:2, names = "x", period = "2022/2023")
   mdl2$set_values(-10, names = "a", period = "2022")
-  mdl2$run_eqn(names = "x", period = "2022/2025")
+  expect_output(
+    mdl2$run_eqn(names = "x", period = "2022/2025"),
+    "No convergence in 50 iterations\nin period 2022"
+  )
   expect_equal(as.numeric(mdl2$get_data(period = "2023/2025", names = "x")),
                c(4, 5, 6))
 })
