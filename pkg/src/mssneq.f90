@@ -84,7 +84,7 @@ module mssneq
         ! save current value of destination
         ! for restoring at end of loop
         xsave = xdst
-        
+
         ! test if xdst contains valid starting value
         ! if not try 1 period lagged value
         ! if still not valid then quit with ier = 7
@@ -100,10 +100,13 @@ module mssneq
         endif
         
         zsave = xdst
-        
+ 
         if (jca /= 0) then
             caval = mws%constant_adjustments(jca, jtime + mdl%mxlag)
-            if (nuifna(caval)) goto 600
+            if (nuifna(caval)) then
+               ier = 3
+               goto 600
+            endif
         endif
         
         ipb = mdl%nrecp(iequ) + 1
