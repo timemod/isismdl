@@ -6,12 +6,16 @@
 \alias{get_ca}
 \alias{get_fix}
 \alias{get_fit}
-\title{\code{\link{IsisMdl}} methods: Retrieve timeseries from the model data,
-constant adjustments, fix values or fit targets}
+\alias{get_observed_data}
+\title{Retrieve timeseries from the model data,
+constant adjustments, fix values or fit targets.}
 \description{
 These methods of R6 class \code{\link{IsisMdl}}
 can be used to retrieve timeseries from the model data,
 constant adjustments, fix values or fit targets.
+
+Method \code{get_observed_data} returns a data frame in long format
+containing all non-missing values.
 }
 \section{Usage}{
 
@@ -19,6 +23,8 @@ constant adjustments, fix values or fit targets.
 mdl$get_data(pattern, names, period = mdl$get_data_period())
 
 mdl$get_ca(pattern, names, period = mdl$get_data_period())
+
+mdl$get_observed_data(period = mdl$get_data_period())
 
 mdl$get_fix()
 
@@ -48,13 +54,16 @@ of package \code{regts}.}
 \section{Methods}{
 
 \itemize{
-\item \code{get_mdl_data}: Model data
+\item \code{get_data}: Model data (as \code{regts})
 
-\item \code{get_ca}: Constant adjustments
+\item \code{get_ca}: Constant adjustments (as \code{regts})
 
-\item \code{get_fix_values}: Fix values
+\item \code{get_fix}: Fix values
 
-\item \code{get_fit_targets}: Fit targets
+\item \code{get_fit}: Fit targets
+
+\item \code{get_observed_data}: Model data in long format (data frame with
+non-missing values)
 }
 }
 

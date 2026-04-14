@@ -2,17 +2,17 @@
 #'
 #' This file contains shared utility functions used in dependency search
 #' logic, primarily for use in find_deps.
-#' 
+#'
 #' Technical Purpose and Usage:
-#' The var_period class provides a structured way to represent a model variable 
-#' at a specific period. Its S3 methods (as.character and print) ensure these 
-#' objects are correctly represented as character strings like "var[period]" 
+#' The var_period class provides a structured way to represent a model variable
+#' at a specific period. Its S3 methods (as.character and print) ensure these
+#' objects are correctly represented as character strings like "var[period]"
 #' when used as vertex names in igraph dependency graphs.
-#' 
-#' During the recursive dependency search in find_deps, these utilities allow 
-#' for efficient handling, parsing, and creation of nodes. After the search 
-#' is complete, helpers like as_data_frame_deps allow the final graph to be 
-#' converted back into a clean tabular format by splitting the character 
+#'
+#' During the recursive dependency search in find_deps, these utilities allow
+#' for efficient handling, parsing, and creation of nodes. After the search
+#' is complete, helpers like as_data_frame_deps allow the final graph to be
+#' converted back into a clean tabular format by splitting the character
 #' vertex names back into their variable and period components.
 #'
 #' @noRd
