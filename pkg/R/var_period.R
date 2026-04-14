@@ -19,7 +19,6 @@
 
 #' @importFrom regts as.period
 #' @importFrom stringr str_match
-#' @importFrom igraph as_data_frame
 #' @importFrom tibble remove_rownames
 #' @importFrom tidyr separate
 

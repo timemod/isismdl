@@ -1,4 +1,3 @@
-#' @importFrom regts as_data_frame
 #' @importFrom dplyr filter
 #'
 get_observed_data <- function(data_init) {
