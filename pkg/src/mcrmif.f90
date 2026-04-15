@@ -54,14 +54,16 @@ module mcrmif
   
     if (mdl%fboflg > 0) then
         ! fbosiz is the total size of mdl%fboptr (mdl%nfb + 1)
-        ! and mdl%fbordr(mdl%fbomem)
+        ! and mdl%fbordr(mdl%fbomem).
+        ! If fboflg == 2, the feedback ordering is not read from 
+        ! the mif file. But it IS necessary to read fbomem: if fbomem
+        ! on the mif file is larger than zero, then function read_model_fortran
+        ! will generate the feedback ordering again.
         mdl%fbomem = max(fbosiz - mdl%nfb - 1, 0)
         if (mdl%fboflg == 1 .and. mdl%fbomem > 0) then
             ! feedback ordering on file
             allocate(mdl%fboptr(mdl%nfb + 1), stat = stat)
-            if (stat == 0) then
-                allocate(mdl%fbordr(mdl%fbomem), stat = stat)
-            endif
+            if (stat == 0) allocate(mdl%fbordr(mdl%fbomem), stat = stat)
             if (stat > 0) then
                 call deallocate_model(mdl)
                 ier = 10
@@ -150,9 +152,9 @@ module mcrmif
   
   read(MIFUNT,err=895,end=895,iostat=fstat) mdl%fboflg
   if (mdl%fboflg > 0) then
-  !        feedback ordering on file or after reading model.
-  !        fbosiz is the total size of mdl%fboptr (mdl%nfb + 1)
-  !        and mdl%fbordr(mdl%fbomem).
+     ! feedback ordering on file or after reading model.
+     ! fbosiz is the total size of mdl%fboptr (mdl%nfb + 1)
+     ! and mdl%fbordr(mdl%fbomem).
      read(MIFUNT,err=895,end=895,iostat=fstat) fbosiz
   endif
   

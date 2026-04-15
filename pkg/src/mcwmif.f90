@@ -38,8 +38,8 @@ idum = 0
 
 code_in_memory = allocated(mdl%equat)
 
-!     fbosiz is the total size of the arrays mdl%fboptr (mdl%nfb + 1)
-!     and mdl%fbordr (mdl%fbomem)
+! fbosiz is the total size of the arrays mdl%fboptr (mdl%nfb + 1)
+! and mdl%fbordr (mdl%fbomem)
 fbosiz = (mdl%nfb + 1) + mdl%fbomem
 
 ! --- MIF file
@@ -69,12 +69,12 @@ write(mciunt,err=960,iostat=ios) mdl%neq,mdl%loops,mdl%loope,ldum,idum, &
 &                 mdl%nd1,mdl%nendex,mdl%ivlast,mdl%iplast, &
 &                 mdl%iflast,mdl%nulf,mdl%iulflast
 
-!     write fbo flag to signal possible additional info on file
+!  write fbo flag to signal possible additional info on file
 
-!     fboflg
-!       0       No feedback ordering for this model
-!       1       Feedback ordering on file
-!       2       Generate feedback ordering after reading mif
+! fboflg
+!      0       No feedback ordering for this model
+!      1       Feedback ordering on file
+!      2       Generate feedback ordering after reading mif
 
 !     mdl%fbomem > 0 size of feedback ordering
 write(mciunt,err=960,iostat=ios) mdl%fboflg
@@ -178,7 +178,7 @@ endif
 
 goto 1000
 
-!     Error handling
+! Error handling
 
 950 continue
 ier = 5

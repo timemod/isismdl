@@ -25,7 +25,6 @@ Imports:
     igraph,
     purrr,
     nleqslv,
-    rlang,
     tibble,
     tidyr,
     stringr,
