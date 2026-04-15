@@ -116,18 +116,18 @@ contains
 subroutine snmfmt(names, namptr, nidx, ib, ie, colwid)
     use model_params
     use mdl_name_utils
-    integer(kind = MC_IKIND) names(*), namptr(*), nidx(*)
+    integer(kind = MC_IKIND), intent(in) :: names(*), namptr(*), nidx(*)
     integer, intent(in) :: ib, ie
     integer, intent(in) :: colwid
 
-!         output a sequence of names to put above row of numbers
-!         into string buffer
-!         properly justified
+    !   output a sequence of names to put above row of numbers
+    !         into string buffer
+    !         properly justified
 
-integer ::         rpos, i
+    integer :: rpos, i
 
     do i = ib, ie
-       call mcf7ex(name ,nlen, namptr(nidx(i)), names)
+       call mcf7ex(name, nlen, namptr(nidx(i)), names)
        rpos = spos + colwid - nlen
        str(rpos : rpos + nlen - 1) = name(:nlen)
        spos = spos + colwid + ICSPAC
@@ -138,90 +138,90 @@ end subroutine snmfmt
 
 !-----------------------------------------------------------------------
 
-subroutine msnmot(cnt, vnum, ivnames, vnames,hdr)
+subroutine msnmot(cnt, vnum, ivnames, vnames, hdr)
 
-!     output a sequence of names with a header in <hdr>
-
-use model_params
-use mdl_name_utils
-integer(kind = MC_IKIND) :: cnt, vnum(*),ivnames(*),vnames(*)
-character*(*) hdr
-
-integer ::  i, j, ib, ie, cstep
-integer ::  colwid
-
-colwid = maxnli(ivnames, vnum, 1_MC_IKIND, cnt)
-cstep  = max(1, (LWIDTH-6) / (colwid + 1))
-
-write(str,'(1x,a)') hdr
-call strout(O_OUTB)
-
-do j = 1, cnt, cstep
-
-   ib = j
-   ie = min(cnt, ib + cstep - 1)
-   call strini(' ', 6)
-
-   do i=ib,ie
-      call mcf7ex(name, nlen, ivnames(vnum(i)), vnames)
-      str(spos : spos + nlen - 1) = name(:nlen)
-      spos = spos + colwid + 1
-   enddo
-
-   call strout(O_OUTB)
-
-enddo
-
-return
+    ! output a sequence of names with a header in <hdr>
+    
+    use model_params
+    use mdl_name_utils
+    integer(kind = MC_IKIND), intent(in) :: cnt, vnum(*), ivnames(*), vnames(*)
+    character(len = *), intent(in) :: hdr
+    
+    integer ::  i, j, ib, ie, cstep
+    integer ::  colwid
+    
+    colwid = maxnli(ivnames, vnum, 1_MC_IKIND, cnt)
+    cstep  = max(1, (LWIDTH-6) / (colwid + 1))
+    
+    write(str,'(1x,a)') hdr
+    call strout(O_OUTB)
+    
+    do j = 1, cnt, cstep
+    
+       ib = j
+       ie = min(cnt, ib + cstep - 1)
+       call strini(' ', 6)
+    
+       do i=ib,ie
+          call mcf7ex(name, nlen, ivnames(vnum(i)), vnames)
+          str(spos : spos + nlen - 1) = name(:nlen)
+          spos = spos + colwid + 1
+       enddo
+    
+       call strout(O_OUTB)
+    
+    enddo
+    
+    return
 end subroutine msnmot
 
 !-----------------------------------------------------------------------
 
 subroutine sperfmt(jb, je, colwid)
 
-! Writes a series of periods with number indices jb..je to the
-! string buffer right justified.
-
-integer, intent(in) :: jb, je, colwid
-integer             :: rpos, j
-
-do j = jb, je
-   nlen = maxperlen()
-   rpos = spos + colwid - nlen
-   call sjttmp(str(rpos : rpos + nlen - 1), j)
-   spos = spos + colwid + ICSPAC
-enddo
-return
+   ! Writes a series of periods with number indices jb..je to the
+   ! string buffer right justified.
+   
+   integer, intent(in) :: jb, je, colwid
+   integer             :: rpos, j
+   
+   do j = jb, je
+      nlen = maxperlen()
+      rpos = spos + colwid - nlen
+      call sjttmp(str(rpos : rpos + nlen - 1), j)
+      spos = spos + colwid + ICSPAC
+   enddo
+   return
 end subroutine sperfmt
 
 !-----------------------------------------------------------------------
 
-subroutine nvlfmt( x, numstr )
-use nucnst
-use nuna
-! basic number format routine
-! fixed width and switch to E format if abs(x) too big/small
-
-real(kind = SOLVE_RKIND) :: x
-character*(*) numstr
-
-character(len = 10) :: EFMT, FFMT
-parameter( EFMT = '(1P,E12.5)' )
-parameter( FFMT = '(F12.5)'    )
-real(kind = SOLVE_RKIND) :: TOOBIG, TOOSML
-parameter (TOOBIG = 1.0D5, TOOSML = 1.0D-5)
-
-if (.not. nuifna(x)) then
-   if (usefmt(x)) then
-      write(numstr, EFMT, round = 'compatible') x
-   else
-      write(numstr, FFMT, round = 'compatible') x
-   endif
-else
-   numstr = 'Invalid'
-endif
-
-return
+subroutine nvlfmt(x, numstr )
+    use nucnst
+    use nuna
+    ! basic number format routine
+    ! fixed width and switch to E format if abs(x) too big/small
+    
+    real(kind = SOLVE_RKIND), intent(in) :: x
+    character(len = *), intent(out) :: numstr
+    
+    character(len = 10) :: EFMT, FFMT
+    parameter( EFMT = '(1P,E12.5)' )
+    parameter( FFMT = '(F12.5)'    )
+    real(kind = SOLVE_RKIND) :: TOOBIG, TOOSML
+    parameter (TOOBIG = 1.0D5, TOOSML = 1.0D-5)
+    
+    if (.not. nuifna(x)) then
+       if (usefmt(x)) then
+          write(numstr, EFMT, round = 'compatible') x
+       else
+          write(numstr, FFMT, round = 'compatible') x
+       endif
+    else
+       numstr = 'Invalid'
+    endif
+    
+    return
 
 contains
 
@@ -302,24 +302,24 @@ end subroutine nvlvfmt
 
 subroutine svlfmt(val, ib, ie, colwid)
 
-real(kind = SOLVE_RKIND) :: val(*)
-integer ::        ib, ie
-integer ::        colwid
-
-!     companion to nvlfmt routine
-!     print numbers in specified width with f format
-!     if too big/small switch to e-format
-!     right justified within column width
-
-integer ::  i, rpos
-
-do  i=ib,ie
-   rpos = spos + colwid - numwid
-   call nvlfmt( val(i), str(rpos : rpos + numwid - 1))
-   spos = spos + colwid + icspac
-enddo
-
-return
+   real(kind = SOLVE_RKIND), intent(in) :: val(*)
+   integer, intent(in) :: ib, ie
+   integer, intent(in) :: colwid
+   
+   !     companion to nvlfmt routine
+   !     print numbers in specified width with f format
+   !     if too big/small switch to e-format
+   !     right justified within column width
+   
+   integer ::  i, rpos
+   
+   do  i=ib,ie
+      rpos = spos + colwid - numwid
+      call nvlfmt( val(i), str(rpos : rpos + numwid - 1))
+      spos = spos + colwid + icspac
+   enddo
+   
+   return
 end subroutine svlfmt
 
 !-----------------------------------------------------------------------
@@ -516,35 +516,37 @@ end subroutine simot5
 
 subroutine nshfmt(name, nmlen, shift, dst, dlen)
 
-!     append lag/lead indicator shift to variable name <name>
-!     nlen is exact length of name
+    ! append lag/lead indicator shift to variable name <name>
+    ! nlen is exact length of name
+    
+    ! result is stored in dst with exact length dlen
+    
+    character(len = *), intent(in) :: name
+    integer, intent(in) :: nmlen, shift
+    character(len = *), intent(out) :: dst
+    integer, intent(out) :: dlen
+    
+    character(len = 8) :: temp
+    integer ::        shfwid
+    integer ::        i
+    
+    write(temp, '(SP,I8)' ) shift
+    
+    ! skip leading whitespace
+    do  i = 1, 8
+       if (temp(i:i) .ne. ' ') exit
+    enddo
 
-!     result is stored in dst with exact length dlen
-
-character*(*) name
-integer ::        nmlen,shift
-character*(*) dst
-integer ::        dlen
-
-character(len = 8) :: temp
-integer ::        shfwid
-integer ::        i
-
-write(temp, '(SP,I8)' ) shift
-!     skip leading whitespace
-do  i=1,8
-   if(temp(i:i) .ne. ' ' ) goto 20
-enddo
-20 shfwid = 8 - i + 1
-
-dst(                   : nmlen                  ) = name(:nmlen)
-dst(nmlen + 1          : nmlen + 1              ) = '('
-dst(nmlen + 2          : nmlen + 2 + shfwid - 1 ) = temp(i:8)
-dst(nmlen + 2 + shfwid : nmlen + 2 + shfwid + 1 ) = ')'
-
-dlen = nmlen + 2 + shfwid
-
-return
+    shfwid = 8 - i + 1
+    
+    dst(                   : nmlen                  ) = name(:nmlen)
+    dst(nmlen + 1          : nmlen + 1              ) = '('
+    dst(nmlen + 2          : nmlen + 2 + shfwid - 1 ) = temp(i:8)
+    dst(nmlen + 2 + shfwid : nmlen + 2 + shfwid + 1 ) = ')'
+    
+    dlen = nmlen + 2 + shfwid
+    
+    return
 end subroutine nshfmt
 
 !-----------------------------------------------------------------------
