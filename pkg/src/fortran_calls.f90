@@ -347,7 +347,7 @@ end function has_free_mws_fortran
 
 function clone_mws_fortran(model_index)
     ! 
-    ! read the model from the file
+    ! clone the model workspace
     !
     use modelworkspaces
     use iso_c_binding, only : c_int
@@ -358,13 +358,14 @@ function clone_mws_fortran(model_index)
     clone_mws_fortran = -1
 
     model_index_clone = create_mws()
+    clone_mws_fortran = model_index_clone
+
     if (model_index_clone < 0) return
 
     mws_array(model_index_clone) = mws_array(model_index)
     call clone_fit(mws_array(model_index_clone))
     call clone_fix(mws_array(model_index_clone))
 
-    clone_mws_fortran = model_index_clone
     
 end function clone_mws_fortran
 
