@@ -128,6 +128,8 @@ SEXP read_mdl_c(SEXP filename, SEXP reorder_names_) {
     }
 }
 
+/* Write the model to a mif file,
+ * used in methods write_mdl() and serialize(). */
 SEXP write_mdl_c(SEXP filename, SEXP model_index_) {
 
     int model_index = asInteger(model_index_);
@@ -137,9 +139,14 @@ SEXP write_mdl_c(SEXP filename, SEXP model_index_) {
 
     F77_CALL(write_model_fortran)(&modelnmlen, modelnm, &model_index, &ier);
 
-    // TODO: add correct error handling
     if (ier != 0) {
-        error("Unknown error writing Mif file %s\n", modelnm);
+        if (ier == 5) {
+            error("Cannot open Mif file %s for writing\n", modelnm);
+        } else if (ier == 6) {
+             error("Error writing MIF file %s\n", modelnm);
+        } else {
+             error("Unknown error %d writing Mif file %s\n", ier, modelnm);
+        }
     }
     return R_NilValue;
 }
@@ -365,10 +372,11 @@ SEXP get_param_c(SEXP model_index_, SEXP names) {
         SEXP value = PROTECT(allocVector(REALSXP,  par_len));
         F77_CALL(get_param_fortran)(&model_index, ipar + i, REAL(value), &par_len);
         SET_VECTOR_ELT(retval,  i, value);
+        UNPROTECT(1);
     }
 
     setAttrib(retval, R_NamesSymbol, names);
-    UNPROTECT(npar + 1);
+    UNPROTECT(1);
     return retval;
 }
 

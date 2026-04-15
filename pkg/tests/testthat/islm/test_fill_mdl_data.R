@@ -28,9 +28,13 @@ test_that("fill_mdl_data with frmls", {
     fixed = TRUE
   )
 
+  # fixed values should be ignored by fill_mdl_data.
+  mdl2$set_fix_values(999, names = "c", period = "2015Q3")
+
   mdl2$set_values(names = "c", value = NA, period = "2015Q3/2016Q1")
   mdl2$set_ca_values(c(NA, 1, 2), names = "c", period = "2015Q3/2016Q1")
 
+  # Deactivate equation c
   mdl2$set_eq_status("inactive", names = "c")
   expect_output(
     mdl2$fill_mdl_data(period =  "2015Q2/2016Q1", report = "minimal",
@@ -38,13 +42,22 @@ test_that("fill_mdl_data with frmls", {
     "No missing/invalid values replaced",
     fixed = TRUE
   )
+
+  # Reactivate equation c
   mdl2$set_eq_status("active", names = "c")
+
+  mdl2$set_values(NA, names = "c", period = "2015Q3")
   expect_output(
     mdl2$fill_mdl_data(period =  "2015Q2/2016Q1", report = "minimal",
                        include_frmls = TRUE),
     "Replaced a total of 2 missing/invalid values",
     fixed = TRUE
   )
+
+  data_expected <- mdl$get_data()
+  data_expected["2015q3/2016q1", "c"] <- data_expected["2015q3/2016q1", "c"] +
+    c(NA, 1:2)
+  expect_equal(mdl2$get_data(), data_expected)
 })
 
 test_that("errors", {

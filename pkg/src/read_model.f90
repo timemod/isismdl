@@ -1,8 +1,8 @@
+!
+! read a model from the mif file
+!
 subroutine read_model_fortran(modelnmlen, modelnm, model_index, & 
                               reorder_names_, ier)
-    ! 
-    ! read the model from the file
-    !
     ! ier: error flag
     !  0   ok
     !  1   error opening mif file
