@@ -192,6 +192,12 @@ test_that("fill_mdl_data include_frmls", {
     paste("No convergence in 50 iterations\nin period 2021.+Replaced a total",
           "of 7 missing/invalid values")
   )
-  expect_equal(as.numeric(mdl2$get_data(period = "2022/2023", names = "x")),
-               c(5, 6))
+  # The implicit equation (x**2 - a = 0) has two
+  # solution (+sqrt(a) and -sqrt(a)). The actual solution depends on the starting
+  # value, which is the value of x in the previous year in this case.
+  sign <- sign(as.numeric(mdl2$get_data(names = "x", period = "2021")))
+  expect_equal(
+    as.numeric(sign * mdl2$get_data(period = "2022/2023", names = "x")),
+    c(5, 6)
+  )
 })
