@@ -34,7 +34,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
   # For models with leads (forward looking), fmds() now throws an error.
 
   endo_names <- mdl$get_endo_names()
-  
+
   # Helper function to check if variables are endogenous
   check_endo <- function(df, name) {
     if (is.null(df) || nrow(df) == 0) return()
