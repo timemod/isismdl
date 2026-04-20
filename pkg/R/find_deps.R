@@ -47,6 +47,10 @@ find_deps <- function(final_destinations, final_sources = NULL,
     stop("find_deps does not support models with feedback variables.")
   }
 
+  if (is.null(observed_data)) {
+    observed_data <- mdl$get_observed_data()
+  }
+
   endo_names <- mdl$get_endo_names()
 
   # Helper function to check if variables are endogenous
@@ -85,7 +89,11 @@ find_deps <- function(final_destinations, final_sources = NULL,
     vertices_solvable <- character(0)
   }
 
-  min_period_obs <- min(period(observed_data$period))
+  if (nrow(observed_data) > 0) {
+    min_period_obs <- min(period(observed_data$period))
+  } else {
+    min_period_obs <- start_period(mdl$get_data_period())
+  }
 
   periods <- observed_data$period
   vertices_observed <- paste0(observed_data$var, "[", periods, "]")
@@ -133,10 +141,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
 
   .find_deps <- function(var_per) {
 
-    # TODO: hoe voorkom je oneindige recursie, bijv. voor simultane
-    # modellen.?
-    # waarschijnlijk als het year kleiner dan een drempel is?
-    # Of als het jaar kleiner is dan het minale jaar van de data?
+    # Recursion is stopped when the period is before the threshold (min_period_obs).
 
     vertex_name <- as.character(var_per)
     var <- var_per$var

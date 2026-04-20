@@ -181,3 +181,19 @@ test_that("find_deps model property checks", {
     regexp = "find_deps (only supports recursive models|does not support models with feedback variables)"
   )
 })
+
+test_that("find_deps empty observed data", {
+  period <- as.period_range("2020/2022")
+  model_text <- "ident y = 0.8 * y(-1) + x;"
+  mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
+  
+  # 1. Empty observed data should not crash
+  # It should default to model data start and successfully find deps
+  final_dest <- tribble(~var, ~period, "y", "2021")
+
+  g <- mdl$find_deps(final_destinations = final_dest, observed_data = tribble(~var, ~period))
+  expect_s3_class(g, "igraph")
+  expect_true("y[2021]" %in% V(g)$name)
+  expect_true("y[2020]" %in% V(g)$name)
+
+})

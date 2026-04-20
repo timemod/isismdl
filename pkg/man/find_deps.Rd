@@ -105,23 +105,30 @@ for observed targets.}
 }
 
 \examples{
-mdl <- islm_mdl(period = "2017Q1/2018Q4")
 
-# Find all dependencies of y in 2018Q4
-final_dest <- data.frame(var = "y", period = "2018Q4")
-g <- mdl$find_deps(final_dest)
+model_text <- "
+  ident y1 = 0.8 * y1(-1) + 0.2 * z1;
+  ident y2 = 0.5 * y1 + 0.5 * z2;
+  ident y3 = y2 + y1(-1);
+"
+mdl <- isis_mdl(model_text = model_text,
+                period = "2017Q1/2018Q4",
+                silent = TRUE)
+mdl$init_data()
 
-# Inspect which variables are in the graph and whether they are calculable
-library(igraph)
-data.frame(
-  name       = V(g)$name,
-  ok         = V(g)$ok,
-  calculable = V(g)$calculable,
-  color      = V(g)$color
+observed <- data.frame(
+  var    = c("y1", "z1", "z2"),
+  period = c("2018Q3", "2018Q4", "2018Q4")
+)
+solvable <- data.frame(var = "y1", period = "2018Q4")
+
+g2 <- mdl$find_deps(
+  final_destinations = data.frame(var = "y3", period = "2018Q4"),
+  observed_data = observed,
+  solvable = solvable
 )
 
-# Plot the dependency graph
-plot(g, vertex.color = V(g)$color)
+plot(g2)
 }
 \seealso{
 \code{\link{fill_mdl_data_solve}}, \code{\link{get_dep_struct}}
