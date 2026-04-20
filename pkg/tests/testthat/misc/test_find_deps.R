@@ -153,3 +153,31 @@ test_that("find_deps overlap checks", {
     fixed = TRUE
   )
 })
+
+test_that("find_deps model property checks", {
+  period <- as.period_range("2020/2022")
+
+  # 1. Model with leads
+  model_leads <- "ident y = y(1) + x;"
+  mdl_leads <- isis_mdl(model_text = model_leads, period = period, silent = TRUE)
+  expect_error(
+    mdl_leads$find_deps(final_destinations = tribble(~var, ~period, "y", "2021"),
+                        observed_data = tribble(~var, ~period, "x", "2021")),
+    "find_deps does not support models with leads.",
+    fixed = TRUE
+  )
+
+  # 2. Simultaneous model
+  # This should trigger the recursive check first
+  # but without recursive check it would trigger the feedback check
+  model_simul <- "
+    ident y1 = y2 + x;
+    ident y2 = y1 + z;
+  "
+  mdl_simul <- isis_mdl(model_text = model_simul, period = period, silent = TRUE)
+  expect_error(
+    mdl_simul$find_deps(final_destinations = tribble(~var, ~period, "y1", "2021"),
+                        observed_data = tribble(~var, ~period, "x", "2021", "z", "2021")),
+    regexp = "find_deps (only supports recursive models|does not support models with feedback variables)"
+  )
+})

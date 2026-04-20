@@ -1,18 +1,26 @@
-#' Recursively find all dependencies.
+#' Recursively find all dependencies of one or more target variables.
 #'
-#' @param final_destinations A data frame with variable names and periods of
-#' the final destinations.
-#' @param final_sources A data frame with variable names and periods of the
-#' final sources.
-#' @param solvable A data frame with variable names and periods of values that
-#' we wish to solve in \code{fill_mdl_data_solve}.
-#' @param observed_data A data frame containing observed values.
-#' @param dep_struc Dependency structure of the model.
-#' @param mdl The \code{IsisMdl} object.
-#' @param ignore_observed Logical, should observed variables be ignored?
-#' @param stop_if_final_dest_observed Logical, should the search stop if a
-#' final destination is already observed?
-#' @return A dependency graph as an igraph object.
+#' Walks backwards through the model's equation structure starting from each
+#' variable-period pair in `final_destinations`, building a directed graph
+#' where an edge from A to B means "B depends on A". Each vertex is annotated
+#' with `ok`, `calculable`, `observed`, `color` and `msg`. Recursion stops
+#' when a vertex is observed, is a final source, is a missing exogenous
+#' variable, or its period falls below the minimum observed period. Cycles
+#' raise an error immediately. After recursion the graph is pruned to vertices
+#' with a path to a final destination.
+#'
+#' @param final_destinations Data frame with columns `var` and `period`.
+#' @param final_sources Optional data frame with `var` and `period`;
+#'   recursion stops at these vertices.
+#' @param solvable Optional data frame with `var` and `period` of
+#'   variables to be solved numerically rather than computed forward.
+#' @param observed_data Data frame with `var` and `period` of observed values.
+#' @param dep_struc Dependency structure from `get_dep_struct(one_lag_per_row = TRUE)`.
+#' @param mdl The `IsisMdl` object (must be recursive, no feedback, no leads).
+#' @param ignore_observed Logical; if `TRUE`, observed deps are stripped before recursing.
+#' @param stop_if_final_dest_observed Logical; if `TRUE` (default), stops when
+#'   a final destination is already observed.
+#' @return A directed igraph object (edges point from dependency to dependent).
 #'
 #' @importFrom igraph add_edges make_empty_graph neighbors induced_subgraph
 #'   delete_edges incident subcomponent delete_vertices
@@ -29,9 +37,15 @@ find_deps <- function(final_destinations, final_sources = NULL,
   # TODO: use a data frame with possible vertex types and the
   # corresponding color.
 
-  # TODO: give an error if mdl is not a recursive, backward looking model.
-  # This implementation has not been tested yet for models with feedback.
-  # For models with leads (forward looking), fmds() now throws an error.
+  if (mdl$get_maxlead() > 0) {
+    stop("find_deps does not support models with leads.")
+  }
+  if (length(mdl$get_simul_names()) > 0) {
+    stop("find_deps only supports recursive models.")
+  }
+  if (length(mdl$get_endo_names(type = "feedback")) > 0) {
+    stop("find_deps does not support models with feedback variables.")
+  }
 
   endo_names <- mdl$get_endo_names()
 
