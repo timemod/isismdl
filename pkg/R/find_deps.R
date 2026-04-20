@@ -34,15 +34,21 @@ find_deps <- function(final_destinations, final_sources = NULL,
   # For models with leads (forward looking), fmds() now throws an error.
 
   endo_names <- mdl$get_endo_names()
-
-  # Check if final_destinations are endogenous variables
-  no_endo_names <- setdiff(final_destinations$var, endo_names)
-  if (length(no_endo_names) > 0) {
-    stop("The following variables are not endogenous model variables:\n",
-         paste(no_endo_names, collapse = ", "), ".")
+  
+  # Helper function to check if variables are endogenous
+  check_endo <- function(df, name) {
+    if (is.null(df) || nrow(df) == 0) return()
+    no_endo <- setdiff(df$var, endo_names)
+    if (length(no_endo) > 0) {
+      stop(sprintf("The following %s variables are not endogenous model variables:\n%s.",
+                   name, paste(no_endo, collapse = ", ")))
+    }
   }
 
-  # TODO: check that final sources are endogenous
+  # Check if variables are endogenous
+  check_endo(final_destinations, "final destination")
+  check_endo(final_sources, "final source")
+  check_endo(solvable, "solvable")
 
   # Column period of vars or derivable may contain period as integer
   # (a year).
@@ -53,32 +59,37 @@ find_deps <- function(final_destinations, final_sources = NULL,
   if (has_final_sources) {
     periods <- as.character(final_sources$period)
     vertices_final_src <- paste0(final_sources$var, "[", periods, "]")
+  } else {
+    vertices_final_src <- character(0)
   }
 
   has_solvable <- !is.null(solvable)
   if (has_solvable) {
-    # TODO: give an error if solvable has overlap with observations.
-    # Also check that they are endogenous variables.
-    # TODO: also give an error in solvable has overlap with final_sources.
     periods <- as.character(solvable$period)
     vertices_solvable <- paste0(solvable$var, "[", periods, "]")
   } else {
     vertices_solvable <- character(0)
   }
 
-  # TODO: check that there is there is no overlap between final_destinations
-  # and solvable.
-
   min_period_obs <- min(period(observed_data$period))
 
   periods <- observed_data$period
   vertices_observed <- paste0(observed_data$var, "[", periods, "]")
 
-  problem_vertices <- intersect(vertices_solvable, vertices_observed)
-  if (length(problem_vertices)) {
-    stop("The following solvable vertices are actually observed",
-         paste(problem_vertices, collapse = ", "))
+  # Helper function to check for overlaps and list ALL offending variables
+  check_overlap <- function(v1, v2, msg) {
+    problem_vertices <- intersect(v1, v2)
+    if (length(problem_vertices) > 0) {
+      stop(sprintf("%s:\n%s", msg, paste(problem_vertices, collapse = ", ")))
+    }
   }
+
+  check_overlap(vertices_solvable, vertices_observed,
+                "The following solvable vertices are actually observed")
+  check_overlap(vertices_solvable, vertices_final_src,
+                "The following solvable vertices are also final sources")
+  check_overlap(vertices_final_dest, vertices_solvable,
+                "The following final destination vertices are also solvable")
 
 
   # Convert dependency structure to a list (working with a list is more efficient)
@@ -271,8 +282,8 @@ find_deps <- function(final_destinations, final_sources = NULL,
   }
 
   for (i in seq_len(nrow(final_destinations))) {
-    var_per <- new_var_period(final_destinations[i, "var"],
-                              final_destinations[i, "period"])
+    var_per <- new_var_period(final_destinations$var[[i]],
+                              final_destinations$period[[i]])
     .find_deps(var_per)
   }
 

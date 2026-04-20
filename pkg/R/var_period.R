@@ -24,31 +24,34 @@
 
 new_var_period <- function(var, period) {
   period <- regts::as.period(period)
-  return(structure(list(var = var, period = period), class = "var_period"))
+  structure(list(var = var, period = period), class = "var_period")
 }
 
 #' @keywords internal
 #' @exportS3Method as.character var_period
 as.character.var_period <- function(x, ...) {
-  return(paste0(x$var, "[", x$period, "]"))
+  paste0(x$var, "[", x$period, "]")
 }
 
 #' @keywords internal
 #' @exportS3Method print var_period
 print.var_period <- function(x, ...) {
-  return(print(as.character(x)))
+  print(as.character(x))
 }
 
 as_var_period <- function(txt) {
   pattern <- "^([a-zA-Z][a-zA-Z_]*)\\[(\\d+)\\]$"
   x <- stringr::str_match(txt, pattern)
-  return(new_var_period(x[, 2], x[, 3]))
+  new_var_period(x[, 2], x[, 3])
 }
 
 as_data_frame_deps <- function(g) {
   igraph::as_data_frame(g, what = "vertices") |>
-    remove_rownames() |>
-    #  select("name", "type", "is_final", "color") |>
-    separate("name", into = c("var", "period"), sep = "\\[|\\]",
-             extra = "drop")
+    tibble::remove_rownames() |>
+    tidyr::separate(
+      "name",
+      into = c("var", "period"),
+      sep = "\\[|\\]",
+      extra = "drop"
+    )
 }

@@ -1,7 +1,7 @@
 #' @importFrom methods setOldClass
 setOldClass("period_range")
 
-#' An R6 class class representing an Isis model
+#' An R6 class representing an Isis model
 #'
 #' This class is used to solve a system of non-linear equations with lagged
 #' variables. The model equations are specified in a separate text file, the so
@@ -102,6 +102,8 @@ setOldClass("period_range")
 #' \item{\code{\link{get_period}}}{Returns the model period}
 #'
 #' \item{\code{\link{get_data_period}}}{Returns the model data period}
+#' 
+#' \item{\code{\link{get_residuals}}}{Returns the residuals of the model}
 #'
 #' \item{\code{\link{set_labels}}}{Set labels for the model variables}
 #'
@@ -184,6 +186,8 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{fill_mdl_data_solve}}}{Fills model data and
 #' inverse solves for starting values}
+#' 
+#' \item{\code{\link{find_deps}}}{Finds the dependencies of the model variables}
 #'
 #' \item{\code{\link{solve_exo}}}{Solves exogenous variables}
 #'
