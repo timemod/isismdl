@@ -27,12 +27,12 @@ find_deps_internal <- function(mdl, final_destinations, final_sources,
 
   dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
 
-  return(find_deps(final_destinations = final_destinations,
-                   final_sources = final_sources,
-                   solvable = solvable,
-                   observed_data = observed_data,
-                   dep_struc = dep_struc,
-                   mdl = mdl,
-                   ignore_observed = ignore_observed,
-                   stop_if_final_dest_observed = stop_if_final_dest_observed))
+  find_deps(final_destinations = final_destinations,
+            final_sources = final_sources,
+            solvable = solvable,
+            observed_data = observed_data,
+            dep_struc = dep_struc,
+            mdl = mdl,
+            ignore_observed = ignore_observed,
+            stop_if_final_dest_observed = stop_if_final_dest_observed)
 }

@@ -186,14 +186,93 @@ test_that("find_deps empty observed data", {
   period <- as.period_range("2020/2022")
   model_text <- "ident y = 0.8 * y(-1) + x;"
   mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
-  
+
   # 1. Empty observed data should not crash
   # It should default to model data start and successfully find deps
   final_dest <- tribble(~var, ~period, "y", "2021")
 
-  g <- mdl$find_deps(final_destinations = final_dest, observed_data = tribble(~var, ~period))
+  g <- mdl$find_deps(final_destinations = final_dest, 
+                     observed_data = tribble(~var, ~period))
   expect_s3_class(g, "igraph")
   expect_true("y[2021]" %in% V(g)$name)
   expect_true("y[2020]" %in% V(g)$name)
 
+})
+
+test_that("find_deps vertex colors", {
+  period <- as.period_range("2020/2022")
+  model_text <- "
+    ident y1 = y1(-1) + x1;
+    ident y2 = y1 + x2;
+    ident y3 = y2 + y1(-1);
+  "
+  mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
+  
+  observed <- tribble(
+    ~var, ~period,
+    "y1", "2020",
+    "x1", "2021",
+    "x2", "2021"
+  )
+  solvable <- tribble(~var, ~period, "y1", "2021")
+  final_dest <- tribble(~var, ~period, "y3", "2021")
+  
+  g <- mdl$find_deps(final_destinations = final_dest, 
+                     solvable = solvable, 
+                     observed_data = observed)
+  
+  # NOTE: y1[2020] and x2[2021] are pruned because they are not reachable FROM y1[2021]
+  
+  expect_equal(V(g)["y3[2021]"]$color, "cyan")
+  expect_equal(V(g)["y2[2021]"]$color, "green")
+  expect_equal(V(g)["y1[2021]"]$color, "pink")
+  
+  final_src <- tribble(~var, ~period, "y1", "2021")
+  g_src <- mdl$find_deps(final_destinations = final_dest, 
+                         final_sources = final_src,
+                         observed_data = observed)
+  
+  expect_equal(V(g_src)["y1[2021]"]$color, "yellow")
+  expect_equal(V(g_src)["y1[2020]"]$color, "lightgrey")
+  expect_equal(V(g_src)["x2[2021]"]$color, "lightgrey")
+  
+  g_err <- mdl$find_deps(final_destinations = final_dest,
+                         observed_data = observed[1, ])
+  expect_equal(V(g_err)["y3[2021]"]$color, "purple")
+  expect_equal(V(g_err)["y2[2021]"]$color, "red")
+})
+
+test_that("find_deps vertex attributes internal metadata", {
+  period <- as.period_range("2020/2022")
+  model_text <- "
+    ident y1 = x1;
+    ident y2 = y1 + x2;
+  "
+  mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
+
+  solvable <- tribble(~var, ~period, "y1", "2021")
+  final_dest <- tribble(~var, ~period, "y2", "2021")
+  observed <- tribble(~var, ~period, "x1", "2021", "x2", "2021")
+
+  g <- mdl$find_deps(final_destinations = final_dest,
+                     solvable = solvable,
+                     observed_data = observed)
+
+  # Verify attributes are set correctly during add_vertex and recursion
+  expect_true(V(g)["y2[2021]"]$is_final_dest)
+  expect_false(V(g)["y1[2021]"]$is_final_dest)
+
+  expect_true(V(g)["y1[2021]"]$solvable)
+  expect_false(V(g)["y2[2021]"]$solvable)
+
+  expect_true(V(g)["y1[2021]"]$ok) # solvable/calculable
+  expect_true(V(g)["y2[2021]"]$ok)
+
+  final_src <- tribble(~var, ~period, "y1", "2021")
+  g2 <- mdl$find_deps(final_destinations = final_dest,
+                      final_sources = final_src,
+                      observed_data = observed)
+
+  expect_true(V(g2)["y1[2021]"]$is_final_src)
+  expect_false(V(g2)["y2[2021]"]$is_final_src)
 })
