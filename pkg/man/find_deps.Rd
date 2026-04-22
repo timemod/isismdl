@@ -3,62 +3,18 @@
 \name{find_deps}
 \alias{find_deps}
 \title{\code{\link{IsisMdl}} method: Analysing dependencies of model variables}
-\value{
-A directed \code{igraph} object. Edges point from dependency to
-dependent (A -> B means B depends on A). Each vertex carries the
-\code{ok}, \code{calculable}, \code{observed}, \code{color} and \code{msg}
-attributes described above.
-}
 \description{
 This method of R6 class \code{\link{IsisMdl}} builds a dependency graph
 for one or more target variable-period pairs (the "final destinations").
 Starting from each target, it walks backwards through the model's equation
 structure, recursively visiting every variable that the target depends on,
-then every variable those variables depend on, and so on.
+then every variable those variables depend on, and so on. The recursion stops
+when the variable is observed (i.e. if it occurs in \code{observed_data}).
 The result is a directed \code{igraph} object where an edge from A to B
 means "B depends on A".
 
-Each vertex in the graph carries the following attributes:
-
-\describe{
-\item{\code{ok}}{\code{TRUE} if the variable can be resolved — either
-because it is observed, because all of its own dependencies are OK,
-or because it is listed as solvable.}
-\item{\code{calculable}}{\code{TRUE} if the variable's value can be
-computed purely by evaluating its model equation — i.e. it is not
-missing any dependency, and no numerical solving is needed.}
-\item{\code{observed}}{\code{TRUE} if the variable-period pair appears
-in \code{observed_data}.}
-\item{\code{color}}{A color string summarising the vertex status for
-use in plots: \code{"cyan"} = final destination, OK;
-\code{"purple"} = final destination, not calculable;
-\code{"green"} = intermediate, OK;
-\code{"red"} = missing or incalculable;
-\code{"pink"} = solvable;
-\code{"lightgrey"} = observed (exogenous or stopped recursion);
-\code{"yellow"} = final source.}
-\item{\code{msg}}{A short diagnostic message for vertices that are not OK,
-for example \code{"Missing exo"} or \code{"outside period range"}.}
-}
-
-The recursion stops at a vertex when:
-\enumerate{
-\item The vertex is a final source (treated as given).
-\item The variable is observed in \code{observed_data} (and either it is
-not a final destination, or \code{stop_if_final_dest_observed = TRUE}).
-\item The variable is exogenous and not observed — it is marked as not OK.
-\item The period is further back than the minimum observed period minus one —
-it is marked as not OK.
-\item The same vertex is encountered again while already being processed,
-indicating a cycle — an error is raised immediately.
-}
-
-After the recursion, the graph is pruned:
-only vertices with a path to at least one final destination are kept.
-If \code{solvable} is supplied, solvable vertices that have no calculable
-path to any observation are removed with a message, and the graph is then
-further restricted to the subgraph reachable from the remaining solvable
-vertices.
+This method is primarily designed to find \code{solve_variables}
+for method \link{fill_mdl_data_solve}.
 
 The model must be recursive and backward-looking: feedback variables
 and leads are not supported and will raise an error.
@@ -87,10 +43,10 @@ and \code{period}. Recursion stops when a final source is reached;
 the vertex is coloured yellow and marked as OK without further tracing.
 Must be endogenous model variables.}
 \item{\code{solvable}}{An optional data frame with columns \code{var}
-and \code{period}. These variables will be numerically solved rather
-than computed forward. A vertex whose dependencies are all either OK
+and \code{period}. A vertex whose dependencies are all either OK
 or solvable is itself considered OK. Cannot overlap with
-\code{observed_data} or \code{final_sources}.}
+\code{observed_data} or \code{final_sources}. See section "Solvable vertices"
+for more information.}
 \item{\code{observed_data}}{An optional data frame containing the observed
 variable-period pairs. If omitted, the data currently in the model
 object is used.}
@@ -102,6 +58,76 @@ graph shows only the unobserved part of the dependency chain.}
 observed. Set to \code{FALSE} to force the full chain to be traced even
 for observed targets.}
 }
+}
+
+\section{Details}{
+
+
+Each vertex in the graph represents the value of a variable
+for a specific period. The vertex carries the following attributes:
+
+\describe{
+\item{\code{ok}}{\code{TRUE} if the variable can be resolved — either
+because it is observed or because it is calculable (see below).}
+\item{\code{calculable}}{\code{TRUE} if the variable's value can be
+computed by evaluating its model equation based on the
+observed data or an initial guess for the solvable variables (see
+section Solvable vertices). To be specific, it is \code{TRUE} if all its
+incoming vertices are either OK (\code{ok == TRUE}) or are solvable vertices.}
+\item{\code{observed}}{\code{TRUE} if the variable-period pair appears
+in \code{observed_data}.}
+\item{\code{color}}{A color string summarising the vertex status for
+use in plots. See the table below.}
+TODO: volledige lijst?  element solvable alleen als er ook solvables zijn.
+}
+
+The recursion stops at a vertex when:
+\enumerate{
+\item The vertex is a final source (treated as given).
+\item The variable is observed in \code{observed_data} (and either it is
+not a final destination, or \code{stop_if_final_dest_observed = TRUE}).
+\item The variable is exogenous and not observed — it is marked as not OK.
+\item The period is further back than the minimum observed period minus one —
+it is marked as not OK.
+}
+
+After the recursion, the graph is pruned:
+only vertices with a path to at least one final destination are kept.
+If \code{solvable} is supplied, solvable vertices that have no calculable
+path to any observation are removed with a message, and the graph is then
+further restricted to the subgraph reachable from the remaining solvable
+vertices.
+
+TODO maak in aparte Sectie "Vertex colors' met een overzichtelijk tabel van
+kleuren (het lieft met ook een kleurje erbij). Verwijs hiernaar in
+bovenstaande opsommigeeen overzichtelijk tabel van kleuren (het lieft met
+ook een kleurje erbij). Verwijs hiernaar in bovenstaande opsomming.
+}
+
+\section{Solvable vertices}{
+
+
+TODO: onderstaande tekst heb ik even snel getypt, even kijken of het beter kan.
+Argument \code{solvable} can be used to specify variable-period pairs
+on endogenous variables that are neither observed nor calculable, but that
+may be solved in method \link{fill_mdl_data_solve}. In this method
+that values for the solvable variables will be given an initial guees,
+and subsequently a numerical procedure is used to find the values for
+the variables such that the model  reproduces the observed values.
+
+The solvable vertices are treated the same as other endogenous vertices
+with one exception: if vertex depends on a solvable vertex than the
+status of that solvable vertic (OK or not OK) does not matter, since
+in \code{fill_mdl_data_solve} an initial guess is specified.
+}
+
+\section{Value}{
+
+
+A directed \code{igraph} object. Edges point from dependency to
+dependent (A -> B means B depends on A). Each vertex carries the
+\code{ok}, \code{calculable}, \code{observed}, \code{color} and \code{msg}
+attributes described above.
 }
 
 \examples{
@@ -131,5 +157,5 @@ g2 <- mdl$find_deps(
 plot(g2)
 }
 \seealso{
-\code{\link{fill_mdl_data_solve}}, \code{\link{get_dep_struct}}
+\code{\link{fill_mdl_data_solve}}, \code{\link{get_dep_struct}}.
 }

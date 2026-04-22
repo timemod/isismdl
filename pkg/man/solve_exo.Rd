@@ -3,11 +3,6 @@
 \name{solve_exo}
 \alias{solve_exo}
 \title{\code{\link{IsisMdl}} method: Solve for exogenous variables numerically.}
-\value{
-Returns the modified \code{IsisMdl} object, where the values
-of \code{exo_vars} in \code{solve_period} have been updated to the
-solution found by the numerical solver.
-}
 \description{
 This method can be used to solve for exogenous variables numerically such that
 the model results for a set of target variables match their values in the
@@ -37,7 +32,7 @@ mdl$solve_exo(solve_period, exo_vars, target_vars,
 
 
 \describe{
-\item{\code{solve_period}}{A \code{\link[regts]{period}} object or a
+\item{\code{solve_period}}{A \link[regts:period]{regts::period} object or a
 string specifying the
 period for which the exogenous variables should be solved.}
 \item{\code{exo_vars}}{A character vector with the names of the exogenous
@@ -55,8 +50,7 @@ the final Jacobian is printed if \code{jacobian = TRUE}.}
 \item{\code{jacobian}}{A logical. If \code{TRUE} and \code{report == "period"}, the
 final Jacobian used for the numerical solution is printed. The default is \code{TRUE}.}
 \item{\code{...}}{Additional arguments passed to the
-\code{\link[nleqslv]{nleqslv}} solver (e.g., \code{control},
-\code{method}, \code{global}).}
+\link[nleqslv:nleqslv]{nleqslv::nleqslv} solver (e.g., \code{control}, \code{method}, \code{global}).}
 }
 }
 
@@ -69,7 +63,7 @@ runs these equations and computes the difference between the
 target variables' values in the model data and the values computed by
 the model.
 
-The numerical solution is found using the \code{\link[nleqslv]{nleqslv}}
+The numerical solution is found using the \link[nleqslv:nleqslv]{nleqslv::nleqslv}
 function. The initial guess for the exogenous variables in the solve
 period is the current value of the exogenous variable in the model data,
 or 0 if the value is \code{NA}.
@@ -77,6 +71,14 @@ or 0 if the value is \code{NA}.
 If the numerical solver fails to converge, \code{solve_exo} stops with
 an error containing the termination code and message from \code{nleqslv},
 so that the user can adjust initial guesses or solver options.
+}
+
+\section{Value}{
+
+
+Returns the modified \code{IsisMdl} object, where the values
+of \code{exo_vars} in \code{solve_period} have been updated to the
+solution found by the numerical solver.
 }
 
 \examples{
