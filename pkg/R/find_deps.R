@@ -133,7 +133,6 @@ find_deps <- function(final_destinations, final_sources = NULL,
                       observed = observed, calculable = NA,
                       is_endo = is_endo,
                       is_final_dest = is_final_dest,
-                      is_final_src = vertex_name %in% vertices_final_src,
                       msg = NA)
     if (has_solvable) {
       idx <- which(igraph::V(g)$name == vertex_name)
