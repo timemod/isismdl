@@ -361,6 +361,8 @@ find_deps <- function(final_destinations, final_sources = NULL,
     })))
     g <- induced_subgraph(g, can_reach_solvable)
   }
+  # TODO: ALS solvable calculable is: geef lijstje met warning welke deze zijn
+  # zoals fmds dat doet
 
   return(g)
 }
