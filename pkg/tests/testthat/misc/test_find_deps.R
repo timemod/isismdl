@@ -178,7 +178,8 @@ test_that("find_deps model property checks", {
   expect_error(
     mdl_simul$find_deps(final_destinations = tribble(~var, ~period, "y1", "2021"),
                         observed_data = tribble(~var, ~period, "x", "2021", "z", "2021")),
-    regexp = "find_deps (only supports recursive models|does not support models with feedback variables)"
+    "find_deps only supports recursive models.",
+    fixed = TRUE
   )
 })
 

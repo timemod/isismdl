@@ -34,27 +34,20 @@ find_deps <- function(final_destinations, final_sources = NULL,
                       dep_struc, mdl, ignore_observed = FALSE,
                       stop_if_final_dest_observed = TRUE) {
 
-  # Define color mapping configuration
-  # Priority is determined by the order of rows.
-  color_config <- tibble::tribble(
-    ~is_final_src, ~solvable, ~ok,   ~is_final_dest, ~observed, ~color,
-    TRUE,           NA,        NA,    NA,             NA,        "yellow",
-    FALSE,          TRUE,      NA,    NA,             NA,        "pink",
-    FALSE,          FALSE,     TRUE,  TRUE,           NA,        "cyan",
-    FALSE,          FALSE,     TRUE,  FALSE,          TRUE,      "lightgrey",
-    FALSE,          FALSE,     TRUE,  FALSE,          FALSE,     "green",
-    FALSE,          FALSE,     FALSE, TRUE,           NA,        "purple",
-    FALSE,          FALSE,     FALSE, FALSE,          NA,        "red"
-  )
+  # Color constants for vertices
+  COLOR_FINAL_SRC      <- "yellow"
+  COLOR_SOLVABLE       <- "pink"
+  COLOR_FINAL_DEST_OK  <- "cyan"
+  COLOR_OBSERVED       <- "lightgrey"
+  COLOR_OK             <- "green"
+  COLOR_FINAL_DEST_ERR <- "purple"
+  COLOR_ERR            <- "red"
 
   if (mdl$get_maxlead() > 0) {
     stop("find_deps does not support models with leads.")
   }
   if (length(mdl$get_simul_names()) > 0) {
     stop("find_deps only supports recursive models.")
-  }
-  if (length(mdl$get_endo_names(type = "feedback")) > 0) {
-    stop("find_deps does not support models with feedback variables.")
   }
 
   if (is.null(observed_data)) {
@@ -140,9 +133,13 @@ find_deps <- function(final_destinations, final_sources = NULL,
                       observed = observed, calculable = NA,
                       is_endo = is_endo,
                       is_final_dest = is_final_dest,
-                      solvable = vertex_name %in% vertices_solvable,
                       is_final_src = vertex_name %in% vertices_final_src,
                       msg = NA)
+    if (has_solvable) {
+      idx <- which(igraph::V(g)$name == vertex_name)
+      g <- igraph::set_vertex_attr(g, "solvable", index = idx,
+                                   value =  vertex_name %in% vertices_solvable)
+    }
     g
   }
 
@@ -159,6 +156,10 @@ find_deps <- function(final_destinations, final_sources = NULL,
     # Check if the variable is observed at the specified period
     observed <- vertex_name %in% vertices_observed
     is_final_dest <- vertex_name %in% vertices_final_dest
+    is_solvable <- vertex_name %in% vertices_solvable
+
+    color_ok <- if (is_final_dest) COLOR_FINAL_DEST_OK else COLOR_OK
+    color_not_ok <- if (is_final_dest) COLOR_FINAL_DEST_ERR else COLOR_ERR
 
     if (vertex_name %in% V(g)$name) {
       ok <- V(g)[name == vertex_name]$ok
@@ -183,6 +184,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
       g <<- igraph::set_vertex_attr(g, "is_final_src", index = idx, value = is_final_src)
       if (is_final_src) {
         g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
+        g <<- igraph::set_vertex_attr(g, "color", index = idx, value = COLOR_FINAL_SRC)
         return(TRUE)
       }
     }
@@ -190,6 +192,10 @@ find_deps <- function(final_destinations, final_sources = NULL,
     # Check if the variable is in the data
     if (observed && (!is_final_dest || stop_if_final_dest_observed)) {
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
+      g <<- igraph::set_vertex_attr(
+        g, "color", index = idx,
+        value = if (is_final_dest) COLOR_FINAL_DEST_OK else COLOR_OBSERVED
+      )
       return(TRUE)
     }
 
@@ -198,6 +204,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
     if (!is_endo) {
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
       g <<- igraph::set_vertex_attr(g, "msg", index = idx, value = "Missing exo")
+      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_not_ok)
       return(FALSE)
     }
 
@@ -205,6 +212,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
     if (per < min_period_obs - 1) {
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
       g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = FALSE)
+      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_not_ok)
       g <<- igraph::set_vertex_attr(g, "msg", index = idx, value = "outside period range")
       return(FALSE)
     }
@@ -219,6 +227,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
       # getallen of parameters).
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
       g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = TRUE)
+      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_ok)
       return(TRUE)
     }
 
@@ -231,6 +240,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
         # The variable only depends on observed variables.
         g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
         g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = TRUE)
+        g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_ok)
         return(TRUE)
       }
     }
@@ -276,11 +286,15 @@ find_deps <- function(final_destinations, final_sources = NULL,
       # Calculable or observed
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
       g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = calculable)
+      color <- if (is_solvable) COLOR_SOLVABLE else color_ok
+      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color)
       return(TRUE)
     } else {
       # Not calculable or observed.
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
       g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = FALSE)
+      color <- if (is_solvable) COLOR_SOLVABLE else color_not_ok
+      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color)
       # Remove incoming edges from an incalculable node, except if this is a
       # final node.
       if (!is_final_dest) {
@@ -295,25 +309,6 @@ find_deps <- function(final_destinations, final_sources = NULL,
                               final_destinations$period[[i]])
     .find_deps(var_per)
   }
-
-  # Set the vertex colors by matching vertex attributes against the color_config
-  v_attrs <- igraph::as_data_frame(g, what = "vertices")
-  v_colors <- sapply(seq_len(nrow(v_attrs)), function(i) {
-    row <- v_attrs[i, ]
-    for (j in seq_len(nrow(color_config))) {
-      conf <- color_config[j, ]
-      match <- TRUE
-      for (col in setdiff(names(conf), "color")) {
-        if (!is.na(conf[[col]]) && row[[col]] != conf[[col]]) {
-          match <- FALSE
-          break
-        }
-      }
-      if (match) return(conf$color)
-    }
-    return("red") # Fallback
-  })
-  g <- igraph::set_vertex_attr(g, "color", value = v_colors)
 
   # Find all vertices reachable from target vertices (including themselves)
   reachable <- unique(unlist(lapply(vertices_final_dest, function(v) {
