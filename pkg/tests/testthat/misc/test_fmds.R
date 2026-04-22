@@ -71,7 +71,6 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
 
   solved_data <- mdl_solved$get_data()
 
-  # TODO: check result, compare with analytical solution
   expect_equal(as.numeric(solved_data["2011", "y1"]), 2.8)
   expect_equal(as.numeric(solved_data["2011", "y2"]), 3.0)
   expect_equal(as.numeric(solved_data["2011", "y3"]), 2.0)
