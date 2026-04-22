@@ -1,18 +1,26 @@
-#' Recursively find all dependencies.
+#' Recursively find all dependencies of one or more target variables.
 #'
-#' @param final_destinations A data frame with variable names and periods of
-#' the final destinations.
-#' @param final_sources A data frame with variable names and periods of the
-#' final sources.
-#' @param solvable A data frame with variable names and periods of values that
-#' we wish to solve in \code{fill_mdl_data_solve}.
-#' @param observed_data A data frame containing observed values.
-#' @param dep_struc Dependency structure of the model.
-#' @param mdl The \code{IsisMdl} object.
-#' @param ignore_observed Logical, should observed variables be ignored?
-#' @param stop_if_final_dest_observed Logical, should the search stop if a
-#' final destination is already observed?
-#' @return A dependency graph as an igraph object.
+#' Walks backwards through the model's equation structure starting from each
+#' variable-period pair in `final_destinations`, building a directed graph
+#' where an edge from A to B means "B depends on A". Each vertex is annotated
+#' with `ok`, `calculable`, `observed`, `color` and `msg`. Recursion stops
+#' when a vertex is observed, is a final source, is a missing exogenous
+#' variable, or its period falls below the minimum observed period. Cycles
+#' raise an error immediately. After recursion the graph is pruned to vertices
+#' with a path to a final destination.
+#'
+#' @param final_destinations Data frame with columns `var` and `period`.
+#' @param final_sources Optional data frame with `var` and `period`;
+#'   recursion stops at these vertices.
+#' @param solvable Optional data frame with `var` and `period` of
+#'   variables to be solved numerically rather than computed forward.
+#' @param observed_data Data frame with `var` and `period` of observed values.
+#' @param dep_struc Dependency structure from `get_dep_struct(one_lag_per_row = TRUE)`.
+#' @param mdl The `IsisMdl` object (must be recursive, no feedback, no leads).
+#' @param ignore_observed Logical; if `TRUE`, observed deps are stripped before recursing.
+#' @param stop_if_final_dest_observed Logical; if `TRUE` (default), stops when
+#'   a final destination is already observed.
+#' @return A directed igraph object (edges point from dependency to dependent).
 #'
 #' @importFrom igraph add_edges make_empty_graph neighbors induced_subgraph
 #'   delete_edges incident subcomponent delete_vertices
@@ -26,23 +34,49 @@ find_deps <- function(final_destinations, final_sources = NULL,
                       dep_struc, mdl, ignore_observed = FALSE,
                       stop_if_final_dest_observed = TRUE) {
 
-  # TODO: use a data frame with possible vertex types and the
-  # corresponding color.
+  # Define color mapping configuration
+  # Priority is determined by the order of rows.
+  color_config <- tibble::tribble(
+    ~is_final_src, ~solvable, ~ok,   ~is_final_dest, ~observed, ~color,
+    TRUE,           NA,        NA,    NA,             NA,        "yellow",
+    FALSE,          TRUE,      NA,    NA,             NA,        "pink",
+    FALSE,          FALSE,     TRUE,  TRUE,           NA,        "cyan",
+    FALSE,          FALSE,     TRUE,  FALSE,          TRUE,      "lightgrey",
+    FALSE,          FALSE,     TRUE,  FALSE,          FALSE,     "green",
+    FALSE,          FALSE,     FALSE, TRUE,           NA,        "purple",
+    FALSE,          FALSE,     FALSE, FALSE,          NA,        "red"
+  )
 
-  # TODO: give an error if mdl is not a recursive, backward looking model.
-  # This implementation has not been tested yet for models with feedback.
-  # For models with leads (forward looking), fmds() now throws an error.
+  if (mdl$get_maxlead() > 0) {
+    stop("find_deps does not support models with leads.")
+  }
+  if (length(mdl$get_simul_names()) > 0) {
+    stop("find_deps only supports recursive models.")
+  }
+  if (length(mdl$get_endo_names(type = "feedback")) > 0) {
+    stop("find_deps does not support models with feedback variables.")
+  }
+
+  if (is.null(observed_data)) {
+    observed_data <- mdl$get_observed_data()
+  }
 
   endo_names <- mdl$get_endo_names()
 
-  # Check if final_destinations are endogenous variables
-  no_endo_names <- setdiff(final_destinations$var, endo_names)
-  if (length(no_endo_names) > 0) {
-    stop("The following variables are not endogenous model variables:\n",
-         paste(no_endo_names, collapse = ", "), ".")
+  # Helper function to check if variables are endogenous
+  check_endo <- function(df, name) {
+    if (is.null(df) || nrow(df) == 0) return()
+    no_endo <- setdiff(df$var, endo_names)
+    if (length(no_endo) > 0) {
+      stop(sprintf("The following %s variables are not endogenous model variables:\n%s.",
+                   name, paste(no_endo, collapse = ", ")))
+    }
   }
 
-  # TODO: check that final sources are endogenous
+  # Check if variables are endogenous
+  check_endo(final_destinations, "final destination")
+  check_endo(final_sources, "final source")
+  check_endo(solvable, "solvable")
 
   # Column period of vars or derivable may contain period as integer
   # (a year).
@@ -53,32 +87,41 @@ find_deps <- function(final_destinations, final_sources = NULL,
   if (has_final_sources) {
     periods <- as.character(final_sources$period)
     vertices_final_src <- paste0(final_sources$var, "[", periods, "]")
+  } else {
+    vertices_final_src <- character(0)
   }
 
   has_solvable <- !is.null(solvable)
   if (has_solvable) {
-    # TODO: give an error if solvable has overlap with observations.
-    # Also check that they are endogenous variables.
-    # TODO: also give an error in solvable has overlap with final_sources.
     periods <- as.character(solvable$period)
     vertices_solvable <- paste0(solvable$var, "[", periods, "]")
   } else {
     vertices_solvable <- character(0)
   }
 
-  # TODO: check that there is there is no overlap between final_destinations
-  # and solvable.
-
-  min_period_obs <- min(period(observed_data$period))
+  if (nrow(observed_data) > 0) {
+    min_period_obs <- min(period(observed_data$period))
+  } else {
+    min_period_obs <- start_period(mdl$get_data_period())
+  }
 
   periods <- observed_data$period
   vertices_observed <- paste0(observed_data$var, "[", periods, "]")
 
-  problem_vertices <- intersect(vertices_solvable, vertices_observed)
-  if (length(problem_vertices)) {
-    stop("The following solvable vertices are actually observed",
-         paste(problem_vertices, collapse = ", "))
+  # Helper function to check for overlaps and list ALL offending variables
+  check_overlap <- function(v1, v2, msg) {
+    problem_vertices <- intersect(v1, v2)
+    if (length(problem_vertices) > 0) {
+      stop(sprintf("%s:\n%s", msg, paste(problem_vertices, collapse = ", ")))
+    }
   }
+
+  check_overlap(vertices_solvable, vertices_observed,
+                "The following solvable vertices are actually observed")
+  check_overlap(vertices_solvable, vertices_final_src,
+                "The following solvable vertices are also final sources")
+  check_overlap(vertices_final_dest, vertices_solvable,
+                "The following final destination vertices are also solvable")
 
 
   # Convert dependency structure to a list (working with a list is more efficient)
@@ -97,21 +140,15 @@ find_deps <- function(final_destinations, final_sources = NULL,
                       observed = observed, calculable = NA,
                       is_endo = is_endo,
                       is_final_dest = is_final_dest,
+                      solvable = vertex_name %in% vertices_solvable,
+                      is_final_src = vertex_name %in% vertices_final_src,
                       msg = NA)
-    if (has_solvable) {
-      idx <- which(igraph::V(g)$name == vertex_name)
-      g <- igraph::set_vertex_attr(g, "solvable", index = idx,
-                                   value =  vertex_name %in% vertices_solvable)
-    }
     g
   }
 
   .find_deps <- function(var_per) {
 
-    # TODO: hoe voorkom je oneindige recursie, bijv. voor simultane
-    # modellen.?
-    # waarschijnlijk als het year kleiner dan een drempel is?
-    # Of als het jaar kleiner is dan het minale jaar van de data?
+    # Recursion is stopped when the period is before the threshold (min_period_obs).
 
     vertex_name <- as.character(var_per)
     var <- var_per$var
@@ -122,10 +159,6 @@ find_deps <- function(final_destinations, final_sources = NULL,
     # Check if the variable is observed at the specified period
     observed <- vertex_name %in% vertices_observed
     is_final_dest <- vertex_name %in% vertices_final_dest
-    is_solvable <- vertex_name %in%  vertices_solvable
-
-    color_ok <- if (is_final_dest) "cyan" else "green"
-    color_not_ok <- if (is_final_dest) "purple" else "red"
 
     if (vertex_name %in% V(g)$name) {
       ok <- V(g)[name == vertex_name]$ok
@@ -150,7 +183,6 @@ find_deps <- function(final_destinations, final_sources = NULL,
       g <<- igraph::set_vertex_attr(g, "is_final_src", index = idx, value = is_final_src)
       if (is_final_src) {
         g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
-        g <<- igraph::set_vertex_attr(g, "color", index = idx, value = "yellow")
         return(TRUE)
       }
     }
@@ -158,10 +190,6 @@ find_deps <- function(final_destinations, final_sources = NULL,
     # Check if the variable is in the data
     if (observed && (!is_final_dest || stop_if_final_dest_observed)) {
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
-      g <<- igraph::set_vertex_attr(
-        g, "color", index = idx,
-        value = if (is_final_dest) "cyan" else "lightgrey"
-      )
       return(TRUE)
     }
 
@@ -170,7 +198,6 @@ find_deps <- function(final_destinations, final_sources = NULL,
     if (!is_endo) {
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
       g <<- igraph::set_vertex_attr(g, "msg", index = idx, value = "Missing exo")
-      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_not_ok)
       return(FALSE)
     }
 
@@ -178,7 +205,6 @@ find_deps <- function(final_destinations, final_sources = NULL,
     if (per < min_period_obs - 1) {
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
       g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = FALSE)
-      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_not_ok)
       g <<- igraph::set_vertex_attr(g, "msg", index = idx, value = "outside period range")
       return(FALSE)
     }
@@ -193,7 +219,6 @@ find_deps <- function(final_destinations, final_sources = NULL,
       # getallen of parameters).
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
       g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = TRUE)
-      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_ok)
       return(TRUE)
     }
 
@@ -206,7 +231,6 @@ find_deps <- function(final_destinations, final_sources = NULL,
         # The variable only depends on observed variables.
         g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
         g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = TRUE)
-        g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_ok)
         return(TRUE)
       }
     }
@@ -252,15 +276,11 @@ find_deps <- function(final_destinations, final_sources = NULL,
       # Calculable or observed
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
       g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = calculable)
-      color <- if (is_solvable)  "pink" else color_ok
-      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color)
       return(TRUE)
     } else {
       # Not calculable or observed.
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
       g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = FALSE)
-      color <- if (is_solvable) "pink" else color_not_ok
-      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color)
       # Remove incoming edges from an incalculable node, except if this is a
       # final node.
       if (!is_final_dest) {
@@ -271,12 +291,29 @@ find_deps <- function(final_destinations, final_sources = NULL,
   }
 
   for (i in seq_len(nrow(final_destinations))) {
-    var_per <- new_var_period(final_destinations[i, "var"],
-                              final_destinations[i, "period"])
+    var_per <- new_var_period(final_destinations$var[[i]],
+                              final_destinations$period[[i]])
     .find_deps(var_per)
   }
 
-  # TODO: set the vertices colour at this point
+  # Set the vertex colors by matching vertex attributes against the color_config
+  v_attrs <- igraph::as_data_frame(g, what = "vertices")
+  v_colors <- sapply(seq_len(nrow(v_attrs)), function(i) {
+    row <- v_attrs[i, ]
+    for (j in seq_len(nrow(color_config))) {
+      conf <- color_config[j, ]
+      match <- TRUE
+      for (col in setdiff(names(conf), "color")) {
+        if (!is.na(conf[[col]]) && row[[col]] != conf[[col]]) {
+          match <- FALSE
+          break
+        }
+      }
+      if (match) return(conf$color)
+    }
+    return("red") # Fallback
+  })
+  g <- igraph::set_vertex_attr(g, "color", value = v_colors)
 
   # Find all vertices reachable from target vertices (including themselves)
   reachable <- unique(unlist(lapply(vertices_final_dest, function(v) {

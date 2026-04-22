@@ -2676,10 +2676,58 @@ NULL
 #' @name find_deps
 #'
 #' @description
-#' This method of R6 class \code{\link{IsisMdl}} recursively finds all
-#' dependencies for a specified set of "final destinations".
+#' This method of R6 class \code{\link{IsisMdl}} builds a dependency graph
+#' for one or more target variable-period pairs (the "final destinations").
+#' Starting from each target, it walks backwards through the model's equation
+#' structure, recursively visiting every variable that the target depends on,
+#' then every variable those variables depend on, and so on.
+#' The result is a directed \code{igraph} object where an edge from A to B
+#' means "B depends on A".
 #'
-#' It returns a dependency graph as an \code{igraph} object.
+#' Each vertex in the graph carries the following attributes:
+#'
+#' \describe{
+#' \item{\code{ok}}{\code{TRUE} if the variable can be resolved — either
+#'   because it is observed, because all of its own dependencies are OK,
+#'   or because it is listed as solvable.}
+#' \item{\code{calculable}}{\code{TRUE} if the variable's value can be
+#'   computed purely by evaluating its model equation — i.e. it is not
+#'   missing any dependency, and no numerical solving is needed.}
+#' \item{\code{observed}}{\code{TRUE} if the variable-period pair appears
+#'   in \code{observed_data}.}
+#' \item{\code{color}}{A color string summarising the vertex status for
+#'   use in plots: \code{"cyan"} = final destination, OK;
+#'   \code{"purple"} = final destination, not calculable;
+#'   \code{"green"} = intermediate, OK;
+#'   \code{"red"} = missing or incalculable;
+#'   \code{"pink"} = solvable;
+#'   \code{"lightgrey"} = observed (exogenous or stopped recursion);
+#'   \code{"yellow"} = final source.}
+#' \item{\code{msg}}{A short diagnostic message for vertices that are not OK,
+#'   for example \code{"Missing exo"} or \code{"outside period range"}.}
+#' }
+#'
+#' The recursion stops at a vertex when:
+#' \enumerate{
+#' \item The vertex is a final source (treated as given).
+#' \item The variable is observed in \code{observed_data} (and either it is
+#'   not a final destination, or \code{stop_if_final_dest_observed = TRUE}).
+#' \item The variable is exogenous and not observed — it is marked as not OK.
+#' \item The period is further back than the minimum observed period minus one —
+#'   it is marked as not OK.
+#' \item The same vertex is encountered again while already being processed,
+#'   indicating a cycle — an error is raised immediately.
+#' }
+#'
+#' After the recursion, the graph is pruned:
+#' only vertices with a path to at least one final destination are kept.
+#' If \code{solvable} is supplied, solvable vertices that have no calculable
+#' path to any observation are removed with a message, and the graph is then
+#' further restricted to the subgraph reachable from the remaining solvable
+#' vertices.
+#'
+#' The model must be recursive and backward-looking: feedback variables
+#' and leads are not supported and will raise an error.
 #'
 #' @section Usage:
 #' \preformatted{
@@ -2695,35 +2743,61 @@ NULL
 #'
 #' \describe{
 #' \item{\code{final_destinations}}{A data frame with columns \code{var}
-#'   (variable names) and \code{period} (periods) of the final destinations
-#'   for which dependencies should be found.}
-#' \item{\code{final_sources}}{An optional data frame with variable names and
-#'   periods of the final sources. If specified, the search stops when a
-#'   final source is reached.}
-#' \item{\code{solvable}}{An optional data frame with variable names and periods
-#'   of values that are considered "solvable". A vertex that only depends on
-#'   calculable or solvable vertices is marked as OK.}
-#' \item{\code{observed_data}}{An optional data frame containing observed data.
-#'   If missing, the data currently stored in the model object is used.}
-#' \item{\code{ignore_observed}}{A logical. If \code{TRUE}, observed variables
-#'   are ignored when determining dependencies.}
-#' \item{\code{stop_if_final_dest_observed}}{A logical. If \code{TRUE} (the default),
-#'   the search stops if a final destination is already observed in the data.}
+#'   and \code{period}. These are the targets whose full dependency chain
+#'   will be traced.}
+#' \item{\code{final_sources}}{An optional data frame with columns \code{var}
+#'   and \code{period}. Recursion stops when a final source is reached;
+#'   the vertex is coloured yellow and marked as OK without further tracing.
+#'   Must be endogenous model variables.}
+#' \item{\code{solvable}}{An optional data frame with columns \code{var}
+#'   and \code{period}. These variables will be numerically solved rather
+#'   than computed forward. A vertex whose dependencies are all either OK
+#'   or solvable is itself considered OK. Cannot overlap with
+#'   \code{observed_data} or \code{final_sources}.}
+#' \item{\code{observed_data}}{An optional data frame containing the observed
+#'   variable-period pairs. If omitted, the data currently in the model
+#'   object is used.}
+#' \item{\code{ignore_observed}}{Logical. If \code{TRUE}, observed variables
+#'   are removed from a variable's dependency list before recursing, so the
+#'   graph shows only the unobserved part of the dependency chain.}
+#' \item{\code{stop_if_final_dest_observed}}{Logical. If \code{TRUE}
+#'   (the default), recursion stops when a final destination is already
+#'   observed. Set to \code{FALSE} to force the full chain to be traced even
+#'   for observed targets.}
 #' }
 #'
-#' @return A dependency graph as an \code{igraph} object.
+#' @return A directed \code{igraph} object. Edges point from dependency to
+#' dependent (A -> B means B depends on A). Each vertex carries the
+#' \code{ok}, \code{calculable}, \code{observed}, \code{color} and \code{msg}
+#' attributes described above.
+#'
+#' @seealso \code{\link{fill_mdl_data_solve}}, \code{\link{get_dep_struct}}
 #'
 #' @examples
-#' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #'
-#' # Define final destinations
-#' final_dest <- data.frame(var = "y", period = "2018Q4")
+#' model_text <- "
+#'   ident y1 = 0.8 * y1(-1) + 0.2 * z1;
+#'   ident y2 = 0.5 * y1 + 0.5 * z2;
+#'   ident y3 = y2 + y1(-1);
+#' "
+#' mdl <- isis_mdl(model_text = model_text,
+#'                 period = "2017Q1/2018Q4",
+#'                 silent = TRUE)
+#' mdl$init_data()
 #'
-#' # Find dependencies
-#' g <- mdl$find_deps(final_dest)
+#' observed <- data.frame(
+#'   var    = c("y1", "z1", "z2"),
+#'   period = c("2018Q3", "2018Q4", "2018Q4")
+#' )
+#' solvable <- data.frame(var = "y1", period = "2018Q4")
 #'
-#' # The result is an igraph object
-#' print(g)
+#' g2 <- mdl$find_deps(
+#'   final_destinations = data.frame(var = "y3", period = "2018Q4"),
+#'   observed_data = observed,
+#'   solvable = solvable
+#' )
+#'
+#' plot(g2)
 NULL
 
 
