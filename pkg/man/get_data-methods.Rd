@@ -6,16 +6,13 @@
 \alias{get_ca}
 \alias{get_fix}
 \alias{get_fit}
-\alias{get_observed_data}
+\alias{a}
 \title{Retrieve timeseries from the model data,
 constant adjustments, fix values or fit targets.}
 \description{
 These methods of R6 class \code{\link{IsisMdl}}
 can be used to retrieve timeseries from the model data,
 constant adjustments, fix values or fit targets.
-
-Method \code{get_observed_data} returns a data frame in long format
-containing all non-missing values.
 }
 \section{Usage}{
 
@@ -23,8 +20,6 @@ containing all non-missing values.
 mdl$get_data(pattern, names, period = mdl$get_data_period())
 
 mdl$get_ca(pattern, names, period = mdl$get_data_period())
-
-mdl$get_observed_data(period = mdl$get_data_period())
 
 mdl$get_fix()
 
@@ -62,8 +57,6 @@ of package \code{regts}.}
 
 \item \code{get_fit}: Fit targets
 
-\item \code{get_observed_data}: Model data in long format (data frame with
-non-missing values)
 }
 }
 

@@ -114,7 +114,7 @@ get_fit_deps <- function(observed_variables, solve_variables,
   derivable <- data.frame(var = solve_variables,
                           period = as.character(solve_period))
 
-  dep_graph <- find_deps(
+  dep_graph <- find_deps_internal(
     final_destinations = observed,
     final_sources = derivable,
     dep_struc = dep_struc,

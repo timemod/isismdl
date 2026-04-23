@@ -128,6 +128,8 @@ fmds <- function(
 
   mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
 
+  dep_struc <- dep_struct_to_list(dep_struc)
+
   for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
     this_period <- single_solve_period$solve_period[1]
     for (group_data in single_solve_period |> group_split(.data$group)) {

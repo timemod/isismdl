@@ -29,10 +29,12 @@
 #' @importFrom rlang .data
 #'
 #' @noRd
-find_deps <- function(final_destinations, final_sources = NULL,
-                      solvable = NULL, observed_data,
-                      dep_struc, mdl, ignore_observed = FALSE,
-                      stop_if_final_dest_observed = TRUE) {
+
+find_deps_internal <- function(final_destinations, final_sources = NULL,
+                               solvable = NULL, observed_data, mdl,
+                               dep_struc = mdl$get_dep_struct(one_lag_per_row = TRUE),
+                               ignore_observed = FALSE,
+                               stop_if_final_dest_observed = TRUE) {
 
   # Color constants for vertices
   COLOR_FINAL_SRC      <- "yellow"
@@ -51,7 +53,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
   }
 
   if (is.null(observed_data)) {
-    observed_data <- mdl$get_observed_data()
+    observed_data <- get_observed_data(mdl$get_data())
   }
 
   endo_names <- mdl$get_endo_names()
@@ -118,12 +120,7 @@ find_deps <- function(final_destinations, final_sources = NULL,
 
 
   # Convert dependency structure to a list (working with a list is more efficient)
-  dep_struc <- split(dep_struc, dep_struc$lhs) |>
-    lapply(FUN = \(x) {
-      rename(x, var = "rhs", period = "lag") |>
-        select(-c("lhs"))
-    }
-    )
+  dep_struc <- dep_struct_to_list(dep_struc)
 
   g <- make_empty_graph()
 
@@ -344,12 +341,16 @@ find_deps <- function(final_destinations, final_sources = NULL,
 
     removed_vertex_names <- names(V(g))[to_remove]
 
+
     removed_solvable <- intersect(removed_vertex_names, names(solvable_vertices))
     if (length(removed_solvable)) {
+      rem_solv_df <- as_data_frame_deps(induced_subgraph(g, removed_solvable))
+      rem_solv_df <- as.data.frame(rem_solv_df[, c("var", "period")])
       message("The following solvable variables have been removed because ",
               "there is not a calculable path to observations:\n",
-              paste(removed_solvable, collapse = ", "))
+              paste(capture.output(print(rem_solv_df, row.names = FALSE)), collapse = "\n"))
     }
+
 
     # Remove these vertices
     g <- delete_vertices(g, to_remove)
@@ -361,8 +362,34 @@ find_deps <- function(final_destinations, final_sources = NULL,
     })))
     g <- induced_subgraph(g, can_reach_solvable)
   }
-  # TODO: ALS solvable calculable is: geef lijstje met warning welke deze zijn
-  # zoals fmds dat doet
+
+  # Check for solvables that are actually calculable
+  if (has_solvable) {
+    v_solvable_calculable <- igraph::V(g)[igraph::V(g)$solvable & igraph::V(g)$calculable]
+    if (length(v_solvable_calculable) > 0) {
+      solv_calc_df <- as_data_frame_deps(induced_subgraph(g, v_solvable_calculable))
+      solv_calc_df <- as.data.frame(solv_calc_df[, c("var", "period")])
+      warning("The following solvables are just calculable, no need to solve them:\n",
+              paste(capture.output(print(solv_calc_df, row.names = FALSE)), collapse = "\n"))
+    }
+  }
+
+  # TODO: in documentatie: wat het doel is van solvable
 
   return(g)
+}
+
+find_deps <- function(mdl, final_destinations, final_sources,
+                      solvable, observed_data, ignore_observed,
+                      stop_if_final_dest_observed) {
+
+  dep_struc <- dep_struct_to_list(mdl$get_dep_struct(one_lag_per_row = TRUE))
+
+  find_deps_internal(final_destinations = final_destinations,
+                     final_sources = final_sources,
+                     solvable = solvable,
+                     observed_data = observed_data,
+                     dep_struc = dep_struc,
+                     mdl = mdl, ignore_observed = ignore_observed,
+                     stop_if_final_dest_observed = stop_if_final_dest_observed)
 }
