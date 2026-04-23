@@ -45,6 +45,7 @@ as_var_period <- function(txt) {
   new_var_period(x[, 2], x[, 3])
 }
 
+#' @export
 as_data_frame_deps <- function(g) {
   igraph::as_data_frame(g, what = "vertices") |>
     tibble::remove_rownames() |>
