@@ -40,7 +40,7 @@ fmds_group <- function(
 
   if (report == "period") {
     cat("\n===============================================\n")
-    cat("Solving solve variables for period", solve_period, "\n")
+    cat("Solving solve variables for period ", solve_period, "\n", sep = "")
     cat(paste0("Solve variables: ", paste(solve_variables, collapse = ", "),
                "\n"))
     cat(paste0("Observed variables: ", paste(observed_variables, collapse = ", ")))
