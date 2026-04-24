@@ -218,7 +218,7 @@ test_that("find_deps vertex colors", {
   solvable <- tribble(~var, ~period, "y1", "2021")
   final_dest <- tribble(~var, ~period, "y3", "2021")
   
-  expect_warning(
+  expect_message(
     g <- mdl$find_deps(final_destinations = final_dest, 
                        solvable = solvable, 
                        observed_data = observed),
@@ -258,7 +258,7 @@ test_that("find_deps vertex attributes internal metadata", {
   final_dest <- tribble(~var, ~period, "y2", "2021")
   observed <- tribble(~var, ~period, "x1", "2021", "x2", "2021")
 
-  expect_warning(
+  expect_message(
     g <- mdl$find_deps(final_destinations = final_dest,
                        solvable = solvable,
                        observed_data = observed),
@@ -299,7 +299,7 @@ test_that("find_deps warning for calculable solvables", {
   solvable <- tribble(~var, ~period, "y1", "2021")
   final_dest <- tribble(~var, ~period, "y2", "2021")
 
-  expect_warning(
+  expect_message(
     mdl$find_deps(final_destinations = final_dest,
                   solvable = solvable,
                   observed_data = observed),
