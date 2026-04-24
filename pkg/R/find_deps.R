@@ -344,18 +344,23 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Remove these vertices
     g <- delete_vertices(g, to_remove)
 
-    # Only keep the vertices that can be reached from solvable_vertices.
+    # Only keep the vertices that can be reached from solvable_vertices,
+    # plus the original final destinations and their dependencies.
     solvable_vertices <- V(g)[V(g)$solvable == TRUE]
     if (length(solvable_vertices) > 0) {
       can_reach_solvable <- unique(unlist(lapply(solvable_vertices, function(v) {
         subcomponent(g, v, mode = "out")
       })))
-      g <- induced_subgraph(g, can_reach_solvable)
+      # Ensure we also keep all original final destinations that are still in the graph
+      all_to_keep <- unique(c(can_reach_solvable, which(V(g)$is_final_dest == TRUE)))
+      g <- induced_subgraph(g, all_to_keep)
     }
   }
 
   # Find all vertices reachable from target vertices (including themselves)
-  reachable <- unique(unlist(lapply(vertices_final_dest, function(v) {
+  # Only use destination names that are still in the graph.
+  current_final_dests <- intersect(vertices_final_dest, names(V(g)))
+  reachable <- unique(unlist(lapply(current_final_dests, function(v) {
     subcomponent(g, v, mode = "all")
   })))
 
@@ -388,6 +393,14 @@ find_deps <- function(mdl, final_destinations, final_sources,
                       solvable, observed_data, ignore_observed,
                       stop_if_final_dest_observed,
                       dep_struc = mdl$get_dep_struct(one_lag_per_row = TRUE)) {
+
+  # TEMPORARY SOLUTION: Set default values for optional arguments
+  # TODO: remove this when method is used in zoem instead of isismdl:::find_deps
+  if (missing(final_sources)) final_sources <- NULL
+  if (missing(solvable)) solvable <- NULL
+  if (missing(observed_data)) observed_data <- NULL
+  if (missing(ignore_observed)) ignore_observed <- FALSE
+  if (missing(stop_if_final_dest_observed)) stop_if_final_dest_observed <- TRUE
 
   dep_struc <- dep_struct_to_list(dep_struc)
 
