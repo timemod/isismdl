@@ -195,7 +195,7 @@ fmds <- function(
         cat("===============================================\n\n")
         print(overview)
       }
-      cat("\nTotal number of replaced missing/invalid values: ", n_filled, "\n",
+      cat("\nTotal number of replaced missing/invalid values:  ", n_filled, "\n",
           sep = "")
     } else {
       cat("\nNo missing/invalid values have been replaced.\n")
