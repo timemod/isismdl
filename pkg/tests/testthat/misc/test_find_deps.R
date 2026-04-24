@@ -306,3 +306,31 @@ test_that("find_deps warning for calculable solvables", {
     "The following solvables are just calculable, no need to solve them:"
   )
 })
+
+test_that("find_deps message for removed solvables", {
+  period <- as.period_range("2020/2022")
+  model_text <- "
+    ident y1 = 1;
+    ident y2 = y1 + x2;
+    ident y3 = y2;
+  "
+  mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
+
+  # x2 is missing, so y2 is not OK.
+  # Since y2 is not OK and not a final destination, its incoming edges (y1 -> y2)
+  # will be deleted.
+  # Now y1 cannot reach the final destination y3.
+  # If y1 is marked as solvable, it should be removed with a message.
+  
+  final_dest <- tribble(~var, ~period, "y3", "2021")
+  solvable <- tribble(~var, ~period, "y1", "2021")
+  
+  # We expect a message about y1 being removed.
+  # Note: y3 will still be in the graph but marked as not OK (purple color).
+  expect_message(
+    mdl$find_deps(final_destinations = final_dest,
+                  solvable = solvable,
+                  observed_data = tribble(~var, ~period)),
+    "The following solvable variables have been removed because there is not a calculable path to observations:"
+  )
+})

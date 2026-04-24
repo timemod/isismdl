@@ -306,17 +306,6 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     .find_deps(var_per)
   }
 
-  # Find all vertices reachable from target vertices (including themselves)
-  reachable <- unique(unlist(lapply(vertices_final_dest, function(v) {
-    subcomponent(g, v, mode = "all")
-  })))
-
-  # Keep only the reachable vertices
-  g <- induced_subgraph(g, reachable)
-
-  # Remove isolated vertices (degree = 0) that are not final vertices.
-  isolated <- which(degree(g) == 0 & !V(g)$name %in% vertices_final_dest)
-  g <- delete_vertices(g, isolated)
 
   # Remove solvable vertices without a path to final destinations.
   if (has_solvable) {
@@ -336,7 +325,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
 
     all_vertices <- V(g)
 
-    # Find solvable vertices that are NOT in the reachable set
+    # Find vertices that are NOT in the reachable set
     to_remove <- setdiff(all_vertices, reachable_from_any)
 
     removed_vertex_names <- names(V(g))[to_remove]
@@ -356,12 +345,27 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     g <- delete_vertices(g, to_remove)
 
     # Only keep the vertices that can be reached from solvable_vertices.
-    solvable_vertices <- V(g)[solvable == TRUE]
-    can_reach_solvable <- unique(unlist(lapply(solvable_vertices, function(v) {
-      subcomponent(g, v, mode = "out")
-    })))
-    g <- induced_subgraph(g, can_reach_solvable)
+    solvable_vertices <- V(g)[V(g)$solvable == TRUE]
+    if (length(solvable_vertices) > 0) {
+      can_reach_solvable <- unique(unlist(lapply(solvable_vertices, function(v) {
+        subcomponent(g, v, mode = "out")
+      })))
+      g <- induced_subgraph(g, can_reach_solvable)
+    }
   }
+
+  # Find all vertices reachable from target vertices (including themselves)
+  reachable <- unique(unlist(lapply(vertices_final_dest, function(v) {
+    subcomponent(g, v, mode = "all")
+  })))
+
+  # Keep only the reachable vertices
+  g <- induced_subgraph(g, reachable)
+
+  # Remove isolated vertices (degree = 0) that are not final vertices.
+  isolated <- which(igraph::degree(g) == 0 & !igraph::V(g)$name %in% vertices_final_dest)
+  g <- igraph::delete_vertices(g, isolated)
+
 
   # Check for solvables that are actually calculable
   if (has_solvable) {
