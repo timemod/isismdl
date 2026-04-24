@@ -222,7 +222,7 @@ test_that("find_deps vertex colors", {
     g <- mdl$find_deps(final_destinations = final_dest, 
                        solvable = solvable, 
                        observed_data = observed),
-    "The following solvables are just calculable, no need to solve them:"
+    "The following solvables are calculable, no need to solve them:"
   )
   
   # NOTE: y1[2020] and x2[2021] are pruned because they are not reachable FROM y1[2021]
@@ -262,7 +262,7 @@ test_that("find_deps vertex attributes internal metadata", {
     g <- mdl$find_deps(final_destinations = final_dest,
                        solvable = solvable,
                        observed_data = observed),
-    "The following solvables are just calculable, no need to solve them:"
+    "The following solvables are calculable, no need to solve them:"
   )
 
   # Verify attributes are set correctly during add_vertex and recursion
@@ -303,7 +303,7 @@ test_that("find_deps warning for calculable solvables", {
     mdl$find_deps(final_destinations = final_dest,
                   solvable = solvable,
                   observed_data = observed),
-    "The following solvables are just calculable, no need to solve them:"
+    "The following solvables are calculable, no need to solve them:"
   )
 })
 
