@@ -31,7 +31,7 @@
 #        Logical. Whether to calculate and use the Jacobian.
 #
 # Solve a single solve variable given an observed variable.
-solve_single_group <- function(
+fmds_group <- function(
     mdl, solve_period, solve_variables, observed_variables,
     initial_guess, observed_data, dep_struc, report, jacobian,
     ...) {

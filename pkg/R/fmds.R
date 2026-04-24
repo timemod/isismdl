@@ -139,8 +139,7 @@ fmds <- function(
       # numerical vector used in nleqslv
       initial_guess_vector <- group_data$initial_guess
 
-      # function solve_single_group is in fmds_single.R
-      solve_single_group(
+      fmds_group(
         mdl,
         solve_period = this_period,
         solve_variables = group_data$solve_variable,
