@@ -218,9 +218,12 @@ test_that("find_deps vertex colors", {
   solvable <- tribble(~var, ~period, "y1", "2021")
   final_dest <- tribble(~var, ~period, "y3", "2021")
   
-  g <- mdl$find_deps(final_destinations = final_dest, 
-                     solvable = solvable, 
-                     observed_data = observed)
+  expect_warning(
+    g <- mdl$find_deps(final_destinations = final_dest, 
+                       solvable = solvable, 
+                       observed_data = observed),
+    "The following solvables are just calculable, no need to solve them:"
+  )
   
   # NOTE: y1[2020] and x2[2021] are pruned because they are not reachable FROM y1[2021]
   
@@ -255,9 +258,12 @@ test_that("find_deps vertex attributes internal metadata", {
   final_dest <- tribble(~var, ~period, "y2", "2021")
   observed <- tribble(~var, ~period, "x1", "2021", "x2", "2021")
 
-  g <- mdl$find_deps(final_destinations = final_dest,
-                     solvable = solvable,
-                     observed_data = observed)
+  expect_warning(
+    g <- mdl$find_deps(final_destinations = final_dest,
+                       solvable = solvable,
+                       observed_data = observed),
+    "The following solvables are just calculable, no need to solve them:"
+  )
 
   # Verify attributes are set correctly during add_vertex and recursion
   expect_true(V(g)["y2[2021]"]$is_final_dest)
@@ -276,4 +282,27 @@ test_that("find_deps vertex attributes internal metadata", {
 
   expect_true(V(g2)["y1[2021]"]$is_final_src)
   expect_false(V(g2)["y2[2021]"]$is_final_src)
+})
+
+test_that("find_deps warning for calculable solvables", {
+  period <- as.period_range("2020/2022")
+  model_text <- "
+    ident y1 = x1;
+    ident y2 = y1 + x2;
+  "
+  mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
+
+  # x1 and x2 are observed in 2021.
+  # So y1 is "calculable" in 2021 (y1 = x1).
+  # If we mark y1 as solvable, it should trigger a warning.
+  observed <- tribble(~var, ~period, "x1", "2021", "x2", "2021")
+  solvable <- tribble(~var, ~period, "y1", "2021")
+  final_dest <- tribble(~var, ~period, "y2", "2021")
+
+  expect_warning(
+    mdl$find_deps(final_destinations = final_dest,
+                  solvable = solvable,
+                  observed_data = observed),
+    "The following solvables are just calculable, no need to solve them:"
+  )
 })

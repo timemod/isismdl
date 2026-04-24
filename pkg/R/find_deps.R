@@ -370,7 +370,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       solv_calc_df <- as_data_frame_deps(induced_subgraph(g, v_solvable_calculable))
       solv_calc_df <- as.data.frame(solv_calc_df[, c("var", "period")])
       warning("The following solvables are just calculable, no need to solve them:\n",
-              paste(capture.output(print(solv_calc_df, row.names = FALSE)), collapse = "\n"))
+              paste(capture.output(print(solv_calc_df, row.names = FALSE)), collapse = "\n"),
+              call. = FALSE)
     }
   }
 
