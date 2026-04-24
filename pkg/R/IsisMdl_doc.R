@@ -2769,7 +2769,8 @@ NULL
 #' \item{\code{is_final_dest}}{\code{TRUE} if the vertex is one of the final
 #'   destinations.}
 #' \item{\code{is_final_src}}{\code{TRUE} if the vertex is one of the final
-#'   sources.}
+#'   sources. This attribute is only present if the \code{final_sources}
+#'   argument is supplied.}
 #' \item{\code{solvable}}{\code{TRUE} if the vertex is marked as solvable. This
 #'   attribute is only present if the \code{solvable} argument is supplied.}
 #' \item{\code{msg}}{An internal status message used for debugging.}
