@@ -111,6 +111,8 @@ solution period of the model.
 a new value.
 }
 
+Method \link{find_deps} can be used to find observed and solvable variables
+and to group them.
 Note: This method is primarily designed to compute starting values.
 For solving exogenous variables, use the separate \code{solve_exo} method.
 This method does not support models with feedback variables.
@@ -172,6 +174,7 @@ mdl_copy$fill_mdl_data_solve(
 
 }
 \seealso{
-Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
-\code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
+Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}.
+See \code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
+Method \link{find_deps} can be used to find suitable observed and solvable variables.
 }

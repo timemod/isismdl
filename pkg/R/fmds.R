@@ -124,15 +124,15 @@ fmds <- function(
 
   mdl_original_data <- mdl$get_data()
 
-  dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
+  # get dependency structure as list
+  dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE) |>
+    dep_struct_to_list()
 
   if (missing(period)) {
     period <- mdl$get_data_period()
   }
 
   mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
-
-  dep_struc <- dep_struct_to_list(dep_struc)
 
   for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
     this_period <- single_solve_period$solve_period[1]
