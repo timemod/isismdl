@@ -371,7 +371,7 @@ test_that("fill_mdl_data_solve errors when variables are not endogenous", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df_exo_solve, report = "no"),
-    "The following solve variables are not endogenous variables of the model: x1",
+    "The following solve variables are not endogenous model variables:\nx1.",
     fixed = TRUE
   )
 
@@ -383,7 +383,7 @@ test_that("fill_mdl_data_solve errors when variables are not endogenous", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df_exo_obs, report = "no"),
-    "The following observed variables are not endogenous variables of the model: x1",
+    "The following observed variables are not endogenous model variables:\nx1.",
     fixed = TRUE
   )
 })

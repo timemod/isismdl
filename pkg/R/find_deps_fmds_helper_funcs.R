@@ -50,7 +50,7 @@ as_var_period <- function(txt) {
 #' @description
 #' This utility function takes a directed graph returned by
 #' \code{\link{find_deps}} and converts its vertex attributes into a clean,
-#' tabular format. It parses the vertex names (e.g., "var[period]") into
+#' tabular format. It parses the vertex names (e.g. \code{"var[period]"}) into
 #' separate \code{var} and \code{period} columns.
 #'
 #' @param g A directed \code{igraph} object, typically the result of
@@ -83,4 +83,29 @@ dep_struct_to_list <- function(dep_struc) {
     dplyr::rename(var = "rhs", period = "lag") |>
     dplyr::select(-"lhs") |>
     split(lhs)
+}
+
+to_vertex_names <- function(df) {
+  if (is.null(df) || nrow(df) == 0) {
+    return(character(0))
+  }
+  paste0(df$var, "[", as.character(df$period), "]")
+}
+
+check_endo <- function(vars, endo_names, label) {
+  if (is.null(vars) || length(vars) == 0) {
+    return()
+  }
+  no_endo <- setdiff(vars, endo_names)
+  if (length(no_endo) > 0) {
+    stop(sprintf("The following %s variables are not endogenous model variables:\n%s.",
+                 label, paste(no_endo, collapse = ", ")))
+  }
+}
+
+check_overlap <- function(v1, v2, msg) {
+  problem_vertices <- intersect(v1, v2)
+  if (length(problem_vertices) > 0) {
+    stop(sprintf("%s:\n%s", msg, paste(problem_vertices, collapse = ", ")))
+  }
 }

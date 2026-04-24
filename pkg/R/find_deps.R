@@ -47,53 +47,22 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   COLOR_FINAL_DEST_ERR <- "purple"
   COLOR_ERR            <- "red"
 
-  if (mdl$get_maxlead() > 0) {
-    stop("find_deps does not support models with leads.")
-  }
-  if (length(mdl$get_simul_names()) > 0) {
-    stop("find_deps only supports recursive models.")
-  }
-
-  if (is.null(observed_data)) {
-    observed_data <- get_observed_data(mdl$get_data())
-  }
-
   endo_names <- mdl$get_endo_names()
 
-  # Helper function to check if variables are endogenous
-  check_endo <- function(df, name) {
-    if (is.null(df) || nrow(df) == 0) return()
-    no_endo <- setdiff(df$var, endo_names)
-    if (length(no_endo) > 0) {
-      stop(sprintf("The following %s variables are not endogenous model variables:\n%s.",
-                   name, paste(no_endo, collapse = ", ")))
-    }
-  }
-
-  # Check if variables are endogenous
-  check_endo(final_destinations, "final destination")
-  check_endo(final_sources, "final source")
-  check_endo(solvable, "solvable")
-
-  # Column period of vars or derivable may contain period as integer
-  # (a year).
-  periods <- as.character(final_destinations$period)
-  vertices_final_dest <- paste0(final_destinations$var, "[", periods, "]")
+  vertices_final_dest <- to_vertex_names(final_destinations)
 
   has_final_sources <- !is.null(final_sources)
-  if (has_final_sources) {
-    periods <- as.character(final_sources$period)
-    vertices_final_src <- paste0(final_sources$var, "[", periods, "]")
+  vertices_final_src <- if (has_final_sources) {
+    to_vertex_names(final_sources)
   } else {
-    vertices_final_src <- character(0)
+    character(0)
   }
 
   has_solvable <- !is.null(solvable)
-  if (has_solvable) {
-    periods <- as.character(solvable$period)
-    vertices_solvable <- paste0(solvable$var, "[", periods, "]")
+  vertices_solvable <- if (has_solvable) {
+    to_vertex_names(solvable)
   } else {
-    vertices_solvable <- character(0)
+    character(0)
   }
 
   if (nrow(observed_data) > 0) {
@@ -102,27 +71,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     min_period_obs <- start_period(mdl$get_data_period())
   }
 
-  periods <- observed_data$period
-  vertices_observed <- paste0(observed_data$var, "[", periods, "]")
-
-  # Helper function to check for overlaps and list ALL offending variables
-  check_overlap <- function(v1, v2, msg) {
-    problem_vertices <- intersect(v1, v2)
-    if (length(problem_vertices) > 0) {
-      stop(sprintf("%s:\n%s", msg, paste(problem_vertices, collapse = ", ")))
-    }
-  }
-
-  check_overlap(vertices_solvable, vertices_observed,
-                "The following solvable vertices are actually observed")
-  check_overlap(vertices_solvable, vertices_final_src,
-                "The following solvable vertices are also final sources")
-  check_overlap(vertices_final_dest, vertices_solvable,
-                "The following final destination vertices are also solvable")
-
-
-  # Convert dependency structure to a list (working with a list is more efficient)
-  dep_struc <- dep_struct_to_list(dep_struc)
+  vertices_observed <- to_vertex_names(observed_data)
 
   g <- make_empty_graph()
 
@@ -396,7 +345,7 @@ find_deps <- function(mdl, final_destinations, final_sources,
                       solvable, observed_data, ignore_observed,
                       stop_if_final_dest_observed, dep_struc) {
 
-  # TEMPORARY SOLUTION: Set default values for optional arguments
+  # /start/ TEMPORARY SOLUTION: Set default values for optional arguments
   # TODO: some jobs still use isismdl:::find_deps,
   # this can be removed once all jobs are updated and is being used as method
   if (missing(final_sources)) final_sources <- NULL
@@ -404,11 +353,43 @@ find_deps <- function(mdl, final_destinations, final_sources,
   if (missing(observed_data)) observed_data <- NULL
   if (missing(ignore_observed)) ignore_observed <- FALSE
   if (missing(stop_if_final_dest_observed)) stop_if_final_dest_observed <- TRUE
-  if (missing(dep_struc)) {
+  # /end/ TEMPORARY SOLUTION
+
+  if (missing(dep_struc) || is.null(dep_struc)) {
     dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
   }
-
   dep_struc <- dep_struct_to_list(dep_struc)
+
+  if (mdl$get_maxlead() > 0) {
+    stop("find_deps does not support models with leads.")
+  }
+  if (length(mdl$get_simul_names()) > 0) {
+    stop("find_deps only supports recursive models.")
+  }
+
+  if (is.null(observed_data)) {
+    observed_data <- get_observed_data(mdl$get_data())
+  }
+
+  endo_names <- mdl$get_endo_names()
+
+  # Check if variables are endogenous
+  check_endo(final_destinations$var, endo_names, "final destination")
+  check_endo(final_sources$var, endo_names, "final source")
+  check_endo(solvable$var, endo_names, "solvable")
+
+  # Check for overlaps
+  v_dest <- to_vertex_names(final_destinations)
+  v_src  <- to_vertex_names(final_sources)
+  v_solv <- to_vertex_names(solvable)
+  v_obs  <- to_vertex_names(observed_data)
+
+  check_overlap(v_solv, v_obs,
+                "The following solvable vertices are actually observed")
+  check_overlap(v_solv, v_src,
+                "The following solvable vertices are also final sources")
+  check_overlap(v_dest, v_solv,
+                "The following final destination vertices are also solvable")
 
   find_deps_internal(final_destinations = final_destinations,
                      final_sources = final_sources,
