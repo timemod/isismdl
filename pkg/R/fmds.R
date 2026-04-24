@@ -49,6 +49,10 @@ fmds <- function(
   check_overlap(v_solve, v_obs,
                 "The following solve variables are also observed variables in the same period")
 
+  # Check for duplicates in solve and observed variables
+  check_unique(v_solve, "solve")
+  check_unique(v_obs, "observed")
+
   # Check that each equation name is the same as the name of the corresponding
   # endogenous variable (LHS).
   # This IS the case for the current implementation of fmds.

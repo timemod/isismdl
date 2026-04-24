@@ -334,3 +334,57 @@ test_that("find_deps message for removed solvables", {
     "The following solvable variables have been removed because there is not a calculable path to observations:"
   )
 })
+
+test_that("find_deps uniqueness checks", {
+  mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
+  
+  final_destinations <- tribble(
+    ~var, ~period,
+    "y3", "2021",
+    "y3", "2021"
+  )
+  
+  # 1. final destinations
+  expect_error(
+    mdl$find_deps(final_destinations = final_destinations),
+    "The following final destination variables are specified more than once for the same period:\ny3[2021].",
+    fixed = TRUE
+  )
+  
+  # 2. final sources
+  final_destinations_ok <- tribble(~var, ~period, "y3", "2021")
+  final_sources_bad <- tribble(
+    ~var, ~period,
+    "y1", "2020",
+    "y1", "2020"
+  )
+  expect_error(
+    mdl$find_deps(final_destinations = final_destinations_ok, final_sources = final_sources_bad),
+    "The following final source variables are specified more than once for the same period:\ny1[2020].",
+    fixed = TRUE
+  )
+  
+  # 3. solvable
+  solvable_bad <- tribble(
+    ~var, ~period,
+    "y1", "2021",
+    "y1", "2021"
+  )
+  expect_error(
+    mdl$find_deps(final_destinations = final_destinations_ok, solvable = solvable_bad),
+    "The following solvable variables are specified more than once for the same period:\ny1[2021].",
+    fixed = TRUE
+  )
+  
+  # 4. observed_data
+  observed_bad <- tribble(
+    ~var, ~period,
+    "y1", "2020",
+    "y1", "2020"
+  )
+  expect_error(
+    mdl$find_deps(final_destinations = final_destinations_ok, observed_data = observed_bad),
+    "The following observed data variables are specified more than once for the same period:\ny1[2020].",
+    fixed = TRUE
+  )
+})

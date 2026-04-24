@@ -109,3 +109,11 @@ check_overlap <- function(v1, v2, msg) {
     stop(sprintf("%s:\n%s", msg, paste(problem_vertices, collapse = ", ")))
   }
 }
+
+check_unique <- function(v, label) {
+  if (any(duplicated(v))) {
+    dups <- unique(v[duplicated(v)])
+    stop(sprintf("The following %s variables are specified more than once for the same period:\n%s.",
+                 label, paste(dups, collapse = ", ")))
+  }
+}

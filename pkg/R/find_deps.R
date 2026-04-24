@@ -391,6 +391,12 @@ find_deps <- function(mdl, final_destinations, final_sources,
   check_overlap(v_dest, v_solv,
                 "The following final destination vertices are also solvable")
 
+  # Check for duplicates
+  check_unique(v_dest, "final destination")
+  check_unique(v_src, "final source")
+  check_unique(v_solv, "solvable")
+  check_unique(v_obs, "observed data")
+
   find_deps_internal(final_destinations = final_destinations,
                      final_sources = final_sources,
                      solvable = solvable,

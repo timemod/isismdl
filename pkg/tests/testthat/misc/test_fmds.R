@@ -472,3 +472,41 @@ test_that("fill_mdl_data_solve errors when solve_df$observed_variable contains N
 })
 
 
+
+test_that("fill_mdl_data_solve errors when solve_df contains duplicate solve variables", {
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl$get_var_names()
+  data_init <- create_test_init_data(period, var_names)
+  mdl$init_data(data = data_init)
+
+  solve_df <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    "2011",        "A",   "obs1",            "y1",            0.1,
+    "2011",        "B",   "obs2",            "y1",            0.1
+  )
+
+  expect_error(
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
+    "The following solve variables are specified more than once for the same period:\ny1[2011].",
+    fixed = TRUE
+  )
+})
+
+test_that("fill_mdl_data_solve errors when solve_df contains duplicate observed variables", {
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl$get_var_names()
+  data_init <- create_test_init_data(period, var_names)
+  mdl$init_data(data = data_init)
+
+  solve_df <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    "2011",        "A",   "obs1",            "y1",            0.1,
+    "2011",        "B",   "obs1",            "y2",            0.1
+  )
+
+  expect_error(
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
+    "The following observed variables are specified more than once for the same period:\nobs1[2011].",
+    fixed = TRUE
+  )
+})
