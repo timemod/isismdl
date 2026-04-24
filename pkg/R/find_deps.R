@@ -381,9 +381,10 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
 
 find_deps <- function(mdl, final_destinations, final_sources,
                       solvable, observed_data, ignore_observed,
-                      stop_if_final_dest_observed) {
+                      stop_if_final_dest_observed,
+                      dep_struc = mdl$get_dep_struct(one_lag_per_row = TRUE)) {
 
-  dep_struc <- dep_struct_to_list(mdl$get_dep_struct(one_lag_per_row = TRUE))
+  dep_struc <- dep_struct_to_list(dep_struc)
 
   find_deps_internal(final_destinations = final_destinations,
                      final_sources = final_sources,
