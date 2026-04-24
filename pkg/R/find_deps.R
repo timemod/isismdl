@@ -335,8 +335,6 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     }
   }
 
-  # TODO: in documentatie: wat het doel is van solvable
-
   return(g)
 }
 

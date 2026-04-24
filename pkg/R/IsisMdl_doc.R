@@ -801,6 +801,8 @@ NULL
 #'   (like `fill_mdl_data`) will never replace a non-missing value with
 #'   a new value.
 #'
+#' Method [find_deps] can be used to find observed and solvable variables
+#' and to group them.
 #' Note: This method is primarily designed to compute starting values.
 #' For solving exogenous variables, use the separate \code{solve_exo} method.
 #' This method does not support models with feedback variables.
@@ -859,8 +861,9 @@ NULL
 #'
 #'
 #' @seealso
-#' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}
-#' \code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
+#' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}.
+#' See \code{\link[nleqslv]{nleqslv}} for details on the numerical solver and options.
+#' Method [find_deps] can be used to find suitable observed and solvable variables.
 NULL
 
 #' \code{\link{IsisMdl}} method: Solve for exogenous variables numerically.
@@ -2802,11 +2805,11 @@ NULL
 #'
 #' \tabular{ll}{
 #'   \strong{Color} \tab \strong{Description} \cr
-#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:cyan;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{cyan} \tab Final destination vertex that is resolved (OK). \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:cyan;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{cyan} \tab Final destination vertex that is resolved (OK, i.e. `ok == TRUE`). \cr
 #'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:purple;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{purple} \tab Final destination vertex that cannot be resolved (not OK). \cr
-#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:pink;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{pink} \tab Solvable vertex. \cr
-#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:yellow;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{yellow} \tab Final source vertex. \cr
-#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:lightgrey;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{lightgrey} \tab Observed variable. \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:pink;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{pink} \tab Solvable vertex (OK or not OK) \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:yellow;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{yellow} \tab Final source vertex (OK) \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:lightgrey;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{lightgrey} \tab Observed variable (OK) \cr
 #'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:#00FF00;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{green} \tab Endogenous variable that is not observed but is calculable (OK). \cr
 #'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:red;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{red} \tab Variable that is not observed and not calculable (not OK). \cr
 #' }
