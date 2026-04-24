@@ -272,7 +272,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     })))
 
     # Get solvable vertices
-    solvable_vertices <- V(g)[solvable == TRUE]
+    solvable_vertices <- V(g)[V(g)$solvable == TRUE]
 
     all_vertices <- V(g)
 
@@ -295,16 +295,13 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Remove these vertices
     g <- delete_vertices(g, to_remove)
 
-    # Only keep the vertices that can be reached from solvable_vertices,
-    # plus the original final destinations and their dependencies.
+    # Only keep the vertices that can be reached from solvable_vertices.
     solvable_vertices <- V(g)[V(g)$solvable == TRUE]
     if (length(solvable_vertices) > 0) {
       can_reach_solvable <- unique(unlist(lapply(solvable_vertices, function(v) {
         subcomponent(g, v, mode = "out")
       })))
-      # Ensure we also keep all original final destinations that are still in the graph
-      all_to_keep <- unique(c(can_reach_solvable, which(V(g)$is_final_dest == TRUE)))
-      g <- induced_subgraph(g, all_to_keep)
+      g <- induced_subgraph(g, can_reach_solvable)
     }
   }
 
