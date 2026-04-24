@@ -219,8 +219,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     ok <- calculable || observed
 
     # If this node is not calculable, but only depends on vertices that are
-    # either calculable or observed or in solvable_vertices,
-    # then ignore this one.
+    # either OK or solvable, then the node is also OK.
     if (!ok && has_solvable) {
       children <- neighbors(g, vertex_name, mode = "in")
       ok <- all(V(g)[children]$ok |
@@ -305,7 +304,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     }
   }
 
-  # Find all vertices reachable from target vertices (including themselves)
+  # Find all vertices reachable from final_destinations (including themselves)
   # Only use destination names that are still in the graph.
   current_final_dests <- intersect(vertices_final_dest, names(V(g)))
   reachable <- unique(unlist(lapply(current_final_dests, function(v) {
@@ -319,13 +318,12 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   isolated <- which(igraph::degree(g) == 0 & !igraph::V(g)$name %in% vertices_final_dest)
   g <- igraph::delete_vertices(g, isolated)
 
-
   # Check for solvables that are actually calculable
   if (has_solvable) {
     v_solvable_calculable <- igraph::V(g)[igraph::V(g)$solvable & igraph::V(g)$calculable]
     if (length(v_solvable_calculable) > 0) {
-      solv_calc_df <- as_data_frame_deps(induced_subgraph(g, v_solvable_calculable))
-      solv_calc_df <- as.data.frame(solv_calc_df[, c("var", "period")])
+      solv_calc_df <- as_data_frame_deps(induced_subgraph(g, v_solvable_calculable)) |>
+        select("var", "period")
       message("The following solvables are calculable, no need to solve them:\n",
               paste(capture.output(print(solv_calc_df, row.names = FALSE)), collapse = "\n"))
     }
