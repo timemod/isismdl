@@ -46,7 +46,7 @@ Must be endogenous model variables.}
 and \code{period}. A vertex whose dependencies are all either OK
 or solvable is itself considered OK. Cannot overlap with
 \code{observed_data} or \code{final_sources}. See section
-\"Solvable vertices\" for more information.}
+"Solvable vertices" for more information.}
 \item{\code{observed_data}}{An optional data frame containing the observed
 variable-period pairs. If omitted, the data currently in the model
 object is used.}
@@ -123,8 +123,8 @@ The vertices are colored based on their status:
 \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:pink;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{pink} \tab Solvable vertex. \cr
 \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:yellow;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{yellow} \tab Final source vertex. \cr
 \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:lightgrey;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{lightgrey} \tab Observed variable. \cr
-\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:#00FF00;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{green} \tab Endogenous variable that is calculable (OK). \cr
-\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:red;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{red} \tab Variable that is missing and is not calculable (not OK). \cr
+\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:#00FF00;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{green} \tab Endogenous variable that is not observed but is calculable (OK). \cr
+\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:red;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{red} \tab Variable that is not observed and not calculable (not OK). \cr
 }
 }
 
@@ -133,13 +133,12 @@ The vertices are colored based on their status:
 
 The \code{solvable} argument allows specifying endogenous variable-period
 pairs that are neither observed nor directly calculable from existing data,
-but which can be resolved numerically. This is typically used in the
+but may be solved numerically. This is typically used in the
 \code{\link{fill_mdl_data_solve}} method.
 
 In this context, solvable variables are assigned an initial guess value.
 A numerical solver is then used to find values for these variables such
-that the model's equations reproduce the targets specified in
-\code{observed_data}.
+that the model's equations reproduce observed target data.
 
 For dependency analysis, solvable vertices are treated as "resolved" points
 in the graph. Specifically, a variable is considered calculable

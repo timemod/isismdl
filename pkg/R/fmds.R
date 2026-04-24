@@ -116,8 +116,6 @@ fmds <- function(
     )
   }
 
-
-
   mdl_original_data <- mdl$get_data()
 
   dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)

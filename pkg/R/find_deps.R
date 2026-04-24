@@ -43,7 +43,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   COLOR_SOLVABLE       <- "pink"
   COLOR_FINAL_DEST_OK  <- "cyan"
   COLOR_OBSERVED       <- "lightgrey"
-  COLOR_OK             <- "green"
+  COLOR_CALCULABLE     <- "green"
   COLOR_FINAL_DEST_ERR <- "purple"
   COLOR_ERR            <- "red"
 
@@ -156,7 +156,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     is_final_dest <- vertex_name %in% vertices_final_dest
     is_solvable <- vertex_name %in% vertices_solvable
 
-    color_ok <- if (is_final_dest) COLOR_FINAL_DEST_OK else COLOR_OK
+    color_ok <- if (is_final_dest) COLOR_FINAL_DEST_OK else COLOR_CALCULABLE
     color_not_ok <- if (is_final_dest) COLOR_FINAL_DEST_ERR else COLOR_ERR
 
     if (vertex_name %in% V(g)$name) {
@@ -380,7 +380,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     if (length(v_solvable_calculable) > 0) {
       solv_calc_df <- as_data_frame_deps(induced_subgraph(g, v_solvable_calculable))
       solv_calc_df <- as.data.frame(solv_calc_df[, c("var", "period")])
-      warning("The following solvables are just calculable, no need to solve them:\n",
+      warning("The following solvables are calculable, no need to solve them:\n",
               paste(capture.output(print(solv_calc_df, row.names = FALSE)), collapse = "\n"),
               call. = FALSE)
     }
@@ -391,18 +391,22 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   return(g)
 }
 
+# This function is being called as method on an object of class IsisMdl
 find_deps <- function(mdl, final_destinations, final_sources,
                       solvable, observed_data, ignore_observed,
-                      stop_if_final_dest_observed,
-                      dep_struc = mdl$get_dep_struct(one_lag_per_row = TRUE)) {
+                      stop_if_final_dest_observed, dep_struc) {
 
   # TEMPORARY SOLUTION: Set default values for optional arguments
-  # TODO: remove this when method is used in zoem instead of isismdl:::find_deps
+  # TODO: some jobs still use isismdl:::find_deps,
+  # this can be removed once all jobs are updated and is being used as method
   if (missing(final_sources)) final_sources <- NULL
   if (missing(solvable)) solvable <- NULL
   if (missing(observed_data)) observed_data <- NULL
   if (missing(ignore_observed)) ignore_observed <- FALSE
   if (missing(stop_if_final_dest_observed)) stop_if_final_dest_observed <- TRUE
+  if (missing(dep_struc)) {
+    dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
+  }
 
   dep_struc <- dep_struct_to_list(dep_struc)
 
