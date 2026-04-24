@@ -6,8 +6,9 @@
 \alias{get_ca}
 \alias{get_fix}
 \alias{get_fit}
-\title{\code{\link{IsisMdl}} methods: Retrieve timeseries from the model data,
-constant adjustments, fix values or fit targets}
+\alias{a}
+\title{Retrieve timeseries from the model data,
+constant adjustments, fix values or fit targets.}
 \description{
 These methods of R6 class \code{\link{IsisMdl}}
 can be used to retrieve timeseries from the model data,
@@ -48,13 +49,14 @@ of package \code{regts}.}
 \section{Methods}{
 
 \itemize{
-\item \code{get_mdl_data}: Model data
+\item \code{get_data}: Model data (as \code{regts})
 
-\item \code{get_ca}: Constant adjustments
+\item \code{get_ca}: Constant adjustments (as \code{regts})
 
-\item \code{get_fix_values}: Fix values
+\item \code{get_fix}: Fix values
 
-\item \code{get_fit_targets}: Fit targets
+\item \code{get_fit}: Fit targets
+
 }
 }
 

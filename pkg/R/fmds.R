@@ -1,14 +1,22 @@
-#' fmds = fill_model_data_solve internal
+#' Solves multiple groups of derived variables with the accompanying
+#' observed variables
+#'
+#' @param mdl A reference to an `IsisMdl` object.
+#' @param period A `period_range` object for the overall solve.
+#' @param solve_df A data frame with solve instructions.
+#' @param report String ('no', 'period', or 'all') describing the level of reporting.
+#' @param default_initial_guess Numeric. The default initial guess if not specified in `solve_df`.
+#' @param jacobian Logical. Whether to calculate and use the Jacobian.
+#' @param ... Extra arguments passed to `nleqslv`.
+#'
 #' @import regts
 #' @import nleqslv
 #' @importFrom graphics plot
 #' @importFrom dplyr group_split filter inner_join select
 #' @importFrom purrr map_dbl
 #' @importFrom rlang set_names .data
+#'
 #' @noRd
-
-# This function solves multiple groups of derived variables with
-# the accompanying observed variables.
 
 fmds <- function(
     mdl, period, solve_df, report, default_initial_guess, jacobian,
@@ -32,20 +40,18 @@ fmds <- function(
 
   # Check that solve_variables and observed_variables are endogenous.
   all_endo <- mdl$get_endo_names()
-  missing_v <- setdiff(solve_df$solve_variable, all_endo)
-  if (length(missing_v) > 0) {
-    stop(
-      "The following solve variables are not endogenous variables of the model: ",
-      paste(missing_v, collapse = ", ")
-    )
-  }
-  missing_o <- setdiff(solve_df$observed_variable, all_endo)
-  if (length(missing_o) > 0) {
-    stop(
-      "The following observed variables are not endogenous variables of the model: ",
-      paste(missing_o, collapse = ", ")
-    )
-  }
+  check_endo(solve_df$solve_variable, all_endo, "solve")
+  check_endo(solve_df$observed_variable, all_endo, "observed")
+
+  # Check for overlap between solve and observed variables
+  v_solve <- paste0(solve_df$solve_variable, "[", solve_df$solve_period, "]")
+  v_obs   <- paste0(solve_df$observed_variable, "[", solve_df$solve_period, "]")
+  check_overlap(v_solve, v_obs,
+                "The following solve variables are also observed variables in the same period")
+
+  # Check for duplicates in solve and observed variables
+  check_unique(v_solve, "solve")
+  check_unique(v_obs, "observed")
 
   # Check that each equation name is the same as the name of the corresponding
   # endogenous variable (LHS).
@@ -116,8 +122,6 @@ fmds <- function(
     )
   }
 
-
-
   mdl_original_data <- mdl$get_data()
 
   dep_struc <- mdl$get_dep_struct(one_lag_per_row = TRUE)
@@ -128,6 +132,8 @@ fmds <- function(
 
   mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
 
+  dep_struc <- dep_struct_to_list(dep_struc)
+
   for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
     this_period <- single_solve_period$solve_period[1]
     for (group_data in single_solve_period |> group_split(.data$group)) {
@@ -137,8 +143,7 @@ fmds <- function(
       # numerical vector used in nleqslv
       initial_guess_vector <- group_data$initial_guess
 
-      # function solve_single_group is in fmds_single.R
-      solve_single_group(
+      fmds_group(
         mdl,
         solve_period = this_period,
         solve_variables = group_data$solve_variable,
@@ -190,7 +195,8 @@ fmds <- function(
         cat("===============================================\n\n")
         print(overview)
       }
-      cat("\nTotal number of replaced missing/invalid values: ", n_filled, "\n")
+      cat("\nTotal number of replaced missing/invalid values: ", n_filled, "\n",
+          sep = "")
     } else {
       cat("\nNo missing/invalid values have been replaced.\n")
     }

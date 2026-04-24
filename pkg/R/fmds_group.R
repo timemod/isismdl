@@ -1,28 +1,30 @@
+#' Solve a single group of solve variables given observed variables
+#'
+#' @param mdl A reference to an `IsisMdl` object. NOTE: the `IsisMdl` object is
+#'   modified in place.
+#' @param solve_period A `regts` period object specifying the period for which to solve.
+#' @param solve_variables A character vector with names of the variables to be solved.
+#' @param observed_variables A character vector with names of the variables whose
+#'   observed values must be matched.
+#' @param initial_guess A named numeric vector with the initial guess for the
+#'   `solve_variables`.
+#' @param observed_data A data frame or tibble containing the observed values
+#'   (used for finding dependencies).
+#' @param dep_struc The model's dependency structure. This can be either a data frame
+#'   (returned by `mdl$get_dep_struct()`) or a pre-processed list
+#'   (returned by `dep_struct_to_list()`).
+#' @param report String ('no', 'period', or 'all') describing the level of reporting.
+#' @param jacobian Logical. Whether to calculate and use the Jacobian.
+#' @param ... Extra arguments passed to `nleqslv`.
+#'
 #' @import regts
 #' @import nleqslv
 #' @importFrom graphics plot
 #' @importFrom dplyr group_split filter
 #' @importFrom purrr map_dbl
 #' @importFrom rlang set_names .data
-
-# INPUT:
-#    mdl
-#       A reference to an IsisMdl object. NOTE: the IsisMdl object is modified
-#       in place.
-#    solve_period
-#        A period object
-#    solve_variables
-#
-#    observed_variables
-#
-#    initial_guess
-#        A named numeric vector with initial guess of the derived variables.
-#    observed_data
-#    dep_struc
-#
-#
-# Solve a single solve variable given an observed variable.
-solve_single_group <- function(
+#' @noRd
+fmds_group <- function(
     mdl, solve_period, solve_variables, observed_variables,
     initial_guess, observed_data, dep_struc, report, jacobian,
     ...) {
@@ -31,7 +33,7 @@ solve_single_group <- function(
 
   if (report == "period") {
     cat("\n===============================================\n")
-    cat("Solving solve variables for period", solve_period, "\n")
+    cat("Solving solve variables for period ", solve_period, "\n", sep = "")
     cat(paste0("Solve variables: ", paste(solve_variables, collapse = ", "),
                "\n"))
     cat(paste0("Observed variables: ", paste(observed_variables, collapse = ", ")))
@@ -114,7 +116,7 @@ get_fit_deps <- function(observed_variables, solve_variables,
   derivable <- data.frame(var = solve_variables,
                           period = as.character(solve_period))
 
-  dep_graph <- find_deps(
+  dep_graph <- find_deps_internal(
     final_destinations = observed,
     final_sources = derivable,
     dep_struc = dep_struc,

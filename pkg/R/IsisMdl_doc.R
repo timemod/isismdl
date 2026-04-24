@@ -709,7 +709,62 @@ NULL
 #'
 #' Like in method \code{\link{fill_mdl_data}}, the missing values are computed by evaluating
 #' the active equations in solution order. Additionally, variables can be solved
-#' numerically. For example, suppose that the model contains the equations
+#' numerically.
+#'
+
+#' @section Usage:
+#' \code{IsisMdl} method:
+#' \preformatted{
+#' mdl$fill_mdl_data_solve(
+#'  period = mdl$get_data_period(),
+#'  solve_df,
+#'  report = c("period", "minimal", "no"),
+#'  default_initial_guess = 0.1,
+#'  jacobian = TRUE
+#' )
+#' }
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{`period`}{A [regts::period] range object specifying the
+#' period using to replace missing values by evaluating the equations.
+#' If missing, uses the model's data period obtained via `$get_data_period()`.}
+#' \item{`solve_df`}{A data frame defining the solve specification. Must contain
+#'   the following columns:
+#'   \describe{
+#'     \item{solve_period}{Character specifying the solve period according
+#'     to the format of function [regts::period] (e.g. `"2014"` or `"2015Q1"`)}
+#'     \item{observed_variable}{Name of the variable with observed data}
+#'     \item{solve_variable}{Name of the variable to solve for (derive)}
+#'     \item{group}{(Optional) Group identifier for solving multiple variables together.
+#'       If omitted, each row is treated as a separate group}
+#'     \item{initial_guess}{(Optional) Initial guess for the solve variable.
+#'       Should be all numeric, including NA's.
+#'       Defaults to `default_initial_guess` value.}
+#'   }
+#'  }
+#' \item{`default_initial_guess`}{(Optional) For rows in solve_df that do not have an
+#'       initial guess, the default initial guess value will be used.
+#'       Default is 0.1.}
+#' \item{`report`}{Character string controlling output verbosity. Options:
+#'   \describe{
+#'     \item{"period"}{Print a report per period (default).
+#'     For each period the number of replaced missing values is reported.}
+#'     \item{"minimal"}{Print a minimal report.
+#'     Only the total number of replaced missing values is reported.}
+#'     \item{"no"}{Does not generate a report.}
+#'     Defaults to `period` if not provided.
+#'   }}
+#' \item{`jacobian`}{A logical. If `TRUE` and `report == "period"`, the
+#' final jacobian used for the numerical solution is printed. The default is `TRUE`.}
+#' \item{`...`}{Additional arguments passed to the [nleqslv::nleqslv]
+#' solver (e.g., `control`,  `method`, `global`).}
+#' }
+#'
+#' @section Details:
+#'
+#' For example, suppose that the model contains the equations
 #' ```
 #' ident y = y[-1];
 #' ident obs = y + z;
@@ -750,42 +805,11 @@ NULL
 #' For solving exogenous variables, use the separate \code{solve_exo} method.
 #' This method does not support models with feedback variables.
 #'
-#' @param period A \code{\link[regts]{period}} range object specifying the
-#' period using to replace missing values by evaluating the equations.
-#' If missing, uses the model's data period obtained via `$get_data_period()`.
-#' @param solve_df A data frame defining the solve specification. Must contain
-#'   the following columns:
-#'   \describe{
-#'     \item{solve_period}{Character specifying the solve period according
-#'     to the format of function \code{\link[regts]{period}} of the `regts` package
-#'     (e.g. `"2014"` or `"2015Q1"`)}
-#'     \item{observed_variable}{Name of the variable with observed data}
-#'     \item{solve_variable}{Name of the variable to solve for (derive)}
-#'     \item{group}{(Optional) Group identifier for solving multiple variables together.
-#'       If omitted, each row is treated as a separate group}
-#'     \item{initial_guess}{(Optional) Initial guess for the solve variable.
-#'       Should be all numeric, including NA's.
-#'       Defaults to `default_initial_guess` value.}
-#'   }
-#' @param default_initial_guess (Optional) For rows in solve_df that do not have an
-#'       initial guess, the default initial guess value will be used.
-#'       Default is 0.1.
-#' @param report Character string controlling output verbosity. Options:
-#'   \describe{
-#'     \item{"period"}{Print a report per period (default).
-#'     For each period the number of replaced missing values is reported.}
-#'     \item{"minimal"}{Print a minimal report.
-#'     Only the total number of replaced missing values is reported.}
-#'     \item{"no"}{Does not generate a report.}
-#'     Defaults to `period` if not provided.
-#'   }
-#' @param jacobian A logical. If `TRUE` and `report == "period"`, the
-#' final jacobian used for the numerical solution is printed. The default is `TRUE`.
-#' @param ... Additional arguments passed to the \code{\link[nleqslv]{nleqslv}}
-#' solver (e.g., `control`,  `method`, `global`).
 #'
-#' @return An `IsisMdl` object (copy of the original model) with solved values for
-#'   the solve variables. The original model remains unchanged.
+#' @section Value:
+#'
+#' An `IsisMdl` object (copy of the original model) with solved values for
+#' the solve variables. The original model remains unchanged.
 #'
 #' @examples
 #' library(isismdl)
@@ -868,7 +892,7 @@ NULL
 #' @section Arguments:
 #'
 #' \describe{
-#' \item{\code{solve_period}}{A \code{\link[regts]{period}} object or a
+#' \item{\code{solve_period}}{A [regts::period] object or a
 #' string specifying the
 #' period for which the exogenous variables should be solved.}
 #' \item{\code{exo_vars}}{A character vector with the names of the exogenous
@@ -886,8 +910,7 @@ NULL
 #' \item{\code{jacobian}}{A logical. If `TRUE` and `report == "period"`, the
 #' final Jacobian used for the numerical solution is printed. The default is `TRUE`.}
 #' \item{\code{...}}{Additional arguments passed to the
-#' \code{\link[nleqslv]{nleqslv}} solver (e.g., `control`,
-#' `method`, `global`).}
+#' [nleqslv::nleqslv] solver (e.g., `control`, `method`, `global`).}
 #' }
 #'
 #' @section Details:
@@ -898,7 +921,7 @@ NULL
 #' target variables' values in the model data and the values computed by
 #' the model.
 #'
-#' The numerical solution is found using the \code{\link[nleqslv]{nleqslv}}
+#' The numerical solution is found using the [nleqslv::nleqslv]
 #' function. The initial guess for the exogenous variables in the solve
 #' period is the current value of the exogenous variable in the model data,
 #' or 0 if the value is \code{NA}.
@@ -907,7 +930,8 @@ NULL
 #' an error containing the termination code and message from \code{nleqslv},
 #' so that the user can adjust initial guesses or solver options.
 #'
-#' @return
+#' @section Value:
+#'
 #' Returns the modified \code{IsisMdl} object, where the values
 #' of \code{exo_vars} in \code{solve_period} have been updated to the
 #' solution found by the numerical solver.
@@ -1146,14 +1170,15 @@ NULL
 NULL
 
 
-#' \code{\link{IsisMdl}} methods: Retrieve timeseries from the model data,
-#' constant adjustments, fix values or fit targets
+#' Retrieve timeseries from the model data,
+#' constant adjustments, fix values or fit targets.
 #' @name get_data-methods
-#' @aliases get_data get_ca get_fix get_fit
+#' @aliases get_data get_ca get_fix get_fit a
 #' @description
 #' These methods of R6 class \code{\link{IsisMdl}}
 #' can be used to retrieve timeseries from the model data,
 #' constant adjustments, fix values or fit targets.
+#'
 #'
 #' @section Usage:
 #' \preformatted{
@@ -1184,13 +1209,14 @@ NULL
 #' }
 #' @section Methods:
 #' \itemize{
-#' \item \code{get_mdl_data}: Model data
+#' \item \code{get_data}: Model data (as \code{regts})
 #'
-#' \item \code{get_ca}: Constant adjustments
+#' \item \code{get_ca}: Constant adjustments (as \code{regts})
 #'
-#' \item \code{get_fix_values}: Fix values
+#' \item \code{get_fix}: Fix values
 #'
-#' \item \code{get_fit_targets}: Fit targets
+#' \item \code{get_fit}: Fit targets
+#'
 #' }
 #'
 #' @examples
@@ -2662,6 +2688,183 @@ NULL
 #' print(mdl$get_dep_struct(one_lag_per_row = TRUE))
 #'
 NULL
+
+
+#' \code{\link{IsisMdl}} method: Analysing dependencies of model variables
+#' @name find_deps
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} builds a dependency graph
+#' for one or more target variable-period pairs (the "final destinations").
+#' Starting from each target, it walks backwards through the model's equation
+#' structure, recursively visiting every variable that the target depends on,
+#' then every variable those variables depend on, and so on. The recursion stops
+#' when the variable is observed (i.e. if it occurs in `observed_data`).
+#' The result is a directed \code{igraph} object where an edge from A to B
+#' means "B depends on A".
+#'
+#' This method is primarily designed to find `solve_variables`
+#' for method [fill_mdl_data_solve].
+#'
+#' The model must be recursive and backward-looking: feedback variables
+#' and leads are not supported and will raise an error.
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$find_deps(final_destinations, final_sources = NULL,
+#'               solvable = NULL, observed_data = NULL,
+#'               ignore_observed = FALSE,
+#'               stop_if_final_dest_observed = TRUE)
+#' }
+#'
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#'
+#' @section Arguments:
+#'
+#' \describe{
+#' \item{\code{final_destinations}}{A data frame with columns \code{var}
+#'   and \code{period}. These are the targets whose full dependency chain
+#'   will be traced.}
+#' \item{\code{final_sources}}{An optional data frame with columns \code{var}
+#'   and \code{period}. Recursion stops when a final source is reached;
+#'   the vertex is coloured yellow and marked as OK without further tracing.
+#'   Must be endogenous model variables.}
+#' \item{\code{solvable}}{An optional data frame with columns \code{var}
+#'   and \code{period}. A vertex whose dependencies are all either OK
+#'   or solvable is itself considered OK. Cannot overlap with
+#'   \code{observed_data} or \code{final_sources}. See section
+#'   "Solvable vertices" for more information.}
+#' \item{\code{observed_data}}{An optional data frame containing the observed
+#'   variable-period pairs. If omitted, the data currently in the model
+#'   object is used.}
+#' \item{\code{ignore_observed}}{Logical. If \code{TRUE}, observed variables
+#'   are removed from a variable's dependency list before recursing, so the
+#'   graph shows only the unobserved part of the dependency chain.}
+#' \item{\code{stop_if_final_dest_observed}}{Logical. If \code{TRUE}
+#'   (the default), recursion stops when a final destination is already
+#'   observed. Set to \code{FALSE} to force the full chain to be traced even
+#'   for observed targets.}
+#' }
+#'
+#' @section Details:
+#'
+#' Each vertex in the graph represents the value of a variable
+#' for a specific period. The vertex carries the following attributes:
+#'
+#' \describe{
+#' \item{\code{var}}{The name of the variable.}
+#' \item{\code{period}}{The period of the variable (as a string).}
+#' \item{\code{ok}}{\code{TRUE} if the variable can be resolved — either
+#'   because it is observed or because it is calculable (see below).}
+#' \item{\code{calculable}}{\code{TRUE} if the variable's value can be
+#'   computed by evaluating its model equation based on the
+#'   observed data or an initial guess for the solvable variables (see
+#'   section "Solvable vertices"). To be specific, it is `TRUE` if all its
+#'   incoming vertices are either OK (\code{ok == TRUE}) or
+#'   are solvable vertices.}
+#' \item{\code{observed}}{\code{TRUE} if the variable-period pair appears
+#'   in \code{observed_data}.}
+#' \item{\code{is_endo}}{\code{TRUE} if the variable is
+#'    an endogenous model variable.}
+#' \item{\code{is_final_dest}}{\code{TRUE} if the vertex is one of the final
+#'   destinations.}
+#' \item{\code{is_final_src}}{\code{TRUE} if the vertex is one of the final
+#'   sources. This attribute is only present if the \code{final_sources}
+#'   argument is supplied.}
+#' \item{\code{solvable}}{\code{TRUE} if the vertex is marked as solvable. This
+#'   attribute is only present if the \code{solvable} argument is supplied.}
+#' \item{\code{msg}}{An internal status message used for debugging.}
+#' \item{\code{color}}{A color string summarising the vertex status for
+#'   use in plots. See section "Vertex colors".}
+#' }
+#'
+#' The recursion stops at a vertex when:
+#' \enumerate{
+#' \item The vertex is a final source (treated as given).
+#' \item The variable is observed in \code{observed_data} (and either it is
+#'   not a final destination, or \code{stop_if_final_dest_observed = TRUE}).
+#' \item The variable is exogenous and not observed — it is marked as not OK.
+#' \item The period is further back than the minimum observed period minus one —
+#'   it is marked as not OK.
+#' }
+#'
+#' After the recursion, the graph is pruned:
+#' only vertices with a path to at least one final destination are kept.
+#' If \code{solvable} is supplied, solvable vertices that have no calculable
+#' path to any observation are removed with a message, and the graph is then
+#' further restricted to the subgraph reachable from the remaining solvable
+#' vertices.
+#'
+# nolint start: line_length_linter.
+#' @section Vertex colors:
+#'
+#' The vertices are colored based on their status:
+#'
+#' \tabular{ll}{
+#'   \strong{Color} \tab \strong{Description} \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:cyan;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{cyan} \tab Final destination vertex that is resolved (OK). \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:purple;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{purple} \tab Final destination vertex that cannot be resolved (not OK). \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:pink;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{pink} \tab Solvable vertex. \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:yellow;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{yellow} \tab Final source vertex. \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:lightgrey;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{lightgrey} \tab Observed variable. \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:#00FF00;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{green} \tab Endogenous variable that is not observed but is calculable (OK). \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:red;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{red} \tab Variable that is not observed and not calculable (not OK). \cr
+#' }
+# nolint end: line_length_linter.
+#'
+#' @section Solvable vertices:
+#'
+#' The \code{solvable} argument allows specifying endogenous variable-period
+#' pairs that are neither observed nor directly calculable from existing data,
+#' but may be solved numerically. This is typically used in the
+#' \code{\link{fill_mdl_data_solve}} method.
+#'
+#' In this context, solvable variables are assigned an initial guess value.
+#' A numerical solver is then used to find values for these variables such
+#' that the model's equations reproduce observed target data.
+#'
+#' For dependency analysis, solvable vertices are treated as "resolved" points
+#' in the graph. Specifically, a variable is considered calculable
+#' (\code{ok = TRUE}) if all of its dependencies are either already resolved
+#' (\code{ok = TRUE}) or are themselves marked as solvable. This allows the
+#' dependency search to bridge gaps in the model that would otherwise be
+#' incalculable.
+#'
+#' @section Value:
+#'
+#' A directed \code{igraph} object. Edges point from dependency to
+#' dependent (A -> B means B depends on A). Each vertex carries the
+#' attributes described in the Details section.
+#'
+#' @seealso \code{\link{fill_mdl_data_solve}}, \code{\link{get_dep_struct}}.
+#'
+#' @examples
+#'
+#' model_text <- "
+#'   ident y1 = 0.8 * y1(-1) + 0.2 * z1;
+#'   ident y2 = 0.5 * y1 + 0.5 * z2;
+#'   ident y3 = y2 + y1(-1);
+#' "
+#' mdl <- isis_mdl(model_text = model_text,
+#'                 period = "2017Q1/2018Q4",
+#'                 silent = TRUE)
+#' mdl$init_data()
+#'
+#' observed <- data.frame(
+#'   var    = c("y1", "z1", "z2"),
+#'   period = c("2018Q3", "2018Q4", "2018Q4")
+#' )
+#' solvable <- data.frame(var = "y1", period = "2018Q4")
+#'
+#' g2 <- mdl$find_deps(
+#'   final_destinations = data.frame(var = "y3", period = "2018Q4"),
+#'   observed_data = observed,
+#'   solvable = solvable
+#' )
+#'
+#' plot(g2)
+NULL
+
 
 #' \code{\link{IsisMdl}} method: Returns the last solve period
 

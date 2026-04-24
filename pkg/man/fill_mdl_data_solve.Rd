@@ -3,17 +3,41 @@
 \name{fill_mdl_data_solve}
 \alias{fill_mdl_data_solve}
 \title{\code{\link{IsisMdl}} method: Calculate missing model data by numerical solution.}
-\arguments{
-\item{period}{A \code{\link[regts]{period}} range object specifying the
+\description{
+This method can be used to calculate missing model data. This is mainly
+used to calculate 'starting values', i.e. the values of endogenous variables
+with lags in the period before the solution period of the model.
+
+Like in method \code{\link{fill_mdl_data}}, the missing values are computed by evaluating
+the active equations in solution order. Additionally, variables can be solved
+numerically.
+}
+\section{Usage}{
+
+\code{IsisMdl} method:
+\preformatted{
+mdl$fill_mdl_data_solve(
+ period = mdl$get_data_period(),
+ solve_df,
+ report = c("period", "minimal", "no"),
+ default_initial_guess = 0.1,
+ jacobian = TRUE
+)
+}
+}
+
+\section{Arguments}{
+
+
+\describe{
+\item{\code{period}}{A \link[regts:period]{regts::period} range object specifying the
 period using to replace missing values by evaluating the equations.
 If missing, uses the model's data period obtained via \verb{$get_data_period()}.}
-
-\item{solve_df}{A data frame defining the solve specification. Must contain
+\item{\code{solve_df}}{A data frame defining the solve specification. Must contain
 the following columns:
 \describe{
 \item{solve_period}{Character specifying the solve period according
-to the format of function \code{\link[regts]{period}} of the \code{regts} package
-(e.g. \code{"2014"} or \code{"2015Q1"})}
+to the format of function \link[regts:period]{regts::period} (e.g. \code{"2014"} or \code{"2015Q1"})}
 \item{observed_variable}{Name of the variable with observed data}
 \item{solve_variable}{Name of the variable to solve for (derive)}
 \item{group}{(Optional) Group identifier for solving multiple variables together.
@@ -21,13 +45,12 @@ If omitted, each row is treated as a separate group}
 \item{initial_guess}{(Optional) Initial guess for the solve variable.
 Should be all numeric, including NA's.
 Defaults to \code{default_initial_guess} value.}
-}}
-
-\item{default_initial_guess}{(Optional) For rows in solve_df that do not have an
+}
+}
+\item{\code{default_initial_guess}}{(Optional) For rows in solve_df that do not have an
 initial guess, the default initial guess value will be used.
 Default is 0.1.}
-
-\item{report}{Character string controlling output verbosity. Options:
+\item{\code{report}}{Character string controlling output verbosity. Options:
 \describe{
 \item{"period"}{Print a report per period (default).
 For each period the number of replaced missing values is reported.}
@@ -36,25 +59,17 @@ Only the total number of replaced missing values is reported.}
 \item{"no"}{Does not generate a report.}
 Defaults to \code{period} if not provided.
 }}
-
-\item{jacobian}{A logical. If \code{TRUE} and \code{report == "period"}, the
+\item{\code{jacobian}}{A logical. If \code{TRUE} and \code{report == "period"}, the
 final jacobian used for the numerical solution is printed. The default is \code{TRUE}.}
-
-\item{...}{Additional arguments passed to the \code{\link[nleqslv]{nleqslv}}
+\item{\code{...}}{Additional arguments passed to the \link[nleqslv:nleqslv]{nleqslv::nleqslv}
 solver (e.g., \code{control},  \code{method}, \code{global}).}
 }
-\value{
-An \code{IsisMdl} object (copy of the original model) with solved values for
-the solve variables. The original model remains unchanged.
 }
-\description{
-This method can be used to calculate missing model data. This is mainly
-used to calculate 'starting values', i.e. the values of endogenous variables
-with lags in the period before the solution period of the model.
 
-Like in method \code{\link{fill_mdl_data}}, the missing values are computed by evaluating
-the active equations in solution order. Additionally, variables can be solved
-numerically. For example, suppose that the model contains the equations
+\section{Details}{
+
+
+For example, suppose that the model contains the equations
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{ident y = y[-1];
 ident obs = y + z;
@@ -100,6 +115,14 @@ Note: This method is primarily designed to compute starting values.
 For solving exogenous variables, use the separate \code{solve_exo} method.
 This method does not support models with feedback variables.
 }
+
+\section{Value}{
+
+
+An \code{IsisMdl} object (copy of the original model) with solved values for
+the solve variables. The original model remains unchanged.
+}
+
 \examples{
 library(isismdl)
 model_text <- "

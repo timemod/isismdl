@@ -1,7 +1,7 @@
 #' @importFrom methods setOldClass
 setOldClass("period_range")
 
-#' An R6 class class representing an Isis model
+#' An R6 class representing an Isis model
 #'
 #' This class is used to solve a system of non-linear equations with lagged
 #' variables. The model equations are specified in a separate text file, the so
@@ -103,6 +103,8 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{get_data_period}}}{Returns the model data period}
 #'
+#' \item{\code{\link{get_residuals}}}{Returns the residuals of the model}
+#'
 #' \item{\code{\link{set_labels}}}{Set labels for the model variables}
 #'
 #' \item{\code{\link{get_labels}}}{Returns the labels of the model variables.}
@@ -184,6 +186,8 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{fill_mdl_data_solve}}}{Fills model data and
 #' inverse solves for starting values}
+#'
+#' \item{\code{\link{find_deps}}}{Finds the dependencies of the model variables}
 #'
 #' \item{\code{\link{solve_exo}}}{Solves exogenous variables}
 #'
@@ -301,6 +305,16 @@ IsisMdl <- R6Class("IsisMdl",
         exo_vars = exo_vars, target_vars = target_vars,
         report = report, jacobian = jacobian, ...
       ))
+    },
+    find_deps = function(final_destinations, final_sources = NULL,
+                         solvable = NULL, observed_data = NULL,
+                         ignore_observed = FALSE,
+                         stop_if_final_dest_observed = TRUE) {
+      return(find_deps(mdl = self, final_destinations = final_destinations,
+                       final_sources = final_sources,
+                       solvable = solvable, observed_data = observed_data,
+                       ignore_observed = ignore_observed,
+                       stop_if_final_dest_observed = stop_if_final_dest_observed))
     },
     get_residuals = function(period = private$model_period, names = NULL, tol = 1e-2,
                              fun = function(x1, x2) (x1 - x2)) {
