@@ -10,16 +10,25 @@
 #       A reference to an IsisMdl object. NOTE: the IsisMdl object is modified
 #       in place.
 #    solve_period
-#        A period object
+#        A regts period object specifying the period for which to solve.
 #    solve_variables
-#
+#        A character vector with names of the variables to be solved.
 #    observed_variables
-#
+#        A character vector with names of the variables whose observed values
+#        must be matched.
 #    initial_guess
-#        A named numeric vector with initial guess of the derived variables.
+#        A named numeric vector with the initial guess for the solve_variables.
 #    observed_data
+#        A data frame or tibble containing the observed values (used for finding
+#        dependencies).
 #    dep_struc
-#
+#        The model's dependency structure. This can be either a data frame
+#        (returned by mdl$get_dep_struct()) or a pre-processed list
+#        (returned by dep_struct_to_list()).
+#    report
+#        String ('no', 'period', or 'all') describing the level of reporting.
+#    jacobian
+#        Logical. Whether to calculate and use the Jacobian.
 #
 # Solve a single solve variable given an observed variable.
 solve_single_group <- function(

@@ -15,7 +15,9 @@
 #' @param solvable Optional data frame with `var` and `period` of
 #'   variables to be solved numerically rather than computed forward.
 #' @param observed_data Data frame with `var` and `period` of observed values.
-#' @param dep_struc Dependency structure from `get_dep_struct(one_lag_per_row = TRUE)`.
+#' @param dep_struc The model's dependency structure. This can be either a
+#'   data frame (retrieved via `mdl$get_dep_struct(one_lag_per_row = TRUE)`) or
+#'   a pre-processed list (retrieved via `dep_struct_to_list()`).
 #' @param mdl The `IsisMdl` object (must be recursive, no feedback, no leads).
 #' @param ignore_observed Logical; if `TRUE`, observed deps are stripped before recursing.
 #' @param stop_if_final_dest_observed Logical; if `TRUE` (default), stops when

@@ -45,8 +45,8 @@ Must be endogenous model variables.}
 \item{\code{solvable}}{An optional data frame with columns \code{var}
 and \code{period}. A vertex whose dependencies are all either OK
 or solvable is itself considered OK. Cannot overlap with
-\code{observed_data} or \code{final_sources}. See section "Solvable vertices"
-for more information.}
+\code{observed_data} or \code{final_sources}. See section
+\"Solvable vertices\" for more information.}
 \item{\code{observed_data}}{An optional data frame containing the observed
 variable-period pairs. If omitted, the data currently in the model
 object is used.}
@@ -67,18 +67,29 @@ Each vertex in the graph represents the value of a variable
 for a specific period. The vertex carries the following attributes:
 
 \describe{
+\item{\code{var}}{The name of the variable.}
+\item{\code{period}}{The period of the variable (as a string).}
 \item{\code{ok}}{\code{TRUE} if the variable can be resolved — either
 because it is observed or because it is calculable (see below).}
 \item{\code{calculable}}{\code{TRUE} if the variable's value can be
 computed by evaluating its model equation based on the
 observed data or an initial guess for the solvable variables (see
-section Solvable vertices). To be specific, it is \code{TRUE} if all its
-incoming vertices are either OK (\code{ok == TRUE}) or are solvable vertices.}
+section "Solvable vertices"). To be specific, it is \code{TRUE} if all its
+incoming vertices are either OK (\code{ok == TRUE}) or
+are solvable vertices.}
 \item{\code{observed}}{\code{TRUE} if the variable-period pair appears
 in \code{observed_data}.}
+\item{\code{is_endo}}{\code{TRUE} if the variable is
+an endogenous model variable.}
+\item{\code{is_final_dest}}{\code{TRUE} if the vertex is one of the final
+destinations.}
+\item{\code{is_final_src}}{\code{TRUE} if the vertex is one of the final
+sources.}
+\item{\code{solvable}}{\code{TRUE} if the vertex is marked as solvable. This
+attribute is only present if the \code{solvable} argument is supplied.}
+\item{\code{msg}}{An internal status message used for debugging.}
 \item{\code{color}}{A color string summarising the vertex status for
-use in plots. See the table below.}
-TODO: volledige lijst?  element solvable alleen als er ook solvables zijn.
+use in plots. See section "Vertex colors".}
 }
 
 The recursion stops at a vertex when:
@@ -97,28 +108,44 @@ If \code{solvable} is supplied, solvable vertices that have no calculable
 path to any observation are removed with a message, and the graph is then
 further restricted to the subgraph reachable from the remaining solvable
 vertices.
+}
 
-TODO maak in aparte Sectie "Vertex colors' met een overzichtelijk tabel van
-kleuren (het lieft met ook een kleurje erbij). Verwijs hiernaar in
-bovenstaande opsommigeeen overzichtelijk tabel van kleuren (het lieft met
-ook een kleurje erbij). Verwijs hiernaar in bovenstaande opsomming.
+\section{Vertex colors}{
+
+
+The vertices are colored based on their status:
+
+\tabular{ll}{
+\strong{Color} \tab \strong{Description} \cr
+\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:cyan;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{cyan} \tab Final destination vertex that is resolved (OK). \cr
+\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:purple;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{purple} \tab Final destination vertex that cannot be resolved (not OK). \cr
+\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:pink;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{pink} \tab Solvable vertex. \cr
+\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:yellow;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{yellow} \tab Final source vertex. \cr
+\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:lightgrey;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{lightgrey} \tab Observed variable. \cr
+\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:#00FF00;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{green} \tab Endogenous variable that is calculable (OK). \cr
+\ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:red;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{red} \tab Variable that is missing and is not calculable (not OK). \cr
+}
 }
 
 \section{Solvable vertices}{
 
 
-TODO: onderstaande tekst heb ik even snel getypt, even kijken of het beter kan.
-Argument \code{solvable} can be used to specify variable-period pairs
-on endogenous variables that are neither observed nor calculable, but that
-may be solved in method \link{fill_mdl_data_solve}. In this method
-that values for the solvable variables will be given an initial guees,
-and subsequently a numerical procedure is used to find the values for
-the variables such that the model  reproduces the observed values.
+The \code{solvable} argument allows specifying endogenous variable-period
+pairs that are neither observed nor directly calculable from existing data,
+but which can be resolved numerically. This is typically used in the
+\code{\link{fill_mdl_data_solve}} method.
 
-The solvable vertices are treated the same as other endogenous vertices
-with one exception: if vertex depends on a solvable vertex than the
-status of that solvable vertic (OK or not OK) does not matter, since
-in \code{fill_mdl_data_solve} an initial guess is specified.
+In this context, solvable variables are assigned an initial guess value.
+A numerical solver is then used to find values for these variables such
+that the model's equations reproduce the targets specified in
+\code{observed_data}.
+
+For dependency analysis, solvable vertices are treated as "resolved" points
+in the graph. Specifically, a variable is considered calculable
+(\code{ok = TRUE}) if all of its dependencies are either already resolved
+(\code{ok = TRUE}) or are themselves marked as solvable. This allows the
+dependency search to bridge gaps in the model that would otherwise be
+incalculable.
 }
 
 \section{Value}{
@@ -126,8 +153,7 @@ in \code{fill_mdl_data_solve} an initial guess is specified.
 
 A directed \code{igraph} object. Edges point from dependency to
 dependent (A -> B means B depends on A). Each vertex carries the
-\code{ok}, \code{calculable}, \code{observed}, \code{color} and \code{msg}
-attributes described above.
+attributes described in the Details section.
 }
 
 \examples{
