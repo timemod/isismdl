@@ -58,9 +58,12 @@ as_data_frame_deps <- function(g) {
 }
 
 dep_struct_to_list <- function(dep_struc) {
-  dep_struc <- dep_struc |>
+  if (is.list(dep_struc) && !is.data.frame(dep_struc)) {
+    return(dep_struc)
+  }
+  lhs <- dep_struc$lhs
+  dep_struc |>
     dplyr::rename(var = "rhs", period = "lag") |>
     dplyr::select(-"lhs") |>
-    split(dep_struc$lhs)
-  dep_struc
+    split(lhs)
 }
