@@ -260,6 +260,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   # Remove solvable vertices without a path to final destinations.
   if (has_solvable) {
 
+    # Stap 1: verwijder solvables die geen pad hebben naar final destinations en geef waarschuwing ----
+
     is_final_dest <- NULL # prevent error
 
     # Get vertices that are final destinations
@@ -271,7 +273,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     })))
 
     # Get solvable vertices
-    solvable_vertices <- V(g)[V(g)$solvable == TRUE]
+    solvable_vertices <- V(g)[solvable == TRUE]
 
     all_vertices <- V(g)
 
@@ -280,13 +282,12 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
 
     removed_vertex_names <- names(V(g))[to_remove]
 
-
     removed_solvable <- intersect(removed_vertex_names, names(solvable_vertices))
     if (length(removed_solvable)) {
       rem_solv_df <- as_data_frame_deps(induced_subgraph(g, removed_solvable))
       rem_solv_df <- as.data.frame(rem_solv_df[, c("var", "period")])
       message("The following solvable variables have been removed because ",
-              "there is not a calculable path to observations:\n",
+              "there is not a calculable path to find_destinations\n",
               paste(capture.output(print(rem_solv_df, row.names = FALSE)), collapse = "\n"))
     }
 
@@ -294,6 +295,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Remove these vertices
     g <- delete_vertices(g, to_remove)
 
+    # Ik denk: verwijder nu final_destinations die niet verbonden zijn met solvable vertices.
     # Only keep the vertices that can be reached from solvable_vertices.
     solvable_vertices <- V(g)[V(g)$solvable == TRUE]
     if (length(solvable_vertices) > 0) {
@@ -304,10 +306,11 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     }
   }
 
-  # Find all vertices reachable from final_destinations (including themselves)
+  # Find all vertices connected to final_destinations (including themselves)
   # Only use destination names that are still in the graph.
   current_final_dests <- intersect(vertices_final_dest, names(V(g)))
   reachable <- unique(unlist(lapply(current_final_dests, function(v) {
+    # waarom mode == "all"?
     subcomponent(g, v, mode = "all")
   })))
 
