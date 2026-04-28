@@ -287,7 +287,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       rem_solv_df <- as_data_frame_deps(induced_subgraph(g, removed_solvable))
       rem_solv_df <- as.data.frame(rem_solv_df[, c("var", "period")])
       message("The following solvable variables have been removed because ",
-              "there is not a calculable path to find_destinations\n",
+              "they have no calculable path to a final destination:\n",
               paste(capture.output(print(rem_solv_df, row.names = FALSE)), collapse = "\n"))
     }
 
