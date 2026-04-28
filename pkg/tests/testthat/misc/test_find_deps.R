@@ -16,16 +16,16 @@ period <- as.period_range("2020/2022")
 
 test_that("find_deps basic functionality", {
   mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
-  
+
   final_destinations <- tribble(
     ~var, ~period,
     "y3", "2021"
   )
-  
+
   # y3[2021] depends on y2[2021] and y1[2020]
   # y2[2021] depends on y1[2021] and z2[2021]
   # y1[2021] depends on y1[2020] and z1[2021]
-  
+
   # observed_data is used to stop the search
   observed_data <- tribble(
     ~var, ~period,
@@ -33,15 +33,15 @@ test_that("find_deps basic functionality", {
     "z1", "2021",
     "z2", "2021"
   )
-  
+
   g <- mdl$find_deps(final_destinations = final_destinations, observed_data = observed_data)
-  
+
   expect_s3_class(g, "igraph")
   expect_true("y3[2021]" %in% V(g)$name)
   expect_true("y2[2021]" %in% V(g)$name)
   expect_true("y1[2021]" %in% V(g)$name)
   expect_true("y1[2020]" %in% V(g)$name)
-  
+
   # Check edges
   expect_true(are_adjacent(g, "y2[2021]", "y3[2021]"))
   expect_true(are_adjacent(g, "y1[2020]", "y3[2021]"))
@@ -50,24 +50,24 @@ test_that("find_deps basic functionality", {
 
 test_that("find_deps endo checks", {
   mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
-  
+
   observed_data <- tribble(
     ~var, ~period,
     "y1", "2020"
   )
-  
+
   # z1 is exogenous, so it should fail if provided as final destination
   final_destinations_bad <- tribble(
     ~var, ~period,
     "z1", "2021"
   )
-  
+
   expect_error(
     mdl$find_deps(final_destinations = final_destinations_bad, observed_data = observed_data),
     "The following final destination variables are not endogenous model variables:\nz1.",
     fixed = TRUE
   )
-  
+
   # z2 as final source should also fail
   final_sources_bad <- tribble(
     ~var, ~period,
@@ -77,10 +77,10 @@ test_that("find_deps endo checks", {
     ~var, ~period,
     "y3", "2021"
   )
-  
+
   expect_error(
-    mdl$find_deps(final_destinations = final_destinations, 
-                  final_sources = final_sources_bad, 
+    mdl$find_deps(final_destinations = final_destinations,
+                  final_sources = final_sources_bad,
                   observed_data = observed_data),
     "The following final source variables are not endogenous model variables:\nz2.",
     fixed = TRUE
@@ -89,32 +89,32 @@ test_that("find_deps endo checks", {
 
 test_that("find_deps overlap checks", {
   mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
-  
+
   final_destinations <- tribble(
     ~var, ~period,
     "y3", "2021"
   )
-  
+
   observed_data <- tribble(
     ~var, ~period,
     "y1", "2020",
     "y2", "2021"
   )
-  
+
   solvable <- tribble(
     ~var, ~period,
     "y2", "2021"
   )
-  
+
   # 1. solvable vs observed
   expect_error(
-    mdl$find_deps(final_destinations = final_destinations, 
-                  solvable = solvable, 
+    mdl$find_deps(final_destinations = final_destinations,
+                  solvable = solvable,
                   observed_data = observed_data),
     "The following solvable vertices are actually observed:\ny2[2021]",
     fixed = TRUE
   )
-  
+
   # 2. solvable vs final sources
   final_sources <- tribble(
     ~var, ~period,
@@ -125,16 +125,16 @@ test_that("find_deps overlap checks", {
     ~var, ~period,
     "y1", "2020"
   )
-  
+
   expect_error(
-    mdl$find_deps(final_destinations = final_destinations, 
-                  solvable = solvable, 
+    mdl$find_deps(final_destinations = final_destinations,
+                  solvable = solvable,
                   final_sources = final_sources,
                   observed_data = observed_data_clean),
     "The following solvable vertices are also final sources:\ny2[2021]",
     fixed = TRUE
   )
-  
+
   # 3. final destinations vs solvable
   final_destinations_solvable <- tribble(
     ~var, ~period,
@@ -144,10 +144,10 @@ test_that("find_deps overlap checks", {
     ~var, ~period,
     "y3", "2021"
   )
-  
+
   expect_error(
-    mdl$find_deps(final_destinations = final_destinations_solvable, 
-                  solvable = solvable_dest, 
+    mdl$find_deps(final_destinations = final_destinations_solvable,
+                  solvable = solvable_dest,
                   observed_data = observed_data_clean),
     "The following final destination vertices are also solvable:\ny3[2021]",
     fixed = TRUE
@@ -192,7 +192,7 @@ test_that("find_deps empty observed data", {
   # It should default to model data start and successfully find deps
   final_dest <- tribble(~var, ~period, "y", "2021")
 
-  g <- mdl$find_deps(final_destinations = final_dest, 
+  g <- mdl$find_deps(final_destinations = final_dest,
                      observed_data = tribble(~var, ~period))
   expect_s3_class(g, "igraph")
   expect_true("y[2021]" %in% V(g)$name)
@@ -208,7 +208,7 @@ test_that("find_deps vertex colors", {
     ident y3 = y2 + y1(-1);
   "
   mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
-  
+
   observed <- tribble(
     ~var, ~period,
     "y1", "2020",
@@ -217,29 +217,29 @@ test_that("find_deps vertex colors", {
   )
   solvable <- tribble(~var, ~period, "y1", "2021")
   final_dest <- tribble(~var, ~period, "y3", "2021")
-  
+
   expect_message(
-    g <- mdl$find_deps(final_destinations = final_dest, 
-                       solvable = solvable, 
+    g <- mdl$find_deps(final_destinations = final_dest,
+                       solvable = solvable,
                        observed_data = observed),
     "The following solvables are calculable, no need to solve them:"
   )
-  
+
   # NOTE: y1[2020] and x2[2021] are pruned because they are not reachable FROM y1[2021]
-  
+
   expect_equal(V(g)["y3[2021]"]$color, "cyan")
   expect_equal(V(g)["y2[2021]"]$color, "green")
   expect_equal(V(g)["y1[2021]"]$color, "pink")
-  
+
   final_src <- tribble(~var, ~period, "y1", "2021")
-  g_src <- mdl$find_deps(final_destinations = final_dest, 
+  g_src <- mdl$find_deps(final_destinations = final_dest,
                          final_sources = final_src,
                          observed_data = observed)
-  
+
   expect_equal(V(g_src)["y1[2021]"]$color, "yellow")
   expect_equal(V(g_src)["y1[2020]"]$color, "lightgrey")
   expect_equal(V(g_src)["x2[2021]"]$color, "lightgrey")
-  
+
   g_err <- mdl$find_deps(final_destinations = final_dest,
                          observed_data = observed[1, ])
   expect_equal(V(g_err)["y3[2021]"]$color, "purple")
@@ -321,36 +321,43 @@ test_that("find_deps message for removed solvables", {
   # will be deleted.
   # Now y1 cannot reach the final destination y3.
   # If y1 is marked as solvable, it should be removed with a message.
-  
+
   final_dest <- tribble(~var, ~period, "y3", "2021")
   solvable <- tribble(~var, ~period, "y1", "2021")
-  
+
   # We expect a message about y1 being removed.
   # Note: y3 will still be in the graph but marked as not OK (purple color).
+  msg <- paste0(
+    "The following solvable variables have been removed because they have no ",
+    "calculable path to a final destination:\n",
+    " var period\n",
+    "  y1   2021"
+  )
   expect_message(
     mdl$find_deps(final_destinations = final_dest,
                   solvable = solvable,
                   observed_data = tribble(~var, ~period)),
-    "The following solvable variables have been removed because there is not a calculable path to observations:"
+    msg,
+    fixed = TRUE
   )
 })
 
 test_that("find_deps uniqueness checks", {
   mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
-  
+
   final_destinations <- tribble(
     ~var, ~period,
     "y3", "2021",
     "y3", "2021"
   )
-  
+
   # 1. final destinations
   expect_error(
     mdl$find_deps(final_destinations = final_destinations),
     "The following final destination variables are specified more than once for the same period:\ny3[2021].",
     fixed = TRUE
   )
-  
+
   # 2. final sources
   final_destinations_ok <- tribble(~var, ~period, "y3", "2021")
   final_sources_bad <- tribble(
@@ -363,7 +370,7 @@ test_that("find_deps uniqueness checks", {
     "The following final source variables are specified more than once for the same period:\ny1[2020].",
     fixed = TRUE
   )
-  
+
   # 3. solvable
   solvable_bad <- tribble(
     ~var, ~period,
@@ -375,7 +382,7 @@ test_that("find_deps uniqueness checks", {
     "The following solvable variables are specified more than once for the same period:\ny1[2021].",
     fixed = TRUE
   )
-  
+
   # 4. observed_data
   observed_bad <- tribble(
     ~var, ~period,

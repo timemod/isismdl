@@ -16,7 +16,7 @@ by base R function \code{\link[base:readRDS]{saveRDS}}.
 \section{Usage}{
 
 \preformatted{
-mdl$write_mdl(file)
+mdl$write_mdl(file, silent = FALSE)
 }
 \code{mdl} is an \code{\link{IsisMdl}} object
 }
@@ -28,6 +28,9 @@ mdl$write_mdl(file)
 \item{\code{file}}{the filename. Preferably use the extension
 \code{.ismdl} so that it is obvious that the written file
 contains a serialized \code{IsisMdl} object.}
+\item{\code{silent}}{A logical (default \code{FALSE}). \code{write_mdl} normally
+issues a message about the file  that was written. Specify \code{silent = TRUE} to
+suppress this message.}
 }
 }
 

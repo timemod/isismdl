@@ -44,7 +44,7 @@ The names should be the names of the corresponding frml variables
 \item{\code{name_err}}{A character that specifies the
 action that should be taken when a name is not the name of a frml variable.
 For \code{"warn"} (the default), a warning is given, for \code{"stop"} an error is
-issued. For \code{"silent"}, the variable is silently skipped,
+issued. For \code{"silent"}, the variable is silently skipped.
 }
 \item{\code{value}}{A numeric vector of length 1.}
 \item{\code{names}}{A character vector specifying the names of the frml

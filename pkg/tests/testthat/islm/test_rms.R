@@ -15,7 +15,7 @@ test_that("get_rms with all positive numbers", {
   mdl2$set_rms(rms_values)
   expect_identical(mdl$get_rms(), numeric(0))
   expect_identical(mdl2$get_rms(), rms_values_sorted)
-  mdl2$write_mdl("tmp.ismdl")
+  expect_silent(mdl2$write_mdl("tmp.ismdl", silent = TRUE))
   mdl3 <- read_mdl("tmp.ismdl", silent = TRUE)
   unlink("tmp.ismdl")
   expect_identical(mdl3$get_rms(), rms_values_sorted)
@@ -39,7 +39,11 @@ mdl4$set_rms(rms_values2)
 
 test_that("get_rms with NA and 0 values", {
   expect_identical(mdl4$get_rms(), rms_values2[c("c", "md")])
-  mdl4$write_mdl("tmp.ismdl")
+  expect_message(
+    mdl4$write_mdl("tmp.ismdl"),
+    "IsisMdl object written to file 'tmp.ismdl'",
+    fixed = TRUE
+  )
   capture.output(mdl5 <- read_mdl("tmp.ismdl"))
   unlink("tmp.ismdl")
   expect_identical(mdl5$get_rms(), rms_values2[c("c", "md")])
@@ -97,7 +101,3 @@ test_that("set_rms_values", {
   expect_error(mdl7$set_rms_values("jan"),
                "Argument 'value' should be a scalar numeric")
 })
-
-
-
-
