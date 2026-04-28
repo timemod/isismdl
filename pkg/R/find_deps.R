@@ -136,7 +136,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       }
     }
 
-    # Check if the variable is in the data
+    # Check if the variable is observed.
     if (observed && (!is_final_dest || stop_if_final_dest_observed)) {
       g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
       g <<- igraph::set_vertex_attr(

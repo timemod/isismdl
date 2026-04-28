@@ -1572,7 +1572,7 @@ NULL
 #' \item{\code{name_err}}{A character that specifies the
 #' action that should be taken when a name is not the name of a frml variable.
 #' For `"warn"` (the default), a warning is given, for `"stop"` an error is
-#' issued. For `"silent"`, the variable is silently skipped,
+#' issued. For `"silent"`, the variable is silently skipped.
 #' }
 #' \item{\code{value}}{A numeric vector of length 1.}
 #' \item{\code{names}}{A character vector specifying the names of the frml
@@ -2384,7 +2384,7 @@ NULL
 #'
 #' @section Usage:
 #' \preformatted{
-#' mdl$write_mdl(file)
+#' mdl$write_mdl(file, silent = FALSE)
 #' }
 #' \code{mdl} is an \code{\link{IsisMdl}} object
 #' @section Arguments:
@@ -2393,6 +2393,9 @@ NULL
 #' \item{\code{file}}{the filename. Preferably use the extension
 #' \code{.ismdl} so that it is obvious that the written file
 #' contains a serialized \code{IsisMdl} object.}
+#' \item{\code{silent}}{A logical (default \code{FALSE}). `write_mdl` normally
+#' issues a message about the file  that was written. Specify `silent = TRUE` to
+#' suppress this message.}
 #' }
 #' @examples
 #' mdl <- islm_mdl("2017Q1/2019Q2")
