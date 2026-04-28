@@ -260,7 +260,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   # Remove solvable vertices without a path to final destinations.
   if (has_solvable) {
 
-    # Stap 1: verwijder solvables die geen pad hebben naar final destinations en geef waarschuwing ----
+    # Stap 1: verwijder solvables die geen pad hebben naar final destinations
+    # en geef waarschuwing
 
     is_final_dest <- NULL # prevent error
 
