@@ -271,19 +271,24 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
 
   if (has_solvable) {
     # Step 1: Remove solvables that do not have a path to any final destination.
-    # We find all vertices that can reach a final destination by traversing backwards (mode = "in").
+
+    # Find all vertices that can reach a final destination by traversing backwards (mode = "in").
     is_final_dest <- NULL # prevent error
     final_dest_vertices <- V(g)[is_final_dest == TRUE]
 
-    reachable_from_any <- unique(unlist(lapply(final_dest_vertices, function(v) {
-      subcomponent(g, v, mode = "in")
-    })))
+    vertices_with_path_to_final_dest <-
+      unique(
+        unlist(
+          lapply(final_dest_vertices,
+                 function(v) subcomponent(g, v, mode = "in"))
+        )
+      )
 
     solvable_vertices <- V(g)[solvable == TRUE]
     all_vertices <- V(g)
 
-    # Find vertices that are NOT in the reachable set
-    to_remove <- setdiff(all_vertices, reachable_from_any)
+    # Find vertices without a path to final_destinations
+    to_remove <- setdiff(all_vertices, vertices_with_path_to_final_dest)
     removed_vertex_names <- names(V(g))[to_remove]
 
     # Issue a message if any solvable variables are among those being removed

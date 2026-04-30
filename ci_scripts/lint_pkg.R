@@ -11,6 +11,7 @@ library(lintr)
 linters_mut <- list(
   line_length_linter = line_length_linter(100),
   object_name_linter = NULL,
+  object_lenght_linter = object_length_linter(50),
   commented_code_linter = NULL,
   return_linter = NULL,
   trailing_whitespace_linter = NULL
