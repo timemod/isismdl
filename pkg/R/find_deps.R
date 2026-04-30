@@ -257,32 +257,31 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   }
 
 
-  # Remove solvable vertices without a path to final destinations.
+  # --- PRUNING PHASE ---
+  # After the recursive search, the graph may contain variables that are not
+  # strictly required for the final destinations. This happens when:
+  # 1. An intermediate variable cannot be calculated (e.g., missing data), breaking the path.
+  # 2. Solvable variables are provided, in which case we only care about the
+  #    downstream path from the solvables to the final destinations.
+
   if (has_solvable) {
-
-    # Stap 1: verwijder solvables die geen pad hebben naar final destinations
-    # en geef waarschuwing
-
+    # Step 1: Remove solvables that do not have a path to any final destination.
+    # We find all vertices that can reach a final destination by traversing backwards (mode = "in").
     is_final_dest <- NULL # prevent error
-
-    # Get vertices that are final destinations
     final_dest_vertices <- V(g)[is_final_dest == TRUE]
 
-    # Get all vertices that can reach any final destination
     reachable_from_any <- unique(unlist(lapply(final_dest_vertices, function(v) {
       subcomponent(g, v, mode = "in")
     })))
 
-    # Get solvable vertices
     solvable_vertices <- V(g)[solvable == TRUE]
-
     all_vertices <- V(g)
 
     # Find vertices that are NOT in the reachable set
     to_remove <- setdiff(all_vertices, reachable_from_any)
-
     removed_vertex_names <- names(V(g))[to_remove]
 
+    # Issue a message if any solvable variables are among those being removed
     removed_solvable <- intersect(removed_vertex_names, names(solvable_vertices))
     if (length(removed_solvable)) {
       rem_solv_df <- as_data_frame_deps(induced_subgraph(g, removed_solvable))
@@ -292,12 +291,15 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
               paste(capture.output(print(rem_solv_df, row.names = FALSE)), collapse = "\n"))
     }
 
-
-    # Remove these vertices
+    # Delete vertices that cannot reach a final destination
     g <- delete_vertices(g, to_remove)
 
-    # Ik denk: verwijder nu final_destinations die niet verbonden zijn met solvable vertices.
-    # Only keep the vertices that can be reached from solvable_vertices.
+    # Step 2: Keep only the path from solvable variables to final destinations.
+    # By traversing forwards (mode = "out") from the solvables, we keep the
+    # solvable variables and their dependents. This effectively removes:
+    # - Final destinations that do not depend on any solvable.
+    # - Upstream dependencies of the solvable variables (since they are treated
+    #   as starting points for the numerical solver).
     solvable_vertices <- V(g)[V(g)$solvable == TRUE]
     if (length(solvable_vertices) > 0) {
       can_reach_solvable <- unique(unlist(lapply(solvable_vertices, function(v) {
@@ -307,18 +309,22 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     }
   }
 
-  # Find all vertices connected to final_destinations (including themselves)
-  # Only use destination names that are still in the graph.
+  # Step 3: Global cleanup of disconnected components.
+  # We find all vertices that are still connected to the remaining final destinations.
+  # Using mode = "all" identifies the entire weakly connected component. This is
+  # sufficient because the graph was built by tracing dependencies backwards from
+  # the final destinations, so any connected component must contain a valid dependency path.
   current_final_dests <- intersect(vertices_final_dest, names(V(g)))
   reachable <- unique(unlist(lapply(current_final_dests, function(v) {
-    # waarom mode == "all"?
     subcomponent(g, v, mode = "all")
   })))
 
-  # Keep only the reachable vertices
+  # Keep only the vertices that are connected to final destinations
   g <- induced_subgraph(g, reachable)
 
-  # Remove isolated vertices (degree = 0) that are not final vertices.
+  # Step 4: Remove isolated vertices (degree = 0) that are not final destinations.
+  # A final destination with no dependencies (e.g. y = 1) will have degree 0 but
+  # should be kept. Other isolated vertices are artifacts of the pruning process.
   isolated <- which(igraph::degree(g) == 0 & !igraph::V(g)$name %in% vertices_final_dest)
   g <- igraph::delete_vertices(g, isolated)
 
