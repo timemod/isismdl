@@ -280,8 +280,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   # Step 1: Remove solvables that do not have a path to any final destination.
 
   # Find all vertices that can reach a final destination by traversing backwards (mode = "in").
-  is_final_dest <- NULL # prevent error
-  final_dest_vertices <- V(g)[is_final_dest == TRUE]
+  final_dest_vertices <- V(g)[V(g)$is_final_dest == TRUE]
 
   vertices_with_path_to_final_dest <-
     unique(
