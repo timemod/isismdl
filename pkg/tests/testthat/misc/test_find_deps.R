@@ -509,6 +509,8 @@ test_that("find_deps short-circuiting logic evaluates shared dependencies correc
   expect_true("y3[2021]" %in% V(g)$name)
   expect_false(V(g)["y3[2021]"]$calculable)
   
-  # y1 was evaluated, failed, and its edges were deleted. It is not connected to a successful final dest.
-  expect_false("y1[2021]" %in% V(g)$name)
+  # y1 was evaluated, failed, and its edges TO y3 were not deleted because y3 is a final destination.
+  # So y1 is still in the graph and should be marked as not calculable.
+  expect_true("y1[2021]" %in% V(g)$name)
+  expect_false(V(g)["y1[2021]"]$calculable)
 })
