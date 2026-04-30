@@ -22,7 +22,7 @@ of frml equations}
 \item{\code{"all"}}{all endogenous variables, the default}
 }
 
-If some equation have been deactivated (see \code{\link{set_eq_status}}),
+If some equations have been deactivated (see \code{\link{set_eq_status}}),
 then argument \code{status} may be useful.
 By default, the function only returns the names of the active
 endogenous variables, i.e. the variables that occur on the

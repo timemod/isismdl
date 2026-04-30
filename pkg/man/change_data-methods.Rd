@@ -7,7 +7,7 @@
 \title{\code{\link{IsisMdl}} methods: changes the model data or constant
 adjustments by applying a function.}
 \description{
-This methods of R6 class \code{\link{IsisMdl}}
+These methods of R6 class \code{\link{IsisMdl}}
 changes the model data or constant adjustments by applying a function.
 }
 \section{Usage}{

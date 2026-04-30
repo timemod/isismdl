@@ -4,7 +4,7 @@
 \alias{clear_fix}
 \title{\code{\link{IsisMdl}} method: deletes all fix values}
 \description{
-This methods of R6 class \code{\link{IsisMdl}}
+This method of R6 class \code{\link{IsisMdl}}
 deletes all fix values specified with methods
 \code{\link{set_fix}}, \code{\link{set_fix_values}} and
 \code{\link{fix_variables}}

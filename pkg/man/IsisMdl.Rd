@@ -18,12 +18,12 @@ and generates an \code{IsisMdl} object. The vignette "Introduction"
 gives a detailed description of the usage of \code{IsisMdl} objects.
 }
 \details{
-The syntax of the model file is the same of the syntax of model file
+The syntax of the model file is the same as for the model file
 in Isis, and is described in detail in the Isis Reference Manual
 (a vignette with a detailed model syntax description for package IsisMdl will be
-available in a future).
+available in the future).
 
-The package included a number of example models in directory \code{models} of
+The package includes a number of example models in directory \code{models} of
 the package library. It is also possible to directly create \code{IsisMdl} objects with functions
 \code{\link{islm_mdl}} to create an ISLM model and \code{\link{ifn_mdl}}
 to create another example model, the IFN model. The latter model is a model with
@@ -103,7 +103,7 @@ adjustments}
 
 \item{\code{\link{change_data}}}{Change model data by applying a function}
 
-\item{\code{\link{change_ca}}}{Change the constant adjusmtments by
+\item{\code{\link{change_ca}}}{Change the constant adjustments by
 applying a function}
 
 \item{\code{\link{get_data}}}{Returns the model data}
@@ -114,7 +114,7 @@ applying a function}
 
 \item{\code{\link{get_fit}}}{Returns the fit targets}
 
-\item{\code{\link{set_rms}}}{Sets one or more the rms values used in the fit procedure}
+\item{\code{\link{set_rms}}}{Sets one or more rms values used in the fit procedure}
 
 \item{\code{\link{set_rms_values}}}{Sets the rms values used in the fit procedure}
 
@@ -139,9 +139,9 @@ variables}
 \item{\code{\link{set_eq_status}}}{Sets the equation status
 \code{"active"} or \code{"inactive")}}
 
-\item{\code{\link{set_ftrelax}}}{Sets the Fair-Taylor relaxtion factors}
+\item{\code{\link{set_ftrelax}}}{Sets the Fair-Taylor relaxation factors}
 
-\item{\code{\link{get_ftrelax}}}{Returns the Fair-Taylor relaxtion factors}
+\item{\code{\link{get_ftrelax}}}{Returns the Fair-Taylor relaxation factors}
 
 \item{\code{\link{solve}}}{Solves the model}
 
