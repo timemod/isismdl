@@ -291,14 +291,9 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       )
     )
 
-  solvable_vertices <- V(g)[solvable == TRUE]
-  all_vertices <- V(g)
-
   # Find vertices that are NOT in the reachable set
   vertices_to_remove <- setdiff(V(g), vertices_with_path_to_final_dest)
   removed_vertex_names <- names(V(g))[vertices_to_remove]
-
-
 
   # Step 2: Keep only the path from solvable variables to final destinations.
   # By traversing forwards (mode = "out") from the solvables, we keep the
