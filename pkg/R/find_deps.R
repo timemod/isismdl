@@ -269,30 +269,46 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   # 2. Solvable variables are provided, in which case we only care about the
   #    downstream path from the solvables to the final destinations.
 
+  # Step 0 >1: naam veranderen
   if (has_solvable) {
-    # Step 1: Remove solvables that do not have a path to any final destination.
+    can_reach_solvable <- unique(unlist(lapply(vertices_solvable, function(v) {
+      subcomponent(g, v, mode = "out")
+    })))
+    g <- induced_subgraph(g, can_reach_solvable)
+  }
 
-    # Find all vertices that can reach a final destination by traversing backwards (mode = "in").
-    is_final_dest <- NULL # prevent error
-    final_dest_vertices <- V(g)[is_final_dest == TRUE]
+  # Step 1: Remove solvables that do not have a path to any final destination.
 
-    vertices_with_path_to_final_dest <-
-      unique(
-        unlist(
-          lapply(final_dest_vertices,
-                 function(v) subcomponent(g, v, mode = "in"))
-        )
+  # Find all vertices that can reach a final destination by traversing backwards (mode = "in").
+  is_final_dest <- NULL # prevent error
+  final_dest_vertices <- V(g)[is_final_dest == TRUE]
+
+  vertices_with_path_to_final_dest <-
+    unique(
+      unlist(
+        lapply(final_dest_vertices,
+               function(v) subcomponent(g, v, mode = "in"))
       )
+    )
 
-    solvable_vertices <- V(g)[solvable == TRUE]
-    all_vertices <- V(g)
+  solvable_vertices <- V(g)[solvable == TRUE]
+  all_vertices <- V(g)
 
-    # Find vertices without a path to final_destinations
-    to_remove <- setdiff(all_vertices, vertices_with_path_to_final_dest)
-    removed_vertex_names <- names(V(g))[to_remove]
+  # Find vertices that are NOT in the reachable set
+  vertices_to_remove <- setdiff(V(g), vertices_with_path_final_dest)
+  removed_vertex_names <- names(V(g))[vertices_to_remove]
 
+
+
+  # Step 2: Keep only the path from solvable variables to final destinations.
+  # By traversing forwards (mode = "out") from the solvables, we keep the
+  # solvable variables and their dependents. This effectively removes:
+  # - Final destinations that do not depend on any solvable.
+  # - Upstream dependencies of the solvable variables (since they are treated
+  #   as starting points for the numerical solver).
+  if (has_solvable) {
     # Issue a message if any solvable variables are among those being removed
-    removed_solvable <- intersect(removed_vertex_names, names(solvable_vertices))
+    removed_solvable <- intersect(removed_vertex_names, vertices_solvable)
     if (length(removed_solvable)) {
       rem_solv_df <- as_data_frame_deps(induced_subgraph(g, removed_solvable))
       rem_solv_df <- as.data.frame(rem_solv_df[, c("var", "period")])
@@ -300,37 +316,9 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
               "they have no calculable path to a final destination:\n",
               paste(capture.output(print(rem_solv_df, row.names = FALSE)), collapse = "\n"))
     }
-
-    # Delete vertices that cannot reach a final destination
-    g <- delete_vertices(g, to_remove)
-
-    # Step 2: Keep only the path from solvable variables to final destinations.
-    # By traversing forwards (mode = "out") from the solvables, we keep the
-    # solvable variables and their dependents. This effectively removes:
-    # - Final destinations that do not depend on any solvable.
-    # - Upstream dependencies of the solvable variables (since they are treated
-    #   as starting points for the numerical solver).
-    solvable_vertices <- V(g)[V(g)$solvable == TRUE]
-    if (length(solvable_vertices) > 0) {
-      can_reach_solvable <- unique(unlist(lapply(solvable_vertices, function(v) {
-        subcomponent(g, v, mode = "out")
-      })))
-      g <- induced_subgraph(g, can_reach_solvable)
-    }
   }
-
-  # Step 3: Global cleanup of disconnected components.
-  # We find all vertices that are still connected to the remaining final destinations.
-  # Using mode = "all" identifies the entire weakly connected component. This is
-  # sufficient because the graph was built by tracing dependencies backwards from
-  # the final destinations, so any connected component must contain a valid dependency path.
-  current_final_dests <- intersect(vertices_final_dest, names(V(g)))
-  reachable <- unique(unlist(lapply(current_final_dests, function(v) {
-    subcomponent(g, v, mode = "all")
-  })))
-
-  # Keep only the vertices that are connected to final destinations
-  g <- induced_subgraph(g, reachable)
+  # Delete vertices that cannot reach a final destination
+  g <- delete_vertices(g, vertices_to_remove)
 
   # Check for solvables that are actually calculable
   if (has_solvable) {
@@ -411,3 +399,4 @@ find_deps <- function(mdl, final_destinations, final_sources,
                      mdl = mdl, ignore_observed = ignore_observed,
                      stop_if_final_dest_observed = stop_if_final_dest_observed)
 }
+
