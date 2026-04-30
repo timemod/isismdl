@@ -103,12 +103,20 @@ not a final destination, or \code{stop_if_final_dest_observed = TRUE}).
 it is marked as not OK.
 }
 
-After the recursion, the graph is pruned:
-only vertices with a path to at least one final destination are kept.
-If \code{solvable} is supplied, solvable vertices that have no calculable
-path to any observation are removed with a message, and the graph is then
-further restricted to the subgraph reachable from the remaining solvable
-vertices.
+After the recursion, the graph is pruned to remove "dead" branches. This is
+necessary because some vertices may be incalculable (e.g. they depend on
+missing exogenous data). During recursion, all incoming edges of
+incalculable nodes are removed. Subsequently, all vertices that are no
+longer connected to any final destination are removed from the graph.
+
+If \code{solvable} is supplied, the graph is further restricted:
+\enumerate{
+\item Solvable vertices that have no path to any final destination are
+removed. A message listing the removed vertices is given.
+\item The graph is then restricted to the subgraph reachable from the
+remaining solvable vertices. This means that final destinations
+that have no path from any solvable vertex are removed.
+}
 }
 
 \section{Vertex colors}{
@@ -141,11 +149,18 @@ A numerical solver is then used to find values for these variables such
 that the model's equations reproduce observed target data.
 
 For dependency analysis, solvable vertices are treated as "resolved" points
-in the graph. Specifically, a variable is considered calculable
-(\code{ok = TRUE}) if all of its dependencies are either already resolved
-(\code{ok = TRUE}) or are themselves marked as solvable. This allows the
+in the graph. Specifically, a solvable vertex is always marked as
+resolved (\code{ok = TRUE}), even if its own dependencies are not all OK.
+Consequently, any vertex that depends on a solvable vertex (and possibly
+on other OK vertices) is marked as calculable. This allows the
 dependency search to bridge gaps in the model that would otherwise be
 incalculable.
+
+If solvable vertices are provided, \code{find_deps} ensures that the final
+graph only contains the dependencies relevant for the numerical solution.
+Specifically, any final destination that does not have a path from at
+least one solvable vertex will be pruned from the graph. This highlights
+which targets are actually affected by the variables being solved.
 }
 
 \section{Value}{

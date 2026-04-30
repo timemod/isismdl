@@ -334,12 +334,17 @@ test_that("find_deps message for removed solvables", {
     "  y1   2021"
   )
   expect_message(
-    mdl$find_deps(final_destinations = final_dest,
+    g <- mdl$find_deps(final_destinations = final_dest,
                   solvable = solvable,
                   observed_data = tribble(~var, ~period)),
     msg,
     fixed = TRUE
   )
+
+  # Verify that the solvable variable was actually removed
+  expect_false("y1[2021]" %in% V(g)$name)
+  # The final destination should still be in the graph, although not calculable
+  expect_true("y3[2021]" %in% V(g)$name)
 })
 
 test_that("find_deps uniqueness checks", {
@@ -394,4 +399,61 @@ test_that("find_deps uniqueness checks", {
     "The following observed data variables are specified more than once for the same period:\ny1[2020].",
     fixed = TRUE
   )
+})
+
+test_that("find_deps pruning logic: final destinations and unconnected vertices", {
+  period <- as.period_range("2020/2022")
+  model_text <- "
+    ident y1 = x1;
+    ident y2 = y1;
+    ident y3 = x3;
+    ident y4 = y3;
+    ident y5 = x5;
+    ident y6 = y5 + x6;
+    ident y7 = y6;
+  "
+  mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
+
+  # Scenario 1: solvable prunes disconnected final destinations and dependencies
+  observed <- tribble(
+    ~var, ~period,
+    "x1", "2021",
+    "x3", "2021"
+  )
+  final_dest <- tribble(
+    ~var, ~period,
+    "y2", "2021",
+    "y4", "2021"
+  )
+  solvable <- tribble(~var, ~period, "y1", "2021")
+
+  expect_message(
+    g1 <- mdl$find_deps(final_destinations = final_dest,
+                        solvable = solvable,
+                        observed_data = observed),
+    "The following solvables are calculable"
+  )
+
+  # y2 and y1 should remain
+  expect_true("y2[2021]" %in% V(g1)$name)
+  expect_true("y1[2021]" %in% V(g1)$name)
+
+  # y4 and y3 should be pruned because y4 cannot be reached from any solvable vertex
+  expect_false("y4[2021]" %in% V(g1)$name)
+  expect_false("y3[2021]" %in% V(g1)$name)
+
+  # x1 is a dependency of y1, so it should be pruned because it's not reachable FROM y1
+  expect_false("x1[2021]" %in% V(g1)$name)
+
+  # Scenario 2: Vertices disconnected from final destinations are pruned
+  final_dest2 <- tribble(~var, ~period, "y7", "2021")
+  observed2 <- tribble(~var, ~period, "x5", "2021") # x6 is missing
+
+  g2 <- mdl$find_deps(final_destinations = final_dest2,
+                      observed_data = observed2)
+
+  expect_true("y7[2021]" %in% V(g2)$name)
+  expect_true("y6[2021]" %in% V(g2)$name)
+  # y5[2021] should be pruned because edge y5->y6 was deleted and y5 can't reach y7
+  expect_false("y5[2021]" %in% V(g2)$name)
 })
