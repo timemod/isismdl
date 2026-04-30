@@ -272,8 +272,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     vertices_with_path_from_solvable <-
       unique(
         unlist(
-          lapply(vertices_solvable, 
-                 function(v) subcomponent(g, v, mode = "out")
+          lapply(vertices_solvable,
+            function(v) subcomponent(g, v, mode = "out")
           )
         )
       )
@@ -389,4 +389,3 @@ find_deps <- function(mdl, final_destinations, final_sources,
                      mdl = mdl, ignore_observed = ignore_observed,
                      stop_if_final_dest_observed = stop_if_final_dest_observed)
 }
-
