@@ -83,9 +83,9 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
                       is_final_dest = is_final_dest,
                       msg = NA)
     if (has_solvable) {
-      idx <- which(igraph::V(g)$name == vertex_name)
-      g <- igraph::set_vertex_attr(g, "solvable", index = idx,
-                                   value =  vertex_name %in% vertices_solvable)
+      idx <- which(V(g)$name == vertex_name)
+      g <- set_vertex_attr(g, "solvable", index = idx,
+                           value =  vertex_name %in% vertices_solvable)
     }
     g
   }
@@ -109,7 +109,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     color_not_ok <- if (is_final_dest) COLOR_FINAL_DEST_ERR else COLOR_ERR
 
     if (vertex_name %in% V(g)$name) {
-      ok <- V(g)[name == vertex_name]$ok
+      ok <- V(g)[V(g)$name == vertex_name]$ok
       # if OK is not NA, the vertex creating has not finished yet.
       if (!is.na(ok)) {
         return(ok)
@@ -120,15 +120,13 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
                        is_endo = is_endo, is_final_dest = is_final_dest)
     }
 
-    name <- NULL # prevent messages
-
     # Compute the index the vertex with name 'vertex_name'
-    idx <- which(igraph::V(g)$name == vertex_name)
+    idx <- which(V(g)$name == vertex_name)
 
     # Check if vertex is a final source, in that case return.
     if (has_final_sources) {
       is_final_src <- vertex_name %in% vertices_final_src
-      g <<- igraph::set_vertex_attr(g, "is_final_src", index = idx, value = is_final_src)
+      g <<- set_vertex_attr(g, "is_final_src", index = idx, value = is_final_src)
       if (is_final_src) {
         g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
         g <<- igraph::set_vertex_attr(g, "color", index = idx, value = COLOR_FINAL_SRC)
@@ -268,17 +266,21 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   # 2. Solvable variables are provided, in which case we only care about the
   #    downstream path from the solvables to the final destinations.
 
-  # Step 0 >1: naam veranderen
-  # Alleen vertices houden die een pad vanaf solvable.
+  # Step 1: Only keep vertices that can be reached from a solvable variable.
+  # This ensures we focus on the part of the model being numerically solved.
   if (has_solvable) {
-    can_reach_solvable <- unique(unlist(lapply(vertices_solvable, function(v) {
-      subcomponent(g, v, mode = "out")
-    })))
-    g <- induced_subgraph(g, can_reach_solvable)
+    vertices_with_path_from_solvable <-
+      unique(
+        unlist(
+          lapply(vertices_solvable,
+            function(v) subcomponent(g, v, mode = "out")
+          )
+        )
+      )
+    g <- induced_subgraph(g, vertices_with_path_from_solvable)
   }
 
-  # Step 1: Remove solvables that do not have a path to any final destination.
-
+  # Step 2: Remove vertices that do not have a path to any final destination.
   # Find all vertices that can reach a final destination by traversing backwards (mode = "in").
   final_dest_vertices <- V(g)[V(g)$is_final_dest == TRUE]
 
@@ -294,12 +296,6 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   vertices_to_remove <- setdiff(V(g), vertices_with_path_to_final_dest)
   removed_vertex_names <- names(V(g))[vertices_to_remove]
 
-  # Step 2: Keep only the path from solvable variables to final destinations.
-  # By traversing forwards (mode = "out") from the solvables, we keep the
-  # solvable variables and their dependents. This effectively removes:
-  # - Final destinations that do not depend on any solvable.
-  # - Upstream dependencies of the solvable variables (since they are treated
-  #   as starting points for the numerical solver).
   if (has_solvable) {
     # Issue a message if any solvable variables are among those being removed
     removed_solvable <- intersect(removed_vertex_names, vertices_solvable)
@@ -316,7 +312,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
 
   # Check for solvables that are actually calculable
   if (has_solvable) {
-    v_solvable_calculable <- igraph::V(g)[igraph::V(g)$solvable & igraph::V(g)$calculable]
+    v_solvable_calculable <- V(g)[V(g)$solvable & V(g)$calculable]
     if (length(v_solvable_calculable) > 0) {
       solv_calc_df <- as_data_frame_deps(induced_subgraph(g, v_solvable_calculable)) |>
         select("var", "period")
@@ -393,4 +389,3 @@ find_deps <- function(mdl, final_destinations, final_sources,
                      mdl = mdl, ignore_observed = ignore_observed,
                      stop_if_final_dest_observed = stop_if_final_dest_observed)
 }
-
