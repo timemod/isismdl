@@ -211,21 +211,26 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     }
 
     # recursively find dependencies
-    ok <- sapply(deps_new, FUN = .find_deps)
-    stopifnot(!any(is.na(ok)))
+    calculable <- TRUE
+    for (dep_new in deps_new) {
+      vertex_ok <- .find_deps(dep_new)
 
-    calculable <- all(ok)
+      # If the dependency is not calculable, but it is solvable, we can still
+      # consider it "calculable" for the purpose of the current node.
+      if (!vertex_ok && has_solvable) {
+        vertex_name_dep <- as.character(dep_new)
+        if (vertex_name_dep %in% vertices_solvable) {
+          vertex_ok <- TRUE
+        }
+      }
+
+      if (!vertex_ok) {
+        calculable <- FALSE
+        break
+      }
+    }
 
     ok <- calculable || observed
-
-    # If this node is not calculable, but only depends on vertices that are
-    # either OK or solvable, then the node is also OK.
-    if (!ok && has_solvable) {
-      children <- neighbors(g, vertex_name, mode = "in")
-      ok <- all(V(g)[children]$ok |
-          V(g)[children]$name %in% vertices_solvable
-      )
-    }
 
     # Updaten dependency structure
     if (ok) {

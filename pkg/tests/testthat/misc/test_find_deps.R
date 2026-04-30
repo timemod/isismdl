@@ -335,8 +335,8 @@ test_that("find_deps message for removed solvables", {
   )
   expect_message(
     g <- mdl$find_deps(final_destinations = final_dest,
-                  solvable = solvable,
-                  observed_data = tribble(~var, ~period)),
+                       solvable = solvable,
+                       observed_data = tribble(~var, ~period)),
     msg,
     fixed = TRUE
   )
@@ -359,7 +359,11 @@ test_that("find_deps uniqueness checks", {
   # 1. final destinations
   expect_error(
     mdl$find_deps(final_destinations = final_destinations),
-    "The following final destination variables are specified more than once for the same period:\ny3[2021].",
+    paste0(
+      "The following final destination variables are specified more than once ",
+      "for the same period:\n",
+      "y3[2021]."
+    ),
     fixed = TRUE
   )
 
@@ -372,7 +376,11 @@ test_that("find_deps uniqueness checks", {
   )
   expect_error(
     mdl$find_deps(final_destinations = final_destinations_ok, final_sources = final_sources_bad),
-    "The following final source variables are specified more than once for the same period:\ny1[2020].",
+    paste0(
+      "The following final source variables are specified more than once ",
+      "for the same period:\n",
+      "y1[2020]."
+    ),
     fixed = TRUE
   )
 
@@ -396,7 +404,11 @@ test_that("find_deps uniqueness checks", {
   )
   expect_error(
     mdl$find_deps(final_destinations = final_destinations_ok, observed_data = observed_bad),
-    "The following observed data variables are specified more than once for the same period:\ny1[2020].",
+    paste0(
+      "The following observed data variables are specified more than once ",
+      "for the same period:\n",
+      "y1[2020]."
+    ),
     fixed = TRUE
   )
 })
@@ -456,4 +468,47 @@ test_that("find_deps pruning logic: final destinations and unconnected vertices"
   expect_true("y6[2021]" %in% V(g2)$name)
   # y5[2021] should be pruned because edge y5->y6 was deleted and y5 can't reach y7
   expect_false("y5[2021]" %in% V(g2)$name)
+})
+
+test_that("find_deps short-circuiting logic evaluates shared dependencies correctly", {
+  period <- as.period_range("2020/2022")
+  # y3 depends on y1 and y2. y1 fails, so y3 will short-circuit and SKIP y2.
+  # But y4 also depends on y2. We must ensure y2 is still properly evaluated.
+  model_text <- "
+    ident y1 = x1;
+    ident y2 = x2;
+    ident y3 = y1 + y2;
+    ident y4 = y2 + x3;
+  "
+  mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
+
+  # Provide x2 and x3, but leave x1 missing.
+  observed <- tribble(
+    ~var, ~period,
+    "x2", "2021",
+    "x3", "2021"
+  )
+  
+  # y3 will be evaluated first, skipping y2. Then y4 evaluates y2.
+  final_dest <- tribble(
+    ~var, ~period,
+    "y3", "2021",
+    "y4", "2021"
+  )
+
+  g <- mdl$find_deps(final_destinations = final_dest, observed_data = observed)
+
+  # y4 should be calculable and in the graph
+  expect_true("y4[2021]" %in% V(g)$name)
+  
+  # y2 should be calculable and in the graph (since y4 needs it)
+  expect_true("y2[2021]" %in% V(g)$name)
+  expect_true(V(g)["y2[2021]"]$calculable)
+
+  # y3 failed (not calculable), so its path is pruned except for y3 itself (as a final dest)
+  expect_true("y3[2021]" %in% V(g)$name)
+  expect_false(V(g)["y3[2021]"]$calculable)
+  
+  # y1 was evaluated, failed, and its edges were deleted. It is not connected to a successful final dest.
+  expect_false("y1[2021]" %in% V(g)$name)
 })
