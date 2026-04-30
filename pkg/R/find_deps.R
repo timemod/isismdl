@@ -261,7 +261,6 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     .find_deps(var_per)
   }
 
-
   # --- PRUNING PHASE ---
   # After the recursive search, the graph may contain variables that are not
   # strictly required for the final destinations. This happens when:
@@ -270,6 +269,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   #    downstream path from the solvables to the final destinations.
 
   # Step 0 >1: naam veranderen
+  # Alleen vertices houden die een pad vanaf solvable.
   if (has_solvable) {
     can_reach_solvable <- unique(unlist(lapply(vertices_solvable, function(v) {
       subcomponent(g, v, mode = "out")
