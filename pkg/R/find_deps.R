@@ -332,12 +332,6 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   # Keep only the vertices that are connected to final destinations
   g <- induced_subgraph(g, reachable)
 
-  # Step 4: Remove isolated vertices (degree = 0) that are not final destinations.
-  # A final destination with no dependencies (e.g. y = 1) will have degree 0 but
-  # should be kept. Other isolated vertices are artifacts of the pruning process.
-  isolated <- which(igraph::degree(g) == 0 & !igraph::V(g)$name %in% vertices_final_dest)
-  g <- igraph::delete_vertices(g, isolated)
-
   # Check for solvables that are actually calculable
   if (has_solvable) {
     v_solvable_calculable <- igraph::V(g)[igraph::V(g)$solvable & igraph::V(g)$calculable]
