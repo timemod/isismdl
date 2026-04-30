@@ -260,14 +260,15 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   }
 
   # --- PRUNING PHASE ---
-  # After the recursive search, the graph may contain variables that are not
-  # strictly required for the final destinations. This happens when:
-  # 1. An intermediate variable cannot be calculated (e.g., missing data), breaking the path.
-  # 2. Solvable variables are provided, in which case we only care about the
-  #    downstream path from the solvables to the final destinations.
-
-  # Step 1: Only keep vertices that can be reached from a solvable variable.
-  # This ensures we focus on the part of the model being numerically solved.
+  # The recursive search identifies all potential dependencies, but the resulting
+  # graph may contain vertices that are irrelevant to the specific calculation
+  # goal. Pruning is performed in two primary steps to refine the graph:
+ 
+  # Step 1: Restrict the dependency graph to variables that are influenced by
+  # the specified "solvable" variables. This isolates the portion of the model
+  # being evaluated through numerical methods. Any vertex that cannot be reached
+  # from a solvable variable is considered outside the scope of this solve
+  # process and is removed.
   if (has_solvable) {
     vertices_with_path_from_solvable <-
       unique(
@@ -280,8 +281,12 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     g <- induced_subgraph(g, vertices_with_path_from_solvable)
   }
 
-  # Step 2: Remove vertices that do not have a path to any final destination.
-  # Find all vertices that can reach a final destination by traversing backwards (mode = "in").
+  # Step 2: Remove "dead-end" branches that do not reach a final destination.
+  # Vertices might remain in the graph that do not eventually contribute to
+  # calculating any of the 'final_destinations' (e.g., if a calculation path
+  # was broken by missing data or stopped at an intermediate point).
+  # We identify all vertices that have a path *to* a final destination by
+  # traversing the graph backwards from the destinations.
   final_dest_vertices <- V(g)[V(g)$is_final_dest == TRUE]
 
   vertices_with_path_to_final_dest <-
@@ -292,7 +297,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       )
     )
 
-  # Find vertices that are NOT in the reachable set
+  # Identify and remove vertices that are not part of any path to a destination.
   vertices_to_remove <- setdiff(V(g), vertices_with_path_to_final_dest)
   removed_vertex_names <- names(V(g))[vertices_to_remove]
 
