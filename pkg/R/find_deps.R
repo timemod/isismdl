@@ -295,7 +295,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   all_vertices <- V(g)
 
   # Find vertices that are NOT in the reachable set
-  vertices_to_remove <- setdiff(V(g), vertices_with_path_final_dest)
+  vertices_to_remove <- setdiff(V(g), vertices_with_path_to_final_dest)
   removed_vertex_names <- names(V(g))[vertices_to_remove]
 
 
