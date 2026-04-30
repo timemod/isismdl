@@ -341,10 +341,8 @@ test_that("find_deps message for removed solvables", {
     fixed = TRUE
   )
 
-  # Verify that the solvable variable was actually removed
-  expect_false("y1[2021]" %in% V(g)$name)
-  # The final destination should still be in the graph, although not calculable
-  expect_true("y3[2021]" %in% V(g)$name)
+  # The graph should be empty because y1 cannot reach y3
+  expect_length(V(g), 0)
 })
 
 test_that("find_deps uniqueness checks", {
