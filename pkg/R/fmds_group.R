@@ -43,7 +43,7 @@ fmds_group <- function(
   # If no report is printed it does not make sense to keep the jacobian.
   if (report != "period") jacobian <- FALSE
 
-  # Get de dependency structure -----------------------------------------------
+  # Get the dependency structure -----------------------------------------------
   deps <- get_fit_deps(observed_variables, solve_variables,
                        solve_period = solve_period,  mdl = mdl,
                        dep_struc = dep_struc, observed_data = observed_data,

@@ -80,7 +80,7 @@ test_that("get_endo_names with inactive equations", {
                    c("eta", "px"))
 
   expect_error(ifn_mdl2$set_eq_status("active", names = all_leads),
-               'The following names are no equations: "gpx", "groei", "tc".',
+               'The following names are not equations: "gpx", "groei", "tc".',
                fixed = TRUE)
 
   ifn_mdl2$set_eq_status("active", names = endo_leads)

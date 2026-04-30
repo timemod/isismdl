@@ -1,4 +1,4 @@
-#' Converts an \code{\link{IsisMdl}} a model file.
+#' Converts an \code{\link{IsisMdl}} model file.
 #'
 #' @param model_file The name of the model file.
 #' An extension \code{mdl} is appended to the specified name if the filename

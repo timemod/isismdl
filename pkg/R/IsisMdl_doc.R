@@ -53,7 +53,7 @@ NULL
 #' \item{\code{"all"}}{all endogenous variables, the default}
 #' }
 #'
-#' If some equation have been deactivated (see \code{\link{set_eq_status}}),
+#' If some equations have been deactivated (see \code{\link{set_eq_status}}),
 #' then argument \code{status} may be useful.
 #' By default, the function only returns the names of the active
 #' endogenous variables, i.e. the variables that occur on the
@@ -231,12 +231,12 @@ NULL
 #' print(mdl$get_par_names(pattern = "^c.*"))
 NULL
 
-#' \code{\link{IsisMdl}} method: returns the the equation names
+#' \code{\link{IsisMdl}} method: returns the equation names
 #' @name get_eq_names
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the
-#' the equation names.
+#' equation names.
 #' Argument \code{pattern} can be specified to select only
 #' equations with names matching a regular expression. Argument \code{status}
 #' can be specified to select only the active or inactive equations.
@@ -1320,7 +1320,7 @@ NULL
 #' \code{upd_mode}. Other non finite numbers (\code{NaN}, \code{Inf}, and
 #' \code{-Inf}) are also disregarded for this update mode.
 #'
-#' \code{set_ca}, \code{set_fix} and \code{set_fit} and
+#' \code{set_ca}, \code{set_fix}, \code{set_fit} and
 #' \code{set_data} work similarly.
 #'
 #' @examples
@@ -1458,7 +1458,7 @@ NULL
 #' @name change_data-methods
 #' @aliases change_data change_ca
 #' @description
-#' This methods of R6 class \code{\link{IsisMdl}}
+#' These methods of R6 class \code{\link{IsisMdl}}
 #' changes the model data or constant adjustments by applying a function.
 #'
 #' @section Usage:
@@ -1655,7 +1655,7 @@ NULL
 #' after the maximum number of linesearch steps \code{bktmax}
 #' has been reached or if the relaxation
 #' factor has become smaller than \code{rlxmin}),
-#' a new Jacobean matrix is computed.
+#' a new Jacobian matrix is computed.
 #' In each linesearch step the current relaxation factor is shrunk by
 #' \code{rspeed}.
 #' The relaxation factor is set to its maximum value
@@ -1745,10 +1745,10 @@ NULL
 #' right-hand side endogenous variables. This is the default mode
 #' for models with endogenous leads.
 #' The model is solved in dynamic mode for all periods conditional
-#' on the endogenous right-hand side leads. After solving for the complete
+#' on the endogenous right-hand side leads.  After solving for the complete
 #' solution period the endogenous leads are updated with the the results
 #' for the corresponding endogenous variables. The solution process thus consists
-#' of an two loops: an inner loop solving the model  for all periods given the leads and
+#' of two loops: an inner loop solving the model  for all periods given the leads and
 #' an outer loop which solves for the endogenous leads}
 #' \item{\code{"static"}}{to update only current values of right-hand side
 #' endogenous variables lags and leads are not modified}
@@ -1929,7 +1929,7 @@ NULL
 #' \item{\code{warn_zero_col}}{A logical (default `FALSE`). IF `TRUE`, then a
 #' warning is issued for each column of the fit Jacobian for which all values are
 #' almost or exactly equal to zero. A column of the fit Jacobian contains the derivatives
-#' of all fit targets with respect to one particular residual. A columns is considered
+#' of all fit targets with respect to one particular residual. A column is considered
 #' almost zero if the L1-norm of that column is smaller than a fraction
 #' \eqn{\epsilon} of the largest L1-norm of the columns. \eqn{\epsilon} is the
 #' square root of the machine precision (typically \code{1.5e-8}).
@@ -1947,7 +1947,7 @@ NULL
 #' Jacobian may become small, which can lead to inaccurate or even unstable
 #' solutions. If `FALSE`, the fit procedure is only terminated when the
 #' inverse condition is exactly zero.}
-#' \item{\code{report}}{A character string specifying the the
+#' \item{\code{report}}{A character string specifying the
 #' type of report of the fit procedure for each period.
 #' Possible values are \code{"fullrep"}
 #' (the default, an iteration report is printed for each period)
@@ -2023,7 +2023,7 @@ NULL
 #'
 #' When \eqn{F_k \le \epsilon} where \eqn{0 < \epsilon < 1},
 #' absolute convergence has been achieved.
-#' The value of \eqn{epsilon} is specified with argument `cgvabs` (
+#' The value of \eqn{\epsilon} is specified with argument `cvgabs`
 #' (the default value is 100 times the square root of
 #' the machine precision, which is typically \code{1.5e-6}).
 #' If the zealous fit method is used (see Section The Zealous
@@ -2034,8 +2034,8 @@ NULL
 #' process, the Jacobian of a previous iteration can sometimes be reused for
 #' a next iteration.
 #' As long as \eqn{F_k \le \delta  F_{k-1}} where \eqn{0 < \delta < 0.95}
-#' the current Jacobian will not be recalculated, except when the zealous
-#' fit method is used and the the number
+#' the current Jacobian will not be recalculated,  except when the zealous
+#' fit method is used and the number
 #' of residuals is larger than the number of targets, see Section The Zealous
 #' and Lazy Fit Method.
 #' The default value for \eqn{\delta} is 0.5.
@@ -2438,7 +2438,7 @@ NULL
 #' values
 #' @name clear_fit
 #' @description
-#' This methods of R6 class \code{\link{IsisMdl}}
+#' This method of R6 class \code{\link{IsisMdl}}
 #' deletes all fit targets and root mean square (rms) error values
 #' for the fit procedure.
 #'
@@ -2454,7 +2454,7 @@ NULL
 #' \code{\link{IsisMdl}} method: deletes all fix values
 #' @name clear_fix
 #' @description
-#' This methods of R6 class \code{\link{IsisMdl}}
+#' This method of R6 class \code{\link{IsisMdl}}
 #' deletes all fix values specified with methods
 #' \code{\link{set_fix}}, \code{\link{set_fix_values}} and
 #' \code{\link{fix_variables}}
@@ -2969,8 +2969,8 @@ NULL
 #' This method of R6 class \code{\link{IsisMdl}} returns the
 #' names of the simultaneous variables in solution order.
 #' The result never includes the left hand sides of inactive equations.
-#' A simultanous variable is a variable that occurs in a feedback loop
-#' and there directly or indirectly depends on itself.
+#' A simultaneous variable is a variable that occurs in a feedback loop
+#' and therefore directly or indirectly depends on itself.
 #' @section Usage:
 #' \preformatted{
 #' mdl$get_simul_names()

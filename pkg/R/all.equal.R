@@ -16,10 +16,10 @@ utils::globalVariables(".Generic")
 #' @details
 #'
 #' The implementation of \code{all.equal} for \code{IsisMdl} objects
-#' first serialized the model using the \code{IsisMdl} method
+#' first serializes the model using the \code{IsisMdl} method
 #' \code{serialize} and then uses \code{\link[base]{all.equal}} of
 #' the base package.
-#' @param target and \code{IsisMdl} object
+#' @param target an \code{IsisMdl} object
 #' @param current another \code{IsisMdl} object, to be compared with
 #' \code{target}
 #' @param  ... Arguments passed to the internal call of
