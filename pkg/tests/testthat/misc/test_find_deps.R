@@ -488,7 +488,7 @@ test_that("find_deps short-circuiting logic evaluates shared dependencies correc
     "x2", "2021",
     "x3", "2021"
   )
-  
+
   # y3 will be evaluated first, skipping y2. Then y4 evaluates y2.
   final_dest <- tribble(
     ~var, ~period,
@@ -500,7 +500,7 @@ test_that("find_deps short-circuiting logic evaluates shared dependencies correc
 
   # y4 should be calculable and in the graph
   expect_true("y4[2021]" %in% V(g)$name)
-  
+
   # y2 should be calculable and in the graph (since y4 needs it)
   expect_true("y2[2021]" %in% V(g)$name)
   expect_true(V(g)["y2[2021]"]$calculable)
@@ -508,7 +508,7 @@ test_that("find_deps short-circuiting logic evaluates shared dependencies correc
   # y3 failed (not calculable), so its path is pruned except for y3 itself (as a final dest)
   expect_true("y3[2021]" %in% V(g)$name)
   expect_false(V(g)["y3[2021]"]$calculable)
-  
+
   # y1 was evaluated, failed, and its edges TO y3 were not deleted because y3 is a final destination.
   # So y1 is still in the graph and should be marked as not calculable.
   expect_true("y1[2021]" %in% V(g)$name)
