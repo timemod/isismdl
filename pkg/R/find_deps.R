@@ -263,28 +263,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   # The recursive search identifies all potential dependencies, but the resulting
   # graph may contain vertices that are irrelevant to the specific calculation
   # goal. Pruning is performed in two primary steps to refine the graph:
- 
-  # Step 1: Restrict the dependency graph to variables that are influenced by
-  # the specified "solvable" variables. This isolates the portion of the model
-  # being evaluated through numerical methods. Any vertex that cannot be reached
-  # from a solvable variable is considered outside the scope of this solve
-  # process and is removed.
-  if (has_solvable) {
-    vertices_with_path_from_solvable <-
-      unique(
-        unlist(
-          lapply(vertices_solvable,
-            function(v) subcomponent(g, v, mode = "out")
-          )
-        )
-      )
-    g <- induced_subgraph(g, vertices_with_path_from_solvable)
-  }
 
-  # Step 2: Remove "dead-end" branches that do not reach a final destination.
-  # Vertices might remain in the graph that do not eventually contribute to
-  # calculating any of the 'final_destinations' (e.g., if a calculation path
-  # was broken by missing data or stopped at an intermediate point).
+  # Step 1: Remove vertices that have no path to a final destination.
   # We identify all vertices that have a path *to* a final destination by
   # traversing the graph backwards from the destinations.
   final_dest_vertices <- V(g)[V(g)$is_final_dest == TRUE]
@@ -296,24 +276,43 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
                function(v) subcomponent(g, v, mode = "in"))
       )
     )
+  g <- induced_subgraph(g, vertices_with_path_to_final_dest)
 
-  # Identify and remove vertices that are not part of any path to a destination.
-  vertices_to_remove <- setdiff(V(g), vertices_with_path_to_final_dest)
-  removed_vertex_names <- names(V(g))[vertices_to_remove]
+  # Step 2: Keep only vertices that are reachable from the specified "solvable"
+  # variables. This isolates the portion of the model that relates to these
+  # variables.
+  if (has_solvable) {
+    # Only consider solvable vertices that are actually in the graph
+    vertices_solvable_in_g <- intersect(vertices_solvable, names(V(g)))
+    vertices_with_path_from_solvable <-
+      unique(
+        unlist(
+          lapply(vertices_solvable_in_g,
+            function(v) subcomponent(g, v, mode = "out")
+          )
+        )
+      )
+    g <- induced_subgraph(g, vertices_with_path_from_solvable)
+  }
+
+  # --- NOTIFICATIONS ---
 
   if (has_solvable) {
-    # Issue a message if any solvable variables are among those being removed
-    removed_solvable <- intersect(removed_vertex_names, vertices_solvable)
-    if (length(removed_solvable)) {
-      rem_solv_df <- as_data_frame_deps(induced_subgraph(g, removed_solvable))
-      rem_solv_df <- as.data.frame(rem_solv_df[, c("var", "period")])
+    # Issue a message if any solvable variables are missing from the final graph
+    removed_solvable <- setdiff(vertices_solvable, names(V(g)))
+    if (length(removed_solvable) > 0) {
+      # Create a temporary graph to leverage as_data_frame_deps for parsing names
+      g_removed <- make_empty_graph() |>
+        add_vertices(length(removed_solvable), name = removed_solvable)
+      rem_solv_df <- as_data_frame_deps(g_removed) |>
+        dplyr::select("var", "period")
+
       message("The following solvable variables have been removed because ",
               "they have no calculable path to a final destination:\n",
-              paste(capture.output(print(rem_solv_df, row.names = FALSE)), collapse = "\n"))
+              paste(capture.output(print(as.data.frame(rem_solv_df), row.names = FALSE)),
+                    collapse = "\n"))
     }
   }
-  # Delete vertices that cannot reach a final destination
-  g <- delete_vertices(g, vertices_to_remove)
 
   # Check for solvables that are actually calculable
   if (has_solvable) {
@@ -322,7 +321,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       solv_calc_df <- as_data_frame_deps(induced_subgraph(g, v_solvable_calculable)) |>
         select("var", "period")
       message("The following solvables are calculable, no need to solve them:\n",
-              paste(capture.output(print(solv_calc_df, row.names = FALSE)), collapse = "\n"))
+              paste(capture.output(print(as.data.frame(solv_calc_df), row.names = FALSE)),
+                    collapse = "\n"))
     }
   }
 
