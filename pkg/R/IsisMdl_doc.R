@@ -2646,9 +2646,9 @@ NULL
 #' for the corresponding lhs)
 #' * **lag**: The lags (and possibly leads) with which the rhs variables appear.
 #'
-#' If the argument `one_lag_per_row = TRUE`, then the output contains one row per
-#' rhs-variable–lag combination (i.e., each lag gets its own row). Otherwise,
-#' all lags for a given rhs variable appear in a single row.
+#' If the argument `one_lag_per_row = TRUE`, then the output contains one row
+#' per rhs-variable–lag combination (i.e., each lag gets its own row).
+#' Otherwise, all lags for a given rhs variable appear in a single row.
 #'
 #'
 #' For example, consider the equation:
@@ -2786,20 +2786,26 @@ NULL
 #'
 #' The recursion stops at a vertex when:
 #' \enumerate{
-#' \item The vertex is a final source (treated as given).
 #' \item The variable is observed in \code{observed_data} (and either it is
 #'   not a final destination, or \code{stop_if_final_dest_observed = TRUE}).
 #' \item The variable is exogenous and not observed — it is marked as not OK.
 #' \item The period is further back than the minimum observed period minus one —
 #'   it is marked as not OK.
+#' \item The vertex is a final source (treated as given).
 #' }
 #'
-#' After the recursion, the graph is pruned:
-#' only vertices with a path to at least one final destination are kept.
-#' If \code{solvable} is supplied, solvable vertices that have no calculable
-#' path to any observation are removed with a message, and the graph is then
-#' further restricted to the subgraph reachable from the remaining solvable
-#' vertices.
+#' After the recursion, the graph is pruned in two steps:
+#' \enumerate{
+#'   \item All vertices that have no path to any final destination are removed.
+#'         This is necessary because some paths may be broken during recursion
+#'         (e.g. due to missing exogenous data).
+#'   \item If \code{solvable} is supplied, the graph is further restricted to
+#'         the subgraph reachable from the solvable variables. This means that
+#'         final destinations that have no path from any solvable vertex are
+#'         removed.
+#' }
+#' A message is issued listing any solvable variables that were removed
+#' during pruning because they have no path to a final destination.
 #'
 # nolint start: line_length_linter.
 #' @section Vertex colors:
@@ -2821,20 +2827,21 @@ NULL
 #' @section Solvable vertices:
 #'
 #' The \code{solvable} argument allows specifying endogenous variable-period
-#' pairs that are neither observed nor directly calculable from existing data,
-#' but may be solved numerically. This is typically used in the
-#' \code{\link{fill_mdl_data_solve}} method.
-#'
-#' In this context, solvable variables are assigned an initial guess value.
-#' A numerical solver is then used to find values for these variables such
-#' that the model's equations reproduce observed target data.
+#' pairs to check if they have a path to the final destinations.
 #'
 #' For dependency analysis, solvable vertices are treated as "resolved" points
-#' in the graph. Specifically, a variable is considered calculable
-#' (\code{ok = TRUE}) if all of its dependencies are either already resolved
-#' (\code{ok = TRUE}) or are themselves marked as solvable. This allows the
+#' in the graph. Specifically, a solvable vertex is always marked as
+#' resolved (\code{ok = TRUE}), even if its own dependencies are not all OK.
+#' Consequently, any vertex that depends on a solvable vertex (and possibly
+#' on other OK vertices) is marked as calculable. This allows the
 #' dependency search to bridge gaps in the model that would otherwise be
 #' incalculable.
+#'
+#' If solvable vertices are provided, \code{find_deps} ensures that the final
+#' graph only contains the dependencies that relate to these variables.
+#' Specifically, any final destination that does not have a path from at
+#' least one solvable vertex will be pruned from the graph. This highlights
+#' which targets are actually affected by the variables provided as solvables.
 #'
 #' @section Value:
 #'
