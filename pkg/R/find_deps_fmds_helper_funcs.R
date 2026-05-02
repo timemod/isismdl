@@ -92,6 +92,14 @@ to_vertex_names <- function(df) {
   paste0(df$var, "[", as.character(df$period), "]")
 }
 
+vertex_names_to_df <- function(vertex_names) {
+  utils::strcapture(
+    pattern = "^(\\w+)\\[(.+)\\]$",
+    x       = vertex_names,
+    proto   = data.frame(var = character(), period = integer())
+  )
+}
+
 check_endo <- function(vars, endo_names, label) {
   if (is.null(vars) || length(vars) == 0) {
     return()

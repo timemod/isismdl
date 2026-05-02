@@ -163,7 +163,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       return(FALSE)
     }
 
-    # color for a vertex for endogenous variable that is OK:
+    # Color for a vertex for an endogenous variable that is OK:
     color_endo_ok <- if (is_final_dest) {
       COLOR_FINAL_DEST_OK
     } else if (is_solvable) {
@@ -220,7 +220,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       g <<- add_edges(g, c(vertex_name_dep, vertex_name))
     }
 
-    # recursively find dependencies
+    # Recursively find dependencies
     calculable <- TRUE
     for (dep_new in deps_new) {
       vertex_ok <- .find_deps(dep_new)
@@ -299,12 +299,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Issue a message if any solvable variables are missing from the final graph
     removed_solvable <- setdiff(vertices_solvable, names(V(g)))
     if (length(removed_solvable) > 0) {
-      # Create a temporary graph to leverage as_data_frame_deps for parsing names
-      g_removed <- make_empty_graph() |>
-        add_vertices(length(removed_solvable), name = removed_solvable)
-      rem_solv_df <- as_data_frame_deps(g_removed) |>
-        dplyr::select("var", "period")
-
+      rem_solv_df <- vertex_names_to_df(removed_solvable)
       message("The following solvable variables have been removed because\n",
               "they have no calculable path to a final destination:\n",
               paste(capture.output(print(as.data.frame(rem_solv_df), row.names = FALSE)),
