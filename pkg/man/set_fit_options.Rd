@@ -404,7 +404,7 @@ the fit Jacobian contains dependent rows.
 #> 
 #> Warning in mdl$solve(): Simulation not possible
 #> Total number of iterations   14
-#> Solve model used     0.00 CPU secs
+#> Solve model used     0.01 CPU secs
 #> 
 }\if{html}{\out{</div>}}
 }

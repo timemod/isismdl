@@ -14,9 +14,9 @@ for the corresponding lhs)
 \item \strong{lag}: The lags (and possibly leads) with which the rhs variables appear.
 }
 
-If the argument \code{one_lag_per_row = TRUE}, then the output contains one row per
-rhs-variable–lag combination (i.e., each lag gets its own row). Otherwise,
-all lags for a given rhs variable appear in a single row.
+If the argument \code{one_lag_per_row = TRUE}, then the output contains one row
+per rhs-variable–lag combination (i.e., each lag gets its own row).
+Otherwise, all lags for a given rhs variable appear in a single row.
 
 For example, consider the equation:
 
