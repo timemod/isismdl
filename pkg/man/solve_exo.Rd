@@ -42,13 +42,14 @@ variables. The target variables should have non-missing values in the
 model data for the specified solve period.}
 \item{\code{report}}{Character string controlling output verbosity. Options:
 \describe{
-\item{"period"}{Print a report per period (default). For each period
-the final Jacobian is printed if \code{jacobian = TRUE}.}
+\item{"period"}{Print a report per period (default).}
 \item{"minimal"}{Print a minimal report.}
 \item{"none"}{Does not generate a report.}
 }}
-\item{\code{jacobian}}{A logical. If \code{TRUE} and \code{report == "period"}, the
-final Jacobian used for the numerical solution is printed. The default is \code{TRUE}.}
+\item{\code{jacobian}}{A logical. If \code{TRUE}, the
+final Jacobian used for the numerical solution is stored in the public field
+\code{mdl$jacob} of the model object. The Jacobian is NOT printed.
+The default is \code{FALSE}.}
 \item{\code{...}}{Additional arguments passed to the
 \link[nleqslv:nleqslv]{nleqslv::nleqslv} solver (e.g., \code{control}, \code{method}, \code{global}).}
 }
@@ -76,9 +77,14 @@ so that the user can adjust initial guesses or solver options.
 \section{Value}{
 
 
-Returns the modified \code{IsisMdl} object, where the values
-of \code{exo_vars} in \code{solve_period} have been updated to the
-solution found by the numerical solver.
+The \code{IsisMdl} object itself (invisibly), with the solved exogenous
+variable values updated in the model data.
+Because \code{IsisMdl} is an R6 reference object, the model is modified
+in place; the return value and the original object are the same.
+If \code{jacobian = TRUE}, the Jacobian matrix from the \strong{last period} in
+\code{solve_period} is stored in the public field \code{mdl$jacob}
+(rows = target variables, columns = exogenous variables).
+The Jacobian is never printed by \code{solve_exo}.
 }
 
 \examples{
@@ -120,6 +126,16 @@ mdl$get_data(names = "G", period = "2020")
 # Check C: C = C_A + 0.8 * I
 # C = 50 + 0.8 * 100 = 130
 mdl$get_data(names = "C", period = "2020")
+
+# To store the Jacobian, use jacobian = TRUE
+mdl$solve_exo(
+    exo_vars     = c("G", "C_A"),
+    target_vars  = c("Y", "C"),
+    solve_period = "2020",
+    report       = "no",
+    jacobian     = TRUE
+)
+print(mdl$jacob)
 
 
 }

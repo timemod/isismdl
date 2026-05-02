@@ -106,23 +106,18 @@ solve_exo_internal <- function(
       return(retval)
     }
 
-    # If we don’t want a period-level report, no need to store jacobian
-    current_jacobian <- if (report == "period") jacobian else FALSE
-
     ret <- nleqslv::nleqslv(
       x = as.numeric(data_exo),
       fn = f_exo,
-      jacobian = current_jacobian,
+      jacobian = jacobian,
       ...
     )
 
-    if (current_jacobian && report == "period") {
-      cat("Final jacobian for exogenous variables:\n")
-      jac <- ret$jac
+    jac <- ret$jac
+    if (!is.null(jac)) {
       rownames(jac) <- target_vars
       colnames(jac) <- exo_vars
-      print(jac)
-      cat("\n")
+      last_jac <- jac
     }
 
     # Check convergence
@@ -140,6 +135,10 @@ solve_exo_internal <- function(
       cat(glue("Convergence for {per} in {ret$iter} iterations",
                ".\n", .trim = FALSE))
     }
+  }
+
+  if (exists("last_jac")) {
+    mdl$jacob <- last_jac
   }
 
   invisible(mdl)

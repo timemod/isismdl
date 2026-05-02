@@ -40,9 +40,6 @@ fmds_group <- function(
     cat("\n===============================================\n")
   }
 
-  # If no report is printed it does not make sense to keep the jacobian.
-  if (report != "period") jacobian <- FALSE
-
   # Get de dependency structure -----------------------------------------------
   deps <- get_fit_deps(observed_variables, solve_variables,
                        solve_period = solve_period,  mdl = mdl,
@@ -84,15 +81,6 @@ fmds_group <- function(
   }
 
   ret <- nleqslv(initial_guess, fn = f_solve, jacobian = jacobian, ...)
-
-  if (jacobian && report == "period") {
-    cat("Final jacobian:\n")
-    jac <- ret$jac
-    rownames(jac) <- observed_variables
-    colnames(jac) <- solve_variables
-    print(jac)
-    cat("\n")
-  }
 
   if (!ret$termcd %in% 1:2) {
     stop("Failed to solve the starting value with nleqslv. Message:\n",

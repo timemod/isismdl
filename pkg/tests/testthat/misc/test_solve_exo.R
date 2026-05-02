@@ -146,3 +146,106 @@ test_that("solve_exo errors when exo_vars are not exogenous", {
     regexp = "The following variables in 'exo_vars' are not exogenous: non_existent"
   )
 })
+
+# --- jacob field tests -------------------------------------------------------
+
+test_that("solve_exo: jacob is NULL when jacobian = FALSE", {
+  mdl_content <- c(
+    "ident x = y;",
+    "ident obs = 2 * x;"
+  )
+  mdl <- isis_mdl(model_text = mdl_content, period = "2020", silent = TRUE)
+  mdl$set_values(100, names = "obs", period = "2020")
+
+  mdl$solve_exo(
+    solve_period = "2020",
+    exo_vars = "y",
+    target_vars = "obs",
+    report = "none",
+    jacobian = FALSE
+  )
+
+  expect_null(mdl$jacob)
+})
+
+test_that("solve_exo: jacob is a matrix with correct dims when jacobian = TRUE", {
+  mdl_content <- c(
+    "ident x1 = y1;",
+    "ident x2 = y2;",
+    "ident obs1 = 2 * x1;",
+    "ident obs2 = 3 * x2;"
+  )
+  mdl <- isis_mdl(model_text = mdl_content, period = "2020", silent = TRUE)
+  mdl$set_values(100, names = "obs1", period = "2020")
+  mdl$set_values(150, names = "obs2", period = "2020")
+
+  mdl$solve_exo(
+    solve_period = "2020",
+    exo_vars   = c("y1", "y2"),
+    target_vars = c("obs1", "obs2"),
+    report = "none",
+    jacobian = TRUE
+  )
+
+  jac <- mdl$jacob
+  expect_true(is.matrix(jac))
+  expect_equal(dim(jac), c(2L, 2L))
+  expect_equal(rownames(jac), c("obs1", "obs2"))
+  expect_equal(colnames(jac), c("y1", "y2"))
+})
+
+test_that("solve_exo: jacob is updated on repeated calls", {
+  mdl_content <- c(
+    "ident x = y;",
+    "ident obs = 2 * x;"
+  )
+  mdl <- isis_mdl(model_text = mdl_content, period = "2020/2021", silent = TRUE)
+  mdl$set_values(c(100, 200), names = "obs", period = "2020/2021")
+
+  # First call: single period
+  mdl$solve_exo(
+    solve_period = "2020",
+    exo_vars = "y",
+    target_vars = "obs",
+    report = "none",
+    jacobian = TRUE
+  )
+  jac1 <- mdl$jacob
+
+  # Second call: period range — jacob reflects last period solved
+  mdl$solve_exo(
+    solve_period = "2020/2021",
+    exo_vars = "y",
+    target_vars = "obs",
+    report = "none",
+    jacobian = TRUE
+  )
+  jac2 <- mdl$jacob
+
+  expect_true(is.matrix(jac1))
+  expect_true(is.matrix(jac2))
+  # Both are 1x1 but from different periods; values may differ
+  expect_equal(dim(jac1), c(1L, 1L))
+  expect_equal(dim(jac2), c(1L, 1L))
+})
+
+test_that("solve_exo: jacobian = TRUE does NOT print anything", {
+  mdl_content <- c(
+    "ident x = y;",
+    "ident obs = 2 * x;"
+  )
+  mdl <- isis_mdl(model_text = mdl_content, period = "2020", silent = TRUE)
+  mdl$set_values(100, names = "obs", period = "2020")
+
+  output <- capture.output(
+    mdl$solve_exo(
+      solve_period = "2020",
+      exo_vars = "y",
+      target_vars = "obs",
+      report = "none",
+      jacobian = TRUE
+    )
+  )
+
+  expect_false(any(grepl("jacobian", output, ignore.case = TRUE)))
+})

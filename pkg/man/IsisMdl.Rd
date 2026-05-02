@@ -29,6 +29,13 @@ the package library. It is also possible to directly create \code{IsisMdl} objec
 to create another example model, the IFN model. The latter model is a model with
 leads and can be solved with the Fair-Taylor-method.
 }
+\section{Fields}{
+
+\describe{
+\item{\code{jacob}}{The Jacobian matrix from the last numerical solution (e.g. from
+\code{\link{fill_mdl_data_solve}} or \code{\link{solve_exo}}).}
+}}
+
 \section{Methods}{
 
 

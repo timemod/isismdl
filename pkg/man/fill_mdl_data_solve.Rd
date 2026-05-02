@@ -21,7 +21,8 @@ mdl$fill_mdl_data_solve(
  solve_df,
  report = c("period", "minimal", "no"),
  default_initial_guess = 0.1,
- jacobian = TRUE
+ jacobian = TRUE,
+ print_jacobian = TRUE
 )
 }
 }
@@ -59,8 +60,11 @@ Only the total number of replaced missing values is reported.}
 \item{"no"}{Does not generate a report.}
 Defaults to \code{period} if not provided.
 }}
-\item{\code{jacobian}}{A logical. If \code{TRUE} and \code{report == "period"}, the
-final jacobian used for the numerical solution is printed. The default is \code{TRUE}.}
+\item{\code{jacobian}}{A logical. If \code{TRUE}, the
+final Jacobian used for the numerical solution is stored in the public field
+\code{mdl$jacob} of the model object. The default is \code{TRUE}.}
+\item{\code{print_jacobian}}{A logical. If \code{TRUE}, the final Jacobian used for the numerical
+solution is printed. The default is \code{TRUE}.}
 \item{\code{...}}{Additional arguments passed to the \link[nleqslv:nleqslv]{nleqslv::nleqslv}
 solver (e.g., \code{control},  \code{method}, \code{global}).}
 }
@@ -121,8 +125,12 @@ This method does not support models with feedback variables.
 \section{Value}{
 
 
-An \code{IsisMdl} object (copy of the original model) with solved values for
-the solve variables. The original model remains unchanged.
+The \code{IsisMdl} object itself (invisibly), with missing values filled in.
+Because \code{IsisMdl} is an R6 reference object, the model is modified
+in place; the return value and the original object are the same.
+If \code{jacobian = TRUE}, the final Jacobian matrix is stored in the
+public field \code{mdl$jacob} (rows = observed variables, columns = solve
+variables of the last group processed).
 }
 
 \examples{
@@ -170,6 +178,9 @@ mdl_copy$fill_mdl_data_solve(
     report = "period",
     control = list(trace = 1, maxit = 200)
 )
+
+# Access the Jacobian matrix from the last numerical solution
+print(mdl_copy$jacob)
 
 
 }

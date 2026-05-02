@@ -510,3 +510,118 @@ test_that("fill_mdl_data_solve errors when solve_df contains duplicate observed 
     fixed = TRUE
   )
 })
+
+test_that("fill_mdl_data_solve: jacob is NULL when jacobian = FALSE", {
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl$get_var_names()
+  data_init <- create_test_init_data(period, var_names)
+  mdl$init_data(data = data_init)
+
+  solve_df <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,   "A",   "obs1",             "y1",            0.1
+  )
+
+  mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = FALSE)
+
+  expect_null(mdl$jacob)
+})
+
+test_that("fill_mdl_data_solve: jacob is a matrix with correct dims when jacobian = TRUE", {
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl$get_var_names()
+  data_init <- create_test_init_data(period, var_names)
+  mdl$init_data(data = data_init)
+
+  solve_df <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,   "A",   "obs1",             "y1",            0.1,
+    test_period,   "A",   "obs2",             "y2",            0.1
+  )
+
+  mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE)
+
+  jac <- mdl$jacob
+  expect_true(is.matrix(jac))
+  expect_equal(dim(jac), c(2L, 2L))
+  expect_equal(rownames(jac), c("obs1", "obs2"))
+  expect_equal(colnames(jac), c("y1", "y2"))
+})
+
+test_that("fill_mdl_data_solve: jacob reflects the last group solved", {
+  # With two separate groups, jacob should come from the last group processed.
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl$get_var_names()
+  data_init <- create_test_init_data(period, var_names)
+  mdl$init_data(data = data_init)
+
+  solve_df <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,   "A",   "obs1",             "y1",            0.1,
+    test_period,   "B",   "obs2",             "y2",            0.1
+  )
+
+  mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE)
+
+  jac <- mdl$jacob
+  expect_true(is.matrix(jac))
+  # Last group is B: 1x1 jacobian with observed = obs2, solve = y2
+  expect_equal(rownames(jac), "obs2")
+  expect_equal(colnames(jac), "y2")
+})
+
+test_that("fill_mdl_data_solve: jacob is updated on repeated calls", {
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl$get_var_names()
+  data_init <- create_test_init_data(period, var_names)
+  mdl$init_data(data = data_init)
+
+  solve_df1 <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,   "A",   "obs1",             "y1",            0.1
+  )
+  solve_df2 <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,   "A",   "obs2",             "y2",            0.1,
+    test_period,   "A",   "obs3",             "y3",            0.1
+  )
+
+  mdl$init_data(data = data_init)
+  mdl$fill_mdl_data_solve(solve_df = solve_df1, report = "no", jacobian = TRUE)
+  jac1 <- mdl$jacob
+
+  mdl$init_data(data = data_init)
+  mdl$fill_mdl_data_solve(solve_df = solve_df2, report = "no", jacobian = TRUE)
+  jac2 <- mdl$jacob
+
+  expect_equal(dim(jac1), c(1L, 1L))
+  expect_equal(dim(jac2), c(2L, 2L))
+  expect_false(identical(jac1, jac2))
+})
+
+test_that("fill_mdl_data_solve: print_jacobian prints when TRUE, silent when FALSE", {
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl$get_var_names()
+  data_init <- create_test_init_data(period, var_names)
+  mdl$init_data(data = data_init)
+
+  solve_df <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,   "A",   "obs1",             "y1",            0.1
+  )
+
+  # With jacobian = TRUE and print_jacobian = TRUE, output should contain "Final jacobian"
+  output_printed <- capture.output(
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no",
+                             jacobian = TRUE, print_jacobian = TRUE)
+  )
+  expect_true(any(grepl("Final jacobian", output_printed)))
+
+  # With print_jacobian = FALSE, no jacobian output
+  mdl$init_data(data = data_init)
+  output_silent <- capture.output(
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no",
+                             jacobian = TRUE, print_jacobian = FALSE)
+  )
+  expect_false(any(grepl("Final jacobian", output_silent)))
+})

@@ -20,7 +20,7 @@
 
 fmds <- function(
     mdl, period, solve_df, report, default_initial_guess, jacobian,
-    ...) {
+    print_jacobian = TRUE, ...) {
 
   solve_df <- ensure_solve_df_cols(solve_df,
                                    default_initial_guess = default_initial_guess)
@@ -133,6 +133,7 @@ fmds <- function(
   }
 
   mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
+  data_after_first_fill <- mdl$get_data()
 
   for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
     this_period <- single_solve_period$solve_period[1]
@@ -143,7 +144,7 @@ fmds <- function(
       # numerical vector used in nleqslv
       initial_guess_vector <- group_data$initial_guess
 
-      fmds_group(
+      ret <- fmds_group(
         mdl,
         solve_period = this_period,
         solve_variables = group_data$solve_variable,
@@ -155,10 +156,26 @@ fmds <- function(
         jacobian = jacobian,
         ...
       )
+
+      if (!is.null(ret$jac)) {
+        last_jac <- ret$jac
+        rownames(last_jac) <- group_data$observed_variable
+        colnames(last_jac) <- group_data$solve_variable
+      }
     }
 
     # Fill model data for this period.
     mdl$fill_mdl_data(period = this_period, report = "no", include_frmls = TRUE)
+  }
+
+  if (print_jacobian && exists("last_jac") && !is.null(last_jac)) {
+    cat("Final jacobian:\n")
+    print(last_jac)
+    cat("\n")
+  }
+
+  if (exists("last_jac")) {
+    mdl$jacob <- last_jac
   }
 
   # Finally solve for missing data for the full period again, more variables
@@ -181,25 +198,12 @@ fmds <- function(
 
   # Create summary based on report type
   if (report != "no") {
-    if (!is.null(dif_table)) {
-      overview <- dif_table |>
-        filter(!is.na(.data$value2)) |>
-        select("name", "period", "value2") |>
-        rename(replacement = .data$value2)
-
-      n_filled <- nrow(overview)
-
-      if (report == "period") {
-        cat("\n===============================================\n")
-        cat("Summary of replaced missing/invalid values:\n")
-        cat("===============================================\n\n")
-        print(overview)
-      }
-      cat("\nTotal number of replaced missing/invalid values:  ", n_filled, "\n",
-          sep = "")
-    } else {
-      cat("\nNo missing/invalid values have been replaced.\n")
-    }
+    n_first_fill <- sum(is.na(mdl_original_data) & !is.na(data_after_first_fill))
+    n_solved     <- nrow(solve_df)
+    n_final_fill <- sum(is.na(data_after_first_fill) & !is.na(mdl_solved_data)) - n_solved
+    cat("\nreplaced", n_first_fill, "missing values by fill_mdl_data\n")
+    cat("solved", n_solved, "missing values\n")
+    cat("replaced", n_final_fill, "missing values by fill_mdl_data_solve based on solved values\n")
   }
 
   return(invisible(mdl))

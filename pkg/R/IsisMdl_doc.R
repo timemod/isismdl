@@ -720,7 +720,8 @@ NULL
 #'  solve_df,
 #'  report = c("period", "minimal", "no"),
 #'  default_initial_guess = 0.1,
-#'  jacobian = TRUE
+#'  jacobian = TRUE,
+#'  print_jacobian = TRUE
 #' )
 #' }
 #'
@@ -756,8 +757,11 @@ NULL
 #'     \item{"no"}{Does not generate a report.}
 #'     Defaults to `period` if not provided.
 #'   }}
-#' \item{`jacobian`}{A logical. If `TRUE` and `report == "period"`, the
-#' final jacobian used for the numerical solution is printed. The default is `TRUE`.}
+#' \item{`jacobian`}{A logical. If `TRUE`, the
+#' final Jacobian used for the numerical solution is stored in the public field
+#' `mdl$jacob` of the model object. The default is `TRUE`.}
+#' \item{`print_jacobian`}{A logical. If `TRUE`, the final Jacobian used for the numerical
+#' solution is printed. The default is `TRUE`.}
 #' \item{`...`}{Additional arguments passed to the [nleqslv::nleqslv]
 #' solver (e.g., `control`,  `method`, `global`).}
 #' }
@@ -810,8 +814,12 @@ NULL
 #'
 #' @section Value:
 #'
-#' An `IsisMdl` object (copy of the original model) with solved values for
-#' the solve variables. The original model remains unchanged.
+#' The `IsisMdl` object itself (invisibly), with missing values filled in.
+#' Because `IsisMdl` is an R6 reference object, the model is modified
+#' in place; the return value and the original object are the same.
+#' If `jacobian = TRUE`, the final Jacobian matrix is stored in the
+#' public field `mdl$jacob` (rows = observed variables, columns = solve
+#' variables of the last group processed).
 #'
 #' @examples
 #' library(isismdl)
@@ -859,6 +867,9 @@ NULL
 #'     control = list(trace = 1, maxit = 200)
 #' )
 #'
+#' # Access the Jacobian matrix from the last numerical solution
+#' print(mdl_copy$jacob)
+#'
 #'
 #' @seealso
 #' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}.
@@ -905,13 +916,14 @@ NULL
 #' model data for the specified solve period.}
 #' \item{\code{report}}{Character string controlling output verbosity. Options:
 #'   \describe{
-#'     \item{"period"}{Print a report per period (default). For each period
-#'     the final Jacobian is printed if \code{jacobian = TRUE}.}
+#'     \item{"period"}{Print a report per period (default).}
 #'     \item{"minimal"}{Print a minimal report.}
 #'     \item{"none"}{Does not generate a report.}
 #'   }}
-#' \item{\code{jacobian}}{A logical. If `TRUE` and `report == "period"`, the
-#' final Jacobian used for the numerical solution is printed. The default is `TRUE`.}
+#' \item{\code{jacobian}}{A logical. If `TRUE`, the
+#' final Jacobian used for the numerical solution is stored in the public field
+#' `mdl$jacob` of the model object. The Jacobian is NOT printed.
+#' The default is \code{FALSE}.}
 #' \item{\code{...}}{Additional arguments passed to the
 #' [nleqslv::nleqslv] solver (e.g., `control`, `method`, `global`).}
 #' }
@@ -935,9 +947,14 @@ NULL
 #'
 #' @section Value:
 #'
-#' Returns the modified \code{IsisMdl} object, where the values
-#' of \code{exo_vars} in \code{solve_period} have been updated to the
-#' solution found by the numerical solver.
+#' The `IsisMdl` object itself (invisibly), with the solved exogenous
+#' variable values updated in the model data.
+#' Because `IsisMdl` is an R6 reference object, the model is modified
+#' in place; the return value and the original object are the same.
+#' If `jacobian = TRUE`, the Jacobian matrix from the **last period** in
+#' `solve_period` is stored in the public field `mdl$jacob`
+#' (rows = target variables, columns = exogenous variables).
+#' The Jacobian is never printed by `solve_exo`.
 #'
 #' @seealso \code{\link{solve}}, \code{\link{fill_mdl_data_solve}},
 #' \code{\link{fill_mdl_data}}
@@ -983,6 +1000,16 @@ NULL
 #' # Check C: C = C_A + 0.8 * I
 #' # C = 50 + 0.8 * 100 = 130
 #' mdl$get_data(names = "C", period = "2020")
+#'
+#' # To store the Jacobian, use jacobian = TRUE
+#' mdl$solve_exo(
+#'     exo_vars     = c("G", "C_A"),
+#'     target_vars  = c("Y", "C"),
+#'     solve_period = "2020",
+#'     report       = "no",
+#'     jacobian     = TRUE
+#' )
+#' print(mdl$jacob)
 #'
 #'
 NULL

@@ -28,6 +28,8 @@ setOldClass("period_range")
 #' @keywords data
 #' @return Object of \code{\link[R6]{R6Class}} representing an Isis model.
 #' @format \code{\link[R6]{R6Class}} object.
+#' @field jacob The Jacobian matrix from the last numerical solution (e.g. from
+#' \code{\link{fill_mdl_data_solve}} or \code{\link{solve_exo}}).
 #' @examples
 #' # create an example ISLM  model
 #' mdl <- islm_mdl()
@@ -201,6 +203,7 @@ setOldClass("period_range")
 #'
 IsisMdl <- R6Class("IsisMdl",
   public = list(
+    jacob = NULL,
     initialize = function(serialized_mdl, mif_file, model_text,
                           silent = FALSE) {
       if (!missing(mif_file) && !missing(serialized_mdl)) {
@@ -282,16 +285,18 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     fill_mdl_data_solve = function(period = private$data_period, solve_df,
-                                   report = c("period", "minimal", "no"),
-                                   default_initial_guess = 0.1,
-                                   jacobian = TRUE, ...) {
+                                    report = c("period", "minimal", "no"),
+                                    default_initial_guess = 0.1,
+                                    jacobian = TRUE,
+                                    print_jacobian = TRUE, ...) {
       report <- match.arg(report)
       period <- private$convert_period_arg_data(period)
       return(fmds(
         mdl = self, period = period,
         solve_df = solve_df, report = report,
         default_initial_guess = default_initial_guess,
-        jacobian = jacobian, ...
+        jacobian = jacobian,
+        print_jacobian = print_jacobian, ...
       ))
     },
     solve_exo = function(solve_period = private$model_period,
