@@ -37,7 +37,9 @@ mdl$find_deps(final_destinations, final_sources = NULL,
 \describe{
 \item{\code{final_destinations}}{A data frame with columns \code{var}
 and \code{period}. These are the targets whose full dependency chain
-will be traced.}
+will be traced. Warning: if argument \code{solvable} has been specified, then all
+final destinations that do not depend on any solvable are
+silently removed. See Details.}
 \item{\code{final_sources}}{An optional data frame with columns \code{var}
 and \code{period}. Recursion stops when a final source is reached;
 the vertex is coloured yellow and marked as OK without further tracing.
@@ -103,11 +105,16 @@ it is marked as not OK.
 \item The vertex is a final source (treated as given).
 }
 
+If a vertex for an endogenous variable is incalculable, all incoming edges
+to that vertex are removed, except if the vertex is a final destination.
+This may result in broken paths between vertices and final
+destinations.
+
 After the recursion, the graph is pruned in two steps:
 \enumerate{
 \item All vertices that have no path to any final destination are removed.
-This is necessary because some paths may be broken during recursion
-(e.g. due to missing exogenous data).
+This is necessary because some paths may be broken because of
+of incalculable vertices, as explained before.
 \item If \code{solvable} is supplied, the graph is further restricted to
 the subgraph reachable from the solvable variables. This means that
 final destinations that have no path from any solvable vertex are
@@ -137,58 +144,26 @@ The vertices are colored based on their status:
 \section{Solvable vertices}{
 
 
-The \code{solvable} argument allows specifying endogenous variable-period
-pairs to check if they have a path to the final destinations.
+Achtergrondinformatie: oplossen met fill_mdl_data_solve.
+Is there a path  then we solve this.
 
-For dependency analysis, solvable vertices are treated as "resolved" points
-in the graph. Specifically, a solvable vertex is always marked as
-resolved (\code{ok = TRUE}), even if its own dependencies are not all OK.
-Consequently, any vertex that depends on a solvable vertex (and possibly
-on other OK vertices) is marked as calculable. This allows the
+The \code{solvable} argument allows specifying endogenous variable-period
+pairs to check if they have a path to the final destinations. If a path
+to an observed final destination exists the variable may be solved
+numerically, for example using method \link{fill_mdl_data_solve}.
+
+Any vertex that depends on a solvable vertex (and possibly
+on other OK vertices) is marked as calculable, even if the solvable
+vertex is not calculable. This allows the
 dependency search to bridge gaps in the model that would otherwise be
 incalculable.
 
-If solvable vertices are provided, \code{find_deps} ensures that the final
-graph only contains the dependencies that relate to these variables.
-Specifically, any final destination that does not have a path from at
-least one solvable vertex will be pruned from the graph. This highlights
-which targets are actually affected by the variables provided as solvables.
+The solvable vertices are treated the same as other endogenous vertices
+with one exception: if a vertex depends on a solvable vertex than the
+status of that solvable vertex (OK or not OK) does not matter for
+the status.
+
+Consequently,. This allows the
+dependency search to bridge gaps in the model that would otherwise be
 }
 
-\section{Value}{
-
-
-A directed \code{igraph} object. Edges point from dependency to
-dependent (A -> B means B depends on A). Each vertex carries the
-attributes described in the Details section.
-}
-
-\examples{
-
-model_text <- "
-  ident y1 = 0.8 * y1(-1) + 0.2 * z1;
-  ident y2 = 0.5 * y1 + 0.5 * z2;
-  ident y3 = y2 + y1(-1);
-"
-mdl <- isis_mdl(model_text = model_text,
-                period = "2017Q1/2018Q4",
-                silent = TRUE)
-mdl$init_data()
-
-observed <- data.frame(
-  var    = c("y1", "z1", "z2"),
-  period = c("2018Q3", "2018Q4", "2018Q4")
-)
-solvable <- data.frame(var = "y1", period = "2018Q4")
-
-g2 <- mdl$find_deps(
-  final_destinations = data.frame(var = "y3", period = "2018Q4"),
-  observed_data = observed,
-  solvable = solvable
-)
-
-plot(g2)
-}
-\seealso{
-\code{\link{fill_mdl_data_solve}}, \code{\link{get_dep_struct}}.
-}

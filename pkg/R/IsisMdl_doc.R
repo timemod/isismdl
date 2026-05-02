@@ -2730,7 +2730,9 @@ NULL
 #' \describe{
 #' \item{\code{final_destinations}}{A data frame with columns \code{var}
 #'   and \code{period}. These are the targets whose full dependency chain
-#'   will be traced.}
+#'   will be traced. Warning: if argument `solvable` has been specified, then all
+#'   final destinations that do not depend on any solvable are
+#'   silently removed. See Details.}
 #' \item{\code{final_sources}}{An optional data frame with columns \code{var}
 #'   and \code{period}. Recursion stops when a final source is reached;
 #'   the vertex is coloured yellow and marked as OK without further tracing.
@@ -2794,11 +2796,16 @@ NULL
 #' \item The vertex is a final source (treated as given).
 #' }
 #'
+#' If a vertex for an endogenous variable is incalculable, all incoming edges
+#' to that vertex are removed, except if the vertex is a final destination.
+#' This may result in broken paths between vertices and final
+#' destinations.
+#'
 #' After the recursion, the graph is pruned in two steps:
 #' \enumerate{
 #'   \item All vertices that have no path to any final destination are removed.
-#'         This is necessary because some paths may be broken during recursion
-#'         (e.g. due to missing exogenous data).
+#'         This is necessary because some paths may be broken because of
+#'         of incalculable vertices, as explained before.
 #'   \item If \code{solvable} is supplied, the graph is further restricted to
 #'         the subgraph reachable from the solvable variables. This means that
 #'         final destinations that have no path from any solvable vertex are
@@ -2826,16 +2833,31 @@ NULL
 #'
 #' @section Solvable vertices:
 #'
-#' The \code{solvable} argument allows specifying endogenous variable-period
-#' pairs to check if they have a path to the final destinations.
+#' Achtergrondinformatie: oplossen met fill_mdl_data_solve.
+#' Is there a path  then we solve this.
 #'
-#' For dependency analysis, solvable vertices are treated as "resolved" points
-#' in the graph. Specifically, a solvable vertex is always marked as
-#' resolved (\code{ok = TRUE}), even if its own dependencies are not all OK.
-#' Consequently, any vertex that depends on a solvable vertex (and possibly
-#' on other OK vertices) is marked as calculable. This allows the
+#' The \code{solvable} argument allows specifying endogenous variable-period
+#' pairs to check if they have a path to the final destinations. If a path
+#' to an observed final destination exists the variable may be solved
+#' numerically, for example using method [fill_mdl_data_solve].
+#'
+#' Any vertex that depends on a solvable vertex (and possibly
+#' on other OK vertices) is marked as calculable, even if the solvable
+#' vertex is not calculable. This allows the
 #' dependency search to bridge gaps in the model that would otherwise be
 #' incalculable.
+#'
+#' The solvable vertices are treated the same as other endogenous vertices
+#' with one exception: if a vertex depends on a solvable vertex than the
+#' status of that solvable vertex (OK or not OK) does not matter for
+#' the status.
+#'
+#' Consequently,. This allows the
+#' dependency search to bridge gaps in the model that would otherwise be
+2838
+
+#' incalculable.
+
 #'
 #' If solvable vertices are provided, \code{find_deps} ensures that the final
 #' graph only contains the dependencies that relate to these variables.
