@@ -57,7 +57,7 @@ If the linesearching procedure failed
 after the maximum number of linesearch steps \code{bktmax}
 has been reached or if the relaxation
 factor has become smaller than \code{rlxmin}),
-a new Jacobean matrix is computed.
+a new Jacobian matrix is computed.
 In each linesearch step the current relaxation factor is shrunk by
 \code{rspeed}.
 The relaxation factor is set to its maximum value
@@ -149,10 +149,10 @@ default for models without endogenous leads}
 right-hand side endogenous variables. This is the default mode
 for models with endogenous leads.
 The model is solved in dynamic mode for all periods conditional
-on the endogenous right-hand side leads. After solving for the complete
+on the endogenous right-hand side leads.  After solving for the complete
 solution period the endogenous leads are updated with the the results
 for the corresponding endogenous variables. The solution process thus consists
-of an two loops: an inner loop solving the model  for all periods given the leads and
+of two loops: an inner loop solving the model  for all periods given the leads and
 an outer loop which solves for the endogenous leads}
 \item{\code{"static"}}{to update only current values of right-hand side
 endogenous variables lags and leads are not modified}

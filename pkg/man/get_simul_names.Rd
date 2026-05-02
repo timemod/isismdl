@@ -7,8 +7,8 @@
 This method of R6 class \code{\link{IsisMdl}} returns the
 names of the simultaneous variables in solution order.
 The result never includes the left hand sides of inactive equations.
-A simultanous variable is a variable that occurs in a feedback loop
-and there directly or indirectly depends on itself.
+A simultaneous variable is a variable that occurs in a feedback loop
+and therefore directly or indirectly depends on itself.
 }
 \section{Usage}{
 

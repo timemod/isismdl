@@ -2,10 +2,10 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{get_eq_names}
 \alias{get_eq_names}
-\title{\code{\link{IsisMdl}} method: returns the the equation names}
+\title{\code{\link{IsisMdl}} method: returns the equation names}
 \description{
 This method of R6 class \code{\link{IsisMdl}} returns the
-the equation names.
+equation names.
 Argument \code{pattern} can be specified to select only
 equations with names matching a regular expression. Argument \code{status}
 can be specified to select only the active or inactive equations.

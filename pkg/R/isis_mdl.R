@@ -103,7 +103,7 @@
 #' reference manual for more information about conditional compilation}
 #' \item{\code{"include_dirs"}}{A vector with the names of directories
 #' that should be added to the list of
-#'  directories used to searched for include files.
+#'  directories used to search for include files.
 #'  In the model file, the \code{\#include} directive (see Section
 #'  3.11.1 "File inclusion" in the Isis Reference Manual) is used
 #' to include another file in the model. The specified name of the include

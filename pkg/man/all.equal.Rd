@@ -8,7 +8,7 @@
 \method{all.equal}{IsisMdl}(target, current, ...)
 }
 \arguments{
-\item{target}{and \code{IsisMdl} object}
+\item{target}{an \code{IsisMdl} object}
 
 \item{current}{another \code{IsisMdl} object, to be compared with
 \code{target}}
@@ -29,7 +29,7 @@ extent, and a report of the differences is returned. Do not use
 }
 \details{
 The implementation of \code{all.equal} for \code{IsisMdl} objects
-first serialized the model using the \code{IsisMdl} method
+first serializes the model using the \code{IsisMdl} method
 \code{serialize} and then uses \code{\link[base]{all.equal}} of
 the base package.
 }

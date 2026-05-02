@@ -3,7 +3,6 @@ library(isismdl)
 
 rm(list = ls())
 
-
 mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 all_eqs <- mdl$get_eq_names()
 frml_names <- c("c", "i", "md", "t")
@@ -150,7 +149,7 @@ test_that("errors", {
   expect_error(mdl2$set_eq_status(status = "inactive", names = c("y", "yyy")),
                "\"yyy\" is not an equation.")
   expect_error(mdl2$set_eq_status(status = "active", names = c("y", "yyy", "x")),
-                "The following names are no equations: \"yyy\", \"x\".")
+                "The following names are not equations: \"yyy\", \"x\".")
   expect_warning(mdl2$set_eq_status(status = "active", names = "y", pattern = "^z"),
                 "There are no equations that match pattern '\\^z'.")
 })
