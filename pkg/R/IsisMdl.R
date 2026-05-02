@@ -5,14 +5,13 @@ setOldClass("period_range")
 #'
 #' This class is used to solve a system of non-linear equations with lagged
 #' variables. The model equations are specified in a separate text file, the so
-#' called model file. Function  \code{\link{isis_mdl}} parses the model file
-#' and generates an \code{IsisMdl} object. The vignette "Introduction"
-#' gives a detailed description of the usage of \code{IsisMdl} objects.
-#'
-#' The syntax of the model file is the same as for the model file
-#' in Isis, and is described in detail in the Isis Reference Manual
-#' (a vignette with a detailed model syntax description for package IsisMdl will be
-#' available in the future).
+#' called **model file**. Function  \code{\link{isis_mdl}} parses the model file
+#' and generates an \code{IsisMdl} object. The vignette
+#' \href{../doc/isismdl.pdf}{\emph{"Introduction to Package `isismdl`}}
+#' describes how \code{IsisMdl} objects can be used.
+#' The vignette
+#' \href{../doc/isismdl_syntax.pdf}{\emph{Model Syntax Reference for Package `isismdl`}}
+#' describes the syntax of the model file.
 #'
 #' The package includes a number of example models in directory \code{models} of
 #' the package library. It is also possible to directly create \code{IsisMdl} objects with functions
