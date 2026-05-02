@@ -285,10 +285,10 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     fill_mdl_data_solve = function(period = private$data_period, solve_df,
-                                    report = c("period", "minimal", "no"),
-                                    default_initial_guess = 0.1,
-                                    jacobian = TRUE,
-                                    print_jacobian = TRUE, ...) {
+                                   report = c("period", "minimal", "no"),
+                                   default_initial_guess = 0.1,
+                                   jacobian = TRUE,
+                                   print_jacobian = TRUE, ...) {
       report <- match.arg(report)
       period <- private$convert_period_arg_data(period)
       return(fmds(
