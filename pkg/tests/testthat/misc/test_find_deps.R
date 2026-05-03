@@ -184,9 +184,10 @@ test_that("find_deps model property checks", {
 })
 
 test_that("find_deps empty observed data", {
+
   period <- as.period_range("2020/2022")
   model_text <- "ident y = 0.8 * y(-1) + x;"
-  mdl <- isis_mdl(model_text = model_text, silent = TRUE)
+  mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
 
   # 1. Empty observed data should not crash
   # It should default to model data start and successfully find deps
@@ -527,7 +528,7 @@ test_that("find_deps short-circuiting logic evaluates shared dependencies correc
 })
 
 
-test_that("find deps with no model data", {
+test_that("error with no model data", {
 
   model_text <- "
       ident y1 = 1;
@@ -548,33 +549,10 @@ test_that("find deps with no model data", {
 
   observed <- tribble(~var, ~period)
 
-  g <- mdl$find_deps(final_destinations = final_dest,
-                     observed_data = observed)
-  dep_df <- as_data_frame_deps(g)
-
-  dep_df_expected <- tibble::tribble(
-    ~var,  ~period,  ~ok, ~observed, ~calculable, ~is_endo, ~is_final_dest, ~msg,  ~color,
-    "y2", "2021Q1", TRUE,     FALSE,        TRUE,     TRUE,           TRUE,   NA,  "cyan",
-    "y1", "2021Q1", TRUE,     FALSE,        TRUE,     TRUE,          FALSE,   NA, "green"
-  ) |>
-    as.data.frame()
-
-  expect_equal(dep_df, dep_df_expected)
-
-  observed <- tribble(
-    ~var, ~period,
-    "y2", "2021q1"
+  expect_error(
+    g <- mdl$find_deps(final_destinations = final_dest, observed = observed),
+    paste("The model period has not been set. Set the model period with",
+          "set_period() or init_data()."),
+    fixed = TRUE
   )
-  g <- mdl$find_deps(final_destinations = final_dest,
-                     observed_data = observed)
-  dep_df <- as_data_frame_deps(g)
-
-  dep_df_expected <- tibble::tribble(
-    ~var,  ~period,  ~ok, ~observed, ~calculable, ~is_endo, ~is_final_dest, ~msg,  ~color,
-    "y2", "2021Q1", TRUE,      TRUE,        NA,     TRUE,           TRUE,   NA,  "cyan"
-  ) |>
-    as.data.frame()
-
-  expect_equal(dep_df, dep_df_expected)
-
 })

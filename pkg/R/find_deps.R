@@ -65,14 +65,16 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     character(0)
   }
 
-  # Period for breaking the recursion. Recursion stops when the period is equal
-  # to or smaller than this period.
-  # TODO: not quite sure if the current settings are correct in all cases.
+  # Determine the minimum period with data.
+  # Recursion stops when the period is equal to or smaller than this period.
+  data_period <- mdl$get_data_period()
+  if (is.null(data_period)) {
+    stop("The model period has not been set. Set the model period with ",
+         "set_period() or init_data().")
+  }
+  min_period_data <- start_period(data_period)
   if (nrow(observed_data) > 0) {
-    break_recursion_period <- min(period(observed_data$period)) - 2
-  } else {
-    break_recursion_period <- min(period(final_destinations$period)) -
-      mdl$get_maxlag() - 1
+    min_period_data <- min(min_period_data, min(period(observed_data$period)))
   }
 
   vertices_observed <- to_vertex_names(observed_data)
@@ -94,7 +96,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
 
   .find_deps <- function(var_per) {
 
-    # Recursion is stopped when the period is equal to break_recursion_period.
+    # Recursion is stopped when the period is smaller than min_period_data - 1
 
     vertex_name <- as.character(var_per)
     vertex_exists <- vertex_name %in% V(g)$name
@@ -162,9 +164,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       return(FALSE)
     }
 
-    # Break the recursion if the period is equal to or before
-    # break_recursion_period
-    if (per <= break_recursion_period) {
+    # Break the recursion if the period is before min_period_data - 1.
+    if (per < min_period_data - 1) {
       g <<- set_vertex_attr(g, "ok", index = idx, value = FALSE)
       g <<- set_vertex_attr(g, "calculable", index = idx, value = FALSE)
       g <<- set_vertex_attr(g, "color", index = idx, value = color_not_ok)

@@ -2795,8 +2795,10 @@ NULL
 #' \item The variable is observed in \code{observed_data} (and either it is
 #'   not a final destination, or \code{stop_if_final_dest_observed = TRUE}).
 #' \item The variable is exogenous and not observed — it is marked as not OK.
-#' \item The period is further back than the minimum observed period minus one —
-#'   it is marked as not OK.
+#' \item The period is further back than the minimum data period minus one —
+#'   it is marked as not OK. The minimum data period is defined as the minimum of
+#'   the smallest period of `observed_data` and the start period of the model data
+#'   of the `mdl` object.
 #' \item The vertex is a final source (treated as given).
 #' }
 #'
