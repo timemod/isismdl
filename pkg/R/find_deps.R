@@ -66,7 +66,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   }
 
   # Determine the minimum period with data.
-  # Recursion stops when the period is equal to or smaller than this period.
+  # Recursion stops when the period smaller than this period minus 1.
   data_period <- mdl$get_data_period()
   if (is.null(data_period)) {
     stop("The model period has not been set. Set the model period with ",
