@@ -194,10 +194,22 @@ test_that("find_deps empty observed data", {
 
   g <- mdl$find_deps(final_destinations = final_dest,
                      observed_data = tribble(~var, ~period))
+
   expect_s3_class(g, "igraph")
   expect_true("y[2021]" %in% V(g)$name)
   expect_true("y[2020]" %in% V(g)$name)
 
+  dep_df <- as_data_frame_deps(g)
+
+  dep_df_expected <- tibble::tribble(
+    ~var, ~period,   ~ok, ~observed, ~calculable, ~is_endo, ~is_final_dest,          ~msg,   ~color,
+    "y",  "2021", FALSE,     FALSE,       FALSE,     TRUE,           TRUE,            NA, "purple",
+    "x",  "2021", FALSE,     FALSE,          NA,    FALSE,          FALSE, "Missing exo",    "red",
+    "y",  "2020", FALSE,     FALSE,       FALSE,     TRUE,          FALSE,            NA,    "red"
+  ) |>
+    as.data.frame()
+
+  expect_equal(dep_df, dep_df_expected)
 })
 
 test_that("find_deps vertex colors", {

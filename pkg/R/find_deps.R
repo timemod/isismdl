@@ -231,9 +231,13 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     calculable <- TRUE
     for (dep_new in deps_new) {
       vertex_ok <- .find_deps(dep_new)
-      if (!vertex_ok) {
+      if (!vertex_ok && calculable) {
         calculable <- FALSE
-        break
+        # If this node not a final destination, the dependency check for
+        # other nodes may be skipped.
+        if (!is_final_dest) {
+          break
+        }
       }
     }
 
