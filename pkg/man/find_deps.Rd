@@ -106,8 +106,10 @@ not a final destination, or \code{stop_if_final_dest_observed = TRUE}).
 \item The variable is exogenous and not observed — it is marked as not OK.
 \item The period is further back than the minimum data period minus one —
 it is marked as not OK. The minimum data period is defined as the minimum of
-the smallest period of \code{observed_data} and the start period of the model data
-of the \code{mdl} object.
+\enumerate{
+\item the minimum period of \code{observed_data}
+\item the start period of the model data of \code{mdl}.
+}
 \item The vertex is a final source (treated as given).
 }
 

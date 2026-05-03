@@ -2797,8 +2797,10 @@ NULL
 #' \item The variable is exogenous and not observed — it is marked as not OK.
 #' \item The period is further back than the minimum data period minus one —
 #'   it is marked as not OK. The minimum data period is defined as the minimum of
-#'   the smallest period of `observed_data` and the start period of the model data
-#'   of the `mdl` object.
+#'   \enumerate{
+#'      \item the minimum period of `observed_data`
+#'      \item the start period of the model data of `mdl`.
+#'   }
 #' \item The vertex is a final source (treated as given).
 #' }
 #'
