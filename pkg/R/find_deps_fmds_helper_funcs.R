@@ -97,7 +97,7 @@ to_vertex_names <- function(df) {
   if (is.null(df) || nrow(df) == 0) {
     return(character(0))
   }
-  paste0(df$var, "[", as.character(df$period), "]")
+  paste0(df$var, "[", toupper(as.character(df$period)), "]")
 }
 
 # Convert a character vector with vertex names (e.g. "y[2025]")
