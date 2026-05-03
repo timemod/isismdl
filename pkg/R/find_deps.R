@@ -68,6 +68,9 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   if (nrow(observed_data) > 0) {
     min_period_obs <- min(period(observed_data$period))
   } else {
+    # TODO RVH: dit snap ik niet. Deze code kan ook fout gaan
+    # als de code geen data heeft. Waarschijnlijk beter de minimale periode
+    # baseren op data.
     min_period_obs <- start_period(mdl$get_data_period())
   }
 
@@ -76,17 +79,15 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   g <- make_empty_graph()
 
   # Function to create a new vertex.
-  add_vertex <- function(g, vertex_name, observed, is_endo, is_final_dest) {
+  add_vertex <- function(g, vertex_name, observed, is_endo, is_final_dest,
+                         is_solvable) {
+
     g <- add_vertices(g, 1, name = vertex_name, ok = NA,
                       observed = observed, calculable = NA,
                       is_endo = is_endo,
                       is_final_dest = is_final_dest,
+                      solvable = if (has_solvable) is_solvable else NULL,
                       msg = NA)
-    if (has_solvable) {
-      idx <- which(V(g)$name == vertex_name)
-      g <- set_vertex_attr(g, "solvable", index = idx,
-                           value =  vertex_name %in% vertices_solvable)
-    }
     g
   }
 
@@ -95,31 +96,37 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Recursion is stopped when the period is before the threshold (min_period_obs).
 
     vertex_name <- as.character(var_per)
+    vertex_exists <- vertex_name %in% V(g)$name
+
+    # If the vertex already exists in the graph, then check if the recursion
+    # for this vertex has already been completed. This is the case when
+    # attribute 'ok' is not NA. In that case just return the status (o.k.)
+    # of this vertex.
+    if (vertex_exists) {
+      # Compute the index of the vertex with name 'vertex_name':
+      idx <- which(V(g)$name == vertex_name)
+      ok <- V(g)[idx]$ok
+      if (!is.na(ok)) {
+        return(ok)
+      }
+    }
 
     var <- var_per$var
     per <- var_per$period
 
     is_endo <- var %in% endo_names
-
-    # Check if the variable is observed at the specified period
     observed <- vertex_name %in% vertices_observed
     is_final_dest <- vertex_name %in% vertices_final_dest
     is_solvable <- vertex_name %in% vertices_solvable
 
-    if (vertex_name %in% V(g)$name) {
-      ok <- V(g)[V(g)$name == vertex_name]$ok
-      # If OK is not NA, the vertex has already been fully processed.
-      if (!is.na(ok)) {
-        return(ok)
-      }
-    } else {
-      # Create a new vertex.
+    # Create a new vertex.
+    if (!vertex_exists) {
       g <<- add_vertex(g, vertex_name = vertex_name, observed = observed,
-                       is_endo = is_endo, is_final_dest = is_final_dest)
+                       is_endo = is_endo, is_final_dest = is_final_dest,
+                       is_solvable = is_solvable)
+      # Compute the index of the vertex with name 'vertex_name':
+      idx <- which(V(g)$name == vertex_name)
     }
-
-    # Compute the index the vertex with name 'vertex_name'
-    idx <- which(V(g)$name == vertex_name)
 
     # Color for vertex with an error.
     color_not_ok <- if (is_final_dest) COLOR_FINAL_DEST_ERR else COLOR_ERR
@@ -180,10 +187,9 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       # The variable is endogenous but has no dependencies.
       # This is the case for equations such as x = 0 (the right hand side
       # of the equation only contains constants or parameters).
-      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
-      g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = TRUE)
-      g <<- igraph::set_vertex_attr(g, "color", index = idx,
-                                    value = color_endo_ok)
+      g <<- set_vertex_attr(g, "ok", index = idx, value = TRUE)
+      g <<- set_vertex_attr(g, "calculable", index = idx, value = TRUE)
+      g <<- set_vertex_attr(g, "color", index = idx, value = color_endo_ok)
       return(TRUE)
     }
 
@@ -214,7 +220,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
           g, vertex_name = vertex_name_dep,
           observed = vertex_name_dep %in% vertices_observed,
           is_endo =  var_name %in% endo_names,
-          is_final_dest =  vertex_name_dep %in% vertices_final_dest
+          is_final_dest =  vertex_name_dep %in% vertices_final_dest,
+          is_solvable = vertex_name_dep %in% vertices_solvable
         )
       }
       g <<- add_edges(g, c(vertex_name_dep, vertex_name))
@@ -352,6 +359,8 @@ find_deps <- function(mdl, final_destinations, final_sources,
   if (is.null(observed_data)) {
     observed_data <- get_observed_data(mdl$get_data())
   }
+  # TODO: check observed data. should have at least 1 observation.
+  # and check the data frame.
 
   endo_names <- mdl$get_endo_names()
 

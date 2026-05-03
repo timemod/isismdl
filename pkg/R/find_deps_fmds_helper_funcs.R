@@ -67,12 +67,19 @@ as_var_period <- function(txt) {
 as_data_frame_deps <- function(g) {
   igraph::as_data_frame(g, what = "vertices") |>
     tibble::remove_rownames() |>
-    tidyr::separate(
-      "name",
-      into = c("var", "period"),
-      sep = "\\[|\\]",
-      extra = "drop"
-    )
+    split_vertex_name_column()
+}
+
+# Split the column 'name' of a data frame into columns 'var' and 'period'.
+# Column 'name' should contain vertex names, such as "y1[2025]".
+split_vertex_name_column <- function(df) {
+  tidyr::separate(
+    df,
+    "name",
+    into = c("var", "period"),
+    sep = "\\[|\\]",
+    extra = "drop"
+  )
 }
 
 dep_struct_to_list <- function(dep_struc) {
@@ -93,12 +100,10 @@ to_vertex_names <- function(df) {
   paste0(df$var, "[", as.character(df$period), "]")
 }
 
+# Convert a character vector with vertex names (e.g. "y[2025]")
+# to a data frame with columns 'var' and 'period'.
 vertex_names_to_df <- function(vertex_names) {
-  utils::strcapture(
-    pattern = "^(\\w+)\\[(.+)\\]$",
-    x       = vertex_names,
-    proto   = data.frame(var = character(), period = integer())
-  )
+  split_vertex_name_column(data.frame(name = vertex_names))
 }
 
 check_endo <- function(vars, endo_names, label) {
