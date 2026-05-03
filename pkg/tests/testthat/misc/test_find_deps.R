@@ -328,7 +328,7 @@ test_that("find_deps message for removed solvables", {
   # We expect a message about y1 being removed.
   # Note: y3 will still be in the graph but marked as not OK (purple color).
   msg <- paste0(
-    "The following solvable variables have been removed because they have no ",
+    "The following solvable variables have been removed because\nthey have no ",
     "calculable path to a final destination:\n",
     " var period\n",
     "  y1   2021"
@@ -507,8 +507,9 @@ test_that("find_deps short-circuiting logic evaluates shared dependencies correc
   expect_true("y3[2021]" %in% V(g)$name)
   expect_false(V(g)["y3[2021]"]$calculable)
 
-  # y1 was evaluated, failed, and its edges TO y3 were not deleted because y3 is a final destination.
-  # So y1 is still in the graph and should be marked as not calculable.
+  # y1 was evaluated, failed, and its edges TO y3 were not deleted because y3
+  # is a final destination. So y1 is still in the graph and should be marked
+  # as not calculable.
   expect_true("y1[2021]" %in% V(g)$name)
   expect_false(V(g)["y1[2021]"]$calculable)
 })

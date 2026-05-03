@@ -51,7 +51,8 @@ as_var_period <- function(txt) {
 #' This utility function takes a directed graph returned by
 #' \code{\link{find_deps}} and converts its vertex attributes into a clean,
 #' tabular format. It parses the vertex names (e.g. \code{"var[period]"}) into
-#' separate \code{var} and \code{period} columns.
+#' separate \code{var} and \code{period} columns. For an example,
+#' see [find_deps].
 #'
 #' @param g A directed \code{igraph} object, typically the result of
 #'   calling \code{find_deps}.
