@@ -365,8 +365,12 @@ find_deps <- function(mdl, final_destinations, final_sources,
   if (is.null(observed_data)) {
     observed_data <- get_observed_data(mdl$get_data())
   }
-  # TODO: check observed data. should have at least 1 observation.
-  # and check the data frame.
+  # TODO: check final_destinations, final_soucres, solvable, observed data (if specified):
+  # do they have the correct structure (a data.frame with columns var and period,
+  # the data frame may contain more columns, that is not a problem).
+  # So create a function for this. The function should also check that observed_data
+  # are valid numbers, and that periods are valid regts periods.
+  # The function check_unique can be part of that function.
 
   endo_names <- mdl$get_endo_names()
 
