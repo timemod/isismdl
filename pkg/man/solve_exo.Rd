@@ -47,8 +47,9 @@ model data for the specified solve period.}
 \item{"none"}{Does not generate a report.}
 }}
 \item{\code{jacobian}}{A logical. If \code{TRUE}, the
-final Jacobian used for the numerical solution is stored in the public field
-\code{mdl$jacob} of the model object. The Jacobian is NOT printed.
+final Jacobian matrix is stored in the model object.
+It can be retrieved with method \code{\link{get_jacobian}}.
+The Jacobian is NOT printed.
 The default is \code{FALSE}.}
 \item{\code{...}}{Additional arguments passed to the
 \link[nleqslv:nleqslv]{nleqslv::nleqslv} solver (e.g., \code{control}, \code{method}, \code{global}).}
@@ -82,7 +83,8 @@ variable values updated in the model data.
 Because \code{IsisMdl} is an R6 reference object, the model is modified
 in place; the return value and the original object are the same.
 If \code{jacobian = TRUE}, the Jacobian matrix from the \strong{last period} in
-\code{solve_period} is stored in the public field \code{mdl$jacob}
+\code{solve_period} is stored in the model object and can be retrieved with
+method \code{\link{get_jacobian}}.
 (rows = target variables, columns = exogenous variables).
 The Jacobian is never printed by \code{solve_exo}.
 }
@@ -135,7 +137,7 @@ mdl$solve_exo(
     report       = "no",
     jacobian     = TRUE
 )
-print(mdl$jacob)
+print(mdl$get_jacobian())
 
 
 }

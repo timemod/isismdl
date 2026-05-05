@@ -28,8 +28,6 @@ setOldClass("period_range")
 #' @keywords data
 #' @return Object of \code{\link[R6]{R6Class}} representing an Isis model.
 #' @format \code{\link[R6]{R6Class}} object.
-#' @field jacob The Jacobian matrix from the last numerical solution (e.g. from
-#' \code{\link{fill_mdl_data_solve}} or \code{\link{solve_exo}}).
 #' @examples
 #' # create an example ISLM  model
 #' mdl <- islm_mdl()
@@ -203,7 +201,6 @@ setOldClass("period_range")
 #'
 IsisMdl <- R6Class("IsisMdl",
   public = list(
-    jacob = NULL,
     initialize = function(serialized_mdl, mif_file, model_text,
                           silent = FALSE) {
       if (!missing(mif_file) && !missing(serialized_mdl)) {
@@ -291,13 +288,15 @@ IsisMdl <- R6Class("IsisMdl",
                                    print_jacobian = TRUE, ...) {
       report <- match.arg(report)
       period <- private$convert_period_arg_data(period)
-      return(fmds(
+      res <- fmds(
         mdl = self, period = period,
         solve_df = solve_df, report = report,
         default_initial_guess = default_initial_guess,
         jacobian = jacobian,
         print_jacobian = print_jacobian, ...
-      ))
+      )
+      private$jacob <- res
+      return(invisible(self))
     },
     solve_exo = function(solve_period = private$model_period,
                          exo_vars, target_vars,
@@ -305,11 +304,13 @@ IsisMdl <- R6Class("IsisMdl",
                          jacobian = FALSE, ...) {
       report <- match.arg(report)
       solve_period <- private$convert_period_arg_solve(solve_period)
-      return(solve_exo_internal(
+      res <- solve_exo_internal(
         mdl = self, solve_period = solve_period,
         exo_vars = exo_vars, target_vars = target_vars,
         report = report, jacobian = jacobian, ...
-      ))
+      )
+      private$jacob <- res
+      return(invisible(self))
     },
     find_deps = function(final_destinations, final_sources = NULL,
                          solvable = NULL, observed_data = NULL,
@@ -401,6 +402,9 @@ IsisMdl <- R6Class("IsisMdl",
       # lhs variabes of inacvtive euations.
       sim_names <- sim_names[sim_names != ""]
       return(sim_names)
+    },
+    get_jacobian = function() {
+      return(private$jacob)
     },
     set_labels = function(labels) {
       private$update_labels(labels)
@@ -1126,6 +1130,7 @@ IsisMdl <- R6Class("IsisMdl",
     }
   ),
   private = list(
+    jacob = NULL,
     model_text = NA_character_,
     maxlag = NA_integer_,
     maxlead = NA_integer_,

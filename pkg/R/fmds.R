@@ -174,10 +174,6 @@ fmds <- function(
     cat("\n")
   }
 
-  if (exists("last_jac")) {
-    mdl$jacob <- last_jac
-  }
-
   # Finally solve for missing data for the full period again, more variables
   # may be calculated.
   mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
@@ -206,5 +202,9 @@ fmds <- function(
     cat("replaced", n_final_fill, "missing values by fill_mdl_data_solve based on solved values\n")
   }
 
-  return(invisible(mdl))
+  if (exists("last_jac")) {
+    return(last_jac)
+  } else {
+    return(NULL)
+  }
 }

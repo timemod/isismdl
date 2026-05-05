@@ -61,8 +61,8 @@ Only the total number of replaced missing values is reported.}
 Defaults to \code{period} if not provided.
 }}
 \item{\code{jacobian}}{A logical. If \code{TRUE}, the
-final Jacobian used for the numerical solution is stored in the public field
-\code{mdl$jacob} of the model object. The default is \code{TRUE}.}
+final Jacobian used for the numerical solution is stored in the model object.
+It can be retrieved with method \code{\link{get_jacobian}}. The default is \code{TRUE}.}
 \item{\code{print_jacobian}}{A logical. If \code{TRUE}, the final Jacobian used for the numerical
 solution is printed. The default is \code{TRUE}.}
 \item{\code{...}}{Additional arguments passed to the \link[nleqslv:nleqslv]{nleqslv::nleqslv}
@@ -129,7 +129,8 @@ The \code{IsisMdl} object itself (invisibly), with missing values filled in.
 Because \code{IsisMdl} is an R6 reference object, the model is modified
 in place; the return value and the original object are the same.
 If \code{jacobian = TRUE}, the final Jacobian matrix is stored in the
-public field \code{mdl$jacob} (rows = observed variables, columns = solve
+model object and can be retrieved with method \code{\link{get_jacobian}}
+(rows = observed variables, columns = solve
 variables of the last group processed).
 }
 
@@ -180,7 +181,7 @@ mdl_copy$fill_mdl_data_solve(
 )
 
 # Access the Jacobian matrix from the last numerical solution
-print(mdl_copy$jacob)
+print(mdl_copy$get_jacobian())
 
 
 }

@@ -62,10 +62,12 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
 
   expect_true("fill_mdl_data_solve" %in% names(mdl))
 
-  mdl_solved <- mdl$fill_mdl_data_solve(
-    solve_df = solve_df,
-    report = "no"
-  )
+  expect_output({
+    mdl_solved <- mdl$fill_mdl_data_solve(
+      solve_df = solve_df,
+      report = "no"
+    )
+  }, "Final jacobian")
 
   expect_s3_class(mdl_solved, "IsisMdl")
 
@@ -82,10 +84,12 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
   # Reset data before calling again
   mdl$init_data(data = data_init)
 
-  mdl_solved2 <- mdl$fill_mdl_data_solve(
-    solve_df = solve_df_single_group,
-    report = "no"
-  )
+  expect_output({
+    mdl_solved2 <- mdl$fill_mdl_data_solve(
+      solve_df = solve_df_single_group,
+      report = "no"
+    )
+  }, "Final jacobian")
   expect_equal(solved_data, mdl_solved2$get_data())
 })
 
@@ -105,12 +109,12 @@ test_that("fill_mdl_data_solve handles solve_df without group column", {
     test_period,        "obs3",            "y3",            0.1
   )
 
-  expect_message({
+  expect_output(expect_message({
     mdl_solved <- mdl$fill_mdl_data_solve(
       solve_df = solve_df,
       report = "no"
     )
-  }, "There were no groups")
+  }, "There were no groups"), "Final jacobian")
 
 })
 
@@ -129,12 +133,12 @@ test_that("fill_mdl_data_solve handles solve_df without initial_guess column", {
     test_period,        "C",   "obs3",            "y3"
   )
 
-  expect_message({
+  expect_output(expect_message({
     mdl_solved <- mdl$fill_mdl_data_solve(
       solve_df = solve_df,
       report = "no"
     )
-  }, "No initial_guess is given")
+  }, "No initial_guess is given"), "Final jacobian")
 
   # Test with invalid initial_guess (should error)
   solve_df3 <- tribble(
@@ -167,12 +171,12 @@ test_that("fill_mdl_data_solve validates initial_guess values", {
     test_period,        "C",   "obs3",            "y3",            NA
   )
 
-  expect_no_error({
+  expect_output(expect_no_error({
     mdl_solved <- mdl$fill_mdl_data_solve(
       solve_df = solve_df,
       report = "no"
     )
-  })
+  }), "Final jacobian")
 
 })
 
@@ -228,12 +232,12 @@ test_that("fill_mdl_data_solve handles duplicate groups", {
     test_period,        "B",   "obs3",            "y3",            0.1,
   )
 
-  expect_no_error({
+  expect_output(expect_no_error({
     mdl_solved <- mdl$fill_mdl_data_solve(
       solve_df = solve_df,
       report = "no"
     )
-  })
+  }), "Final jacobian")
 
 })
 
@@ -251,11 +255,13 @@ test_that("fill_mdl_data_solve with period parameter", {
     test_period,     "A",              "obs1",            "y1",           0.1
   )
 
-  mdl_solved <- mdl$fill_mdl_data_solve(
-    period = solve_period,
-    solve_df = solve_df,
-    report = "no"
-  )
+  expect_output({
+    mdl_solved <- mdl$fill_mdl_data_solve(
+      period = solve_period,
+      solve_df = solve_df,
+      report = "no"
+    )
+  }, "Final jacobian")
 
   expect_s3_class(mdl_solved, "IsisMdl")
   expect_false(is.null(mdl_solved$get_data()))
@@ -276,10 +282,12 @@ test_that("fill_mdl_data_solve with known output", {
     test_period,      "B",             "obs2",            "y2",       0.1
   )
 
-  mdl_solved <- mdl$fill_mdl_data_solve(
-    solve_df = solve_df,
-    report = "no"
-  )
+  expect_output({
+    mdl_solved <- mdl$fill_mdl_data_solve(
+      solve_df = solve_df,
+      report = "no"
+    )
+  }, "Final jacobian")
 
   solved_data <- mdl_solved$get_data()
 
@@ -524,7 +532,7 @@ test_that("fill_mdl_data_solve: jacob is NULL when jacobian = FALSE", {
 
   mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = FALSE)
 
-  expect_null(mdl$jacob)
+  expect_null(mdl$get_jacobian())
 })
 
 test_that("fill_mdl_data_solve: jacob is a matrix with correct dims when jacobian = TRUE", {
@@ -539,9 +547,12 @@ test_that("fill_mdl_data_solve: jacob is a matrix with correct dims when jacobia
     test_period,   "A",   "obs2",             "y2",            0.1
   )
 
-  mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE)
+  expect_output(
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE),
+    "Final jacobian"
+  )
 
-  jac <- mdl$jacob
+  jac <- mdl$get_jacobian()
   expect_true(is.matrix(jac))
   expect_equal(dim(jac), c(2L, 2L))
   expect_equal(rownames(jac), c("obs1", "obs2"))
@@ -561,9 +572,12 @@ test_that("fill_mdl_data_solve: jacob reflects the last group solved", {
     test_period,   "B",   "obs2",             "y2",            0.1
   )
 
-  mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE)
+  expect_output(
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE),
+    "Final jacobian"
+  )
 
-  jac <- mdl$jacob
+  jac <- mdl$get_jacobian()
   expect_true(is.matrix(jac))
   # Last group is B: 1x1 jacobian with observed = obs2, solve = y2
   expect_equal(rownames(jac), "obs2")
@@ -587,12 +601,18 @@ test_that("fill_mdl_data_solve: jacob is updated on repeated calls", {
   )
 
   mdl$init_data(data = data_init)
-  mdl$fill_mdl_data_solve(solve_df = solve_df1, report = "no", jacobian = TRUE)
-  jac1 <- mdl$jacob
+  expect_output(
+    mdl$fill_mdl_data_solve(solve_df = solve_df1, report = "no", jacobian = TRUE),
+    "Final jacobian"
+  )
+  jac1 <- mdl$get_jacobian()
 
   mdl$init_data(data = data_init)
-  mdl$fill_mdl_data_solve(solve_df = solve_df2, report = "no", jacobian = TRUE)
-  jac2 <- mdl$jacob
+  expect_output(
+    mdl$fill_mdl_data_solve(solve_df = solve_df2, report = "no", jacobian = TRUE),
+    "Final jacobian"
+  )
+  jac2 <- mdl$get_jacobian()
 
   expect_equal(dim(jac1), c(1L, 1L))
   expect_equal(dim(jac2), c(2L, 2L))

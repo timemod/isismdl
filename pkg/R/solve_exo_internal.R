@@ -138,8 +138,8 @@ solve_exo_internal <- function(
   }
 
   if (exists("last_jac")) {
-    mdl$jacob <- last_jac
+    return(last_jac)
+  } else {
+    return(NULL)
   }
-
-  invisible(mdl)
 }

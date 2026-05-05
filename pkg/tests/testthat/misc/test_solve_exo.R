@@ -165,7 +165,7 @@ test_that("solve_exo: jacob is NULL when jacobian = FALSE", {
     jacobian = FALSE
   )
 
-  expect_null(mdl$jacob)
+  expect_null(mdl$get_jacobian())
 })
 
 test_that("solve_exo: jacob is a matrix with correct dims when jacobian = TRUE", {
@@ -187,7 +187,7 @@ test_that("solve_exo: jacob is a matrix with correct dims when jacobian = TRUE",
     jacobian = TRUE
   )
 
-  jac <- mdl$jacob
+  jac <- mdl$get_jacobian()
   expect_true(is.matrix(jac))
   expect_equal(dim(jac), c(2L, 2L))
   expect_equal(rownames(jac), c("obs1", "obs2"))
@@ -210,7 +210,7 @@ test_that("solve_exo: jacob is updated on repeated calls", {
     report = "none",
     jacobian = TRUE
   )
-  jac1 <- mdl$jacob
+  jac1 <- mdl$get_jacobian()
 
   # Second call: period range — jacob reflects last period solved
   mdl$solve_exo(
@@ -220,7 +220,7 @@ test_that("solve_exo: jacob is updated on repeated calls", {
     report = "none",
     jacobian = TRUE
   )
-  jac2 <- mdl$jacob
+  jac2 <- mdl$get_jacobian()
 
   expect_true(is.matrix(jac1))
   expect_true(is.matrix(jac2))
