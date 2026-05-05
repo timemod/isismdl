@@ -65,10 +65,16 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     character(0)
   }
 
+  # Determine the minimum period with data.
+  # Recursion stops when the period smaller than this period minus 1.
+  data_period <- mdl$get_data_period()
+  if (is.null(data_period)) {
+    stop("The model period has not been set. Set the model period with ",
+         "set_period() or init_data().")
+  }
+  min_period_data <- start_period(data_period)
   if (nrow(observed_data) > 0) {
-    min_period_obs <- min(period(observed_data$period))
-  } else {
-    min_period_obs <- start_period(mdl$get_data_period())
+    min_period_data <- min(min_period_data, min(period(observed_data$period)))
   }
 
   vertices_observed <- to_vertex_names(observed_data)
@@ -76,90 +82,104 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   g <- make_empty_graph()
 
   # Function to create a new vertex.
-  add_vertex <- function(g, vertex_name, observed, is_endo, is_final_dest) {
+  add_vertex <- function(g, vertex_name, observed, is_endo, is_final_dest,
+                         is_solvable) {
+
     g <- add_vertices(g, 1, name = vertex_name, ok = NA,
                       observed = observed, calculable = NA,
                       is_endo = is_endo,
                       is_final_dest = is_final_dest,
+                      solvable = if (has_solvable) is_solvable else NULL,
                       msg = NA)
-    if (has_solvable) {
-      idx <- which(V(g)$name == vertex_name)
-      g <- set_vertex_attr(g, "solvable", index = idx,
-                           value =  vertex_name %in% vertices_solvable)
-    }
     g
   }
 
   .find_deps <- function(var_per) {
 
-    # Recursion is stopped when the period is before the threshold (min_period_obs).
+    # Recursion is stopped when the period is smaller than min_period_data - 1
 
     vertex_name <- as.character(var_per)
+    vertex_exists <- vertex_name %in% V(g)$name
+
+    # If the vertex already exists in the graph, then check if the recursion
+    # for this vertex has already been completed. This is the case when
+    # attribute 'ok' is not NA. In that case just return the status (o.k.)
+    # of this vertex.
+    if (vertex_exists) {
+      # Compute the index of the vertex with name 'vertex_name':
+      idx <- which(V(g)$name == vertex_name)
+      ok <- V(g)[idx]$ok
+      if (!is.na(ok)) {
+        return(ok)
+      }
+    }
+
     var <- var_per$var
     per <- var_per$period
 
     is_endo <- var %in% endo_names
-
-    # Check if the variable is observed at the specified period
     observed <- vertex_name %in% vertices_observed
     is_final_dest <- vertex_name %in% vertices_final_dest
     is_solvable <- vertex_name %in% vertices_solvable
 
-    color_ok <- if (is_final_dest) COLOR_FINAL_DEST_OK else COLOR_CALCULABLE
-    color_not_ok <- if (is_final_dest) COLOR_FINAL_DEST_ERR else COLOR_ERR
-
-    if (vertex_name %in% V(g)$name) {
-      ok <- V(g)[V(g)$name == vertex_name]$ok
-      # if OK is not NA, the vertex creating has not finished yet.
-      if (!is.na(ok)) {
-        return(ok)
-      }
-    } else {
-      # Create a new vertex.
+    # Create a new vertex.
+    if (!vertex_exists) {
       g <<- add_vertex(g, vertex_name = vertex_name, observed = observed,
-                       is_endo = is_endo, is_final_dest = is_final_dest)
+                       is_endo = is_endo, is_final_dest = is_final_dest,
+                       is_solvable = is_solvable)
+      # Compute the index of the vertex with name 'vertex_name':
+      idx <- which(V(g)$name == vertex_name)
     }
 
-    # Compute the index the vertex with name 'vertex_name'
-    idx <- which(V(g)$name == vertex_name)
+    # Color for vertex with an error.
+    color_not_ok <- if (is_final_dest) COLOR_FINAL_DEST_ERR else COLOR_ERR
 
     # Check if vertex is a final source, in that case return.
     if (has_final_sources) {
       is_final_src <- vertex_name %in% vertices_final_src
       g <<- set_vertex_attr(g, "is_final_src", index = idx, value = is_final_src)
       if (is_final_src) {
-        g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
-        g <<- igraph::set_vertex_attr(g, "color", index = idx, value = COLOR_FINAL_SRC)
+        g <<- set_vertex_attr(g, "ok", index = idx, value = TRUE)
+        g <<- set_vertex_attr(g, "color", index = idx, value = COLOR_FINAL_SRC)
         return(TRUE)
       }
     }
 
     # Check if the variable is observed.
     if (observed && (!is_final_dest || stop_if_final_dest_observed)) {
-      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
-      g <<- igraph::set_vertex_attr(
+      g <<- set_vertex_attr(g, "ok", index = idx, value = TRUE)
+      g <<- set_vertex_attr(
         g, "color", index = idx,
         value = if (is_final_dest) COLOR_FINAL_DEST_OK else COLOR_OBSERVED
       )
       return(TRUE)
     }
 
-    # Check if the variable is exogenous. If not in data, this
-    # is an error
+    # Check if the variable is exogenous. This is an error, because the variable
+    # is not observed.
     if (!is_endo) {
-      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
-      g <<- igraph::set_vertex_attr(g, "msg", index = idx, value = "Missing exo")
-      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_not_ok)
+      g <<- set_vertex_attr(g, "ok", index = idx, value = FALSE)
+      g <<- set_vertex_attr(g, "msg", index = idx, value = "Missing exo")
+      g <<- set_vertex_attr(g, "color", index = idx, value = color_not_ok)
       return(FALSE)
     }
 
-    # Check if the period outside the period range
-    if (per < min_period_obs - 1) {
-      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
-      g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = FALSE)
-      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_not_ok)
-      g <<- igraph::set_vertex_attr(g, "msg", index = idx, value = "outside period range")
+    # Break the recursion if the period is before min_period_data - 1.
+    if (per < min_period_data - 1) {
+      g <<- set_vertex_attr(g, "ok", index = idx, value = FALSE)
+      g <<- set_vertex_attr(g, "calculable", index = idx, value = FALSE)
+      g <<- set_vertex_attr(g, "color", index = idx, value = color_not_ok)
+      g <<- set_vertex_attr(g, "msg", index = idx, value = "outside period range")
       return(FALSE)
+    }
+
+    # Color for a vertex for an endogenous variable that is OK:
+    color_endo_ok <- if (is_final_dest) {
+      COLOR_FINAL_DEST_OK
+    } else if (is_solvable) {
+      COLOR_SOLVABLE
+    } else {
+      COLOR_CALCULABLE
     }
 
     # Now check dependencies
@@ -167,12 +187,12 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     deps_new <- dep_struc[[var]]
 
     if (is.null(deps_new)) {
-      # Als de variabele geen dependencies heeft en geen exogene variabele is,
-      # heeft de variabele de structuur zoals x = 0 (aan de rechterkant alleen
-      # getallen of parameters).
-      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
-      g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = TRUE)
-      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_ok)
+      # The variable is endogenous but has no dependencies.
+      # This is the case for equations such as x = 0 (the right hand side
+      # of the equation only contains constants or parameters).
+      g <<- set_vertex_attr(g, "ok", index = idx, value = TRUE)
+      g <<- set_vertex_attr(g, "calculable", index = idx, value = TRUE)
+      g <<- set_vertex_attr(g, "color", index = idx, value = color_endo_ok)
       return(TRUE)
     }
 
@@ -183,9 +203,9 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       deps_new <- anti_join(deps_new, observed_data,  by = c("var", "period"))
       if (nrow(deps_new) == 0) {
         # The variable only depends on observed variables.
-        g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
-        g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = TRUE)
-        g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color_ok)
+        g <<- set_vertex_attr(g, "ok", index = idx, value = TRUE)
+        g <<- set_vertex_attr(g, "calculable", index = idx, value = TRUE)
+        g <<- set_vertex_attr(g, "color", index = idx, value = color_endo_ok)
         return(TRUE)
       }
     }
@@ -194,6 +214,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     deps_new <- split(deps_new, seq_len(nrow(deps_new)))
     deps_new <- lapply(deps_new, FUN = \(x) do.call(new_var_period, x))
 
+    # Add edges from dependencies to the current vertex.
     for (dep_new in deps_new) {
       vertex_name_dep <- as.character(dep_new)
       if (!vertex_name_dep %in% V(g)$name) {
@@ -202,55 +223,44 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
           g, vertex_name = vertex_name_dep,
           observed = vertex_name_dep %in% vertices_observed,
           is_endo =  var_name %in% endo_names,
-          is_final_dest =  vertex_name_dep %in% vertices_final_dest
+          is_final_dest =  vertex_name_dep %in% vertices_final_dest,
+          is_solvable = vertex_name_dep %in% vertices_solvable
         )
       }
       g <<- add_edges(g, c(vertex_name_dep, vertex_name))
     }
 
-    # recursively find dependencies
+    # Recursively find dependencies
     calculable <- TRUE
     for (dep_new in deps_new) {
       vertex_ok <- .find_deps(dep_new)
-
-      # If the dependency is not calculable, but it is solvable, we can still
-      # consider it "calculable" for the purpose of the current node.
-      if (!vertex_ok && has_solvable) {
-        vertex_name_dep <- as.character(dep_new)
-        if (vertex_name_dep %in% vertices_solvable) {
-          vertex_ok <- TRUE
+      if (!vertex_ok && calculable) {
+        calculable <- FALSE
+        # If this node not a final destination, the dependency check for
+        # other nodes may be skipped.
+        if (!is_final_dest) {
+          break
         }
       }
-
-      if (!vertex_ok) {
-        calculable <- FALSE
-        break
-      }
     }
 
-    ok <- calculable || observed
-
-    # Updaten dependency structure
-    if (ok) {
-      # Calculable or observed
-      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = TRUE)
-      g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = calculable)
-      color <- if (is_solvable) COLOR_SOLVABLE else color_ok
-      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color)
-      return(TRUE)
-    } else {
-      # Not calculable or observed.
-      g <<- igraph::set_vertex_attr(g, "ok", index = idx, value = FALSE)
-      g <<- igraph::set_vertex_attr(g, "calculable", index = idx, value = FALSE)
-      color <- if (is_solvable) COLOR_SOLVABLE else color_not_ok
-      g <<- igraph::set_vertex_attr(g, "color", index = idx, value = color)
-      # Remove incoming edges from an incalculable node, except if this is a
-      # final node.
-      if (!is_final_dest) {
-        g <<- delete_edges(g, incident(g, vertex_name, mode = "in"))
-      }
-      return(FALSE)
+    # Remove incoming edges from an incalculable node, except if this is a
+    # final destination.
+    if (!calculable && !is_final_dest) {
+      g <<- delete_edges(g, incident(g, vertex_name, mode = "in"))
     }
+
+    # A vertex for an endogenous variable is OK if it is calculable, observed or
+    # solvable.
+    ok <- calculable || observed || is_solvable
+
+    # Set vertex attributes ok, calculable and color:
+    g <<- set_vertex_attr(g, "ok", index = idx, value = ok)
+    g <<- set_vertex_attr(g, "calculable", index = idx, value = calculable)
+    g <<- set_vertex_attr(g, "color", index = idx,
+                          value = if (ok) color_endo_ok else color_not_ok)
+
+    return(ok)
   }
 
   for (i in seq_len(nrow(final_destinations))) {
@@ -265,6 +275,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
   # goal. Pruning is performed in two primary steps to refine the graph:
 
   # Step 1: Remove vertices that have no path to a final destination.
+  # These are vertices that have a broken path to a final destination because an
+  # intermediate vertex is incalculable.
   # We identify all vertices that have a path *to* a final destination by
   # traversing the graph backwards from the destinations.
   final_dest_vertices <- V(g)[V(g)$is_final_dest == TRUE]
@@ -301,13 +313,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Issue a message if any solvable variables are missing from the final graph
     removed_solvable <- setdiff(vertices_solvable, names(V(g)))
     if (length(removed_solvable) > 0) {
-      # Create a temporary graph to leverage as_data_frame_deps for parsing names
-      g_removed <- make_empty_graph() |>
-        add_vertices(length(removed_solvable), name = removed_solvable)
-      rem_solv_df <- as_data_frame_deps(g_removed) |>
-        dplyr::select("var", "period")
-
-      message("The following solvable variables have been removed because ",
+      rem_solv_df <- vertex_names_to_df(removed_solvable)
+      message("The following solvable variables have been removed because\n",
               "they have no calculable path to a final destination:\n",
               paste(capture.output(print(as.data.frame(rem_solv_df), row.names = FALSE)),
                     collapse = "\n"))
@@ -359,6 +366,10 @@ find_deps <- function(mdl, final_destinations, final_sources,
   if (is.null(observed_data)) {
     observed_data <- get_observed_data(mdl$get_data())
   }
+  check_var_period_df(final_destinations, "final destinations")
+  check_var_period_df(final_sources, "final sources")
+  check_var_period_df(solvable, "solvable")
+  check_var_period_df(observed_data, "observed data", check_value = TRUE)
 
   endo_names <- mdl$get_endo_names()
 
@@ -380,11 +391,6 @@ find_deps <- function(mdl, final_destinations, final_sources,
   check_overlap(v_dest, v_solv,
                 "The following final destination vertices are also solvable")
 
-  # Check for duplicates
-  check_unique(v_dest, "final destination")
-  check_unique(v_src, "final source")
-  check_unique(v_solv, "solvable")
-  check_unique(v_obs, "observed data")
 
   find_deps_internal(final_destinations = final_destinations,
                      final_sources = final_sources,
