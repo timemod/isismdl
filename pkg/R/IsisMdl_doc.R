@@ -2730,16 +2730,20 @@ NULL
 #' \describe{
 #' \item{\code{final_destinations}}{A data frame with columns \code{var}
 #'   and \code{period}. These are the targets whose full dependency chain
-#'   will be traced.}
+#'   will be traced. Warning: if argument `solvable` has been specified, then all
+#'   final destinations that do not depend on any solvable are
+#'   silently removed. See Details.}
 #' \item{\code{final_sources}}{An optional data frame with columns \code{var}
 #'   and \code{period}. Recursion stops when a final source is reached;
 #'   the vertex is coloured yellow and marked as OK without further tracing.
 #'   Must be endogenous model variables.}
 #' \item{\code{solvable}}{An optional data frame with columns \code{var}
-#'   and \code{period}. A vertex whose dependencies are all either OK
-#'   or solvable is itself considered OK. Cannot overlap with
-#'   \code{observed_data} or \code{final_sources}. See section
-#'   "Solvable vertices" for more information.}
+#'   and \code{period}. The variables must be endogenous. A solvable vertex is
+#'   always marked as resolved (OK), even if its own dependencies are not all OK.
+#'   If this argument is provided, the final graph is pruned by removing all
+#'   vertices that cannot be reached from the solvable vertices.
+#'   See section "Solvable vertices" for more information.
+#'   Cannot overlap with \code{observed_data} or \code{final_sources}.}
 #' \item{\code{observed_data}}{An optional data frame containing the observed
 #'   variable-period pairs. If omitted, the data currently in the model
 #'   object is used.}
@@ -2766,8 +2770,10 @@ NULL
 #'   computed by evaluating its model equation based on the
 #'   observed data or an initial guess for the solvable variables (see
 #'   section "Solvable vertices"). To be specific, it is `TRUE` if all its
-#'   incoming vertices are either OK (\code{ok == TRUE}) or
-#'   are solvable vertices.}
+#'   incoming vertices are either OK (\code{ok == TRUE}).
+#'   It is `FALSE` if the value cannot be computed,
+#'   because the dependencies are not observed or calculable,
+#'   and `NA` if the vertex is observed or a final source.}
 #' \item{\code{observed}}{\code{TRUE} if the variable-period pair appears
 #'   in \code{observed_data}.}
 #' \item{\code{is_endo}}{\code{TRUE} if the variable is
@@ -2789,16 +2795,25 @@ NULL
 #' \item The variable is observed in \code{observed_data} (and either it is
 #'   not a final destination, or \code{stop_if_final_dest_observed = TRUE}).
 #' \item The variable is exogenous and not observed — it is marked as not OK.
-#' \item The period is further back than the minimum observed period minus one —
-#'   it is marked as not OK.
+#' \item The period is further back than the minimum data period minus one —
+#'   it is marked as not OK. The minimum data period is defined as the minimum of
+#'   \enumerate{
+#'      \item the minimum period of `observed_data`
+#'      \item the start period of the model data of `mdl`.
+#'   }
 #' \item The vertex is a final source (treated as given).
 #' }
+#'
+#' If a vertex for an endogenous variable is incalculable, all incoming edges
+#' to that vertex are removed, except if the vertex is a final destination.
+#' This may result in broken paths between vertices and final
+#' destinations.
 #'
 #' After the recursion, the graph is pruned in two steps:
 #' \enumerate{
 #'   \item All vertices that have no path to any final destination are removed.
-#'         This is necessary because some paths may be broken during recursion
-#'         (e.g. due to missing exogenous data).
+#'         This is necessary because some paths may be broken due to
+#'         incalculable vertices, as explained before.
 #'   \item If \code{solvable} is supplied, the graph is further restricted to
 #'         the subgraph reachable from the solvable variables. This means that
 #'         final destinations that have no path from any solvable vertex are
@@ -2816,7 +2831,7 @@ NULL
 #'   \strong{Color} \tab \strong{Description} \cr
 #'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:cyan;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{cyan} \tab Final destination vertex that is resolved (OK, i.e. `ok == TRUE`). \cr
 #'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:purple;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{purple} \tab Final destination vertex that cannot be resolved (not OK). \cr
-#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:pink;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{pink} \tab Solvable vertex (OK or not OK) \cr
+#'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:pink;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{pink} \tab Solvable vertex (OK) \cr
 #'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:yellow;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{yellow} \tab Final source vertex (OK) \cr
 #'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:lightgrey;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{lightgrey} \tab Observed variable (OK) \cr
 #'   \ifelse{html}{\out{<span style="display:inline-block;width:12px;height:12px;background-color:#00FF00;border:1px solid #999;border-radius:2px;vertical-align:middle;margin-right:4px;"></span>}}{} \code{green} \tab Endogenous variable that is not observed but is calculable (OK). \cr
@@ -2849,7 +2864,8 @@ NULL
 #' dependent (A -> B means B depends on A). Each vertex carries the
 #' attributes described in the Details section.
 #'
-#' @seealso \code{\link{fill_mdl_data_solve}}, \code{\link{get_dep_struct}}.
+#' @seealso \code{\link{fill_mdl_data_solve}}, \code{\link{get_dep_struct}},
+#' and [as_data_frame_deps].
 #'
 #' @examples
 #'
@@ -2865,17 +2881,21 @@ NULL
 #'
 #' observed <- data.frame(
 #'   var    = c("y1", "z1", "z2"),
-#'   period = c("2018Q3", "2018Q4", "2018Q4")
+#'   period = c("2018Q3", "2018Q4", "2018Q4"),
+#'   value  = c(10, 20, 30)
 #' )
 #' solvable <- data.frame(var = "y1", period = "2018Q4")
 #'
-#' g2 <- mdl$find_deps(
+#' g <- mdl$find_deps(
 #'   final_destinations = data.frame(var = "y3", period = "2018Q4"),
 #'   observed_data = observed,
 #'   solvable = solvable
 #' )
 #'
-#' plot(g2)
+#' plot(g)
+#'
+#' # print the graph as data frame
+#' print(as_data_frame_deps(g))
 NULL
 
 

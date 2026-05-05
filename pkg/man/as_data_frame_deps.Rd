@@ -19,7 +19,8 @@ from the graph. All vertex attributes (such as \code{ok}, \code{observed},
 This utility function takes a directed graph returned by
 \code{\link{find_deps}} and converts its vertex attributes into a clean,
 tabular format. It parses the vertex names (e.g. \code{"var[period]"}) into
-separate \code{var} and \code{period} columns.
+separate \code{var} and \code{period} columns. For an example,
+see \link{find_deps}.
 }
 \seealso{
 \code{\link{find_deps}}
