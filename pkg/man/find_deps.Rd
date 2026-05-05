@@ -192,7 +192,8 @@ mdl$init_data()
 
 observed <- data.frame(
   var    = c("y1", "z1", "z2"),
-  period = c("2018Q3", "2018Q4", "2018Q4")
+  period = c("2018Q3", "2018Q4", "2018Q4"),
+  value  = c(10, 20, 30)
 )
 solvable <- data.frame(var = "y1", period = "2018Q4")
 
