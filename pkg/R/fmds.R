@@ -171,7 +171,6 @@ fmds <- function(
   if (print_jacobian && exists("last_jac") && !is.null(last_jac)) {
     cat("Final jacobian:\n")
     print(last_jac)
-    cat("\n")
   }
 
   # Finally solve for missing data for the full period again, more variables
