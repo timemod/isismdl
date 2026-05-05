@@ -135,3 +135,40 @@ check_unique <- function(v, label) {
     )
   }
 }
+
+check_var_period_df <- function(df, label, check_value = FALSE) {
+  if (is.null(df)) {
+    return()
+  }
+  if (!is.data.frame(df)) {
+    stop(sprintf("%s must be a data frame.", label))
+  }
+  if (!all(c("var", "period") %in% names(df))) {
+    stop(sprintf("%s must have columns 'var' and 'period'.", label))
+  }
+  if (nrow(df) == 0) {
+    return()
+  }
+
+  # Check if periods are valid regts periods
+  tryCatch({
+    regts::as.period(df$period)
+  }, error = function(e) {
+    stop(sprintf("Invalid periods in %s: %s", label, e$message))
+  })
+
+  if (check_value) {
+    if (!"value" %in% names(df)) {
+      stop(sprintf("%s must have a 'value' column.", label))
+    }
+    if (!is.numeric(df$value)) {
+      stop(sprintf("Column 'value' in %s must be numeric.", label))
+    }
+    if (any(is.na(df$value))) {
+      stop(sprintf("Column 'value' in %s contains NAs.", label))
+    }
+  }
+
+  v_names <- to_vertex_names(df)
+  check_unique(v_names, label)
+}

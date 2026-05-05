@@ -366,12 +366,10 @@ find_deps <- function(mdl, final_destinations, final_sources,
   if (is.null(observed_data)) {
     observed_data <- get_observed_data(mdl$get_data())
   }
-  # TODO: check final_destinations, final_soucres, solvable, observed data (if specified):
-  # do they have the correct structure (a data.frame with columns var and period,
-  # the data frame may contain more columns, that is not a problem).
-  # So create a function for this. The function should also check that observed_data
-  # are valid numbers, and that periods are valid regts periods.
-  # The function check_unique can be part of that function.
+  check_var_period_df(final_destinations, "final destinations")
+  check_var_period_df(final_sources, "final sources")
+  check_var_period_df(solvable, "solvable")
+  check_var_period_df(observed_data, "observed data", check_value = TRUE)
 
   endo_names <- mdl$get_endo_names()
 
@@ -393,11 +391,6 @@ find_deps <- function(mdl, final_destinations, final_sources,
   check_overlap(v_dest, v_solv,
                 "The following final destination vertices are also solvable")
 
-  # Check for duplicates
-  check_unique(v_dest, "final destination")
-  check_unique(v_src, "final source")
-  check_unique(v_solv, "solvable")
-  check_unique(v_obs, "observed data")
 
   find_deps_internal(final_destinations = final_destinations,
                      final_sources = final_sources,

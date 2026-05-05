@@ -2771,7 +2771,7 @@ NULL
 #'   observed data or an initial guess for the solvable variables (see
 #'   section "Solvable vertices"). To be specific, it is `TRUE` if all its
 #'   incoming vertices are either OK (\code{ok == TRUE}).
-#'   It is `FALSE` is the value cannot be computed,
+#'   It is `FALSE` if the value cannot be computed,
 #'   because the dependencies are not observed or calculable,
 #'   and `NA` if the vertex is observed or a final source.}
 #' \item{\code{observed}}{\code{TRUE} if the variable-period pair appears

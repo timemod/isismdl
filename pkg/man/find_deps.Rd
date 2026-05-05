@@ -80,7 +80,7 @@ computed by evaluating its model equation based on the
 observed data or an initial guess for the solvable variables (see
 section "Solvable vertices"). To be specific, it is \code{TRUE} if all its
 incoming vertices are either OK (\code{ok == TRUE}).
-It is \code{FALSE} is the value cannot be computed,
+It is \code{FALSE} if the value cannot be computed,
 because the dependencies are not observed or calculable,
 and \code{NA} if the vertex is observed or a final source.}
 \item{\code{observed}}{\code{TRUE} if the variable-period pair appears

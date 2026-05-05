@@ -28,10 +28,10 @@ test_that("find_deps basic functionality", {
 
   # observed_data is used to stop the search
   observed_data <- tribble(
-    ~var, ~period,
-    "y1", "2020",
-    "z1", "2021",
-    "z2", "2021"
+    ~var, ~period, ~value,
+    "y1", "2020", 1,
+    "z1", "2021", 1,
+    "z2", "2021", 1
   )
 
   g <- mdl$find_deps(final_destinations = final_destinations, observed_data = observed_data)
@@ -52,8 +52,8 @@ test_that("find_deps endo checks", {
   mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
 
   observed_data <- tribble(
-    ~var, ~period,
-    "y1", "2020"
+    ~var, ~period, ~value,
+    "y1", "2020", 1
   )
 
   # z1 is exogenous, so it should fail if provided as final destination
@@ -96,9 +96,9 @@ test_that("find_deps overlap checks", {
   )
 
   observed_data <- tribble(
-    ~var, ~period,
-    "y1", "2020",
-    "y2", "2021"
+    ~var, ~period, ~value,
+    "y1", "2020", 1,
+    "y2", "2021", 1
   )
 
   solvable <- tribble(
@@ -122,8 +122,8 @@ test_that("find_deps overlap checks", {
   )
   # Remove y2 from observed to only trigger the solvable vs final_sources check
   observed_data_clean <- tribble(
-    ~var, ~period,
-    "y1", "2020"
+    ~var, ~period, ~value,
+    "y1", "2020", 1
   )
 
   expect_error(
@@ -194,7 +194,7 @@ test_that("find_deps empty observed data", {
   final_dest <- tribble(~var, ~period, "y", "2021")
 
   g <- mdl$find_deps(final_destinations = final_dest,
-                     observed_data = tribble(~var, ~period))
+                     observed_data = data.frame(var = character(0), period = character(0), value = numeric(0)))
 
   expect_s3_class(g, "igraph")
   expect_true("y[2021]" %in% V(g)$name)
@@ -223,10 +223,10 @@ test_that("find_deps vertex colors", {
   mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
 
   observed <- tribble(
-    ~var, ~period,
-    "y1", "2020",
-    "x1", "2021",
-    "x2", "2021"
+    ~var, ~period, ~value,
+    "y1", "2020", 1,
+    "x1", "2021", 1,
+    "x2", "2021", 1
   )
   solvable <- tribble(~var, ~period, "y1", "2021")
   final_dest <- tribble(~var, ~period, "y3", "2021")
@@ -269,7 +269,7 @@ test_that("find_deps vertex attributes internal metadata", {
 
   solvable <- tribble(~var, ~period, "y1", "2021")
   final_dest <- tribble(~var, ~period, "y2", "2021")
-  observed <- tribble(~var, ~period, "x1", "2021", "x2", "2021")
+  observed <- tribble(~var, ~period, ~value, "x1", "2021", 1, "x2", "2021", 1)
 
   expect_message(
     g <- mdl$find_deps(final_destinations = final_dest,
@@ -308,7 +308,7 @@ test_that("find_deps warning for calculable solvables", {
   # x1 and x2 are observed in 2021.
   # So y1 is "calculable" in 2021 (y1 = x1).
   # If we mark y1 as solvable, it should trigger a warning.
-  observed <- tribble(~var, ~period, "x1", "2021", "x2", "2021")
+  observed <- tribble(~var, ~period, ~value, "x1", "2021", 1, "x2", "2021", 1)
   solvable <- tribble(~var, ~period, "y1", "2021")
   final_dest <- tribble(~var, ~period, "y2", "2021")
 
@@ -349,7 +349,7 @@ test_that("find_deps message for removed solvables", {
   expect_message(
     g <- mdl$find_deps(final_destinations = final_dest,
                        solvable = solvable,
-                       observed_data = tribble(~var, ~period)),
+                       observed_data = data.frame(var = character(0), period = character(0), value = numeric(0))),
     msg,
     fixed = TRUE
   )
@@ -371,7 +371,7 @@ test_that("find_deps uniqueness checks", {
   expect_error(
     mdl$find_deps(final_destinations = final_destinations),
     paste0(
-      "The following final destination variables are specified more than once ",
+      "The following final destinations variables are specified more than once ",
       "for the same period:\n",
       "y3[2021]."
     ),
@@ -388,7 +388,7 @@ test_that("find_deps uniqueness checks", {
   expect_error(
     mdl$find_deps(final_destinations = final_destinations_ok, final_sources = final_sources_bad),
     paste0(
-      "The following final source variables are specified more than once ",
+      "The following final sources variables are specified more than once ",
       "for the same period:\n",
       "y1[2020]."
     ),
@@ -409,9 +409,9 @@ test_that("find_deps uniqueness checks", {
 
   # 4. observed_data
   observed_bad <- tribble(
-    ~var, ~period,
-    "y1", "2020",
-    "y1", "2020"
+    ~var, ~period, ~value,
+    "y1", "2020", 1,
+    "y1", "2020", 1
   )
   expect_error(
     mdl$find_deps(final_destinations = final_destinations_ok, observed_data = observed_bad),
@@ -420,6 +420,48 @@ test_that("find_deps uniqueness checks", {
       "for the same period:\n",
       "y1[2020]."
     ),
+    fixed = TRUE
+  )
+})
+
+test_that("find_deps input validation", {
+  mdl <- isis_mdl(model_text = model_text, period = period, silent = TRUE)
+
+  expect_error(
+    mdl$find_deps(final_destinations = "not_a_df"),
+    "final destinations must be a data frame.",
+    fixed = TRUE
+  )
+
+  expect_error(
+    mdl$find_deps(final_destinations = data.frame(x = 1)),
+    "final destinations must have columns 'var' and 'period'.",
+    fixed = TRUE
+  )
+
+  expect_error(
+    mdl$find_deps(final_destinations = data.frame(var = "y3", period = "bad")),
+    "Invalid periods in final destinations"
+  )
+
+  expect_error(
+    mdl$find_deps(final_destinations = tribble(~var, ~period, "y3", "2021"),
+                  observed_data = data.frame(var = "y1", period = "2020")),
+    "observed data must have a 'value' column.",
+    fixed = TRUE
+  )
+
+  expect_error(
+    mdl$find_deps(final_destinations = tribble(~var, ~period, "y3", "2021"),
+                  observed_data = data.frame(var = "y1", period = "2020", value = "not_numeric")),
+    "Column 'value' in observed data must be numeric.",
+    fixed = TRUE
+  )
+
+  expect_error(
+    mdl$find_deps(final_destinations = tribble(~var, ~period, "y3", "2021"),
+                  observed_data = data.frame(var = "y1", period = "2020", value = NA_real_)),
+    "Column 'value' in observed data contains NAs.",
     fixed = TRUE
   )
 })
@@ -439,9 +481,9 @@ test_that("find_deps pruning logic: final destinations and unconnected vertices"
 
   # Scenario 1: solvable prunes disconnected final destinations and dependencies
   observed <- tribble(
-    ~var, ~period,
-    "x1", "2021",
-    "x3", "2021"
+    ~var, ~period, ~value,
+    "x1", "2021", 1,
+    "x3", "2021", 1
   )
   final_dest <- tribble(
     ~var, ~period,
@@ -470,7 +512,7 @@ test_that("find_deps pruning logic: final destinations and unconnected vertices"
 
   # Scenario 2: Vertices disconnected from final destinations are pruned
   final_dest2 <- tribble(~var, ~period, "y7", "2021")
-  observed2 <- tribble(~var, ~period, "x5", "2021") # x6 is missing
+  observed2 <- tribble(~var, ~period, ~value, "x5", "2021", 1) # x6 is missing
 
   g2 <- mdl$find_deps(final_destinations = final_dest2,
                       observed_data = observed2)
@@ -495,9 +537,9 @@ test_that("find_deps short-circuiting logic evaluates shared dependencies correc
 
   # Provide x2 and x3, but leave x1 missing.
   observed <- tribble(
-    ~var, ~period,
-    "x2", "2021",
-    "x3", "2021"
+    ~var, ~period, ~value,
+    "x2", "2021", 1,
+    "x3", "2021", 1
   )
 
   # y3 will be evaluated first, skipping y2. Then y4 evaluates y2.
@@ -547,7 +589,7 @@ test_that("error with no model data", {
     fixed = TRUE
   )
 
-  observed <- tribble(~var, ~period)
+  observed <- data.frame(var = character(0), period = character(0), value = numeric(0))
 
   expect_error(
     g <- mdl$find_deps(final_destinations = final_dest, observed = observed),
