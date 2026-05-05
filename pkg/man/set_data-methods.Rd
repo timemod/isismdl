@@ -97,7 +97,7 @@ in \code{data}. This can be achieved by selecting \code{"updval"} for argument
 \code{upd_mode}. Other non finite numbers (\code{NaN}, \code{Inf}, and
 \code{-Inf}) are also disregarded for this update mode.
 
-\code{set_ca}, \code{set_fix} and \code{set_fit} and
+\code{set_ca}, \code{set_fix}, \code{set_fit} and
 \code{set_data} work similarly.
 }
 

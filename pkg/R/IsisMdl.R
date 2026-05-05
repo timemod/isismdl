@@ -5,16 +5,15 @@ setOldClass("period_range")
 #'
 #' This class is used to solve a system of non-linear equations with lagged
 #' variables. The model equations are specified in a separate text file, the so
-#' called model file. Function  \code{\link{isis_mdl}} parses the model file
-#' and generates an \code{IsisMdl} object. The vignette "Introduction"
-#' gives a detailed description of the usage of \code{IsisMdl} objects.
+#' called **model file**. Function  \code{\link{isis_mdl}} parses the model file
+#' and generates an \code{IsisMdl} object. The vignette
+#' \href{../doc/isismdl.pdf}{\emph{"Introduction to Package `isismdl`}}
+#' describes how \code{IsisMdl} objects can be used.
+#' The vignette
+#' \href{../doc/isismdl_syntax.pdf}{\emph{Model Syntax Reference for Package `isismdl`}}
+#' describes the syntax of the model file.
 #'
-#' The syntax of the model file is the same of the syntax of model file
-#' in Isis, and is described in detail in the Isis Reference Manual
-#' (a vignette with a detailed model syntax description for package IsisMdl will be
-#' available in a future).
-#'
-#' The package included a number of example models in directory \code{models} of
+#' The package includes a number of example models in directory \code{models} of
 #' the package library. It is also possible to directly create \code{IsisMdl} objects with functions
 #' \code{\link{islm_mdl}} to create an ISLM model and \code{\link{ifn_mdl}}
 #' to create another example model, the IFN model. The latter model is a model with
@@ -136,7 +135,7 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{change_data}}}{Change model data by applying a function}
 #'
-#' \item{\code{\link{change_ca}}}{Change the constant adjusmtments by
+#' \item{\code{\link{change_ca}}}{Change the constant adjustments by
 #' applying a function}
 #'
 #' \item{\code{\link{get_data}}}{Returns the model data}
@@ -147,7 +146,7 @@ setOldClass("period_range")
 #'
 #' \item{\code{\link{get_fit}}}{Returns the fit targets}
 #'
-#' \item{\code{\link{set_rms}}}{Sets one or more the rms values used in the fit procedure}
+#' \item{\code{\link{set_rms}}}{Sets one or more rms values used in the fit procedure}
 #'
 #' \item{\code{\link{set_rms_values}}}{Sets the rms values used in the fit procedure}
 #'
@@ -172,9 +171,9 @@ setOldClass("period_range")
 #' \item{\code{\link{set_eq_status}}}{Sets the equation status
 #' \code{"active"} or \code{"inactive")}}
 #'
-#' \item{\code{\link{set_ftrelax}}}{Sets the Fair-Taylor relaxtion factors}
+#' \item{\code{\link{set_ftrelax}}}{Sets the Fair-Taylor relaxation factors}
 #'
-#' \item{\code{\link{get_ftrelax}}}{Returns the Fair-Taylor relaxtion factors}
+#' \item{\code{\link{get_ftrelax}}}{Returns the Fair-Taylor relaxation factors}
 #'
 #' \item{\code{\link{solve}}}{Solves the model}
 #'
@@ -399,7 +398,7 @@ IsisMdl <- R6Class("IsisMdl",
     get_simul_names = function() {
       sim_names <- .Call(C_get_simul_names_c, private$model_index)
       # Remove empty strings: get_simul_names_c returns an empty string for the
-      # lhs variabes of inacvtive euations.
+      # lhs variables of inactive equations.
       sim_names <- sim_names[sim_names != ""]
       return(sim_names)
     },
@@ -640,7 +639,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     get_param = function(pattern, names) {
-      # Return the parameters vaLues
+      # Return the parameter values
       if (missing(pattern) && missing(names)) {
         names <- self$get_par_names()
       } else if (missing(names)) {
@@ -1008,7 +1007,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(invisible(self))
     },
     get_ftrelax = function() {
-      "Returns the Fair-Taylor relaxtion factors"
+      "Returns the Fair-Taylor relaxation factors"
       values <- .Call(C_get_ftrelax_c, private$model_index)
       names(values) <- .Call(C_get_var_names_c, "endolead", private$model_index)
       sorted_names <- sort(names(values))
@@ -1361,7 +1360,7 @@ IsisMdl <- R6Class("IsisMdl",
 
       status <- if (active) "active" else "all"
 
-      # Get all equation names with the sepcified status
+      # Get all equation names with the specified status
       # Use order = "natural" because we don't care about the order here
       # and because sorting the equations can take a lot of time
       # for large models.
@@ -1380,8 +1379,11 @@ IsisMdl <- R6Class("IsisMdl",
             stop(error_vars, " is not an", type_text, "equation.")
           } else {
             stop(
-              "The following names are no", type_text, "equations: ",
-              paste(error_vars, collapse = ", "), "."
+              "The following names are not",
+              type_text,
+              "equations: ",
+              paste(error_vars, collapse = ", "),
+              "."
             )
           }
         }

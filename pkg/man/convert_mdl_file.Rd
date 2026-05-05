@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert_mdl_file.R
 \name{convert_mdl_file}
 \alias{convert_mdl_file}
-\title{Converts an \code{\link{IsisMdl}} a model file.}
+\title{Converts an \code{\link{IsisMdl}} model file.}
 \usage{
 convert_mdl_file(
   model_file,
@@ -28,7 +28,7 @@ See section "Parse option" in the description of function
 Returns \code{TRUE} is the model has been converted successfully.
 }
 \description{
-Converts an \code{\link{IsisMdl}} a model file.
+Converts an \code{\link{IsisMdl}} model file.
 }
 \section{Conversion options}{
 

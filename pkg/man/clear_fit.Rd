@@ -5,7 +5,7 @@
 \title{\code{\link{IsisMdl}} method: deletes all fit targets and rms values
 values}
 \description{
-This methods of R6 class \code{\link{IsisMdl}}
+This method of R6 class \code{\link{IsisMdl}}
 deletes all fit targets and root mean square (rms) error values
 for the fit procedure.
 }

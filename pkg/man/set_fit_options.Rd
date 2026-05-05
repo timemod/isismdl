@@ -85,7 +85,7 @@ even if \code{warn_zero_row = FALSE}.}
 \item{\code{warn_zero_col}}{A logical (default \code{FALSE}). IF \code{TRUE}, then a
 warning is issued for each column of the fit Jacobian for which all values are
 almost or exactly equal to zero. A column of the fit Jacobian contains the derivatives
-of all fit targets with respect to one particular residual. A columns is considered
+of all fit targets with respect to one particular residual. A column is considered
 almost zero if the L1-norm of that column is smaller than a fraction
 \eqn{\epsilon} of the largest L1-norm of the columns. \eqn{\epsilon} is the
 square root of the machine precision (typically \code{1.5e-8}).
@@ -103,7 +103,7 @@ When a model is badly scaled, the inverse condition number of the
 Jacobian may become small, which can lead to inaccurate or even unstable
 solutions. If \code{FALSE}, the fit procedure is only terminated when the
 inverse condition is exactly zero.}
-\item{\code{report}}{A character string specifying the the
+\item{\code{report}}{A character string specifying the
 type of report of the fit procedure for each period.
 Possible values are \code{"fullrep"}
 (the default, an iteration report is printed for each period)
@@ -180,7 +180,7 @@ F_k = \max_i \left\{ | w_i - y_i |  / \max(|w_i|,1) \right\}
 
 When \eqn{F_k \le \epsilon} where \eqn{0 < \epsilon < 1},
 absolute convergence has been achieved.
-The value of \eqn{epsilon} is specified with argument \code{cgvabs} (
+The value of \eqn{\epsilon} is specified with argument \code{cvgabs}
 (the default value is 100 times the square root of
 the machine precision, which is typically \code{1.5e-6}).
 If the zealous fit method is used (see Section The Zealous
@@ -191,8 +191,8 @@ Since evaluating the Jacobian of \eqn{h(u)} can be a time-consuming
 process, the Jacobian of a previous iteration can sometimes be reused for
 a next iteration.
 As long as \eqn{F_k \le \delta  F_{k-1}} where \eqn{0 < \delta < 0.95}
-the current Jacobian will not be recalculated, except when the zealous
-fit method is used and the the number
+the current Jacobian will not be recalculated,  except when the zealous
+fit method is used and the number
 of residuals is larger than the number of targets, see Section The Zealous
 and Lazy Fit Method.
 The default value for \eqn{\delta} is 0.5.
