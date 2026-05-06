@@ -214,40 +214,25 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     deps_new <- split(deps_new, seq_len(nrow(deps_new)))
     deps_new <- lapply(deps_new, FUN = \(x) do.call(new_var_period, x))
 
-    # Add edges from dependencies to the current vertex.
-    for (dep_new in deps_new) {
-      vertex_name_dep <- as.character(dep_new)
-      if (!vertex_name_dep %in% V(g)$name) {
-        var_name <- sub("\\[.+", "", vertex_name_dep)
-        g <<- add_vertex(
-          g, vertex_name = vertex_name_dep,
-          observed = vertex_name_dep %in% vertices_observed,
-          is_endo =  var_name %in% endo_names,
-          is_final_dest =  vertex_name_dep %in% vertices_final_dest,
-          is_solvable = vertex_name_dep %in% vertices_solvable
-        )
-      }
-      g <<- add_edges(g, c(vertex_name_dep, vertex_name))
-    }
-
     # Recursively find dependencies
     calculable <- TRUE
     for (dep_new in deps_new) {
       vertex_ok <- .find_deps(dep_new)
+      vertex_name_dep <- as.character(dep_new)
+      if (vertex_ok || is_final_dest) {
+        g <<- add_edges(g, c(vertex_name_dep, vertex_name))
+      }
       if (!vertex_ok && calculable) {
         calculable <- FALSE
         # If this node not a final destination, the dependency check for
         # other nodes may be skipped.
         if (!is_final_dest) {
+          # Remove incoming edges from an incalculable node if this is not a
+          # final
+          g <<- delete_edges(g, incident(g, vertex_name, mode = "in"))
           break
         }
       }
-    }
-
-    # Remove incoming edges from an incalculable node, except if this is a
-    # final destination.
-    if (!calculable && !is_final_dest) {
-      g <<- delete_edges(g, incident(g, vertex_name, mode = "in"))
     }
 
     # A vertex for an endogenous variable is OK if it is calculable, observed or
