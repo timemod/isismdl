@@ -61,10 +61,12 @@ Only the total number of replaced missing values is reported.}
 Defaults to \code{period} if not provided.
 }}
 \item{\code{jacobian}}{A logical. If \code{TRUE}, the
-final Jacobian used for the numerical solution is stored in the model object.
+final estimated Jacobian matrix from \code{nleqslv} used in the last iteration
+for the numerical solution is stored in the model object.
 It can be retrieved with method \code{\link{get_jacobian}}. The default is \code{TRUE}.}
-\item{\code{print_jacobian}}{A logical. If \code{TRUE}, the Jacobian used for the numerical
-solution is printed for each group and period. The default is \code{TRUE}.}
+\item{\code{print_jacobian}}{A logical. If \code{TRUE}, the Jacobian matrix used for the numerical
+solution is printed for each group and period. The default is \code{TRUE}. This is done
+only if \code{report == "period"}.}
 \item{\code{...}}{Additional arguments passed to the \link[nleqslv:nleqslv]{nleqslv::nleqslv}
 solver (e.g., \code{control},  \code{method}, \code{global}).}
 }

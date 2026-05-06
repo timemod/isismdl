@@ -2,6 +2,7 @@
 #'
 #' @param mdl A reference to an `IsisMdl` object. NOTE: the `IsisMdl` object is
 #'   modified in place.
+#' @param solve_group A string indicating the name of the group of solve variables.
 #' @param solve_period A `regts` period object specifying the period for which to solve.
 #' @param solve_variables A character vector with names of the variables to be solved.
 #' @param observed_variables A character vector with names of the variables whose
@@ -15,8 +16,11 @@
 #'   (returned by `dep_struct_to_list()`).
 #' @param report String ('no', 'period', or 'all') describing the level of reporting.
 #' @param jacobian Logical. Whether to calculate and use the Jacobian.
+#' @param print_jacobian Logical. Whether to print the Jacobian or not.
+#'   This argument can only be TRUE if report = "period".
 #' @param ... Extra arguments passed to `nleqslv`.
-#'
+#' @return Returns the last jacobian matrix used for group
+#' 
 #' @import regts
 #' @import nleqslv
 #' @importFrom graphics plot
@@ -27,7 +31,7 @@
 fmds_group <- function(
     mdl, solve_group, solve_period, solve_variables, observed_variables,
     initial_guess, observed_data, dep_struc, report, jacobian,
-    ...) {
+    print_jacobian, ...) {
 
   # Check arguments ------------------------------------------------------------
 
@@ -50,7 +54,7 @@ fmds_group <- function(
   equations <- deps[deps$calculable & deps$period == as.character(solve_period), ]$var
   if (report == "period") {
     cat(paste0("\nEquations to run: ", paste(equations, collapse = ", "),
-               "\n\n"))
+               "\n"))
   }
 
   observed_values <- mdl$get_data(names = observed_variables, period = solve_period) |>
@@ -88,12 +92,25 @@ fmds_group <- function(
          ret$message)
   }
 
+  if (jacobian && !is.null(ret$jac)) {
+    jac <- ret$jac
+    rownames(jac) <- observed_variables
+    colnames(jac) <- solve_variables
+    if (print_jacobian) {
+      cat("\nFinal estimated jacobian matrix:\n")
+      print(jac)
+      cat("\n")
+    }
+  } else {
+    jac <- NULL
+  }
+
   if (report == "period") {
     cat(glue("Convergence for {solve_period} in {ret$iter} iterations",
              ".\n", .trim = FALSE))
   }
 
-  return(invisible(ret))
+  jac
 }
 
 get_fit_deps <- function(observed_variables, solve_variables,

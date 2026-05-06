@@ -7,6 +7,8 @@
 #' @param report String ('no', 'period', or 'all') describing the level of reporting.
 #' @param default_initial_guess Numeric. The default initial guess if not specified in `solve_df`.
 #' @param jacobian Logical. Whether to calculate and use the Jacobian.
+#' @param print_jacobian Logical. Whether to print the Jacobian or not.
+#'   This argument can only be TRUE if report = "period".
 #' @param ... Extra arguments passed to `nleqslv`.
 #'
 #' @import regts
@@ -21,6 +23,9 @@
 fmds <- function(
     mdl, period, solve_df, report, default_initial_guess, jacobian,
     print_jacobian = TRUE, ...) {
+  
+  # Only print the jacobian when the full report is printed (report = "period").
+  if (report != "period") print_jacobian <- FALSE
 
   solve_df <- ensure_solve_df_cols(solve_df,
                                    default_initial_guess = default_initial_guess)
@@ -144,7 +149,7 @@ fmds <- function(
       # numerical vector used in nleqslv
       initial_guess_vector <- group_data$initial_guess
 
-      ret <- fmds_group(
+      jac <- fmds_group(
         mdl,
         solve_group = group_data$group[1],
         solve_period = this_period,
@@ -155,25 +160,16 @@ fmds <- function(
         initial_guess = initial_guess_vector,
         report = report,
         jacobian = jacobian,
+        print_jacobian = print_jacobian,
         ...
       )
 
-      if (!is.null(ret$jac)) {
-        last_jac <- ret$jac
-        rownames(last_jac) <- group_data$observed_variable
-        colnames(last_jac) <- group_data$solve_variable
-      }
-
-      if (print_jacobian && !is.null(ret$jac)) {
-        cat("\nJacobian:\n")
-        print(last_jac)
-      }
     }
 
     # Fill model data for this period.
     mdl$fill_mdl_data(period = this_period, report = "no", include_frmls = TRUE)
+    
   }
-
 
   # Finally solve for missing data for the full period again, more variables
   # may be calculated.
@@ -206,9 +202,6 @@ fmds <- function(
     cat("replaced", n_final_fill, "missing values by fill_mdl_data_solve based on solved values\n")
   }
 
-  if (exists("last_jac")) {
-    return(last_jac)
-  } else {
-    return(NULL)
-  }
+  # Returns the last used jacobian
+  jac
 }

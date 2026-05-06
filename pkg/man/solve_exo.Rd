@@ -47,7 +47,8 @@ model data for the specified solve period.}
 \item{"none"}{Does not generate a report.}
 }}
 \item{\code{jacobian}}{A logical. If \code{TRUE}, the
-final Jacobian matrix is stored in the model object.
+final estimated Jacobian matrix from \code{nleqslv} used
+for the numerical solution is stored in the model object.
 It can be retrieved with method \code{\link{get_jacobian}}.
 The Jacobian is NOT printed.
 The default is \code{FALSE}.}
