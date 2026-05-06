@@ -515,8 +515,8 @@ NULL
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the Jacobian
-#' matrix from the last numerical solution (e.g. from
-#' \code{\link{fill_mdl_data_solve}} or \code{\link{solve_exo}}).
+#' matrix from the last numerical solution (currently only for
+#' \code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}).
 #'
 #' @section Usage:
 #' \preformatted{

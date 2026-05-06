@@ -63,8 +63,8 @@ Defaults to \code{period} if not provided.
 \item{\code{jacobian}}{A logical. If \code{TRUE}, the
 final Jacobian used for the numerical solution is stored in the model object.
 It can be retrieved with method \code{\link{get_jacobian}}. The default is \code{TRUE}.}
-\item{\code{print_jacobian}}{A logical. If \code{TRUE}, the final Jacobian used for the numerical
-solution is printed. The default is \code{TRUE}.}
+\item{\code{print_jacobian}}{A logical. If \code{TRUE}, the Jacobian used for the numerical
+solution is printed for each group and period. The default is \code{TRUE}.}
 \item{\code{...}}{Additional arguments passed to the \link[nleqslv:nleqslv]{nleqslv::nleqslv}
 solver (e.g., \code{control},  \code{method}, \code{global}).}
 }
