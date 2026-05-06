@@ -197,9 +197,9 @@ fmds <- function(
     cat("\n===============================================\n")
     cat("Summary of missing values replaced:")
     cat("\n===============================================\n\n")
-    cat("by fill_mdl_data pre solve        :", n_first_fill, "\n")
-    cat("solved                            :", n_solved, "\n")
-    cat("by fill_mdl_data_solve post solve :", n_final_fill, "\n\n")
+    cat("by fill_mdl_data pre solve        : ", n_first_fill, "\n",   sep = "")
+    cat("solved                            : ", n_solved,     "\n",   sep = "")
+    cat("by fill_mdl_data_solve post solve : ", n_final_fill, "\n\n", sep = "")
   }
 
   # Returns the last used jacobian
