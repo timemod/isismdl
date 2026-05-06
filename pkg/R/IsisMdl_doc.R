@@ -776,8 +776,8 @@ NULL
 #' \item{`jacobian`}{A logical. If `TRUE`, the
 #' final Jacobian used for the numerical solution is stored in the model object.
 #' It can be retrieved with method \code{\link{get_jacobian}}. The default is `TRUE`.}
-#' \item{`print_jacobian`}{A logical. If `TRUE`, the final Jacobian used for the numerical
-#' solution is printed. The default is `TRUE`.}
+#' \item{`print_jacobian`}{A logical. If `TRUE`, the Jacobian used for the numerical
+#' solution is printed for each group and period. The default is `TRUE`.}
 #' \item{`...`}{Additional arguments passed to the [nleqslv::nleqslv]
 #' solver (e.g., `control`,  `method`, `global`).}
 #' }

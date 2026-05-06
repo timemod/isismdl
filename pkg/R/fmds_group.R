@@ -25,7 +25,7 @@
 #' @importFrom rlang set_names .data
 #' @noRd
 fmds_group <- function(
-    mdl, solve_period, solve_variables, observed_variables,
+    mdl, solve_group, solve_period, solve_variables, observed_variables,
     initial_guess, observed_data, dep_struc, report, jacobian,
     ...) {
 
@@ -33,7 +33,8 @@ fmds_group <- function(
 
   if (report == "period") {
     cat("\n===============================================\n")
-    cat("Solving solve variables for period ", solve_period, "\n", sep = "")
+    cat(sprintf("Solving variables for group %s at period %s:\n",
+                solve_group, as.character(solve_period)))
     cat(paste0("Solve variables: ", paste(solve_variables, collapse = ", "),
                "\n"))
     cat(paste0("Observed variables: ", paste(observed_variables, collapse = ", ")))

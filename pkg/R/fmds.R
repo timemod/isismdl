@@ -146,6 +146,7 @@ fmds <- function(
 
       ret <- fmds_group(
         mdl,
+        solve_group = group_data$group[1],
         solve_period = this_period,
         solve_variables = group_data$solve_variable,
         observed_variables = group_data$observed_variable,
@@ -162,16 +163,17 @@ fmds <- function(
         rownames(last_jac) <- group_data$observed_variable
         colnames(last_jac) <- group_data$solve_variable
       }
+
+      if (print_jacobian && !is.null(ret$jac)) {
+        cat("\nJacobian:\n")
+        print(last_jac)
+      }
     }
 
     # Fill model data for this period.
     mdl$fill_mdl_data(period = this_period, report = "no", include_frmls = TRUE)
   }
 
-  if (print_jacobian && exists("last_jac") && !is.null(last_jac)) {
-    cat("Final jacobian:\n")
-    print(last_jac)
-  }
 
   # Finally solve for missing data for the full period again, more variables
   # may be calculated.
@@ -196,7 +198,10 @@ fmds <- function(
     n_first_fill <- sum(is.na(mdl_original_data) & !is.na(data_after_first_fill))
     n_solved     <- nrow(solve_df)
     n_final_fill <- sum(is.na(data_after_first_fill) & !is.na(mdl_solved_data)) - n_solved
-    cat("\nreplaced", n_first_fill, "missing values by fill_mdl_data\n")
+    cat("\n===============================================\n")
+    cat("Summary of missing values replaced:")
+    cat("\n===============================================\n")
+    cat("replaced", n_first_fill, "missing values by fill_mdl_data\n")
     cat("solved", n_solved, "missing values\n")
     cat("replaced", n_final_fill, "missing values by fill_mdl_data_solve based on solved values\n")
   }

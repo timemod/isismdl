@@ -67,7 +67,7 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
       solve_df = solve_df,
       report = "no"
     )
-  }, "Final jacobian")
+  }, "Jacobian")
 
   expect_s3_class(mdl_solved, "IsisMdl")
 
@@ -89,7 +89,7 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
       solve_df = solve_df_single_group,
       report = "no"
     )
-  }, "Final jacobian")
+  }, "Jacobian")
   expect_equal(solved_data, mdl_solved2$get_data())
 })
 
@@ -114,7 +114,7 @@ test_that("fill_mdl_data_solve handles solve_df without group column", {
       solve_df = solve_df,
       report = "no"
     )
-  }, "There were no groups"), "Final jacobian")
+  }, "There were no groups"), "Jacobian")
 
 })
 
@@ -138,7 +138,7 @@ test_that("fill_mdl_data_solve handles solve_df without initial_guess column", {
       solve_df = solve_df,
       report = "no"
     )
-  }, "No initial_guess is given"), "Final jacobian")
+  }, "No initial_guess is given"), "Jacobian")
 
   # Test with invalid initial_guess (should error)
   solve_df3 <- tribble(
@@ -176,7 +176,7 @@ test_that("fill_mdl_data_solve validates initial_guess values", {
       solve_df = solve_df,
       report = "no"
     )
-  }), "Final jacobian")
+  }), "Jacobian")
 
 })
 
@@ -237,7 +237,7 @@ test_that("fill_mdl_data_solve handles duplicate groups", {
       solve_df = solve_df,
       report = "no"
     )
-  }), "Final jacobian")
+  }), "Jacobian")
 
 })
 
@@ -261,7 +261,7 @@ test_that("fill_mdl_data_solve with period parameter", {
       solve_df = solve_df,
       report = "no"
     )
-  }, "Final jacobian")
+  }, "Jacobian")
 
   expect_s3_class(mdl_solved, "IsisMdl")
   expect_false(is.null(mdl_solved$get_data()))
@@ -287,7 +287,7 @@ test_that("fill_mdl_data_solve with known output", {
       solve_df = solve_df,
       report = "no"
     )
-  }, "Final jacobian")
+  }, "Jacobian")
 
   solved_data <- mdl_solved$get_data()
 
@@ -549,7 +549,7 @@ test_that("fill_mdl_data_solve: jacob is a matrix with correct dims when jacobia
 
   expect_output(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE),
-    "Final jacobian"
+    "Jacobian"
   )
 
   jac <- mdl$get_jacobian()
@@ -574,7 +574,7 @@ test_that("fill_mdl_data_solve: jacob reflects the last group solved", {
 
   expect_output(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE),
-    "Final jacobian"
+    "Jacobian"
   )
 
   jac <- mdl$get_jacobian()
@@ -603,14 +603,14 @@ test_that("fill_mdl_data_solve: jacob is updated on repeated calls", {
   mdl$init_data(data = data_init)
   expect_output(
     mdl$fill_mdl_data_solve(solve_df = solve_df1, report = "no", jacobian = TRUE),
-    "Final jacobian"
+    "Jacobian"
   )
   jac1 <- mdl$get_jacobian()
 
   mdl$init_data(data = data_init)
   expect_output(
     mdl$fill_mdl_data_solve(solve_df = solve_df2, report = "no", jacobian = TRUE),
-    "Final jacobian"
+    "Jacobian"
   )
   jac2 <- mdl$get_jacobian()
 
@@ -630,12 +630,12 @@ test_that("fill_mdl_data_solve: print_jacobian prints when TRUE, silent when FAL
     test_period,   "A",   "obs1",             "y1",            0.1
   )
 
-  # With jacobian = TRUE and print_jacobian = TRUE, output should contain "Final jacobian"
+  # With jacobian = TRUE and print_jacobian = TRUE, output should contain "Jacobian"
   output_printed <- capture.output(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no",
                              jacobian = TRUE, print_jacobian = TRUE)
   )
-  expect_true(any(grepl("Final jacobian", output_printed)))
+  expect_true(any(grepl("Jacobian", output_printed)))
 
   # With print_jacobian = FALSE, no jacobian output
   mdl$init_data(data = data_init)
@@ -643,5 +643,5 @@ test_that("fill_mdl_data_solve: print_jacobian prints when TRUE, silent when FAL
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no",
                              jacobian = TRUE, print_jacobian = FALSE)
   )
-  expect_false(any(grepl("Final jacobian", output_silent)))
+  expect_false(any(grepl("Jacobian", output_silent)))
 })
