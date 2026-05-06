@@ -6,17 +6,14 @@
 #' @param solve_df A data frame with solve instructions.
 #' @param report String ('no', 'period', or 'all') describing the level of reporting.
 #' @param default_initial_guess Numeric. The default initial guess if not specified in `solve_df`.
-#' @param jacobian Logical. Whether to calculate and use the Jacobian.
-#' @param print_jacobian Logical. Whether to print the Jacobian or not.
-#'   This argument can only be TRUE if report = "period".
+#' @param jacobian Logical. Whether the final estimated Jacobian should be returned.
+#' @param print_jacobian Logical. Whether to print the Jacobian or not. Only
+#' used if `report == "period` and `jacobian == TRUE`.
 #' @param ... Extra arguments passed to `nleqslv`.
-#'
-#' @import regts
-#' @import nleqslv
-#' @importFrom graphics plot
+#' @return If `jacobian == TRUE`: Returns the final estimated jacobian for the
+#' last group and period solved. Otherwise returns `NULL`.
 #' @importFrom dplyr group_split filter inner_join select
-#' @importFrom purrr map_dbl
-#' @importFrom rlang set_names .data
+#' @importFrom rlang .data
 #'
 #' @noRd
 

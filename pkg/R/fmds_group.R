@@ -15,18 +15,15 @@
 #'   (returned by `mdl$get_dep_struct()`) or a pre-processed list
 #'   (returned by `dep_struct_to_list()`).
 #' @param report String ('no', 'period', or 'all') describing the level of reporting.
-#' @param jacobian Logical. Whether to calculate and use the Jacobian.
-#' @param print_jacobian Logical. Whether to print the Jacobian or not.
-#'   This argument can only be TRUE if report = "period".
+#' @param jacobian Logical. Whether the final estimated Jacobiaan should be returned.
+#' @param print_jacobian Logical. Whether the estimated Jacobian should
+#' be printed. Only used on `jacobian = TRUE`.
 #' @param ... Extra arguments passed to `nleqslv`.
-#' @return Returns the final estimated jacobian.
+#' @return Returns the final estimated jacobian, or `NULL` if `jacobian = FALSE`.
 #'
-#' @import regts
-#' @import nleqslv
-#' @importFrom graphics plot
-#' @importFrom dplyr group_split filter
-#' @importFrom purrr map_dbl
-#' @importFrom rlang set_names .data
+#' @importFrom nleqslv nleqslv
+#' @importFrom dplyr filter
+#' @importFrom rlang .data
 #' @noRd
 fmds_group <- function(
     mdl, solve_group, solve_period, solve_variables, observed_variables,

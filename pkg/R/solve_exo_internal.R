@@ -1,6 +1,5 @@
 #' Solve exogenous variables numerically for a given period
-#' @import regts
-#' @import nleqslv
+#' @importFrom nleqslv nleqslv
 #' @importFrom rlang .data
 #' @importFrom glue glue
 #' @noRd

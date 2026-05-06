@@ -774,12 +774,12 @@ NULL
 #'     Defaults to `period` if not provided.
 #'   }}
 #' \item{`jacobian`}{A logical. If `TRUE`, the
-#' final estimated Jacobian matrix from \code{nleqslv} used in the last iteration 
-#' for the numerical solution is stored in the model object.
+#' final estimated Jacobian matrix from \code{nleqslv} for the last period
+#' and group is stored in the model object.
 #' It can be retrieved with method \code{\link{get_jacobian}}. The default is `TRUE`.}
 #' \item{`print_jacobian`}{A logical. If `TRUE`, the Jacobian matrix used for the numerical
 #' solution is printed for each group and period. The default is `TRUE`. This is done
-#' only if `report == "period"`.}
+#' only if `report == "period"` and `jacobian == TRUE`.}
 #' \item{`...`}{Additional arguments passed to the [nleqslv::nleqslv]
 #' solver (e.g., `control`,  `method`, `global`).}
 #' }
@@ -940,7 +940,7 @@ NULL
 #'     \item{"none"}{Does not generate a report.}
 #'   }}
 #' \item{\code{jacobian}}{A logical. If `TRUE`, the
-#' final estimated Jacobian matrix from \code{nleqslv} used 
+#' final estimated Jacobian matrix from \code{nleqslv} used
 #' for the numerical solution is stored in the model object.
 #' It can be retrieved with method \code{\link{get_jacobian}}.
 #' The Jacobian is NOT printed.
