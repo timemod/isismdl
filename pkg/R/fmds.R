@@ -23,7 +23,7 @@
 fmds <- function(
     mdl, period, solve_df, report, default_initial_guess, jacobian,
     print_jacobian = TRUE, ...) {
-  
+
   # Only print the jacobian when the full report is printed (report = "period").
   if (report != "period") print_jacobian <- FALSE
 
@@ -168,7 +168,7 @@ fmds <- function(
 
     # Fill model data for this period.
     mdl$fill_mdl_data(period = this_period, report = "no", include_frmls = TRUE)
-    
+
   }
 
   # Finally solve for missing data for the full period again, more variables
@@ -196,10 +196,10 @@ fmds <- function(
     n_final_fill <- sum(is.na(data_after_first_fill) & !is.na(mdl_solved_data)) - n_solved
     cat("\n===============================================\n")
     cat("Summary of missing values replaced:")
-    cat("\n===============================================\n")
-    cat("replaced", n_first_fill, "missing values by fill_mdl_data\n")
-    cat("solved", n_solved, "missing values\n")
-    cat("replaced", n_final_fill, "missing values by fill_mdl_data_solve based on solved values\n")
+    cat("\n===============================================\n\n")
+    cat("by fill_mdl_data pre solve        :", n_first_fill, "\n")
+    cat("solved                            :", n_solved, "\n")
+    cat("by fill_mdl_data_solve post solve :", n_final_fill, "\n\n")
   }
 
   # Returns the last used jacobian
