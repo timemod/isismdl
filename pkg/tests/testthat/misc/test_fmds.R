@@ -62,12 +62,10 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
 
   expect_true("fill_mdl_data_solve" %in% names(mdl))
 
-  expect_output({
-    mdl_solved <- mdl$fill_mdl_data_solve(
-      solve_df = solve_df,
-      report = "no"
-    )
-  }, "Jacobian")
+  mdl_solved <- mdl$fill_mdl_data_solve(
+    solve_df = solve_df,
+    report = "no"
+  )
 
   expect_s3_class(mdl_solved, "IsisMdl")
 
@@ -84,12 +82,10 @@ test_that("fill_mdl_data_solve basic functionality with missing period parameter
   # Reset data before calling again
   mdl$init_data(data = data_init)
 
-  expect_output({
-    mdl_solved2 <- mdl$fill_mdl_data_solve(
-      solve_df = solve_df_single_group,
-      report = "no"
-    )
-  }, "Jacobian")
+  mdl_solved2 <- mdl$fill_mdl_data_solve(
+    solve_df = solve_df_single_group,
+    report = "no"
+  )
   expect_equal(solved_data, mdl_solved2$get_data())
 })
 
@@ -109,12 +105,12 @@ test_that("fill_mdl_data_solve handles solve_df without group column", {
     test_period,        "obs3",            "y3",            0.1
   )
 
-  expect_output(expect_message({
+  expect_message({
     mdl_solved <- mdl$fill_mdl_data_solve(
       solve_df = solve_df,
       report = "no"
     )
-  }, "There were no groups"), "Jacobian")
+  }, "There were no groups")
 
 })
 
@@ -133,12 +129,12 @@ test_that("fill_mdl_data_solve handles solve_df without initial_guess column", {
     test_period,        "C",   "obs3",            "y3"
   )
 
-  expect_output(expect_message({
+  expect_message({
     mdl_solved <- mdl$fill_mdl_data_solve(
       solve_df = solve_df,
       report = "no"
     )
-  }, "No initial_guess is given"), "Jacobian")
+  }, "No initial_guess is given")
 
   # Test with invalid initial_guess (should error)
   solve_df3 <- tribble(
@@ -171,12 +167,12 @@ test_that("fill_mdl_data_solve validates initial_guess values", {
     test_period,        "C",   "obs3",            "y3",            NA
   )
 
-  expect_output(expect_no_error({
+  expect_no_error({
     mdl_solved <- mdl$fill_mdl_data_solve(
       solve_df = solve_df,
       report = "no"
     )
-  }), "Jacobian")
+  })
 
 })
 
@@ -232,12 +228,12 @@ test_that("fill_mdl_data_solve handles duplicate groups", {
     test_period,        "B",   "obs3",            "y3",            0.1,
   )
 
-  expect_output(expect_no_error({
+  expect_no_error({
     mdl_solved <- mdl$fill_mdl_data_solve(
       solve_df = solve_df,
       report = "no"
     )
-  }), "Jacobian")
+  })
 
 })
 
@@ -255,13 +251,11 @@ test_that("fill_mdl_data_solve with period parameter", {
     test_period,     "A",              "obs1",            "y1",           0.1
   )
 
-  expect_output({
-    mdl_solved <- mdl$fill_mdl_data_solve(
-      period = solve_period,
-      solve_df = solve_df,
-      report = "no"
-    )
-  }, "Jacobian")
+  mdl_solved <- mdl$fill_mdl_data_solve(
+    period = solve_period,
+    solve_df = solve_df,
+    report = "no"
+  )
 
   expect_s3_class(mdl_solved, "IsisMdl")
   expect_false(is.null(mdl_solved$get_data()))
@@ -282,12 +276,10 @@ test_that("fill_mdl_data_solve with known output", {
     test_period,      "B",             "obs2",            "y2",       0.1
   )
 
-  expect_output({
-    mdl_solved <- mdl$fill_mdl_data_solve(
-      solve_df = solve_df,
-      report = "no"
-    )
-  }, "Jacobian")
+  mdl_solved <- mdl$fill_mdl_data_solve(
+    solve_df = solve_df,
+    report = "no"
+  )
 
   solved_data <- mdl_solved$get_data()
 
@@ -547,10 +539,8 @@ test_that("fill_mdl_data_solve: jacob is a matrix with correct dims when jacobia
     test_period,   "A",   "obs2",             "y2",            0.1
   )
 
-  expect_output(
-    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE),
-    "Jacobian"
-  )
+  mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE)
+
 
   jac <- mdl$get_jacobian()
   expect_true(is.matrix(jac))
@@ -572,10 +562,7 @@ test_that("fill_mdl_data_solve: jacob reflects the last group solved", {
     test_period,   "B",   "obs2",             "y2",            0.1
   )
 
-  expect_output(
-    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE),
-    "Jacobian"
-  )
+  mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE)
 
   jac <- mdl$get_jacobian()
   expect_true(is.matrix(jac))
@@ -601,17 +588,11 @@ test_that("fill_mdl_data_solve: jacob is updated on repeated calls", {
   )
 
   mdl$init_data(data = data_init)
-  expect_output(
-    mdl$fill_mdl_data_solve(solve_df = solve_df1, report = "no", jacobian = TRUE),
-    "Jacobian"
-  )
+  mdl$fill_mdl_data_solve(solve_df = solve_df1, report = "no", jacobian = TRUE)
   jac1 <- mdl$get_jacobian()
 
   mdl$init_data(data = data_init)
-  expect_output(
-    mdl$fill_mdl_data_solve(solve_df = solve_df2, report = "no", jacobian = TRUE),
-    "Jacobian"
-  )
+  mdl$fill_mdl_data_solve(solve_df = solve_df2, report = "no", jacobian = TRUE)
   jac2 <- mdl$get_jacobian()
 
   expect_equal(dim(jac1), c(1L, 1L))
@@ -630,18 +611,19 @@ test_that("fill_mdl_data_solve: print_jacobian prints when TRUE, silent when FAL
     test_period,   "A",   "obs1",             "y1",            0.1
   )
 
-  # With jacobian = TRUE and print_jacobian = TRUE, output should contain "Jacobian"
+  # With jacobian = TRUE and print_jacobian = TRUE, output should contain Jacobian message.
+  # Note: report must be "period" for Jacobian to be printed.
   output_printed <- capture.output(
-    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no",
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "period",
                              jacobian = TRUE, print_jacobian = TRUE)
   )
-  expect_true(any(grepl("Jacobian", output_printed)))
+  expect_true(any(grepl("Final estimated jacobian matrix:", output_printed)))
 
   # With print_jacobian = FALSE, no jacobian output
   mdl$init_data(data = data_init)
   output_silent <- capture.output(
-    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no",
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "period",
                              jacobian = TRUE, print_jacobian = FALSE)
   )
-  expect_false(any(grepl("Jacobian", output_silent)))
+  expect_false(any(grepl("Final estimated jacobian matrix:", output_silent)))
 })
