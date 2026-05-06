@@ -19,8 +19,8 @@
 #' @param print_jacobian Logical. Whether to print the Jacobian or not.
 #'   This argument can only be TRUE if report = "period".
 #' @param ... Extra arguments passed to `nleqslv`.
-#' @return Returns the last jacobian matrix used for group
-#' 
+#' @return Returns the final estimated jacobian.
+#'
 #' @import regts
 #' @import nleqslv
 #' @importFrom graphics plot
