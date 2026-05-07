@@ -877,7 +877,7 @@ IsisMdl <- R6Class("IsisMdl",
       private$check_options(options, type = "fit_options")
       period <- private$convert_period_arg_solve(period)
       js <- private$get_period_indices(period)
-      private$solve_status <- .Call(
+      simerr <- .Call(
         C_solve_c,
         model_index = private$model_index,
         jtb = js$startp,
@@ -885,6 +885,7 @@ IsisMdl <- R6Class("IsisMdl",
         options,
         fit_options
       )
+      private$solve_status <- simerr_to_solve_status(simerr)
       return(invisible(self))
     },
     get_solve_status = function() {

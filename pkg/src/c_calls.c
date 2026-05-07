@@ -642,42 +642,9 @@ SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
     int error;
     F77_CALL(solve_fortran)(&model_index, &startp, &endp, &opts_present, &error);
 
-    /* Create the solve_status string.
-     * The error messages should agree with the messages in Fortran
-     * subroutine report_solve_error in msimul.f90 */
+    /* Return simerr  */
     int simerr = F77_CALL(get_simerr)(&model_index);
-    char *err_txt;
-
-    switch (simerr) {
-        case -1:
-            err_txt = "Method solve has not yet been called";
-            break;
-        case 0:
-            err_txt = "OK";
-            break;
-        case 1:
-            err_txt = "Simulation not possible";
-            break;
-        case 2:
-            err_txt = "Simulation stopped";
-            break;
-        case 3:
-            err_txt = "Initial lags/leads missing/invalid. Simulation not possible";
-            break;
-        case 4:
-            err_txt = "Invalid parameter values detected. Simulation not possible";
-            break;
-        case 5:
-            err_txt = "Fair-Taylor has not converged";
-            break;
-        case 6:
-            err_txt = "Out of memory. Simulation not succesfull";
-            break;
-        default:
-            err_txt = "Unknown problem in solve. Simulation not succesfull";
-    }
-
-    return(mkString(err_txt));
+    return ScalarInteger(simerr);
 }
 
 
