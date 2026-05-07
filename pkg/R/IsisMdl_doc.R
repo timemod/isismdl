@@ -835,6 +835,8 @@ NULL
 #' The `IsisMdl` object itself (invisibly), with missing values filled in.
 #' Because `IsisMdl` is an R6 reference object, the model is modified
 #' in place; the return value and the original object are the same.
+#' The solve status is stored in the model object and can be retrieved with
+#' method \code{\link{get_solve_status}}.
 #' If `jacobian = TRUE`, the final Jacobian matrix is stored in the
 #' model object and can be retrieved with method \code{\link{get_jacobian}}
 #' (rows = observed variables, columns = solve
@@ -886,9 +888,11 @@ NULL
 #'     control = list(trace = 1, maxit = 200)
 #' )
 #'
-#' # Access the Jacobian matrix from the last numerical solution
+#' # Access the Jacobian matrix
 #' print(mdl_copy$get_jacobian())
 #'
+#' # Access solve status
+#' print(mdl_copy$get_solve_status())
 #'
 #' @seealso
 #' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}.
@@ -962,8 +966,8 @@ NULL
 #' period is the current value of the exogenous variable in the model data,
 #' or 0 if the value is \code{NA}.
 #'
-#' If the numerical solver fails to converge, \code{solve_exo} stops with
-#' an error containing the termination code and message from \code{nleqslv},
+#' If the numerical solver fails to converge, \code{solve_exo} issues a
+#' warning containing the termination code and message from \code{nleqslv},
 #' so that the user can adjust initial guesses or solver options.
 #'
 #' @section Value:
@@ -972,6 +976,8 @@ NULL
 #' variable values updated in the model data.
 #' Because `IsisMdl` is an R6 reference object, the model is modified
 #' in place; the return value and the original object are the same.
+#' The solve status is stored in the model object and can be retrieved with
+#' method \code{\link{get_solve_status}}.
 #' If `jacobian = TRUE`, the Jacobian matrix from the **last period** in
 #' `solve_period` is stored in the model object and can be retrieved with
 #' method \code{\link{get_jacobian}}.
@@ -1031,8 +1037,12 @@ NULL
 #'     report       = "no",
 #'     jacobian     = TRUE
 #' )
+#'
+#' # Access the Jacobian matrix
 #' print(mdl$get_jacobian())
 #'
+#' # Access solve status
+#' print(mdl$get_solve_status())
 #'
 NULL
 

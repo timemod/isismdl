@@ -329,10 +329,14 @@ test_that("fill_mdl_data_solve errors when solve variable is not NA", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-    "Some solve variables are not NA. Non-NA values for the following variables and periods:\n  solve_variable solve_period\n1             y1         2011",
-    fixed = TRUE
-  )
-})
+      paste0(
+        "Some solve variables are not NA. Non-NA values for the following variables and periods:\n",
+        "  solve_variable solve_period\n",
+        "1             y1         2011"
+      ),
+      fixed = TRUE
+    )
+  })
 
 test_that("fill_mdl_data_solve reports multiple non-NA solve variables", {
   mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
@@ -352,10 +356,15 @@ test_that("fill_mdl_data_solve reports multiple non-NA solve variables", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-    "Some solve variables are not NA. Non-NA values for the following variables and periods:\n  solve_variable solve_period\n1             y1         2011\n2             y2         2012",
-    fixed = TRUE
-  )
-})
+      paste0(
+        "Some solve variables are not NA. Non-NA values for the following variables and periods:\n",
+        "  solve_variable solve_period\n",
+        "1             y1         2011\n",
+        "2             y2         2012"
+      ),
+      fixed = TRUE
+    )
+  })
 
 test_that("fill_mdl_data_solve errors when variables are not endogenous", {
   mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
@@ -448,10 +457,14 @@ test_that("fill_mdl_data_solve errors when observed variable is NA", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-    "Some observed variables are NA. NA values for the following variables and periods:\n  observed_variable solve_period\n1              obs3         2011",
-    fixed = TRUE
-  )
-})
+      paste0(
+        "Some observed variables are NA. NA values for the following variables and periods:\n",
+        "  observed_variable solve_period\n",
+        "1              obs3         2011"
+      ),
+      fixed = TRUE
+    )
+  })
 
 test_that("fill_mdl_data_solve errors when solve_df$observed_variable contains NA", {
   mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
@@ -626,4 +639,70 @@ test_that("fill_mdl_data_solve: print_jacobian prints when TRUE, silent when FAL
                              jacobian = TRUE, print_jacobian = FALSE)
   )
   expect_false(any(grepl("Final estimated jacobian matrix:", output_silent)))
+})
+
+test_that("fill_mdl_data_solve returns jacobian and updates status on failure", {
+  # Use a non-solvable model to force failure (y1 = exp(y2), target y1 = -1)
+  model_text <- "
+  ident y1 = exp(y2);
+  ident y2 = y2[-1];
+  ident obs1 = y1;
+  "
+  mdl <- isis_mdl(model_text = model_text, period = "2019/2020", silent = TRUE)
+  mdl$set_values(-1, names = "obs1", period = "2020")
+  mdl$set_values(NA, names = "y2", period = "2019/2020")
+
+  solve_df <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    "2020",   "A",   "obs1",             "y2",            0.1
+  )
+
+  expect_warning(
+    mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no", jacobian = TRUE),
+    "Failed to solve the starting value with nleqslv"
+  )
+
+  expect_equal(mdl$get_solve_status(), "Simulation stopped")
+  expect_false(is.null(mdl$get_jacobian()))
+  expect_true(is.matrix(mdl$get_jacobian()))
+})
+
+test_that("fill_mdl_data_solve reporting output with report='minimal'", {
+  mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
+  var_names <- mdl$get_var_names()
+  data_init <- create_test_init_data(period, var_names)
+  mdl$init_data(data = data_init)
+
+  solve_df <- tribble(
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    test_period,   "A",   "obs1",             "y1",            0.1,
+    test_period,   "B",   "obs2",             "y2",            0.1,
+    test_period,   "C",   "obs3",             "y3",            0.1
+  )
+
+  # Calculate expected numbers based on the model and data_init
+  # In 2011 (test_period):
+  # obs1, obs2, obs3 are known (from create_test_init_data)
+  # y1, y2, y3 are solve_variables (solved = 3)
+  # w1, w2 are identities that depend on y1, y2 (filled post-solve)
+  # Pre-solve: fill_mdl_data might fill some other variables if any (but here likely 0)
+
+  expected_text <- paste0(
+    "\n",
+    "===============================================\n",
+    "Summary of missing values replaced:\n",
+    "===============================================\n\n",
+    "by fill_mdl_data pre solve        : 0\n",
+    "solved                            : 3\n",
+    "by fill_mdl_data_solve post solve : 22\n"
+  )
+
+  expect_output(
+    mdl$fill_mdl_data_solve(
+      solve_df = solve_df,
+      report = "minimal"
+    ),
+    regexp = expected_text,
+    fixed = TRUE
+  )
 })

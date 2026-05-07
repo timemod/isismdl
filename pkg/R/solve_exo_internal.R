@@ -65,6 +65,7 @@ solve_exo_internal <- function(
     regts::end_period(solve_period)
   )
 
+  overall_solved <- TRUE
   for (per in as.list(periods)) {
 
     target_values <- mdl$get_data(names = target_vars, period = per) |>
@@ -121,24 +122,22 @@ solve_exo_internal <- function(
 
     # Check convergence
     if (!ret$termcd %in% 1:2) {
-      stop(
+      warning(
         "solve_exo_internal: Failed to solve exogenous variables for period ",
         as.character(per),
         " with nleqslv.\n",
         "Message from nleqslv: ",
         ret$message
       )
+      overall_solved <- FALSE
     }
 
-    if (report == "period") {
+    if (report == "period" && ret$termcd %in% 1:2) {
       cat(glue("Convergence for {per} in {ret$iter} iterations",
                ".\n", .trim = FALSE))
     }
   }
 
-  if (exists("last_jac")) {
-    return(last_jac)
-  } else {
-    return(NULL)
-  }
+  list(solved = overall_solved,
+       jacobian = if (exists("last_jac")) last_jac else NULL)
 }

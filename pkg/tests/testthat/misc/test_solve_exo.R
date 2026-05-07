@@ -249,3 +249,29 @@ test_that("solve_exo: jacobian = TRUE does NOT print anything", {
 
   expect_false(any(grepl("jacobian", output, ignore.case = TRUE)))
 })
+
+test_that("solve_exo returns jacobian and updates status on failure", {
+  # Use a non-solvable model to force failure (x = exp(y), target x = -1)
+  mdl_content <- c(
+    "ident x = exp(y);",
+    "ident obs = x;"
+  )
+  mdl <- isis_mdl(model_text = mdl_content, period = "2020", silent = TRUE)
+  mdl$set_values(-1, names = "obs", period = "2020")
+  mdl$set_values(0, names = "y", period = "2020")
+
+  expect_warning(
+    mdl$solve_exo(
+      solve_period = "2020",
+      exo_vars = "y",
+      target_vars = "obs",
+      report = "none",
+      jacobian = TRUE
+    ),
+    "solve_exo_internal: Failed to solve exogenous variables"
+  )
+
+  expect_equal(mdl$get_solve_status(), "Simulation stopped")
+  expect_false(is.null(mdl$get_jacobian()))
+  expect_true(is.matrix(mdl$get_jacobian()))
+})

@@ -294,7 +294,8 @@ IsisMdl <- R6Class("IsisMdl",
         jacobian = jacobian,
         print_jacobian = print_jacobian, ...
       )
-      private$jacob <- res
+      private$jacob <- res$jacobian
+      private$solve_status <- if (res$solved) "OK" else "Simulation stopped"
       return(invisible(self))
     },
     solve_exo = function(solve_period = private$model_period,
@@ -308,7 +309,8 @@ IsisMdl <- R6Class("IsisMdl",
         exo_vars = exo_vars, target_vars = target_vars,
         report = report, jacobian = jacobian, ...
       )
-      private$jacob <- res
+      private$jacob <- res$jacobian
+      private$solve_status <- if (res$solved) "OK" else "Simulation stopped"
       return(invisible(self))
     },
     find_deps = function(final_destinations, final_sources = NULL,

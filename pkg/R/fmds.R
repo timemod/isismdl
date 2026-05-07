@@ -10,8 +10,10 @@
 #' @param print_jacobian Logical. Whether to print the Jacobian or not. Only
 #' used if `report == "period` and `jacobian == TRUE`.
 #' @param ... Extra arguments passed to `nleqslv`.
-#' @return If `jacobian == TRUE`: Returns the final estimated jacobian for the
-#' last group and period solved. Otherwise returns `NULL`.
+#' @return If `jacobian == TRUE`: Returns a list containing the Jacobian matrix
+#' and the convergence status for the last group and period solved. Otherwise
+#' returns NULL.
+#'
 #' @importFrom dplyr group_split filter inner_join select
 #' @importFrom rlang .data
 #'
@@ -137,6 +139,7 @@ fmds <- function(
   mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
   data_after_first_fill <- mdl$get_data()
 
+  overall_solved <- TRUE
   for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
     this_period <- single_solve_period$solve_period[1]
     for (group_data in single_solve_period |> group_split(.data$group)) {
@@ -146,7 +149,7 @@ fmds <- function(
       # numerical vector used in nleqslv
       initial_guess_vector <- group_data$initial_guess
 
-      jac <- fmds_group(
+      res <- fmds_group(
         mdl,
         solve_group = group_data$group[1],
         solve_period = this_period,
@@ -160,6 +163,8 @@ fmds <- function(
         print_jacobian = print_jacobian,
         ...
       )
+      jac <- res$jacobian
+      if (!res$solved) overall_solved <- FALSE
 
     }
 
@@ -179,11 +184,12 @@ fmds <- function(
 
   # Check that only NA values have been modified.
   if (!is.null(dif_table) && !all(is.na(dif_table$value1))) {
-    stop(paste(
+    warning(paste(
       "One or more valid (non-NA) values have been modified during the solve",
       "process. This is not allowed. Offending variables:\n ",
       paste(unique(dif_table$name[!is.na(dif_table$value1)]), collapse = ", ")
     ))
+    overall_solved <- FALSE
   }
 
   # Create summary based on report type
@@ -199,6 +205,6 @@ fmds <- function(
     cat("by fill_mdl_data_solve post solve : ", n_final_fill, "\n\n", sep = "")
   }
 
-  # Returns the last used jacobian
-  jac
+  # Returns the result list
+  list(solved = overall_solved, jacobian = jac)
 }

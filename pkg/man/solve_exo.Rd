@@ -71,8 +71,8 @@ function. The initial guess for the exogenous variables in the solve
 period is the current value of the exogenous variable in the model data,
 or 0 if the value is \code{NA}.
 
-If the numerical solver fails to converge, \code{solve_exo} stops with
-an error containing the termination code and message from \code{nleqslv},
+If the numerical solver fails to converge, \code{solve_exo} issues a
+warning containing the termination code and message from \code{nleqslv},
 so that the user can adjust initial guesses or solver options.
 }
 
@@ -83,6 +83,8 @@ The \code{IsisMdl} object itself (invisibly), with the solved exogenous
 variable values updated in the model data.
 Because \code{IsisMdl} is an R6 reference object, the model is modified
 in place; the return value and the original object are the same.
+The solve status is stored in the model object and can be retrieved with
+method \code{\link{get_solve_status}}.
 If \code{jacobian = TRUE}, the Jacobian matrix from the \strong{last period} in
 \code{solve_period} is stored in the model object and can be retrieved with
 method \code{\link{get_jacobian}}.
@@ -138,8 +140,12 @@ mdl$solve_exo(
     report       = "no",
     jacobian     = TRUE
 )
+
+# Access the Jacobian matrix
 print(mdl$get_jacobian())
 
+# Access solve status
+print(mdl$get_solve_status())
 
 }
 \seealso{

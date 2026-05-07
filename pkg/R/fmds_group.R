@@ -19,7 +19,9 @@
 #' @param print_jacobian Logical. Whether the estimated Jacobian should
 #' be printed. Only used on `jacobian = TRUE`.
 #' @param ... Extra arguments passed to `nleqslv`.
-#' @return Returns the final estimated jacobian, or `NULL` if `jacobian = FALSE`.
+#' @return A list with two elements: `solved` (logical indicating if convergence
+#'   was successful) and `jacobian` (the final estimated Jacobian, or `NULL` if
+#'   `jacobian = FALSE`).
 #'
 #' @importFrom nleqslv nleqslv
 #' @importFrom dplyr filter
@@ -84,9 +86,10 @@ fmds_group <- function(
 
   ret <- nleqslv(initial_guess, fn = f_solve, jacobian = jacobian, ...)
 
-  if (!ret$termcd %in% 1:2) {
-    stop("Failed to solve the starting value with nleqslv. Message:\n",
-         ret$message)
+  solved <- ret$termcd %in% 1:2
+  if (!solved) {
+    warning("Failed to solve the starting value with nleqslv. Message:\n",
+            ret$message)
   }
 
   if (jacobian && !is.null(ret$jac)) {
@@ -102,12 +105,12 @@ fmds_group <- function(
     jac <- NULL
   }
 
-  if (report == "period") {
+  if (report == "period" && solved) {
     cat(glue("Convergence for {solve_period} in {ret$iter} iterations",
              ".\n", .trim = FALSE))
   }
 
-  jac
+  list(solved = solved, jacobian = jac)
 }
 
 get_fit_deps <- function(observed_variables, solve_variables,
