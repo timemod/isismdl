@@ -294,7 +294,7 @@ IsisMdl <- R6Class("IsisMdl",
         jacobian = jacobian,
         print_jacobian = print_jacobian, ...
       )
-      private$jacob <- res$jacobian
+      private$jacobian <- res$jacobian
       private$solve_status <- if (res$solved) "OK" else "Simulation stopped"
       return(invisible(self))
     },
@@ -309,7 +309,7 @@ IsisMdl <- R6Class("IsisMdl",
         exo_vars = exo_vars, target_vars = target_vars,
         report = report, jacobian = jacobian, ...
       )
-      private$jacob <- res$jacobian
+      private$jacobian <- res$jacobian
       private$solve_status <- if (res$solved) "OK" else "Simulation stopped"
       return(invisible(self))
     },
@@ -405,7 +405,7 @@ IsisMdl <- R6Class("IsisMdl",
       return(sim_names)
     },
     get_jacobian = function() {
-      return(private$jacob)
+      return(private$jacobian)
     },
     set_labels = function(labels) {
       private$update_labels(labels)
@@ -1135,7 +1135,7 @@ IsisMdl <- R6Class("IsisMdl",
     }
   ),
   private = list(
-    jacob = NULL,
+    jacobian = NULL,
     model_text = NA_character_,
     maxlag = NA_integer_,
     maxlead = NA_integer_,
@@ -1545,6 +1545,7 @@ IsisMdl <- R6Class("IsisMdl",
         model_period = private$model_period,
         data_period = private$data_period,
         solve_status = private$solve_status,
+        jacobian = private$jacobian,
         debug_eqn = self$get_debug_eqn(),
         solve_options = self$get_solve_options(),
         fit_options = self$get_fit_options(),
@@ -1602,6 +1603,10 @@ IsisMdl <- R6Class("IsisMdl",
 
       if (!is.null(x$solve_status)) {
         private$solve_status <- x$solve_status
+      }
+
+      if (!is.null(x$jacobian)) {
+        private$jacobian <- x$jacobian
       }
 
       return(invisible(self))
