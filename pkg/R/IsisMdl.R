@@ -886,15 +886,19 @@ IsisMdl <- R6Class("IsisMdl",
       private$check_options(options, type = "fit_options")
       period <- private$convert_period_arg_solve(period)
       js <- private$get_period_indices(period)
-      .Call(C_solve_c,
+      simerr <- .Call(
+        C_solve_c,
         model_index = private$model_index,
-        jtb = js$startp, jte = js$endp, options,
+        jtb = js$startp,
+        jte = js$endp,
+        options,
         fit_options
       )
+      private$solve_status <- simerr_to_solve_status(simerr)
       return(invisible(self))
     },
     get_solve_status = function() {
-      return(.Call(C_get_solve_status_c, model_index = private$model_index))
+      return(private$solve_status)
     },
     fill_mdl_data = function(period = private$data_period,
                              report = c("period", "minimal", "no"),
@@ -1139,6 +1143,7 @@ IsisMdl <- R6Class("IsisMdl",
     #                          minus lag and lead periods). model_period should
     #                          be in the range model_period_max.
     model_index = NA_integer_,
+    solve_status = "Method solve has not yet been called",
     var_names = NULL,
     var_count = NA_integer_,
     labels = NULL,
@@ -1537,6 +1542,7 @@ IsisMdl <- R6Class("IsisMdl",
         labels = private$labels,
         model_period = private$model_period,
         data_period = private$data_period,
+        solve_status = private$solve_status,
         debug_eqn = self$get_debug_eqn(),
         solve_options = self$get_solve_options(),
         fit_options = self$get_fit_options(),
@@ -1591,6 +1597,11 @@ IsisMdl <- R6Class("IsisMdl",
           )
         }
       }
+
+      if (!is.null(x$solve_status)) {
+        private$solve_status <- x$solve_status
+      }
+
       return(invisible(self))
     },
     init_data_ = function(data_period) {
