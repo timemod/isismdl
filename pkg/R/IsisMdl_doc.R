@@ -637,7 +637,8 @@ NULL
 #'  * \code{"Out of memory. Simulation not successful"}
 #'  * \code{"Unknown problem in solve. Simulation not successful"}
 #'
-#' @seealso \code{\link{solve}}
+#' @seealso \code{\link{solve}}, \code{\link{solve_exo}},
+#' \code{\link{fill_mdl_data_solve}}, and \code{\link{fill_mdl_data}}.
 #' @examples
 #' \dontrun{
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")

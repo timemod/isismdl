@@ -183,10 +183,8 @@ fmds <- function(
   dif_table <- tsdif(mdl_original_data, mdl_solved_data, fun = cvgdif,
                      tol = 1e-4)$dif_table
 
-  # Check that only NA values have been modified.
-  solved <- TRUE
   if (!is.null(dif_table) && !all(is.na(dif_table$value1))) {
-    warning(paste(
+    stop(paste(
       "One or more valid (non-NA) values have been modified during the solve",
       "process. This is not allowed. Offending variables:\n ",
       paste(unique(dif_table$name[!is.na(dif_table$value1)]), collapse = ", ")
@@ -207,5 +205,5 @@ fmds <- function(
   }
 
   # Returns the result list
-  list(solved = solved, jacobian = jac)
+  list(solved = TRUE, jacobian = jac)
 }

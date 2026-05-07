@@ -47,5 +47,6 @@ if (mdl$get_solve_status() != "OK") {
 }
 }
 \seealso{
-\code{\link{solve}}
+\code{\link{solve}}, \code{\link{solve_exo}},
+\code{\link{fill_mdl_data_solve}}, and \code{\link{fill_mdl_data}}.
 }
