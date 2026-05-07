@@ -20,7 +20,7 @@ simerr_to_solve_status <- function(simerr) {
     "3" = "Initial lags/leads missing/invalid. Simulation not possible",
     "4" = "Invalid parameter values detected. Simulation not possible",
     "5" = "Fair-Taylor has not converged",
-    "6" = "Out of memory. Simulation not succesfull"
+    "6" = "Out of memory. Simulation not succesful"
   )
 
   solve_status_txt <- status_txts[[as.character(simerr)]]
