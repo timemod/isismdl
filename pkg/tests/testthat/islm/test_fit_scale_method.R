@@ -3,10 +3,14 @@ library(isismdl)
 
 rm(list = ls())
 
-
 period <- period("2020q2")
 
 mdl <- isis_mdl("mdl/islm_euro.mdl", period = period, silent = TRUE, )
+
+expect_equal(
+  mdl$get_solve_status(),
+  "Method solve has not yet been called"
+)
 
 # set exogenous variables
 mdl$set_values(210000000, names = "g", period = period)
