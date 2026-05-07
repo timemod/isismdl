@@ -6,7 +6,6 @@ rm(list = ls())
 
 update_expected  <- FALSE
 
-
 source("../tools/read_mrf.R")
 
 test_that("new compiled moel", {

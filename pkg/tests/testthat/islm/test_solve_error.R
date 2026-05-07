@@ -4,12 +4,11 @@ library(testthat)
 
 rm(list = ls())
 
-
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 mdl$set_solve_options(report = "none")
 
 test_that("get_solve_status for a fresh model", {
-  expect_equal(mdl$get_solve_status(), "Method solve has not yet been called")
+  expect_equal(mdl$get_solve_status(), "OK")
   mdl$solve()
   expect_equal(mdl$get_solve_status(), "OK")
 })
@@ -61,4 +60,14 @@ test_that("no warnings for erropt cont", {
   msg <-  "Invalid parameter values detected. Simulation not possible"
   expect_warning(mdl2$solve(), msg)
   expect_equal(mdl2$get_solve_status(), msg)
+
+  # write and read model.
+  filenaam <- tempfile(pattern = "test_isismdl_", fileext = ".ismdl")
+  mdl2$write_mdl(filenaam)
+  mdl3 <- read_mdl(filenaam, silent = TRUE)
+  expect_equal(
+    mdl3$get_solve_status(),
+    msg,
+    fixed = TRUE
+  )
 })

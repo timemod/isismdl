@@ -42,7 +42,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"get_ftrelax_c", (DL_FUNC) &get_ftrelax_c, 1},
     {"set_eq_status_c", (DL_FUNC) &set_eq_status_c, 3},
     {"activate_all_equation_c", (DL_FUNC) &activate_all_equations_c, 1},
-    {"get_solve_status_c", (DL_FUNC) &get_solve_status_c, 1},
     {"has_free_mws_c", (DL_FUNC) &has_free_mws_c, 0},
     {"get_max_lag_lead_c", (DL_FUNC) &get_max_lag_lead_c, 1},
     {"remove_mws_c", (DL_FUNC) &remove_mws_c, 1},
