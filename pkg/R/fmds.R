@@ -139,7 +139,6 @@ fmds <- function(
   mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
   data_after_first_fill <- mdl$get_data()
 
-  overall_solved <- TRUE
   for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
     this_period <- single_solve_period$solve_period[1]
     for (group_data in single_solve_period |> group_split(.data$group)) {
@@ -163,8 +162,10 @@ fmds <- function(
         print_jacobian = print_jacobian,
         ...
       )
+      if (!res$solved) {
+        return(list(solved = FALSE, jacobian = res$jacobian))
+      }
       jac <- res$jacobian
-      if (!res$solved) overall_solved <- FALSE
 
     }
 
@@ -183,13 +184,14 @@ fmds <- function(
                      tol = 1e-4)$dif_table
 
   # Check that only NA values have been modified.
+  solved <- TRUE
   if (!is.null(dif_table) && !all(is.na(dif_table$value1))) {
     warning(paste(
       "One or more valid (non-NA) values have been modified during the solve",
       "process. This is not allowed. Offending variables:\n ",
       paste(unique(dif_table$name[!is.na(dif_table$value1)]), collapse = ", ")
     ))
-    overall_solved <- FALSE
+    solved <- FALSE
   }
 
   # Create summary based on report type
@@ -206,5 +208,5 @@ fmds <- function(
   }
 
   # Returns the result list
-  list(solved = overall_solved, jacobian = jac)
+  list(solved = solved, jacobian = jac)
 }

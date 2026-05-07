@@ -1,4 +1,19 @@
 #' Solve exogenous variables numerically for a given period
+#'
+#' @param mdl A reference to an `IsisMdl` object.
+#' @param solve_period A `period_range` object for the solve period.
+#' @param exo_vars Character vector of exogenous variables to solve for.
+#' @param target_vars Character vector of target endogenous variables.
+#' @param report String ('none', 'period', or 'minimal') describing the level of reporting.
+#' @param jacobian Logical. Whether the final estimated Jacobian should be returned.
+#' @param ... Extra arguments passed to `nleqslv`.
+#'
+#' @return A list with the following components:
+#' \describe{
+#'   \item{solved}{A logical indicating whether the solution converged for all periods.}
+#'   \item{jacobian}{The Jacobian matrix from the last period solved.}
+#' }
+#'
 #' @importFrom nleqslv nleqslv
 #' @importFrom rlang .data
 #' @importFrom glue glue
@@ -65,7 +80,7 @@ solve_exo_internal <- function(
     regts::end_period(solve_period)
   )
 
-  overall_solved <- TRUE
+  jac <- NULL
   for (per in as.list(periods)) {
 
     target_values <- mdl$get_data(names = target_vars, period = per) |>
@@ -117,7 +132,6 @@ solve_exo_internal <- function(
     if (!is.null(jac)) {
       rownames(jac) <- target_vars
       colnames(jac) <- exo_vars
-      last_jac <- jac
     }
 
     # Check convergence
@@ -129,15 +143,14 @@ solve_exo_internal <- function(
         "Message from nleqslv: ",
         ret$message
       )
-      overall_solved <- FALSE
+      return(list(solved = FALSE, jacobian = jac))
     }
 
-    if (report == "period" && ret$termcd %in% 1:2) {
+    if (report == "period") {
       cat(glue("Convergence for {per} in {ret$iter} iterations",
                ".\n", .trim = FALSE))
     }
   }
 
-  list(solved = overall_solved,
-       jacobian = if (exists("last_jac")) last_jac else NULL)
+  list(solved = TRUE, jacobian = jac)
 }
