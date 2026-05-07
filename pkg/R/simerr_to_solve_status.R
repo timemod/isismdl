@@ -13,7 +13,7 @@
 simerr_to_solve_status <- function(simerr) {
 
   status_txts <- c(
-   "-1" = "Method solve has not yet been called",
+    "-1" = "Method solve has not yet been called",
     "0" = "OK",
     "1" = "Simulation not possible",
     "2" = "Simulation stopped",
