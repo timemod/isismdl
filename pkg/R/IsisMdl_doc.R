@@ -589,7 +589,7 @@ NULL
 #' to perform any checks.
 #' Method \code{\link{get_solve_status}} can be used to check
 #' whether the solve was successfully terminated or not.
-#' The solve method outputs a report which the user should check.
+#' The user is recommended to check warnings and output.
 #'
 #' @seealso \code{\link{set_solve_options}},
 #' \code{\link{set_fit_options}}, \code{\link{get_solve_status}} and
@@ -829,15 +829,14 @@ NULL
 #' For solving exogenous variables, use the separate \code{solve_exo} method.
 #' This method does not support models with feedback variables.
 #'
-#' The solve procedure \emph{never} raises an error, even if the solve was
-#' not successful. In that case a warning may be issued. It is up to the user
-#' to perform any checks.
+#' The solve procedure issues a warning when the solve was
+#' not successful.
 #' Method \code{\link{get_solve_status}} can be used to check
 #' whether the solve was successfully terminated or not.
 #' In case of failure, the Jacobian matrix from the last attempted solution
 #' can still be retrieved with method \code{\link{get_jacobian}}
 #' (provided \code{jacobian = TRUE}).
-#' The solve method outputs a report which the user should check.
+#' The user is recommended to check warnings and output.
 #'
 #' @section Value:
 #'
@@ -1007,15 +1006,14 @@ NULL
 #' period is the current value of the exogenous variable in the model data,
 #' or 0 if the value is \code{NA}.
 #'
-#' The solve procedure \emph{never} raises an error, even if the solve was
-#' not successful. In that case a warning may be issued. It is up to the user
-#' to perform any checks.
+#' The solve procedure issues a warning when the solve was
+#' not successful.
 #' Method \code{\link{get_solve_status}} can be used to check
 #' whether the solve was successfully terminated or not.
 #' In case of failure, the Jacobian matrix from the last attempted solution
 #' can still be retrieved with method \code{\link{get_jacobian}}
 #' (provided \code{jacobian = TRUE}).
-#' The solve method outputs a report which the user should check.
+#' The user is recommended to check warnings and output.
 #'
 #' @section Value:
 #'
