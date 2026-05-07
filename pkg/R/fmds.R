@@ -191,7 +191,6 @@ fmds <- function(
       "process. This is not allowed. Offending variables:\n ",
       paste(unique(dif_table$name[!is.na(dif_table$value1)]), collapse = ", ")
     ))
-    solved <- FALSE
   }
 
   # Create summary based on report type

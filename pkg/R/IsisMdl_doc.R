@@ -829,6 +829,15 @@ NULL
 #' For solving exogenous variables, use the separate \code{solve_exo} method.
 #' This method does not support models with feedback variables.
 #'
+#' The solve procedure \emph{never} raises an error, even if the solve was
+#' not successful. In that case a warning may be issued. It is up to the user
+#' to perform any checks.
+#' Method \code{\link{get_solve_status}} can be used to check
+#' whether the solve was successfully terminated or not.
+#' In case of failure, the Jacobian matrix from the last attempted solution
+#' can still be retrieved with method \code{\link{get_jacobian}}
+#' (provided \code{jacobian = TRUE}).
+#' The solve method outputs a report which the user should check.
 #'
 #' @section Value:
 #'
@@ -888,11 +897,43 @@ NULL
 #'     control = list(trace = 1, maxit = 200)
 #' )
 #'
+#' # Access solve status
+#' print(mdl_copy$get_solve_status())
+#' 
 #' # Access the Jacobian matrix
 #' print(mdl_copy$get_jacobian())
 #'
-#' # Access solve status
-#' print(mdl_copy$get_solve_status())
+#'
+#' # Example with failure
+#' # Use a non-solvable model to force failure (y1 = exp(y2), target y1 = -1)
+#' model_content <- "
+#' ident y1 = exp(y2);
+#' ident y2 = y2[-1];
+#' ident obs1 = y1;
+#' "
+#'
+#' mdl_fail <- isis_mdl(model_text = model_content, period = "2019/2020", silent = TRUE)
+#' mdl_fail$set_values(-1, names = "obs1", period = "2020")
+#' mdl_fail$set_values(NA, names = "y2", period = "2019/2020")
+#'
+#' solve_df <- tribble(
+#'   ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+#'   "2020",   "A",   "obs1",             "y2",            0.1
+#' )
+#'
+#' # This will give a warning because y1 cannot be negative (it's exp(y2))
+#' # and the solve will fail to converge. It won't raise an error.
+#' mdl_fail$fill_mdl_data_solve(
+#'     solve_df = solve_df,
+#'     report = "minimal"
+#' )
+#'
+#' # Access status of the solve
+#' mdl_fail$get_solve_status()
+#'
+#' # Access the Jacobian matrix
+#' mdl_fail$get_jacobian()
+#'
 #'
 #' @seealso
 #' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}.
@@ -966,9 +1007,15 @@ NULL
 #' period is the current value of the exogenous variable in the model data,
 #' or 0 if the value is \code{NA}.
 #'
-#' If the numerical solver fails to converge, \code{solve_exo} issues a
-#' warning containing the termination code and message from \code{nleqslv},
-#' so that the user can adjust initial guesses or solver options.
+#' The solve procedure \emph{never} raises an error, even if the solve was
+#' not successful. In that case a warning may be issued. It is up to the user
+#' to perform any checks.
+#' Method \code{\link{get_solve_status}} can be used to check
+#' whether the solve was successfully terminated or not.
+#' In case of failure, the Jacobian matrix from the last attempted solution
+#' can still be retrieved with method \code{\link{get_jacobian}}
+#' (provided \code{jacobian = TRUE}).
+#' The solve method outputs a report which the user should check.
 #'
 #' @section Value:
 #'
@@ -1038,12 +1085,39 @@ NULL
 #'     jacobian     = TRUE
 #' )
 #'
-#' # Access the Jacobian matrix
-#' print(mdl$get_jacobian())
-#'
 #' # Access solve status
 #' print(mdl$get_solve_status())
 #'
+#' # Access the Jacobian matrix
+#' print(mdl$get_jacobian())
+#'
+#' 
+#' # Example with failure
+#' # Use a non-solvable model to force failure (x = exp(y), target x = -1)
+#' mdl_content <- "
+#' ident x = exp(y);
+#' ident obs = x;
+#' "
+#'
+#' mdl_fail <- isis_mdl(model_text = mdl_content, period = "2020", silent = TRUE)
+#' mdl_fail$set_values(-1, names = "obs", period = "2020")
+#' mdl_fail$set_values(0, names = "y", period = "2020")
+#'
+#' # This will give a warning message, not raise an error.
+#' mdl_fail$solve_exo(
+#'     solve_period = "2020",
+#'     exo_vars = "y",
+#'     target_vars = "obs",
+#'     report = "none",
+#'     jacobian = TRUE
+#' )
+#'
+#' # Check solve status
+#' print(mdl_fail$get_solve_status())
+#'
+#' # Access Jacobian matrix
+#' print(mdl_fail$get_jacobian())
+
 NULL
 
 #' \code{\link{IsisMdl}} method: Calculates residuals for the model's equations.
