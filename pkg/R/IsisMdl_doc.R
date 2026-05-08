@@ -506,9 +506,25 @@ NULL
 #'
 #' }
 #'
+#' \code{mdl} is an \code{\link{IsisMdl}} object
+#' @seealso \code{\link{set_period}}
+NULL
+
+#' \code{\link{IsisMdl}} method: returns the Jacobian matrix from the last numerical solution
+#' @name get_jacobian
+#'
+#' @description
+#' This method of R6 class \code{\link{IsisMdl}} returns the Jacobian
+#' matrix from the last numerical solution (currently only for
+#' \code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}).
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_jacobian()
+#'
+#' }
+#'
 #' \code{mdl} is an \code{IsisMdl} object
-#' @seealso
-#' \code{\link{set_period}}
 NULL
 
 #' \code{\link{IsisMdl}} method: Solves the model.
@@ -573,7 +589,7 @@ NULL
 #' to perform any checks.
 #' Method \code{\link{get_solve_status}} can be used to check
 #' whether the solve was successfully terminated or not.
-#' The solve method outputs a report which the user should check.
+#' The user is recommended to check warnings and output.
 #'
 #' @seealso \code{\link{set_solve_options}},
 #' \code{\link{set_fit_options}}, \code{\link{get_solve_status}} and
@@ -589,13 +605,15 @@ NULL
 #' mdl$solve(period = "2017")
 NULL
 
-#' \code{\link{IsisMdl}} method: Returns the solve status of the last model solve.
+#' \code{\link{IsisMdl}} method: Returns the solve status of the last
+#' solve attempt
 #' @name get_solve_status
 #' @md
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the status
-#' of the last model solve as a  text string. If the last model solve
+#' of the last solve attempt with methods [solve], [solve_exo] or
+#'  [fill_mdl_data_solve] as a  text string. If the last solve attempt
 #' was successful, it returns the string \code{"OK"}.
 #'
 
@@ -621,7 +639,8 @@ NULL
 #'  * \code{"Out of memory. Simulation not successful"}
 #'  * \code{"Unknown problem in solve. Simulation not successful"}
 #'
-#' @seealso \code{\link{solve}}
+#' @seealso \code{\link{solve}}, \code{\link{solve_exo}},
+#' \code{\link{fill_mdl_data_solve}}, and \code{\link{fill_mdl_data}}.
 #' @examples
 #' \dontrun{
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
@@ -720,7 +739,8 @@ NULL
 #'  solve_df,
 #'  report = c("period", "minimal", "no"),
 #'  default_initial_guess = 0.1,
-#'  jacobian = TRUE
+#'  jacobian = TRUE,
+#'  print_jacobian = TRUE
 #' )
 #' }
 #'
@@ -756,8 +776,13 @@ NULL
 #'     \item{"no"}{Does not generate a report.}
 #'     Defaults to `period` if not provided.
 #'   }}
-#' \item{`jacobian`}{A logical. If `TRUE` and `report == "period"`, the
-#' final jacobian used for the numerical solution is printed. The default is `TRUE`.}
+#' \item{`jacobian`}{A logical. If `TRUE`, the
+#' final estimated Jacobian matrix from \code{nleqslv} for the last period
+#' and group is stored in the model object.
+#' It can be retrieved with method \code{\link{get_jacobian}}. The default is `TRUE`.}
+#' \item{`print_jacobian`}{A logical. If `TRUE`, the Jacobian matrix used for the numerical
+#' solution is printed for each group and period. The default is `TRUE`. This is done
+#' only if `report == "period"` and `jacobian == TRUE`.}
 #' \item{`...`}{Additional arguments passed to the [nleqslv::nleqslv]
 #' solver (e.g., `control`,  `method`, `global`).}
 #' }
@@ -807,11 +832,26 @@ NULL
 #' For solving exogenous variables, use the separate \code{solve_exo} method.
 #' This method does not support models with feedback variables.
 #'
+#' The solve procedure issues a warning when the solve was
+#' not successful.
+#' Method \code{\link{get_solve_status}} can be used to check
+#' whether the solve was successfully terminated or not.
+#' In case of failure, the Jacobian matrix from the last attempted solution
+#' can still be retrieved with method \code{\link{get_jacobian}}
+#' (provided \code{jacobian = TRUE}).
+#' The user is recommended to check warnings and output.
 #'
 #' @section Value:
 #'
-#' An `IsisMdl` object (copy of the original model) with solved values for
-#' the solve variables. The original model remains unchanged.
+#' The `IsisMdl` object itself (invisibly), with missing values filled in.
+#' Because `IsisMdl` is an R6 reference object, the model is modified
+#' in place; the return value and the original object are the same.
+#' The solve status is stored in the model object and can be retrieved with
+#' method \code{\link{get_solve_status}}.
+#' If `jacobian = TRUE`, the final Jacobian matrix is stored in the
+#' model object and can be retrieved with method \code{\link{get_jacobian}}
+#' (rows = observed variables, columns = solve
+#' variables of the last group processed).
 #'
 #' @examples
 #' library(isismdl)
@@ -859,6 +899,43 @@ NULL
 #'     control = list(trace = 1, maxit = 200)
 #' )
 #'
+#' # Access solve status
+#' print(mdl_copy$get_solve_status())
+#'
+#' # Access the Jacobian matrix
+#' print(mdl_copy$get_jacobian())
+#'
+#'
+#' # Example with failure
+#' # Use a non-solvable model to force failure (y1 = exp(y2), target y1 = -1)
+#' model_content <- "
+#' ident y1 = exp(y2);
+#' ident y2 = y2[-1];
+#' ident obs1 = y1;
+#' "
+#'
+#' mdl_fail <- isis_mdl(model_text = model_content, period = "2019/2020", silent = TRUE)
+#' mdl_fail$set_values(-1, names = "obs1", period = "2020")
+#' mdl_fail$set_values(NA, names = "y2", period = "2019/2020")
+#'
+#' solve_df <- tribble(
+#'   ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+#'   "2020",   "A",   "obs1",             "y2",            0.1
+#' )
+#'
+#' # This will give a warning because y1 cannot be negative (it's exp(y2))
+#' # and the solve will fail to converge. It won't raise an error.
+#' mdl_fail$fill_mdl_data_solve(
+#'     solve_df = solve_df,
+#'     report = "minimal"
+#' )
+#'
+#' # Access status of the solve
+#' mdl_fail$get_solve_status()
+#'
+#' # Access the Jacobian matrix
+#' mdl_fail$get_jacobian()
+#'
 #'
 #' @seealso
 #' Related methods: \code{\link{solve}}, \code{\link{fill_mdl_data}}, \code{\link{get_dep_struct}}.
@@ -873,14 +950,10 @@ NULL
 #' This method can be used to solve for exogenous variables numerically such that
 #' the model results for a set of target variables match their values in the
 #' model data.
-#'
-#' This method does not support models with feedback variables.
-#'
 #' This is useful when you want to determine the required values of
 #' exogenous variables to hit specific targets for endogenous variables.
 #'
-#' During the solution process all active equations are evaluated in
-#' solution order.
+#' This method does not support models with feedback variables.
 #'
 #' @section Usage:
 #' \preformatted{
@@ -905,13 +978,16 @@ NULL
 #' model data for the specified solve period.}
 #' \item{\code{report}}{Character string controlling output verbosity. Options:
 #'   \describe{
-#'     \item{"period"}{Print a report per period (default). For each period
-#'     the final Jacobian is printed if \code{jacobian = TRUE}.}
+#'     \item{"period"}{Print a report per period (default).}
 #'     \item{"minimal"}{Print a minimal report.}
 #'     \item{"none"}{Does not generate a report.}
 #'   }}
-#' \item{\code{jacobian}}{A logical. If `TRUE` and `report == "period"`, the
-#' final Jacobian used for the numerical solution is printed. The default is `TRUE`.}
+#' \item{\code{jacobian}}{A logical. If `TRUE`, the
+#' final estimated Jacobian matrix from \code{nleqslv} used
+#' for the numerical solution is stored in the model object.
+#' It can be retrieved with method \code{\link{get_jacobian}}.
+#' The Jacobian is NOT printed.
+#' The default is \code{FALSE}.}
 #' \item{\code{...}}{Additional arguments passed to the
 #' [nleqslv::nleqslv] solver (e.g., `control`, `method`, `global`).}
 #' }
@@ -919,8 +995,8 @@ NULL
 #' @section Details:
 #'
 #' The method works by running all active equations of the model for the
-#' specified solve period. It constructs a residual function that
-#' runs these equations and computes the difference between the
+#' specified solve period in solution order. It constructs a residual function
+#' that runs these equations and computes the difference between the
 #' target variables' values in the model data and the values computed by
 #' the model.
 #'
@@ -929,15 +1005,28 @@ NULL
 #' period is the current value of the exogenous variable in the model data,
 #' or 0 if the value is \code{NA}.
 #'
-#' If the numerical solver fails to converge, \code{solve_exo} stops with
-#' an error containing the termination code and message from \code{nleqslv},
-#' so that the user can adjust initial guesses or solver options.
+#' The solve procedure issues a warning when the solve was
+#' not successful.
+#' Method \code{\link{get_solve_status}} can be used to check
+#' whether the solve was successfully terminated or not.
+#' In case of failure, the Jacobian matrix from the last attempted solution
+#' can still be retrieved with method \code{\link{get_jacobian}}
+#' (provided \code{jacobian = TRUE}).
+#' The user is recommended to check warnings and output.
 #'
 #' @section Value:
 #'
-#' Returns the modified \code{IsisMdl} object, where the values
-#' of \code{exo_vars} in \code{solve_period} have been updated to the
-#' solution found by the numerical solver.
+#' The `IsisMdl` object itself (invisibly), with the solved exogenous
+#' variable values updated in the model data.
+#' Because `IsisMdl` is an R6 reference object, the model is modified
+#' in place; the return value and the original object are the same.
+#' The solve status is stored in the model object and can be retrieved with
+#' method \code{\link{get_solve_status}}.
+#' If `jacobian = TRUE`, the Jacobian matrix from the **last period** in
+#' `solve_period` is stored in the model object and can be retrieved with
+#' method \code{\link{get_jacobian}}.
+#' (rows = target variables, columns = exogenous variables).
+#' The Jacobian is never printed by `solve_exo`.
 #'
 #' @seealso \code{\link{solve}}, \code{\link{fill_mdl_data_solve}},
 #' \code{\link{fill_mdl_data}}
@@ -984,7 +1073,48 @@ NULL
 #' # C = 50 + 0.8 * 100 = 130
 #' mdl$get_data(names = "C", period = "2020")
 #'
+#' # To store the Jacobian, use jacobian = TRUE
+#' mdl$solve_exo(
+#'     exo_vars     = c("G", "C_A"),
+#'     target_vars  = c("Y", "C"),
+#'     solve_period = "2020",
+#'     report       = "no",
+#'     jacobian     = TRUE
+#' )
 #'
+#' # Access solve status
+#' print(mdl$get_solve_status())
+#'
+#' # Access the Jacobian matrix
+#' print(mdl$get_jacobian())
+#'
+#'
+#' # Example with failure
+#' # Use a non-solvable model to force failure (x = exp(y), target x = -1)
+#' mdl_content <- "
+#' ident x = exp(y);
+#' ident obs = x;
+#' "
+#'
+#' mdl_fail <- isis_mdl(model_text = mdl_content, period = "2020", silent = TRUE)
+#' mdl_fail$set_values(-1, names = "obs", period = "2020")
+#' mdl_fail$set_values(0, names = "y", period = "2020")
+#'
+#' # This will give a warning message, not raise an error.
+#' mdl_fail$solve_exo(
+#'     solve_period = "2020",
+#'     exo_vars = "y",
+#'     target_vars = "obs",
+#'     report = "none",
+#'     jacobian = TRUE
+#' )
+#'
+#' # Check solve status
+#' print(mdl_fail$get_solve_status())
+#'
+#' # Access Jacobian matrix
+#' print(mdl_fail$get_jacobian())
+
 NULL
 
 #' \code{\link{IsisMdl}} method: Calculates residuals for the model's equations.
@@ -2765,13 +2895,15 @@ NULL
 #' \item{\code{var}}{The name of the variable.}
 #' \item{\code{period}}{The period of the variable (as a string).}
 #' \item{\code{ok}}{\code{TRUE} if the variable can be resolved — either
-#'   because it is observed or because it is calculable (see below).}
+#'   because it is observed or because it is calculable (see below).
+#'   Vertices for solvable variables are always treated as resolved (`ok = TRUE`)
+#'   (see section "Solvable verices").}
 #' \item{\code{calculable}}{\code{TRUE} if the variable's value can be
 #'   computed by evaluating its model equation based on the
-#'   observed data or an initial guess for the solvable variables (see
+#'   observed data or given values of the solvable variables (see
 #'   section "Solvable vertices"). To be specific, it is `TRUE` if all its
-#'   incoming vertices are either OK (\code{ok == TRUE}).
-#'   It is `FALSE` if the value cannot be computed,
+#'   incoming vertices are OK (\code{ok == TRUE}).
+#'   It is `FALSE` if the value cannot be computed
 #'   because the dependencies are not observed or calculable,
 #'   and `NA` if the vertex is observed or a final source.}
 #' \item{\code{observed}}{\code{TRUE} if the variable-period pair appears

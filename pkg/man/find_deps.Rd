@@ -74,13 +74,15 @@ for a specific period. The vertex carries the following attributes:
 \item{\code{var}}{The name of the variable.}
 \item{\code{period}}{The period of the variable (as a string).}
 \item{\code{ok}}{\code{TRUE} if the variable can be resolved — either
-because it is observed or because it is calculable (see below).}
+because it is observed or because it is calculable (see below).
+Vertices for solvable variables are always treated as resolved (\code{ok = TRUE})
+(see section "Solvable verices").}
 \item{\code{calculable}}{\code{TRUE} if the variable's value can be
 computed by evaluating its model equation based on the
-observed data or an initial guess for the solvable variables (see
+observed data or given values of the solvable variables (see
 section "Solvable vertices"). To be specific, it is \code{TRUE} if all its
-incoming vertices are either OK (\code{ok == TRUE}).
-It is \code{FALSE} if the value cannot be computed,
+incoming vertices are OK (\code{ok == TRUE}).
+It is \code{FALSE} if the value cannot be computed
 because the dependencies are not observed or calculable,
 and \code{NA} if the vertex is observed or a final source.}
 \item{\code{observed}}{\code{TRUE} if the variable-period pair appears

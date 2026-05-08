@@ -184,7 +184,7 @@ setOldClass("period_range")
 #' data from identities}
 #'
 #' \item{\code{\link{fill_mdl_data_solve}}}{Fills model data and
-#' inverse solves for starting values}
+#' solves starting values numerically}
 #'
 #' \item{\code{\link{find_deps}}}{Finds the dependencies of the model variables}
 #'
@@ -283,15 +283,20 @@ IsisMdl <- R6Class("IsisMdl",
     fill_mdl_data_solve = function(period = private$data_period, solve_df,
                                    report = c("period", "minimal", "no"),
                                    default_initial_guess = 0.1,
-                                   jacobian = TRUE, ...) {
+                                   jacobian = TRUE,
+                                   print_jacobian = TRUE, ...) {
       report <- match.arg(report)
       period <- private$convert_period_arg_data(period)
-      return(fmds(
+      res <- fmds(
         mdl = self, period = period,
         solve_df = solve_df, report = report,
         default_initial_guess = default_initial_guess,
-        jacobian = jacobian, ...
-      ))
+        jacobian = jacobian,
+        print_jacobian = print_jacobian, ...
+      )
+      private$jacobian <- res$jacobian
+      private$solve_status <- if (res$solved) "OK" else "Simulation stopped"
+      return(invisible(self))
     },
     solve_exo = function(solve_period = private$model_period,
                          exo_vars, target_vars,
@@ -299,11 +304,14 @@ IsisMdl <- R6Class("IsisMdl",
                          jacobian = FALSE, ...) {
       report <- match.arg(report)
       solve_period <- private$convert_period_arg_solve(solve_period)
-      return(solve_exo_internal(
+      res <- solve_exo_internal(
         mdl = self, solve_period = solve_period,
         exo_vars = exo_vars, target_vars = target_vars,
         report = report, jacobian = jacobian, ...
-      ))
+      )
+      private$jacobian <- res$jacobian
+      private$solve_status <- if (res$solved) "OK" else "Simulation stopped"
+      return(invisible(self))
     },
     find_deps = function(final_destinations, final_sources = NULL,
                          solvable = NULL, observed_data = NULL,
@@ -395,6 +403,9 @@ IsisMdl <- R6Class("IsisMdl",
       # lhs variables of inactive equations.
       sim_names <- sim_names[sim_names != ""]
       return(sim_names)
+    },
+    get_jacobian = function() {
+      return(private$jacobian)
     },
     set_labels = function(labels) {
       private$update_labels(labels)
@@ -1124,6 +1135,7 @@ IsisMdl <- R6Class("IsisMdl",
     }
   ),
   private = list(
+    jacobian = NULL,
     model_text = NA_character_,
     maxlag = NA_integer_,
     maxlead = NA_integer_,
@@ -1533,6 +1545,7 @@ IsisMdl <- R6Class("IsisMdl",
         model_period = private$model_period,
         data_period = private$data_period,
         solve_status = private$solve_status,
+        jacobian = private$jacobian,
         debug_eqn = self$get_debug_eqn(),
         solve_options = self$get_solve_options(),
         fit_options = self$get_fit_options(),
@@ -1590,6 +1603,10 @@ IsisMdl <- R6Class("IsisMdl",
 
       if (!is.null(x$solve_status)) {
         private$solve_status <- x$solve_status
+      }
+
+      if (!is.null(x$jacobian)) {
+        private$jacobian <- x$jacobian
       }
 
       return(invisible(self))

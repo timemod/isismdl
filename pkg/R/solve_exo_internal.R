@@ -1,6 +1,20 @@
 #' Solve exogenous variables numerically for a given period
-#' @import regts
-#' @import nleqslv
+#'
+#' @param mdl A reference to an `IsisMdl` object.
+#' @param solve_period A `period_range` object for the solve period.
+#' @param exo_vars Character vector of exogenous variables to solve for.
+#' @param target_vars Character vector of target endogenous variables.
+#' @param report String ('none', 'period', or 'minimal') describing the level of reporting.
+#' @param jacobian Logical. Whether the final estimated Jacobian should be returned.
+#' @param ... Extra arguments passed to `nleqslv`.
+#'
+#' @return A list with the following components:
+#' \describe{
+#'   \item{solved}{A logical indicating whether the solution converged for all periods.}
+#'   \item{jacobian}{The Jacobian matrix from the last period solved.}
+#' }
+#'
+#' @importFrom nleqslv nleqslv
 #' @importFrom rlang .data
 #' @importFrom glue glue
 #' @noRd
@@ -13,6 +27,27 @@ solve_exo_internal <- function(
   jacobian,
   ...
 ) {
+
+  # check if exo_vars and target_vars have the correct type and
+  # are unique
+  check_var_list <- function(v) {
+    v_name <- deparse(substitute(v))
+    if (!is.character(v)) {
+      stop(sprintf("'%s' is not a character vector", v_name))
+    }
+    if (any(duplicated(v))) {
+      v_dups <- unique(v[duplicated(v)])
+      stop(
+        sprintf(
+          "'%s' must have unique names, but contains duplicates:\n%s.",
+          v_name, paste(v_dups, collapse = ", ")
+        )
+      )
+    }
+  }
+  check_var_list(exo_vars)
+  check_var_list(target_vars)
+
   if (length(exo_vars) != length(target_vars)) {
     stop("Length of 'exo_vars' must be equal to length of 'target_vars'.")
   }
@@ -28,6 +63,10 @@ solve_exo_internal <- function(
       paste(invalid_targets, collapse = ", ")
     )
   }
+
+
+
+
 
   all_exo <- mdl$get_exo_names()
   invalid_exo <- setdiff(exo_vars, all_exo)
@@ -66,6 +105,7 @@ solve_exo_internal <- function(
     regts::end_period(solve_period)
   )
 
+  jac <- NULL
   for (per in as.list(periods)) {
 
     target_values <- mdl$get_data(names = target_vars, period = per) |>
@@ -106,34 +146,29 @@ solve_exo_internal <- function(
       return(retval)
     }
 
-    # If we don’t want a period-level report, no need to store jacobian
-    current_jacobian <- if (report == "period") jacobian else FALSE
-
     ret <- nleqslv::nleqslv(
       x = as.numeric(data_exo),
       fn = f_exo,
-      jacobian = current_jacobian,
+      jacobian = jacobian,
       ...
     )
 
-    if (current_jacobian && report == "period") {
-      cat("Final jacobian for exogenous variables:\n")
-      jac <- ret$jac
+    jac <- ret$jac
+    if (!is.null(jac)) {
       rownames(jac) <- target_vars
       colnames(jac) <- exo_vars
-      print(jac)
-      cat("\n")
     }
 
     # Check convergence
     if (!ret$termcd %in% 1:2) {
-      stop(
+      warning(
         "solve_exo_internal: Failed to solve exogenous variables for period ",
         as.character(per),
         " with nleqslv.\n",
         "Message from nleqslv: ",
         ret$message
       )
+      return(list(solved = FALSE, jacobian = jac))
     }
 
     if (report == "period") {
@@ -142,5 +177,5 @@ solve_exo_internal <- function(
     }
   }
 
-  invisible(mdl)
+  list(solved = TRUE, jacobian = jac)
 }

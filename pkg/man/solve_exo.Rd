@@ -7,14 +7,10 @@
 This method can be used to solve for exogenous variables numerically such that
 the model results for a set of target variables match their values in the
 model data.
-
-This method does not support models with feedback variables.
-
 This is useful when you want to determine the required values of
 exogenous variables to hit specific targets for endogenous variables.
 
-During the solution process all active equations are evaluated in
-solution order.
+This method does not support models with feedback variables.
 }
 \section{Usage}{
 
@@ -42,13 +38,16 @@ variables. The target variables should have non-missing values in the
 model data for the specified solve period.}
 \item{\code{report}}{Character string controlling output verbosity. Options:
 \describe{
-\item{"period"}{Print a report per period (default). For each period
-the final Jacobian is printed if \code{jacobian = TRUE}.}
+\item{"period"}{Print a report per period (default).}
 \item{"minimal"}{Print a minimal report.}
 \item{"none"}{Does not generate a report.}
 }}
-\item{\code{jacobian}}{A logical. If \code{TRUE} and \code{report == "period"}, the
-final Jacobian used for the numerical solution is printed. The default is \code{TRUE}.}
+\item{\code{jacobian}}{A logical. If \code{TRUE}, the
+final estimated Jacobian matrix from \code{nleqslv} used
+for the numerical solution is stored in the model object.
+It can be retrieved with method \code{\link{get_jacobian}}.
+The Jacobian is NOT printed.
+The default is \code{FALSE}.}
 \item{\code{...}}{Additional arguments passed to the
 \link[nleqslv:nleqslv]{nleqslv::nleqslv} solver (e.g., \code{control}, \code{method}, \code{global}).}
 }
@@ -58,8 +57,8 @@ final Jacobian used for the numerical solution is printed. The default is \code{
 
 
 The method works by running all active equations of the model for the
-specified solve period. It constructs a residual function that
-runs these equations and computes the difference between the
+specified solve period in solution order. It constructs a residual function
+that runs these equations and computes the difference between the
 target variables' values in the model data and the values computed by
 the model.
 
@@ -68,17 +67,30 @@ function. The initial guess for the exogenous variables in the solve
 period is the current value of the exogenous variable in the model data,
 or 0 if the value is \code{NA}.
 
-If the numerical solver fails to converge, \code{solve_exo} stops with
-an error containing the termination code and message from \code{nleqslv},
-so that the user can adjust initial guesses or solver options.
+The solve procedure issues a warning when the solve was
+not successful.
+Method \code{\link{get_solve_status}} can be used to check
+whether the solve was successfully terminated or not.
+In case of failure, the Jacobian matrix from the last attempted solution
+can still be retrieved with method \code{\link{get_jacobian}}
+(provided \code{jacobian = TRUE}).
+The user is recommended to check warnings and output.
 }
 
 \section{Value}{
 
 
-Returns the modified \code{IsisMdl} object, where the values
-of \code{exo_vars} in \code{solve_period} have been updated to the
-solution found by the numerical solver.
+The \code{IsisMdl} object itself (invisibly), with the solved exogenous
+variable values updated in the model data.
+Because \code{IsisMdl} is an R6 reference object, the model is modified
+in place; the return value and the original object are the same.
+The solve status is stored in the model object and can be retrieved with
+method \code{\link{get_solve_status}}.
+If \code{jacobian = TRUE}, the Jacobian matrix from the \strong{last period} in
+\code{solve_period} is stored in the model object and can be retrieved with
+method \code{\link{get_jacobian}}.
+(rows = target variables, columns = exogenous variables).
+The Jacobian is never printed by \code{solve_exo}.
 }
 
 \examples{
@@ -121,7 +133,47 @@ mdl$get_data(names = "G", period = "2020")
 # C = 50 + 0.8 * 100 = 130
 mdl$get_data(names = "C", period = "2020")
 
+# To store the Jacobian, use jacobian = TRUE
+mdl$solve_exo(
+    exo_vars     = c("G", "C_A"),
+    target_vars  = c("Y", "C"),
+    solve_period = "2020",
+    report       = "no",
+    jacobian     = TRUE
+)
 
+# Access solve status
+print(mdl$get_solve_status())
+
+# Access the Jacobian matrix
+print(mdl$get_jacobian())
+
+
+# Example with failure
+# Use a non-solvable model to force failure (x = exp(y), target x = -1)
+mdl_content <- "
+ident x = exp(y);
+ident obs = x;
+"
+
+mdl_fail <- isis_mdl(model_text = mdl_content, period = "2020", silent = TRUE)
+mdl_fail$set_values(-1, names = "obs", period = "2020")
+mdl_fail$set_values(0, names = "y", period = "2020")
+
+# This will give a warning message, not raise an error.
+mdl_fail$solve_exo(
+    solve_period = "2020",
+    exo_vars = "y",
+    target_vars = "obs",
+    report = "none",
+    jacobian = TRUE
+)
+
+# Check solve status
+print(mdl_fail$get_solve_status())
+
+# Access Jacobian matrix
+print(mdl_fail$get_jacobian())
 }
 \seealso{
 \code{\link{solve}}, \code{\link{fill_mdl_data_solve}},
