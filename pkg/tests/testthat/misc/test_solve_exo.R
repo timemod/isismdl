@@ -120,7 +120,7 @@ test_that("solve_exo errors when model has feedback variables", {
 
 test_that("solve_exo errors when target_vars are not endogenous", {
   mdl <- isis_mdl(model_text = "ident x = y;", period = "2020", silent = TRUE)
-  
+
   expect_error(
     mdl$solve_exo(exo_vars = "y", target_vars = "y", report = "none"),
     regexp = "The following target variables are not active endogenous: y"
@@ -274,4 +274,64 @@ test_that("solve_exo returns jacobian and updates status on failure", {
   expect_equal(mdl$get_solve_status(), "Simulation stopped")
   expect_false(is.null(mdl$get_jacobian()))
   expect_true(is.matrix(mdl$get_jacobian()))
+})
+
+
+test_that("solve_exo duplicate names", {
+  mdl_content <- c(
+    "ident x1 = 0.5 * x1(-1) + 0.3 * y1;",
+    "ident x2 = 0.6 * x2(-1) + 0.4 * y2;",
+    "ident x3 = 0.4 * x3(-1) + 0.2 * y3;",
+    "ident obs1 = 2.0 * x1;",
+    "ident obs2 = 1.5 * x2;",
+    "ident obs3 = 1.2 * x3;"
+  )
+
+  mdl <- isismdl::isis_mdl(model_text = mdl_content, period = "2019/2020", silent = TRUE)
+  solve_period <- "2020"
+
+  # duplicate exo_vars ----
+  exo_vars <- c("y1", "y2", "y3", "y3")
+  target_vars <- c("obs1", "obs2", "obs3", "obs4")
+
+  emsg <- "'exo_vars' must have unique names, but contains duplicates:
+y3."
+  expect_error(
+    mdl$solve_exo(
+      solve_period = solve_period,
+      exo_vars = exo_vars,
+      target_vars = target_vars
+    ),
+    emsg,
+    fixed = TRUE
+  )
+
+  # duplicate target_vars ----
+  exo_vars <- c("y1", "y2", "y3", "y4", "y5")
+  target_vars <- c("obs1", "obs2", "obs3", "obs1", "obs2")
+
+  emsg <- "'target_vars' must have unique names, but contains duplicates:
+obs1, obs2"
+  expect_error(
+    mdl$solve_exo(
+      solve_period = solve_period,
+      exo_vars = exo_vars,
+      target_vars = target_vars
+    ),
+    emsg,
+    fixed = TRUE
+  )
+
+  # wrong argument type ----
+  exo_vars <- 1:5
+  expect_error(
+    mdl$solve_exo(
+      solve_period = solve_period,
+      exo_vars = exo_vars,
+      target_vars = target_vars
+    ),
+    "'exo_vars' is not a character vector",
+    fixed = TRUE
+  )
+
 })

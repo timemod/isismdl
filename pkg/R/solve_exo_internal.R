@@ -27,6 +27,27 @@ solve_exo_internal <- function(
   jacobian,
   ...
 ) {
+
+  # check if exo_vars and target_vars have the correct type and
+  # are unique
+  check_var_list <- function(v) {
+    v_name <- deparse(substitute(v))
+    if (!is.character(v)) {
+      stop(sprintf("'%s' is not a character vector", v_name))
+    }
+    if (any(duplicated(v))) {
+      v_dups <- unique(v[duplicated(v)])
+      stop(
+        sprintf(
+          "'%s' must have unique names, but contains duplicates:\n%s.",
+          v_name, paste(v_dups, collapse = ", ")
+        )
+      )
+    }
+  }
+  check_var_list(exo_vars)
+  check_var_list(target_vars)
+
   if (length(exo_vars) != length(target_vars)) {
     stop("Length of 'exo_vars' must be equal to length of 'target_vars'.")
   }
@@ -42,6 +63,10 @@ solve_exo_internal <- function(
       paste(invalid_targets, collapse = ", ")
     )
   }
+
+
+
+
 
   all_exo <- mdl$get_exo_names()
   invalid_exo <- setdiff(exo_vars, all_exo)
