@@ -1,6 +1,20 @@
 #' Solve exogenous variables numerically for a given period
-#' @import regts
-#' @import nleqslv
+#'
+#' @param mdl A reference to an `IsisMdl` object.
+#' @param solve_period A `period_range` object for the solve period.
+#' @param exo_vars Character vector of exogenous variables to solve for.
+#' @param target_vars Character vector of target endogenous variables.
+#' @param report String ('none', 'period', or 'minimal') describing the level of reporting.
+#' @param jacobian Logical. Whether the final estimated Jacobian should be returned.
+#' @param ... Extra arguments passed to `nleqslv`.
+#'
+#' @return A list with the following components:
+#' \describe{
+#'   \item{solved}{A logical indicating whether the solution converged for all periods.}
+#'   \item{jacobian}{The Jacobian matrix from the last period solved.}
+#' }
+#'
+#' @importFrom nleqslv nleqslv
 #' @importFrom rlang .data
 #' @importFrom glue glue
 #' @noRd
@@ -66,6 +80,7 @@ solve_exo_internal <- function(
     regts::end_period(solve_period)
   )
 
+  jac <- NULL
   for (per in as.list(periods)) {
 
     target_values <- mdl$get_data(names = target_vars, period = per) |>
@@ -106,34 +121,29 @@ solve_exo_internal <- function(
       return(retval)
     }
 
-    # If we don’t want a period-level report, no need to store jacobian
-    current_jacobian <- if (report == "period") jacobian else FALSE
-
     ret <- nleqslv::nleqslv(
       x = as.numeric(data_exo),
       fn = f_exo,
-      jacobian = current_jacobian,
+      jacobian = jacobian,
       ...
     )
 
-    if (current_jacobian && report == "period") {
-      cat("Final jacobian for exogenous variables:\n")
-      jac <- ret$jac
+    jac <- ret$jac
+    if (!is.null(jac)) {
       rownames(jac) <- target_vars
       colnames(jac) <- exo_vars
-      print(jac)
-      cat("\n")
     }
 
     # Check convergence
     if (!ret$termcd %in% 1:2) {
-      stop(
+      warning(
         "solve_exo_internal: Failed to solve exogenous variables for period ",
         as.character(per),
         " with nleqslv.\n",
         "Message from nleqslv: ",
         ret$message
       )
+      return(list(solved = FALSE, jacobian = jac))
     }
 
     if (report == "period") {
@@ -142,5 +152,5 @@ solve_exo_internal <- function(
     }
   }
 
-  invisible(mdl)
+  list(solved = TRUE, jacobian = jac)
 }

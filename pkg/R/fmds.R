@@ -6,21 +6,25 @@
 #' @param solve_df A data frame with solve instructions.
 #' @param report String ('no', 'period', or 'all') describing the level of reporting.
 #' @param default_initial_guess Numeric. The default initial guess if not specified in `solve_df`.
-#' @param jacobian Logical. Whether to calculate and use the Jacobian.
+#' @param jacobian Logical. Whether the final estimated Jacobian should be returned.
+#' @param print_jacobian Logical. Whether to print the Jacobian or not. Only
+#' used if `report == "period` and `jacobian == TRUE`.
 #' @param ... Extra arguments passed to `nleqslv`.
+#' @return If `jacobian == TRUE`: Returns a list containing the Jacobian matrix
+#' and the convergence status for the last group and period solved. Otherwise
+#' returns NULL.
 #'
-#' @import regts
-#' @import nleqslv
-#' @importFrom graphics plot
 #' @importFrom dplyr group_split filter inner_join select
-#' @importFrom purrr map_dbl
-#' @importFrom rlang set_names .data
+#' @importFrom rlang .data
 #'
 #' @noRd
 
 fmds <- function(
     mdl, period, solve_df, report, default_initial_guess, jacobian,
-    ...) {
+    print_jacobian = TRUE, ...) {
+
+  # Only print the jacobian when the full report is printed (report = "period").
+  if (report != "period") print_jacobian <- FALSE
 
   solve_df <- ensure_solve_df_cols(solve_df,
                                    default_initial_guess = default_initial_guess)
@@ -133,6 +137,7 @@ fmds <- function(
   }
 
   mdl$fill_mdl_data(period = period, report = "no", include_frmls = TRUE)
+  data_after_first_fill <- mdl$get_data()
 
   for (single_solve_period in solve_df |> group_split(.data$solve_period)) {
     this_period <- single_solve_period$solve_period[1]
@@ -143,8 +148,9 @@ fmds <- function(
       # numerical vector used in nleqslv
       initial_guess_vector <- group_data$initial_guess
 
-      fmds_group(
+      res <- fmds_group(
         mdl,
+        solve_group = group_data$group[1],
         solve_period = this_period,
         solve_variables = group_data$solve_variable,
         observed_variables = group_data$observed_variable,
@@ -153,12 +159,19 @@ fmds <- function(
         initial_guess = initial_guess_vector,
         report = report,
         jacobian = jacobian,
+        print_jacobian = print_jacobian,
         ...
       )
+      if (!res$solved) {
+        return(list(solved = FALSE, jacobian = res$jacobian))
+      }
+      jac <- res$jacobian
+
     }
 
     # Fill model data for this period.
     mdl$fill_mdl_data(period = this_period, report = "no", include_frmls = TRUE)
+
   }
 
   # Finally solve for missing data for the full period again, more variables
@@ -170,7 +183,6 @@ fmds <- function(
   dif_table <- tsdif(mdl_original_data, mdl_solved_data, fun = cvgdif,
                      tol = 1e-4)$dif_table
 
-  # Check that only NA values have been modified.
   if (!is.null(dif_table) && !all(is.na(dif_table$value1))) {
     stop(paste(
       "One or more valid (non-NA) values have been modified during the solve",
@@ -181,26 +193,17 @@ fmds <- function(
 
   # Create summary based on report type
   if (report != "no") {
-    if (!is.null(dif_table)) {
-      overview <- dif_table |>
-        filter(!is.na(.data$value2)) |>
-        select("name", "period", "value2") |>
-        rename(replacement = .data$value2)
-
-      n_filled <- nrow(overview)
-
-      if (report == "period") {
-        cat("\n===============================================\n")
-        cat("Summary of replaced missing/invalid values:\n")
-        cat("===============================================\n\n")
-        print(overview)
-      }
-      cat("\nTotal number of replaced missing/invalid values:  ", n_filled, "\n",
-          sep = "")
-    } else {
-      cat("\nNo missing/invalid values have been replaced.\n")
-    }
+    n_first_fill <- sum(is.na(mdl_original_data) & !is.na(data_after_first_fill))
+    n_solved     <- nrow(solve_df)
+    n_final_fill <- sum(is.na(data_after_first_fill) & !is.na(mdl_solved_data)) - n_solved
+    cat("\n===============================================\n")
+    cat("Summary of missing values replaced:")
+    cat("\n===============================================\n\n")
+    cat("by fill_mdl_data pre solve        : ", n_first_fill, "\n",   sep = "")
+    cat("solved                            : ", n_solved,     "\n",   sep = "")
+    cat("by fill_mdl_data_solve post solve : ", n_final_fill, "\n\n", sep = "")
   }
 
-  return(invisible(mdl))
+  # Returns the result list
+  list(solved = TRUE, jacobian = jac)
 }

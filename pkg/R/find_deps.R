@@ -24,10 +24,10 @@
 #'   a final destination is already observed.
 #' @return A directed igraph object (edges point from dependency to dependent).
 #'
-#' @importFrom igraph add_edges make_empty_graph neighbors induced_subgraph
-#'   delete_edges incident subcomponent delete_vertices
-#'   add_vertices V degree set_vertex_attr
-#' @importFrom dplyr rename mutate anti_join
+#' @importFrom igraph add_edges make_empty_graph induced_subgraph
+#' @importFrom igraph delete_edges incident subcomponent
+#' @importFrom igraph add_vertices V set_vertex_attr
+#' @importFrom dplyr mutate anti_join
 #' @importFrom rlang .data
 #'
 #' @noRd
@@ -167,7 +167,6 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Break the recursion if the period is before min_period_data - 1.
     if (per < min_period_data - 1) {
       g <<- set_vertex_attr(g, "ok", index = idx, value = FALSE)
-      g <<- set_vertex_attr(g, "calculable", index = idx, value = FALSE)
       g <<- set_vertex_attr(g, "color", index = idx, value = color_not_ok)
       g <<- set_vertex_attr(g, "msg", index = idx, value = "outside period range")
       return(FALSE)

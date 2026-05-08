@@ -1,7 +1,7 @@
 Package: isismdl
 Type: Package
 Title: Solve macroeconomic models
-Version: 2.5.0
+Version: 2.5.1
 Date: 2016-02-18
 Authors@R: c(
  person("Rob", "van Harrevelt", email = "rvanharrevelt@gmail.com", role = c("aut", "cre")),
@@ -15,7 +15,6 @@ Depends:
     regts
 SystemRequirements: GNU make
 License: GPL-3
-RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE, r6 = FALSE)
 Imports:
     R6,
@@ -23,11 +22,9 @@ Imports:
     methods,
     tools,
     utils,
-    graphics,
     dplyr,
     rlang,
     igraph,
-    purrr,
     nleqslv,
     tibble,
     tidyr,
@@ -41,3 +38,4 @@ Suggests:
 VignetteBuilder: knitr,
                  R.rsp
 Encoding: UTF-8
+Config/roxygen2/version: 8.0.0

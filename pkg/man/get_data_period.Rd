@@ -13,7 +13,7 @@ mdl$get_data_period()
 
 }
 
-\code{mdl} is an \code{IsisMdl} object
+\code{mdl} is an \code{\link{IsisMdl}} object
 }
 
 \seealso{
