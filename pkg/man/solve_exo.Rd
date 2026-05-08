@@ -7,14 +7,10 @@
 This method can be used to solve for exogenous variables numerically such that
 the model results for a set of target variables match their values in the
 model data.
-
-This method does not support models with feedback variables.
-
 This is useful when you want to determine the required values of
 exogenous variables to hit specific targets for endogenous variables.
 
-During the solution process all active equations are evaluated in
-solution order.
+This method does not support models with feedback variables.
 }
 \section{Usage}{
 
@@ -61,8 +57,8 @@ The default is \code{FALSE}.}
 
 
 The method works by running all active equations of the model for the
-specified solve period. It constructs a residual function that
-runs these equations and computes the difference between the
+specified solve period in solution order. It constructs a residual function
+that runs these equations and computes the difference between the
 target variables' values in the model data and the values computed by
 the model.
 

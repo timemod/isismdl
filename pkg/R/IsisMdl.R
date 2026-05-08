@@ -184,7 +184,7 @@ setOldClass("period_range")
 #' data from identities}
 #'
 #' \item{\code{\link{fill_mdl_data_solve}}}{Fills model data and
-#' inverse solves for starting values}
+#' solves starting values numerically}
 #'
 #' \item{\code{\link{find_deps}}}{Finds the dependencies of the model variables}
 #'

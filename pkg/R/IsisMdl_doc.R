@@ -605,13 +605,15 @@ NULL
 #' mdl$solve(period = "2017")
 NULL
 
-#' \code{\link{IsisMdl}} method: Returns the solve status of the last model solve.
+#' \code{\link{IsisMdl}} method: Returns the solve status of the last
+#' solve attempt
 #' @name get_solve_status
 #' @md
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the status
-#' of the last model solve as a  text string. If the last model solve
+#' of the last solve attempt with methods [solve], [solve_exo] or
+#'  [fill_mdl_data_solve] as a  text string. If the last solve attempt
 #' was successful, it returns the string \code{"OK"}.
 #'
 
@@ -899,7 +901,7 @@ NULL
 #'
 #' # Access solve status
 #' print(mdl_copy$get_solve_status())
-#' 
+#'
 #' # Access the Jacobian matrix
 #' print(mdl_copy$get_jacobian())
 #'
@@ -948,14 +950,10 @@ NULL
 #' This method can be used to solve for exogenous variables numerically such that
 #' the model results for a set of target variables match their values in the
 #' model data.
-#'
-#' This method does not support models with feedback variables.
-#'
 #' This is useful when you want to determine the required values of
 #' exogenous variables to hit specific targets for endogenous variables.
 #'
-#' During the solution process all active equations are evaluated in
-#' solution order.
+#' This method does not support models with feedback variables.
 #'
 #' @section Usage:
 #' \preformatted{
@@ -997,8 +995,8 @@ NULL
 #' @section Details:
 #'
 #' The method works by running all active equations of the model for the
-#' specified solve period. It constructs a residual function that
-#' runs these equations and computes the difference between the
+#' specified solve period in solution order. It constructs a residual function
+#' that runs these equations and computes the difference between the
 #' target variables' values in the model data and the values computed by
 #' the model.
 #'
@@ -1090,7 +1088,7 @@ NULL
 #' # Access the Jacobian matrix
 #' print(mdl$get_jacobian())
 #'
-#' 
+#'
 #' # Example with failure
 #' # Use a non-solvable model to force failure (x = exp(y), target x = -1)
 #' mdl_content <- "
@@ -2897,13 +2895,15 @@ NULL
 #' \item{\code{var}}{The name of the variable.}
 #' \item{\code{period}}{The period of the variable (as a string).}
 #' \item{\code{ok}}{\code{TRUE} if the variable can be resolved — either
-#'   because it is observed or because it is calculable (see below).}
+#'   because it is observed or because it is calculable (see below).
+#'   Vertices for solvable variables are always treated as resolved (`ok = TRUE`)
+#'   (see section "Solvable verices").}
 #' \item{\code{calculable}}{\code{TRUE} if the variable's value can be
 #'   computed by evaluating its model equation based on the
-#'   observed data or an initial guess for the solvable variables (see
+#'   observed data or given values of the solvable variables (see
 #'   section "Solvable vertices"). To be specific, it is `TRUE` if all its
-#'   incoming vertices are either OK (\code{ok == TRUE}).
-#'   It is `FALSE` if the value cannot be computed,
+#'   incoming vertices are OK (\code{ok == TRUE}).
+#'   It is `FALSE` if the value cannot be computed
 #'   because the dependencies are not observed or calculable,
 #'   and `NA` if the vertex is observed or a final source.}
 #' \item{\code{observed}}{\code{TRUE} if the variable-period pair appears

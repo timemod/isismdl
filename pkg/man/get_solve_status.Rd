@@ -2,10 +2,12 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{get_solve_status}
 \alias{get_solve_status}
-\title{\code{\link{IsisMdl}} method: Returns the solve status of the last model solve.}
+\title{\code{\link{IsisMdl}} method: Returns the solve status of the last
+solve attempt}
 \description{
 This method of R6 class \code{\link{IsisMdl}} returns the status
-of the last model solve as a  text string. If the last model solve
+of the last solve attempt with methods \link{solve}, \link{solve_exo} or
+\link{fill_mdl_data_solve} as a  text string. If the last solve attempt
 was successful, it returns the string \code{"OK"}.
 }
 \section{Usage}{

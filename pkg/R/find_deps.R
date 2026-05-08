@@ -167,7 +167,6 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Break the recursion if the period is before min_period_data - 1.
     if (per < min_period_data - 1) {
       g <<- set_vertex_attr(g, "ok", index = idx, value = FALSE)
-      g <<- set_vertex_attr(g, "calculable", index = idx, value = FALSE)
       g <<- set_vertex_attr(g, "color", index = idx, value = color_not_ok)
       g <<- set_vertex_attr(g, "msg", index = idx, value = "outside period range")
       return(FALSE)
