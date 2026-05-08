@@ -24,10 +24,10 @@
 #'   a final destination is already observed.
 #' @return A directed igraph object (edges point from dependency to dependent).
 #'
-#' @importFrom igraph add_edges make_empty_graph neighbors induced_subgraph
-#' @importFrom igraph delete_edges incident subcomponent delete_vertices
-#' @importFrom igraph add_vertices V degree set_vertex_attr
-#' @importFrom dplyr rename mutate anti_join
+#' @importFrom igraph add_edges make_empty_graph induced_subgraph
+#' @importFrom igraph delete_edges incident subcomponent
+#' @importFrom igraph add_vertices V set_vertex_attr
+#' @importFrom dplyr mutate anti_join
 #' @importFrom rlang .data
 #'
 #' @noRd
