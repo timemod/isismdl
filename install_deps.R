@@ -1,7 +1,11 @@
 #!/usr/bin/Rscript
-repo <- "https://cloud.r-project.org"
+# Set up Repositories: CPB and CRAN
+repos <- c(
+  CRAN = "https://cloud.r-project.org",
+  CPB = "http://gitlab.cpb.nl:8880/io/cpb_repo/"
+)
 
-options(repos = c(CRAN = repo)) 
+options(repos = repos)
 
 # If the user library does not exist, then create it
 # and add it to the library path.
@@ -11,20 +15,22 @@ if (!dir.exists(user_lib_dir)) {
   .libPaths(user_lib_dir)
 }
 
-if (!require("remotes", character.only = TRUE, quietly = TRUE)) {
-  install.packages("remotes", dependencies = FALSE)
+# Install 'pak' if needed
+if (!require("pak", character.only = TRUE, quietly = TRUE)) {
+  install.packages("pak", dependencies = FALSE)
 } else {
-  unloadNamespace("remotes")
+  unloadNamespace("pak")
 }
 
-# Install extra packages needed to install isismdl with the install script.
-extra_packages <- c("devtools", "tictoc")
-for (extra_package in extra_packages) {
-  if (!require(extra_package, character.only = TRUE, quietly = TRUE)) {
-    remotes::install_cran(extra_package, upgrade = "never")
+# Install extra packages
+extra_packages <- c("devtools", "tictoc", "lintr")
+for (pkg in extra_packages) {
+  if (!require(pkg, character.only = TRUE, quietly = TRUE)) {
+    pak::pkg_install(pkg, lib = .libPaths(), upgrade = FALSE)
   } else {
-     unloadNamespace(extra_package)
+    unloadNamespace(pkg)
   }
 }
 
-remotes::install_deps("pkg", dependencies = TRUE, upgrade = "never")
+# Install and update dependencies
+pak::local_install_dev_deps("pkg", lib = .libPaths(), upgrade = FALSE)
