@@ -14,7 +14,9 @@ extern void F77_CALL(get_fit_options)(int *maxiter, double *cvgabs,
               double *mkdcrt, double *cvgrel, int *zero_ca, int *warn_ca, 
               int *repopt, double *svdtest_tol, int *acc_jac, int *zealous, 
               int *scale_method, int *warn_zero_row, int *warn_zero_col, int *chkjac);
-extern void F77_CALL(get_fit_dbgopts)(int *, int *, int *);
+
+// TODO: zelfde definitie staat in set_fit_opts_c.c, dus stop dit in een header!
+extern void F77_CALL(get_fit_dbgopts)(int *, int *, int *, int *);
 
 static SEXP get_debug_option(void);
 
@@ -48,7 +50,7 @@ SEXP get_fit_opts_c(SEXP model_index_) {
     add_option("warn_zero_col", PROTECT(ScalarLogical(warn_zero_col)));
     add_option("chkjac", PROTECT(ScalarLogical(chkjac)));
     add_option("report", PROTECT(mkString(get_fit_repopt_text(repopt))));
-    add_option("dbgopt", get_debug_option());
+    add_option("dbgopt", PROTECT(get_debug_option()));
     add_option("svdtest_tol", PROTECT(ScalarReal(svdtest_tol)));
 
     UNPROTECT(N_OPTS);
@@ -57,12 +59,14 @@ SEXP get_fit_opts_c(SEXP model_index_) {
 
 static SEXP get_debug_option(void) {
 
-    int prica, prijac, supsot;
-    F77_CALL(get_fit_dbgopts)(&prica, &prijac, &supsot);
+    int prica, prijac, store_jac, supsot;
+    F77_CALL(get_fit_dbgopts)(&prica, &prijac, &store_jac, &supsot);
 
-    SEXP value = PROTECT(allocVector(STRSXP, 3));
+    SEXP value = PROTECT(allocVector(STRSXP, 4));
     SET_STRING_ELT(value, 0, mkChar(FIT_PRICA_OPTS[prica]));
     SET_STRING_ELT(value, 1, mkChar(FIT_PRIJAC_OPTS[prijac]));
-    SET_STRING_ELT(value, 2, mkChar(FIT_SUPSOT_OPTS[supsot]));
+    SET_STRING_ELT(value, 2, mkChar(FIT_STORE_JAC_OPTS[store_jac]));
+    SET_STRING_ELT(value, 3, mkChar(FIT_SUPSOT_OPTS[supsot]));
+    UNPROTECT(1);
     return value;
 }

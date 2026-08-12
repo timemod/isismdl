@@ -436,3 +436,8 @@ subroutine get_fit_jac_info_fortran(numu, numw, jac, nu, nw)
     integer :: nu, nw
     call get_fit_jac_info(numu, numw, jac)
 end subroutine get_fit_jac_info_fortran
+
+subroutine clear_fit_jac_wrap
+    use msfitm
+    call clear_fit_jac
+end subroutine clear_fit_jac_wrap

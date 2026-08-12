@@ -93,6 +93,7 @@ extern void F77_NAME(check_active_eqs_fortran)(int *model_index);
 extern void F77_NAME(get_fit_jac_dim_fortran)(int *nu, int *nw);
 extern void F77_NAME(get_fit_jac_info_fortran)(int *numu, int *numw, double *jac,
                                                int *nu, int *nw);
+extern void F77_NAME(clear_fit_jac_wrap)(void);
 
 SEXP get_lags_or_leads(int model_index, int type);
 
@@ -674,6 +675,9 @@ SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
 
     /* Fit Jacobian */
     SEXP fit_jac = PROTECT(get_fit_jac_c(model_index));
+
+    /* Now clear fit jacobian from memory */
+    F77_CALL(clear_fit_jac_wrap)();
 
     /* allocate list (VECSXP) of length 3 and protect it */
     SEXP ret = PROTECT(allocVector(VECSXP, 2));

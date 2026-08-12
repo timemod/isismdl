@@ -41,7 +41,8 @@ module msimul
     ! set error flag in global common to 0
     ! initialize output system
     ! initialize lags and leads (and check for validity)
-    
+   
+    retcod = 0 
     mws%simerr = 0
     chklead = .true.
     
@@ -135,6 +136,9 @@ module msimul
     999 continue
     
     call clear_msfix
+ 
+    ! clear fit work excluding information about fit_jac
+    if (mode /= 'R') call clear_fit_work(.false.)
     
     return
     end subroutine simul

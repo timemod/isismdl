@@ -18,8 +18,8 @@ extern void F77_SUB(set_fit_accurate_jac)(int *);
 extern void F77_SUB(set_fit_zealous)(int *);
 extern void F77_SUB(set_fit_warn_zero_row)(int *);
 extern void F77_SUB(set_fit_warn_zero_col)(int *);
-extern void F77_SUB(get_fit_dbgopts)(int *, int *, int *);
-extern void F77_SUB(set_fit_dbgopts)(int *, int *, int *);
+extern void F77_SUB(get_fit_dbgopts)(int *, int *, int *, int *);
+extern void F77_SUB(set_fit_dbgopts)(int *, int *, int *, int *);
 extern void F77_SUB(set_fit_repopt)(int *);
 extern void F77_SUB(set_fit_scale_method)(int *);
 extern void F77_SUB(set_fit_svdtest_tol)(double *);
@@ -121,8 +121,8 @@ static void set_fit_option(const char *name, SEXP value) {
 
 static void set_fit_debug_opts(SEXP option) {
 
-    int prica, prijac, supsot;
-    F77_CALL(get_fit_dbgopts)(&prica, &prijac, &supsot);
+    int prica, prijac, store_jac, supsot;
+    F77_CALL(get_fit_dbgopts)(&prica, &prijac, &store_jac, &supsot);
     int i;
     for (i = 0; i < length(option); i++) {
         const char *opt = CHAR(STRING_ELT(option, i));
@@ -132,6 +132,8 @@ static void set_fit_debug_opts(SEXP option) {
             prica = positive;
         } else if (!strcmp(s, FIT_PRIJAC_OPTS[1])) {
             prijac = positive;
+        } else if (!strcmp(s, FIT_STORE_JAC_OPTS[1])) {
+            store_jac = positive;
         } else if (!strcmp(s, FIT_SUPSOT_OPTS[1])) {
             supsot = positive;
         } else {
@@ -139,5 +141,5 @@ static void set_fit_debug_opts(SEXP option) {
                     opt);
         }
     }
-    F77_CALL(set_fit_dbgopts)(&prica, &prijac, &supsot);
+    F77_CALL(set_fit_dbgopts)(&prica, &prijac, &store_jac, &supsot);
 }

@@ -31,7 +31,7 @@ module msfitm
 
     private allocate_fit_work, allocate_fit_mat, get_nw_max, fitone, mkdelw, mkdelu, &
             mkb, mkdu0, mkdjac, mkdqr, mdlpas, msfuck, wfinit, msgstp, &
-            msgjac, get_lwork_fit, clear_fit_work, clear_fit_jac
+            msgjac, get_lwork_fit
 
 
 contains
@@ -254,7 +254,17 @@ contains
 
     end subroutine prepare_fit
 
-    subroutine clear_fit_work
+    subroutine clear_fit_work(do_clear_fit_jac)
+
+        logical, intent(in), optional :: do_clear_fit_jac
+
+        logical :: do_clear_fit_jac_local
+
+        if (present(do_clear_fit_jac)) then
+            do_clear_fit_jac_local = do_clear_fit_jac .or. .not. opts%fit%store_jac
+        else 
+            do_clear_fit_jac_local = .true.
+        endif
 
         if (allocated(numr))             deallocate(numr)
         if (allocated(numu_tot))         deallocate(numu_tot)
@@ -279,8 +289,7 @@ contains
         nfixed = 0
         lwork_fit = 0
 
-        ! TODO: na afloop doen?
-        call clear_fit_jac
+        if (do_clear_fit_jac_local) call clear_fit_jac
     end subroutine clear_fit_work
 
     subroutine clear_fit_jac
