@@ -8,6 +8,7 @@
 #include "option_utils.h"
 #include "init_set_get_options.h"
 #include "isismdl_types.h"
+#include "c_call_tools.h"
 
 #define ALL  1
 #define FRML 2
@@ -257,18 +258,7 @@ SEXP get_lags_or_leads(int model_index, int type) {
       }
     }
 
-    /* now create character vector with the variable names */
-    int len, alphabet = 0, i;
-    char name[MCMXNM + 1]; /* +1 because of terminating '\0' */
-    SEXP names = PROTECT(allocVector(STRSXP, cnt));
-    for (i = 0; i < cnt; i++) {
-        F77_CALL(get_variable_name)(&model_index, &ivars[i], name, &len,
-                                    &alphabet);
-        name[len] = '\0';
-        SET_STRING_ELT(names, i, mkChar(name));
-    }
-    UNPROTECT(1);
-    return names;
+    return get_variable_names(ivars, cnt, model_index);
 }
 
 SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP solve_order_,
@@ -569,14 +559,7 @@ SEXP get_fix_fit_c(SEXP type_, SEXP model_index_) {
     INTEGER(dim)[1] = nvar;
     setAttrib(mat, R_DimSymbol, dim);
 
-    char name[MCMXNM + 1]; /* +1 because of terminating '\0' */
-    SEXP names = PROTECT(allocVector(STRSXP, nvar));
-    int i, len, alpha = 0;
-    for (i = 0; i < nvar; i++) {
-        F77_CALL(get_variable_name)(&model_index, &ivar[i], name, &len, &alpha);
-        name[len] = '\0';
-        SET_STRING_ELT(names, i, mkChar(name));
-    }
+    SEXP names = PROTECT(get_variable_names(ivar, nvar, model_index));
 
     // create ouput list
     SEXP list = PROTECT(allocVector(VECSXP, 3));
@@ -616,28 +599,6 @@ SEXP get_rms_c(SEXP model_index_) {
         UNPROTECT(1);
         return ret;
     }
-}
-
-/* Return an SEXP with variable names from an integer array of indices */
-// TODO: this function can be used in more fubnctions.
-SEXP get_variable_names(int *indices, int n, int model_index) {
-
-    SEXP names = PROTECT(allocVector(STRSXP, n));
-
-    char name[MCMXNM + 1]; /* +1 because of terminating '\0' */
-    int alpha = 0;
-    int i, len, index;
-
-    for (i = 0; i < n; i++) {
-        index = indices[i];
-        F77_CALL(get_variable_name)(&model_index, &index, name, &len, &alpha);
-        name[len] = '\0';
-        SET_STRING_ELT(names, i, mkChar(name));
-    }
-
-    UNPROTECT(1);
-
-    return names;
 }
 
 /* Extracts the fit Jacobian from Fortran memory. Returns an unprotected SEXP
