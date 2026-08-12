@@ -34,7 +34,7 @@ module solve_options_type
     character(len = 1), dimension(6), parameter :: MODES = &
                              (/ 'D', 'X', 'R', 'B', 'S', '?' /)
     character(len = 1), dimension(4), parameter :: START_OPTIONS = &
-                             (/ 'P', 'C', 'Q', 'D'/)
+                             (/ 'P', 'C', 'D', 'Q'/)
 
     ! options for the fit procedfure
     type fit_options

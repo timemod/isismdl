@@ -663,10 +663,10 @@ integer, intent(in) :: period
 !      P            strict previous values only but current if in
 !                      first period of Model data period
 
-!      K            relaxed current
+!      D            relaxed current
 !                     use current value if NOT NA else use previous
 
-!      L            relaxed previous
+!      Q            relaxed previous
 !                     use previous value if NOT NA else use current
 
 !     Must be careful in initializing if using current
@@ -677,19 +677,22 @@ integer, intent(in) :: period
 
 
 real(kind = SOLVE_RKIND) ::  zx
-integer :: fbnum, j
+integer :: fbnum, j, jd, jd_prev
 logical :: error
 
-if (opts%start == 'C' ) then
+jd = period + mdl%mxlag 
+jd_prev = period - 1 + mdl%mxlag
+
+if (opts%start == 'C') then
     ! ------   current
-    curvars = mws%mdl_data(:, period + mdl%mxlag)
-elseif (opts%start == 'P' ) then
+    curvars = mws%mdl_data(:, jd)
+elseif (opts%start == 'P') then
     ! ------   previous
-    curvars =  mws%mdl_data(:, max(period - 1, 1) + mdl%mxlag)
-elseif (opts%start == 'D' ) then
-    ! ------   1. relaxed current
+    curvars =  mws%mdl_data(:, max(jd_prev, 1))
+elseif (opts%start == 'D') then
+    ! ------   1. relaxed current (curifok)
     !          2. redo feedback variables
-    curvars = mws%mdl_data(:, period + mdl%mxlag)
+    curvars = mws%mdl_data(:, jd)
     do j = 1, mdl%nfb
         fbnum = mdl%numfb(j)
         call get_var_value(mws, fbnum, period, zx, error)
@@ -699,9 +702,9 @@ elseif (opts%start == 'D' ) then
          curvars(fbnum) = zx
       enddo
 elseif (opts%start == 'Q') then
-    ! ------   1. relaxed previous
+    ! ------   1. relaxed previous (previfok)
     !          2. redo feedback variables
-    curvars = mws%mdl_data(:, max(period - 1, 1) + mdl%mxlag)
+    curvars = mws%mdl_data(:, max(jd_prev, 1))
     do j = 1, mdl%nfb
         fbnum = mdl%numfb(j)
         call get_var_value(mws, fbnum, period - 1, zx, error)

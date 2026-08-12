@@ -82,7 +82,7 @@ module msimul
     
     ! warning message for unavailable previous starting values first period
     ! if using strict previous method
-    if (opts%start == 'P' .and. jf == 1) then
+    if (opts%start == 'P' .and. jf == 1 .and. mdl%mxlag == 0) then
        call simot2
     endif
     
@@ -400,7 +400,7 @@ module msimul
     
         jtd = jt + mdl%mxlag
     
-        ! set ca's (constant adjustments)
+        ! set curvars (current variables)
         ! if usedat is 1 then
         !     set current starting values and exogenous vars
         ! else if usedat = 2 then
