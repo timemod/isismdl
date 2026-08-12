@@ -44,6 +44,7 @@ module msimul
     
     mws%simerr = 0
     chklead = .true.
+    retcod = 0
     
     ! set report option and print solve option
     repopt = opts%repopt
@@ -107,7 +108,7 @@ module msimul
     ! or fix them at original values of the mws
     update_lags = mode == 'D' .or. mode == 'X'
     forwards = mode /= 'B'
-        
+     
     if (mode == 'X') then
         call simulx(ndiver, retcod)
     else
