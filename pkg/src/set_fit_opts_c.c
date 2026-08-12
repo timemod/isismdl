@@ -21,9 +21,7 @@ extern void F77_SUB(set_fit_warn_zero_row)(int *);
 extern void F77_SUB(set_fit_warn_zero_col)(int *);
 extern void F77_SUB(set_fit_repopt)(int *);
 extern void F77_SUB(set_fit_scale_method)(int *);
-extern void F77_SUB(set_fit_svdtest_tol)(double *);
 extern void F77_SUB(set_fit_chkjac)(int *);
-
 
 static void set_fit_option(const char *name, SEXP value);
 static void set_fit_debug_opts(SEXP option);
@@ -105,10 +103,6 @@ static void set_fit_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         i = get_fit_repopt(name, CHAR(STRING_ELT(value, 0)));
         F77_CALL(set_fit_repopt)(&i);
-    } else if (!strcmp(name, "svdtest_tol")) {
-        CHECK_LENGTH(name, value);
-        x = get_finite_number(name, value);
-        F77_CALL(set_fit_svdtest_tol)(&x);
     } else if (!strcmp(name, "scale_method")) {
         CHECK_LENGTH(name, value);
         i = get_fit_scale_method(name, CHAR(STRING_ELT(value, 0)));

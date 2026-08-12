@@ -34,49 +34,5 @@ Derivatives of fit targets are dependent or
 for one or more fit targets all derivatives are (almost) zero ...
 Tip: try to use svd analysis and/or fit option 'warn_zero_row' or warn_zero_col'.
 See documentation of method set_fit_options.
-
-*** SVD analysis ***
-=======================
-The purpose of the SVD analysis is to find linearly dependent rows or columns
-of the fit jacobian.
-A left singular vector is a linear combination of the rows of the jacobian
-that is (almost) zero.
-A right singular vector is a linear combination of the columns of the jacobian
-that is (almost) zero.
-Only components >=             are shown.
-
-Left Singular vectors:
-----------------------
-Singular value X
-                               y
-                              yd
-
-Right Singular vectors:
------------------------
-Singular value X
-                               c
-                               i
-                              md
-
-
-The singularity may also be caused by (almost) zero rows or columns.
-Therefore we print the norm of "problem rows" and "problem columns"
-(rows and columns with significant components in left and right singular vectors resp.)
-
-Problem rows:
--------------
-                        Variable     L1 norm of row
-                               y
-                              yd
-
-Problem columns:
-----------------
-                        Variable  L1 norm of column
-                               c
-                               i
-                              md
-
-*** END SVD ANALYSIS ***
-
 Total number of iterations X
 Solve model used X CPU secs

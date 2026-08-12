@@ -94,9 +94,8 @@ contains
         endif
 
         ! allocate fit_jac, which will be used to save a copy of the fit
-        ! jacobian for the svd analysis
-        if (opts%fit%store_jac .or. &
-              (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE)) then
+        ! jacobian
+        if (opts%fit%store_jac) then
             allocate(fit_jac(nw_max, nu_max), stat = stat)
             if (stat /= 0) then
                call clear_fit_work
@@ -350,7 +349,6 @@ contains
         use msutil
         use msnwut
         use mssolve
-        use svd_anal
         
         !     Solves the model for current period jc with constraints
         !     on some endogenous variables.
@@ -383,9 +381,9 @@ contains
         integer ::  i, j
         integer ::  fiscod,fiter,wmxidx,wmxtyp,djcnt, smxidx, smxtyp
         integer ::  xcod
-        real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, svd_tol, delsmx, &
+        real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, delsmx, &
                                    delsmxp
-        integer :: svd_err, stat, matitr, deltyp, deltypp
+        integer :: stat, matitr, deltyp, deltypp
         logical :: error
 
         !     fiscod is fit iteration status
@@ -470,9 +468,8 @@ contains
                ! compute D*u = trans(Dj)*u
                if (.not. is_square) call mkdu0(ca, delu)
         
-               if (opts%fit%store_jac .or. &
-                     (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE)) then
-                   ! Save a copy of matrix dj for the svdtest in cause of problems
+               if (opts%fit%store_jac) then
+                   ! Save a copy of matrix dj 
                    do i = 1, nw
                       do j = 1, nu
                           fit_jac(i, j) = dj(j, i)
@@ -482,17 +479,6 @@ contains
        
                ! QR factorize Dj
                call mkdqr(dcond, opts%fit%chkjac, xcod)
-        
-               if (dcond <= opts%fit%svdtest_tol .and. opts%repopt /= REP_NONE) then
-                   svd_tol = max(opts%fit%svdtest_tol, sqrt(Rmeps))
-                   call svd_analysis(fit_jac, nw_max, nw,  nu, numw, numu, &
-                                     .true., svd_tol, svd_err)
-                   if (svd_err /= 0) then
-                       retcod = 2
-                       return
-                   endif
-               endif
-
                if (xcod /= 0) goto 9000
             endif
         

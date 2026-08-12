@@ -3,8 +3,7 @@ library(isismdl)
 
 rm(list = ls())
 
-update_expected <- FALSE
-
+update_expected <- TRUE
 
 source("../tools/convert_report.R")
 
@@ -21,14 +20,23 @@ islm_model$set_fit(fit_targets)
 islm_model$set_rms(rms_values)
 
 test_that("Correct type of report created", {
-  expect_warning(report <- capture.output(islm_model$solve(fit_options =
-                                                             list(svdtest_tol = 1e-8,
-                                                                  accurate_jac = TRUE,
-                                                                  dbgopt = "prijac"))),
-                 "Simulation not possible")
+  expect_warning(
+    report <- capture.output(
+      islm_model$solve(fit_options = list(accurate_jac = TRUE,
+                                          dbgopt = c("prijac", "storejac")))
+    ),
+    "Simulation not possible"
+  )
 
   expect_known_output(cat_report(convert_report(report,
                                                 replace_all_numbers = TRUE)),
                       "expected_output/fit_svd_rep1.txt",
                       update = update_expected)
+
+  fit_jac <- islm_model$get_fit_jac()
+  expect_known_value(fit_jac,
+                     file =  "expected_output/fit_svd_jac.rds",
+                     update = update_expected)
+
+
 })

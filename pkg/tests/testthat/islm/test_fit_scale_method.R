@@ -5,7 +5,7 @@ rm(list = ls())
 
 period <- period("2020q2")
 
-mdl <- isis_mdl("mdl/islm_euro.mdl", period = period, silent = TRUE, )
+mdl <- isis_mdl("mdl/islm_euro.mdl", period = period, silent = TRUE)
 
 expect_equal(
   mdl$get_solve_status(),
@@ -29,18 +29,19 @@ test_that("solve model without fit", {
 #
 # prepare rms values and fit targets
 
-mdl$set_rms(c(c = 50000000 , t = 20000000, i = 13000000, md = 20000000))
+mdl$set_rms(c(c = 50000000, t = 20000000, i = 13000000, md = 20000000))
 y <- regts(1000000000, start = period)
 r <- regts(2.5, start = period)
 fit_targets <- cbind(y, r)
 mdl$set_fit(fit_targets)
 
 test_that("model cannot be solved with scale_method = 'none'", {
-  mdl$set_fit_options(scale_method = "none", svdtest_tol = 1e-8)
+  mdl$set_fit_options(scale_method = "none")
   expect_silent(
     expect_warning(
       mdl$solve(options = list(report = "none")),
-      "Simulation not possible")
+      "Simulation not possible"
+    )
   )
 })
 

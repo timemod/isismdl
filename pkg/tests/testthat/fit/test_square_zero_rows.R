@@ -22,8 +22,7 @@ mdl$set_rms(rms)
 test_that("row with almost zeros", {
   mdl2 <- mdl$copy()
   mdl2$set_param(list(r2 = c(0, 0, 1e-9, 0, 0, 0)))
-  mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE,
-                       svdtest_tol = 1e-8)
+  mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE)
 
   # without row scaling simulation is not possible
   expect_warning(report1 <- capture.output(mdl2$solve()),

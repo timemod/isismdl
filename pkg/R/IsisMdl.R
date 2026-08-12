@@ -1574,6 +1574,7 @@ IsisMdl <- R6Class("IsisMdl",
       private$labels <- x$labels
       self$set_debug_eqn(x$debug_eqn)
       do.call(self$set_solve_options, x$solve_options)
+      x$fit_options$svdtest_tol <- NULL # this option has been removed
       do.call(self$set_fit_options, x$fit_options)
       .Call(C_set_cvgcrit_init_mws_c, private$model_index, x$cvgcrit)
       .Call(C_set_ftrelax_init_mws_c, private$model_index, x$ftrelax)

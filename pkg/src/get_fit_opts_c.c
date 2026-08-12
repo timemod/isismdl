@@ -9,7 +9,7 @@
 #include "get_fit_opts_c.h"
 #include "get_fit_opts_fortran.h"
 
-#define N_OPTS 15
+#define N_OPTS 14
 
 static SEXP get_debug_option(void);
 
@@ -23,9 +23,9 @@ SEXP get_fit_opts_c(SEXP model_index_) {
 
     int maxiter, repopt, zero_ca, warn_ca, acc_jac, zealous, scale_method, 
         warn_zero_row, warn_zero_col, chkjac;
-    double cvgabs, mkdcrt, cvgrel, svdtest_tol;
+    double cvgabs, mkdcrt, cvgrel;
     F77_CALL(get_fit_options)(&maxiter, &cvgabs, &mkdcrt, &cvgrel, &zero_ca, 
-                              &warn_ca, &repopt, &svdtest_tol, &acc_jac, 
+                              &warn_ca, &repopt, &acc_jac, 
                               &zealous, &scale_method, 
                               &warn_zero_row, &warn_zero_col, &chkjac);
 
@@ -44,7 +44,6 @@ SEXP get_fit_opts_c(SEXP model_index_) {
     add_option("chkjac", PROTECT(ScalarLogical(chkjac)));
     add_option("report", PROTECT(mkString(get_fit_repopt_text(repopt))));
     add_option("dbgopt", PROTECT(get_debug_option()));
-    add_option("svdtest_tol", PROTECT(ScalarReal(svdtest_tol)));
 
     UNPROTECT(N_OPTS);
     return get_options();
