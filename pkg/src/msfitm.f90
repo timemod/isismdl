@@ -31,7 +31,7 @@ module msfitm
 
     private allocate_fit_work, allocate_fit_mat, get_nw_max, fitone, mkdelw, mkdelu, &
             mkb, mkdu0, mkdjac, mkdqr, mdlpas, msfuck, wfinit, msgstp, &
-            msgjac, get_lwork_fit
+            msgjac, get_lwork_fit, clear_fit_work, clear_fit_jac
 
 
 contains
@@ -95,7 +95,8 @@ contains
 
         ! allocate fit_jac, which will be used to save a copy of the fit
         ! jacobian for the svd analysis
-        if (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
+        if (opts%fit%store_jac .or. &
+              (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE)) then
             allocate(fit_jac(nw_max, nu_max), stat = stat)
             if (stat /= 0) then
                call clear_fit_work
@@ -255,9 +256,7 @@ contains
 
     subroutine clear_fit_work
 
-        if (allocated(numu))             deallocate(numu)
         if (allocated(numr))             deallocate(numr)
-        if (allocated(numw))             deallocate(numw)
         if (allocated(numu_tot))         deallocate(numu_tot)
         if (allocated(numu_fixed))       deallocate(numu_fixed)
         if (allocated(numu_fixed_prev))  deallocate(numu_fixed_prev)
@@ -276,15 +275,23 @@ contains
         if (allocated(dj))               deallocate(dj)
         if (allocated(dj_rownorm))       deallocate(dj_rownorm)
         if (allocated(dj_colnorm))       deallocate(dj_colnorm)
-        if (allocated(fit_jac))          deallocate(fit_jac)
 
+        nfixed = 0
+        lwork_fit = 0
+
+        ! TODO: na afloop doen?
+        call clear_fit_jac
+    end subroutine clear_fit_work
+
+    subroutine clear_fit_jac
         nu = 0
         nw = 0
         nu_max = 0
         nw_max = 0
-        nfixed = 0
-        lwork_fit = 0
-    end subroutine clear_fit_work
+        if (allocated(numu))      deallocate(numu)
+        if (allocated(numw))      deallocate(numw)
+        if (allocated(fit_jac))   deallocate(fit_jac)
+    end subroutine clear_fit_jac
 
 !-----------------------------------------------------------------------
 
@@ -454,7 +461,8 @@ contains
                ! compute D*u = trans(Dj)*u
                if (.not. is_square) call mkdu0(ca, delu)
         
-               if (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
+               if (opts%fit%store_jac .or. &
+                     (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE)) then
                    ! Save a copy of matrix dj for the svdtest in cause of problems
                    do i = 1, nw
                       do j = 1, nu
@@ -1326,5 +1334,35 @@ contains
         get_lwork_fit = max(lwrk1, lwrk2)
         return
     end function get_lwork_fit
+    
+    !-----------------------------------------------------------------------
+
+    subroutine get_fit_jac_dim(nu_out, nw_out)
+      integer, intent(out) :: nu_out, nw_out
+      if (opts%fit%store_jac) then
+          nu_out = nu
+          nw_out = nw
+      else 
+          nu_out = 0
+          nw_out = 0
+      endif
+    end subroutine get_fit_jac_dim
+
+    subroutine get_fit_jac_info(numu_out, numw_out, jac)
+      integer, intent(out) :: numu_out(:), numw_out(:)
+      real(kind = SOLVE_RKIND), intent(out) :: jac(:, :)
+
+      integer :: u, w
+
+      numu_out = numu(1:nu)
+      numw_out = numw(1:nw)
+
+      do u = 1, nu
+        do w = 1, nw
+           jac(w, u) = fit_jac(w, u)
+        end do
+     end do
+
+    end subroutine get_fit_jac_info
 
 end module msfitm

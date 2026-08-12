@@ -89,6 +89,9 @@ extern int F77_NAME(clone_mws_fortran)(int *model_index);
 extern int F77_NAME(set_period_fortran)(int *model_index, int *start, int *end, 
                                         int *freq);
 extern void F77_NAME(check_active_eqs_fortran)(int *model_index);
+extern void F77_NAME(get_fit_jac_dim_fortran)(int *nu, int *nw);
+extern void F77_NAME(get_fit_jac_info_fortran)(int *numu, int *numw, double *jac,
+                                               int *nu, int *nw);
 
 SEXP get_lags_or_leads(int model_index, int type);
 
@@ -615,6 +618,69 @@ SEXP get_rms_c(SEXP model_index_) {
     }
 }
 
+/* Return an SEXP with variable names from an integer array of indices */
+// TODO: this function can be used in more fubnctions.
+SEXP get_variable_names(int *indices, int n, int model_index) {
+
+    SEXP names = PROTECT(allocVector(STRSXP, n));
+
+    char name[MCMXNM + 1]; /* +1 because of terminating '\0' */
+    int alpha = 0;
+    int i, len, index;
+
+    for (i = 0; i < n; i++) {
+        index = indices[i];
+        F77_CALL(get_variable_name)(&model_index, &index, name, &len, &alpha);
+        name[len] = '\0';
+        SET_STRING_ELT(names, i, mkChar(name));
+    }
+
+    UNPROTECT(1);
+
+    return names;
+}
+
+/* Extracts the fit Jacobian from Fortran memory. Returns an unprotected SEXP
+   holding the Jacobian, or R_NilValue if no fit Jacobian was available */
+SEXP get_fit_jac_c(int model_index) {
+
+    /* Determine the dimension of the jacobian:
+       nu (number of residuals) and nw (number of observations */
+    int nu, nw;
+    F77_CALL(get_fit_jac_dim_fortran)(&nu, &nw);
+
+    if (nu == 0 || nw == 0) {
+        // No fit called
+        return R_NilValue;
+    }
+
+    /* Extract variable indices and Jacobian from Fortran memory */
+    int *numu = (int *) R_alloc(nu, sizeof(int));
+    int *numw = (int *) R_alloc(nw, sizeof(int));
+    SEXP jac = PROTECT(allocVector(REALSXP, nw * nu));
+    F77_CALL(get_fit_jac_info_fortran)(numu, numw, REAL(jac), &nu, &nw);
+
+    /* Convert variable indices to variable names */
+    SEXP u_names = PROTECT(get_variable_names(numu, nu, model_index));
+    SEXP w_names = PROTECT(get_variable_names(numw, nw, model_index));
+
+    /* Now create the matrix */
+    SEXP dim = PROTECT(allocVector(INTSXP, 2));
+    INTEGER(dim)[0] = nw;
+    INTEGER(dim)[1] = nu;
+    setAttrib(jac, R_DimSymbol, dim);
+
+    SEXP dnames = PROTECT(allocVector(VECSXP, 2));
+    SET_VECTOR_ELT(dnames, 0, w_names);
+    SET_VECTOR_ELT(dnames, 1, u_names);
+    setAttrib(jac, R_DimNamesSymbol, dnames);
+
+    UNPROTECT(5);
+
+    /* Return unprotected result */
+    return jac;
+}
+
 SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
              SEXP fit_options) {
 
@@ -644,9 +710,27 @@ SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
 
     /* Return simerr  */
     int simerr = F77_CALL(get_simerr)(&model_index);
-    return ScalarInteger(simerr);
-}
 
+    /* Fit Jacobian */
+    SEXP fit_jac = PROTECT(get_fit_jac_c(model_index));
+
+    /* allocate list (VECSXP) of length 3 and protect it */
+    SEXP ret = PROTECT(allocVector(VECSXP, 2));
+    SET_VECTOR_ELT(ret, 0, ScalarInteger(simerr));
+    SET_VECTOR_ELT(ret, 1, fit_jac);
+
+    /* allocate character vector for names (STRSXP) and fill it */
+    SEXP names = PROTECT(allocVector(STRSXP, 2));
+    SET_STRING_ELT(names, 0, mkChar("simerr"));
+    SET_STRING_ELT(names, 1, mkChar("fit_jac"));
+
+    /* attach names attribute */
+    setAttrib(ret, R_NamesSymbol, names);
+
+    UNPROTECT(3);
+
+    return ret;
+}
 
 SEXP filmdt_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP report_,
               SEXP include_frmls_sexp) {

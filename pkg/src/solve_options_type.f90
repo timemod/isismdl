@@ -45,6 +45,7 @@ module solve_options_type
         integer(kind = ISIS_IKIND) :: scale_method
         logical(kind = ISIS_IKIND) :: prica
         logical(kind = ISIS_IKIND) :: prijac
+        logical(kind = ISIS_IKIND) :: store_jac
         logical(kind = ISIS_IKIND) :: zeroca
         logical(kind = ISIS_IKIND) :: warnca
         logical(kind = ISIS_IKIND) :: newjac
@@ -161,6 +162,7 @@ contains
         options%fit%accurate_jac = .true.
         options%fit%prica  = .false.
         options%fit%prijac = .false.
+        options%fit%store_jac = .false.
         options%fit%zeroca = .false.
         options%fit%warnca = .true.
         options%fit%newjac = .true.

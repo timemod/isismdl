@@ -1,5 +1,5 @@
-fortran_calls.o : modelworkspaces.o msfill.o msimot.o msimul.o msslvq.o \
-    msvars.o set_options.o
+fortran_calls.o : modelworkspaces.o msfill.o msfitm.o msimot.o msimul.o \
+    msslvq.o msvars.o set_options.o
 
 get_fit_opts.o : get_options.o
 

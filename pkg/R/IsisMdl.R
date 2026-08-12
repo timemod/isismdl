@@ -407,6 +407,9 @@ IsisMdl <- R6Class("IsisMdl",
     get_jacobian = function() {
       return(private$jacobian)
     },
+    get_fit_jac = function() {
+      private$fit_jac
+    },
     set_labels = function(labels) {
       private$update_labels(labels)
     },
@@ -888,7 +891,7 @@ IsisMdl <- R6Class("IsisMdl",
       private$check_options(options, type = "fit_options")
       period <- private$convert_period_arg_solve(period)
       js <- private$get_period_indices(period)
-      simerr <- .Call(
+      ret <- .Call(
         C_solve_c,
         model_index = private$model_index,
         jtb = js$startp,
@@ -896,7 +899,8 @@ IsisMdl <- R6Class("IsisMdl",
         options,
         fit_options
       )
-      private$solve_status <- simerr_to_solve_status(simerr)
+      private$solve_status <- simerr_to_solve_status(ret$simerr)
+      if (!is.null(ret$fit_jac)) private$fit_jac <- ret$fit_jac
       return(invisible(self))
     },
     get_solve_status = function() {
@@ -1136,6 +1140,7 @@ IsisMdl <- R6Class("IsisMdl",
   ),
   private = list(
     jacobian = NULL,
+    fit_jac = NULL,
     model_text = NA_character_,
     maxlag = NA_integer_,
     maxlead = NA_integer_,

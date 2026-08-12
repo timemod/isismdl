@@ -420,3 +420,19 @@ subroutine check_active_eqs_fortran(model_index)
     integer(c_int), intent(in) :: model_index
     call check_active_equations(mws_array(model_index)%mdl)
 end subroutine check_active_eqs_fortran
+
+subroutine get_fit_jac_dim_fortran(nu, nw)
+    use msfitm
+    use iso_c_binding
+    integer(c_int), intent(out) :: nu, nw
+    call get_fit_jac_dim(nu, nw)
+end subroutine get_fit_jac_dim_fortran
+
+subroutine get_fit_jac_info_fortran(numu, numw, jac, nu, nw)
+    use msfitm
+    use iso_c_binding
+    integer(c_int), intent(out) :: numu(nu), numw(nw)
+    real(c_double), dimension(nw, nu), intent(out) :: jac
+    integer :: nu, nw
+    call get_fit_jac_info(numu, numw, jac)
+end subroutine get_fit_jac_info_fortran
