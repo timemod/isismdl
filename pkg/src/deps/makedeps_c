@@ -25,8 +25,8 @@ futils.o : futils.h
 
 gen_dep_file.o : gen_dep_file.h include_paths.h mchdr.h mcopt.h run_mcexec.h
 
-get_fit_opts_c.o : fit_options.h get_fit_opts_c.h get_option_utils.h \
-    init_set_get_options.h
+get_fit_opts_c.o : fit_options.h get_fit_opts_c.h get_fit_opts_fortran.h \
+    get_option_utils.h init_set_get_options.h
 
 get_option_utils.o : get_option_utils.h
 
@@ -90,8 +90,8 @@ scan_params.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
 scan.o : dependencies.h ecode.h flags.h fname.h include_paths.h ipcode.h \
     mchdr.h mcinit.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
 
-set_fit_opts_c.o : fit_options.h init_set_get_options.h set_fit_options.h \
-    set_fit_opts_c.h set_option_utils.h
+set_fit_opts_c.o : fit_options.h get_fit_opts_fortran.h init_set_get_options.h \
+    set_fit_options.h set_fit_opts_c.h set_option_utils.h
 
 set_option_utils.o : set_option_utils.h
 

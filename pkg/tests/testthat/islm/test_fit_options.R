@@ -55,7 +55,7 @@ test_that("get_fit_options / set_fit_options", {
 
   mdl2$set_fit_options(dbgopt = c("prica", "nosupsot"))
   expect_identical(mdl2$get_fit_options()[["dbgopt"]],
-                   c("prica", "noprijac", "nosupsot"))
+                   c("prica", "noprijac", "nostorejac", "nosupsot"))
   expect_false(mdl2$get_fit_options()[["warn_ca"]])
   expect_true(mdl2$get_fit_options()[["zero_ca"]])
 

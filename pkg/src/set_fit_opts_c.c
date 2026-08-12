@@ -5,6 +5,7 @@
 #include "set_option_utils.h"
 #include "init_set_get_options.h"
 #include "set_fit_opts_c.h"
+#include "get_fit_opts_fortran.h"
 
 extern void F77_SUB(init_set_solve_opts)(int *model_index, int *use_mws);
 extern void F77_SUB(init_get_solve_opts)(int *model_index);
@@ -18,8 +19,6 @@ extern void F77_SUB(set_fit_accurate_jac)(int *);
 extern void F77_SUB(set_fit_zealous)(int *);
 extern void F77_SUB(set_fit_warn_zero_row)(int *);
 extern void F77_SUB(set_fit_warn_zero_col)(int *);
-extern void F77_SUB(get_fit_dbgopts)(int *, int *, int *, int *);
-extern void F77_SUB(set_fit_dbgopts)(int *, int *, int *, int *);
 extern void F77_SUB(set_fit_repopt)(int *);
 extern void F77_SUB(set_fit_scale_method)(int *);
 extern void F77_SUB(set_fit_svdtest_tol)(double *);

@@ -7,16 +7,9 @@
 #include "get_option_utils.h"
 #include "init_set_get_options.h"
 #include "get_fit_opts_c.h"
+#include "get_fit_opts_fortran.h"
 
 #define N_OPTS 15
-
-extern void F77_CALL(get_fit_options)(int *maxiter, double *cvgabs, 
-              double *mkdcrt, double *cvgrel, int *zero_ca, int *warn_ca, 
-              int *repopt, double *svdtest_tol, int *acc_jac, int *zealous, 
-              int *scale_method, int *warn_zero_row, int *warn_zero_col, int *chkjac);
-
-// TODO: zelfde definitie staat in set_fit_opts_c.c, dus stop dit in een header!
-extern void F77_CALL(get_fit_dbgopts)(int *, int *, int *, int *);
 
 static SEXP get_debug_option(void);
 
