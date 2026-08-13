@@ -27,7 +27,8 @@ test_that("report correct", {
   )
   expect_known_report_multi(report,
                             "expected_output/non_square_singular_rep1",
-                            update = update_expected)
+                            update = update_expected,
+                            replace_all_numbers = TRUE)
 })
 
 test_that("jacobian correct", {
@@ -83,7 +84,8 @@ test_that("zero columns", {
   )
   expect_known_report_multi(report3,
                             "expected_output/non_square_singular_rep3",
-                            update = update_expected)
+                            update = update_expected,
+                            replace_all_numbers = TRUE)
 
   # Zero colums 2 and 3 -----
 
@@ -96,7 +98,8 @@ test_that("zero columns", {
   )
   expect_known_report_multi(report4,
                             "expected_output/non_square_singular_rep4",
-                            update = update_expected)
+                            update = update_expected,
+                            replace_all_numbers = TRUE)
 
   # Column 2 almost zero, column 3 exactly zero, warn_zero_col ----
 

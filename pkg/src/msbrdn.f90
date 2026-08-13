@@ -117,7 +117,7 @@ call msjac(retcod, itr, matitr)
 if (retcod /= 0) return
 
 if (opts%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
-    !  save Jacobian for svd analysis
+    ! save Jacobian for svd analysis
     allocate(jac(mdl%nfb, mdl%nfb), stat = stat)
     if (stat /= 0) then
         !call svdot1
@@ -128,9 +128,8 @@ if (opts%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
         do j = 1, mdl%nfb
             jac(i, j) = jacob(i, j)
         enddo
-     enddo
+    enddo
 endif
-
 
 ! QR decomposition of scaled jacobian
 ! estimate inverse condition of R ==> inverse condition of jacobian
