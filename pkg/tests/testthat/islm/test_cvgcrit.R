@@ -49,8 +49,5 @@ test_that("errors", {
   expect_error(mdl$set_cvgcrit(NA_real_), msg)
 
   msg <- "value should be a finite number"
-  expect_error(mdl$set_cvgcrit(1/0), msg)
+  expect_error(mdl$set_cvgcrit(1 / 0), msg)
 })
-
-
-

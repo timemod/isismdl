@@ -54,5 +54,3 @@ test_that("include3", {
   expect_known_output(cat(error_txt), "expected_output/include3.txt",
                       update = update_expected)
 })
-
-

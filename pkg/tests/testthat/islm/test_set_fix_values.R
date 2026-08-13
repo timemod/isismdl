@@ -7,15 +7,15 @@ rm(list = ls())
 
 mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
-i <- regts(200, start = '2015Q2')
-c <- regts(c(600, NA, 600), start = '2015Q2')
-t <- regts(c(190, 195), start = '2015Q3')
+i <- regts(200, start = "2015Q2")
+c <- regts(c(600, NA, 600), start = "2015Q2")
+t <- regts(c(190, 195), start = "2015Q3")
 fix <- cbind(c, i, t)
 ts_labels(fix) <- c("consumption", "investment", "tax")
 mdl$set_fix(fix)
 
 new_fix <- fix[mdl$get_data_period(), ]
-new_fix[ , "c" ] <- 620
+new_fix[, "c"] <- 620
 new_fix["2015Q3/2016Q2", c("t", "i")] <- 210:213
 new_fix["2016Q2", "t"] <- 190
 
@@ -33,11 +33,11 @@ test_that("set_fix_values works correctly", {
 
 
   msg <- paste("Specified period \\(3200Q1/3200Q4\\) is completely outside the",
-                      "data period \\(2015Q1/2016Q3\\)\\.")
+               "data period \\(2015Q1/2016Q3\\)\\.")
   expect_warning(mdl2$set_fix_values(888, period = 3200), msg)
 
 
-  expect_equal(mdl2$get_fix(), new_fix["2015Q1/2015Q4" , c("c", "i")])
+  expect_equal(mdl2$get_fix(), new_fix["2015Q1/2015Q4", c("c", "i")])
 })
 
 test_that("set_fix_values handles errors correctly", {

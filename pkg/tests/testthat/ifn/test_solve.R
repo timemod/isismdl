@@ -24,9 +24,16 @@ test_that("get_var_names/get_endo_names for (endogenous) leads", {
   expect_identical(ifn_mdl$get_var_names(type = "leads"), all_leads)
   expect_identical(ifn_mdl$get_endo_names(type = "leads"), endo_leads)
   expect_warning(
-    expect_identical(ifn_mdl$get_endo_names(type = "endolead"), endo_leads),
-    "Type 'endolead' is obsolete and has been  replaced by 'leads'\\.")
-  expect_identical(intersect(all_leads, ifn_mdl$get_endo_names()), endo_leads)
+    expect_identical(
+      ifn_mdl$get_endo_names(type = "endolead"),
+      endo_leads
+    ),
+    "Type 'endolead' is obsolete and has been  replaced by 'leads'\\."
+  )
+  expect_identical(
+    intersect(all_leads, ifn_mdl$get_endo_names()),
+    endo_leads
+  )
 })
 
 test_that("solve options read from file", {
@@ -54,15 +61,18 @@ test_that("solve result almost identical to Isis result", {
 
 test_that("warning when Fair-Taylor has not converged", {
   ifn_mdl2 <- ifn_mdl$copy()
-  expect_warning(ifn_mdl2$solve(options = list(xmaxiter = 10,
-                                               report = "none")),
-                           "Fair-Taylor has not converged")
+  expect_warning(
+    ifn_mdl2$solve(options = list(xmaxiter = 10, report = "none")),
+    "Fair-Taylor has not converged"
+  )
 })
 
 test_that("errors", {
- ifn_mdl2 <- ifn_mdl$copy()
- expect_error(ifn_mdl2$solve(options = list(xmaxiter = 0, report = "none")),
-              "xmaxiter should be larger than 0")
+  ifn_mdl2 <- ifn_mdl$copy()
+  expect_error(
+    ifn_mdl2$solve(options = list(xmaxiter = 0, report = "none")),
+    "xmaxiter should be larger than 0"
+  )
 })
 
 test_that("get_endo_names with inactive equations", {
@@ -72,8 +82,8 @@ test_that("get_endo_names with inactive equations", {
                  "tc")
   endo_leads <- c("a", "eta", "lambda", "mzk", "px", "rho")
   expect_identical(ifn_mdl2$get_var_names(type = "leads"), all_leads)
-  expect_identical(ifn_mdl2$get_endo_names(type = "leads"), setdiff(endo_leads,
-                                                                   c("eta", "px")))
+  expect_identical(ifn_mdl2$get_endo_names(type = "leads"),
+                   setdiff(endo_leads, c("eta", "px")))
   expect_identical(ifn_mdl2$get_endo_names(type = "leads", status = "all"),
                    endo_leads)
   expect_identical(ifn_mdl2$get_endo_names(type = "leads", status = "inactive"),
@@ -116,7 +126,7 @@ test_that("get_dep_struct", {
 test_that("get_simul_names", {
 
   sim_names <- ifn_mdl$get_simul_names()
-  sim_names_expected <- c("x", "ys","py", "zcap", "cfcap", "kgv", "bzcap",
+  sim_names_expected <- c("x", "ys", "py", "zcap", "cfcap", "kgv", "bzcap",
                           "bcap", "i", "di", "eta", "lambda", "a", "xk", "lab")
   expect_equal(sim_names, sim_names_expected)
 

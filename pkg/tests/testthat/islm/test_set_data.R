@@ -31,7 +31,7 @@ test_that("set_data update mode upd", {
 
   names <-  c("c", "etaa", paste0("abcdefhijilklmn", 1:8))
   new_data <- regts(matrix(555, ncol = length(names)), start = "2016Q1",
-                           names = names)
+                    names = names)
   msg <- paste0(
     "The following names are not model variables: 'etaa', ",
     "'abcdefhijilklmn1',\n    'abcdefhijilklmn2', 'abcdefhijilklmn3', ",
@@ -64,13 +64,13 @@ test_that("set_data update mode updval", {
 
   expect_warning(mdl2$set_data(new_data, upd_mode = "updval"),
                  paste("Data contains duplicate names. The first column is",
-                      "used.\nThe duplicated names are: t."))
+                       "used.\nThe duplicated names are: t."))
   expect_equal(mdl2$get_data(), mdl$get_data())
 })
 
 test_that("errors", {
-  ydat <- regts(matrix(0, ncol = 2, nrow =2), names = c("i", "c"),
-                 period = "2017/2018")
+  ydat <- regts(matrix(0, ncol = 2, nrow = 2), names = c("i", "c"),
+                period = "2017/2018")
   msg <- paste("The frequency of data does not agree with the data period",
                "2015Q1/2016Q3.")
   expect_error(mdl$set_data(ydat), msg)

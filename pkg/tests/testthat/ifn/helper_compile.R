@@ -16,4 +16,3 @@ ifn_mdl$set_solve_options(xmaxiter = 1500, ratreport = "iter",
                           ratfullreport_rep = 50)
 
 ifn_mdl$write_mdl("ifn_mdl.rds")
-

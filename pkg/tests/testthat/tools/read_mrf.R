@@ -6,5 +6,3 @@ read_mrf <- function(mdl_file) {
   lines[1] <- sub(":.+", "", lines[1])
   return(paste(lines, collapse = "\n"))
 }
-
-

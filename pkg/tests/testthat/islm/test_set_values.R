@@ -4,10 +4,9 @@ library(testthat)
 
 rm(list = ls())
 
-
 mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
-test_that("set_values works correctly (1)" , {
+test_that("set_values works correctly (1)", {
   mdl2 <- mdl$clone(deep = TRUE)
   mdl2$set_values(600, names = "c")
   mdl2$set_values(c(200, 210, 215, 220), names = c("ms", "md"),
@@ -15,7 +14,7 @@ test_that("set_values works correctly (1)" , {
   mdl2$set_values(990, pattern = "^y", period = "2016Q2")
 
   expected <- mdl$get_data()
-  expected[ , "c" ] <- 600
+  expected[, "c"] <- 600
   expected["2015Q3/2016Q2", c("ms", "md")] <- c(200, 210, 215, 220)
   expected["2016Q2", c("y", "yd")] <- 990
 
@@ -30,7 +29,7 @@ test_that("set_values works correctly (2)", {
   mdl2$set_values(990, pattern = "^y", period = "2016M4/")
 
   expected <- mdl$get_data()
-  expected["2016q1/2016q3" , "c" ] <- 600
+  expected["2016q1/2016q3", "c"] <- 600
   expected["2015Q2/2016Q1", c("ms", "md")] <- c(200, 210, 215, 220)
   expected["2016Q2/2016Q3", c("y", "yd")] <- 990
 

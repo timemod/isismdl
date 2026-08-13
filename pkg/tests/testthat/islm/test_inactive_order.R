@@ -56,9 +56,7 @@ test_that("deactive y", {
   mdl_new$set_values(names = "y", value = 1000, period = msp)
   mdl_new$solve(options = list(report = "none"))
   expect_equal(mdl_new$get_data(names = "y")[, 1],
-               regts(c(980, rep(1000, nmsp)) , period = mdp, labels = "income"))
-
-
+               regts(c(980, rep(1000, nmsp)), period = mdp, labels = "income"))
 })
 
 test_that("reactivate y", {

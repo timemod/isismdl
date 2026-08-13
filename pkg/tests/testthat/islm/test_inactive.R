@@ -57,7 +57,7 @@ test_that("pattern argument works correctly", {
   mdl2$set_eq_status("active", pattern = "^y")
   expect_identical(mdl2$get_eq_names(status = "active"), c("y", "yd"))
   expect_identical(mdl2$get_eq_names(status = "inactive"),
-                                    setdiff(all_eqs, c("y", "yd")))
+                   setdiff(all_eqs, c("y", "yd")))
   expect_identical(mdl2$get_endo_names(type = "feedback"), "y")
   expect_identical(mdl2$get_endo_names(type = "feedback", status = "all"),
                    c("r", "y"))
@@ -149,7 +149,7 @@ test_that("errors", {
   expect_error(mdl2$set_eq_status(status = "inactive", names = c("y", "yyy")),
                "\"yyy\" is not an equation.")
   expect_error(mdl2$set_eq_status(status = "active", names = c("y", "yyy", "x")),
-                "The following names are not equations: \"yyy\", \"x\".")
+               "The following names are not equations: \"yyy\", \"x\".")
   expect_warning(mdl2$set_eq_status(status = "active", names = "y", pattern = "^z"),
-                "There are no equations that match pattern '\\^z'.")
+                 "There are no equations that match pattern '\\^z'.")
 })

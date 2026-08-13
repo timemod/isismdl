@@ -17,13 +17,13 @@ mdl_solved$solve()
 
 names <- mdl$get_var_names()
 expected_result <- regts(matrix(c(1, 2, 2, 2), nrow = 1, ncol = length(names)),
-                        period = period, names = names)
+                         period = period, names = names)
 
 test_that("run_eqn", {
   mdl2 <- mdl$copy()
   mdl2$run_eqn()
   expect_equal(mdl2$get_data(), expected_result)
-}) 
+})
 
 test_that("run_eqn with natural ordering", {
   mdl2 <- mdl$copy()
@@ -32,7 +32,7 @@ test_that("run_eqn with natural ordering", {
   mdl2$run_eqn(names = mdl$get_eq_names(status = "active", order = "natural"))
 
   expected_result_err <- regts(matrix(c(1, 2, 2, NA), nrow = 1, ncol = length(names)),
-                           period = period, names = names)
+                               period = period, names = names)
   expect_equal(mdl2$get_data(), expected_result_err)
 })
 

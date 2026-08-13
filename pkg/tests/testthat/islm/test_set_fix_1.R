@@ -7,9 +7,9 @@ rm(list = ls())
 
 mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
-i <- regts(200, start = '2015Q2')
-c <- regts(c(600, NA, 600), start = '2015Q2')
-y <- regts(c(990, NA, 1010), start = '2015Q2')
+i <- regts(200, start = "2015Q2")
+c <- regts(c(600, NA, 600), start = "2015Q2")
+y <- regts(c(990, NA, 1010), start = "2015Q2")
 fix <- cbind(i, c, y)
 ts_labels(fix) <- c("investment", "consumption", "income")
 

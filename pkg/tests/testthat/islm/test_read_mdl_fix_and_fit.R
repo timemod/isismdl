@@ -9,12 +9,12 @@ expect_silent(mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE))
 
 data_solved <- mdl$get_data()
 
-i <- regts(200, start = '2015Q2')
-y <- regts(c(990, NA, 1010), start = '2015Q2')
+i <- regts(200, start = "2015Q2")
+y <- regts(c(990, NA, 1010), start = "2015Q2")
 fit <- cbind(y, i)
 
-c <- regts(c(600, NA, 600), start = '2015Q2')
-md <- regts(205, start = '2015Q2')
+c <- regts(c(600, NA, 600), start = "2015Q2")
+md <- regts(205, start = "2015Q2")
 fix <- cbind(c, md)
 
 lbls <- mdl$get_labels()

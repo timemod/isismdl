@@ -8,7 +8,7 @@ rm(list = ls())
 mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 new_ca <- mdl$get_ca()
-new_ca[ , "c" ] <- 10
+new_ca[, "c"] <- 10
 new_ca["2015Q3/2016Q2", c("t", "i")] <- 1:4
 new_ca["2016Q2", "t"] <- 8
 

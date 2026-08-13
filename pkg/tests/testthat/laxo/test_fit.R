@@ -77,4 +77,3 @@ test_that("check mrf", {
                       file = "expected_output/fit_mrf.txt",
                       update = update, print = TRUE)
 })
-

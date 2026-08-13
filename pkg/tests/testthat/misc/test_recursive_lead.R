@@ -16,7 +16,7 @@ mdl$set_values(names = "a", value = 0)
 
 test_that("solving", {
   expect_output(mdl$solve(),
-              "Convergence for consistent expectations after   2 rounds")
+                "Convergence for consistent expectations after   2 rounds")
   expect_equal(mdl$get_solve_status(), "OK")
 })
 

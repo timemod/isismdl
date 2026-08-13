@@ -5,8 +5,8 @@ rm(list = ls())
 
 
 # prepare rms values and fit targets
-i <- regts(200, start = '2015Q2')
-y <- regts(c(990, NA, 1010), start = '2015Q2')
+i <- regts(200, start = "2015Q2")
+y <- regts(c(990, NA, 1010), start = "2015Q2")
 fit_targets <- cbind(y, i)
 ts_labels(fit_targets) <- c("income", "investment")
 
@@ -24,8 +24,8 @@ test_that("Testing get_fit after cloning", {
   expect_null(mdl2$get_fit())
   expect_identical(mdl$get_fit(), fit_targets_sorted)
   mdl3 <- mdl$clone(deep = TRUE)
-  c <- regts(200, start = '2015Q2')
-  t <- regts(c(990, NA, 1010), start = '2015Q2')
+  c <- regts(200, start = "2015Q2")
+  t <- regts(c(990, NA, 1010), start = "2015Q2")
   fit_targets2 <- cbind(c, t)
   ts_labels(fit_targets2) <- c("consumption", "tax")
   mdl3$set_fit(fit_targets2)
@@ -41,4 +41,3 @@ test_that("Testing fit_targets after reading the model", {
   unlink("temp.ismdl")
   expect_identical(mdl4$get_fit(), fit_targets_sorted)
 })
-

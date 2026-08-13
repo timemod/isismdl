@@ -18,4 +18,3 @@ test_that("error file correct", {
   expect_known_output(cat(error_txt), "expected_output/varia1.err",
                       update = update_expected)
 })
-

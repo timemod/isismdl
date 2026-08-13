@@ -194,7 +194,9 @@ test_that("find_deps empty observed data", {
   final_dest <- tribble(~var, ~period, "y", "2021")
 
   g <- mdl$find_deps(final_destinations = final_dest,
-                     observed_data = data.frame(var = character(0), period = character(0), value = numeric(0)))
+                     observed_data = data.frame(var = character(0),
+                                                period = character(0),
+                                                value = numeric(0)))
 
   expect_s3_class(g, "igraph")
   expect_true("y[2021]" %in% V(g)$name)
@@ -349,7 +351,9 @@ test_that("find_deps message for removed solvables", {
   expect_message(
     g <- mdl$find_deps(final_destinations = final_dest,
                        solvable = solvable,
-                       observed_data = data.frame(var = character(0), period = character(0), value = numeric(0))),
+                       observed_data = data.frame(var = character(0),
+                                                  period = character(0),
+                                                  value = numeric(0))),
     msg,
     fixed = TRUE
   )

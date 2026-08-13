@@ -49,7 +49,7 @@ test_that("set_user_data/get_user data work correctly", {
 
 test_that("errors", {
   expect_error(mdl$set_user_data(2),
-                 "Argument 'user_data' must be a named list")
+               "Argument 'user_data' must be a named list")
 
   expect_error(mdl$get_user_data("zzzz"), "'zzzz' is not a user data key")
 

@@ -18,7 +18,7 @@ expected_orf_subst_name <- "expected_output/complex1_subst.orf"
 mdl_filename <- "mdl/complex1.mdl"
 mdl_subst_filename <- "mdl/complex1_subst.mdl"
 
-parse_options <- list(include_dirs= include_dirs)
+parse_options <- list(include_dirs = include_dirs)
 
 # create model
 mdl <- isis_mdl(model_file = "mdl/complex1.mdl", period = period,
@@ -32,7 +32,7 @@ mdl_file_subst <- "mdl/"
 #convert model by using function substitution
 ok <- convert_mdl_file(mdl_filename, mdl_subst_filename,
                        conversion_options = list(substitute = TRUE),
-                      parse_options = parse_options)
+                       parse_options = parse_options)
 expect_true(ok)
 mdl_subst <- isis_mdl(mdl_subst_filename, period = period, silent = TRUE)
 mdl_subst$set_values(seq_len(nperiod(data_per)), names = paste0("x", 1:3))
@@ -84,7 +84,7 @@ test_that("model is solved correctly", {
 
   mdl$solve()
   expect_known_value(mdl$get_data(), file = expected_output_file,
-		     update = update_expected)
+                     update = update_expected)
 
   mdl_subst$solve()
   expect_equal(mdl$get_data(), mdl_subst$get_data())
@@ -94,7 +94,6 @@ test_that("check mrf", {
   mrf_data <- read_mrf(mdl_filename)
   expect_known_output(cat(mrf_data), file = "expected_output/complex1_mrf.txt",
                       update = update_expected, print = TRUE)
-
 })
 
 test_that("test get_text", {
@@ -113,9 +112,11 @@ test_that("test get_text", {
 })
 
 test_that("parse options errors", {
-  expect_error(isis_mdl(mdl_filename, parse_options = c(parse_options,
-                                                   gep_dep_file = TRUE)),
-               "Unknown parse options gep_dep_file")
+  expect_error(
+    isis_mdl(mdl_filename, parse_options = c(parse_options,
+                                             gep_dep_file = TRUE)),
+    "Unknown parse options gep_dep_file"
+  )
   expect_error(isis_mdl(mdl_filename, parse_options = list(flags = 2)),
                "Parse option flags should be a character vector")
   expect_error(isis_mdl(mdl_filename,

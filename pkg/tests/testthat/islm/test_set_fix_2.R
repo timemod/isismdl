@@ -3,8 +3,8 @@ library(isismdl)
 
 
 # prepare rms values and fix targets
-i <- regts(200, start = '2015Q2')
-c <- regts(c(990, NA, 1010), start = '2015Q2')
+i <- regts(200, start = "2015Q2")
+c <- regts(c(990, NA, 1010), start = "2015Q2")
 fix <- cbind(c, i)
 ts_labels(fix) <- c("consumption", "investment")
 
@@ -20,8 +20,8 @@ test_that("Testing get_fix after cloning", {
   expect_null(mdl2$get_fix())
   expect_identical(mdl$get_fix(), fix)
   mdl3 <- mdl$clone(deep = TRUE)
-  md <- regts(200, start = '2015Q2')
-  t <- regts(c(990, NA, 1010), start = '2015Q2')
+  md <- regts(200, start = "2015Q2")
+  t <- regts(c(990, NA, 1010), start = "2015Q2")
   fix2 <- cbind(md, t)
   ts_labels(fix2) <- c("money demand", "tax")
   mdl3$set_fix(fix2)
@@ -33,9 +33,10 @@ test_that("Testing get_fix after cloning", {
 })
 
 test_that("Testing fix values after reading the model", {
-   mdl$write_mdl("temp.ismdl")
-   capture.output(mdl4 <- read_mdl("temp.ismdl"))
-   unlink("temp.ismdl")
-   expect_identical(mdl4$get_fix(), fix)
+  mdl$write_mdl("temp.ismdl")
+  capture.output(
+    mdl4 <- read_mdl("temp.ismdl")
+  )
+  unlink("temp.ismdl")
+  expect_identical(mdl4$get_fix(), fix)
 })
-

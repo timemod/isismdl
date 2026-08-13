@@ -42,7 +42,7 @@ test_that("multivariate timeseries", {
 })
 
 test_that("name error", {
-  G <- regts(c(1.1, 1,2), period = "2015Q2/2015Q3")
+  G <- regts(c(1.1, 1, 2), period = "2015Q2/2015Q3")
   MS <-  regts(1.2, period = "2015Q2")
   shock <- cbind(G, MS)
   mdl2 <- mdl$copy()
@@ -65,6 +65,3 @@ test_that("constant adjustment", {
     expected_ca["2015Q2/2015Q3", c("c", "i")] - shock[, c("c", "i")]
   expect_equal(mdl2$get_ca(), expected_ca)
 })
-
-
-

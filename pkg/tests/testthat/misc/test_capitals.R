@@ -13,7 +13,7 @@ mdl$set_values(0.5, names = "A", period = 2020)
 data <- regts(matrix(0.5, ncol = 1), period = 2020, names = "Aa")
 mdl$set_data(data)
 
-test_that("solve" , {
+test_that("solve", {
   withr::local_collate("C")
   expect_silent(mdl$solve(options = list(report = "none")))
   expect_equal(mdl$get_solve_status(), "OK")
@@ -50,4 +50,3 @@ test_that("read old rds file", {
   expect_equal(as.numeric(mdl_old$get_data(names = "A", period = 2019)), 7)
   expect_equal(as.numeric(mdl_old$get_data(names = "a", period = 2019)), 3)
 })
-

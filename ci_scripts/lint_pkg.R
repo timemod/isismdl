@@ -1,11 +1,13 @@
 # Exclude the following files from lintr. These files still contain many
 # style errors. The style of these function should be fixed later.
 exclusions <- list(
-  "tests",
   "vignettes"
 )
 
 library(lintr)
+library(testthat)
+source("pkg/tests/testthat/tools/solve_report_tools.R")
+source("pkg/tests/testthat/tools/expect_known_output_multi.R")
 
 # Create a list of linters that should be modified or removed ------------------
 linters_mut <- list(

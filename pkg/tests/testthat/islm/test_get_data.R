@@ -37,6 +37,6 @@ test_that("get_data handles errors correctly", {
   expect_error(mdl$get_data(names = c("c", "xxx")), msg)
   msg <- "'xxx' is not a model variable"
   expect_error(mdl$get_data(names = "xxx", pattern = "^y"), msg)
-  msg <-"The following names are not model variables: 'xxx' and 'yyy'."
+  msg <- "The following names are not model variables: 'xxx' and 'yyy'."
   expect_error(mdl$get_data(names = c("xxx", "yyy")), msg)
 })
