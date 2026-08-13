@@ -5,7 +5,7 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-source("../tools/convert_report.R")
+source("../tools/solve_report_tools.R")
 
 
 mdl <- isis_mdl("mdl/square_div_0.mdl", period = 1000, silent = TRUE)
@@ -22,7 +22,7 @@ mdl$set_rms(rms)
 test_that("NA values", {
   expect_warning(report <- capture.output(mdl$solve()),
                  "Simulation stopped")
-  expect_known_output(cat_report(convert_report(report)),
+  expect_known_report(report,
                       "expected_output/square_invalid_rep1.txt",
                       update = update_expected)
 

@@ -5,8 +5,8 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-source("../tools/convert_report.R")
-
+source("../tools/solve_report_tools.R")
+source("../tools/expect_known_output_multi.R")
 
 mdl <- isis_mdl("mdl/square.mdl", period = 1000, silent = TRUE)
 
@@ -25,21 +25,26 @@ test_that("row with almost zeros", {
   mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE)
 
   # without row scaling simulation is not possible
-  expect_warning(report1 <- capture.output(mdl2$solve()),
-                 "Simulation not possible")
-  expect_known_output(cat_report(convert_report(report1,
-                                                replace_all_numbers = TRUE)),
+  expect_warning(
+    report1 <- capture.output(mdl2$solve()),
+    "Simulation not possible"
+  )
+  expect_known_report(report1,
                       "expected_output/square_zero_rows_rep1.txt",
-                      update = update_expected)
+                      update = update_expected,
+                      replace_all_numbers = TRUE)
 
   # without row scaling simulation is not possible
-  expect_warning(report1a <- capture.output(
-     mdl2$solve(fit_options = list(warn_zero_row = TRUE))),
-                 "Simulation not possible")
-  expect_known_output(cat_report(convert_report(report1a,
-                                                replace_all_numbers = TRUE)),
+  expect_warning(
+    report1a <- capture.output(
+      mdl2$solve(fit_options = list(warn_zero_row = TRUE))
+    ),
+    "Simulation not possible"
+  )
+  expect_known_report(report1a,
                       "expected_output/square_zero_rows_rep1a.txt",
-                      update = update_expected)
+                      update = update_expected,
+                      replace_all_numbers = TRUE)
 
   # with row scaling simulation is possible
   mdl2$set_fit_options(scale_method = "row")
@@ -58,19 +63,24 @@ test_that("row with only zeros", {
   mdl2 <- mdl$copy()
   mdl2$set_fit_options(scale_method = "row")
   mdl2$set_param(list(r2 = c(0, 0, 0, 0, 0, 0)))
-  expect_warning(report2 <- capture.output(mdl2$solve()),
-                 "Simulation not possible")
-  expect_known_output(cat_report(convert_report(report2,
-                                                replace_all_numbers = TRUE)),
+  expect_warning(
+    report2 <- capture.output(mdl2$solve()),
+    "Simulation not possible"
+  )
+  expect_known_report(report2,
                       "expected_output/square_zero_rows_rep2.txt",
-                      update = update_expected)
+                      update = update_expected,
+                      replace_all_numbers = TRUE)
 
   mdl2$set_param(list(r3 = c(0, 0, 1e-9, 0, 0, 0)))
-  expect_warning(report3 <- capture.output(mdl2$solve(fit_options =
-                                                        list(warn_zero_row = TRUE))),
-                 "Simulation not possible")
-  expect_known_output(cat_report(convert_report(report3,
-                                                replace_all_numbers = TRUE)),
+  expect_warning(
+    report3 <- capture.output(
+      mdl2$solve(fit_options = list(warn_zero_row = TRUE))
+    ),
+    "Simulation not possible"
+  )
+  expect_known_report(report3,
                       "expected_output/square_zero_rows_rep3.txt",
-                      update = update_expected)
+                      update = update_expected,
+                      replace_all_numbers = TRUE)
 })

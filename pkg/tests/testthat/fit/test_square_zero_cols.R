@@ -5,11 +5,8 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-source("../tools/convert_report.R")
-source("../tools/get_platform_variant.R")
+source("../tools/solve_report_tools.R")
 source("../tools/expect_known_output_multi.R")
-
-platform_variant <- get_platform_variant()
 
 mdl <- isis_mdl("mdl/square.mdl", period = 1000, silent = TRUE)
 
@@ -40,10 +37,10 @@ test_that("column with zeros", {
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 
-  expect_known_output_multi(cat_report(convert_report(report,
-                                                replace_all_numbers = TRUE)),
-                      "expected_output/square_zero_cols_rep1",
-                      update = update_expected)
+  expect_known_report_multi(report,
+                            "expected_output/square_zero_cols_rep1",
+                            update = update_expected,
+                            replace_all_numbers = TRUE)
 
   # make third column almost zero, and second row zero
   param_new$r3[3] <- 1e-12
@@ -53,14 +50,14 @@ test_that("column with zeros", {
   expect_warning(report <- capture.output(mdl2$solve()),
                  "Simulation not possible")
 
-  expect_known_output_multi(cat_report(convert_report(report)),
+  expect_known_report_multi(report,
                             "expected_output/square_zero_cols_rep2",
                             update = update_expected)
 
   expect_warning(report <- capture.output(mdl2$solve(fit_options =
                                                        list(warn_zero_col = FALSE))),
                  "Simulation not possible")
-  expect_known_output_multi(cat_report(convert_report(report)),
+  expect_known_report_multi(report,
                             "expected_output/square_zero_cols_rep3",
                             update = update_expected)
 })

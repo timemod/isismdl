@@ -5,7 +5,7 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-source("../tools/convert_report.R")
+source("../tools/solve_report_tools.R")
 
 # prepare rms values and fit targets
 rms_values <- c(c = 5.0, i = 21, md = 2)
@@ -28,15 +28,13 @@ test_that("Correct type of report created", {
     "Simulation not possible"
   )
 
-  expect_known_output(cat_report(convert_report(report,
-                                                replace_all_numbers = TRUE)),
+  expect_known_report(report,
                       "expected_output/fit_svd_rep1.txt",
-                      update = update_expected)
+                      update = update_expected,
+                      replace_all_numbers = TRUE)
 
   fit_jac <- islm_model$get_fit_jac()
   expect_known_value(fit_jac,
                      file =  "expected_output/fit_svd_jac.rds",
                      update = update_expected)
-
-
 })

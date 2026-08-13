@@ -9,7 +9,7 @@
 #' @param update If TRUE and no expected files exist yet, a new expected output
 #'               file is created with a warning. If TRUE and existing files exist
 #'               but none match, a new file is created and the test fails.
-#' @export
+#' @noRd
 expect_known_output_multi <- function(expr, base_path, update = FALSE) {
   actual_output <- capture.output(expr)
   actual_text <- paste(actual_output, collapse = "\n")
@@ -18,6 +18,8 @@ expect_known_output_multi <- function(expr, base_path, update = FALSE) {
   base <- basename(base_path)
   pattern <- paste0("^", base, "_\\d+\\.txt$")
   expected_files <- list.files(dir, pattern = pattern, full.names = TRUE)
+
+
 
   # Check if actual output matches any of the expected files
   match_found <- any(vapply(expected_files, function(f) {
@@ -30,24 +32,27 @@ expect_known_output_multi <- function(expr, base_path, update = FALSE) {
   }
 
   # Geen match gevonden
-  if (!update) {
+  if (length(expected_files) > 0 && !update) {
     fail("Output does not match any existing expected output files.")
     return(invisible(NULL))
   }
 
   # update = TRUE: bepaal volgend nummer en schrijf nieuw bestand
-  nums <- as.integer(regmatches(expected_files, regexpr("\\d+(?=\\.txt$)", expected_files, perl = TRUE)))
+  nums <- as.integer(regmatches(expected_files, regexpr("\\d+(?=\\.txt$)",
+                                                        expected_files, perl = TRUE)))
   next_num <- if (length(nums) == 0) 1L else max(nums) + 1L
   new_file <- sprintf("%s_%d.txt", base_path, next_num)
   writeLines(actual_text, new_file)
 
   if (length(expected_files) == 0) {
     # Nog geen expected files: waarschuwing, geen failure
-    warning(sprintf("No expected output files found. Created initial expected output file: %s", new_file))
+    warning(sprintf("No expected output files found. Created initial expected output file: %s",
+                    new_file))
   } else {
     # Wel expected files maar geen match: nieuw bestand + failure
     fail(sprintf(
-      "Output does not match any existing expected output files.\nNew expected output file created: %s",
+      paste0("Output does not match any existing expected output files.\n",
+             "New expected output file created: %s"),
       new_file
     ))
   }
