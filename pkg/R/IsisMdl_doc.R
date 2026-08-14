@@ -1748,7 +1748,7 @@ NULL
 #'                       rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
 #'                       xmaxiter, xupdate, dbgopt, erropt,
 #'                       report, ratreport, ratreport_rep, ratfullreport_rep,
-#'                       bktmax, xtfac, svdtest_tol)
+#'                       bktmax, xtfac)
 #'
 #' mdl$get_solve_options()
 #' }
@@ -1846,18 +1846,6 @@ NULL
 #' Suppose for example that some variable has a convergence criterion of `1e-5`
 #' and assume a value of 10 for the multiplier.
 #' Then its endogenous lead will be regarded as converged.}
-#' \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
-#' parameter.
-#' If the inverse condition of the Jacobian is smaller than this parameter,
-#' then an SVD analysis of the Jacobian is performed. This may help to
-#' find the equations that cause (near) singularity of the Jacobian.
-#' The default value is \code{-1}, which implies that the SVD test is never
-#' performed. Specify a number between 0 and 1 to enable an SVD analysis depending
-#' on the inverse condition of the Jacobian.
-#' When this option has been specified a copy of the Jacobian is kept in memory,
-#' even if the Jacobian is not ill-conditioned.
-#' This option should therefore only be used during testing. It should be turned
-#' off in production calculations.}
 #' }
 #'
 #' @section Solution modes:
@@ -1993,7 +1981,7 @@ NULL
 #' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca,
 #'                    accurate_jac, zealous, scale_method,
 #'                    warn_zero_row, warn_zero_col,
-#'                    chkjac, report, dbgopt, svdtest_tol)
+#'                    chkjac, report, dbgopt)
 #'
 #' mdl$get_fit_options()
 #'
@@ -2084,20 +2072,6 @@ NULL
 #' and  \code{"minimal"} (for a one line summary).}
 #' \item{\code{dbgopt}}{A character vector specifying one or more debugging
 #' options. See section "Debugging Options" below}
-#' \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
-#' parameter. The default value for argument `svdtest_tol` is \code{-1},
-#' which implies that the SVD test is never performed.
-#' Specify a number between 0 and 1
-#' to enable an SVD analysis, depending on the inverse condition of the Jacobian.
-#' See section "SVD Analysis'.
-#' If scaling has been applied (see argument `scale_method`), then the SVD
-#' analysis is performed for the scaled Jacobian.
-#' Sometimes it is easier to interpret the result of the SVD analysis by turning
-#' off row scaling.
-#' When this option has been specified, a copy of the fit Jacobian is kept in memory,
-#' even if the Jacobian is not ill-conditioned.
-#' For large models this option should therefore only be used during testing,
-#' and should be turned off in production calculations}
 #' }
 #'
 #' @section Details:
@@ -2251,13 +2225,7 @@ NULL
 #' The Singular Value Decomposition (SVD) (see the Wikipedia article
 #' about SVD (\url{https://en.wikipedia.org/wiki/Singular_value_decomposition})
 #' may help to find the linear dependent rows and columns. The SVD analysis can be
-#' enabled by specifying argument `svdtest_tol` of `set_fit_options`.
-#'
-#' The output of the SVD analysis are the left and right singular vectors of
-#' the Jacobian. A left singular vector is a linear combination of the rows
-#' of the Jacobian that is almost zero. A right singular vector is a linear
-#' combination of the columns that is almost zero. An example for the ISLM model
-#' is shown below.
+#' enabled by specifying debug option `storejac` for `set_fit_options`.
 #'
 #' First we create an Isis model and prepare fit data.
 #' ```{r results = "hide"}
@@ -2275,10 +2243,10 @@ NULL
 #' mdl$get_fit()
 #' ````
 #'
-#' We specify fit options so that the SVD analysis is performed and the
-#' fit Jacobian is printed.
+#' TODO: aanpasssen
+#' We specify fit options so that fit jacobian is stored:
 #' ```{r}
-#' mdl$set_fit_options(svdtest_tol = 1e-8, dbgopt = "prijac")
+#' #mdl$set_fit_options(dbgopt = "storejac")
 #' ```
 #'
 #' Next solve the model. Because y and yd are related according to `y = yd - t`
@@ -2287,6 +2255,8 @@ NULL
 #' the fit Jacobian contains dependent rows.
 #' ```{r}
 #' mdl$solve()
+#' #fit_jac <- mdl$get_fit_jac()
+#' #svd(fit_jac)
 #' ```
 #'
 #' @examples

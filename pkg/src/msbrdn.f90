@@ -75,7 +75,6 @@ subroutine msbjac(retcod, itr)
 use msnwut
 use msjcot
 use liqrco
-use svd_anal
 integer, intent(out) :: retcod
 integer, intent(in) :: itr
 
@@ -92,7 +91,7 @@ integer ::   matitr, ier
 integer(kind = LAPACK_IKIND) :: j, info
 
 real(kind = ISIS_RKIND), dimension(:,:), allocatable :: jac
-integer ::  i, stat, svd_err
+integer ::  i, stat
 
 !
 ! allocate jacobian if required
@@ -116,21 +115,6 @@ endif
 call msjac(retcod, itr, matitr)
 if (retcod /= 0) return
 
-if (opts%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
-    ! save Jacobian for svd analysis
-    allocate(jac(mdl%nfb, mdl%nfb), stat = stat)
-    if (stat /= 0) then
-        !call svdot1
-        retcod = 10
-        return
-    endif
-    do i = 1, mdl%nfb
-        do j = 1, mdl%nfb
-            jac(i, j) = jacob(i, j)
-        enddo
-    enddo
-endif
-
 ! QR decomposition of scaled jacobian
 ! estimate inverse condition of R ==> inverse condition of jacobian
 call qrco(jacob, jacdim, mdl%nfb, mdl%nfb, fbwork, rcond, la_work, la_lwork)
@@ -143,30 +127,15 @@ endif
 
 call jacot2(matitr, itr, rcond)
 
-if (rcond <= opts%svdtest_tol .and. opts%repopt /= REP_NONE) then
-    call svd_analysis(jac, mdl%nfb, mdl%nfb, mdl%nfb, mdl%numfb, &
-                      mdl%numfb, .false., opts%svdtest_tol, svd_err)
-    svd_err = 0
-else
-    svd_err = 0
-endif
-if (opts%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
-    deallocate(jac, stat = stat)
-endif
-if (svd_err == 1) then
-    retcod = 10
-    return
-endif
-
 if (ier /= 0) then
     call jacot5(ier)
     retcod = 1
     return
 endif
 
-!     copy the upper triangular part of a QR decomposition
-!     contained in Rjac into Rjac(,n+1..)
-!     generate full Q
+! copy the upper triangular part of a QR decomposition
+! contained in Rjac into Rjac(,n+1..)
+! generate full Q
 
 do j = 1, mdl%nfb
     call dcopy(j, jacob(1,j), 1_LAPACK_IKIND, jacob(1,j + mdl%nfb), &

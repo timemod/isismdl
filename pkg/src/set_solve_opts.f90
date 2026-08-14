@@ -100,7 +100,7 @@ subroutine set_ratreport_rep(rep)
     use set_options
     use iso_c_binding, only : c_int
     integer(c_int), intent(in) :: rep
-    options_set%ratreport_rep     = rep
+    options_set%ratreport_rep = rep
 end subroutine set_ratreport_rep
 
 subroutine set_ratfullreport_rep(rep)
@@ -123,13 +123,6 @@ subroutine set_xtfac(xtfac)
     real(c_double), intent(in) :: xtfac
     options_set%xtfac = xtfac
 end subroutine set_xtfac
-
-subroutine set_svdtest_tol(tol)
-    use set_options
-    use iso_c_binding, only : c_double
-    real(c_double), intent(in) :: tol
-    options_set%svdtest_tol = tol
-end subroutine set_svdtest_tol
 
 subroutine set_solve_dbgopts(priter, prexen, jacprt, suptst, xsuptt, prscal)
     use set_options

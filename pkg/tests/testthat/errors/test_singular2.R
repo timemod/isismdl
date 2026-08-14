@@ -9,8 +9,7 @@ source("../tools/solve_report_tools.R")
 
 mdl <- isis_mdl("mdl/singular2.mdl", period = "2011", silent = TRUE)
 mdl$set_values(0)
-mdl$set_solve_options(maxiter = 1, svdtest_tol = 1e-6)
-
+mdl$set_solve_options(maxiter = 1)
 
 test_that("solve", {
 

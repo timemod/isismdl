@@ -5,13 +5,11 @@ rm(list = ls())
 
 update_expected <- FALSE
 
-
 source("../tools/solve_report_tools.R")
 
 mdl <- isis_mdl("mdl/singular1.mdl", period = "2011", silent = TRUE)
 mdl$set_values(0)
-mdl$set_solve_options(dbgopt = c("prifb", "prijac"), maxiter = 1,
-                      svdtest_tol = 1e-10)
+mdl$set_solve_options(dbgopt = c("prifb", "prijac"), maxiter = 1)
 
 test_that("solve", {
 
@@ -28,7 +26,7 @@ test_that("solve", {
   mdl$set_values(0)
   expect_silent(
     expect_warning(
-      mdl$solve(options = list(report = "none", svdtest_tol = 1e-6)),
+      mdl$solve(options = list(report = "none")),
       "Simulation stopped"
     )
   )

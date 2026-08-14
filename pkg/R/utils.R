@@ -12,7 +12,6 @@ concat_names <- function(names) {
     return(paste(paste(names[-n], collapse = ", "), "and", names[n]))
   }
 }
-
 # Check if the supplied names are existing model variables of the
 # correct type.
 check_names <- function(names, correct_names, type, is_warning = FALSE) {
@@ -78,4 +77,23 @@ fill_missing_range_bounds <- function(period, base_period) {
 #' @noRd
 has_missing_bounds <- function(period) {
   is.na(period[1]) || is.na(period[2])
+}
+
+#' Check if object `obj` is a named list
+#'
+#' @param obj An R object.
+#' @noRd
+check_named_list <- function(obj) {
+  obj_name <- deparse(substitute(obj))
+  if (!is.list(obj)) {
+    stop(obj_name, " should be a named list")
+  }
+  if (length(obj) == 0) {
+    return(invisible(NULL))
+  }
+  names <- names(obj)
+  if (is.null(names) || !is.na(Position(f = function(x) x == "", names))) {
+    stop(obj_name, " should be a named list")
+  }
+  return(invisible(NULL))
 }

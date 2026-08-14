@@ -887,10 +887,11 @@ IsisMdl <- R6Class("IsisMdl",
                      fit_options = list()) {
       "Solve the model for the specified period"
       if (is.null(private$model_period)) stop(private$period_error_msg)
-      private$check_options(options, type = "solve_options")
-      private$check_options(options, type = "fit_options")
+      if (!missing(options)) check_named_list(options)
+      if (!missing(fit_options)) check_named_list(fit_options)
       period <- private$convert_period_arg_solve(period)
       js <- private$get_period_indices(period)
+
       ret <- .Call(
         C_solve_c,
         model_index = private$model_index,
@@ -899,6 +900,7 @@ IsisMdl <- R6Class("IsisMdl",
         options,
         fit_options
       )
+
       private$solve_status <- simerr_to_solve_status(ret$simerr)
       if (!is.null(ret$fit_jac)) private$fit_jac <- ret$fit_jac
       return(invisible(self))
@@ -1573,9 +1575,15 @@ IsisMdl <- R6Class("IsisMdl",
       }
       private$labels <- x$labels
       self$set_debug_eqn(x$debug_eqn)
+
+      # solve options
+      x$solve_options$svdtest_tol <- NULL # this option has been removed
       do.call(self$set_solve_options, x$solve_options)
+
+      # fit options:
       x$fit_options$svdtest_tol <- NULL # this option has been removed
       do.call(self$set_fit_options, x$fit_options)
+
       .Call(C_set_cvgcrit_init_mws_c, private$model_index, x$cvgcrit)
       .Call(C_set_ftrelax_init_mws_c, private$model_index, x$ftrelax)
       if (!is.null(x$model_period)) {
@@ -1673,19 +1681,6 @@ IsisMdl <- R6Class("IsisMdl",
           "data period (", private$data_period, "). The period should lie ",
           "within the range ", private$model_period_max, "."
         )
-      }
-      return(invisible(NULL))
-    },
-    check_options = function(options, type) {
-      if (!is.list(options)) {
-        stop(paste("The", type, "should be a named list"))
-      }
-      if (length(options) == 0) {
-        return(invisible(NULL))
-      }
-      names <- names(options)
-      if (is.null(names) || !is.na(Position(f = function(x) x == "", names))) {
-        stop(paste("The", type, "should be a named list"))
       }
       return(invisible(NULL))
     },

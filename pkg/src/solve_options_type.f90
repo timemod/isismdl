@@ -53,7 +53,6 @@ module solve_options_type
         logical(kind = ISIS_IKIND) :: chkjac
         logical(kind = ISIS_IKIND) :: accurate_jac
         integer(kind = ISIS_IKIND) :: repopt
-        real(kind = ISIS_RKIND)    :: svdtest_tol
         logical(kind = ISIS_IKIND) :: zealous
         logical(kind = ISIS_IKIND) :: warn_zero_row
         logical(kind = ISIS_IKIND) :: warn_zero_col
@@ -75,12 +74,12 @@ module solve_options_type
         real(kind = ISIS_RKIND) :: rlxmax
         real(kind = ISIS_RKIND) :: rlxspeed
         integer(kind = ISIS_IKIND) :: scalmd
-        real(kind = ISIS_RKIND) :: svdtest_tol
 
         ! debug options
         logical(kind = ISIS_IKIND) :: priter
         logical(kind = ISIS_IKIND) :: prexen
         logical(kind = ISIS_IKIND) :: jacprt
+        logical(kind = ISIS_IKIND) :: store_jac
         logical(kind = ISIS_IKIND) :: suptst
         logical(kind = ISIS_IKIND) :: xsuptt
         logical(kind = ISIS_IKIND) :: prscal
@@ -129,12 +128,12 @@ contains
         options%rlxspeed = 0.5_ISIS_RKIND
         options%njacpd = 0
         options%scalmd = NORMBAL
-        options%svdtest_tol = -1.0_ISIS_RKIND;
 
         ! debug options
         options%priter = .false.
         options%prexen = .false.
         options%jacprt = .false.
+        options%store_jac = .false.
         options%suptst = .true.
         options%xsuptt = .true.
         options%prscal = .false.
@@ -169,7 +168,6 @@ contains
         options%fit%supsot = .true.
         options%fit%chkjac = .true.
         options%fit%repopt = FITREP_FULLREP
-        options%fit%svdtest_tol = -1.0_ISIS_RKIND
         options%fit%zealous = .true.
         options%fit%warn_zero_row = .false.
         options%fit%warn_zero_col = .false.

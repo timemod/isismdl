@@ -7,7 +7,7 @@ get_info.o : mdl_name_utils.o modelworkspaces.o utils.o
 
 get_options.o : kinds.o mws_type.o solve_options_type.o
 
-get_solve_opts.o : get_options.o
+get_solve_opts_fortran.o : get_options.o
 
 init_get_options.o : get_options.o modelworkspaces.o
 
@@ -71,8 +71,7 @@ model_type.o : mdl_flen.o mdl_name_utils.o model_params.o utils.o
 
 modelworkspaces.o : mws_type.o output_utils.o
 
-msbrdn.o : kinds.o liqrco.o liqrup.o msjcot.o msnwut.o msvars.o nucnst.o nuv.o \
-    svd_anal.o
+msbrdn.o : kinds.o liqrco.o liqrup.o msjcot.o msnwut.o msvars.o nucnst.o nuv.o
 
 mscalc.o : kinds.o mcedef.o mcstak.o model_params.o msimot.o msufstack.o \
     msvars.o mws_type.o nuna.o nuv.o
@@ -150,9 +149,6 @@ set_options.o : kinds.o mws_type.o solve_options_type.o
 set_solve_opts.o : output_utils.o set_options.o
 
 solve_options_type.o : kinds.o model_type.o nucnst.o nuna.o scalemat.o
-
-svd_anal.o : kinds.o mdl_name_utils.o model_params.o msimot.o msvars.o nucnst.o \
-    nuna.o nuv.o output_utils.o
 
 utils.o : model_params.o
 

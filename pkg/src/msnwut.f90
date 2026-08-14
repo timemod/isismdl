@@ -12,13 +12,15 @@ use scalemat
 integer, intent(out) :: retcod, matitr
 integer, intent(in)  :: itr
 
-!   retcod  1 if jacobian is near to singular
-!                      or other problems
+!  retcod 
+!     0: ok
+!     1: if jacobian is near to singular or other problems
+!    10: not enough memory to store a copy of the jacobian.
 
-!     generate jacobian by calling appropriate routines
+!  generate jacobian by calling appropriate routines
 
 
-integer ::   ier
+integer :: ier, i, j, stat
 
 if (mdl%fboflg == 0 .or. mdl%fbomem <= 0) then
     ! full slow method
@@ -33,14 +35,29 @@ if (retcod /= 0) return
 itrtot = itrtot + matitr
 njcmat = njcmat + 1
 
-!     check for (almost) 0 columns
-!     print jacobian if required
-!     and only then quit on zero check errors
+! check for (almost) 0 columns
+! print jacobian if required
+! and only then quit on zero check errors
 
 call msczjc(ier)
 
 if (opts%jacprt) then
    call jacot3(itr)
+endif
+
+if (opts%store_jac) then
+    ! save a copy of the Jacobian
+    allocate(jac_stored(mdl%nfb, mdl%nfb), stat = stat)
+    if (stat /= 0) then
+        ! TODO: message?
+        retcod = 10
+        return
+    endif
+    do i = 1, mdl%nfb
+        do j = 1, mdl%nfb
+            jac_stored(i, j) = jacob(i, j)
+        enddo
+    enddo
 endif
 
 if( ier .eq. 1 ) then

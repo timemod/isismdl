@@ -218,10 +218,15 @@ subroutine solve_fortran(model_index, jtb, jte, opts_present, error)
         ! use options of the mws
         opt => mws_array(model_index)%solve_opts
     endif
+
     call prepare_solve(mws_array(model_index), opt, jtb, jte, errflg)
+
     call simul
+
     error = mws_array(model_index)%simerr
+
     call msclear
+
 end subroutine solve_fortran
 
 subroutine filmdt_fortran(model_index, jtb, jte, report_type, include_frmls_int)

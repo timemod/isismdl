@@ -7,7 +7,7 @@ module msvars
     use solve_options_type
 
     integer(kind = LI_IKIND), save :: jacdim,  la_lwork
-    real(kind = MWS_RKIND), dimension(:, :), allocatable, save :: jacob
+    real(kind = MWS_RKIND), dimension(:, :), allocatable, save :: jacob, jac_stored
     integer(kind = MC_IKIND), dimension(:), allocatable, save :: pivot
     real(kind = MWS_RKIND), dimension(:), allocatable, save :: qrtau, la_work
     real(kind = MWS_RKIND), dimension(:), allocatable, target, &
@@ -15,7 +15,6 @@ module msvars
     real(kind = MWS_RKIND), dimension(:), allocatable, save :: &
 &         lags_leads, ca, fbval, fbfun, scale, fbwork, fbstep, dx, df
     real(kind = MWS_RKIND), dimension(:, :), allocatable, save :: endo_leads
-
 
     logical, save :: matrix = .false.
     integer, save :: jf, jl  ! first and last period to solve
@@ -108,7 +107,6 @@ module msvars
             if (mode == 'R' .or. method == 'G') return
 
             la_lwork = get_lwork()
-
             allocate(la_work(la_lwork), stat = stat)
             if (stat == 0) allocate(fbval(mdl%nfb), stat = stat)
             if (stat == 0) allocate(fbfun(mdl%nfb), stat = stat)
@@ -131,9 +129,18 @@ module msvars
 
         end subroutine prepare_solve
 
-        subroutine msclear
+        subroutine msclear(do_clear_jac_stored)
+
+            logical, intent(in), optional :: do_clear_jac_stored
+            logical :: do_clear_jac_stored_local
 
             matrix = .false.
+
+            if (present(do_clear_jac_stored)) then
+                do_clear_jac_stored_local = do_clear_jac_stored .or. .not. opts%store_jac
+            else
+                do_clear_jac_stored_local = .true.
+            endif
 
             if (allocated(jacob))      deallocate(jacob)
             if (allocated(pivot))      deallocate(pivot)
@@ -153,7 +160,14 @@ module msvars
             if (allocated(df))         deallocate(df)
             if (allocated(endo_leads)) deallocate(endo_leads)
 
+            if (do_clear_jac_stored_local) call clear_jac_stored
+
         end subroutine msclear
+
+        ! deallocate the stored jacobian
+        subroutine clear_jac_stored 
+            if (allocated(jac_stored)) deallocate(jac_stored)
+        end subroutine clear_jac_stored
 
         integer function get_lwork()
             use kinds

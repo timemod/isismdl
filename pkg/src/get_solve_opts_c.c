@@ -7,17 +7,10 @@
 #include "init_get_options.h"
 #include "get_option_utils.h"
 #include "get_solve_opts_c.h"
+#include "get_solve_opts_fortran.h"
 
-#define N_OPTS 21
+#define N_OPTS 20
 
-extern void F77_CALL(get_solve_options)(int *imode, int *istart, int *maxit, 
-              int *maxmat, double *rlxspeed, double *rlxmin, double *rlxmax, 
-              double *cstpbk, double *cnmtrx, double *xrelax, int *mratex,
-              int *uplead, int *erropt, int *repopt, int *ratrepopt, 
-              int *ratreport_rep, int *ratfullreport_rep, int *bktmax, 
-              double *xtfac, double *svdtest_tol);
-extern void F77_CALL(get_solve_dbgopts)(int *, int *, int *,  int *, int *, 
-                                      int *);
 static SEXP get_debug_option(void);
 
 SEXP get_solve_opts_c(SEXP model_index_) {
@@ -30,35 +23,36 @@ SEXP get_solve_opts_c(SEXP model_index_) {
 
     int imode, istart, maxit, maxmat, mratex, uplead, erropt, repopt, 
         ratrepopt, ratreport_rep, ratfullreport_rep, bktmax;
-    double rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, xrelax, xtfac, svdtest_tol;
+    double rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, xrelax, xtfac;
     F77_CALL(get_solve_options)(&imode, &istart, &maxit, &maxmat, &rlxspeed,
                                 &rlxmin, &rlxmax, &cstpbk, &cnmtrx, &xrelax,
                                 &mratex, &uplead, &erropt, &repopt, &ratrepopt,
                                 &ratreport_rep, &ratfullreport_rep, &bktmax, 
-                                &xtfac, &svdtest_tol);
+                                &xtfac);
 
-    add_option("mode",      PROTECT(mkString(get_mode_text(imode))));
-    add_option("fbstart",   PROTECT(mkString(get_start_text(istart))));
-    add_option("maxiter",   PROTECT(ScalarInteger(maxit)));
-    add_option("maxjacupd", PROTECT(ScalarInteger(maxmat)));
-    add_option("rlxspeed",  PROTECT(ScalarReal(rlxspeed)));
-    add_option("rlxmin",    PROTECT(ScalarReal(rlxmin)));
-    add_option("rlxmax",    PROTECT(ScalarReal(rlxmax)));
-    add_option("cstpbk",    PROTECT(ScalarReal(cstpbk)));
-    add_option("cnmtrx",    PROTECT(ScalarReal(cnmtrx)));
-    add_option("bktmax",    PROTECT(ScalarReal(bktmax)));
-    add_option("xrelax",    PROTECT(ScalarReal(xrelax)));
-    add_option("xmaxiter",  PROTECT(ScalarInteger(mratex)));
-    add_option("xupdate",   PROTECT(mkString(get_xupdate_text(uplead))));
-    add_option("xtfac",     PROTECT(ScalarReal(xtfac)));
-    add_option("svdtest_tol", PROTECT(ScalarReal(svdtest_tol)));
-    add_option("erropt",    PROTECT(mkString(get_erropt_text(erropt))));
-    add_option("report",    PROTECT(mkString(get_repopt_text(repopt))));
-    add_option("ratreport", PROTECT(mkString(get_ratrepopt_text(ratrepopt))));
-    add_option("ratreport_rep",  PROTECT(ScalarInteger(ratreport_rep)));
-    add_option("ratfullreport_rep",  PROTECT(ScalarInteger(ratfullreport_rep)));
+    // TODO: do we need protect in the next statements? the new object is immedialy
+    //   attached to a protected object. Check with AI
 
-    add_option("dbgopt", get_debug_option());
+    add_option("mode",              PROTECT(mkString(get_mode_text(imode))));
+    add_option("fbstart",           PROTECT(mkString(get_start_text(istart))));
+    add_option("maxiter",           PROTECT(ScalarInteger(maxit)));
+    add_option("maxjacupd",         PROTECT(ScalarInteger(maxmat)));
+    add_option("rlxspeed",          PROTECT(ScalarReal(rlxspeed)));
+    add_option("rlxmin",            PROTECT(ScalarReal(rlxmin)));
+    add_option("rlxmax",            PROTECT(ScalarReal(rlxmax)));
+    add_option("cstpbk",            PROTECT(ScalarReal(cstpbk)));
+    add_option("cnmtrx",            PROTECT(ScalarReal(cnmtrx)));
+    add_option("bktmax",            PROTECT(ScalarReal(bktmax)));
+    add_option("xrelax",            PROTECT(ScalarReal(xrelax)));
+    add_option("xmaxiter",          PROTECT(ScalarInteger(mratex)));
+    add_option("xupdate",           PROTECT(mkString(get_xupdate_text(uplead))));
+    add_option("xtfac",             PROTECT(ScalarReal(xtfac)));
+    add_option("erropt",            PROTECT(mkString(get_erropt_text(erropt))));
+    add_option("report",            PROTECT(mkString(get_repopt_text(repopt))));
+    add_option("ratreport",         PROTECT(mkString(get_ratrepopt_text(ratrepopt))));
+    add_option("ratreport_rep",     PROTECT(ScalarInteger(ratreport_rep)));
+    add_option("ratfullreport_rep", PROTECT(ScalarInteger(ratfullreport_rep)));
+    add_option("dbgopt",            PROTECT(get_debug_option()));
 
     UNPROTECT(N_OPTS);
     return get_options();
@@ -71,9 +65,9 @@ SEXP get_debug_option(void) {
                                 &prscal);
 
     if (!priter && !prexen && !jacprt && suptst && xsuptt && !prscal) {
-        return PROTECT(mkString(DBG_NONE));
+        return mkString(DBG_NONE);
     } else if (priter && prexen && jacprt && !suptst && !xsuptt && prscal) {
-        return PROTECT(mkString(DBG_ALL));
+        return mkString(DBG_ALL);
     } else {
         SEXP value = PROTECT(allocVector(STRSXP, 6));
         SET_STRING_ELT(value, 0, mkChar(DBG_PRITER_OPTS[priter]));
@@ -82,6 +76,7 @@ SEXP get_debug_option(void) {
         SET_STRING_ELT(value, 3, mkChar(DBG_SUPTST_OPTS[!suptst]));
         SET_STRING_ELT(value, 4, mkChar(DBG_XSUPTT_OPTS[!xsuptt]));
         SET_STRING_ELT(value, 5, mkChar(DBG_PRSCAL_OPTS[prscal]));
+        UNPROTECT(1);
         return value;
     }
 }

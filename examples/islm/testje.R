@@ -1,22 +1,34 @@
-library(regts)
 library(isismdl)
 
-rm(list = ls())
+# prepare data
+r  <- regts(3.35, start = "2015Q1", end = "2016Q3", labels = "interest rate")
+y  <- regts(980,  start = "2015Q1", end = "2016Q3", labels = "income")
+yd <- regts(790, start = "2015Q1", labels = "disposable income")
+g  <- regts(210 * cumprod(rep(1.015, 6)), start = "2015Q2",
+            labels = "government spending")
+ms <- regts(200 * cumprod(rep(1.015, 6)), start = "2015Q2",
+            labels = "money supply")
+islm_input <- cbind(r, y, yd, g, ms)
 
-rds_file <- "islm_basis.ismdl"
-if (!file.exists(rds_file)) {
-    stop("No rds file with model present. Run job islm_basis.R first")
-}
-mdl <- read_mdl(rds_file)
-y <- regts(985, start = "2015Q2")
-r <- regts(c(3.5, 3.6), start = "2015Q2")
-fit <- cbind(y, r)
-mdl$set_fit(fit)
-print(mdl$get_fit())
-rms_values <- c(c = 5.0, i = 21, md = 2, t = 2)
-mdl$set_rms(rms_values)
-mdl$set_solve_options(report = "period")
-mdl$set_fit_options(zealous = TRUE, dbgopt = c("prijac", "storejac"))
+# create the model
+mdl <- isis_mdl("islm.mdl", data = islm_input, silent = FALSE)
+print(mdl)
+
+# add labels for model variables not in the input data
+mdl$set_labels(c(i = "investment", c = "consumption", md = "money demand",
+                 t = "tax"))
+
+
 mdl$solve()
-print(mdl$get_fit_jac())
-print(mdl$get_fit_options())
+stop("aap")
+mdl$order(orfnam = 'aap.orf', silent = FALSE)
+
+mdl$write_mdl("islm_basis.ismdl")
+
+x <- read_mdl("islm_basis.ismdl", silent = FALSE)
+
+cat("\ncopying model\n")
+y <- x$copy()
+
+y$order(orfnam = "piet.orf")
+y$order(orfnam = "piet.orf")

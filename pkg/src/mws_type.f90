@@ -647,6 +647,8 @@ module mws_type
                 else 
                     update_value =  value
                 endif
+            case default
+                 update_value = NA
             end select
         end function update_value
 

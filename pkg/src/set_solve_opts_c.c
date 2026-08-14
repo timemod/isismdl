@@ -6,6 +6,7 @@
 #include "set_option_utils.h"
 #include "init_set_get_options.h"
 #include "set_solve_opts_c.h"
+#include "get_solve_opts_fortran.h"
 
 extern void F77_SUB(set_mode)(int *);
 extern void F77_SUB(set_start)(int *);
@@ -19,8 +20,6 @@ extern void F77_SUB(set_cnmtrx)(double *);
 extern void F77_SUB(set_xrelax)(double *);
 extern void F77_SUB(set_mratex)(int *);
 extern void F77_SUB(set_uplead)(int *);
-extern void F77_CALL(get_solve_dbgopts)(int *, int *, int *,  int *, int *, 
-                                      int *);
 extern void F77_SUB(set_solve_dbgopts)(int *, int *, int *, int *, int *, int *);
 extern void F77_SUB(set_erropt)(int *);
 extern void F77_SUB(set_repopt)(int *);
@@ -29,7 +28,6 @@ extern void F77_SUB(set_ratreport_rep)(int *);
 extern void F77_SUB(set_ratfullreport_rep)(int *);
 extern void F77_SUB(set_bktmax)(int *);
 extern void F77_SUB(set_xtfac)(double *);
-extern void F77_SUB(set_svdtest_tol)(double *);
 
 extern void F77_SUB(check_options)(void);
 
@@ -170,10 +168,6 @@ static void set_option(const char *name, SEXP value) {
             warning("The minimum value of xtfac is 2\n");
         }
         F77_CALL(set_xtfac)(&x);
-    } else if (!strcmp(name, "svdtest_tol")) {
-        CHECK_LENGTH(name, value);
-        x = get_finite_number(name, value);
-        F77_CALL(set_svdtest_tol)(&x);
     } else {
        error("Unknown solve option %s\n", name);
     }
