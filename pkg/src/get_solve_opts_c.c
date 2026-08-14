@@ -5,9 +5,9 @@
 #include <ctype.h>
 #include "solve_options.h"
 #include "init_get_options.h"
-#include "get_option_utils.h"
 #include "get_solve_opts_c.h"
 #include "get_solve_opts_fortran.h"
+#include "option_builder.h"
 
 #define N_OPTS 20
 
@@ -15,11 +15,12 @@ static SEXP get_debug_option(void);
 
 SEXP get_solve_opts_c(SEXP model_index_) {
 
+    /* 
+     * Extract option from Fortran memory 
+    */
     int model_index = asInteger(model_index_);
 
     F77_CALL(init_get_options)(&model_index);
-
-    init_options(N_OPTS);
 
     int imode, istart, maxit, maxmat, mratex, uplead, erropt, repopt, 
         ratrepopt, ratreport_rep, ratfullreport_rep, bktmax;
@@ -29,33 +30,32 @@ SEXP get_solve_opts_c(SEXP model_index_) {
                                 &mratex, &uplead, &erropt, &repopt, &ratrepopt,
                                 &ratreport_rep, &ratfullreport_rep, &bktmax, 
                                 &xtfac);
+    /*
+     * Create a named list with the options
+     */
+    OptionBuilder *b = ob_create(N_OPTS);
+    ob_add_string(b, "mode",              get_mode_text(imode));
+    ob_add_string(b, "fbstart",           get_start_text(istart));
+    ob_add_int   (b, "maxiter",           maxit);
+    ob_add_int   (b, "maxjacupd",         maxmat);
+    ob_add_real  (b, "rlxspeed",          rlxspeed);
+    ob_add_real  (b, "rlxmin",            rlxmin);
+    ob_add_real  (b, "rlxmax",            rlxmax);
+    ob_add_real  (b, "cstpbk",            cstpbk);
+    ob_add_real  (b, "cnmtrx",            cnmtrx);
+    ob_add_real  (b, "bktmax",            bktmax);
+    ob_add_real  (b, "xrelax",            xrelax);
+    ob_add_int   (b, "xmaxiter",          mratex);
+    ob_add_string(b, "xupdate",           get_xupdate_text(uplead));
+    ob_add_real  (b, "xtfac",             xtfac);
+    ob_add_string(b, "erropt",            get_erropt_text(erropt));
+    ob_add_string(b, "report",            get_repopt_text(repopt));
+    ob_add_string(b, "ratreport",         get_ratrepopt_text(ratrepopt));
+    ob_add_int   (b, "ratreport_rep",     ratreport_rep);
+    ob_add_int   (b, "ratfullreport_rep", ratfullreport_rep);
+    ob_add_sexp  (b, "dbgopt",            get_debug_option());
 
-    // TODO: do we need protect in the next statements? the new object is immedialy
-    //   attached to a protected object. Check with AI
-
-    add_option("mode",              PROTECT(mkString(get_mode_text(imode))));
-    add_option("fbstart",           PROTECT(mkString(get_start_text(istart))));
-    add_option("maxiter",           PROTECT(ScalarInteger(maxit)));
-    add_option("maxjacupd",         PROTECT(ScalarInteger(maxmat)));
-    add_option("rlxspeed",          PROTECT(ScalarReal(rlxspeed)));
-    add_option("rlxmin",            PROTECT(ScalarReal(rlxmin)));
-    add_option("rlxmax",            PROTECT(ScalarReal(rlxmax)));
-    add_option("cstpbk",            PROTECT(ScalarReal(cstpbk)));
-    add_option("cnmtrx",            PROTECT(ScalarReal(cnmtrx)));
-    add_option("bktmax",            PROTECT(ScalarReal(bktmax)));
-    add_option("xrelax",            PROTECT(ScalarReal(xrelax)));
-    add_option("xmaxiter",          PROTECT(ScalarInteger(mratex)));
-    add_option("xupdate",           PROTECT(mkString(get_xupdate_text(uplead))));
-    add_option("xtfac",             PROTECT(ScalarReal(xtfac)));
-    add_option("erropt",            PROTECT(mkString(get_erropt_text(erropt))));
-    add_option("report",            PROTECT(mkString(get_repopt_text(repopt))));
-    add_option("ratreport",         PROTECT(mkString(get_ratrepopt_text(ratrepopt))));
-    add_option("ratreport_rep",     PROTECT(ScalarInteger(ratreport_rep)));
-    add_option("ratfullreport_rep", PROTECT(ScalarInteger(ratfullreport_rep)));
-    add_option("dbgopt",            PROTECT(get_debug_option()));
-
-    UNPROTECT(N_OPTS);
-    return get_options();
+    return ob_get(b);
 }
 
 SEXP get_debug_option(void) {

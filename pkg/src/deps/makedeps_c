@@ -26,12 +26,10 @@ futils.o : futils.h
 gen_dep_file.o : gen_dep_file.h include_paths.h mchdr.h mcopt.h run_mcexec.h
 
 get_fit_opts_c.o : fit_options.h get_fit_opts_c.h get_fit_opts_fortran.h \
-    get_option_utils.h init_set_get_options.h
+    init_set_get_options.h option_builder.h
 
-get_option_utils.o : get_option_utils.h
-
-get_solve_opts_c.o : get_option_utils.h get_solve_opts_c.h \
-    get_solve_opts_fortran.h init_get_options.h solve_options.h
+get_solve_opts_c.o : get_solve_opts_c.h get_solve_opts_fortran.h \
+    init_get_options.h option_builder.h solve_options.h
 
 include_paths.o : futils.h include_paths.h util.h
 
@@ -53,6 +51,8 @@ mcopt_init.o : mcopt.h
 mdldef.o : dependencies.h mcinit.h mdldef.h symbol.h util.h xpcdef.h
 
 oprintf.o : isismdl.h oprintf.h util.h
+
+option_builder.o : option_builder.h
 
 option_utils.o : option_utils.h
 

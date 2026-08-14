@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "fit_options.h"
-#include "get_option_utils.h"
 #include "init_set_get_options.h"
 #include "get_fit_opts_c.h"
 #include "get_fit_opts_fortran.h"
+#include "option_builder.h"
 
 #define N_OPTS 14
 
@@ -15,11 +15,13 @@ static SEXP get_debug_option(void);
 
 SEXP get_fit_opts_c(SEXP model_index_) {
 
+    /*
+     * Extract fit options from Fortran memory
+     */
+
     int model_index = asInteger(model_index_);
 
     F77_CALL(init_get_options)(&model_index);
-
-    init_options(N_OPTS);
 
     int maxiter, repopt, zero_ca, warn_ca, acc_jac, zealous, scale_method, 
         warn_zero_row, warn_zero_col, chkjac;
@@ -29,24 +31,32 @@ SEXP get_fit_opts_c(SEXP model_index_) {
                               &zealous, &scale_method, 
                               &warn_zero_row, &warn_zero_col, &chkjac);
 
-    add_option("maxiter",  PROTECT(ScalarInteger(maxiter)));
-    add_option("cvgabs",   PROTECT(ScalarReal(cvgabs)));
-    add_option("mkdcrt",   PROTECT(ScalarReal(mkdcrt)));
-    add_option("cvgrel",   PROTECT(ScalarReal(cvgrel)));
-    add_option("zero_ca",  PROTECT(ScalarLogical(zero_ca)));
-    add_option("warn_ca",  PROTECT(ScalarLogical(warn_ca)));
-    add_option("accurate_jac",  PROTECT(ScalarLogical(acc_jac)));
-    add_option("zealous",  PROTECT(ScalarLogical(zealous)));
-    add_option("scale_method", 
-               PROTECT(mkString(get_fit_scale_method_text(scale_method))));
-    add_option("warn_zero_row", PROTECT(ScalarLogical(warn_zero_row)));
-    add_option("warn_zero_col", PROTECT(ScalarLogical(warn_zero_col)));
-    add_option("chkjac", PROTECT(ScalarLogical(chkjac)));
-    add_option("report", PROTECT(mkString(get_fit_repopt_text(repopt))));
-    add_option("dbgopt", PROTECT(get_debug_option()));
+    /*
+     * Create a named list with the options
+     */
+    OptionBuilder *b = ob_create(N_OPTS);
 
-    UNPROTECT(N_OPTS);
-    return get_options();
+    ob_add_int    (b, "maxiter",  maxiter);
+    ob_add_real   (b, "cvgabs",   cvgabs);
+    ob_add_real   (b, "mkdcrt",   mkdcrt);
+    ob_add_real   (b, "cvgrel",   cvgrel);
+
+    ob_add_logical(b, "zero_ca",  zero_ca);
+    ob_add_logical(b, "warn_ca",  warn_ca);
+    ob_add_logical(b, "accurate_jac", acc_jac);
+    ob_add_logical(b, "zealous",  zealous);
+
+    ob_add_string (b, "scale_method",
+                   get_fit_scale_method_text(scale_method));
+
+    ob_add_logical(b, "warn_zero_row", warn_zero_row);
+    ob_add_logical(b, "warn_zero_col", warn_zero_col);
+    ob_add_logical(b, "chkjac",        chkjac);
+
+    ob_add_string (b, "report", get_fit_repopt_text(repopt));
+    ob_add_sexp   (b, "dbgopt",  get_debug_option());
+
+    return ob_get(b); 
 }
 
 static SEXP get_debug_option(void) {
