@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 3.5.1.  */
+/* A Bison parser, made by GNU Bison 3.8.2.  */
 
 /* Bison interface for Yacc-like parsers in C
 
-   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2020 Free Software Foundation,
+   Copyright (C) 1984, 1989-1990, 2000-2015, 2018-2021 Free Software Foundation,
    Inc.
 
    This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
    GNU General Public License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -31,11 +31,12 @@
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
-/* Undocumented macros, especially those whose name start with YY_,
-   are private implementation details.  Do not rely on them.  */
+/* DO NOT RELY ON FEATURES THAT ARE NOT DOCUMENTED in the manual,
+   especially those whose name start with YY_ or yy_.  They are
+   private implementation details that can be changed or removed.  */
 
-#ifndef YY_MC_XPCTAB_H_INCLUDED
-# define YY_MC_XPCTAB_H_INCLUDED
+#ifndef YY_MC_PKG_SRC_XPCTAB_H_INCLUDED
+# define YY_MC_PKG_SRC_XPCTAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -44,87 +45,61 @@
 extern int mcdebug;
 #endif
 
-/* Token type.  */
+/* Token kinds.  */
 #ifndef YYTOKENTYPE
 # define YYTOKENTYPE
   enum yytokentype
   {
-    T_END = 258,
-    T_FUNCTION = 259,
-    T_UL_FUNCTION = 260,
-    T_FRML = 261,
-    T_IDENT = 262,
-    T_PARAM = 263,
-    T_NAME = 264,
-    T_UFUNC = 265,
-    T_ULFUNC = 266,
-    T_IF = 267,
-    T_THEN = 268,
-    T_ELSE = 269,
-    T_ELSEIF = 270,
-    T_ENDIF = 271,
-    T_SUM = 272,
-    T_DEL = 273,
-    T_BUILTIN = 274,
-    T_NUMBER = 275,
-    T_INTNUM = 276,
-    T_GE = 277,
-    T_GT = 278,
-    T_LT = 279,
-    T_LE = 280,
-    T_EQ = 281,
-    T_NE = 282,
-    T_NOT = 283,
-    T_AND = 284,
-    T_OR = 285,
-    UNARYMINUS = 286,
-    T_POW = 287
+    YYEMPTY = -2,
+    YYEOF = 0,                     /* "end of file"  */
+    YYerror = 256,                 /* error  */
+    YYUNDEF = 257,                 /* "invalid token"  */
+    T_END = 258,                   /* "end"  */
+    T_FUNCTION = 259,              /* "function"  */
+    T_UL_FUNCTION = 260,           /* "ul function"  */
+    T_FRML = 261,                  /* "frml"  */
+    T_IDENT = 262,                 /* "ident"  */
+    T_PARAM = 263,                 /* "param"  */
+    T_NAME = 264,                  /* "name"  */
+    T_UFUNC = 265,                 /* "user function"  */
+    T_ULFUNC = 266,                /* "user language function"  */
+    T_IF = 267,                    /* "if"  */
+    T_THEN = 268,                  /* "then"  */
+    T_ELSE = 269,                  /* "else"  */
+    T_ELSEIF = 270,                /* "elseif"  */
+    T_ENDIF = 271,                 /* "endif"  */
+    T_SUM = 272,                   /* "sum"  */
+    T_DEL = 273,                   /* "del"  */
+    T_BUILTIN = 274,               /* "builtin function"  */
+    T_NUMBER = 275,                /* "number"  */
+    T_INTNUM = 276,                /* "integer"  */
+    T_GE = 277,                    /* ">="  */
+    T_GT = 278,                    /* ">"  */
+    T_LT = 279,                    /* "<"  */
+    T_LE = 280,                    /* "<="  */
+    T_EQ = 281,                    /* ".eq."  */
+    T_NE = 282,                    /* "^="  */
+    T_NOT = 283,                   /* "^ or .not."  */
+    T_AND = 284,                   /* "& or .and."  */
+    T_OR = 285,                    /* "| or .or."  */
+    UNARYMINUS = 286,              /* UNARYMINUS  */
+    T_POW = 287                    /* T_POW  */
   };
+  typedef enum yytokentype yytoken_kind_t;
 #endif
-/* Tokens.  */
-#define T_END 258
-#define T_FUNCTION 259
-#define T_UL_FUNCTION 260
-#define T_FRML 261
-#define T_IDENT 262
-#define T_PARAM 263
-#define T_NAME 264
-#define T_UFUNC 265
-#define T_ULFUNC 266
-#define T_IF 267
-#define T_THEN 268
-#define T_ELSE 269
-#define T_ELSEIF 270
-#define T_ENDIF 271
-#define T_SUM 272
-#define T_DEL 273
-#define T_BUILTIN 274
-#define T_NUMBER 275
-#define T_INTNUM 276
-#define T_GE 277
-#define T_GT 278
-#define T_LT 279
-#define T_LE 280
-#define T_EQ 281
-#define T_NE 282
-#define T_NOT 283
-#define T_AND 284
-#define T_OR 285
-#define UNARYMINUS 286
-#define T_POW 287
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 62 "lex_yacc/xpctab.y"
+#line 62 "pkg/src/lex_yacc/xpctab.y"
 
         int     ival;
         real    dval;
         Symbol  *sp;
         Enodep  ep;
 
-#line 128 "xpctab.h"
+#line 103 "pkg/src/xpctab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -135,6 +110,8 @@ typedef union YYSTYPE YYSTYPE;
 
 extern YYSTYPE mclval;
 
+
 int mcparse (void);
 
-#endif /* !YY_MC_XPCTAB_H_INCLUDED  */
+
+#endif /* !YY_MC_PKG_SRC_XPCTAB_H_INCLUDED  */
