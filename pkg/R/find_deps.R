@@ -239,11 +239,12 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     ok <- calculable || observed || is_solvable
 
     # Set vertex attributes ok, calculable and color:
+    # nolint start
     g <<- set_vertex_attr(g, "ok", index = idx, value = ok)
     g <<- set_vertex_attr(g, "calculable", index = idx, value = calculable)
     g <<- set_vertex_attr(g, "color", index = idx,
                           value = if (ok) color_endo_ok else color_not_ok)
-
+    # nolint end
     return(ok)
   }
 

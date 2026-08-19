@@ -14,7 +14,7 @@ YACC_CMD = bison
 LYPREFIX = mc
 LEX_YACC_DIR = lex_yacc
 
-all: $(SHLIB)
+all: scan.c xpctab.c $(SHLIB)
 
 # rules for lex and yacc
 scan.c : $(LEX_YACC_DIR)/scan.l

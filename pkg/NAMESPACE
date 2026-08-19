@@ -14,42 +14,52 @@ export(solve_mdl)
 import(regts)
 importFrom("methods","new")
 importFrom(R6,R6Class)
-importFrom(dplyr,anti_join)
-importFrom(dplyr,any_of)
-importFrom(dplyr,arrange)
-importFrom(dplyr,desc)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,group_split)
-importFrom(dplyr,inner_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,pull)
-importFrom(dplyr,select)
-importFrom(dplyr,summarize)
+importFrom(dplyr,
+  anti_join,
+  any_of,
+  arrange,
+  desc,
+  filter,
+  group_by,
+  group_split,
+  inner_join,
+  mutate,
+  pull,
+  select,
+  summarize
+)
 importFrom(glue,glue)
-importFrom(igraph,V)
-importFrom(igraph,add_edges)
-importFrom(igraph,add_vertices)
-importFrom(igraph,delete_edges)
-importFrom(igraph,incident)
-importFrom(igraph,induced_subgraph)
-importFrom(igraph,make_empty_graph)
-importFrom(igraph,set_vertex_attr)
-importFrom(igraph,subcomponent)
+importFrom(igraph,
+  V,
+  add_edges,
+  add_vertices,
+  delete_edges,
+  incident,
+  induced_subgraph,
+  make_empty_graph,
+  set_vertex_attr,
+  subcomponent
+)
 importFrom(methods,setOldClass)
 importFrom(nleqslv,nleqslv)
 importFrom(readr,read_file)
-importFrom(regts,as.period)
-importFrom(regts,as.period_range)
-importFrom(regts,end_period)
-importFrom(regts,range_union)
-importFrom(regts,start_period)
+importFrom(regts,
+  as.period,
+  as.period_range,
+  end_period,
+  range_union,
+  start_period
+)
 importFrom(rlang,.data)
 importFrom(stringr,str_match)
 importFrom(tibble,remove_rownames)
 importFrom(tidyr,separate)
-importFrom(tools,file_ext)
-importFrom(tools,file_path_sans_ext)
-importFrom(utils,capture.output)
-importFrom(utils,read.csv)
+importFrom(tools,
+  file_ext,
+  file_path_sans_ext
+)
+importFrom(utils,
+  capture.output,
+  read.csv
+)
 useDynLib(isismdl, .registration = TRUE, .fixes = "C_")

@@ -20,8 +20,8 @@
 #' @noRd
 
 fmds <- function(
-    mdl, period, solve_df, report, default_initial_guess, jacobian,
-    print_jacobian = TRUE, ...) {
+  mdl, period, solve_df, report, default_initial_guess, jacobian,
+  print_jacobian = TRUE, ...) {
 
   # Only print the jacobian when the full report is printed (report = "period").
   if (report != "period") print_jacobian <- FALSE
