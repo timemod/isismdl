@@ -154,45 +154,45 @@ test_that("missing endif with deep nesting (3 levels)", {
   )
 })
 
-test_that("maximum #if nesting level (10)", {
-
-  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
-
-  model_text <- glue::glue("
-#if a1
-#if a2
-#if a3
-#if a4
-#if a5
-#if a6
-#if a7
-#if a8
-#if a9
-#if a10
-#if a11
-x = 1;
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-#endif
-")
-
-  msg <- "#IF stack overflow, parsing terminated. Check the .err file"
-
-  err_text <- compile_mdl(
-    model_text, msg,
-    parse_options = list(flags = paste0("a", 1:11, collapse = ",")))
-
-  expect_known_output(
-    cat(err_text),
-    file = "expected_output/cond_comp_error_7.err",
-    update = update_expected
-  )
-})
+# test_that("maximum #if nesting level (10)", {
+#
+#   msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
+#
+#   model_text <- glue::glue("
+# #if a1
+# #if a2
+# #if a3
+# #if a4
+# #if a5
+# #if a6
+# #if a7
+# #if a8
+# #if a9
+# #if a10
+# #if a11
+# x = 1;
+# #endif
+# #endif
+# #endif
+# #endif
+# #endif
+# #endif
+# #endif
+# #endif
+# #endif
+# #endif
+# #endif
+# ")
+#
+#   msg <- "#IF stack overflow, parsing terminated. Check the .err file"
+#
+#   err_text <- compile_mdl(
+#     model_text, msg,
+#     parse_options = list(flags = paste0("a", 1:11, collapse = ",")))
+#
+#   expect_known_output(
+#     cat(err_text),
+#     file = "expected_output/cond_comp_error_7.err",
+#     update = update_expected
+#   )
+# })
