@@ -302,16 +302,19 @@ endif    "#ENDIF"
 <skip>\n        
 
 <<EOF>> {
-          if (if_level >= 0) {
-            mcerror("Unmatched #IF: missing %d #ENDIF(s) at EOF (last opened at line %u of %s)",
-                    if_level + 1, if_stack[if_level].start_line, filename);
-          }
-          close_buffer();
-          if (include_level < 0) {
+          if (include_level <= 0) {
             close_preproc_file();
+            if (if_level >= 0) {
+               mcerror("Unmatched #IF: missing %d #ENDIF(s) at EOF (last opened at line %u of %s)",
+                       if_level + 1, if_stack[if_level].start_line, filename);
+            }
             yyterminate();
+          } else {
+            /* close the current buffer and restore the previous buffer */
+            close_buffer();
           }
         }
+
 {inum}  {if (write_preproc_file) fputs(mctext, fp_preproc); mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
 {fnum}  {if (write_preproc_file) fputs(mctext, fp_preproc); mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
 "?"    {if (write_preproc_file) fputs(mctext, fp_preproc); get_comment();}
