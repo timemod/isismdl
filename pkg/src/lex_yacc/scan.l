@@ -19,12 +19,14 @@
 #include "xpctab.h"
 #define MAX_INCLUDE_DEPTH 10
 #define MAXLINE 2000
-static void    open_buffer(char *filename);
-static void    close_buffer(void);
-static void    close_preproc_file(void);
-static void    get_comment (void);
-static char*   get_includefile ( void );
-static int     mcgetc(void);
+static void  open_buffer(char *filename);
+static void  close_buffer(void);
+static void  close_preproc_file(void);
+static void  get_comment (void);
+static char* get_includefile ( void );
+static int   mcgetc(void);
+static int   push_if_stack(int branch_taken);
+
 typedef struct _selem {
     FILE   *fin;
     char   *filename;
@@ -45,7 +47,7 @@ static int include_level = -1;
 static unsigned int line_number;
 
 /* ---------- conditional-compile stack (per-#IF state) ---------- */
-#define MAX_IF_DEPTH 100
+#define MAX_IF_DEPTH 10
 
 typedef struct {
   int branch_taken;     /* 1 if some branch (#IF or #ELSEIF or #ELSE) of this #IF was taken */
@@ -75,7 +77,6 @@ static int skip_target_level = -1;   /* index of the if_level that started the c
  * which gave errors in fcc (Fujitsu C compiler in Lahey)
  */
 #define YY_NEVER_INTERACTIVE 1
-#define YY_FATAL_ERROR(msg) error(msg)
 /*
  * Flex needs this
  * MKS Lex doesn't and just ignores this
@@ -104,6 +105,8 @@ if       "#IF"
 else     "#ELSE"
 elseif   "#ELSEIF"
 endif    "#ENDIF"
+
+
 %%
 {include}          BEGIN(incl);
 <incl>[ \t]*        
@@ -176,18 +179,11 @@ endif    "#ENDIF"
                    }
 
 <get_flag>[ \t]*   
-<get_flag>{name}   {
-                      if (pending_directive == DIR_IF) {
-                          int cond = flag_present(mctext);
-                          if (++if_level >= MAX_IF_DEPTH) {
-                              mcerror("Includes nested too deeply: #IF stack exceeds %d", MAX_IF_DEPTH);
-                              if_level = MAX_IF_DEPTH - 1;
-                          }
-                          if_stack[if_level].branch_taken = cond ? 1 : 0;
-                          if_stack[if_level].else_seen    = 0;
-                          if_stack[if_level].skipping     = cond ? 0 : 1;
-                          if_stack[if_level].start_line   = line_number;
-                          pending_directive = DIR_NONE;
+ <get_flag>{name}   {
+                        if (pending_directive == DIR_IF) {
+                            int cond = flag_present(mctext);
+                            if (push_if_stack(cond ? 1 : 0)) return 0;
+                            pending_directive = DIR_NONE;
 
                           if (if_stack[if_level].skipping) {
                             skip_target_level = if_level;
@@ -229,17 +225,8 @@ endif    "#ENDIF"
                    }
 
 <skip>{if}      {
-                  if (++if_level >= MAX_IF_DEPTH) {
-                      mcerror("#IF stack overflow (max %d) at line %u of %s", MAX_IF_DEPTH,
-                              (unsigned) line_number, filename);
-                      if_level = MAX_IF_DEPTH - 1;
-                  } else {
-                      if_stack[if_level].branch_taken = 0;
-                      if_stack[if_level].else_seen    = 0;
-                      if_stack[if_level].skipping     = 1;
-                      if_stack[if_level].start_line   = line_number;
+                    if (push_if_stack(0)) return 0;
                   }
-                }
 
 <skip>{elseif}  {
                   if (if_level < 0) {
@@ -536,7 +523,20 @@ static char * get_includefile(void) {
    if (includefile == NULL) {
        mcerror("Include file %s not found", includename);
    }
-   free(includename);
-   return includefile;
-}
+    free(includename);
+    return includefile;
+ }
 
+static int push_if_stack(int branch_taken) {
+    if (if_level >= MAX_IF_DEPTH - 1) {
+        mcerror("#IF stack overflow (max %d) at line %u of %s, parsing terminated", MAX_IF_DEPTH,
+                (unsigned) line_number, filename);
+        return 1;
+    }
+    if_level++;
+    if_stack[if_level].branch_taken = branch_taken;
+    if_stack[if_level].else_seen    = 0;
+    if_stack[if_level].skipping     = branch_taken ? 0 : 1;
+    if_stack[if_level].start_line   = line_number;
+    return 0;
+}
