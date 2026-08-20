@@ -53,3 +53,103 @@ test_that("missing endif", {
 
   expect_equal(err_text, err_text_2)
 })
+
+test_that("duplicate else", {
+  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
+
+  model_text <- glue::glue("
+     x = 1;
+     #if a
+       y = 2;
+     #else
+       z = 3;
+     #else
+       w = 4;
+     #endif
+    ")
+
+  err_text <- compile_mdl(model_text, msg)
+
+  expect_known_output(
+    cat(err_text),
+    file = "expected_output/cond_comp_error_2.err",
+    update = update_expected
+  )
+})
+
+test_that("stray else without matching if", {
+  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
+
+  model_text <- glue::glue("
+     x = 1;
+     #else
+       y = 2;
+    ")
+
+  err_text <- compile_mdl(model_text, msg)
+
+  expect_known_output(
+    cat(err_text),
+    file = "expected_output/cond_comp_error_3.err",
+    update = update_expected
+  )
+})
+
+test_that("stray elseif without matching if", {
+  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
+
+  model_text <- glue::glue("
+     x = 1;
+     #elseif a
+       y = 2;
+    ")
+
+  err_text <- compile_mdl(model_text, msg)
+
+  expect_known_output(
+    cat(err_text),
+    file = "expected_output/cond_comp_error_4.err",
+    update = update_expected
+  )
+})
+
+test_that("stray endif without matching if", {
+  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
+
+  model_text <- glue::glue("
+     x = 1;
+     #endif
+    ")
+
+  err_text <- compile_mdl(model_text, msg)
+
+  expect_known_output(
+    cat(err_text),
+    file = "expected_output/cond_comp_error_5.err",
+    update = update_expected
+  )
+})
+
+test_that("missing endif with deep nesting (3 levels)", {
+  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
+
+  model_text <- glue::glue("
+     x = 1;
+     #if a
+       y = 2;
+       #if b
+         z = 3;
+         #if c
+           w = 4;
+         #endif
+       l = 5;
+    ")
+
+  err_text <- compile_mdl(model_text, msg)
+
+  expect_known_output(
+    cat(err_text),
+    file = "expected_output/cond_comp_error_6.err",
+    update = update_expected
+  )
+})
