@@ -182,7 +182,7 @@ endif    "#ENDIF"
  <get_flag>{name}   {
                         if (pending_directive == DIR_IF) {
                             int cond = flag_present(mctext);
-                            if (push_if_stack(cond ? 1 : 0)) return 0;
+                            if (push_if_stack(cond ? 1 : 0)) yyterminate();
                             pending_directive = DIR_NONE;
 
                           if (if_stack[if_level].skipping) {
@@ -225,7 +225,7 @@ endif    "#ENDIF"
                    }
 
 <skip>{if}      {
-                    if (push_if_stack(0)) return 0;
+                    if (push_if_stack(0)) yyterminate();
                   }
 
 <skip>{elseif}  {
@@ -363,6 +363,8 @@ void close_preproc_file(void) {
     }
 }
 void reset_scanner(void) {
+     
+    //Rprintf("reset scanner\n");
     /*
      * Close all buffers. This function is called when an
      * end; statement has occurred in the model

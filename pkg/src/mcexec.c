@@ -214,6 +214,9 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
     mcparse_init();
 
     mcparse();
+    
+    /* now clean up memory of the parser */
+    reset_scanner();
 
     if (options.ShowTiming) {
         te = clock();

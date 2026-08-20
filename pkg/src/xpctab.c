@@ -1662,7 +1662,7 @@ yyreduce:
     {
   case 4: /* opt_end: "end" ';'  */
 #line 126 "pkg/src/lex_yacc/xpctab.y"
-                    {reset_scanner(); YYACCEPT;}
+                    {YYACCEPT;}
 #line 1667 "pkg/src/xpctab.c"
     break;
 

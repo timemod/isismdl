@@ -1285,7 +1285,7 @@ YY_RULE_SETUP
 {
                         if (pending_directive == DIR_IF) {
                             int cond = flag_present(mctext);
-                            if (push_if_stack(cond ? 1 : 0)) return 0;
+                            if (push_if_stack(cond ? 1 : 0)) yyterminate();
                             pending_directive = DIR_NONE;
 
                           if (if_stack[if_level].skipping) {
@@ -1331,7 +1331,7 @@ case 11:
 YY_RULE_SETUP
 #line 227 "pkg/src/lex_yacc/scan.l"
 {
-                    if (push_if_stack(0)) return 0;
+                    if (push_if_stack(0)) yyterminate();
                   }
 	YY_BREAK
 case 12:
@@ -2605,6 +2605,8 @@ void close_preproc_file(void) {
     }
 }
 void reset_scanner(void) {
+     
+    //Rprintf("reset scanner\n");
     /*
      * Close all buffers. This function is called when an
      * end; statement has occurred in the model

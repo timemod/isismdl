@@ -123,7 +123,7 @@ model   : stmtlist opt_end
         ;
 
 opt_end : /* nix */
-        | T_END ';' {reset_scanner(); YYACCEPT;} /* ignore all following stuff */
+        | T_END ';' {YYACCEPT;} /* ignore all following stuff */
         ;
 
 stmtlist: stmt
