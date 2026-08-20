@@ -22,7 +22,7 @@
 static void    open_buffer(char *filename);
 static void    close_buffer(void);
 static void    close_preproc_file(void);
-static void    get_comment ( void );
+static void    get_comment (void);
 static char*   get_includefile ( void );
 static int     mcgetc(void);
 typedef struct _selem {
@@ -461,21 +461,20 @@ static void close_buffer(void) {
         line_number = include_stack[include_level].line_number;
     } 
 }
-static int mcgetc(void)
-{   
-     /* return next char from current buffer
-     * or EOF
-     */
+
+/* return next char from current buffer
+ * or EOF
+ */
+static int mcgetc(void) {   
     int     c;
     char    *pn;
     if( bufp == NULL)
         return EOF;
-    if( *bufp == 0 )
-    {
+    if (*bufp == 0) {
         if( (bufp = fgets(buf, MAXLINE-2, fin)) == NULL )
             return EOF;
         else if( (pn = strchr(bufp, '\n')) == NULL )
-//            warning("Line too long and split\n");
+           // warning("Line too long and split\n");
         /*
          * remove any \r at end
          */
@@ -489,26 +488,25 @@ static int mcgetc(void)
     c = *bufp++;
     return c;
 }
-void showbuf( FILE *fout )
-{
+
+void showbuf(FILE *fout) {
     char    *p   = buf;
     char    *end = bufp ? bufp : strchr(buf,'\n') - 1;
     int pos = 0;
-    for( ; *p && p < end ; p++)
-    {
-        if( *p == '\t')
+    for ( ; *p && p < end ; p++) {
+        if (*p == '\t')
             pos += 8 - (pos % 8);
         else
             pos++;
     }
-    if( line_number ) 
+    if (line_number) 
         (void) fprintf(fout,"Line: %u of file %s\n", line_number, filename);
     fprintf(fout, "%s", buf);
     fprintf(fout, "%*s\n", pos, "^");
 }
+
 /*
- * read comment
- * and discard to end of line
+ * Read comment and discard to end of line
  */
 static void get_comment(void) {
     int c;
@@ -522,6 +520,7 @@ static void get_comment(void) {
     }
     if (write_preproc_file) fputc('\n', fp_preproc);
 }
+
 static char * get_includefile(void) {
    /* Returns the name of the include file based on the specified
     * include filename and the include search paths
