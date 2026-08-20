@@ -1,0 +1,4 @@
+Multiple #ELSE in same #IF at line 6 of model_text
+Line: 6 of file model_text
+ #else
+      ^
