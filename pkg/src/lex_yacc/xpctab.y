@@ -22,7 +22,9 @@
 #include "outmdl.h"
 #include "isismdl_types.h"
 #include "dependencies.h"
-#include "mdldef.h"
+ #include "mdldef.h"
+
+#include <Rinternals.h>
 
 
 void    cleanup( int );
@@ -71,7 +73,7 @@ void FNAME(save_parameter)(FINT *, FREAL8 *);
 %type    <ival>  opt_sign '-' '+' sinteger
 %type    <dval>  snumber
 
-%type    <sp>    lhsexpl lhsimpl stmt stmtlist model keywd
+%type    <sp>    lhsexpl lhsimpl keywd
 
 %type    <ep>    var fargs ufargs ufarg rexpr lexpr sexpr expr ifexpr ifthen 
 %type    <ep>    ifpart1 elseif elseifl
@@ -120,10 +122,11 @@ void FNAME(save_parameter)(FINT *, FREAL8 *);
 %%
 
 model   : stmtlist opt_end
+        | opt_end
         ;
 
 opt_end : /* nix */
-        | T_END ';' {YYACCEPT;} /* ignore all following stuff */
+        | T_END ';' {YYACCEPT;}  /* Stop the parser after an end; statement */
         ;
 
 stmtlist: stmt
@@ -146,7 +149,7 @@ stmt    : T_FUNCTION fstmt
         | eqtyp eqname
           lhsimpl '=' expr  ';'   { eqn_epilogue($2, $1, $3, $5, 1);}
 
-        | /* nix */         ';'   { $$ = NULL;}
+        | /* nix */         ';'    /* empty statement */
         | error             ';'   { cleanup(0); yyerrok; }
         ;
 
@@ -267,10 +270,10 @@ sexpr   : T_NUMBER                         { $$ = mk_const($1); }
         ;
 
 expr    : sexpr
-	| var                              { do_lag($1);}
+      	| var                       {do_lag($1);}
         ;
 
-ifexpr  : ifpart1 T_ELSE expr   {$$ = add_elsepart($1, $3);}
+ifexpr  : ifpart1 T_ELSE expr       {$$ = add_elsepart($1, $3);}
         ; 
 
 ifpart1 : ifthen                    {$$ = $1;}

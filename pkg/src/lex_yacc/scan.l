@@ -289,14 +289,14 @@ endif    "#ENDIF"
 
 <<EOF>> {
           if (include_level <= 0) {
-            close_preproc_file();
             if (if_level >= 0) {
                mcerror("Unmatched #IF: missing %d #ENDIF(s) at EOF (last opened at line %u of %s)",
                        if_level + 1, if_stack[if_level].start_line, filename);
             }
-            stop_parsing();
+            close_preproc_file();
+            yyterminate();
           } else {
-            /* close the current buffer and restore the previous buffer */
+            /* close the current buffer and continue with the previous buffer */
             close_buffer();
           }
         }
@@ -323,20 +323,28 @@ endif    "#ENDIF"
 "^="      {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
 "&"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
 "|"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
+
 {name}  {       if (write_preproc_file) fputs(mctext, fp_preproc);
-                Symbol *sp;
                 /*
                  * lookup symbol and if it does not exist
                  * then give it type T_NAME 
                  */
+                Symbol *sp;
                 sp = sym_create(Stp, (char *) mctext, T_NAME);
                 mclval.sp = sp;
+                if (include_level > 0 && sp->type == T_END) {
+                   mcerror("end keyword not allowed in included file");
+                }        
                 return sp->type;
         }
+
 [\r]          ; 
+
 [ \v\f\t\n]  if (write_preproc_file) fputs(mctext, fp_preproc);
              /* skip other whitespace and newline */
+
 .       {if (!scanning) mcerror( "Illegal character in input" );}
+
 %%
 int mcwrap(void) {
   return 1;
@@ -361,21 +369,23 @@ void close_preproc_file(void) {
       write_preproc_file = 0;
     }
 }
+
+/* 
+ * Reset the scanner:
+ *    - close the pproc file
+ *    - close buffers
+ *    - clean up memory
+ */
+
 void reset_scanner(void) {
      
-    //Rprintf("reset scanner\n");
-    /*
-     * Close all buffers. This function is called when an
-     * end; statement has occurred in the model
-     */
+    /* close the preproc file */
     if (write_preproc_file) {
-      // write a newline, the newline after end; in the input is ignored
+      /* write a newline, the newline after end; in the input is ignored */
       fputc('\n', fp_preproc);
       close_preproc_file();
     }
-    if (include_level > 0) {
-      mcerror("end; statement not allowed in included file");
-    }
+
     /* reset conditional stack */
     if_level = -1;
     pending_directive = DIR_NONE;
@@ -396,7 +406,8 @@ void reset_scanner(void) {
         free(include_stack[i].buf);
     }
     include_level = -1;
-    /* is dit nodig? uitzoeken */
+
+    /* reset scanner state */
     BEGIN(INITIAL);
 }
 void open_buffer(char *new_filename) {   

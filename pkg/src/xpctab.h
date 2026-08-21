@@ -92,7 +92,7 @@ extern int mcdebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 62 "pkg/src/lex_yacc/xpctab.y"
+#line 64 "pkg/src/lex_yacc/xpctab.y"
 
         int     ival;
         real    dval;

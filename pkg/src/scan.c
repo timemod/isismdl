@@ -1417,14 +1417,14 @@ case YY_STATE_EOF(skip):
 #line 290 "pkg/src/lex_yacc/scan.l"
 {
           if (include_level <= 0) {
-            close_preproc_file();
             if (if_level >= 0) {
                mcerror("Unmatched #IF: missing %d #ENDIF(s) at EOF (last opened at line %u of %s)",
                        if_level + 1, if_stack[if_level].start_line, filename);
             }
-            stop_parsing();
+            close_preproc_file();
+            yyterminate();
           } else {
-            /* close the current buffer and restore the previous buffer */
+            /* close the current buffer and continue with the previous buffer */
             close_buffer();
           }
         }
@@ -1541,41 +1541,44 @@ YY_RULE_SETUP
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 326 "pkg/src/lex_yacc/scan.l"
+#line 327 "pkg/src/lex_yacc/scan.l"
 {       if (write_preproc_file) fputs(mctext, fp_preproc);
-                Symbol *sp;
                 /*
                  * lookup symbol and if it does not exist
                  * then give it type T_NAME 
                  */
+                Symbol *sp;
                 sp = sym_create(Stp, (char *) mctext, T_NAME);
                 mclval.sp = sp;
+                if (include_level > 0 && sp->type == T_END) {
+                   mcerror("end keyword not allowed in included file");
+                }        
                 return sp->type;
         }
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 336 "pkg/src/lex_yacc/scan.l"
+#line 341 "pkg/src/lex_yacc/scan.l"
 ; 
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
-#line 337 "pkg/src/lex_yacc/scan.l"
+#line 343 "pkg/src/lex_yacc/scan.l"
 if (write_preproc_file) fputs(mctext, fp_preproc);
 	YY_BREAK
 /* skip other whitespace and newline */
 case 42:
 YY_RULE_SETUP
-#line 339 "pkg/src/lex_yacc/scan.l"
+#line 346 "pkg/src/lex_yacc/scan.l"
 {if (!scanning) mcerror( "Illegal character in input" );}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 340 "pkg/src/lex_yacc/scan.l"
+#line 348 "pkg/src/lex_yacc/scan.l"
 ECHO;
 	YY_BREAK
-#line 1579 "pkg/src/scan.c"
+#line 1582 "pkg/src/scan.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2578,7 +2581,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 340 "pkg/src/lex_yacc/scan.l"
+#line 348 "pkg/src/lex_yacc/scan.l"
 
 int mcwrap(void) {
   return 1;
@@ -2603,21 +2606,23 @@ void close_preproc_file(void) {
       write_preproc_file = 0;
     }
 }
+
+/* 
+ * Reset the scanner:
+ *    - close the pproc file
+ *    - close buffers
+ *    - clean up memory
+ */
+
 void reset_scanner(void) {
      
-    //Rprintf("reset scanner\n");
-    /*
-     * Close all buffers. This function is called when an
-     * end; statement has occurred in the model
-     */
+    /* close the preproc file */
     if (write_preproc_file) {
-      // write a newline, the newline after end; in the input is ignored
+      /* write a newline, the newline after end; in the input is ignored */
       fputc('\n', fp_preproc);
       close_preproc_file();
     }
-    if (include_level > 0) {
-      mcerror("end; statement not allowed in included file");
-    }
+
     /* reset conditional stack */
     if_level = -1;
     pending_directive = DIR_NONE;
@@ -2638,7 +2643,8 @@ void reset_scanner(void) {
         free(include_stack[i].buf);
     }
     include_level = -1;
-    /* is dit nodig? uitzoeken */
+
+    /* reset scanner state */
     BEGIN(INITIAL);
 }
 void open_buffer(char *new_filename) {   
