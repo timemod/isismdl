@@ -822,8 +822,8 @@ char *yytext;
 #include "flags.h"
 #include "xpcdef.h"
 #include "xpctab.h"
-#define MAX_INCLUDE_DEPTH 10
 #define MAXLINE 2000
+
 static void  open_buffer(char *filename);
 static void  close_buffer(void);
 static void  close_preproc_file(void);
@@ -832,6 +832,7 @@ static char* get_includefile ( void );
 static int   mcgetc(void);
 static void  push_if_stack(int branch_taken);
 
+/* variables for the buffers */
 typedef struct _selem {
     FILE   *fin;
     char   *filename;
@@ -839,8 +840,15 @@ typedef struct _selem {
     char   *buf;
     char   *bufp;
     size_t line_number;
-} include_stack_elem ;
-static include_stack_elem include_stack[MAX_INCLUDE_DEPTH + 1];
+} buffer_stack_elem ;
+#define BUFFER_STACK_SIZE 10
+static buffer_stack_elem buffer_stack[BUFFER_STACK_SIZE];
+/* Buffer_level: 
+ *     -1  no buffer
+ *      0  main mdl file
+ *    > 0  included mdl files */
+static int buffer_level = -1;
+
 static FILE *fin  = NULL;              /* input  stream */
 static int write_preproc_file = 0;
 static FILE *fp_preproc = NULL;  /* output stream for preprocessed file */
@@ -848,7 +856,6 @@ static char *filename;
 static char *dirname;
 static char *buf;
 static char *bufp;
-static int include_level = -1;
 static unsigned int line_number;
 
 /* ---------- conditional-compile stack (per-#IF state) ---------- */
@@ -894,11 +901,11 @@ static int skip_target_level = -1;   /* index of the if_level that started the c
 	result = (c == EOF) ? YY_NULL : (buf[0] = c, 1); \
 }
 #endif
-#line 898 "pkg/src/scan.c"
+#line 905 "pkg/src/scan.c"
 /* the "incl" state is used for picking up the name of an include file
  */
 
-#line 902 "pkg/src/scan.c"
+#line 909 "pkg/src/scan.c"
 
 #define INITIAL 0
 #define incl 1
@@ -1118,9 +1125,9 @@ YY_DECL
 		}
 
 	{
-#line 110 "pkg/src/lex_yacc/scan.l"
+#line 117 "pkg/src/lex_yacc/scan.l"
 
-#line 1124 "pkg/src/scan.c"
+#line 1131 "pkg/src/scan.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1179,17 +1186,17 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 111 "pkg/src/lex_yacc/scan.l"
+#line 118 "pkg/src/lex_yacc/scan.l"
 BEGIN(incl);
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 112 "pkg/src/lex_yacc/scan.l"
+#line 119 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 113 "pkg/src/lex_yacc/scan.l"
+#line 120 "pkg/src/lex_yacc/scan.l"
 {   
                     char *inclname = get_includefile();
                     if (inclname != NULL) {
@@ -1200,14 +1207,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 120 "pkg/src/lex_yacc/scan.l"
+#line 127 "pkg/src/lex_yacc/scan.l"
 { mcerror("Illegal #include syntax");
                 BEGIN(INITIAL);
               }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 124 "pkg/src/lex_yacc/scan.l"
+#line 131 "pkg/src/lex_yacc/scan.l"
 {
                      pending_directive = DIR_IF;
                      BEGIN(get_flag);
@@ -1215,7 +1222,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 129 "pkg/src/lex_yacc/scan.l"
+#line 136 "pkg/src/lex_yacc/scan.l"
 { 
                      if (if_level >=0 && if_stack[if_level].branch_taken) {
                        skip_target_level = if_level;
@@ -1229,7 +1236,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 140 "pkg/src/lex_yacc/scan.l"
+#line 147 "pkg/src/lex_yacc/scan.l"
 {
                      if (if_level < 0) {
                        mcerror("Stray #ELSE without matching #IF at line %u of %s",
@@ -1253,7 +1260,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 161 "pkg/src/lex_yacc/scan.l"
+#line 168 "pkg/src/lex_yacc/scan.l"
 {
                      if (if_level < 0) {
                        mcerror("Stray #ENDIF without matching #IF at line %u of %s",
@@ -1271,12 +1278,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 176 "pkg/src/lex_yacc/scan.l"
+#line 183 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 177 "pkg/src/lex_yacc/scan.l"
+#line 184 "pkg/src/lex_yacc/scan.l"
 {
                        if (pending_directive == DIR_IF) {
                            int cond = flag_present(mctext);
@@ -1323,14 +1330,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 221 "pkg/src/lex_yacc/scan.l"
+#line 228 "pkg/src/lex_yacc/scan.l"
 {
                     push_if_stack(0);
                  }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 225 "pkg/src/lex_yacc/scan.l"
+#line 232 "pkg/src/lex_yacc/scan.l"
 {
                    if (if_level < 0) {
                      mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
@@ -1344,7 +1351,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 236 "pkg/src/lex_yacc/scan.l"
+#line 243 "pkg/src/lex_yacc/scan.l"
 {
                   if (if_level < 0) {
                     mcerror("Stray #ELSE without matching #IF at line %u of %s",
@@ -1367,7 +1374,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 256 "pkg/src/lex_yacc/scan.l"
+#line 263 "pkg/src/lex_yacc/scan.l"
 {
                   if (if_level < 0) {
                     mcerror("Stray #ENDIF without matching #IF at line %u of %s",
@@ -1391,22 +1398,23 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 277 "pkg/src/lex_yacc/scan.l"
+#line 284 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 278 "pkg/src/lex_yacc/scan.l"
+#line 285 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(incl):
 case YY_STATE_EOF(get_flag):
 case YY_STATE_EOF(skip):
-#line 280 "pkg/src/lex_yacc/scan.l"
+#line 287 "pkg/src/lex_yacc/scan.l"
 {
-          if (include_level <= 0) {
+          if (buffer_level == 0) { 
+            /* EOF in main mdl file, terminate the scanner */
             if (if_level >= 0) {
                mcerror("Unmatched #IF: missing %d #ENDIF(s) at EOF (last opened at line %u of %s)",
                        if_level + 1, if_stack[if_level].start_line, filename);
@@ -1414,124 +1422,125 @@ case YY_STATE_EOF(skip):
             close_preproc_file();
             yyterminate();
           } else {
-            /* close the current buffer and continue with the previous buffer */
+            /* EOF in included file: close the current buffer and continue with the
+             * previous buffer */
             close_buffer();
           }
         }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 294 "pkg/src/lex_yacc/scan.l"
+#line 303 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 295 "pkg/src/lex_yacc/scan.l"
+#line 304 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 296 "pkg/src/lex_yacc/scan.l"
+#line 305 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); get_comment();}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 297 "pkg/src/lex_yacc/scan.l"
+#line 306 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = mctext[0]; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 298 "pkg/src/lex_yacc/scan.l"
+#line 307 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_POW; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 299 "pkg/src/lex_yacc/scan.l"
+#line 308 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GT;  }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 300 "pkg/src/lex_yacc/scan.l"
+#line 309 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GE;  }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 301 "pkg/src/lex_yacc/scan.l"
+#line 310 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LT;  }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 302 "pkg/src/lex_yacc/scan.l"
+#line 311 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LE;  }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 303 "pkg/src/lex_yacc/scan.l"
+#line 312 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 304 "pkg/src/lex_yacc/scan.l"
+#line 313 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 305 "pkg/src/lex_yacc/scan.l"
+#line 314 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NOT; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 306 "pkg/src/lex_yacc/scan.l"
+#line 315 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_EQ;  }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 307 "pkg/src/lex_yacc/scan.l"
+#line 316 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 308 "pkg/src/lex_yacc/scan.l"
+#line 317 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GT;  }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 309 "pkg/src/lex_yacc/scan.l"
+#line 318 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GE;  }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 310 "pkg/src/lex_yacc/scan.l"
+#line 319 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LT;  }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 311 "pkg/src/lex_yacc/scan.l"
+#line 320 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LE;  }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 312 "pkg/src/lex_yacc/scan.l"
+#line 321 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NOT; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 313 "pkg/src/lex_yacc/scan.l"
+#line 322 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 314 "pkg/src/lex_yacc/scan.l"
+#line 323 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 315 "pkg/src/lex_yacc/scan.l"
+#line 324 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 317 "pkg/src/lex_yacc/scan.l"
+#line 326 "pkg/src/lex_yacc/scan.l"
 {       if (write_preproc_file) fputs(mctext, fp_preproc);
                 /*
                  * lookup symbol and if it does not exist
@@ -1540,7 +1549,7 @@ YY_RULE_SETUP
                 Symbol *sp;
                 sp = sym_create(Stp, (char *) mctext, T_NAME);
                 mclval.sp = sp;
-                if (include_level > 0 && sp->type == T_END) {
+                if (buffer_level > 0 && sp->type == T_END) {
                    mcerror("end keyword not allowed in included file");
                 }        
                 return sp->type;
@@ -1548,27 +1557,27 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 331 "pkg/src/lex_yacc/scan.l"
+#line 340 "pkg/src/lex_yacc/scan.l"
 ; 
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
-#line 333 "pkg/src/lex_yacc/scan.l"
+#line 342 "pkg/src/lex_yacc/scan.l"
 if (write_preproc_file) fputs(mctext, fp_preproc);
 	YY_BREAK
 /* skip other whitespace and newline */
 case 42:
 YY_RULE_SETUP
-#line 336 "pkg/src/lex_yacc/scan.l"
+#line 345 "pkg/src/lex_yacc/scan.l"
 {if (!scanning) mcerror( "Illegal character in input" );}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 338 "pkg/src/lex_yacc/scan.l"
+#line 347 "pkg/src/lex_yacc/scan.l"
 ECHO;
 	YY_BREAK
-#line 1572 "pkg/src/scan.c"
+#line 1581 "pkg/src/scan.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2571,7 +2580,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 338 "pkg/src/lex_yacc/scan.l"
+#line 347 "pkg/src/lex_yacc/scan.l"
 
 int mcwrap(void) {
   return 1;
@@ -2580,13 +2589,18 @@ void init_scanner(char *filenm, const char *filenm_preproc) {
    /*
     * Initialise the scanner for the specified filename 
     */
-   include_level = -1;
+   buffer_level = -1;
    if_level = -1;
    pending_directive = DIR_NONE;
    skip_target_level = -1;
+
+   /* Open the mdl file in the buffer */
    open_buffer(filenm);
+
+   /* Open the pproc file */
    write_preproc_file = filenm_preproc != NULL;
    if (write_preproc_file) fp_preproc = fopen(filenm_preproc, "w+");
+
    /* start in the base scanning condition */
    BEGIN(INITIAL);
 }
@@ -2598,15 +2612,13 @@ void close_preproc_file(void) {
 }
 
 /* 
- * Reset the scanner:
+ * Closes the scanner:
  *    - close the pproc file
- *    - close buffers
+ *    - close buffers and deallocate memory
  *    - clean up memory
  */
+void close_scanner(void) {
 
-void reset_scanner(void) {
-     
-    /* close the preproc file */
     if (write_preproc_file) {
       /* write a newline, the newline after end; in the input is ignored */
       fputc('\n', fp_preproc);
@@ -2617,75 +2629,102 @@ void reset_scanner(void) {
     if_level = -1;
     pending_directive = DIR_NONE;
     skip_target_level = -1;
-    /* first close current buffer (the current buffer is not stored on 
-     * the stack) */
+
+    /* Reset scanner state */
+    BEGIN(INITIAL);
+
+    /* First close the current buffer */
     close_buffer();
-    if (include_level == -1) return;
-    /* close buffers on the stack */
-    int i;
-    for (i = 0; i <= include_level; i++) {
-        fclose(include_stack[i].fin);
+
+    /* Close remaining buffers on the stack */
+    if (buffer_level >= 0) {
+      int i;
+      for (i = 0; i <= buffer_level; i++) {
+        fclose(buffer_stack[i].fin);
         if (i > 0) {
           /* filename was allocated with malloc in get_includefile(). */
-          free(include_stack[i].filename);
+          free(buffer_stack[i].filename);
         }
-        free(include_stack[i].dirname);
-        free(include_stack[i].buf);
+        free(buffer_stack[i].dirname);
+        free(buffer_stack[i].buf);
+      }
     }
-    include_level = -1;
-
-    /* reset scanner state */
-    BEGIN(INITIAL);
+    buffer_level = -1;
 }
+
+/*
+ * open a new buffer for reading from the specified filename
+ */
 void open_buffer(char *new_filename) {   
-    /*
-     * open a new buffer for reading from the specified filename
-     */
-    if (include_level >= 0) {
-	      /*
-         * save current buffer information on stack
+  
+    /* Save the current buffer on the stack */
+    if (buffer_level >= 0) {
+
+        /* Check if the buffer_stack is long enough.
+         * Note that most recently opened buffer is not stored on stack,
+         * a buffer will only be stored on the stack when a new buffer is openend.
+         * Therefore the maximum include depth is equal to BUFFER_STACK_SIZE,
+         * even though the maximum include depth on the stack is BUFFER_STACK_SIZE - 1.
          */
-        include_stack[include_level].fin         = fin;
-        include_stack[include_level].filename    = filename;
-        include_stack[include_level].dirname     = dirname;
-        include_stack[include_level].buf         = buf;
-        include_stack[include_level].bufp        = bufp;
-        include_stack[include_level].line_number = line_number;
+        if (buffer_level >= BUFFER_STACK_SIZE) {
+            mcerror("Includes nested too deeply. Maximum include depth %d.", 
+                    BUFFER_STACK_SIZE);
+           return;
+        }
+        buffer_stack[buffer_level].fin         = fin;
+        buffer_stack[buffer_level].filename    = filename;
+        buffer_stack[buffer_level].dirname     = dirname;
+        buffer_stack[buffer_level].buf         = buf;
+        buffer_stack[buffer_level].bufp        = bufp;
+        buffer_stack[buffer_level].line_number = line_number;
     }
-    if (++include_level > MAX_INCLUDE_DEPTH) {
-        mcerror("Includes nested too deeply. Maximum include depth %d.", 
-                MAX_INCLUDE_DEPTH);
-        return;
-    }
-    /* create a new buffer */
+
+    /* Create a new buffer */
     filename = new_filename;
     dirname = get_path_name(filename);
-    fin = efopen( filename, "r" );
+    fin = efopen(filename, "r");
     buf = emalloc(MAXLINE + 1);
     buf[0] = 0;
     bufp = buf;
     line_number = 0;
+
+    /* increase buffer level */
+    buffer_level++;
 } 
 
-static void close_buffer(void) {
-   /* Closes the current buffer */
+/* Closes the current buffer and restores the previous buffer */
+void close_buffer(void) {
+ 
+    if (buffer_level < 0) {
+      return;
+    }
+
+    /* Close buffer and free memory */
     fclose(fin);
     free(buf);
+    fin = NULL;
+    buf = NULL;
     bufp = NULL;
-    /* if include_level = 0: filename is a pointer to the local stack variable fname in mcexec. */
-    /* if include_level > 0: filename was allocated with malloc in get_includefilename(). */
-    if (include_level > 0) {
+    line_number = 0;
+
+    /* if buffer_level = 0: filename is a pointer to the local stack variable fname in mcexec,
+     *                      so do not free.
+    /* if buffer_level > 0: filename was allocated with malloc in get_includefilename(). */
+    if (buffer_level > 0) {
       	free(filename);
+        filename = NULL;
     }
     free(dirname); /* dirname was allocated in get_path_name */
-    if (--include_level >= 0) { 	
-        /* restore previous buffer information */
-        fin         = include_stack[include_level].fin;
-        filename    = include_stack[include_level].filename;
-        dirname     = include_stack[include_level].dirname;
-        buf         = include_stack[include_level].buf;
-        bufp        = include_stack[include_level].bufp;
-        line_number = include_stack[include_level].line_number;
+    dirname = NULL;
+
+    /* Restore previous buffer */
+    if (--buffer_level >= 0) { 	
+        fin         = buffer_stack[buffer_level].fin;
+        filename    = buffer_stack[buffer_level].filename;
+        dirname     = buffer_stack[buffer_level].dirname;
+        buf         = buffer_stack[buffer_level].buf;
+        bufp        = buffer_stack[buffer_level].bufp;
+        line_number = buffer_stack[buffer_level].line_number;
     } 
 }
 
@@ -2748,10 +2787,10 @@ static void get_comment(void) {
     if (write_preproc_file) fputc('\n', fp_preproc);
 }
 
+/* Returns the name of the include file based on the specified
+ * include filename and the include search paths
+ */
 static char * get_includefile(void) {
-   /* Returns the name of the include file based on the specified
-    * include filename and the include search paths
-    */
    /* remove the quotes from mctext */
    char *includefile;
    int len = strlen(mctext) - 2;
@@ -2763,9 +2802,9 @@ static char * get_includefile(void) {
    if (includefile == NULL) {
        mcerror("Include file %s not found", includename);
    }
-    free(includename);
-    return includefile;
- }
+   free(includename);
+   return includefile;
+}
 
 static void push_if_stack(int branch_taken) {
     if (if_level >= MAX_IF_DEPTH - 1) {

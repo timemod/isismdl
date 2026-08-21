@@ -24,7 +24,7 @@ void   mcparse_init(void);
 
 int    mclex(void);
 void   init_scanner(char *filename, const char *filename_preproc);
-void   reset_scanner(void);
+void   close_scanner(void);
 void   showbuf( FILE *fout );
 
 void   mcrestart(FILE *);

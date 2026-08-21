@@ -17,8 +17,8 @@
 #include "flags.h"
 #include "xpcdef.h"
 #include "xpctab.h"
-#define MAX_INCLUDE_DEPTH 10
 #define MAXLINE 2000
+
 static void  open_buffer(char *filename);
 static void  close_buffer(void);
 static void  close_preproc_file(void);
@@ -27,6 +27,7 @@ static char* get_includefile ( void );
 static int   mcgetc(void);
 static void  push_if_stack(int branch_taken);
 
+/* variables for the buffers */
 typedef struct _selem {
     FILE   *fin;
     char   *filename;
@@ -34,8 +35,15 @@ typedef struct _selem {
     char   *buf;
     char   *bufp;
     size_t line_number;
-} include_stack_elem ;
-static include_stack_elem include_stack[MAX_INCLUDE_DEPTH + 1];
+} buffer_stack_elem ;
+#define BUFFER_STACK_SIZE 10
+static buffer_stack_elem buffer_stack[BUFFER_STACK_SIZE];
+/* Buffer_level: 
+ *     -1  no buffer
+ *      0  main mdl file
+ *    > 0  included mdl files */
+static int buffer_level = -1;
+
 static FILE *fin  = NULL;              /* input  stream */
 static int write_preproc_file = 0;
 static FILE *fp_preproc = NULL;  /* output stream for preprocessed file */
@@ -43,7 +51,6 @@ static char *filename;
 static char *dirname;
 static char *buf;
 static char *bufp;
-static int include_level = -1;
 static unsigned int line_number;
 
 /* ---------- conditional-compile stack (per-#IF state) ---------- */
@@ -278,7 +285,8 @@ endif    "#ENDIF"
 <skip>\n        
 
 <<EOF>> {
-          if (include_level <= 0) {
+          if (buffer_level == 0) { 
+            /* EOF in main mdl file, terminate the scanner */
             if (if_level >= 0) {
                mcerror("Unmatched #IF: missing %d #ENDIF(s) at EOF (last opened at line %u of %s)",
                        if_level + 1, if_stack[if_level].start_line, filename);
@@ -286,7 +294,8 @@ endif    "#ENDIF"
             close_preproc_file();
             yyterminate();
           } else {
-            /* close the current buffer and continue with the previous buffer */
+            /* EOF in included file: close the current buffer and continue with the
+             * previous buffer */
             close_buffer();
           }
         }
@@ -322,7 +331,7 @@ endif    "#ENDIF"
                 Symbol *sp;
                 sp = sym_create(Stp, (char *) mctext, T_NAME);
                 mclval.sp = sp;
-                if (include_level > 0 && sp->type == T_END) {
+                if (buffer_level > 0 && sp->type == T_END) {
                    mcerror("end keyword not allowed in included file");
                 }        
                 return sp->type;
@@ -343,13 +352,18 @@ void init_scanner(char *filenm, const char *filenm_preproc) {
    /*
     * Initialise the scanner for the specified filename 
     */
-   include_level = -1;
+   buffer_level = -1;
    if_level = -1;
    pending_directive = DIR_NONE;
    skip_target_level = -1;
+
+   /* Open the mdl file in the buffer */
    open_buffer(filenm);
+
+   /* Open the pproc file */
    write_preproc_file = filenm_preproc != NULL;
    if (write_preproc_file) fp_preproc = fopen(filenm_preproc, "w+");
+
    /* start in the base scanning condition */
    BEGIN(INITIAL);
 }
@@ -361,15 +375,13 @@ void close_preproc_file(void) {
 }
 
 /* 
- * Reset the scanner:
+ * Closes the scanner:
  *    - close the pproc file
- *    - close buffers
+ *    - close buffers and deallocate memory
  *    - clean up memory
  */
+void close_scanner(void) {
 
-void reset_scanner(void) {
-     
-    /* close the preproc file */
     if (write_preproc_file) {
       /* write a newline, the newline after end; in the input is ignored */
       fputc('\n', fp_preproc);
@@ -380,75 +392,102 @@ void reset_scanner(void) {
     if_level = -1;
     pending_directive = DIR_NONE;
     skip_target_level = -1;
-    /* first close current buffer (the current buffer is not stored on 
-     * the stack) */
+
+    /* Reset scanner state */
+    BEGIN(INITIAL);
+
+    /* First close the current buffer */
     close_buffer();
-    if (include_level == -1) return;
-    /* close buffers on the stack */
-    int i;
-    for (i = 0; i <= include_level; i++) {
-        fclose(include_stack[i].fin);
+
+    /* Close remaining buffers on the stack */
+    if (buffer_level >= 0) {
+      int i;
+      for (i = 0; i <= buffer_level; i++) {
+        fclose(buffer_stack[i].fin);
         if (i > 0) {
           /* filename was allocated with malloc in get_includefile(). */
-          free(include_stack[i].filename);
+          free(buffer_stack[i].filename);
         }
-        free(include_stack[i].dirname);
-        free(include_stack[i].buf);
+        free(buffer_stack[i].dirname);
+        free(buffer_stack[i].buf);
+      }
     }
-    include_level = -1;
-
-    /* reset scanner state */
-    BEGIN(INITIAL);
+    buffer_level = -1;
 }
+
+/*
+ * open a new buffer for reading from the specified filename
+ */
 void open_buffer(char *new_filename) {   
-    /*
-     * open a new buffer for reading from the specified filename
-     */
-    if (include_level >= 0) {
-	      /*
-         * save current buffer information on stack
+  
+    /* Save the current buffer on the stack */
+    if (buffer_level >= 0) {
+
+        /* Check if the buffer_stack is long enough.
+         * Note that most recently opened buffer is not stored on stack,
+         * a buffer will only be stored on the stack when a new buffer is openend.
+         * Therefore the maximum include depth is equal to BUFFER_STACK_SIZE,
+         * even though the maximum include depth on the stack is BUFFER_STACK_SIZE - 1.
          */
-        include_stack[include_level].fin         = fin;
-        include_stack[include_level].filename    = filename;
-        include_stack[include_level].dirname     = dirname;
-        include_stack[include_level].buf         = buf;
-        include_stack[include_level].bufp        = bufp;
-        include_stack[include_level].line_number = line_number;
+        if (buffer_level >= BUFFER_STACK_SIZE) {
+            mcerror("Includes nested too deeply. Maximum include depth %d.", 
+                    BUFFER_STACK_SIZE);
+           return;
+        }
+        buffer_stack[buffer_level].fin         = fin;
+        buffer_stack[buffer_level].filename    = filename;
+        buffer_stack[buffer_level].dirname     = dirname;
+        buffer_stack[buffer_level].buf         = buf;
+        buffer_stack[buffer_level].bufp        = bufp;
+        buffer_stack[buffer_level].line_number = line_number;
     }
-    if (++include_level > MAX_INCLUDE_DEPTH) {
-        mcerror("Includes nested too deeply. Maximum include depth %d.", 
-                MAX_INCLUDE_DEPTH);
-        return;
-    }
-    /* create a new buffer */
+
+    /* Create a new buffer */
     filename = new_filename;
     dirname = get_path_name(filename);
-    fin = efopen( filename, "r" );
+    fin = efopen(filename, "r");
     buf = emalloc(MAXLINE + 1);
     buf[0] = 0;
     bufp = buf;
     line_number = 0;
+
+    /* increase buffer level */
+    buffer_level++;
 } 
 
-static void close_buffer(void) {
-   /* Closes the current buffer */
+/* Closes the current buffer and restores the previous buffer */
+void close_buffer(void) {
+ 
+    if (buffer_level < 0) {
+      return;
+    }
+
+    /* Close buffer and free memory */
     fclose(fin);
     free(buf);
+    fin = NULL;
+    buf = NULL;
     bufp = NULL;
-    /* if include_level = 0: filename is a pointer to the local stack variable fname in mcexec. */
-    /* if include_level > 0: filename was allocated with malloc in get_includefilename(). */
-    if (include_level > 0) {
+    line_number = 0;
+
+    /* if buffer_level = 0: filename is a pointer to the local stack variable fname in mcexec,
+     *                      so do not free.
+    /* if buffer_level > 0: filename was allocated with malloc in get_includefilename(). */
+    if (buffer_level > 0) {
       	free(filename);
+        filename = NULL;
     }
     free(dirname); /* dirname was allocated in get_path_name */
-    if (--include_level >= 0) { 	
-        /* restore previous buffer information */
-        fin         = include_stack[include_level].fin;
-        filename    = include_stack[include_level].filename;
-        dirname     = include_stack[include_level].dirname;
-        buf         = include_stack[include_level].buf;
-        bufp        = include_stack[include_level].bufp;
-        line_number = include_stack[include_level].line_number;
+    dirname = NULL;
+
+    /* Restore previous buffer */
+    if (--buffer_level >= 0) { 	
+        fin         = buffer_stack[buffer_level].fin;
+        filename    = buffer_stack[buffer_level].filename;
+        dirname     = buffer_stack[buffer_level].dirname;
+        buf         = buffer_stack[buffer_level].buf;
+        bufp        = buffer_stack[buffer_level].bufp;
+        line_number = buffer_stack[buffer_level].line_number;
     } 
 }
 
@@ -511,10 +550,10 @@ static void get_comment(void) {
     if (write_preproc_file) fputc('\n', fp_preproc);
 }
 
+/* Returns the name of the include file based on the specified
+ * include filename and the include search paths
+ */
 static char * get_includefile(void) {
-   /* Returns the name of the include file based on the specified
-    * include filename and the include search paths
-    */
    /* remove the quotes from mctext */
    char *includefile;
    int len = strlen(mctext) - 2;
@@ -526,9 +565,9 @@ static char * get_includefile(void) {
    if (includefile == NULL) {
        mcerror("Include file %s not found", includename);
    }
-    free(includename);
-    return includefile;
- }
+   free(includename);
+   return includefile;
+}
 
 static void push_if_stack(int branch_taken) {
     if (if_level >= MAX_IF_DEPTH - 1) {
