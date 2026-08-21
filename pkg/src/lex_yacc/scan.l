@@ -25,7 +25,7 @@ static void  close_preproc_file(void);
 static void  get_comment (void);
 static char* get_includefile ( void );
 static int   mcgetc(void);
-static int   push_if_stack(int branch_taken);
+static void  push_if_stack(int branch_taken);
 
 typedef struct _selem {
     FILE   *fin;
@@ -180,17 +180,16 @@ endif    "#ENDIF"
 
 <get_flag>[ \t]*   
  <get_flag>{name}   {
-                        if (pending_directive == DIR_IF) {
-                            int cond = flag_present(mctext);
-                            if (push_if_stack(cond ? 1 : 0)) yyterminate();
-                            pending_directive = DIR_NONE;
-
-                          if (if_stack[if_level].skipping) {
-                            skip_target_level = if_level;
-                            BEGIN(skip);
-                          } else {
-                            BEGIN(INITIAL);
-                          }
+                       if (pending_directive == DIR_IF) {
+                           int cond = flag_present(mctext);
+                           push_if_stack(cond ? 1 : 0);
+                           pending_directive = DIR_NONE;
+                           if (if_stack[if_level].skipping) {
+                               skip_target_level = if_level;
+                               BEGIN(skip);
+                            } else {
+                               BEGIN(INITIAL);
+                            }
                       } else if (pending_directive == DIR_ELSEIF) {
                           if (if_level < 0) {
                             mcerror("Internal: #ELSEIF without #IF at line %u of %s",
@@ -225,8 +224,8 @@ endif    "#ENDIF"
                    }
 
 <skip>{if}      {
-                    if (push_if_stack(0)) yyterminate();
-                  }
+                    push_if_stack(0);
+                 }
 
 <skip>{elseif}  {
                   if (if_level < 0) {
@@ -295,7 +294,7 @@ endif    "#ENDIF"
                mcerror("Unmatched #IF: missing %d #ENDIF(s) at EOF (last opened at line %u of %s)",
                        if_level + 1, if_stack[if_level].start_line, filename);
             }
-            yyterminate();
+            stop_parsing();
           } else {
             /* close the current buffer and restore the previous buffer */
             close_buffer();
@@ -529,16 +528,15 @@ static char * get_includefile(void) {
     return includefile;
  }
 
-static int push_if_stack(int branch_taken) {
+static void push_if_stack(int branch_taken) {
     if (if_level >= MAX_IF_DEPTH - 1) {
         mcerror("#IF stack overflow (max %d) at line %u of %s, parsing terminated", MAX_IF_DEPTH,
                 (unsigned) line_number, filename);
-        return 1;
+        stop_parsing();
     }
     if_level++;
     if_stack[if_level].branch_taken = branch_taken;
     if_stack[if_level].else_seen    = 0;
     if_stack[if_level].skipping     = branch_taken ? 0 : 1;
     if_stack[if_level].start_line   = line_number;
-    return 0;
 }

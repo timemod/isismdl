@@ -1,5 +1,5 @@
 /*
- * do something with .tsp/.mdl model definition file
+ * Driver of the model parser and scanner
  *
  */
 
@@ -8,6 +8,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <time.h>
+#include <setjmp.h>
 
 #include "symbol.h"
 #include "xpcdef.h"
@@ -33,6 +34,13 @@
 #define FILE_ERROR    1
 #define SYNTAX_ERROR  2
 #define OUT_OF_MEMORY 4
+
+/* error code when the parsing is stopped due to a 
+ * fatal error in scanner */
+#define PARSE_ERROR_LEXER  3  
+
+/* Define the jmp_buf exactly once (no static here). */
+jmp_buf parse_abort_jmp;
 
 /*
  * global variables
@@ -80,6 +88,16 @@ static void reset(void) {
         free_polish();
     }
     clear_flags();
+}
+
+int run_parser(void) {
+    if (setjmp(parse_abort_jmp) == 0) {
+        /* normal execution path */
+        return mcparse();
+    } else {
+        /* returned here via function stop_parsing() called in the scanner */
+        return PARSE_ERROR_LEXER;
+    }
 }
 
 /* Call the model parsers.
@@ -213,11 +231,11 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
      */
     mcparse_init();
 
-    mcparse();
-    
-    /* now clean up memory of the parser */
-    reset_scanner();
+    run_parser();
 
+    /* clean the scanner */
+    reset_scanner();
+    
     if (options.ShowTiming) {
         te = clock();
         cpusecs = CPUSECS(tb,te);
@@ -355,6 +373,13 @@ void mcwarn(const char *fmt , ... ) {
     vmessage(fmt, args);
     va_end(args);
 }
+
+/* wrapper the scanner calls */
+void stop_parsing(void) {
+    /* jump back to the driver's setjmp site */
+    longjmp(parse_abort_jmp, 1);
+}
+
 
 static FILE *fzzout = NULL;
 
