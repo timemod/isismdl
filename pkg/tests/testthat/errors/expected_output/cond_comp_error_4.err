@@ -1,4 +1,4 @@
 Stray #ELSEIF without matching #IF at line 2 of model_text
 Line: 2 of file model_text
  #elseif a
-       ^
+          ^
