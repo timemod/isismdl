@@ -196,3 +196,28 @@ x = 1;
     update = TRUE
   )
 })
+
+test_that("#IF in included filename", {
+
+  expect_error(
+    mdl <- isis_mdl("mdl/cond_comp1.mdl", silent = TRUE)
+  )
+
+  update_expected <- TRUE
+  expect_known_error_file(
+    "mdl/cond_comp1.err",
+    file = "expected_output/cond_comp_error_8.err",
+    update = update_expected
+  )
+
+  expect_error(
+    mdl <- isis_mdl("mdl/cond_comp1.mdl",
+                    parse_options = list(flags = "incl"),
+                    silent = TRUE)
+  )
+  expect_known_error_file(
+    "mdl/cond_comp1.err",
+    file = "expected_output/cond_comp_error_9.err",
+    update = update_expected
+  )
+})

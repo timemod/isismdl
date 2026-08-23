@@ -26,6 +26,7 @@ static void  get_comment (void);
 static char* get_includefile ( void );
 static int   mcgetc(void);
 static void  push_if_stack(int branch_taken);
+static void  pop_if_stack(void);
 
 /* variables for the buffers */
 typedef struct _selem {
@@ -57,10 +58,12 @@ static unsigned int line_number;
 #define MAX_IF_DEPTH 10
 
 typedef struct {
-  int branch_taken;     /* 1 if some branch (#IF or #ELSEIF or #ELSE) of this #IF was taken */
-  int else_seen;        /* 1 if an #ELSE has already been used (error if repeated) */
-  int skipping;         /* 1 if the current active branch at this level is being skipped */
+  int branch_taken;        /* 1 if some branch (#IF or #ELSEIF or #ELSE) of this #IF was taken */
+  int else_seen;           /* 1 if an #ELSE has already been used (error if repeated) */
+  int skipping;            /* 1 if the current active branch at this level is being skipped */
   unsigned int start_line; /* line where this #IF was seen (for error messages) */
+  int in_included_file;    /* 1 if the #IF statement occurs in an included file */
+  char *filename; 
 } if_state_t;
 
 static if_state_t if_stack[MAX_IF_DEPTH];
@@ -170,7 +173,7 @@ endif    "#ENDIF"
                        mcerror("Stray #ENDIF without matching #IF at line %u of %s",
                                (unsigned) line_number, filename);
                      } else {
-                       if_level--;
+                       pop_if_stack();
                        if (if_level >= 0 && if_stack[if_level].skipping) {
                          skip_target_level = if_level;
                          BEGIN(skip);
@@ -265,7 +268,7 @@ endif    "#ENDIF"
                     mcerror("Stray #ENDIF without matching #IF at line %u of %s",
                             (unsigned) line_number, filename);
                   } else if (if_level == skip_target_level) {
-                    if_level--;
+                    pop_if_stack();
                     if (if_level < 0) {
                       skip_target_level = -1;
                       BEGIN(INITIAL);
@@ -277,7 +280,7 @@ endif    "#ENDIF"
                       BEGIN(INITIAL);
                     }
                   } else {
-                    if_level--;
+                    pop_if_stack();
                   }
                 }
 
@@ -289,7 +292,8 @@ endif    "#ENDIF"
             /* EOF in main mdl file, terminate the scanner */
             if (if_level >= 0) {
                mcerror("Unmatched #IF: missing %d #ENDIF(s) at EOF (last opened at line %u of %s)",
-                       if_level + 1, if_stack[if_level].start_line, filename);
+                       if_level + 1, if_stack[if_level].start_line, 
+                       if_stack[if_level].filename);
             }
             close_preproc_file();
             yyterminate();
@@ -576,9 +580,37 @@ static void push_if_stack(int branch_taken) {
         stop_parsing();
         return;
     }
+
+    int in_included_file = buffer_level > 0;
+
     if_level++;
     if_stack[if_level].branch_taken = branch_taken;
     if_stack[if_level].else_seen    = 0;
     if_stack[if_level].skipping     = branch_taken ? 0 : 1;
     if_stack[if_level].start_line   = line_number;
+    if_stack[if_level].in_included_file  = in_included_file;
+
+    /* Store the current filename. */
+    if (in_included_file) {
+        /* An included filename may be deallocated when the 
+         * buffer for the included file is closed, therefore
+         * creat a copy  */
+        size_t len = strlen(filename);
+        char *filename_copy = emalloc(len + 1);
+        memcpy(filename_copy, filename, len + 1);
+        if_stack[if_level].filename = filename_copy;
+     } else {
+        if_stack[if_level].filename = filename;
+     }
+}
+
+static void pop_if_stack(void) {
+
+  if (if_level < 0) return;
+
+  if (if_stack[if_level].in_included_file) {
+     free(if_stack[if_level].filename);
+  } 
+
+  if_level--;
 }
