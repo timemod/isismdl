@@ -2629,6 +2629,16 @@ void close_scanner(void) {
       close_preproc_file();
     }
 
+    /* clean up allocated filenames if #if statement were not terminated */
+    if (if_level >= 0) {
+        int i;
+        for (i = 0; i < if_level; i++) {
+            if (if_stack[if_level].in_included_file) {
+                 free(if_stack[if_level].filename);
+            } 
+        }
+    }
+
     /* reset conditional stack */
     if_level = -1;
     pending_directive = DIR_NONE;
@@ -2654,6 +2664,8 @@ void close_scanner(void) {
       }
     }
     buffer_level = -1;
+
+
 }
 
 /*
@@ -2827,10 +2839,11 @@ static void push_if_stack(int branch_taken) {
     if_stack[if_level].start_line   = line_number;
     if_stack[if_level].in_included_file  = in_included_file;
 
+    /* Store the current filename. */
     if (in_included_file) {
-        /* Store the current filename. Note that 'filename'
-         * may be dellocated when an included file is closed,
-         * therefore create a new object */
+        /* An included filename may be deallocated when the 
+         * buffer for the included file is closed, therefore
+         * creat a copy  */
         size_t len = strlen(filename);
         char *filename_copy = emalloc(len + 1);
         memcpy(filename_copy, filename, len + 1);

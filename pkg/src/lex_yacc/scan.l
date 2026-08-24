@@ -392,6 +392,16 @@ void close_scanner(void) {
       close_preproc_file();
     }
 
+    /* clean up allocated filenames if #if statement were not terminated */
+    if (if_level >= 0) {
+        int i;
+        for (i = 0; i < if_level; i++) {
+            if (if_stack[if_level].in_included_file) {
+                 free(if_stack[if_level].filename);
+            } 
+        }
+    }
+
     /* reset conditional stack */
     if_level = -1;
     pending_directive = DIR_NONE;
@@ -417,6 +427,8 @@ void close_scanner(void) {
       }
     }
     buffer_level = -1;
+
+
 }
 
 /*
