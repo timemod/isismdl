@@ -4,7 +4,7 @@ library(testthat)
 
 rm(list = ls())
 
-update_expected <- TRUE
+update_expected <- FALSE
 
 compile_mdl <- function(model_text, flags = character(0)) {
   mdl <- isis_mdl(model_text = model_text, silent = TRUE,
