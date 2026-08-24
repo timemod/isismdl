@@ -137,14 +137,15 @@ endif    "#ENDIF"
                    }
 
 {elseif}           { 
-                     if (if_level >=0 && if_stack[if_level].branch_taken) {
+                     if (if_level < 0) {
+                       mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
+                                (unsigned) line_number, filename);
+                     } else  {
                        skip_target_level = if_level;
-                       // TODO: should skipping not be set to 1 here?
+                       if_stack[if_level].skipping = 1;
                        BEGIN(skip);
-                     } else {
-                       pending_directive = DIR_ELSEIF;
-                       BEGIN(get_flag);
                      }
+                   // TODO check that #elseif does not occur after #else
                    }
 
 {else}             {
