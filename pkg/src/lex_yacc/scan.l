@@ -140,12 +140,15 @@ endif    "#ENDIF"
                      if (if_level < 0) {
                        mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
                                 (unsigned) line_number, filename);
+                     } else if (if_stack[if_level].else_seen) {
+                        mcerror("#ELSEIF after #ELSE is not allowed at line %u of %s",
+                                (unsigned) line_number, filename);
                      } else  {
                        skip_target_level = if_level;
                        if_stack[if_level].skipping = 1;
                        BEGIN(skip);
                      }
-                   // TODO check that #elseif does not occur after #else
+                     // TODO check that #elseif does not occur after #else
                    }
 
 {else}             {
@@ -157,15 +160,9 @@ endif    "#ENDIF"
                                 (unsigned) line_number, filename);
                      } else {
                        if_stack[if_level].else_seen = 1;
-                       if (if_stack[if_level].branch_taken) {
-                         // TODO: should skipping not be set to 1 here?
-                         skip_target_level = if_level;
-                         BEGIN(skip);
-                       } else {
-                         if_stack[if_level].branch_taken = 1;
-                         if_stack[if_level].skipping = 0;
-                         BEGIN(INITIAL);
-                       }
+                       skip_target_level = if_level;
+                       if_stack[if_level].skipping = 1;
+                       BEGIN(skip);
                      }
                    }
 
@@ -175,12 +172,7 @@ endif    "#ENDIF"
                                (unsigned) line_number, filename);
                      } else {
                        pop_if_stack();
-                       if (if_level >= 0 && if_stack[if_level].skipping) {
-                         skip_target_level = if_level;
-                         BEGIN(skip);
-                       } else {
-                         BEGIN(INITIAL);
-                       } 
+                       BEGIN(INITIAL);
                      }
                    }
 
@@ -200,11 +192,6 @@ endif    "#ENDIF"
                           if (if_level < 0) {
                             mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
                                     (unsigned) line_number, filename);
-                            pending_directive = DIR_NONE;
-                            BEGIN(INITIAL);
-                          } else if (if_stack[if_level].else_seen) {
-                            mcerror("#ELSEIF after #ELSE is not allowed at line %u of %s",
-                                     (unsigned) line_number, filename);
                             pending_directive = DIR_NONE;
                             BEGIN(INITIAL);
                           } else if (if_stack[if_level].branch_taken) {
@@ -237,8 +224,10 @@ endif    "#ENDIF"
                    if (if_level < 0) {
                      mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
                              (unsigned) line_number, filename);
-                   } else if (if_level == skip_target_level && 
-                              !if_stack[if_level].branch_taken) {
+                   } else if (if_stack[if_level].else_seen) {
+                      mcerror("#ELSEIF after #ELSE is not allowed at line %u of %s",
+                              (unsigned) line_number, filename);
+                   } else if (if_level == skip_target_level) {
                       pending_directive = DIR_ELSEIF;
                       BEGIN(get_flag);
                   }
@@ -248,18 +237,16 @@ endif    "#ENDIF"
                   if (if_level < 0) {
                     mcerror("Stray #ELSE without matching #IF at line %u of %s",
                             (unsigned) line_number, filename);
-                  } else if (if_level == skip_target_level) {
-                    if (if_stack[if_level].else_seen) {
-                      mcerror("Multiple #ELSE in same #IF at line %u of %s",
+                  } else if (if_stack[if_level].else_seen) {
+                     mcerror("Multiple #ELSE in same #IF at line %u of %s",
                               (unsigned) line_number, filename);
-                    } else {
-                      if_stack[if_level].else_seen = 1;
-                      if (!if_stack[if_level].branch_taken) {
-                        if_stack[if_level].branch_taken = 1;
-                        if_stack[if_level].skipping = 0;
-                        skip_target_level = -1;
-                        BEGIN(INITIAL);
-                      }
+                  } else {
+                    if_stack[if_level].else_seen = 1;
+                    if (if_level == skip_target_level && !if_stack[if_level].branch_taken) {
+                       if_stack[if_level].branch_taken = 1;
+                       if_stack[if_level].skipping = 0;
+                       skip_target_level = -1;
+                       BEGIN(INITIAL);
                     }
                   }
                 }

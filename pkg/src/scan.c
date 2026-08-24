@@ -1230,17 +1230,20 @@ YY_RULE_SETUP
                      if (if_level < 0) {
                        mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
                                 (unsigned) line_number, filename);
+                     } else if (if_stack[if_level].else_seen) {
+                        mcerror("#ELSEIF after #ELSE is not allowed at line %u of %s",
+                                (unsigned) line_number, filename);
                      } else  {
                        skip_target_level = if_level;
                        if_stack[if_level].skipping = 1;
                        BEGIN(skip);
                      }
-                   // TODO check that #elseif does not occur after #else
+                     // TODO check that #elseif does not occur after #else
                    }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 151 "pkg/src/lex_yacc/scan.l"
+#line 154 "pkg/src/lex_yacc/scan.l"
 {
                      if (if_level < 0) {
                        mcerror("Stray #ELSE without matching #IF at line %u of %s",
@@ -1250,44 +1253,33 @@ YY_RULE_SETUP
                                 (unsigned) line_number, filename);
                      } else {
                        if_stack[if_level].else_seen = 1;
-                       if (if_stack[if_level].branch_taken) {
-                         // TODO: should skipping not be set to 1 here?
-                         skip_target_level = if_level;
-                         BEGIN(skip);
-                       } else {
-                         if_stack[if_level].branch_taken = 1;
-                         if_stack[if_level].skipping = 0;
-                         BEGIN(INITIAL);
-                       }
+                       skip_target_level = if_level;
+                       if_stack[if_level].skipping = 1;
+                       BEGIN(skip);
                      }
                    }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 172 "pkg/src/lex_yacc/scan.l"
+#line 169 "pkg/src/lex_yacc/scan.l"
 {
                      if (if_level < 0) {
                        mcerror("Stray #ENDIF without matching #IF at line %u of %s",
                                (unsigned) line_number, filename);
                      } else {
                        pop_if_stack();
-                       if (if_level >= 0 && if_stack[if_level].skipping) {
-                         skip_target_level = if_level;
-                         BEGIN(skip);
-                       } else {
-                         BEGIN(INITIAL);
-                       } 
+                       BEGIN(INITIAL);
                      }
                    }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 187 "pkg/src/lex_yacc/scan.l"
+#line 179 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 188 "pkg/src/lex_yacc/scan.l"
+#line 180 "pkg/src/lex_yacc/scan.l"
 {
                        if (pending_directive == DIR_IF) {
                            int cond = flag_present(mctext);
@@ -1303,11 +1295,6 @@ YY_RULE_SETUP
                           if (if_level < 0) {
                             mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
                                     (unsigned) line_number, filename);
-                            pending_directive = DIR_NONE;
-                            BEGIN(INITIAL);
-                          } else if (if_stack[if_level].else_seen) {
-                            mcerror("#ELSEIF after #ELSE is not allowed at line %u of %s",
-                                     (unsigned) line_number, filename);
                             pending_directive = DIR_NONE;
                             BEGIN(INITIAL);
                           } else if (if_stack[if_level].branch_taken) {
@@ -1334,20 +1321,22 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 232 "pkg/src/lex_yacc/scan.l"
+#line 219 "pkg/src/lex_yacc/scan.l"
 {
                     push_if_stack(0);
                  }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 236 "pkg/src/lex_yacc/scan.l"
+#line 223 "pkg/src/lex_yacc/scan.l"
 {
                    if (if_level < 0) {
                      mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
                              (unsigned) line_number, filename);
-                   } else if (if_level == skip_target_level && 
-                              !if_stack[if_level].branch_taken) {
+                   } else if (if_stack[if_level].else_seen) {
+                      mcerror("#ELSEIF after #ELSE is not allowed at line %u of %s",
+                              (unsigned) line_number, filename);
+                   } else if (if_level == skip_target_level) {
                       pending_directive = DIR_ELSEIF;
                       BEGIN(get_flag);
                   }
@@ -1355,30 +1344,28 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 247 "pkg/src/lex_yacc/scan.l"
+#line 236 "pkg/src/lex_yacc/scan.l"
 {
                   if (if_level < 0) {
                     mcerror("Stray #ELSE without matching #IF at line %u of %s",
                             (unsigned) line_number, filename);
-                  } else if (if_level == skip_target_level) {
-                    if (if_stack[if_level].else_seen) {
-                      mcerror("Multiple #ELSE in same #IF at line %u of %s",
+                  } else if (if_stack[if_level].else_seen) {
+                     mcerror("Multiple #ELSE in same #IF at line %u of %s",
                               (unsigned) line_number, filename);
-                    } else {
-                      if_stack[if_level].else_seen = 1;
-                      if (!if_stack[if_level].branch_taken) {
-                        if_stack[if_level].branch_taken = 1;
-                        if_stack[if_level].skipping = 0;
-                        skip_target_level = -1;
-                        BEGIN(INITIAL);
-                      }
+                  } else {
+                    if_stack[if_level].else_seen = 1;
+                    if (if_level == skip_target_level && !if_stack[if_level].branch_taken) {
+                       if_stack[if_level].branch_taken = 1;
+                       if_stack[if_level].skipping = 0;
+                       skip_target_level = -1;
+                       BEGIN(INITIAL);
                     }
                   }
                 }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 267 "pkg/src/lex_yacc/scan.l"
+#line 254 "pkg/src/lex_yacc/scan.l"
 {
                   if (if_level < 0) {
                     mcerror("Stray #ENDIF without matching #IF at line %u of %s",
@@ -1402,20 +1389,20 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 288 "pkg/src/lex_yacc/scan.l"
+#line 275 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 289 "pkg/src/lex_yacc/scan.l"
+#line 276 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(incl):
 case YY_STATE_EOF(get_flag):
 case YY_STATE_EOF(skip):
-#line 291 "pkg/src/lex_yacc/scan.l"
+#line 278 "pkg/src/lex_yacc/scan.l"
 {
           if (buffer_level == 0) { 
             /* EOF in main mdl file, terminate the scanner */
@@ -1435,117 +1422,117 @@ case YY_STATE_EOF(skip):
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 308 "pkg/src/lex_yacc/scan.l"
+#line 295 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 309 "pkg/src/lex_yacc/scan.l"
+#line 296 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 310 "pkg/src/lex_yacc/scan.l"
+#line 297 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); get_comment();}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 311 "pkg/src/lex_yacc/scan.l"
+#line 298 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = mctext[0]; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 312 "pkg/src/lex_yacc/scan.l"
+#line 299 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_POW; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 313 "pkg/src/lex_yacc/scan.l"
+#line 300 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GT;  }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 314 "pkg/src/lex_yacc/scan.l"
+#line 301 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GE;  }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 315 "pkg/src/lex_yacc/scan.l"
+#line 302 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LT;  }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 316 "pkg/src/lex_yacc/scan.l"
+#line 303 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LE;  }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 317 "pkg/src/lex_yacc/scan.l"
+#line 304 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 318 "pkg/src/lex_yacc/scan.l"
+#line 305 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 319 "pkg/src/lex_yacc/scan.l"
+#line 306 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NOT; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 320 "pkg/src/lex_yacc/scan.l"
+#line 307 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_EQ;  }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 321 "pkg/src/lex_yacc/scan.l"
+#line 308 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 322 "pkg/src/lex_yacc/scan.l"
+#line 309 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GT;  }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 323 "pkg/src/lex_yacc/scan.l"
+#line 310 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GE;  }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 324 "pkg/src/lex_yacc/scan.l"
+#line 311 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LT;  }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 325 "pkg/src/lex_yacc/scan.l"
+#line 312 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LE;  }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 326 "pkg/src/lex_yacc/scan.l"
+#line 313 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NOT; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 327 "pkg/src/lex_yacc/scan.l"
+#line 314 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 328 "pkg/src/lex_yacc/scan.l"
+#line 315 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 329 "pkg/src/lex_yacc/scan.l"
+#line 316 "pkg/src/lex_yacc/scan.l"
 {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 331 "pkg/src/lex_yacc/scan.l"
+#line 318 "pkg/src/lex_yacc/scan.l"
 {       if (write_preproc_file) fputs(mctext, fp_preproc);
                 /*
                  * lookup symbol and if it does not exist
@@ -1562,27 +1549,27 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 345 "pkg/src/lex_yacc/scan.l"
+#line 332 "pkg/src/lex_yacc/scan.l"
 ; 
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
-#line 347 "pkg/src/lex_yacc/scan.l"
+#line 334 "pkg/src/lex_yacc/scan.l"
 if (write_preproc_file) fputs(mctext, fp_preproc);
 	YY_BREAK
 /* skip other whitespace and newline */
 case 42:
 YY_RULE_SETUP
-#line 350 "pkg/src/lex_yacc/scan.l"
+#line 337 "pkg/src/lex_yacc/scan.l"
 {if (!scanning) mcerror( "Illegal character in input" );}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 352 "pkg/src/lex_yacc/scan.l"
+#line 339 "pkg/src/lex_yacc/scan.l"
 ECHO;
 	YY_BREAK
-#line 1586 "pkg/src/scan.c"
+#line 1573 "pkg/src/scan.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2585,7 +2572,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 352 "pkg/src/lex_yacc/scan.l"
+#line 339 "pkg/src/lex_yacc/scan.l"
 
 int mcwrap(void) {
   return 1;
