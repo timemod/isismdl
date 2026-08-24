@@ -12,7 +12,33 @@ compile_mdl <- function(model_text, flags = character(0)) {
   return(mdl$get_text())
 }
 
-model_text <- glue::glue("
+test_that("simple", {
+
+  model_text <- glue::glue("
+     x = 1;
+     #if a1
+       a1 = 1;
+     #elseif a2
+       a2 = 1;
+     #elseif a3
+       a2 = 1;
+     #else
+       a4 = 1;
+     #endif
+     y = 2;
+    ")
+
+  expect_known_output(
+    cat(compile_mdl(model_text, flags = "a1")),
+    "expected_output/conditional2_simple_1.txt",
+    update = update_expected
+  )
+
+})
+
+test_that("complex conditional expression", {
+
+  model_text <- glue::glue("
      x = 1;
      #if a1
        a1 = 1;
@@ -57,7 +83,6 @@ model_text <- glue::glue("
      y = 2;
     ")
 
-test_that("#if statements are parsed correctly", {
 
   flags <- c(
     "",

@@ -27,6 +27,8 @@ static char* get_includefile ( void );
 static int   mcgetc(void);
 static void  push_if_stack(int branch_taken);
 static void  pop_if_stack(void);
+static void  set_get_flag_start_condition(int directive);
+static void  set_skip_start_condition();
 
 /* variables for the buffers */
 typedef struct _selem {
@@ -60,7 +62,6 @@ static unsigned int line_number;
 typedef struct {
   int branch_taken;        /* 1 if some branch (#IF or #ELSEIF or #ELSE) of this #IF was taken */
   int else_seen;           /* 1 if an #ELSE has already been used (error if repeated) */
-  int skipping;            /* 1 if the current active branch at this level is being skipped */
   unsigned int start_line; /* line where this #IF was seen (for error messages) */
   int in_included_file;    /* 1 if the #IF statement occurs in an included file */
   char *filename; 
@@ -72,7 +73,9 @@ static int if_level = -1;            /* -1 == not inside any #IF */
 static int pending_directive = 0;    /* DIR_NONE, DIR_IF, DIR_ELSEIF */
 enum { DIR_NONE = 0, DIR_IF = 1, DIR_ELSEIF = 2 };
 
-static int skip_target_level = -1;   /* index of the if_level that started the current skip */
+ /* index of the if_level that started the current skip 
+    all if statements with higher levels are also skipped */
+static int skip_target_level = -1;  
 
 /* --------------------------------------------------------------- */
 
@@ -131,9 +134,8 @@ endif    "#ENDIF"
                 BEGIN(INITIAL);
               }
 
-{if}               {
-                     pending_directive = DIR_IF;
-                     BEGIN(get_flag);
+{if}               { 
+                     set_get_flag_start_condition(DIR_IF);
                    }
 
 {elseif}           { 
@@ -144,11 +146,8 @@ endif    "#ENDIF"
                         mcerror("#ELSEIF after #ELSE is not allowed at line %u of %s",
                                 (unsigned) line_number, filename);
                      } else  {
-                       skip_target_level = if_level;
-                       if_stack[if_level].skipping = 1;
-                       BEGIN(skip);
+                       set_skip_start_condition();
                      }
-                     // TODO check that #elseif does not occur after #else
                    }
 
 {else}             {
@@ -160,9 +159,7 @@ endif    "#ENDIF"
                                 (unsigned) line_number, filename);
                      } else {
                        if_stack[if_level].else_seen = 1;
-                       skip_target_level = if_level;
-                       if_stack[if_level].skipping = 1;
-                       BEGIN(skip);
+                       set_skip_start_condition();
                      }
                    }
 
@@ -172,7 +169,6 @@ endif    "#ENDIF"
                                (unsigned) line_number, filename);
                      } else {
                        pop_if_stack();
-                       BEGIN(INITIAL);
                      }
                    }
 
@@ -180,34 +176,24 @@ endif    "#ENDIF"
  <get_flag>{name}   {
                        if (pending_directive == DIR_IF) {
                            int cond = flag_present(mctext);
-                           push_if_stack(cond ? 1 : 0);
-                           pending_directive = DIR_NONE;
-                           if (if_stack[if_level].skipping) {
-                               skip_target_level = if_level;
-                               BEGIN(skip);
-                            } else {
-                               BEGIN(INITIAL);
-                            }
+                           push_if_stack(cond);
+                           if (cond) {
+                              BEGIN(INITIAL);
+                           } else {
+                              set_skip_start_condition();
+                           }
                       } else if (pending_directive == DIR_ELSEIF) {
                           if (if_level < 0) {
                             mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
                                     (unsigned) line_number, filename);
-                            pending_directive = DIR_NONE;
                             BEGIN(INITIAL);
-                          } else if (if_stack[if_level].branch_taken) {
-                            pending_directive = DIR_NONE;
-                            skip_target_level = if_level;
-                            BEGIN(skip);
                           } else {
                             int cond = flag_present(mctext);
                             if_stack[if_level].branch_taken = cond ? 1 : 0;
-                            if_stack[if_level].skipping     = cond ? 0 : 1;
-                            pending_directive = DIR_NONE;
-                            if (if_stack[if_level].skipping) {
-                              skip_target_level = if_level;
-                              BEGIN(skip);
-                            } else {
+                            if (cond) {
                               BEGIN(INITIAL);
+                            } else {
+                              set_skip_start_condition();
                             }
                           }
                       } else {
@@ -227,10 +213,10 @@ endif    "#ENDIF"
                    } else if (if_stack[if_level].else_seen) {
                       mcerror("#ELSEIF after #ELSE is not allowed at line %u of %s",
                               (unsigned) line_number, filename);
-                   } else if (if_level == skip_target_level) {
-                      pending_directive = DIR_ELSEIF;
-                      BEGIN(get_flag);
-                  }
+                   } else if (if_level == skip_target_level &&
+                              !if_stack[if_level].branch_taken) {
+                      set_get_flag_start_condition(DIR_ELSEIF);
+                   }
                 }
 
 <skip>{else}    {
@@ -242,10 +228,9 @@ endif    "#ENDIF"
                               (unsigned) line_number, filename);
                   } else {
                     if_stack[if_level].else_seen = 1;
-                    if (if_level == skip_target_level && !if_stack[if_level].branch_taken) {
+                    if (if_level == skip_target_level &&
+                        !if_stack[if_level].branch_taken) {
                        if_stack[if_level].branch_taken = 1;
-                       if_stack[if_level].skipping = 0;
-                       skip_target_level = -1;
                        BEGIN(INITIAL);
                     }
                   }
@@ -257,16 +242,8 @@ endif    "#ENDIF"
                             (unsigned) line_number, filename);
                   } else if (if_level == skip_target_level) {
                     pop_if_stack();
-                    if (if_level < 0) {
-                      skip_target_level = -1;
-                      BEGIN(INITIAL);
-                    } else if (if_stack[if_level].skipping) {
-                      skip_target_level = if_level;
-                      BEGIN(skip);
-                    } else {
-                      skip_target_level = -1;
-                      BEGIN(INITIAL);
-                    }
+                    skip_target_level = -1;
+                    BEGIN(INITIAL);
                   } else {
                     pop_if_stack();
                   }
@@ -586,7 +563,6 @@ static void push_if_stack(int branch_taken) {
     if_level++;
     if_stack[if_level].branch_taken = branch_taken;
     if_stack[if_level].else_seen    = 0;
-    if_stack[if_level].skipping     = branch_taken ? 0 : 1;
     if_stack[if_level].start_line   = line_number;
     if_stack[if_level].in_included_file  = in_included_file;
 
@@ -613,4 +589,14 @@ static void pop_if_stack(void) {
   } 
 
   if_level--;
+}
+
+static void set_get_flag_start_condition(int directive) {
+  pending_directive = directive;
+  BEGIN(get_flag);
+}
+
+static void set_skip_start_condition(void) {
+  skip_target_level = if_level;
+  BEGIN(skip);
 }

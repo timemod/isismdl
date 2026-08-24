@@ -10,12 +10,12 @@ update_expected <- FALSE
 
 source("../tools/expect_known_error_file.R")
 
-compile_mdl <- function(model_text, expected_emsg, ...) {
+compile_mdl <- function(model_text, expected_emsg, flags = character()) {
   mdl_file <- tempfile("isismdl_test_", fileext = ".mdl")
   err_file <- sub("\\.mdl$", ".err", mdl_file)
   writeLines(model_text, mdl_file)
   expect_error(
-    isis_mdl(mdl_file, silent = TRUE, ...),
+    isis_mdl(mdl_file, silent = TRUE, parse_options = list(flags = flags)),
     expected_emsg
   )
   if (file.exists(err_file)) {
@@ -49,7 +49,7 @@ test_that("missing endif", {
   )
 
   # with compiler flag "a" the result must be the same
-  err_text_2 <- compile_mdl(model_text, msg, parse_options = list(flags = "a"))
+  err_text_2 <- compile_mdl(model_text, msg,  flags = "a")
 
   expect_equal(err_text, err_text_2)
 })
@@ -184,11 +184,10 @@ x = 1;
 #endif
 ")
 
-
-
   err_text <- compile_mdl(
     model_text, msg,
-    parse_options = list(flags = paste0("a", 1:11, collapse = ",")))
+    flags = paste0("a", 1:11, collapse = ",")
+  )
 
   expect_known_output(
     cat(err_text),
@@ -220,4 +219,31 @@ test_that("#IF in included filename", {
     file = "expected_output/cond_comp_error_9.err",
     update = update_expected
   )
+})
+
+test_that("elseif after if", {
+  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
+
+  model_text <- glue::glue("
+     #if a
+     x = 1;
+     #else
+     x = 2;
+     #elseif b
+       y = 2;
+     #endif
+    ")
+
+  err_text <- compile_mdl(model_text, msg)
+
+
+  expect_known_output(
+    cat(err_text),
+    file = "expected_output/cond_comp_error_10.err",
+    update = update_expected
+  )
+
+  err_text_2 <- compile_mdl(model_text, msg, flags = "a")
+
+  expect_equal(err_text, err_text_2)
 })
