@@ -427,7 +427,7 @@ void open_buffer(char *new_filename) {
     buf = emalloc(BUF_SIZE);
     buf[0] = 0;
     bufp = buf;
-    line_number = 0;
+    line_number = 1;
 
     /* increase buffer level */
     buffer_level++;
@@ -473,10 +473,6 @@ static int mcgetc(void) {
         if ((bufp = fgets(buf, BUF_SIZE, fin)) == NULL)
             return EOF;
         pn = strchr(bufp, '\n');
-        /* TODO:  for very long lines longer than the buffer size line_nummer is
-         * more than 1 time. This may result in incorrect line numbers in 
-         * in error messages */
-        ++line_number;
         if (pn != NULL) {
             /* remove any \r before \n */
             if (pn > bufp && *(pn - 1) == '\r') {
@@ -492,6 +488,9 @@ static int mcgetc(void) {
         }
     }
     c = *bufp++;
+    if (c == '\n') {
+        line_number++;
+    }
     return c;
 }
 
