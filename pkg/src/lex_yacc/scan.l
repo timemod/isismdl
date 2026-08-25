@@ -32,6 +32,10 @@ static void  enter_get_flag(int directive);
 static void  enter_skip();
 static void  enter_initial(void);
 
+static inline void write_preproc_text(const char *text) {
+    if (write_preproc_file) fputs(text, fp_preproc);
+}
+
 /* variables for the buffers */
 typedef struct _selem {
     FILE   *fin;
@@ -266,30 +270,30 @@ endif    "#ENDIF"
           }
         }
 
-{inum}  {if (write_preproc_file) fputs(mctext, fp_preproc); mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
-{fnum}  {if (write_preproc_file) fputs(mctext, fp_preproc); mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
-"?"    {if (write_preproc_file) fputs(mctext, fp_preproc); get_comment();}
-[-=\[\]():;,+*/] {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = mctext[0]; }
-"**"      {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_POW; }
-\.GT\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GT;  }
-\.GE\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GE;  }
-\.LT\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LT;  }
-\.LE\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LE;  }
-\.AND\.   {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
-\.OR\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
-\.NOT\.   {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NOT; }
-\.EQ\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_EQ;  }
-\.NE\.    {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
-">"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GT;  }
-">="      {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_GE;  }
-"<"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LT;  }
-"<="      {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_LE;  }
-"^"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NOT; }
-"^="      {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_NE;  }
-"&"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_AND; }
-"|"       {if (write_preproc_file) fputs(mctext, fp_preproc); return mclval.ival = T_OR;  }
+{inum}  { write_preproc_text(mctext); mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
+{fnum}  { write_preproc_text(mctext); mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
+"?"    { write_preproc_text(mctext); get_comment();}
+[-=\[\]():;,+*/] { write_preproc_text(mctext); return mclval.ival = mctext[0]; }
+"**"      { write_preproc_text(mctext); return mclval.ival = T_POW; }
+\.GT\.    { write_preproc_text(mctext); return mclval.ival = T_GT;  }
+\.GE\.    { write_preproc_text(mctext); return mclval.ival = T_GE;  }
+\.LT\.    { write_preproc_text(mctext); return mclval.ival = T_LT;  }
+\.LE\.    { write_preproc_text(mctext); return mclval.ival = T_LE;  }
+\.AND\.   { write_preproc_text(mctext); return mclval.ival = T_AND; }
+\.OR\.    { write_preproc_text(mctext); return mclval.ival = T_OR;  }
+\.NOT\.   { write_preproc_text(mctext); return mclval.ival = T_NOT; }
+\.EQ\.    { write_preproc_text(mctext); return mclval.ival = T_EQ;  }
+\.NE\.    { write_preproc_text(mctext); return mclval.ival = T_NE;  }
+">"       { write_preproc_text(mctext); return mclval.ival = T_GT;  }
+">="      { write_preproc_text(mctext); return mclval.ival = T_GE;  }
+"<"       { write_preproc_text(mctext); return mclval.ival = T_LT;  }
+"<="      { write_preproc_text(mctext); return mclval.ival = T_LE;  }
+"^"       { write_preproc_text(mctext); return mclval.ival = T_NOT; }
+"^="      { write_preproc_text(mctext); return mclval.ival = T_NE;  }
+"&"       { write_preproc_text(mctext); return mclval.ival = T_AND; }
+"|"       { write_preproc_text(mctext); return mclval.ival = T_OR;  }
 
-{name}  {       if (write_preproc_file) fputs(mctext, fp_preproc);
+{name}  {       write_preproc_text(mctext);
                 /*
                  * lookup symbol and if it does not exist
                  * then give it type T_NAME 
@@ -305,7 +309,7 @@ endif    "#ENDIF"
 
 [\r]          ; 
 
-[ \v\f\t\n]  if (write_preproc_file) fputs(mctext, fp_preproc);
+[ \v\f\t\n]  write_preproc_text(mctext);
              /* skip other whitespace and newline */
 
 .       {if (!scanning) mcerror( "Illegal character in input" );}
