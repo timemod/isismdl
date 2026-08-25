@@ -464,17 +464,24 @@ static int mcgetc(void) {
     if (*bufp == 0) {
         if ((bufp = fgets(buf, BUF_SIZE, fin)) == NULL)
             return EOF;
-        else if ((pn = strchr(bufp, '\n')) == NULL) {
-            /* remove any \r at end */
-            if (pn && pn > bufp && *(pn - 1) == '\r') {
-                *(pn - 1) = '\n';
-                *pn       = '\0';
-            }
-        }
+        pn = strchr(bufp, '\n');
         /* TODO:  for very long lines longer than the buffer size line_nummer is
          * more than 1 time. This may result in incorrect line numbers in 
          * in error messages */
         ++line_number;
+        if (pn != NULL) {
+            /* remove any \r before \n */
+            if (pn > bufp && *(pn - 1) == '\r') {
+                *(pn - 1) = '\n';
+                *pn       = '\0';
+            }
+        } else {
+            /* no newline found, check for \r at end of buffer content */
+            size_t len = strlen(bufp);
+            if (len > 0 && bufp[len - 1] == '\r') {
+                bufp[len - 1] = '\0';
+            }
+        }
     }
     c = *bufp++;
     return c;
@@ -482,7 +489,15 @@ static int mcgetc(void) {
 
 void showbuf(FILE *fout) {
     char *p   = buf;
-    char *end = bufp ? bufp : strchr(buf,'\n') - 1;
+
+    char *end;
+    if (bufp != NULL) {
+        end = bufp;
+    } else {
+        char *pn = strchr(buf, '\n');
+        end = pn ? pn : buf + strlen(buf);
+    }
+
     int pos = 0;
     for ( ; *p && p < end ; p++) {
         if (*p == '\t')
