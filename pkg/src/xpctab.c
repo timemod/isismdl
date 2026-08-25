@@ -3082,26 +3082,13 @@ void    xpcerrmsg( char *fmt, ... )
     ++errflag;
 }
 
-void make_param(Symbol *sp)
-{
-    /*
-     * create a parameter variable
-     */
+/*
+ * create a parameter variable
+ */
+void make_param(Symbol *sp) {
 
     curpcnt = 0;
     Curparam = sp;
-
-    /*
-     * for non-strict compilation (parameters may be used
-     * before they have been defined), the model has already
-     * been scanned for parameters. All parameters are already 
-     * in the symbol table
-     */
-    if (!options.Strict) {
-       return;
-    }
-
-    /* the following code is for the strict compilation */
 
     char *pname = sp->name;
 
@@ -3144,16 +3131,12 @@ void set_parval()
      * save parameter values
      */
 
-     Param *p;
+    Param *p;
 
-     if (options.Strict) {
-         /* create a Param, and set its length.
-          * (for non-strict compilation this has already
-          * been done while scanning parameters */
-         Curparam->u.parp = p = emalloc( sizeof(Param) );
-         p->cnt = curpcnt;
-         p->par_index = parCount++; /* variable index (first variable has index 0) */
-     }
+    /* create a Param, and set its length */
+    Curparam->u.parp = p = emalloc( sizeof(Param) );
+    p->cnt = curpcnt;
+    p->par_index = parCount++; /* variable index (first variable has index 0) */
 
     if (options.McIsisMdl) {
         FNAME(save_parameter)((FINT *) &curpcnt, pval);

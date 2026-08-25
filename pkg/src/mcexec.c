@@ -189,34 +189,6 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
         return FILE_ERROR;
     }
 
-
-    if (!options.Strict) {
-         /* non-strict compilation: parameters may be used before
-          * they have been specified. Therefore first scan model
-          * for parameters
-          */
-
-        if (options.ShowTiming) {
-            Rprintf("Scanning model for parameters ...\n" );
-            tb = clock();
-        }
-        init_scanner(fname, NULL);
-        scanning = 1;
-        mc_scan_params();
-        scanning = 0;
-
-        mcrestart(NULL);
-
-        if (options.ShowTiming) {
-            te = clock();
-            cpusecs = CPUSECS(tb,te);
-            Rprintf("Scanning used %.2f seconds\n", cpusecs);
-
-            Rprintf("Parsing model ...\n" );
-            tb = clock();
-        }
-    }
-
     if (options.ShowTiming) {
        tb = clock();
     }

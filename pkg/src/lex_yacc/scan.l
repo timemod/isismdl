@@ -32,10 +32,6 @@ static void  enter_get_flag(int directive);
 static void  enter_skip();
 static void  enter_initial(void);
 
-static inline void write_preproc_text(const char *text) {
-    if (write_preproc_file) fputs(text, fp_preproc);
-}
-
 /* variables for the buffers */
 typedef struct _selem {
     FILE   *fin;
@@ -81,6 +77,10 @@ enum { DIR_NONE = 0, DIR_IF = 1, DIR_ELSEIF = 2 };
  /* index of the if_level that started the current skip 
     all if statements with higher levels are also skipped */
 static int skip_target_level = -1;  
+
+static inline void write_preproc_text(const char *text) {
+    if (write_preproc_file) fputs(text, fp_preproc);
+}
 
 /* --------------------------------------------------------------- */
 
@@ -318,10 +318,11 @@ endif    "#ENDIF"
 int mcwrap(void) {
   return 1;
 }
+
+/*
+ * Initialise the scanner for the specified filename 
+ */
 void init_scanner(char *filenm, const char *filenm_preproc) {
-   /*
-    * Initialise the scanner for the specified filename 
-    */
    buffer_level = -1;
    if_level = -1;
    pending_directive = DIR_NONE;
@@ -332,11 +333,15 @@ void init_scanner(char *filenm, const char *filenm_preproc) {
 
    /* Open the pproc file */
    write_preproc_file = filenm_preproc != NULL;
-   if (write_preproc_file) fp_preproc = fopen(filenm_preproc, "w+");
+   if (write_preproc_file) {
+       fp_preproc = fopen(filenm_preproc, "w+");
+       // TODO: error handling when opening failed
+   }
 
    /* start in the base scanning condition */
    BEGIN(INITIAL);
 }
+
 void close_preproc_file(void) {
     if (write_preproc_file) {
       fclose(fp_preproc);

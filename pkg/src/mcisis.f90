@@ -11,11 +11,10 @@ use output_utils
 use iso_c_binding, only : C_NULL_CHAR
 
 interface
-    function mcip(mfname, ppfname, strict) bind(c)
+    function mcip(mfname, ppfname) bind(c)
         use iso_c_binding, only : c_int, c_char
         integer(c_int) :: mcip
         character(kind = c_char), dimension(*), intent(in) :: mfname, ppfname
-        integer(c_int), intent(in) :: strict
     end function mcip
 end interface
 
@@ -95,8 +94,6 @@ character(len = MAXFLEN + 1) pathnm, ppfname
 
 integer :: ios
 integer :: ier, errpar, mcrcod, orderr
-
-integer :: istrict
 
 !*IF TIMER
 !     for time measurements
@@ -201,10 +198,7 @@ endif
 
 call mcimsg(3, 0)
 
-istrict = 1
-mcstat = mcip(trim(pathnm) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR,  &
-              istrict)
-
+mcstat = mcip(trim(pathnm) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR)
 
 !*IF TIMER
 !      call xtime(tnew)

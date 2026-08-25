@@ -82,9 +82,6 @@ prepare_compiler.o : flags.h include_paths.h prepare_compiler.h
 
 run_mcexec.o : include_paths.h mchdr.h mcopt.h prepare_compiler.h run_mcexec.h
 
-scan_params.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl.h \
-    mchdr.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
-
 scan.o : dependencies.h ecode.h flags.h fname.h include_paths.h ipcode.h \
     mchdr.h mcinit.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
 

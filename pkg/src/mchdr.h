@@ -37,7 +37,6 @@ void   stop_parsing(void);
 void   mcerrmessage(const char *, va_list);
 void   xpcerrmsg(char *, ... );
 
-void   mc_scan_params(void);
 void   export_names(void);
 
 extern Mcopt options;
