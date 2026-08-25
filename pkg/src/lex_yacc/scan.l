@@ -17,7 +17,8 @@
 #include "flags.h"
 #include "xpcdef.h"
 #include "xpctab.h"
-#define MAXLINE 2000
+#define MAXLINE 2000 /* maximum length of line that is stored in the buffer */
+#define BUF_SIZE (MAXLINE + 1)
 
 static void  open_buffer(char *filename);
 static void  close_buffer(void);
@@ -415,7 +416,7 @@ void open_buffer(char *new_filename) {
     filename = new_filename;
     dirname = get_path_name(filename);
     fin = efopen(filename, "r");
-    buf = emalloc(MAXLINE + 1);
+    buf = emalloc(BUF_SIZE);
     buf[0] = 0;
     bufp = buf;
     line_number = 0;
@@ -453,27 +454,26 @@ void close_buffer(void) {
     } 
 }
 
-/* return next char from current buffer
- * or EOF
- */
+/* return next char from current buffer or EOF */
 static int mcgetc(void) {   
     int     c;
     char    *pn;
-    if( bufp == NULL)
+    if (bufp == NULL) {
         return EOF;
+    }
     if (*bufp == 0) {
-        if( (bufp = fgets(buf, MAXLINE-2, fin)) == NULL )
+        if ((bufp = fgets(buf, BUF_SIZE, fin)) == NULL)
             return EOF;
-        else if( (pn = strchr(bufp, '\n')) == NULL )
-           // warning("Line too long and split\n");
-        /*
-         * remove any \r at end
-         */
-        if( pn && pn > bufp && *(pn-1) == '\r' )
-        {
-            *(pn-1) = '\n';
-            *pn     = '\0';
+        else if ((pn = strchr(bufp, '\n')) == NULL) {
+            /* remove any \r at end */
+            if (pn && pn > bufp && *(pn - 1) == '\r') {
+                *(pn - 1) = '\n';
+                *pn       = '\0';
+            }
         }
+        /* TODO:  for very long lines longer than the buffer size line_nummer is
+         * more than 1 time. This may result in incorrect line numbers in 
+         * in error messages */
         ++line_number;
     }
     c = *bufp++;
@@ -481,8 +481,8 @@ static int mcgetc(void) {
 }
 
 void showbuf(FILE *fout) {
-    char    *p   = buf;
-    char    *end = bufp ? bufp : strchr(buf,'\n') - 1;
+    char *p   = buf;
+    char *end = bufp ? bufp : strchr(buf,'\n') - 1;
     int pos = 0;
     for ( ; *p && p < end ; p++) {
         if (*p == '\t')
@@ -516,14 +516,15 @@ static void get_comment(void) {
  * include filename and the include search paths.
  */
 static char *get_includefile(void) {
-   /* remove the quotes from mctext */
-   char *includefile;
-   int len = strlen(mctext) - 2;
+
+   /* extract includename, disgarding the leading and trailing quotes from mctext */
+   size_t len = strlen(mctext) - 2;
    char *includename = emalloc(len + 1);
-   includename = strncpy(includename, mctext + 1, len);
-   *(includename + len) = 0;
+   memcpy(includename, mctext + 1, len);
+   includename[len] = '\0';
+
    /* search for the include file based on the include search paths */
-   includefile = get_includefilename(includename, dirname);
+   char *includefile = get_includefilename(includename, dirname);
    if (includefile == NULL) {
        mcerror("Include file %s not found", includename);
    }
