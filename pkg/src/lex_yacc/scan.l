@@ -334,8 +334,7 @@ void init_scanner(char *filenm, const char *filenm_preproc) {
    /* Open the pproc file */
    write_preproc_file = filenm_preproc != NULL;
    if (write_preproc_file) {
-       fp_preproc = fopen(filenm_preproc, "w+");
-       // TODO: error handling when opening failed
+       fp_preproc = efopen(filenm_preproc, "w+");
    }
 
    /* start in the base scanning condition */
