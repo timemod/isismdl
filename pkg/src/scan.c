@@ -1344,7 +1344,7 @@ YY_RULE_SETUP
                     if (if_level == skip_target_level &&
                         !if_stack[if_level].branch_taken) {
                        if_stack[if_level].branch_taken = 1;
-                       BEGIN(INITIAL);
+                       enter_initial();
                     }
                   }
                 }
@@ -1358,8 +1358,7 @@ YY_RULE_SETUP
                             (unsigned) line_number, filename);
                   } else if (if_level == skip_target_level) {
                     pop_if_stack();
-                    skip_target_level = -1;
-                    BEGIN(INITIAL);
+                    enter_initial();
                   } else {
                     pop_if_stack();
                   }
@@ -1367,20 +1366,20 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 254 "pkg/src/lex_yacc/scan.l"
+#line 253 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 255 "pkg/src/lex_yacc/scan.l"
+#line 254 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(incl):
 case YY_STATE_EOF(get_flag):
 case YY_STATE_EOF(skip):
-#line 257 "pkg/src/lex_yacc/scan.l"
+#line 256 "pkg/src/lex_yacc/scan.l"
 {
           if (buffer_level == 0) { 
             /* EOF in main mdl file, terminate the scanner */
@@ -1400,117 +1399,117 @@ case YY_STATE_EOF(skip):
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 274 "pkg/src/lex_yacc/scan.l"
+#line 273 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 275 "pkg/src/lex_yacc/scan.l"
+#line 274 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 276 "pkg/src/lex_yacc/scan.l"
+#line 275 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); get_comment();}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 277 "pkg/src/lex_yacc/scan.l"
+#line 276 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = mctext[0]; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 278 "pkg/src/lex_yacc/scan.l"
+#line 277 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_POW; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 279 "pkg/src/lex_yacc/scan.l"
+#line 278 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_GT;  }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 280 "pkg/src/lex_yacc/scan.l"
+#line 279 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_GE;  }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 281 "pkg/src/lex_yacc/scan.l"
+#line 280 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_LT;  }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 282 "pkg/src/lex_yacc/scan.l"
+#line 281 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_LE;  }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 283 "pkg/src/lex_yacc/scan.l"
+#line 282 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_AND; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 284 "pkg/src/lex_yacc/scan.l"
+#line 283 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_OR;  }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 285 "pkg/src/lex_yacc/scan.l"
+#line 284 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_NOT; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 286 "pkg/src/lex_yacc/scan.l"
+#line 285 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_EQ;  }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 287 "pkg/src/lex_yacc/scan.l"
+#line 286 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_NE;  }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 288 "pkg/src/lex_yacc/scan.l"
+#line 287 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_GT;  }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 289 "pkg/src/lex_yacc/scan.l"
+#line 288 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_GE;  }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 290 "pkg/src/lex_yacc/scan.l"
+#line 289 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_LT;  }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 291 "pkg/src/lex_yacc/scan.l"
+#line 290 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_LE;  }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 292 "pkg/src/lex_yacc/scan.l"
+#line 291 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_NOT; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 293 "pkg/src/lex_yacc/scan.l"
+#line 292 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_NE;  }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 294 "pkg/src/lex_yacc/scan.l"
+#line 293 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_AND; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 295 "pkg/src/lex_yacc/scan.l"
+#line 294 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_OR;  }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 297 "pkg/src/lex_yacc/scan.l"
+#line 296 "pkg/src/lex_yacc/scan.l"
 {       write_preproc_text(mctext);
                 /*
                  * lookup symbol and if it does not exist
@@ -1527,27 +1526,27 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 311 "pkg/src/lex_yacc/scan.l"
+#line 310 "pkg/src/lex_yacc/scan.l"
 ; 
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
-#line 313 "pkg/src/lex_yacc/scan.l"
+#line 312 "pkg/src/lex_yacc/scan.l"
 write_preproc_text(mctext);
 	YY_BREAK
 /* skip other whitespace and newline */
 case 42:
 YY_RULE_SETUP
-#line 316 "pkg/src/lex_yacc/scan.l"
+#line 315 "pkg/src/lex_yacc/scan.l"
 {if (!scanning) mcerror( "Illegal character in input" );}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 318 "pkg/src/lex_yacc/scan.l"
+#line 317 "pkg/src/lex_yacc/scan.l"
 ECHO;
 	YY_BREAK
-#line 1551 "pkg/src/scan.c"
+#line 1550 "pkg/src/scan.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2550,7 +2549,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 318 "pkg/src/lex_yacc/scan.l"
+#line 317 "pkg/src/lex_yacc/scan.l"
 
 int mcwrap(void) {
   return 1;

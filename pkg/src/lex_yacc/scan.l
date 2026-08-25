@@ -233,7 +233,7 @@ endif    "#ENDIF"
                     if (if_level == skip_target_level &&
                         !if_stack[if_level].branch_taken) {
                        if_stack[if_level].branch_taken = 1;
-                       BEGIN(INITIAL);
+                       enter_initial();
                     }
                   }
                 }
@@ -244,8 +244,7 @@ endif    "#ENDIF"
                             (unsigned) line_number, filename);
                   } else if (if_level == skip_target_level) {
                     pop_if_stack();
-                    skip_target_level = -1;
-                    BEGIN(INITIAL);
+                    enter_initial();
                   } else {
                     pop_if_stack();
                   }
