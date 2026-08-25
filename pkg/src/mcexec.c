@@ -235,6 +235,9 @@ int mcexec(const char *mfname, const char *outputfile, const Mcopt *options_in) 
 
     /* clean the scanner */
     close_scanner();
+  
+    /* reset include_paths and clean memory */
+    reset_include_paths();
     
     if (options.ShowTiming) {
         te = clock();

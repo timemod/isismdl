@@ -27,8 +27,9 @@ static char* get_includefile ( void );
 static int   mcgetc(void);
 static void  push_if_stack(int branch_taken);
 static void  pop_if_stack(void);
-static void  set_get_flag_start_condition(int directive);
-static void  set_skip_start_condition();
+static void  enter_get_flag(int directive);
+static void  enter_skip();
+static void  enter_initial(void);
 
 /* variables for the buffers */
 typedef struct _selem {
@@ -63,7 +64,6 @@ typedef struct {
   int branch_taken;        /* 1 if some branch (#IF or #ELSEIF or #ELSE) of this #IF was taken */
   int else_seen;           /* 1 if an #ELSE has already been used (error if repeated) */
   unsigned int start_line; /* line where this #IF was seen (for error messages) */
-  int in_included_file;    /* 1 if the #IF statement occurs in an included file */
   char *filename; 
 } if_state_t;
 
@@ -123,19 +123,21 @@ endif    "#ENDIF"
 %%
 {include}          BEGIN(incl);
 <incl>[ \t]*        
-<incl>{filename} {   
-                    char *inclname = get_includefile();
-                    if (inclname != NULL) {
-                        open_buffer(inclname);
-                    } 
-                    BEGIN(INITIAL);
-                 }
-<incl>.       { mcerror("Illegal #include syntax");
-                BEGIN(INITIAL);
-              }
+<incl>{filename}  {   
+                     char *inclname = get_includefile();
+                     if (inclname != NULL) {
+                         open_buffer(inclname);
+                     } 
+                     BEGIN(INITIAL);
+                   }
+
+<incl>.            { 
+                      mcerror("Illegal #include syntax");
+                      BEGIN(INITIAL);
+                   }
 
 {if}               { 
-                     set_get_flag_start_condition(DIR_IF);
+                     enter_get_flag(DIR_IF);
                    }
 
 {elseif}           { 
@@ -146,7 +148,7 @@ endif    "#ENDIF"
                         mcerror("#ELSEIF after #ELSE is not allowed at line %u of %s",
                                 (unsigned) line_number, filename);
                      } else  {
-                       set_skip_start_condition();
+                       enter_skip();
                      }
                    }
 
@@ -159,7 +161,7 @@ endif    "#ENDIF"
                                 (unsigned) line_number, filename);
                      } else {
                        if_stack[if_level].else_seen = 1;
-                       set_skip_start_condition();
+                       enter_skip();
                      }
                    }
 
@@ -174,36 +176,30 @@ endif    "#ENDIF"
 
 <get_flag>[ \t]*   
  <get_flag>{name}   {
-                       if (pending_directive == DIR_IF) {
-                           int cond = flag_present(mctext);
-                           push_if_stack(cond);
-                           if (cond) {
-                              BEGIN(INITIAL);
-                           } else {
-                              set_skip_start_condition();
-                           }
+                      if (pending_directive == DIR_IF) {
+                        int cond = flag_present(mctext);
+                        push_if_stack(cond);
+                        if (cond) {
+                           enter_initial();
+                        } else {
+                           enter_skip();
+                        }
                       } else if (pending_directive == DIR_ELSEIF) {
-                          if (if_level < 0) {
-                            mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
-                                    (unsigned) line_number, filename);
-                            BEGIN(INITIAL);
-                          } else {
-                            int cond = flag_present(mctext);
-                            if_stack[if_level].branch_taken = cond ? 1 : 0;
-                            if (cond) {
-                              BEGIN(INITIAL);
-                            } else {
-                              set_skip_start_condition();
-                            }
-                          }
+                        int cond = flag_present(mctext);
+                        if_stack[if_level].branch_taken = cond;
+                        if (cond) {
+                          enter_initial();
+                        } else {
+                          enter_skip();
+                        }
                       } else {
-                          mcerror("Internal scanner state error: got name but no pending directive");
-                          BEGIN(INITIAL);
+                        mcerror("Internal scanner state error: got name but no pending directive");
+                        enter_initial();
                       }
                    }
 
 <skip>{if}       {
-                    push_if_stack(0);
+                   push_if_stack(0);
                  }
 
 <skip>{elseif}   {
@@ -215,7 +211,7 @@ endif    "#ENDIF"
                               (unsigned) line_number, filename);
                    } else if (if_level == skip_target_level &&
                               !if_stack[if_level].branch_taken) {
-                      set_get_flag_start_condition(DIR_ELSEIF);
+                      enter_get_flag(DIR_ELSEIF);
                    }
                 }
 
@@ -357,16 +353,6 @@ void close_scanner(void) {
       close_preproc_file();
     }
 
-    /* clean up allocated filenames if #if statement were not terminated */
-    if (if_level >= 0) {
-        int i;
-        for (i = 0; i < if_level; i++) {
-            if (if_stack[if_level].in_included_file) {
-                 free(if_stack[if_level].filename);
-            } 
-        }
-    }
-
     /* reset conditional stack */
     if_level = -1;
     pending_directive = DIR_NONE;
@@ -383,17 +369,19 @@ void close_scanner(void) {
       int i;
       for (i = 0; i <= buffer_level; i++) {
         fclose(buffer_stack[i].fin);
-        if (i > 0) {
-          /* filename was allocated with malloc in get_includefile(). */
-          free(buffer_stack[i].filename);
-        }
         free(buffer_stack[i].dirname);
         free(buffer_stack[i].buf);
+        buffer_stack[i].fin = NULL;
+        buffer_stack[i].dirname = NULL;
+        buffer_stack[i].buf = NULL;
+        buffer_stack[i].filename = NULL;
+        /* WARNING: do not free filename, a reference to filename
+         * may still exist on the include stack and may be needed for
+         * error messages. The allocated filenames for inluced files
+         * will be freed by function reset_include_paths(). */
       }
     }
     buffer_level = -1;
-
-
 }
 
 /*
@@ -451,13 +439,6 @@ void close_buffer(void) {
     bufp = NULL;
     line_number = 0;
 
-    /* if buffer_level = 0: filename is a pointer to the local stack variable fname in mcexec,
-     *                      so do not free.
-    /* if buffer_level > 0: filename was allocated with malloc in get_includefilename(). */
-    if (buffer_level > 0) {
-      	free(filename);
-        filename = NULL;
-    }
     free(dirname); /* dirname was allocated in get_path_name */
     dirname = NULL;
 
@@ -532,9 +513,9 @@ static void get_comment(void) {
 }
 
 /* Returns the name of the include file based on the specified
- * include filename and the include search paths
+ * include filename and the include search paths.
  */
-static char * get_includefile(void) {
+static char *get_includefile(void) {
    /* remove the quotes from mctext */
    char *includefile;
    int len = strlen(mctext) - 2;
@@ -558,45 +539,33 @@ static void push_if_stack(int branch_taken) {
         return;
     }
 
-    int in_included_file = buffer_level > 0;
-
     if_level++;
     if_stack[if_level].branch_taken = branch_taken;
     if_stack[if_level].else_seen    = 0;
     if_stack[if_level].start_line   = line_number;
-    if_stack[if_level].in_included_file  = in_included_file;
-
-    /* Store the current filename. */
-    if (in_included_file) {
-        /* An included filename may be deallocated when the 
-         * buffer for the included file is closed, therefore
-         * creat a copy  */
-        size_t len = strlen(filename);
-        char *filename_copy = emalloc(len + 1);
-        memcpy(filename_copy, filename, len + 1);
-        if_stack[if_level].filename = filename_copy;
-     } else {
-        if_stack[if_level].filename = filename;
-     }
+    if_stack[if_level].filename = filename;
 }
 
 static void pop_if_stack(void) {
 
   if (if_level < 0) return;
 
-  if (if_stack[if_level].in_included_file) {
-     free(if_stack[if_level].filename);
-  } 
-
   if_level--;
 }
 
-static void set_get_flag_start_condition(int directive) {
+static void enter_get_flag(int directive) {
   pending_directive = directive;
   BEGIN(get_flag);
 }
 
-static void set_skip_start_condition(void) {
+static void enter_skip(void) {
   skip_target_level = if_level;
+  pending_directive = DIR_NONE;
   BEGIN(skip);
+}
+
+static void enter_initial(void) {
+  skip_target_level = -1;
+  pending_directive = DIR_NONE;
+  BEGIN(INITIAL);
 }

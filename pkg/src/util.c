@@ -13,51 +13,47 @@
 #include "util.h"
 #include "isismdl.h"
 
-void *emalloc(size_t n ) {
-        void    *p = malloc( n );
+void *emalloc(size_t n) {
+    void *p = malloc( n );
 
-        if (p == NULL ) {
-            ERROR( "Out of memory");
-        }
-        return p;
+    if (p == NULL ) {
+        ERROR( "Out of memory");
+    }
+    return p;
 }
 
-void  *erealloc( void *src, size_t n) {
-        void    *p = realloc( src, n );
+void *erealloc(void *src, size_t n) {
 
-        if (p == NULL) {
-            ERROR("Out of memory");
-        }
+    void *p = realloc(src, n );
 
-        return p;
+    if (p == NULL) {
+       ERROR("Out of memory");
+    }
+
+   return p;
 }
 
 void efree(void *p) {
-        if (p) {
-            free(p);
-        }
+   free(p);
 }
 
-char *estrdup( char *s )
-{
-        char    *p;
+char *estrdup(const char *s) {
 
-        if( s == NULL )
-                return s;
+    if (s == NULL) return NULL;
 
-        p = emalloc( strlen(s) + 1 );
-
-        strcpy(p, s);
-        return p;
+    char *p;
+    p = emalloc(strlen(s) + 1);
+    strcpy(p, s);
+    return p;
 }
 
-FILE *efopen( const char *fname, char *amode) {
-        FILE    *fp;
+FILE *efopen(const char *fname, const char *amode) {
+    FILE *fp;
 
-        if( (fp = fopen(fname, amode)) == NULL) {
-            ERROR("can't open %s\n", fname);
-        }
-        return fp;
+    if ((fp = fopen(fname, amode)) == NULL) {
+        ERROR("can't open %s\n", fname);
+    }
+    return fp;
 }
 
 
