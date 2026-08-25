@@ -57,6 +57,7 @@ static char *dirname;
 static char *buf;
 static char *bufp;
 static unsigned int line_number;
+static int prev_was_newline = 0;
 
 /* ---------- conditional-compile stack (per-#IF state) ---------- */
 #define MAX_IF_DEPTH 10
@@ -428,6 +429,7 @@ void open_buffer(char *new_filename) {
     buf[0] = 0;
     bufp = buf;
     line_number = 1;
+    prev_was_newline = 0;
 
     /* increase buffer level */
     buffer_level++;
@@ -488,8 +490,12 @@ static int mcgetc(void) {
         }
     }
     c = *bufp++;
-    if (c == '\n') {
+    if (prev_was_newline) {
         line_number++;
+        prev_was_newline = 0;
+    }
+    if (c == '\n') {
+        prev_was_newline = 1;
     }
     return c;
 }
