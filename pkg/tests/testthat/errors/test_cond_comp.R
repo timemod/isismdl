@@ -187,7 +187,7 @@ x = 1;
   expect_known_output(
     cat(err_text),
     file = "expected_output/cond_comp_error_7.err",
-    update = TRUE
+    update = update_expected
   )
 
   err_text_2 <- get_error_text(model_text)
@@ -200,7 +200,6 @@ test_that("#IF in included filename", {
     mdl <- isis_mdl("mdl/cond_comp1.mdl", silent = TRUE)
   )
 
-  update_expected <- TRUE
   expect_known_error_file(
     "mdl/cond_comp1.err",
     file = "expected_output/cond_comp_error_8.err",

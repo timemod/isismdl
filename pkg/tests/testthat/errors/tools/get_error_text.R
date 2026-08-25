@@ -9,6 +9,9 @@ get_error_text <- function(model_text, flags = character()) {
   msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
 
   mdl_file <- tempfile("isismdl_test_", fileext = ".mdl")
+  if (.Platform$OS.type == "windows") {
+    mdl_file <- normalizePath(mdl_file, winslash = "/", mustWork = FALSE)
+  }
   err_file <- sub("\\.mdl$", ".err", mdl_file)
 
   on.exit(
