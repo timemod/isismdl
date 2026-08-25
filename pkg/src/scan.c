@@ -862,6 +862,7 @@ static char *dirname;
 static char *buf;
 static char *bufp;
 static unsigned int line_number;
+static int prev_was_newline = 0;
 
 /* ---------- conditional-compile stack (per-#IF state) ---------- */
 #define MAX_IF_DEPTH 10
@@ -912,11 +913,11 @@ static inline void write_preproc_text(const char *text) {
 	result = (c == EOF) ? YY_NULL : (buf[0] = c, 1); \
 }
 #endif
-#line 916 "pkg/src/scan.c"
+#line 917 "pkg/src/scan.c"
 /* the "incl" state is used for picking up the name of an include file
  */
 
-#line 920 "pkg/src/scan.c"
+#line 921 "pkg/src/scan.c"
 
 #define INITIAL 0
 #define incl 1
@@ -1136,9 +1137,9 @@ YY_DECL
 		}
 
 	{
-#line 128 "pkg/src/lex_yacc/scan.l"
+#line 129 "pkg/src/lex_yacc/scan.l"
 
-#line 1142 "pkg/src/scan.c"
+#line 1143 "pkg/src/scan.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1197,17 +1198,17 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 129 "pkg/src/lex_yacc/scan.l"
+#line 130 "pkg/src/lex_yacc/scan.l"
 BEGIN(incl);
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 130 "pkg/src/lex_yacc/scan.l"
+#line 131 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 131 "pkg/src/lex_yacc/scan.l"
+#line 132 "pkg/src/lex_yacc/scan.l"
 {   
                      char *inclname = get_includefile();
                      if (inclname != NULL) {
@@ -1218,7 +1219,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 139 "pkg/src/lex_yacc/scan.l"
+#line 140 "pkg/src/lex_yacc/scan.l"
 { 
                       mcerror("Illegal #include syntax");
                       BEGIN(INITIAL);
@@ -1226,14 +1227,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 144 "pkg/src/lex_yacc/scan.l"
+#line 145 "pkg/src/lex_yacc/scan.l"
 { 
                      enter_get_flag(DIR_IF);
                    }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 148 "pkg/src/lex_yacc/scan.l"
+#line 149 "pkg/src/lex_yacc/scan.l"
 { 
                      if (if_level < 0) {
                        mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
@@ -1248,7 +1249,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 160 "pkg/src/lex_yacc/scan.l"
+#line 161 "pkg/src/lex_yacc/scan.l"
 {
                      if (if_level < 0) {
                        mcerror("Stray #ELSE without matching #IF at line %u of %s",
@@ -1264,7 +1265,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 173 "pkg/src/lex_yacc/scan.l"
+#line 174 "pkg/src/lex_yacc/scan.l"
 {
                      if (if_level < 0) {
                        mcerror("Stray #ENDIF without matching #IF at line %u of %s",
@@ -1276,12 +1277,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 182 "pkg/src/lex_yacc/scan.l"
+#line 183 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 183 "pkg/src/lex_yacc/scan.l"
+#line 184 "pkg/src/lex_yacc/scan.l"
 {
                       if (pending_directive == DIR_IF) {
                         int cond = flag_present(mctext);
@@ -1307,14 +1308,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 206 "pkg/src/lex_yacc/scan.l"
+#line 207 "pkg/src/lex_yacc/scan.l"
 {
                    push_if_stack(0);
                  }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 210 "pkg/src/lex_yacc/scan.l"
+#line 211 "pkg/src/lex_yacc/scan.l"
 {
                    if (if_level < 0) {
                      mcerror("Stray #ELSEIF without matching #IF at line %u of %s",
@@ -1330,7 +1331,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 223 "pkg/src/lex_yacc/scan.l"
+#line 224 "pkg/src/lex_yacc/scan.l"
 {
                   if (if_level < 0) {
                     mcerror("Stray #ELSE without matching #IF at line %u of %s",
@@ -1350,7 +1351,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 240 "pkg/src/lex_yacc/scan.l"
+#line 241 "pkg/src/lex_yacc/scan.l"
 {
                   if (if_level < 0) {
                     mcerror("Stray #ENDIF without matching #IF at line %u of %s",
@@ -1366,20 +1367,20 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 253 "pkg/src/lex_yacc/scan.l"
+#line 254 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case 16:
 /* rule 16 can match eol */
 YY_RULE_SETUP
-#line 254 "pkg/src/lex_yacc/scan.l"
+#line 255 "pkg/src/lex_yacc/scan.l"
 
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(incl):
 case YY_STATE_EOF(get_flag):
 case YY_STATE_EOF(skip):
-#line 256 "pkg/src/lex_yacc/scan.l"
+#line 257 "pkg/src/lex_yacc/scan.l"
 {
           if (buffer_level == 0) { 
             /* EOF in main mdl file, terminate the scanner */
@@ -1399,117 +1400,117 @@ case YY_STATE_EOF(skip):
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 273 "pkg/src/lex_yacc/scan.l"
+#line 274 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); mclval.ival = strtol(mctext, NULL, 10); return T_INTNUM; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 274 "pkg/src/lex_yacc/scan.l"
+#line 275 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); mclval.dval = strtod(mctext, NULL)    ; return T_NUMBER; }
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 275 "pkg/src/lex_yacc/scan.l"
+#line 276 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); get_comment();}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 276 "pkg/src/lex_yacc/scan.l"
+#line 277 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = mctext[0]; }
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 277 "pkg/src/lex_yacc/scan.l"
+#line 278 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_POW; }
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 278 "pkg/src/lex_yacc/scan.l"
+#line 279 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_GT;  }
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 279 "pkg/src/lex_yacc/scan.l"
+#line 280 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_GE;  }
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 280 "pkg/src/lex_yacc/scan.l"
+#line 281 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_LT;  }
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 281 "pkg/src/lex_yacc/scan.l"
+#line 282 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_LE;  }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 282 "pkg/src/lex_yacc/scan.l"
+#line 283 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_AND; }
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 283 "pkg/src/lex_yacc/scan.l"
+#line 284 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_OR;  }
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 284 "pkg/src/lex_yacc/scan.l"
+#line 285 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_NOT; }
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 285 "pkg/src/lex_yacc/scan.l"
+#line 286 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_EQ;  }
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 286 "pkg/src/lex_yacc/scan.l"
+#line 287 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_NE;  }
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 287 "pkg/src/lex_yacc/scan.l"
+#line 288 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_GT;  }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 288 "pkg/src/lex_yacc/scan.l"
+#line 289 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_GE;  }
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 289 "pkg/src/lex_yacc/scan.l"
+#line 290 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_LT;  }
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 290 "pkg/src/lex_yacc/scan.l"
+#line 291 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_LE;  }
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 291 "pkg/src/lex_yacc/scan.l"
+#line 292 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_NOT; }
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 292 "pkg/src/lex_yacc/scan.l"
+#line 293 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_NE;  }
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 293 "pkg/src/lex_yacc/scan.l"
+#line 294 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_AND; }
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 294 "pkg/src/lex_yacc/scan.l"
+#line 295 "pkg/src/lex_yacc/scan.l"
 { write_preproc_text(mctext); return mclval.ival = T_OR;  }
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 296 "pkg/src/lex_yacc/scan.l"
+#line 297 "pkg/src/lex_yacc/scan.l"
 {       write_preproc_text(mctext);
                 /*
                  * lookup symbol and if it does not exist
@@ -1526,27 +1527,27 @@ YY_RULE_SETUP
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 310 "pkg/src/lex_yacc/scan.l"
+#line 311 "pkg/src/lex_yacc/scan.l"
 ; 
 	YY_BREAK
 case 41:
 /* rule 41 can match eol */
 YY_RULE_SETUP
-#line 312 "pkg/src/lex_yacc/scan.l"
+#line 313 "pkg/src/lex_yacc/scan.l"
 write_preproc_text(mctext);
 	YY_BREAK
 /* skip other whitespace and newline */
 case 42:
 YY_RULE_SETUP
-#line 315 "pkg/src/lex_yacc/scan.l"
+#line 316 "pkg/src/lex_yacc/scan.l"
 {if (!scanning) mcerror( "Illegal character in input" );}
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 317 "pkg/src/lex_yacc/scan.l"
+#line 318 "pkg/src/lex_yacc/scan.l"
 ECHO;
 	YY_BREAK
-#line 1550 "pkg/src/scan.c"
+#line 1551 "pkg/src/scan.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2549,7 +2550,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 317 "pkg/src/lex_yacc/scan.l"
+#line 318 "pkg/src/lex_yacc/scan.l"
 
 int mcwrap(void) {
   return 1;
@@ -2663,7 +2664,8 @@ void open_buffer(char *new_filename) {
     buf = emalloc(BUF_SIZE);
     buf[0] = 0;
     bufp = buf;
-    line_number = 0;
+    line_number = 1;
+    prev_was_newline = 0;
 
     /* increase buffer level */
     buffer_level++;
@@ -2683,6 +2685,7 @@ void close_buffer(void) {
     buf = NULL;
     bufp = NULL;
     line_number = 0;
+    prev_was_newline = 0;
 
     free(dirname); /* dirname was allocated in get_path_name */
     dirname = NULL;
@@ -2709,10 +2712,6 @@ static int mcgetc(void) {
         if ((bufp = fgets(buf, BUF_SIZE, fin)) == NULL)
             return EOF;
         pn = strchr(bufp, '\n');
-        /* TODO:  for very long lines longer than the buffer size line_nummer is
-         * more than 1 time. This may result in incorrect line numbers in 
-         * in error messages */
-        ++line_number;
         if (pn != NULL) {
             /* remove any \r before \n */
             if (pn > bufp && *(pn - 1) == '\r') {
@@ -2728,6 +2727,13 @@ static int mcgetc(void) {
         }
     }
     c = *bufp++;
+    if (prev_was_newline) {
+        line_number++;
+        prev_was_newline = 0;
+    }
+    if (c == '\n') {
+        prev_was_newline = 1;
+    }
     return c;
 }
 

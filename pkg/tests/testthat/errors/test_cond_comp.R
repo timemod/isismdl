@@ -9,26 +9,9 @@ rm(list = ls())
 update_expected <- FALSE
 
 source("../tools/expect_known_error_file.R")
-
-compile_mdl <- function(model_text, expected_emsg, flags = character()) {
-  mdl_file <- tempfile("isismdl_test_", fileext = ".mdl")
-  err_file <- sub("\\.mdl$", ".err", mdl_file)
-  writeLines(model_text, mdl_file)
-  expect_error(
-    isis_mdl(mdl_file, silent = TRUE, parse_options = list(flags = flags)),
-    expected_emsg
-  )
-  if (file.exists(err_file)) {
-    lines <- readLines(err_file)
-    lines <- sub(mdl_file, "model_text", lines)
-    return(paste(lines, collapse = "\n"))
-  } else {
-    return(NULL)
-  }
-}
+source("tools/get_error_text.R")
 
 test_that("missing endif", {
-  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
 
   model_text <- glue::glue("
      x = 1;
@@ -40,8 +23,7 @@ test_that("missing endif", {
      l = 2;
     ")
 
-  err_text <- compile_mdl(model_text, msg)
-
+  err_text <- get_error_text(model_text)
   expect_known_output(
     cat(err_text),
     file = "expected_output/cond_comp_error_1.err",
@@ -49,16 +31,15 @@ test_that("missing endif", {
   )
 
   # with compiler flag "a" the result must be the same
-  err_text_2 <- compile_mdl(model_text, msg,  flags = "a")
+  err_text_2 <- get_error_text(model_text, flags = "a")
   expect_equal(err_text, err_text_2)
 
-  err_text_3 <- compile_mdl(model_text, msg,  flags = c("a", "b"))
+  err_text_3 <- get_error_text(model_text, flags = c("a", "b"))
   expect_equal(err_text, err_text_3)
 
 })
 
 test_that("duplicate else", {
-  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
 
   model_text <- glue::glue("
      x = 1;
@@ -71,7 +52,7 @@ test_that("duplicate else", {
      #endif
     ")
 
-  err_text <- compile_mdl(model_text, msg)
+  err_text <- get_error_text(model_text)
 
   expect_known_output(
     cat(err_text),
@@ -79,7 +60,7 @@ test_that("duplicate else", {
     update = update_expected
   )
 
-  err_text_2 <- compile_mdl(model_text, msg,  flags = "a")
+  err_text_2 <- get_error_text(model_text, flags = "a")
   expect_equal(err_text, err_text_2)
 })
 
@@ -92,7 +73,7 @@ test_that("stray else without matching if", {
        y = 2;
     ")
 
-  err_text <- compile_mdl(model_text, msg)
+  err_text <- get_error_text(model_text, msg)
 
   expect_known_output(
     cat(err_text),
@@ -110,7 +91,7 @@ test_that("stray elseif without matching if", {
        y = 2;
     ")
 
-  err_text <- compile_mdl(model_text, msg)
+  err_text <- get_error_text(model_text, msg)
 
   expect_known_output(
     cat(err_text),
@@ -120,14 +101,13 @@ test_that("stray elseif without matching if", {
 })
 
 test_that("stray endif without matching if", {
-  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
 
   model_text <- glue::glue("
      x = 1;
      #endif
     ")
 
-  err_text <- compile_mdl(model_text, msg)
+  err_text <- get_error_text(model_text)
 
   expect_known_output(
     cat(err_text),
@@ -151,7 +131,7 @@ test_that("missing endif with deep nesting (3 levels)", {
        l = 5;
     ")
 
-  err_text <- compile_mdl(model_text, msg)
+  err_text <- get_error_text(model_text)
 
   expect_known_output(
     cat(err_text),
@@ -159,13 +139,13 @@ test_that("missing endif with deep nesting (3 levels)", {
     update = update_expected
   )
 
-  err_text_2 <- compile_mdl(model_text, msg,  flags = "a")
+  err_text_2 <- get_error_text(model_text, flags = "a")
   expect_equal(err_text, err_text_2)
 
-  err_text_3 <- compile_mdl(model_text, msg,  flags = c("a", "b"))
+  err_text_3 <- get_error_text(model_text, flags = c("a", "b"))
   expect_equal(err_text, err_text_3)
 
-  err_text_4 <- compile_mdl(model_text, msg,  flags = c("a", "b", "c"))
+  err_text_4 <- get_error_text(model_text, flags = c("a", "b", "c"))
   expect_equal(err_text, err_text_4)
 })
 
@@ -199,8 +179,8 @@ x = 1;
 #endif
 ")
 
-  err_text <- compile_mdl(
-    model_text, msg,
+  err_text <- get_error_text(
+    model_text,
     flags = paste0("a", 1:11, collapse = ",")
   )
 
@@ -210,9 +190,7 @@ x = 1;
     update = TRUE
   )
 
-  err_text_2 <- compile_mdl(
-    model_text, msg
-  )
+  err_text_2 <- get_error_text(model_text)
   expect_equal(err_text, err_text_2)
 })
 
@@ -242,7 +220,6 @@ test_that("#IF in included filename", {
 })
 
 test_that("elseif after if", {
-  msg <- "Error detected in compilation of model .+\\.mdl\nCheck the .err file"
 
   model_text <- glue::glue("
      #if a
@@ -254,8 +231,7 @@ test_that("elseif after if", {
      #endif
     ")
 
-  err_text <- compile_mdl(model_text, msg)
-
+  err_text <- get_error_text(model_text)
 
   expect_known_output(
     cat(err_text),
@@ -263,7 +239,7 @@ test_that("elseif after if", {
     update = update_expected
   )
 
-  err_text_2 <- compile_mdl(model_text, msg, flags = "a")
+  err_text_2 <- get_error_text(model_text, flags = "a")
 
   expect_equal(err_text, err_text_2)
 })

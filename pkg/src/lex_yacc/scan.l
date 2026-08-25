@@ -449,6 +449,7 @@ void close_buffer(void) {
     buf = NULL;
     bufp = NULL;
     line_number = 0;
+    prev_was_newline = 0;
 
     free(dirname); /* dirname was allocated in get_path_name */
     dirname = NULL;
