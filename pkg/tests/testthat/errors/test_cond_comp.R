@@ -50,8 +50,11 @@ test_that("missing endif", {
 
   # with compiler flag "a" the result must be the same
   err_text_2 <- compile_mdl(model_text, msg,  flags = "a")
-
   expect_equal(err_text, err_text_2)
+
+  err_text_3 <- compile_mdl(model_text, msg,  flags = c("a", "b"))
+  expect_equal(err_text, err_text_3)
+
 })
 
 test_that("duplicate else", {
@@ -75,6 +78,9 @@ test_that("duplicate else", {
     file = "expected_output/cond_comp_error_2.err",
     update = update_expected
   )
+
+  err_text_2 <- compile_mdl(model_text, msg,  flags = "a")
+  expect_equal(err_text, err_text_2)
 })
 
 test_that("stray else without matching if", {
@@ -152,6 +158,15 @@ test_that("missing endif with deep nesting (3 levels)", {
     file = "expected_output/cond_comp_error_6.err",
     update = update_expected
   )
+
+  err_text_2 <- compile_mdl(model_text, msg,  flags = "a")
+  expect_equal(err_text, err_text_2)
+
+  err_text_3 <- compile_mdl(model_text, msg,  flags = c("a", "b"))
+  expect_equal(err_text, err_text_3)
+
+  err_text_4 <- compile_mdl(model_text, msg,  flags = c("a", "b", "c"))
+  expect_equal(err_text, err_text_4)
 })
 
 test_that("maximum #if nesting level (10)", {
@@ -194,6 +209,11 @@ x = 1;
     file = "expected_output/cond_comp_error_7.err",
     update = TRUE
   )
+
+  err_text_2 <- compile_mdl(
+    model_text, msg
+  )
+  expect_equal(err_text, err_text_2)
 })
 
 test_that("#IF in included filename", {
