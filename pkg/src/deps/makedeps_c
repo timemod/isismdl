@@ -83,7 +83,7 @@ prepare_compiler.o : flags.h include_paths.h prepare_compiler.h
 run_mcexec.o : include_paths.h mchdr.h mcopt.h prepare_compiler.h run_mcexec.h
 
 scan.o : dependencies.h ecode.h flags.h fname.h include_paths.h ipcode.h \
-    mchdr.h mcinit.h mcopt.h symbol.h util.h xpcdef.h xpctab.h
+    mchdr.h mcinit.h mcopt.h symbol.h util.h xpctab.h
 
 set_fit_opts_c.o : fit_options.h init_set_get_options.h set_fit_options.h \
     set_fit_opts_c.h set_option_utils.h
@@ -102,6 +102,5 @@ symbol.o : dependencies.h isismdl.h symbol.h util.h xpcdef.h
 util.o : isismdl.h util.h
 
 xpctab.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl_types.h \
-    mchdr.h mcinit.h mcopt.h mdldef.h outmdl.h symbol.h util.h xpcdef.h \
-    xpctab.h
+    mchdr.h mcopt.h mdldef.h outmdl.h symbol.h util.h xpcdef.h xpctab.h
 

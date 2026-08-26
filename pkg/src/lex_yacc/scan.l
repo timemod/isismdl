@@ -2,21 +2,14 @@
  * lexical analyzer for xpc
  */
 %{
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <Rinternals.h>
 #include "symbol.h"
-#include "ecode.h"
 #include "mcinit.h"
 #include "util.h"
 #include "mchdr.h"
 #include "fname.h"
 #include "flags.h"
-#include "xpcdef.h"
 #include "xpctab.h"
+
 #define MAXLINE 2000 /* maximum length of line that is stored in the buffer */
 #define BUF_SIZE (MAXLINE + 1)
 

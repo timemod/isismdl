@@ -44,6 +44,12 @@
 #if YYDEBUG
 extern int mcdebug;
 #endif
+/* "%code requires" blocks.  */
+#line 59 "pkg/src/lex_yacc/xpctab.y"
+
+#include "ecode.h"
+
+#line 53 "pkg/src/xpctab.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -99,7 +105,7 @@ union YYSTYPE
         Symbol  *sp;
         Enodep  ep;
 
-#line 103 "pkg/src/xpctab.h"
+#line 109 "pkg/src/xpctab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

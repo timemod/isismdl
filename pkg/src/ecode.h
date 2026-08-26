@@ -4,6 +4,9 @@
 #ifndef IPCODE_H
 #include "ipcode.h"
 #endif
+#ifndef SYMBOL_H
+#include "symbol.h"
+#endif
 
 #ifndef ENODE_H
 #define ENODE_H

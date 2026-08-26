@@ -4,27 +4,23 @@
  * uses Bison
  */
 
+
 %{
 
 #include <ctype.h>
-#include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
+#include <Rinternals.h>
 
-#include "symbol.h"
+#include "ecode.h"
 #include "mcinit.h"
 #include "xpcdef.h"
 #include "mchdr.h"
 #include "util.h"
-#include "ecode.h"
 #include "outmdl.h"
 #include "isismdl_types.h"
 #include "dependencies.h"
- #include "mdldef.h"
-
-#include <Rinternals.h>
+#include "mdldef.h"
 
 
 void    cleanup( int );
@@ -59,6 +55,10 @@ Enodep  do_builtin    ( Symbol * , Enodep );
 void FNAME(save_parameter)(FINT *, FREAL8 *);
 
 %}
+
+%code requires {
+#include "ecode.h"
+}
 
 %union
 {

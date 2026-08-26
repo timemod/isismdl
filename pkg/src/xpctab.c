@@ -74,28 +74,23 @@
 #define yychar          mcchar
 
 /* First part of user prologue.  */
-#line 7 "pkg/src/lex_yacc/xpctab.y"
+#line 8 "pkg/src/lex_yacc/xpctab.y"
 
 
 #include <ctype.h>
-#include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
+#include <Rinternals.h>
 
-#include "symbol.h"
+#include "ecode.h"
 #include "mcinit.h"
 #include "xpcdef.h"
 #include "mchdr.h"
 #include "util.h"
-#include "ecode.h"
 #include "outmdl.h"
 #include "isismdl_types.h"
 #include "dependencies.h"
- #include "mdldef.h"
-
-#include <Rinternals.h>
+#include "mdldef.h"
 
 
 void    cleanup( int );
@@ -130,7 +125,7 @@ Enodep  do_builtin    ( Symbol * , Enodep );
 void FNAME(save_parameter)(FINT *, FREAL8 *);
 
 
-#line 134 "pkg/src/xpctab.c"
+#line 129 "pkg/src/xpctab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -1664,241 +1659,241 @@ yyreduce:
   case 5: /* opt_end: "end" ';'  */
 #line 129 "pkg/src/lex_yacc/xpctab.y"
                     {YYACCEPT;}
-#line 1668 "pkg/src/xpctab.c"
+#line 1663 "pkg/src/xpctab.c"
     break;
 
   case 11: /* stmt: eqtyp lhsexpl '=' expr ';'  */
 #line 140 "pkg/src/lex_yacc/xpctab.y"
                                   { eqn_epilogue(NULL, (yyvsp[-4].ival), (yyvsp[-3].sp), (yyvsp[-1].ep), 0);}
-#line 1674 "pkg/src/xpctab.c"
+#line 1669 "pkg/src/xpctab.c"
     break;
 
   case 12: /* stmt: eqtyp lhsimpl '=' expr ';'  */
 #line 143 "pkg/src/lex_yacc/xpctab.y"
                                   { eqn_epilogue(NULL, (yyvsp[-4].ival), (yyvsp[-3].sp), (yyvsp[-1].ep), 1);}
-#line 1680 "pkg/src/xpctab.c"
+#line 1675 "pkg/src/xpctab.c"
     break;
 
   case 13: /* stmt: eqtyp eqname lhsexpl '=' expr ';'  */
 #line 147 "pkg/src/lex_yacc/xpctab.y"
                                   { eqn_epilogue((yyvsp[-4].sp), (yyvsp[-5].ival), (yyvsp[-3].sp), (yyvsp[-1].ep), 0);}
-#line 1686 "pkg/src/xpctab.c"
+#line 1681 "pkg/src/xpctab.c"
     break;
 
   case 14: /* stmt: eqtyp eqname lhsimpl '=' expr ';'  */
 #line 150 "pkg/src/lex_yacc/xpctab.y"
                                   { eqn_epilogue((yyvsp[-4].sp), (yyvsp[-5].ival), (yyvsp[-3].sp), (yyvsp[-1].ep), 1);}
-#line 1692 "pkg/src/xpctab.c"
+#line 1687 "pkg/src/xpctab.c"
     break;
 
   case 16: /* stmt: error ';'  */
 #line 153 "pkg/src/lex_yacc/xpctab.y"
                                   { cleanup(0); yyerrok; }
-#line 1698 "pkg/src/xpctab.c"
+#line 1693 "pkg/src/xpctab.c"
     break;
 
   case 17: /* eqtyp: "frml"  */
 #line 156 "pkg/src/lex_yacc/xpctab.y"
                         { eqn_prologue(); (yyval.ival) = 1;}
-#line 1704 "pkg/src/xpctab.c"
+#line 1699 "pkg/src/xpctab.c"
     break;
 
   case 18: /* eqtyp: "ident"  */
 #line 157 "pkg/src/lex_yacc/xpctab.y"
                         { eqn_prologue(); (yyval.ival) = 0;}
-#line 1710 "pkg/src/xpctab.c"
+#line 1705 "pkg/src/xpctab.c"
     break;
 
   case 19: /* eqtyp: %empty  */
 #line 158 "pkg/src/lex_yacc/xpctab.y"
                         { eqn_prologue(); (yyval.ival) = 0;}
-#line 1716 "pkg/src/xpctab.c"
+#line 1711 "pkg/src/xpctab.c"
     break;
 
   case 24: /* keywd: "builtin function"  */
 #line 170 "pkg/src/lex_yacc/xpctab.y"
                       {(yyval.sp)=(yyvsp[0].sp);}
-#line 1722 "pkg/src/xpctab.c"
+#line 1717 "pkg/src/xpctab.c"
     break;
 
   case 25: /* keywd: "sum"  */
 #line 171 "pkg/src/lex_yacc/xpctab.y"
                       {(yyval.sp)=(yyvsp[0].sp);}
-#line 1728 "pkg/src/xpctab.c"
+#line 1723 "pkg/src/xpctab.c"
     break;
 
   case 26: /* keywd: "del"  */
 #line 172 "pkg/src/lex_yacc/xpctab.y"
                       {(yyval.sp)=(yyvsp[0].sp);}
-#line 1734 "pkg/src/xpctab.c"
+#line 1729 "pkg/src/xpctab.c"
     break;
 
   case 27: /* keywd: "if"  */
 #line 173 "pkg/src/lex_yacc/xpctab.y"
                       {(yyval.sp)=(yyvsp[0].sp);}
-#line 1740 "pkg/src/xpctab.c"
+#line 1735 "pkg/src/xpctab.c"
     break;
 
   case 28: /* keywd: "else"  */
 #line 174 "pkg/src/lex_yacc/xpctab.y"
                       {(yyval.sp)=(yyvsp[0].sp);}
-#line 1746 "pkg/src/xpctab.c"
+#line 1741 "pkg/src/xpctab.c"
     break;
 
   case 29: /* keywd: "elseif"  */
 #line 175 "pkg/src/lex_yacc/xpctab.y"
                       {(yyval.sp)=(yyvsp[0].sp);}
-#line 1752 "pkg/src/xpctab.c"
+#line 1747 "pkg/src/xpctab.c"
     break;
 
   case 30: /* keywd: "then"  */
 #line 176 "pkg/src/lex_yacc/xpctab.y"
                       {(yyval.sp)=(yyvsp[0].sp);}
-#line 1758 "pkg/src/xpctab.c"
+#line 1753 "pkg/src/xpctab.c"
     break;
 
   case 33: /* pnlist: pname nlist  */
 #line 183 "pkg/src/lex_yacc/xpctab.y"
                         { set_parval(); }
-#line 1764 "pkg/src/xpctab.c"
+#line 1759 "pkg/src/xpctab.c"
     break;
 
   case 34: /* pname: "name"  */
 #line 186 "pkg/src/lex_yacc/xpctab.y"
                         { make_param((yyvsp[0].sp));}
-#line 1770 "pkg/src/xpctab.c"
+#line 1765 "pkg/src/xpctab.c"
     break;
 
   case 35: /* nlist: snumber  */
 #line 189 "pkg/src/lex_yacc/xpctab.y"
                          { if (add_pval((yyvsp[0].dval))) YYERROR;}
-#line 1776 "pkg/src/xpctab.c"
+#line 1771 "pkg/src/xpctab.c"
     break;
 
   case 36: /* nlist: nlist snumber  */
 #line 190 "pkg/src/lex_yacc/xpctab.y"
                          { if (add_pval((yyvsp[0].dval))) YYERROR;}
-#line 1782 "pkg/src/xpctab.c"
+#line 1777 "pkg/src/xpctab.c"
     break;
 
   case 37: /* snumber: opt_sign "number"  */
 #line 193 "pkg/src/lex_yacc/xpctab.y"
                             { (yyval.dval) = ((yyvsp[-1].ival) == '-') ? -(yyvsp[0].dval) : (yyvsp[0].dval); }
-#line 1788 "pkg/src/xpctab.c"
+#line 1783 "pkg/src/xpctab.c"
     break;
 
   case 38: /* snumber: sinteger  */
 #line 194 "pkg/src/lex_yacc/xpctab.y"
                              {(yyval.dval) = (yyvsp[0].ival);}
-#line 1794 "pkg/src/xpctab.c"
+#line 1789 "pkg/src/xpctab.c"
     break;
 
   case 39: /* sinteger: opt_sign "integer"  */
 #line 197 "pkg/src/lex_yacc/xpctab.y"
                              { (yyval.ival) = ((yyvsp[-1].ival) == '-') ? -(yyvsp[0].ival) : (yyvsp[0].ival); }
-#line 1800 "pkg/src/xpctab.c"
+#line 1795 "pkg/src/xpctab.c"
     break;
 
   case 40: /* lhsexpl: "name"  */
 #line 204 "pkg/src/lex_yacc/xpctab.y"
                                   { check_lhs((yyvsp[0].sp)); }
-#line 1806 "pkg/src/xpctab.c"
+#line 1801 "pkg/src/xpctab.c"
     break;
 
   case 41: /* lhsexpl: "user function"  */
 #line 206 "pkg/src/lex_yacc/xpctab.y"
                                   { check_lhs((yyvsp[0].sp)); }
-#line 1812 "pkg/src/xpctab.c"
+#line 1807 "pkg/src/xpctab.c"
     break;
 
   case 42: /* lhsexpl: "user language function"  */
 #line 208 "pkg/src/lex_yacc/xpctab.y"
                                   { check_lhs((yyvsp[0].sp)); }
-#line 1818 "pkg/src/xpctab.c"
+#line 1813 "pkg/src/xpctab.c"
     break;
 
   case 43: /* lhsexpl: keywd  */
 #line 210 "pkg/src/lex_yacc/xpctab.y"
                                   { check_lhs((yyvsp[0].sp)); }
-#line 1824 "pkg/src/xpctab.c"
+#line 1819 "pkg/src/xpctab.c"
     break;
 
   case 44: /* lhsimpl: "integer" '(' "name" ')'  */
 #line 213 "pkg/src/lex_yacc/xpctab.y"
                                    { (yyval.sp) = (yyvsp[-1].sp); if(check_implicit((yyvsp[-3].ival), (yyvsp[-1].sp))) YYERROR; }
-#line 1830 "pkg/src/xpctab.c"
+#line 1825 "pkg/src/xpctab.c"
     break;
 
   case 45: /* lhsimpl: "integer" '(' "user function" ')'  */
 #line 216 "pkg/src/lex_yacc/xpctab.y"
                                 { (yyval.sp) = (yyvsp[-1].sp); if(check_implicit((yyvsp[-3].ival), (yyvsp[-1].sp))) YYERROR; }
-#line 1836 "pkg/src/xpctab.c"
+#line 1831 "pkg/src/xpctab.c"
     break;
 
   case 46: /* lhsimpl: "integer" '(' "user language function" ')'  */
 #line 219 "pkg/src/lex_yacc/xpctab.y"
                                 { (yyval.sp) = (yyvsp[-1].sp); if(check_implicit((yyvsp[-3].ival), (yyvsp[-1].sp))) YYERROR; }
-#line 1842 "pkg/src/xpctab.c"
+#line 1837 "pkg/src/xpctab.c"
     break;
 
   case 47: /* lhsimpl: "integer" '(' keywd ')'  */
 #line 222 "pkg/src/lex_yacc/xpctab.y"
                                 { (yyval.sp) = (yyvsp[-1].sp); if(check_implicit((yyvsp[-3].ival), (yyvsp[-1].sp))) YYERROR; }
-#line 1848 "pkg/src/xpctab.c"
+#line 1843 "pkg/src/xpctab.c"
     break;
 
   case 51: /* $@1: %empty  */
 #line 235 "pkg/src/lex_yacc/xpctab.y"
                                    { if (ufunc_prologue((yyvsp[0].sp), 0)) YYERROR;}
-#line 1854 "pkg/src/xpctab.c"
+#line 1849 "pkg/src/xpctab.c"
     break;
 
   case 52: /* fstmt: funcname $@1 '(' formals ')' '=' expr  */
 #line 236 "pkg/src/lex_yacc/xpctab.y"
                                    { ufunc_epilogue((yyvsp[-6].sp), (yyvsp[0].ep), 0); }
-#line 1860 "pkg/src/xpctab.c"
+#line 1855 "pkg/src/xpctab.c"
     break;
 
   case 53: /* $@2: %empty  */
 #line 239 "pkg/src/lex_yacc/xpctab.y"
                           { if (ufunc_prologue((yyvsp[0].sp), 1)) YYERROR;}
-#line 1866 "pkg/src/xpctab.c"
+#line 1861 "pkg/src/xpctab.c"
     break;
 
   case 54: /* ulfstmt: funcname $@2 '(' formals ')'  */
 #line 240 "pkg/src/lex_yacc/xpctab.y"
                           { ufunc_epilogue((yyvsp[-4].sp), 0, 1); }
-#line 1872 "pkg/src/xpctab.c"
+#line 1867 "pkg/src/xpctab.c"
     break;
 
   case 55: /* formals: "name"  */
 #line 243 "pkg/src/lex_yacc/xpctab.y"
                                    { make_formal((yyvsp[0].sp)); }
-#line 1878 "pkg/src/xpctab.c"
+#line 1873 "pkg/src/xpctab.c"
     break;
 
   case 56: /* formals: formals ',' "name"  */
 #line 244 "pkg/src/lex_yacc/xpctab.y"
                                    { make_formal((yyvsp[0].sp)); }
-#line 1884 "pkg/src/xpctab.c"
+#line 1879 "pkg/src/xpctab.c"
     break;
 
   case 57: /* sexpr: "number"  */
 #line 253 "pkg/src/lex_yacc/xpctab.y"
                                            { (yyval.ep) = mk_const((yyvsp[0].dval)); }
-#line 1890 "pkg/src/xpctab.c"
+#line 1885 "pkg/src/xpctab.c"
     break;
 
   case 58: /* sexpr: "integer"  */
 #line 254 "pkg/src/lex_yacc/xpctab.y"
                                            { (yyval.ep) = mk_const((yyvsp[0].ival)); }
-#line 1896 "pkg/src/xpctab.c"
+#line 1891 "pkg/src/xpctab.c"
     break;
 
   case 59: /* sexpr: "builtin function" '(' fargs ')'  */
 #line 256 "pkg/src/lex_yacc/xpctab.y"
                                            { (yyval.ep) = do_builtin((yyvsp[-3].sp), (yyvsp[-1].ep)); }
-#line 1902 "pkg/src/xpctab.c"
+#line 1897 "pkg/src/xpctab.c"
     break;
 
   case 60: /* sexpr: "user function" '(' ufargs ')'  */
@@ -1906,7 +1901,7 @@ yyreduce:
                                            { 
                               if (((yyval.ep) = do_funccall((yyvsp[-3].sp), (yyvsp[-1].ep))) == 0) YYERROR;
                                            }
-#line 1910 "pkg/src/xpctab.c"
+#line 1905 "pkg/src/xpctab.c"
     break;
 
   case 61: /* sexpr: "user language function" '(' ufargs ')'  */
@@ -1914,85 +1909,85 @@ yyreduce:
                                             { 
                               if (((yyval.ep) = do_funccall((yyvsp[-3].sp), (yyvsp[-1].ep))) == 0) YYERROR;
                                            }
-#line 1918 "pkg/src/xpctab.c"
+#line 1913 "pkg/src/xpctab.c"
     break;
 
   case 62: /* sexpr: "del" '(' delarg ':' expr ')'  */
 #line 264 "pkg/src/lex_yacc/xpctab.y"
                                            { (yyval.ep) = del_epilogue((yyvsp[-1].ep)); }
-#line 1924 "pkg/src/xpctab.c"
+#line 1919 "pkg/src/xpctab.c"
     break;
 
   case 63: /* sexpr: "sum" '(' sumarg ':' expr ')'  */
 #line 265 "pkg/src/lex_yacc/xpctab.y"
                                            { (yyval.ep) = sum_epilogue((yyvsp[-1].ep)); }
-#line 1930 "pkg/src/xpctab.c"
+#line 1925 "pkg/src/xpctab.c"
     break;
 
   case 68: /* expr: var  */
 #line 273 "pkg/src/lex_yacc/xpctab.y"
                                     {do_lag((yyvsp[0].ep));}
-#line 1936 "pkg/src/xpctab.c"
+#line 1931 "pkg/src/xpctab.c"
     break;
 
   case 69: /* ifexpr: ifpart1 "else" expr  */
 #line 276 "pkg/src/lex_yacc/xpctab.y"
                                     {(yyval.ep) = add_elsepart((yyvsp[-2].ep), (yyvsp[0].ep));}
-#line 1942 "pkg/src/xpctab.c"
+#line 1937 "pkg/src/xpctab.c"
     break;
 
   case 70: /* ifpart1: ifthen  */
 #line 279 "pkg/src/lex_yacc/xpctab.y"
                                     {(yyval.ep) = (yyvsp[0].ep);}
-#line 1948 "pkg/src/xpctab.c"
+#line 1943 "pkg/src/xpctab.c"
     break;
 
   case 71: /* ifpart1: ifthen elseifl  */
 #line 280 "pkg/src/lex_yacc/xpctab.y"
                                     {(yyval.ep) = add_elsepart((yyvsp[-1].ep), (yyvsp[0].ep));}
-#line 1954 "pkg/src/xpctab.c"
+#line 1949 "pkg/src/xpctab.c"
     break;
 
   case 72: /* ifthen: "if" expr "then" expr  */
 #line 282 "pkg/src/lex_yacc/xpctab.y"
                                     {(yyval.ep) = mk_ifnode((yyvsp[-2].ep), (yyvsp[0].ep));}
-#line 1960 "pkg/src/xpctab.c"
+#line 1955 "pkg/src/xpctab.c"
     break;
 
   case 73: /* elseif: "elseif" expr "then" expr  */
 #line 285 "pkg/src/lex_yacc/xpctab.y"
                                     {(yyval.ep) = mk_ifnode((yyvsp[-2].ep), (yyvsp[0].ep));}
-#line 1966 "pkg/src/xpctab.c"
+#line 1961 "pkg/src/xpctab.c"
     break;
 
   case 74: /* elseifl: elseif  */
 #line 288 "pkg/src/lex_yacc/xpctab.y"
                           {(yyval.ep) = (yyvsp[0].ep);}
-#line 1972 "pkg/src/xpctab.c"
+#line 1967 "pkg/src/xpctab.c"
     break;
 
   case 75: /* elseifl: elseifl elseif  */
 #line 289 "pkg/src/lex_yacc/xpctab.y"
                           {(yyval.ep) = add_elsepart((yyvsp[-1].ep), (yyvsp[0].ep));}
-#line 1978 "pkg/src/xpctab.c"
+#line 1973 "pkg/src/xpctab.c"
     break;
 
   case 76: /* delarg: "integer"  */
 #line 292 "pkg/src/lex_yacc/xpctab.y"
                    { if( del_prologue((yyvsp[0].ival)) ) YYERROR; }
-#line 1984 "pkg/src/xpctab.c"
+#line 1979 "pkg/src/xpctab.c"
     break;
 
   case 77: /* sumarg: "name" '=' sinteger ',' sinteger  */
 #line 296 "pkg/src/lex_yacc/xpctab.y"
                                        { if( sum_prologue((yyvsp[-4].sp), (yyvsp[-2].ival), (yyvsp[0].ival)) ) YYERROR; }
-#line 1990 "pkg/src/xpctab.c"
+#line 1985 "pkg/src/xpctab.c"
     break;
 
   case 78: /* rexpr: '(' expr ')'  */
 #line 299 "pkg/src/lex_yacc/xpctab.y"
                                         { (yyval.ep) = (yyvsp[-1].ep); }
-#line 1996 "pkg/src/xpctab.c"
+#line 1991 "pkg/src/xpctab.c"
     break;
 
   case 79: /* rexpr: expr '+' expr  */
@@ -2000,31 +1995,31 @@ yyreduce:
                                         { Binary :
                                                   (yyval.ep) = mk_binenode((yyvsp[-1].ival), (yyvsp[-2].ep), (yyvsp[0].ep));
                                         }
-#line 2004 "pkg/src/xpctab.c"
+#line 1999 "pkg/src/xpctab.c"
     break;
 
   case 80: /* rexpr: expr '-' expr  */
 #line 303 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2010 "pkg/src/xpctab.c"
+#line 2005 "pkg/src/xpctab.c"
     break;
 
   case 81: /* rexpr: expr '*' expr  */
 #line 304 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2016 "pkg/src/xpctab.c"
+#line 2011 "pkg/src/xpctab.c"
     break;
 
   case 82: /* rexpr: expr '/' expr  */
 #line 305 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2022 "pkg/src/xpctab.c"
+#line 2017 "pkg/src/xpctab.c"
     break;
 
   case 83: /* rexpr: expr T_POW expr  */
 #line 306 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2028 "pkg/src/xpctab.c"
+#line 2023 "pkg/src/xpctab.c"
     break;
 
   case 84: /* rexpr: '-' expr  */
@@ -2032,167 +2027,167 @@ yyreduce:
                                         { Unary :
                                                  (yyval.ep) = mk_unop((yyvsp[-1].ival), (yyvsp[0].ep));
                                         }
-#line 2036 "pkg/src/xpctab.c"
+#line 2031 "pkg/src/xpctab.c"
     break;
 
   case 85: /* rexpr: '+' expr  */
 #line 310 "pkg/src/lex_yacc/xpctab.y"
                                         { (yyval.ep) = (yyvsp[0].ep); }
-#line 2042 "pkg/src/xpctab.c"
+#line 2037 "pkg/src/xpctab.c"
     break;
 
   case 87: /* lexpr: expr ">" expr  */
 #line 314 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2048 "pkg/src/xpctab.c"
+#line 2043 "pkg/src/xpctab.c"
     break;
 
   case 88: /* lexpr: expr ">=" expr  */
 #line 315 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2054 "pkg/src/xpctab.c"
+#line 2049 "pkg/src/xpctab.c"
     break;
 
   case 89: /* lexpr: expr "<" expr  */
 #line 316 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2060 "pkg/src/xpctab.c"
+#line 2055 "pkg/src/xpctab.c"
     break;
 
   case 90: /* lexpr: expr "<=" expr  */
 #line 317 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2066 "pkg/src/xpctab.c"
+#line 2061 "pkg/src/xpctab.c"
     break;
 
   case 91: /* lexpr: expr '=' expr  */
 #line 318 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2072 "pkg/src/xpctab.c"
+#line 2067 "pkg/src/xpctab.c"
     break;
 
   case 92: /* lexpr: expr ".eq." expr  */
 #line 319 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2078 "pkg/src/xpctab.c"
+#line 2073 "pkg/src/xpctab.c"
     break;
 
   case 93: /* lexpr: expr "^=" expr  */
 #line 320 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2084 "pkg/src/xpctab.c"
+#line 2079 "pkg/src/xpctab.c"
     break;
 
   case 94: /* lexpr: expr "& or .and." expr  */
 #line 321 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2090 "pkg/src/xpctab.c"
+#line 2085 "pkg/src/xpctab.c"
     break;
 
   case 95: /* lexpr: expr "| or .or." expr  */
 #line 322 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Binary; }
-#line 2096 "pkg/src/xpctab.c"
+#line 2091 "pkg/src/xpctab.c"
     break;
 
   case 96: /* lexpr: "^ or .not." expr  */
 #line 323 "pkg/src/lex_yacc/xpctab.y"
                                         { goto Unary;  }
-#line 2102 "pkg/src/xpctab.c"
+#line 2097 "pkg/src/xpctab.c"
     break;
 
   case 97: /* lexpr: '^' expr  */
 #line 324 "pkg/src/lex_yacc/xpctab.y"
                                         { (yyval.ep) = mk_unop(T_NOT, (yyvsp[0].ep)); }
-#line 2108 "pkg/src/xpctab.c"
+#line 2103 "pkg/src/xpctab.c"
     break;
 
   case 98: /* fargs: expr  */
 #line 331 "pkg/src/lex_yacc/xpctab.y"
                          { (yyval.ep) = mk_fargs(0 , (yyvsp[0].ep) ); }
-#line 2114 "pkg/src/xpctab.c"
+#line 2109 "pkg/src/xpctab.c"
     break;
 
   case 99: /* fargs: fargs ',' expr  */
 #line 332 "pkg/src/lex_yacc/xpctab.y"
                          { (yyval.ep) = mk_fargs((yyvsp[-2].ep), (yyvsp[0].ep) ); }
-#line 2120 "pkg/src/xpctab.c"
+#line 2115 "pkg/src/xpctab.c"
     break;
 
   case 100: /* ufargs: ufarg  */
 #line 339 "pkg/src/lex_yacc/xpctab.y"
                              { (yyval.ep) = mk_fargs(0 , (yyvsp[0].ep) ); }
-#line 2126 "pkg/src/xpctab.c"
+#line 2121 "pkg/src/xpctab.c"
     break;
 
   case 101: /* ufargs: ufargs ',' ufarg  */
 #line 340 "pkg/src/lex_yacc/xpctab.y"
                              { (yyval.ep) = mk_fargs((yyvsp[-2].ep), (yyvsp[0].ep) ); }
-#line 2132 "pkg/src/xpctab.c"
+#line 2127 "pkg/src/xpctab.c"
     break;
 
   case 104: /* var: "name"  */
 #line 356 "pkg/src/lex_yacc/xpctab.y"
                                                { (yyval.ep) = do_var((yyvsp[0].sp),  0, 0 , 0); }
-#line 2138 "pkg/src/xpctab.c"
+#line 2133 "pkg/src/xpctab.c"
     break;
 
   case 105: /* var: "name" '[' sinteger ']'  */
 #line 357 "pkg/src/lex_yacc/xpctab.y"
                                                { (yyval.ep) = do_var((yyvsp[-3].sp), (yyvsp[-1].ival), 0 , 0); }
-#line 2144 "pkg/src/xpctab.c"
+#line 2139 "pkg/src/xpctab.c"
     break;
 
   case 106: /* var: "name" '[' "name" ']'  */
 #line 358 "pkg/src/lex_yacc/xpctab.y"
                                                { (yyval.ep) = do_var((yyvsp[-3].sp),  0, (yyvsp[-1].sp), 0); }
-#line 2150 "pkg/src/xpctab.c"
+#line 2145 "pkg/src/xpctab.c"
     break;
 
   case 107: /* var: "name" '[' "name" '-' "integer" ']'  */
 #line 359 "pkg/src/lex_yacc/xpctab.y"
                                                { (yyval.ep) = do_var((yyvsp[-5].sp),-(yyvsp[-1].ival), (yyvsp[-3].sp), 0); }
-#line 2156 "pkg/src/xpctab.c"
+#line 2151 "pkg/src/xpctab.c"
     break;
 
   case 108: /* var: "name" '[' "name" '+' "integer" ']'  */
 #line 360 "pkg/src/lex_yacc/xpctab.y"
                                                { (yyval.ep) = do_var((yyvsp[-5].sp), (yyvsp[-1].ival), (yyvsp[-3].sp), 0); }
-#line 2162 "pkg/src/xpctab.c"
+#line 2157 "pkg/src/xpctab.c"
     break;
 
   case 109: /* var: "name" '(' sinteger ')'  */
 #line 363 "pkg/src/lex_yacc/xpctab.y"
                                                { (yyval.ep) = do_var((yyvsp[-3].sp), (yyvsp[-1].ival), 0 , 1); }
-#line 2168 "pkg/src/xpctab.c"
+#line 2163 "pkg/src/xpctab.c"
     break;
 
   case 110: /* var: "name" '(' "name" ')'  */
 #line 364 "pkg/src/lex_yacc/xpctab.y"
                                                { (yyval.ep) = do_var((yyvsp[-3].sp),  0, (yyvsp[-1].sp), 1); }
-#line 2174 "pkg/src/xpctab.c"
+#line 2169 "pkg/src/xpctab.c"
     break;
 
   case 111: /* var: "name" '(' "name" '-' "integer" ')'  */
 #line 365 "pkg/src/lex_yacc/xpctab.y"
                                                { (yyval.ep) = do_var((yyvsp[-5].sp),-(yyvsp[-1].ival), (yyvsp[-3].sp), 1); }
-#line 2180 "pkg/src/xpctab.c"
+#line 2175 "pkg/src/xpctab.c"
     break;
 
   case 112: /* var: "name" '(' "name" '+' "integer" ')'  */
 #line 366 "pkg/src/lex_yacc/xpctab.y"
                                                { (yyval.ep) = do_var((yyvsp[-5].sp), (yyvsp[-1].ival), (yyvsp[-3].sp), 1); }
-#line 2186 "pkg/src/xpctab.c"
+#line 2181 "pkg/src/xpctab.c"
     break;
 
   case 113: /* opt_sign: %empty  */
 #line 369 "pkg/src/lex_yacc/xpctab.y"
                     { (yyval.ival) = 0; }
-#line 2192 "pkg/src/xpctab.c"
+#line 2187 "pkg/src/xpctab.c"
     break;
 
 
-#line 2196 "pkg/src/xpctab.c"
+#line 2191 "pkg/src/xpctab.c"
 
       default: break;
     }

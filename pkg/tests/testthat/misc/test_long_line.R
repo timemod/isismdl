@@ -8,9 +8,6 @@ library(readr)
 
 rm(list = ls())
 
-#update_expected <- FALSE
-
-
 test_that("syntax errors for model with long line", {
 
   n <- 400
@@ -22,7 +19,7 @@ test_that("syntax errors for model with long line", {
 
   per <- period("2015Q1")
   mdl <- isis_mdl(model_text = model_text, period = per, silent = TRUE)
-  mdl$solve()
+  mdl$solve(options = list(report = "none"))
   expect_equal(
     mdl$get_data(),
     regts(matrix(sum(1:n), ncol = 1), period = per, names = "x")
