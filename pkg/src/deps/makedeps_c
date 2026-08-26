@@ -102,5 +102,6 @@ symbol.o : dependencies.h isismdl.h symbol.h util.h xpcdef.h
 util.o : isismdl.h util.h
 
 xpctab.o : dependencies.h ecode.h include_paths.h ipcode.h isismdl_types.h \
-    mchdr.h mcopt.h mdldef.h outmdl.h symbol.h util.h xpcdef.h xpctab.h
+    mchdr.h mcinit.h mcopt.h mdldef.h outmdl.h symbol.h util.h xpcdef.h \
+    xpctab.h
 

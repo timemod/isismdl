@@ -31,8 +31,7 @@ static char **include_dirs = NULL;
 static int include_dirs_size = 0;
 static int max_path_length = 0;
 
-/* Create memory for a new filename of length n and
- * returns the pointer to that array */
+/* Stores a copy of string s in the filename pool */
 static char *filename_pool_strdup(const char *s) {
     FilenameNode *n = emalloc(sizeof *n);
     n->name = estrdup(s);
