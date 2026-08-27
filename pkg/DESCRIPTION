@@ -1,7 +1,7 @@
 Package: isismdl
 Type: Package
 Title: Solve macroeconomic models
-Version: 2.5.1
+Version: 2.5.2
 Date: 2016-02-18
 Authors@R: c(
  person("Rob", "van Harrevelt", email = "rvanharrevelt@gmail.com", role = c("aut", "cre")),
@@ -38,4 +38,4 @@ Suggests:
 VignetteBuilder: knitr,
                  R.rsp
 Encoding: UTF-8
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0

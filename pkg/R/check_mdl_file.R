@@ -6,7 +6,9 @@ check_mdl_file <- function(model_file) {
   if (dir.exists(model_file)) stop(sprintf("'%s' is a directory", model_file))
   if (.Platform$OS.type == "unix" && startsWith(model_file, "~")) {
     model_file <- sub("~", Sys.getenv("HOME"), model_file)
+  } else if (.Platform$OS.type == "windows") {
+    # replace backward slashes by forward slashes:
+    model_file <- gsub("\\\\", "/", model_file)
   }
-
   return(model_file)
 }

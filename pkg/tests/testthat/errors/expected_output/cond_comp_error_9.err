@@ -1,0 +1,10 @@
+syntax error, unexpected '*'
+Line: 2 of file mdl/cond_comp1_inc.mdl
+y = 2 ***3;
+         ^
+
+Unmatched #IF: missing 2 #ENDIF(s) at EOF (last opened at line 4 of mdl/cond_comp1_inc.mdl)
+Line: 4 of file mdl/cond_comp1.mdl
+b = 2;
+     ^
+

@@ -1,7 +1,11 @@
-
 /*
  * various output functions
  */
+
+#ifndef OUTMDL_H
+#define OUTMDL_H
+
+#include <stdlib.h>
 
 void out_omdl (FILE *fp, int subst);  /* mdl output with
                                        * or without substitution of ufuncs */
@@ -15,3 +19,5 @@ void out_dmdl(FILE *fp, int subst);    /* Dynare */
 void out_ipcode(Symbol *sp); /* generate ip-code */
 void free_polish(void);  /* free memory used to generate ip-code */
 int export_symtab (void); /* export symbol table to arrays in rf7-code */
+
+#endif

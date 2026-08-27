@@ -11,7 +11,6 @@ SEXP convert_mdl_file_c(SEXP filename, SEXP outputfile, SEXP flags,
 
     Mcopt mc_options;
     mcopt_init(&mc_options);
-    mc_options.Strict = 1; 
 
     SEXP subst_ = getListElement(options, "substitute");
     if (!Rf_isNull(subst_)) {

@@ -12,7 +12,6 @@ SEXP gen_dep_file(SEXP filename, SEXP outputfile) {
 
     Mcopt mc_options;
     mcopt_init(&mc_options);
-    mc_options.Strict = 1;
     mc_options.gen_dep = 1;
 
     return run_mcexec(filename, outputfile, R_NilValue, R_NilValue,

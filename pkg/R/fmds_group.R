@@ -28,9 +28,9 @@
 #' @importFrom rlang .data
 #' @noRd
 fmds_group <- function(
-    mdl, solve_group, solve_period, solve_variables, observed_variables,
-    initial_guess, observed_data, dep_struc, report, jacobian,
-    print_jacobian, ...) {
+  mdl, solve_group, solve_period, solve_variables, observed_variables,
+  initial_guess, observed_data, dep_struc, report, jacobian,
+  print_jacobian, ...) {
 
   # Check arguments ------------------------------------------------------------
 

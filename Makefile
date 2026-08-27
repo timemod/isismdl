@@ -14,6 +14,34 @@ PKGTAR=$(PKG)_$(shell grep Version $(PKGDIR)/DESCRIPTION  | cut -d " " -f 2).tar
 
 export OSTYPE=$(shell Rscript -e "cat(.Platform[['OS.type']])")
 
+# Determine the Flex and bison commands and the include directory for FlexLexer.h file
+# for Unix systems (Linux or MAC OS).
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+  LEX_CMD := lex
+  LEX_INC := /usr/include
+  BISON_CMD := bison
+else ifeq ($(UNAME_S),Darwin)
+  ifneq ($(wildcard /opt/homebrew/opt/flex/include/FlexLexer.h),)
+    LEX_CMD := /opt/homebrew/opt/flex/bin/flex
+    LEX_INC := /opt/homebrew/opt/flex/include
+  else
+    LEX_CMD := 
+    LEX_INC :=
+  endif
+  ifneq ($(wildcard /opt/homebrew/opt/bison/bin/bison),)
+    BISON_CMD :=  /opt/homebrew/opt/bison/bin/bison
+  else 
+    BISON_CMD := 
+  endif
+endif
+
+SRC_DIR = pkg/src
+LEX_YACC_DIR = pkg/src/lex_yacc
+LYPREFIX = mc
+
+.PHONY: clean cleanx check install uninstall mkpkg bin pdf
+
 help:
 	@echo
 	@echo "The following targets are available:"
@@ -26,6 +54,8 @@ help:
 	@echo "   data      - generate data"
 	@echo "   mkpkg     - builds source package, add to drat and checks with --as-cran"
 	@echo "   bin       - builds binary package in ./tmp"
+	@echo "   flex      - run flex (see README.md)"
+	@echo "   bison     - run bison (see README.md)"
 	@echo "   install   - install package in .libPaths()[1]"
 	@echo "   installv  - install package with vignettes in .libPaths()[1]"
 	@echo "   uninstall - uninstall package from .libPaths()[1]"
@@ -48,6 +78,9 @@ flags:
 	@echo PKGTAR=$(PKGTAR)
 	@echo FC=$(FC)
 	@echo CC=$(CC)
+	@echo LEX_CMD=$(LEX_CMD)
+	@echo LEX_INC=$(LEX_INC)
+	@echo BISON_CMD=$(BISON_CMD)
 	@echo libPaths:
 	@R --no-save --quiet --slave -e '.libPaths()'
 
@@ -116,6 +149,25 @@ installv: install_deps
 install_deps:
 	R --slave -f install_deps.R
 
+flex:
+ifeq ($(OSTYPE), windows)
+	@echo Flex can not run on Windows
+else ifeq ($(strip $(LEX_CMD)),)
+	$(warning "Unknown Flex location")
+else
+	$(LEX_CMD) -P$(LYPREFIX) -o $(SRC_DIR)/scan.c -i $(LEX_YACC_DIR)/scan.l
+endif
+
+bison:
+ifeq ($(OSTYPE), windows)
+	@echo Bison can not run on Windows
+else ifeq ($(strip $(BISON_CMD)),)
+	$(warning "Unknown Bison location")
+else
+	$(BISON_CMD) -Wno-yacc -d -p $(LYPREFIX) -o $(SRC_DIR)/xpctab.c $(LEX_YACC_DIR)/xpctab.y
+endif
+
+makedeps: install_deps
 uninstall:
 	R CMD REMOVE $(PKG)
 
