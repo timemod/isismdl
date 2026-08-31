@@ -18,5 +18,4 @@ void mcopt_init(Mcopt *options) {
     options->MakeTroll  = 0;
     options->MakeEviews = 0;
     options->MakeDynare = 0;
-    options->Strict     = 0;
 }

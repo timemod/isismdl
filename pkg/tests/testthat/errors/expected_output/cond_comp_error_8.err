@@ -1,0 +1,5 @@
+Unmatched #IF: missing 1 #ENDIF(s) at EOF (last opened at line 2 of mdl/cond_comp1.mdl)
+Line: 4 of file mdl/cond_comp1.mdl
+b = 2;
+     ^
+

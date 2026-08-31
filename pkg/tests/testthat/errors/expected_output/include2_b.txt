@@ -1,4 +1,4 @@
-end; statement not allowed in included file
+end keyword not allowed in included file
 Line: 3 of file mdl/incl/incl_err.mdl
 end;
    ^

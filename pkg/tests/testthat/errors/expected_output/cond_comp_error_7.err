@@ -1,0 +1,4 @@
+#IF stack overflow (max 10) at line 11 of model_text, parsing terminated
+Line: 11 of file model_text
+#if a11
+  ^
