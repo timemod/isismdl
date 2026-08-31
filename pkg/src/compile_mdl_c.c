@@ -40,6 +40,8 @@ SEXP compile_mdl_c(SEXP filename, SEXP mifname, SEXP ppfname,
          &iprifbi, &iprisjc, mrfopt, fbcopt, &mcstat);
 
     if (mcstat != 0) {
+        // TODO: foutmelding niet nodig, fout wordt al in mcisis afgehandeld.
+        // mcisis hoeft eigenlijk geen mcstat terug te geven.
         char *format;
         switch (mcstat) {
             case 1: format = "The model file %s does not exist\n";

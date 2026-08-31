@@ -35,9 +35,8 @@ mcheck.o : mcedef.o mcstak.o mdl_name_utils.o model_type.o msufstack.o \
 mcirfb.o : kinds.o mccedp.o mcordr.o mdl_name_utils.o model_type.o \
     output_utils.o
 
-mcisis.o : filenameutils.o invpol.o kinds.o mccedp.o mcdep.o mcpars.o mcvars.o \
-    mcxref.o mdl_name_utils.o mdordr.o model_params.o msufstack.o \
-    output_utils.o
+mcisis.o : invpol.o kinds.o mccedp.o mcisis_utils.o mcpars.o mcvars.o mcxref.o \
+    mdl_name_utils.o mdordr.o output_utils.o
 
 mcjsbl.o : mccedp.o model_type.o
 
@@ -158,4 +157,7 @@ svd_anal.o : kinds.o mdl_name_utils.o model_params.o msimot.o msvars.o nucnst.o 
 utils.o : model_params.o
 
 write_model.o : mdl_flen.o modelworkspaces.o
+
+mcisis_utils.o : filenameutils.o mcdep.o mcpars.o mcvars.o model_params.o \
+    msufstack.o output_utils.o
 

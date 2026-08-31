@@ -9,7 +9,7 @@ module mcvars
     integer(kind = MC_IKIND), dimension(:), allocatable, save :: &
 &       vtype, maxlag, mxlead
     character(len = MAXFLEN), save :: mdlpath, mifnam, xrfnam
-    character(len = 256), save ::  errstr
+    character(len = 256), save :: errstr
     logical, save ::  faterr
     integer, save :: nerror, filerr, filios, lenxrf
     integer, save :: maxref
