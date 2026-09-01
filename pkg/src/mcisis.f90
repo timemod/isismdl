@@ -9,6 +9,7 @@ use mccedp
 use output_utils
 use mcisis_utils
 use mcordr
+use file_utils
 use iso_c_binding, only : C_NULL_CHAR
 
 !     Isis model compiler
