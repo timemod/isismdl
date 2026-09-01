@@ -23,8 +23,7 @@ use mcdep
 !       6    internal error 3 in mcxref
 !       7    cannot allocate enough memory
 
-!     sets global error string
-!     but does not produce error message
+!     sets global error string, but does not produce error message
 
 integer ::   ier
 integer ::    mrfopt(*)
@@ -66,7 +65,11 @@ integer  :: cntrdv, nzrcnt
 integer(kind = MC_IKIND) :: lhsnum
 integer :: stat, retcod
 
+integer :: filerr, filios
+
 ier = 0
+filerr = 0
+filios = 0
 
 maxref = max(1,maxref)
 rfshrt = mrfopt(2) .eq. 1
@@ -642,7 +645,7 @@ endif
 goto 1000
 
 900 continue
-errstr = 'Insufficient memory for cross-reference'
+errstr = 'Insufficient memory'
 ier = 1
 goto 999
 

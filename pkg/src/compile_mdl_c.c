@@ -8,10 +8,10 @@ extern void F77_NAME(mcisis)(int *modelnmlen, const char *modelnm,
                              int *ppfnmlen, const char *ppfnm,
                              int *idofbrd, int *igenfbo, 
                              int *iprifb, int *iprisjc, int *mrfopt,
-                             int *fbcopt, int *mcstat);
+                             int *fbcopt);
 
-SEXP compile_mdl_c(SEXP filename, SEXP mifname, SEXP ppfname,
-		   SEXP flags, SEXP include_dirs) {
+ SEXP compile_mdl_c(SEXP filename, SEXP mifname, SEXP ppfname,
+             		    SEXP flags, SEXP include_dirs) {
 
     const char *modelnm = CHAR(STRING_ELT(filename, 0));
     int modelnmlen = strlen(modelnm);
@@ -37,25 +37,8 @@ SEXP compile_mdl_c(SEXP filename, SEXP mifname, SEXP ppfname,
     int mcstat;
     F77_CALL(mcisis)(&modelnmlen, modelnm, &mifnmlen, mifnm, 
 		     &ppfnmlen, ppfnm, &idofbrd, &igenfbo, 
-         &iprifbi, &iprisjc, mrfopt, fbcopt, &mcstat);
+         &iprifbi, &iprisjc, mrfopt, fbcopt);
 
-    if (mcstat != 0) {
-        // TODO: foutmelding niet nodig, fout wordt al in mcisis afgehandeld.
-        // mcisis hoeft eigenlijk geen mcstat terug te geven.
-        char *format;
-        switch (mcstat) {
-            case 1: format = "The model file %s does not exist\n";
-                    break;
-            case 2: format = "Error detected in compilation of model %s\nCheck the .err file";
-                    break;
-            case 4: format = "Not enough memory to compile the model %s\n";
-                    break;
-            default: format = "Error detected in compilation of model %s\n";
-                     break;
-        }
-        error(format, modelnm);
-    }
-    
+    return R_NilValue;
 
-    return ScalarLogical(mcstat == 0);
 }

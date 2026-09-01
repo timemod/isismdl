@@ -1,12 +1,11 @@
 subroutine mcisis(modelnaml,modelnams, &
 &                 mifnaml, mifnams, ppfnaml, ppfnams, &
 &                 idofbrd, igenfbo, iprifbi, iprisjc, &
-&                 mrfopt, fbcopt, mcstat)
+&                 mrfopt, fbcopt)
 use mcvars
-use mccedp
-use mdordr
 use mcpars
 use mcxref
+use mccedp
 use output_utils
 use mcisis_utils
 use iso_c_binding, only : C_NULL_CHAR
@@ -39,16 +38,6 @@ use iso_c_binding, only : C_NULL_CHAR
 !         In    fbcopt      Integer(2)  options for printing feedback cycle
 !                                       passed to mcxref
 
-!         Out   mcstat      Integer     status flag
-!                                         0 all ok
-!                                         1 model file does not exist
-!                                         2 error in model compilation
-!                                         3 other errors
-!                                           (model ordering, writing mif
-!                                            or mrf)
-!                                         4 not enough memory to compile
-!                                           the model
-
 !     adapted from Lahey source of tomci (Don/E)
 !     many changes
 !     more restrictive in syntax (no $ as replacement for ;)
@@ -56,7 +45,6 @@ use iso_c_binding, only : C_NULL_CHAR
 !     different error handling
 !     different intermediate code and output files
 
-integer, intent(out) :: mcstat
 integer, intent(in) ::  modelnaml, modelnams(*)
 integer, intent(in) ::  mifnaml, mifnams(*)
 integer, intent(in) ::  ppfnaml, ppfnams(*)
@@ -65,7 +53,7 @@ integer, intent(in) ::  mrfopt(*), fbcopt(*)
 
 
 logical ::  dofbrd, genfbo, fbomif, prifbi, prisjc
-
+integer :: mcstat, orderr
 ! for copy of fbcopt
 
 integer ::  fbcpar(2)
@@ -85,7 +73,7 @@ integer ::  fbcpar(2)
 character(len = MAXFLEN + 1) pathnm, ppfname
 
 integer :: ios
-integer :: ier, errpar, orderr, deperr
+integer :: ier, deperr
 logical :: has_error
 
 !*IF TIMER
@@ -93,7 +81,6 @@ logical :: has_error
 !
 !      real told,tnew
 !*ENDIF
-integer :: fbor_err
 
 ! convert integers (passed from C) to logicals
 dofbrd = idofbrd > 0
@@ -101,12 +88,7 @@ genfbo = igenfbo > 0
 prifbi = iprifbi > 0
 prisjc = iprisjc > 0
 
-mcstat = 0
-faterr = .false.
 nerror = 0
-filerr = 0
-filios = 0
-ier    = 0
 orderr = 0
 deperr = 0
 has_error = .false.
@@ -120,22 +102,21 @@ call mcimsg(1, 0)
 if (modelnaml > MAXFLEN) then
     errstr = "Length of model filename too long"
     has_error = .true.
-    mcstat = 3
 else if (mifnaml > MAXFLEN) then
     errstr = "Length of filename for mif file too long"
     has_error = .true.
-    mcstat = 3
 else if (ppfnaml > MAXFLEN) then
     errstr = "Length of filename for preproc file too long"
     has_error = .true.
-    mcstat = 3
 endif
 
 if (has_error) goto 2000
 
 ! initialise model compiler, determine pathname modelfile
-call mcfileadmin(modelnaml, modelnams, pathnm)
-! TODO: let mcfileadmin determine an error code and create an error.
+if (mcfileadmin(modelnaml, modelnams, pathnm) /= 0) then
+   has_error = .true.
+   goto 2000
+endif
 
 ! generate names of the mif and mrf file
 call byasf7(mifnams, 1, mifnaml, mifnam)
@@ -145,51 +126,42 @@ call byasf7(ppfnams, 1, ppfnaml, ppfname)
 
 !  delete the mif and mrf file if they already exist
 if (delete_file(mifnam) /= 0) then
-    mcstat = 3
     has_error = .true.
     errstr = 'Cannot remove existing mif file'
     goto 2000
 endif
 if (delete_file(xrfnam) /= 0) then
-    mcstat = 3
     has_error = .true.
     errstr = 'Cannot remove existing mrf file'
     goto 2000
 endif
 
-! open files
+!
+! -------------- open scratch files ---------------
+!
 
 ! unit parunt first for parameter list,
 ! later for model structure (ordering information)
 open(parunt, status = 'scratch', form = 'unformatted', iostat = ios)
 if (ios .ne. 0) then
-    ! TODO: aparte functie hiervoor
-    ! TODO: waarschuwing toevoegen aan foutmelding, geen aparte
-    ! waarschuwing.
-    call isismdl_warn('Cannot open scratch file')
-    errstr = 'Error detected in compilatiomn of model ' // trim(pathnm)
+    errstr = 'Internal - Cannot open scratch file'
     has_error = .true.
-    mcstat = 3
     goto 2000
 endif
 
 ! unit polunt for equation code
 open(polunt, form = 'UNFORMATTED', status = 'scratch', iostat = ios)
 if (ios .ne. 0) then
-    call isismdl_warn('Cannot open scratch file')
-    errstr = 'Error detected in compilatiomn of model ' // trim(pathnm)
+    errstr = 'Internal - Cannot open scratch file'
     has_error = .true.
-    mcstat = 3
     goto 2000
 endif
 
 ! unit ufnunt for function code
 open(ufnunt, form = 'UNFORMATTED', status = 'scratch', iostat = ios)
 if (ios .ne. 0) then
-    call isismdl_warn('Cannot open scratch file')
-    errstr = 'Error detected in compilatiomn of model ' // trim(pathnm)
+    errstr = 'Internal - Cannot open scratch file'
     has_error = .true.
-    mcstat = 3
     goto 2000
 endif
 
@@ -216,12 +188,16 @@ else
     mdl%fboflg = 0
 endif
 
+!
+! -------------------call the xpc model compiler -----------------------
+!
+
+! the compiled code is written to temporary files 
+! (the scratch files opened before)
+
 !*IF TIMER
 !      call xtime(told)
 !*ENDIF
-
-! call the xpc model compiler
-! the compiled code is written to temporaty files
 
 call mcimsg(3, 0)
 
@@ -233,17 +209,17 @@ mcstat = mcip(trim(pathnm) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR)
 !*ENDIF
 
 if (mcstat /= 0) then
-    ! TODO: use case statement here?
-    if (mcstat == 1) then
-        errstr = 'The model file ' // trim(pathnm) // ' does not exist' // achar(10)
-    elseif (mcstat == 2) then
-        errstr = 'Error detected in compilation of model ' // trim(pathnm) // &
-                  achar(10) // 'Check the .err file'
-    elseif (mcstat == 4) then
-        errstr = 'Not enough memory to compile the model ' // trim(pathnm) 
-    else 
-        errstr = 'Error detected in compilation of model ' // trim(pathnm) 
-    endif
+    select case (mcstat)
+        case (1)
+            errstr = 'The model file ' // trim(pathnm) // ' does not exist' // achar(10)
+        case (2)
+            errstr = 'Error detected in compilation of model ' // trim(pathnm) // &
+                      achar(10) // 'Check the .err file'
+        case (4)
+             errstr = 'Not enough memory to compile the model ' // trim(pathnm)
+        case default
+             errstr = 'Error detected in compilation of model ' // trim(pathnm)
+    end select
     has_error = .true.
     goto 2000
 endif
@@ -264,11 +240,10 @@ call sort_names(mdl)
 !     read coefficients from file
 call read_coef
 
-call mcimsg(8, int(mdl%neq, ISIS_IKIND))
+call mcimsg(8, int(mdl%neq, MC_IKIND))
 
 if (mdl%neq .le. 0) then
     has_error = .true.
-    mcstat = 3
     errstr = 'Model has no equations'
     goto 2000
 endif
@@ -298,102 +273,41 @@ call mc_analyse_model(deperr)
 !      call mctimer('Analysing dependencies        ', told, tnew)
 !*ENDIF
 if (deperr /= 0) then
-    if (deperr == 10) then
-        mcstat = 4
-    else
-        mcstat = 3
-    endif
     has_error = .true.
     goto 2000
 endif
 
 ! 
-! ---------------generate dependency data structure for ordering ---------
+! ---------------- order the model --------------------------------------
 !
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-call mcrddp(mdl, orderr, errpar)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('mcrddp                        ',told,tnew)
-!*ENDIF
+ier = mc_order_mdl(dofbrd, genfbo)
+orderr = ier
 if (orderr .ne. 0) then
-    if (orderr == 1) then
-        mcstat = 4 ! out of memory
-    else
-        mcstat = 3 ! other errors
-    endif
     has_error = .true.
     goto 2000
 endif
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-call order_mdl(mdl, dofbrd = dofbrd, errflg = orderr, fbor_err = fbor_err)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Total time ordering model            ',told,tnew)
-!*ENDIF
-if (orderr .ne. 0) then
-    if (orderr == 20) then
-        mcstat = 4
-    else
-        mcstat = 3
-    endif
-    has_error = .true.
-    goto 2000
-endif
-
-if (genfbo .and. mdl%nfb > 1) then
-    call mcimsg(12,0)
-endif
-
-if (genfbo .and. mdl%nfb > 1 .and. fbor_err /= 0) then
-    if (fbor_err == 2) then
-        call mcimsg(13, 0)
-    else if (fbor_err == 3) then
-        call mcimsg(14, mdl%fbomem)
-    endif
-    call mcimsg(15,0)
-endif
-
+!
+! -----------------set compilation time and date in mdl ----------
+!
 call datim(mdl%time, 1)
 call datim(mdl%date, 2)
 
 !        
-! ------------------- write mif file ----------------
+! ------------------- write mif file ---------------------------
 !
 !*IF TIMER
 !      call xtime(told)
 !*ENDIF
-call check_variables
-call mcwmif(mdl, mifnam, ier)
+ier = mc_write_mif()
 !*IF TIMER
 !      call xtime(tnew)
 !      call mctimer('Mcwmif                        ',told,tnew)
 !*ENDIF
-if (ier .ne. 0) then
-    ! TODO: errstr invullen in mcwmif. Lukt in eerste instantie niet
-    ! omdat use mcvars in mcwmif een foutboodschap veroorzaakt.
-    ! Uitzoeken waarom
-    if (ier == 5) then
-        errstr = 'Cannot open MIF file for write'
-    elseif (ier == 6) then
-        errstr = 'Write error on MIF file'
-    elseif (ier == 7) then
-        errstr = 'Read error on scratch file in mcwmif'
-    else
-        errstr = 'Unknown error while writing the mif file.'
-    endif
-    ! TODO: waarschuwing toevoegen aan foutmelding, geen aparte
-    ! waarschuwing.
-    call isismdl_warn(errstr)
-    errstr = 'Problem writing mif file'
+if (ier /= 0) then
+    errstr = 'Error writing the mif file (' // trim(errstr) // ")"
     has_error = .true.
-    mcstat = 3
     goto 2000
 endif
 
@@ -439,10 +353,8 @@ call write_xref(ier, mrfopt, fbcpar, prifbi, prisjc)
 !*ENDIF
 if (ier .ne. 0) then
     ! an error occurred in mcxref, errstr contains error message
-    call isismdl_warn(errstr)
-    errstr = 'Problem generating cross reference'
+    errstr = 'Error generating cross reference (' // trim(errstr) // ")"
     has_error = .true.
-    mcstat = 3
     goto 2000
 endif
 
@@ -450,7 +362,6 @@ call mcimsg(7, 0)
 
 ! FINISHED - no errors
 has_error = .false.
-mcstat = 0
 
 2000 continue
 
@@ -462,8 +373,6 @@ call deallocate_model(mdl)
 call clear_edep
 call clear_mcvars
 
-! TODO: hebben we een aparte variabele has_error nodig? Misschien
-! alleen mcstat /= 0 gebruiken.:
 if (has_error) then
     ! TODO: moet orderr of mceeppr een fout of waarschuwing zijn? 
     ! onduidelijk. Even uitzoeken.

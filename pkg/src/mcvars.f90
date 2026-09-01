@@ -10,8 +10,7 @@ module mcvars
 &       vtype, maxlag, mxlead
     character(len = MAXFLEN), save :: mdlpath, mifnam, xrfnam
     character(len = 256), save :: errstr
-    logical, save ::  faterr
-    integer, save :: nerror, filerr, filios, lenxrf
+    integer, save :: nerror, lenxrf
     integer, save :: maxref
     integer(kind = MC_IKIND), save :: nre
 

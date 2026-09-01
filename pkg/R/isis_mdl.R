@@ -186,21 +186,17 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   include_dirs <- parse_options$include_dirs
 
   call_compile_mdl_c <- function() {
-    return(.Call(
+    .Call(
       C_compile_mdl_c, model_file, mif_file, preproc_file,
       flags, include_dirs
-    ))
+    )
   }
   if (silent) {
     capture.output({
-      retval <- call_compile_mdl_c()
+      call_compile_mdl_c()
     })
   } else {
-    retval <- call_compile_mdl_c()
-  }
-
-  if (!retval) {
-    stop("Compilation was not successful")
+    call_compile_mdl_c()
   }
 
   model_text <- read_file(preproc_file)
