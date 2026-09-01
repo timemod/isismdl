@@ -23,7 +23,7 @@ use mcdep
 !       6    internal error 3 in mcxref
 !       7    cannot allocate enough memory
 
-!     sets global error string, but does not produce error message
+! If ier /= 0, the error string in mcvars is set, but error message is produced.
 
 integer ::   ier
 integer ::    mrfopt(*)

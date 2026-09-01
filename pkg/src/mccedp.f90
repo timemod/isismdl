@@ -198,7 +198,7 @@ integer, intent(out) :: ier
 !                                             10 : not enough memory
 !                                             other: see mcodep.f90
 
-! sets global error string, but does not produce error message
+! If ier /= 0, the error string in mcvars is set, but error message is produced.
 
 integer ::  i, j, ios, fstat, stat
 integer(kind = MC_IKIND) :: ipol
