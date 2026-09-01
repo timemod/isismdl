@@ -185,19 +185,12 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   flags <- parse_options$flags
   include_dirs <- parse_options$include_dirs
 
-  call_compile_mdl_c <- function() {
-    .Call(
-      C_compile_mdl_c, model_file, mif_file, preproc_file,
-      flags, include_dirs
-    )
-  }
   if (silent) {
-    capture.output({
-      call_compile_mdl_c()
-    })
-  } else {
-    call_compile_mdl_c()
+    sink("/dev/null")
+    on.exit(sink(), add = TRUE)
   }
+  .Call(C_compile_mdl_c, model_file, mif_file, preproc_file,
+        flags, include_dirs)
 
   model_text <- read_file(preproc_file)
   file.remove(preproc_file)
