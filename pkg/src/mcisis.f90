@@ -262,37 +262,9 @@ if (mdl%nulf > 0) call mcszer(mdl%ulfnames, mdl%iulflast, size(mdl%ulfnames))
 ! ------------------- determine dependency structure
 !
 
-! analyse dependency structure and write dependencies to scratch
-! file depunt
-
-call mcimsg(4, 0)
-
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-call mc_analyse_model(ier)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Analysing dependencies        ', told, tnew)
-!*ENDIF
+ier = mc_gen_dep()
 if (ier /= 0) then
     has_error = .true.
-    goto 2000
-endif
-
-! read dependency information from scratch file depunt
-
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-call mcrddp(mdl, ier, errpar)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('mcrddp                        ',told,tnew)
-!*ENDIF
-if (ier /= 0) then
-    has_error = .true.
-    errstr = '(Internal) Error reading the dependency structure from scratch file'
     goto 2000
 endif
 

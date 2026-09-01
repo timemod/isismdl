@@ -182,7 +182,7 @@ end subroutine read_coef
 ! 0    OK
 ! /= 0 Error, see comments in mcwmif.f90
 ! 
-! sets global error string, but does not produce error message
+! On error sets global error string, but does not produce error message
 integer function mc_write_mif() 
 
   integer :: k, i, nd2, ier
@@ -232,7 +232,7 @@ integer function mc_write_mif()
   end do
   mdl%nd = mdl%nd1 + nd2
 
-  ! now write mig file
+  ! now write mif file
 
   call mcwmif(mdl, mifnam, ier)
 
@@ -257,7 +257,12 @@ end function mc_write_mif
 
 ! ------------------------------------------------------------
 
-! install the dependency structure 
+! Install the dependency structure 
+! Return value:
+!  0   OK
+! /=0  Error
+!
+! On error sets global error string, but does not produce error message
 integer function mc_gen_dep()
   use mccedp
 
