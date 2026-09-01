@@ -8,6 +8,7 @@ use mcxref
 use mccedp
 use output_utils
 use mcisis_utils
+use mcordr
 use iso_c_binding, only : C_NULL_CHAR
 
 !     Isis model compiler
@@ -53,7 +54,7 @@ integer, intent(in) ::  mrfopt(*), fbcopt(*)
 
 
 logical ::  dofbrd, genfbo, fbomif, prifbi, prisjc
-integer :: mcstat, orderr
+integer :: mcstat, orderr, errpar
 ! for copy of fbcopt
 
 integer ::  fbcpar(2)
@@ -73,7 +74,7 @@ integer ::  fbcpar(2)
 character(len = MAXFLEN + 1) pathnm, ppfname
 
 integer :: ios
-integer :: ier, deperr
+integer :: ier
 logical :: has_error
 
 !*IF TIMER
@@ -90,7 +91,6 @@ prisjc = iprisjc > 0
 
 nerror = 0
 orderr = 0
-deperr = 0
 has_error = .false.
 
 lenxrf = 128
@@ -256,24 +256,42 @@ call mcszer(mdl%pnames, mdl%iplast, size(mdl%pnames))
 call mcszer(mdl%fnames, mdl%iflast, size(mdl%fnames))
 if (mdl%nulf > 0) call mcszer(mdl%ulfnames, mdl%iulflast, size(mdl%ulfnames))
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
 
+!
+! ------------------- determine dependency structure
+!
 
 ! analyse dependency structure and write dependencies to scratch
 ! file depunt
 
 call mcimsg(4, 0)
 
-call mc_analyse_model(deperr)
-
+!*IF TIMER
+!      call xtime(told)
+!*ENDIF
+call mc_analyse_model(ier)
 !*IF TIMER
 !      call xtime(tnew)
 !      call mctimer('Analysing dependencies        ', told, tnew)
 !*ENDIF
-if (deperr /= 0) then
+if (ier /= 0) then
     has_error = .true.
+    goto 2000
+endif
+
+! read dependency information from scratch file depunt
+
+!*IF TIMER
+!      call xtime(told)
+!*ENDIF
+call mcrddp(mdl, ier, errpar)
+!*IF TIMER
+!      call xtime(tnew)
+!      call mctimer('mcrddp                        ',told,tnew)
+!*ENDIF
+if (ier /= 0) then
+    has_error = .true.
+    errstr = '(Internal) Error reading the dependency structure from scratch file'
     goto 2000
 endif
 
@@ -281,8 +299,7 @@ endif
 ! ---------------- order the model --------------------------------------
 !
 
-ier = mc_order_mdl(dofbrd, genfbo)
-orderr = ier
+orderr = mc_order_mdl(dofbrd, genfbo)
 if (orderr .ne. 0) then
     has_error = .true.
     goto 2000
@@ -291,6 +308,7 @@ endif
 !
 ! -----------------set compilation time and date in mdl ----------
 !
+
 call datim(mdl%time, 1)
 call datim(mdl%date, 2)
 
@@ -374,13 +392,8 @@ call clear_edep
 call clear_mcvars
 
 if (has_error) then
-    ! TODO: moet orderr of mceeppr een fout of waarschuwing zijn? 
-    ! onduidelijk. Even uitzoeken.
-    ! Ik denk fout met extra informatie toegevoegd.
     if (orderr /= 0) then
         call mcoerr(orderr)
-    else if (deperr /= 0) then
-        call mcdeperr(deperr)
     else 
        call isismdl_error(errstr)
     endif

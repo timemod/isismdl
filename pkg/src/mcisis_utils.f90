@@ -78,90 +78,6 @@ endif
 return
 end subroutine mkfnam
 
-! message for ordering error
-subroutine mcoerr(errcod)
-use output_utils
-integer, intent(in) ::  errcod
-character(len = 80) :: errmsg
-
-select case (errcod)
-case (1)
-    errmsg = 'No diagonal match'
-case (2)
-    errmsg = 'No ordering found'
-case (3)
-    errmsg = 'Diagonal element not found'
-case (4)
-    errmsg = 'Equations still unordered'
-case (5)
-    errmsg = 'cannot mdl%order feedbacks'
-case (6)
-    errmsg = 'duplicate lhs var'
-case (7)
-    errmsg = 'too many arcs in model'
-case (8)
-    errmsg = 'Error reading scratch file'
-case (9)
-    errmsg = 'End of file on scratch file'
-case (10)
-    errmsg = 'prepos not finished'
-case (11)
-    errmsg = 'too many feedbacks'
-case (12)
-    errmsg = 'non zero element in single'
-case (13)
-    errmsg = 'cannot choose feedback'
-case (20)
-    errmsg = 'Not enough memory for ordering the model'
-case default
-    errmsg = 'Unknown error'
-end select
-
-call isismdl_error(errmsg)
-
-return
-end subroutine mcoerr
-
-
-! Error about generating the dependencies
-subroutine mcdeperr(errcod)
-use msufstack
-use mcdep
-use output_utils
-
-integer, intent(in) ::  errcod
-
-! error message in mcodep
-
-! In    errcod   Integer    type error
-
-
-  character(len = 50) :: errmsg
-
-  select case (errcod)
-  case (1)
-      write(errmsg, '(a, i5, a)') &
-&      'Too many variables in equation (max =', MAXRHS, ')'
-  case (2)
-      errmsg = 'Internal error: problem in equation code'
-  case (3)
-      errmsg = 'Internal error: invalid operator code'
-  case (4)
-      errmsg = 'Equation too long: ran out of stack'
-  case (5)
-      write(errmsg, '(a, i3, a)') 'Too many nested user functions (max =', &
-&        MAX_USERF_STACK, ')'
-  case default
-      errmsg = 'Unknown error in mcodep'
-
-  end select
-
-  call isismdl_error(errmsg)
-
-  return
-
-end subroutine mcdeperr
-
 !-----------------------------------------------------------------------
 
 subroutine mcimsg(msgnum, mpar)
@@ -361,30 +277,63 @@ end function mc_write_mif
 
 ! ------------------------------------------------------------
 
+! install the dependency structure 
+integer function mc_gen_dep()
+  use mccedp
+
+  integer :: ier, errpar
+
+  ! analyse dependency structure and write dependencies to scratch
+  ! file depunt
+
+  call mcimsg(4, 0)
+
+!*IF TIMER
+!      call xtime(told)
+!*ENDIF
+  call mc_analyse_model(ier)
+!*IF TIMER
+!      call xtime(tnew)
+!      call mctimer('Analysing dependencies        ', told, tnew)
+!*ENDIF
+  if (ier /= 0) then
+     mc_gen_dep = ier
+     return
+  endif
+
+! read dependency information from scratch file depunt
+
+!*IF TIMER
+!      call xtime(told)
+!*ENDIF
+  call mcrddp(mdl, ier, errpar)
+!*IF TIMER
+!      call xtime(tnew)
+!      call mctimer('mcrddp                        ',told,tnew)
+!*ENDIF
+  if (ier /= 0) then
+      errstr = '(Internal) Error reading the dependency structure from scratch file'
+  endif
+ 
+  mc_gen_dep = ier
+
+  return
+
+end function mc_gen_dep
+
+! ------------------------------------------------------------
+
 ! Determines the model ordering 
 
 ! Return code:
 ! 0    OK
 ! /= 0 Error, see comments in mcwmif.f90
-! 
-! sets global error string, but does not produce error message
 
 integer function mc_order_mdl(dofbrd, genfbo) 
-  use mccedp
   use mdordr
   logical, intent(in) :: dofbrd, genfbo
 
   integer:: orderr, errpar, fbor_err
-
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-  call mcrddp(mdl, orderr, errpar)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('mcrddp                        ',told,tnew)
-!*ENDIF
-  if (orderr /= 0) goto 100
 
 !*IF TIMER
 !      call xtime(told)

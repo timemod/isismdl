@@ -25,7 +25,8 @@ liqrsq.o : kinds.o
 
 liqrup.o : kinds.o nuv.o
 
-mccedp.o : invpol.o kinds.o mcdep.o mcodep.o mcpars.o mcvars.o model_type.o
+mccedp.o : invpol.o kinds.o mcdep.o mcodep.o mcpars.o mcvars.o model_type.o \
+    msufstack.o
 
 mcfbor.o : mccedp.o model_type.o
 
@@ -35,17 +36,17 @@ mcheck.o : mcedef.o mcstak.o mdl_name_utils.o model_type.o msufstack.o \
 mcirfb.o : kinds.o mccedp.o mcordr.o mdl_name_utils.o model_type.o \
     output_utils.o
 
-mcisis_utils.o : filenameutils.o mccedp.o mcdep.o mcpars.o mcvars.o mdordr.o \
-    model_params.o msufstack.o output_utils.o
+mcisis_utils.o : filenameutils.o mccedp.o mcpars.o mcvars.o mdordr.o \
+    model_params.o output_utils.o
 
-mcisis.o : invpol.o kinds.o mccedp.o mcisis_utils.o mcpars.o mcvars.o mcxref.o \
-    mdl_name_utils.o output_utils.o
+mcisis.o : invpol.o kinds.o mccedp.o mcisis_utils.o mcordr.o mcpars.o mcvars.o \
+    mcxref.o mdl_name_utils.o output_utils.o
 
 mcjsbl.o : mccedp.o model_type.o
 
 mcodep.o : mcdep.o mcedef.o mcstak.o model_type.o msufstack.o
 
-mcordr.o : kinds.o mccedp.o model_type.o
+mcordr.o : kinds.o mccedp.o model_type.o output_utils.o
 
 mcosjc.o : mdl_name_utils.o model_params.o
 
@@ -112,7 +113,7 @@ msnwut.o : kinds.o mdl_name_utils.o msfbvl.o msimot.o msjcot.o msolot.o \
 
 msolot.o : mdl_name_utils.o msimot.o msvars.o nuna.o
 
-msordr.o : mccedp.o mdordr.o modelworkspaces.o msorpr.o mws_type.o \
+msordr.o : mccedp.o mcordr.o mdordr.o modelworkspaces.o msorpr.o mws_type.o \
     output_utils.o
 
 msorpr.o : kinds.o mcjsbl.o mcxref.o mdl_flen.o mdl_name_utils.o model_type.o \

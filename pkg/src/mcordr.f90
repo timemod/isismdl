@@ -928,4 +928,52 @@ subroutine deallocate_mcordr_work
 
 end subroutine deallocate_mcordr_work
 
+! Give an error for an ordering error.
+! WARNING: this function returns to the R code,
+! so call this function only when all memory has been cleared.
+subroutine mcoerr(errcod)
+  use output_utils
+  integer, intent(in) :: errcod
+
+  character(len = 80) :: errmsg
+
+  select case (errcod)
+  case (1)
+      errmsg = 'No diagonal match'
+  case (2)
+      errmsg = 'No ordering found'
+  case (3)
+      errmsg = 'Diagonal element not found'
+  case (4)
+      errmsg = 'Equations still unordered'
+  case (5)
+      errmsg = 'cannot mdl feedbacks'
+  case (6)
+      errmsg = 'duplicate lhs var'
+  case (7)
+      errmsg = 'too many arcs in model'
+  case (8)
+      errmsg = 'Error reading scratch file'
+  case (9)
+      errmsg = 'End of file on scratch file'
+  case (10)
+      errmsg = 'mcopre not finished'
+  case (11)
+      errmsg = 'too many feedbacks'
+  case (12)
+      errmsg = 'non zero element in single'
+  case (13)
+      errmsg = 'cannot choose feedback'
+  case (20)
+      errmsg = 'Not enough memory'
+  case default
+      errmsg = 'Unknown error'
+  end select
+
+  errmsg = 'Error ordering the model: ' // trim(errmsg)
+
+  call isismdl_error(errmsg)
+
+end subroutine mcoerr
+
 end module mcordr

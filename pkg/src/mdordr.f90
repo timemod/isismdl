@@ -139,20 +139,9 @@
         
         if (allocated(fbtypfix)) deallocate(fbtypfix)
         
-        if (errflg /= 0) then
-            select case (errflg)
-            case(20)
-                msg =  "Not enough memory for ordering the model equations."
-            case default
-                write(msg,'(a, i2, a)') 'Internal error ', errflg,  &
-                                    ' occurred while ordering the model.'
-            end select
-            call isismdl_error(msg)
-        endif
-        
         if (fbor_err == 3) then
             ! not enough memory to generate feedback ordering
-            call isismdl_error("Not enough memory to generate feedback ordering.")
+            call isismdl_warn("Not enough memory to generate feedback ordering.")
         endif
         return
     
