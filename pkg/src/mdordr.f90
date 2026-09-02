@@ -107,7 +107,6 @@
                          fixepi = fixepi, numfix = fixcnt, &
                          fbfix = fbfix, fbtypfix = fbtypfix)
         if (errflg /= 0) then
-             call deallocate_mcordr_work
              goto 999
         endif
 
@@ -119,12 +118,12 @@
             !
             call rm_redundant_fb(mdl, errflg, errval, usinac = usinac, &
     &                            fixepi = fixepi, dofbrd = dofbrd)
-            call deallocate_mcordr_work ! release memory no longer needed
             if (errflg /= 0) goto 999
             fbrdcnt_tmp = nfbprev - mdl%nfb
         endif
 
         if (mdl%fboflg > 0) then
+            call deallocate_mcordr_work ! release memory that is no longer needed
             call gen_fb_order(0, mdl, fbor_err)
         else
             fbor_err = 0
@@ -137,12 +136,15 @@
 
         if (present(fbrdcnt)) fbrdcnt = fbrdcnt_tmp
         
+        call deallocate_mcordr_work
+
         if (allocated(fbtypfix)) deallocate(fbtypfix)
         
         if (fbor_err == 3) then
             ! not enough memory to generate feedback ordering
             call isismdl_warn("Not enough memory to generate feedback ordering.")
         endif
+
         return
     
     end subroutine order_mdl

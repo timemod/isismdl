@@ -21,16 +21,17 @@ use iso_c_binding, only : C_NULL_CHAR
 
 !         In    modelnaml   Integer     length of modelname (bytes)
 !         In    modelnams   Integer(*)  modelname
+!         In    mifnaml     Integer     length of the name of the mif file (bytes)
+!         In    mifnams     Integer(*)  name of the mif file
+!         In    ppfnaml     Integer     length of the name of the post processor file (bytes)
+!         In    ppfnams     Integer(*)  name of the post processor file
 !         In    idofbrd     Integer     1 for    remove redundant fb vars
 !                                       0 to NOT remove redundant fb vars
-
 !         In    igenfbo     Integer     1 for generate feedback ordering
 !                                       0 to NOT generate fb ordering
-
 !         In    iprifbi     Integer     0 to print in crossreference info
 !                                             on how each fb var was chosen
 !                                       1 to not print this info
-
 !         In    iprisjc     Integer     0 to print rhs symbolic jacobian
 !                                            + statistics
 !                                       1 to not print
@@ -40,25 +41,15 @@ use iso_c_binding, only : C_NULL_CHAR
 !         In    fbcopt      Integer(2)  options for printing feedback cycle
 !                                       passed to mcxref
 
-!     adapted from Lahey source of tomci (Don/E)
-!     many changes
-!     more restrictive in syntax (no $ as replacement for ;)
-!                                (no redundant , )
-!     different error handling
-!     different intermediate code and output files
-
 integer, intent(in) ::  modelnaml, modelnams(*)
 integer, intent(in) ::  mifnaml, mifnams(*)
 integer, intent(in) ::  ppfnaml, ppfnams(*)
 integer, intent(in) ::  idofbrd, igenfbo, iprifbi, iprisjc
 integer, intent(in) ::  mrfopt(*), fbcopt(*)
 
-
-logical ::  dofbrd, genfbo, fbomif, prifbi, prisjc
-integer :: mcstat, orderr, errpar
-! for copy of fbcopt
-
-integer ::  fbcpar(2)
+logical :: dofbrd, genfbo, fbomif, prifbi, prisjc
+integer :: mcstat, orderr = 0, errpar
+integer :: fbcpar(2)
 
 ! parameters that determine dimensions
 
@@ -72,17 +63,13 @@ integer ::  fbcpar(2)
 
 
 ! name of model file with path
-character(len = MAXFLEN + 1) pathnm, ppfname
+character(len = MAXFLEN + 1) :: pathnm, ppfname
 
 integer :: ios
 integer :: ier
 logical :: has_error
 
-!*IF TIMER
-!     for time measurements
-!
-!      real told,tnew
-!*ENDIF
+has_error = .false.
 
 ! convert integers (passed from C) to logicals
 dofbrd = idofbrd > 0
@@ -90,14 +77,14 @@ genfbo = igenfbo > 0
 prifbi = iprifbi > 0
 prisjc = iprisjc > 0
 
-nerror = 0
-orderr = 0
-has_error = .false.
 
-lenxrf = 128
-errstr = 'Internal error: error string not set'
+call init_mcvars(genfbo)
 
 call mcimsg(1, 0)
+
+!
+! ------------------------ file name admin ------------------------
+!
 
 ! check length of filenames
 if (modelnaml > MAXFLEN) then
@@ -119,10 +106,9 @@ if (mcfileadmin(modelnaml, modelnams, pathnm) /= 0) then
    goto 2000
 endif
 
-! generate names of the mif and mrf file
+! generate names of the mif, mrf and ppf file
 call byasf7(mifnams, 1, mifnaml, mifnam)
-call mkfnam(xrfnam,xrfext)
-
+call mkfnam(xrfnam, xrfext)
 call byasf7(ppfnams, 1, ppfnaml, ppfname)
 
 !  delete the mif and mrf file if they already exist
@@ -134,6 +120,11 @@ endif
 if (delete_file(xrfnam) /= 0) then
     has_error = .true.
     errstr = 'Cannot remove existing mrf file'
+    goto 2000
+endif
+if (delete_file(ppfname) /= 0) then
+    has_error = .true.
+    errstr = 'Cannot remove existing ppdf file'
     goto 2000
 endif
 
@@ -166,29 +157,6 @@ if (ios .ne. 0) then
     goto 2000
 endif
 
-! initialise variables for name administration
-mdl%ivlast = 0
-mdl%iplast = 0
-mdl%ielast = 0
-mdl%iflast = 0
-mdl%iulflast = 0
-mdl%neq = 0
-nre = 0
-mdl%nrv = 0
-mdl%nrp = 0
-mdl%nrc = 0
-mdl%nuf = 0
-mdl%nulf = 0
-mdl%ufblen = 0
-mdl%eqblen = 0
-mdl%fbomem = 0
-
-if (genfbo) then
-    mdl%fboflg = 2
-else 
-    mdl%fboflg = 0
-endif
-
 !
 ! -------------------call the xpc model compiler -----------------------
 !
@@ -196,18 +164,9 @@ endif
 ! the compiled code is written to temporary files 
 ! (the scratch files opened before)
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-
 call mcimsg(3, 0)
 
 mcstat = mcip(trim(pathnm) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR)
-
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Model compilation             ', told, tnew)
-!*ENDIF
 
 if (mcstat /= 0) then
     select case (mcstat)
@@ -227,18 +186,10 @@ endif
 
 mdl%neq = nre
 
-!   sort names
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
+! sort names
 call sort_names(mdl)
 
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Sorting names                 ', told, tnew)
-!*ENDIF
-
-!     read coefficients from file
+! read coefficients from file
 call read_coef
 
 call mcimsg(8, int(mdl%neq, MC_IKIND))
@@ -249,7 +200,6 @@ if (mdl%neq .le. 0) then
     goto 2000
 endif
 
-
 ! set unused bytes in string memory to zero
 call mcszer(mdl%enames, mdl%ielast, size(mdl%enames))
 call mcszer(mdl%vnames, mdl%ivlast, size(mdl%vnames))
@@ -257,9 +207,8 @@ call mcszer(mdl%pnames, mdl%iplast, size(mdl%pnames))
 call mcszer(mdl%fnames, mdl%iflast, size(mdl%fnames))
 if (mdl%nulf > 0) call mcszer(mdl%ulfnames, mdl%iulflast, size(mdl%ulfnames))
 
-
 !
-! ------------------- determine dependency structure
+! ------------------- determine dependency structure ---------------------
 !
 
 ier = mc_gen_dep()
@@ -269,7 +218,7 @@ if (ier /= 0) then
 endif
 
 ! 
-! ---------------- order the model --------------------------------------
+! ---------------- Order the model --------------------------------------
 !
 
 orderr = mc_order_mdl(dofbrd, genfbo)
@@ -288,25 +237,22 @@ call datim(mdl%date, 2)
 !        
 ! ------------------- write mif file ---------------------------
 !
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
+
 ier = mc_write_mif()
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Mcwmif                        ',told,tnew)
-!*ENDIF
 if (ier /= 0) then
     errstr = 'Error writing the mif file (' // trim(errstr) // ")"
     has_error = .true.
     goto 2000
 endif
 
+!
+! ----------------- write xrf file ------------------------
+!
+
 call mcimsg(6, 0)
 
-!  TEMPORARY
-!      turn print feedback chain on
-!      set max print length to   something reasonable
+! turn print feedback chain on
+! set max print length to something reasonable
 
 if (mdl%fbomem .gt. 0) then
     fbcpar(1) = fbcopt(1)
@@ -330,18 +276,7 @@ if (mdl%fboflg > 0 .and. fbcpar(1) .eq. 0 ) then
     if (allocated(mdl%fbordr)) deallocate(mdl%fbordr)
 endif
 
-!
-! ----------------- write xrf file ------------------------
-!
-
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
 call write_xref(ier, mrfopt, fbcpar, prifbi, prisjc)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Mcxref                        ',told,tnew)
-!*ENDIF
 if (ier .ne. 0) then
     ! an error occurred in mcxref, errstr contains error message
     errstr = 'Error generating cross reference (' // trim(errstr) // ")"
@@ -349,10 +284,12 @@ if (ier .ne. 0) then
     goto 2000
 endif
 
+!
+! ------------------------ Finished -----------------------
+!
+
 call mcimsg(7, 0)
 
-! FINISHED - no errors
-has_error = .false.
 
 2000 continue
 

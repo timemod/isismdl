@@ -273,29 +273,15 @@ integer function mc_gen_dep()
 
   call mcimsg(4, 0)
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
   call mc_analyse_model(ier)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Analysing dependencies        ', told, tnew)
-!*ENDIF
   if (ier /= 0) then
      mc_gen_dep = ier
      return
   endif
 
-! read dependency information from scratch file depunt
+  ! read dependency information from scratch file depunt
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
   call mcrddp(mdl, ier, errpar)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('mcrddp                        ',told,tnew)
-!*ENDIF
   if (ier /= 0) then
       errstr = '(Internal) Error reading the dependency structure from scratch file'
   endif
@@ -320,14 +306,7 @@ integer function mc_order_mdl(dofbrd, genfbo)
 
   integer:: orderr, errpar, fbor_err
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-      call order_mdl(mdl, dofbrd = dofbrd, errflg = orderr, fbor_err = fbor_err)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Total time ordering model            ',told,tnew)
-!*ENDIF
+  call order_mdl(mdl, dofbrd = dofbrd, errflg = orderr, fbor_err = fbor_err)
   if (orderr /= 0) goto 100
 
   if (genfbo .and. mdl%nfb > 1) then

@@ -44,6 +44,7 @@ module msimul
     
     mws%simerr = 0
     chklead = .true.
+    ndiver = 0
     retcod = 0
     
     ! set report option and print solve option
@@ -67,8 +68,6 @@ module msimul
     endif
     
     call cpu_time(told)
-    
-    ndiver = 0
     
     ! set scale = 1. for Newton/Broyden method
     if (mode /= 'R') then

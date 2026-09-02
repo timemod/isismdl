@@ -1,3 +1,5 @@
+file_utils.o : mdl_flen.o
+
 fortran_calls.o : modelworkspaces.o msfill.o msimot.o msimul.o msslvq.o \
     msvars.o set_options.o
 

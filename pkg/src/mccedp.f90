@@ -317,7 +317,6 @@ end subroutine init_dep
 !-----------------------------------------------------------------------
 
 subroutine clear_edep
-    integer :: stat
     if (allocated(equno)) deallocate(equno)
     if (allocated(edptr)) deallocate(edptr)
     if (allocated(eqdep)) deallocate(eqdep)

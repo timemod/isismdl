@@ -1,13 +1,12 @@
 module file_utils
 
-  use :: iso_c_binding, only : c_ptr, c_int, c_char, c_null_char, c_loc
-  use :: mdl_flen
+  use mdl_flen
  
   private
 
   interface
-      function c_unlink(path) bind(c, name='unlink')
-          import :: c_ptr, c_int
+      function c_unlink(path) bind(c, name = 'unlink')
+          use iso_c_binding, only : c_ptr, c_int
           type(c_ptr), value :: path
           integer(c_int) :: c_unlink
       end function c_unlink
@@ -20,6 +19,7 @@ module file_utils
   ! delete file filenm. Returns 0 on success and nonzero on failure.
   ! The function also returns 0 if the file does not exist.
   integer function delete_file(filenm) result(res)
+    use iso_c_binding, only : c_char, c_null_char, c_loc
     character(len = *), intent(in) :: filenm
 
     character(len = MAXFLEN + 1, kind = c_char), target :: c_path

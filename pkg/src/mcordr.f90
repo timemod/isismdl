@@ -929,8 +929,8 @@ subroutine deallocate_mcordr_work
 end subroutine deallocate_mcordr_work
 
 ! Give an error for an ordering error.
-! WARNING: this function returns to the R code,
-! so call this function only when all memory has been cleared.
+! WARNING: this function exits Fortan and C code and resumes the 
+! R code, so call this function only when all memory has been cleared.
 subroutine mcoerr(errcod)
   use output_utils
   integer, intent(in) :: errcod
