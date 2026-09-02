@@ -25,10 +25,11 @@ use mcdep
 
 ! If ier /= 0, the error string in mcvars is set, but error message is produced.
 
-integer ::   ier
-integer ::    mrfopt(*)
-integer ::    fbcopt(*)
-logical ::    prifbi,prisjc
+integer :: ier
+integer :: mrfopt(*)
+integer :: fbcopt(*)
+logical :: prifbi,prisjc
+integer :: lenxrf 
 
 logical ::  rfshrt
 

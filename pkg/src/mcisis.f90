@@ -1,7 +1,5 @@
 subroutine mcisis(modelnaml,modelnams, &
-&                 mifnaml, mifnams, ppfnaml, ppfnams, &
-&                 idofbrd, igenfbo, iprifbi, iprisjc, &
-&                 mrfopt, fbcopt)
+&                 mifnaml, mifnams, ppfnaml, ppfnams)
 use mcvars
 use mcpars
 use mcxref
@@ -25,30 +23,25 @@ use iso_c_binding, only : C_NULL_CHAR
 !         In    mifnams     Integer(*)  name of the mif file
 !         In    ppfnaml     Integer     length of the name of the post processor file (bytes)
 !         In    ppfnams     Integer(*)  name of the post processor file
-!         In    idofbrd     Integer     1 for    remove redundant fb vars
-!                                       0 to NOT remove redundant fb vars
-!         In    igenfbo     Integer     1 for generate feedback ordering
-!                                       0 to NOT generate fb ordering
-!         In    iprifbi     Integer     0 to print in crossreference info
-!                                             on how each fb var was chosen
-!                                       1 to not print this info
-!         In    iprisjc     Integer     0 to print rhs symbolic jacobian
-!                                            + statistics
-!                                       1 to not print
-
-!         In    mrfopt      Integer(2)  options/flags for cross reference
-
-!         In    fbcopt      Integer(2)  options for printing feedback cycle
-!                                       passed to mcxref
 
 integer, intent(in) ::  modelnaml, modelnams(*)
 integer, intent(in) ::  mifnaml, mifnams(*)
 integer, intent(in) ::  ppfnaml, ppfnams(*)
-integer, intent(in) ::  idofbrd, igenfbo, iprifbi, iprisjc
-integer, intent(in) ::  mrfopt(*), fbcopt(*)
 
-logical :: dofbrd, genfbo, fbomif, prifbi, prisjc
-integer :: mcstat, orderr = 0, errpar
+! mrf option
+integer, parameter :: mrfopt(2) = [ &
+    128,  &  ! maximum length width
+      1 ]    ! 1 or 0 for short or long mrf 
+
+! feedback cycle option
+integer, parameter :: fbcopt(2) = [ &
+      0,  &  ! ???
+    200 ]    ! maximum length of feedback chain to print
+
+logical, parameter :: dofbrd = .true., genfbo = .true., &
+                      prifbi = .false., prisjc = .false.
+
+integer :: mcstat, orderr, errpar
 integer :: fbcpar(2)
 
 ! parameters that determine dimensions
@@ -69,13 +62,9 @@ integer :: ios
 integer :: ier
 logical :: has_error
 
+! initialise local variables
 has_error = .false.
-
-! convert integers (passed from C) to logicals
-dofbrd = idofbrd > 0
-genfbo = igenfbo > 0
-prifbi = iprifbi > 0
-prisjc = iprisjc > 0
+orderr = 0
 
 
 call init_mcvars(genfbo)
