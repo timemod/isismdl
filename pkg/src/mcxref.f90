@@ -4,7 +4,7 @@ module mcxref
 
     contains
 
-subroutine write_xref(ier, mrfopt, fbcopt,prifbi, prisjc)
+subroutine write_xref(xrfnam, ier, mrfopt, fbcopt, prifbi, prisjc)
 use mcvars
 use mcpars
 use kinds
@@ -25,13 +25,14 @@ use mcdep
 
 ! If ier /= 0, the error string in mcvars is set, but error message is produced.
 
-integer :: ier
-integer :: mrfopt(*)
-integer :: fbcopt(*)
-logical :: prifbi,prisjc
-integer :: lenxrf 
+character(len = *), intent(in) :: xrfnam
+integer, intent(out) :: ier
+integer, intent(in) :: mrfopt(2)
+integer, intent(in) :: fbcopt(2)
+logical, intent(in) :: prifbi, prisjc
 
-logical ::  rfshrt
+integer :: lenxrf 
+logical :: rfshrt
 
 integer(kind = MC_IKIND), dimension(:), allocatable :: &
 & ivref,ipref,ieref,ixref, equno

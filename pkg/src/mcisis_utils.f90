@@ -13,7 +13,7 @@ module mcisis_utils
 
 contains
 
-!  Performs filename administration for the model compiler
+! Sets the model name
 
 !  Return code: 
 !   0 OK
@@ -21,62 +21,35 @@ contains
 !   7 Model name too long
 
 !  sets global error string, but does not produce error message
-integer function mcfileadmin(modelnaml, modelnams, pathnm)
-use filenameutils
-integer, intent(in) :: modelnaml, modelnams(*)
-character(len = *), intent(out) :: pathnm
+integer function mc_set_mdl_name(mdlnam) result(res)
+  use filenameutils
+  character(len = *), intent(in) :: mdlnam
 
-character(len = MAXFLEN) :: basename, tmpstr
-character(len = 1)       :: dirsep
+  character(len = MAXFLEN) :: mdlpath, basename, tmpstr
+  character(len = 1)       :: dirsep
 
-mcfileadmin = 0
+   res = 0
 
-call byasf7(modelnams, 1, modelnaml, pathnm)
-if (len_trim(pathnm) == 0) then
-    mcfileadmin = 40
-    errstr = "Empty model name"
-    return
-endif
+   if (len_trim(mdlnam) == 0) then
+       res = 40
+       errstr = "Empty model name"
+       return
+   endif
 
-call split_path(pathnm, mdlpath, basename, dirsep)
+   ! TODO: could we simplify this code?
+   call split_path(mdlnam, mdlpath, basename, dirsep)
+   call remove_extension(basename, tmpstr)
 
-! mdlpath holds directory path of modelfile (including trailing \ or /)
-mdlpath = mdlpath(:len_trim(mdlpath)) // dirsep
-
-call remove_extension(basename, tmpstr)
-mdl%cnamelen = len_trim(tmpstr)
-mdl%cname = tmpstr(:mdl%cnamelen)
-if (mdl%cnamelen > len(mdl%cname)) then
-    mcfileadmin = 7
-    write(errstr,'(A21, I3, A11)') &
+   mdl%cnamelen = len_trim(tmpstr)
+   if (mdl%cnamelen > len(mdl%cname)) then
+       res = 7
+       write(errstr,'(A21, I3, A11)') &
              'Model name longer than ', len(mdl%cname), ' characters'
-endif
-
+       return
+   endif
+   mdl%cname = tmpstr(:mdl%cnamelen)
 return
-end function mcfileadmin
-
-!-----------------------------------------------------------------------
-
-subroutine mkfnam(fnam, ext)
-use mcvars
-character*(*) fnam, ext
-
-!     make a file name from
-!           mdlpath, mdl%cname and the extension supplied in <ext>
-!     return  in <fnam>
-
-integer ::  cnmlen, mdplen
-
-cnmlen = len_trim(mdl%cname)
-if( mdlpath .eq. '' ) then
-  fnam = mdl%cname(1:cnmlen) // ext
-else
-  mdplen = len_trim(mdlpath)
-  fnam = mdlpath(1:mdplen) // mdl%cname(1:cnmlen) // ext
-endif
-
-return
-end subroutine mkfnam
+end function mc_set_mdl_name
 
 !-----------------------------------------------------------------------
 
@@ -183,7 +156,8 @@ end subroutine read_coef
 ! /= 0 Error, see comments in mcwmif.f90
 ! 
 ! On error sets global error string, but does not produce error message
-integer function mc_write_mif() 
+integer function mc_write_mif(mifnam) 
+  character(len = *), intent(in) :: mifnam
 
   integer :: k, i, nd2, ier
   integer, external :: bysget

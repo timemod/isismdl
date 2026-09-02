@@ -1,5 +1,5 @@
-subroutine mcisis(modelnaml,modelnams, &
-&                 mifnaml, mifnams, ppfnaml, ppfnams)
+subroutine mcisis(modelnaml, modelnams, mifnaml, mifnams, &
+                  mrfnaml,   mrfnams,   ppfnaml, ppfnams)
 use mcvars
 use mcpars
 use mcxref
@@ -21,12 +21,15 @@ use iso_c_binding, only : C_NULL_CHAR
 !         In    modelnams   Integer(*)  modelname
 !         In    mifnaml     Integer     length of the name of the mif file (bytes)
 !         In    mifnams     Integer(*)  name of the mif file
+!         In    mrfnaml     Integer     length of the name of the mrf file (bytes)
+!         In    mrfnams     Integer(*)  name of the mrf file
 !         In    ppfnaml     Integer     length of the name of the post processor file (bytes)
 !         In    ppfnams     Integer(*)  name of the post processor file
 
-integer, intent(in) ::  modelnaml, modelnams(*)
-integer, intent(in) ::  mifnaml, mifnams(*)
-integer, intent(in) ::  ppfnaml, ppfnams(*)
+integer, intent(in) :: modelnaml, modelnams(*)
+integer, intent(in) :: mifnaml,   mifnams(*)
+integer, intent(in) :: mrfnaml,   mrfnams(*)
+integer, intent(in) :: ppfnaml,   ppfnams(*)
 
 ! mrf option
 integer, parameter :: mrfopt(2) = [ &
@@ -41,31 +44,15 @@ integer, parameter :: fbcopt(2) = [ &
 logical, parameter :: dofbrd = .true., genfbo = .true., &
                       prifbi = .false., prisjc = .false.
 
-integer :: mcstat, orderr, errpar
+integer :: mcstat, orderr, ier, ios
 integer :: fbcpar(2)
-
-! parameters that determine dimensions
-
-!   maxnuf = maximum no of functions (6 standard + rest user defined)
-!   maxnre = maximum no of equations in tsp input
-!   maxnrv = maximum no of variables in tsp input
-!   maxnrp = maximum no of names of parameters + constants in tsp input
-!   maxnrc = ditto, counting numbers rather than names
-
-!   maxnfb = maximum no of feedback variables in ordering
-
-
-! name of model file with path
-character(len = MAXFLEN + 1) :: pathnm, ppfname
-
-integer :: ios
-integer :: ier
 logical :: has_error
+
+character(len = MAXFLEN) :: mdlnam, mifnam, xrfnam, ppfname
 
 ! initialise local variables
 has_error = .false.
 orderr = 0
-
 
 call init_mcvars(genfbo)
 
@@ -82,39 +69,24 @@ if (modelnaml > MAXFLEN) then
 else if (mifnaml > MAXFLEN) then
     errstr = "Length of filename for mif file too long"
     has_error = .true.
+else if (mrfnaml > MAXFLEN) then
+    errstr = "Length of filename for mrf file too long"
+    has_error = .true.
 else if (ppfnaml > MAXFLEN) then
     errstr = "Length of filename for preproc file too long"
     has_error = .true.
 endif
-
 if (has_error) goto 2000
 
-! initialise model compiler, determine pathname modelfile
-if (mcfileadmin(modelnaml, modelnams, pathnm) /= 0) then
+! generate names of the mdl, mif, mrf and ppf file
+call byasf7(modelnams, 1, modelnaml, mdlnam)
+call byasf7(mifnams,   1, mifnaml,   mifnam)
+call byasf7(mrfnams,   1, mrfnaml,   xrfnam)
+call byasf7(ppfnams,   1, ppfnaml,   ppfname)
+
+if (mc_set_mdl_name(mdlnam) /= 0) then
    has_error = .true.
    goto 2000
-endif
-
-! generate names of the mif, mrf and ppf file
-call byasf7(mifnams, 1, mifnaml, mifnam)
-call mkfnam(xrfnam, xrfext)
-call byasf7(ppfnams, 1, ppfnaml, ppfname)
-
-!  delete the mif and mrf file if they already exist
-if (delete_file(mifnam) /= 0) then
-    has_error = .true.
-    errstr = 'Cannot remove existing mif file'
-    goto 2000
-endif
-if (delete_file(xrfnam) /= 0) then
-    has_error = .true.
-    errstr = 'Cannot remove existing mrf file'
-    goto 2000
-endif
-if (delete_file(ppfname) /= 0) then
-    has_error = .true.
-    errstr = 'Cannot remove existing ppdf file'
-    goto 2000
 endif
 
 !
@@ -155,19 +127,19 @@ endif
 
 call mcimsg(3, 0)
 
-mcstat = mcip(trim(pathnm) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR)
+mcstat = mcip(trim(mdlnam) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR)
 
 if (mcstat /= 0) then
     select case (mcstat)
         case (1)
-            errstr = 'The model file ' // trim(pathnm) // ' does not exist' // achar(10)
+            errstr = 'The model file ' // trim(mdlnam) // ' does not exist' // achar(10)
         case (2)
-            errstr = 'Error detected in compilation of model ' // trim(pathnm) // &
+            errstr = 'Error detected in compilation of model ' // trim(mdlnam) // &
                       achar(10) // 'Check the .err file'
         case (4)
-             errstr = 'Not enough memory to compile the model ' // trim(pathnm)
+             errstr = 'Not enough memory to compile the model ' // trim(mdlnam)
         case default
-             errstr = 'Error detected in compilation of model ' // trim(pathnm)
+             errstr = 'Error detected in compilation of model ' // trim(mdlnam)
     end select
     has_error = .true.
     goto 2000
@@ -227,7 +199,7 @@ call datim(mdl%date, 2)
 ! ------------------- write mif file ---------------------------
 !
 
-ier = mc_write_mif()
+ier = mc_write_mif(mifnam)
 if (ier /= 0) then
     errstr = 'Error writing the mif file (' // trim(errstr) // ")"
     has_error = .true.
@@ -265,7 +237,7 @@ if (mdl%fboflg > 0 .and. fbcpar(1) .eq. 0 ) then
     if (allocated(mdl%fbordr)) deallocate(mdl%fbordr)
 endif
 
-call write_xref(ier, mrfopt, fbcpar, prifbi, prisjc)
+call write_xref(xrfnam, ier, mrfopt, fbcpar, prifbi, prisjc)
 if (ier .ne. 0) then
     ! an error occurred in mcxref, errstr contains error message
     errstr = 'Error generating cross reference (' // trim(errstr) // ")"

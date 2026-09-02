@@ -182,6 +182,15 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   # significant reorganization of the code.
   mif_file <- tempfile(pattern = "isismdl_", fileext = ".mif")
   preproc_file <- tempfile(pattern = "isismdl_", fileext = ".mdl")
+
+  mrf_file <- paste0(
+    tools::file_path_sans_ext(model_file),
+    ".mrf"
+  )
+  if (file.exists(mrf_file) && !file.remove(mrf_file)) {
+    stop("Cannot remove existing mrf file")
+  }
+
   flags <- parse_options$flags
   include_dirs <- parse_options$include_dirs
 
@@ -189,8 +198,8 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
     sink("/dev/null")
     on.exit(sink(), add = TRUE)
   }
-  .Call(C_compile_mdl_c, model_file, mif_file, preproc_file,
-        flags, include_dirs)
+  .Call(C_compile_mdl_c, model_file, mif_file, mrf_file,
+        preproc_file, flags, include_dirs)
 
   model_text <- read_file(preproc_file)
   file.remove(preproc_file)
