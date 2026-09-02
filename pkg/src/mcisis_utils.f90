@@ -1,3 +1,7 @@
+!
+! Interface and functions used in mcisis.f90.
+!
+
 module mcisis_utils
 
  use mcvars
@@ -244,8 +248,6 @@ integer function mc_gen_dep()
 
   ! analyse dependency structure and write dependencies to scratch
   ! file depunt
-
-  call mcimsg(4, 0)
 
   call mc_analyse_model(ier)
   if (ier /= 0) then

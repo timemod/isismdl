@@ -167,6 +167,8 @@ call mcszer(mdl%pnames, mdl%iplast, size(mdl%pnames))
 call mcszer(mdl%fnames, mdl%iflast, size(mdl%fnames))
 if (mdl%nulf > 0) call mcszer(mdl%ulfnames, mdl%iulflast, size(mdl%ulfnames))
 
+call mcimsg(4, 0)
+
 !
 ! ------------------- determine dependency structure ---------------------
 !
@@ -263,7 +265,7 @@ call clear_mcvars
 
 if (has_error) then
     if (orderr /= 0) then
-        call mcoerr(orderr)
+       call mcoerr(orderr)
     else 
        call isismdl_error(errstr)
     endif

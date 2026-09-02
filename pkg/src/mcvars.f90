@@ -3,13 +3,11 @@
 !
 module mcvars
     use model_type
-    use mdl_flen
 
     type(model), save :: mdl
     integer(kind = MC_IKIND), dimension(:), allocatable, save :: &
 &       vtype, maxlag, mxlead
     character(len = 256), save :: errstr
-    integer, save :: nerror
     integer, save :: maxref
     integer(kind = MC_IKIND), save :: nre
 
@@ -19,7 +17,6 @@ module mcvars
         subroutine init_mcvars(genfbo)
             logical, intent(in) :: genfbo
 
-            nerror = 0
             errstr = 'Internal error: error string not set'
             nre = 0
 

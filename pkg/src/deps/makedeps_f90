@@ -52,7 +52,7 @@ mcosjc.o : mdl_name_utils.o model_params.o
 
 mcrmif.o : invpol.o mif_file.o model_type.o
 
-mcvars.o : mdl_flen.o model_type.o
+mcvars.o : model_type.o
 
 mcwmif.o : invpol.o mcpars.o model_type.o
 
