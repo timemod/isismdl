@@ -681,14 +681,14 @@ integer :: fbnum, j, jd, jd_prev
 logical :: error
 
 jd = period + mdl%mxlag 
-jd_prev = period - 1 + mdl%mxlag
+jd_prev = max(period - 1 + mdl%mxlag, 1)
 
 if (opts%start == 'C') then
     ! ------   current
     curvars = mws%mdl_data(:, jd)
 elseif (opts%start == 'P') then
     ! ------   previous
-    curvars =  mws%mdl_data(:, max(jd_prev, 1))
+    curvars =  mws%mdl_data(:, jd_prev)
 elseif (opts%start == 'D') then
     ! ------   1. relaxed current (curifok)
     !          2. redo feedback variables
@@ -704,7 +704,7 @@ elseif (opts%start == 'D') then
 elseif (opts%start == 'Q') then
     ! ------   1. relaxed previous (previfok)
     !          2. redo feedback variables
-    curvars = mws%mdl_data(:, max(jd_prev, 1))
+    curvars = mws%mdl_data(:, jd_prev)
     do j = 1, mdl%nfb
         fbnum = mdl%numfb(j)
         call get_var_value(mws, fbnum, period - 1, zx, error)
