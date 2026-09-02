@@ -154,19 +154,12 @@ end subroutine read_coef
 
 ! ------------------------------------------------------------
 
-! Writes the compiled model to a mif file.
-! Return code:
-! 0    OK
-! /= 0 Error, see comments in mcwmif.f90
-! 
-! On error sets global error string, but does not produce error message
-integer function mc_write_mif(mifnam) 
-  character(len = *), intent(in) :: mifnam
+subroutine mc_mdl_var_admin
 
-  integer :: k, i, nd2, ier
+  integer :: k, i, nd2
   integer, external :: bysget
 
-  ! first use some lag/lead administration
+  ! Miscellaneous administration for model variables
 
   mdl%nd1    = 0
   nd2        = 0
@@ -182,8 +175,8 @@ integer function mc_write_mif(mifnam)
       mdl%aci(k)  = 0
 
       if (char(bysget(vtype,k)) .eq. 'E') then
-           ! exogenous variable
-           mdl%lik(k) = .false.
+          ! exogenous variable
+          mdl%lik(k) = .false.
       else
           ! endogenous variable
           mdl%lik(k) = .true.
@@ -202,19 +195,31 @@ integer function mc_write_mif(mifnam)
 
   end do
 
-  mdl%ibx1(mdl%nrv+1) = mdl%nd1 + 1
-  mdl%ibx2(mdl%nrv+1) = nd2 + 1
+  mdl%ibx1(mdl%nrv + 1) = mdl%nd1 + 1
+  mdl%ibx2(mdl%nrv + 1) = nd2 + 1
 
   do i = 1, mdl%nrv + 1
       mdl%ibx2(i) = mdl%nd1 + mdl%ibx2(i)
   end do
   mdl%nd = mdl%nd1 + nd2
 
-  ! now write mif file
+end subroutine mc_mdl_var_admin
+
+! ------------------------------------------------------------
+
+integer function mc_write_mif(mifnam) 
+  character(len = *), intent(in) :: mifnam
+
+  ! Writes the compiled model to a mif file.
+  ! Return code:
+  ! 0    OK
+  ! /= 0 Error, see comments in mcwmif.f90
+  ! 
+  ! On error sets global error string, but does not produce error message
+
+  integer ier
 
   call mcwmif(mdl, mifnam, ier)
-
-  ! error message
 
   if (ier .ne. 0) then
       select case (ier)

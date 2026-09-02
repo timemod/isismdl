@@ -196,6 +196,12 @@ endif
 call datim(mdl%time, 1)
 call datim(mdl%date, 2)
 
+!
+! ----------------- model variable administration --------------------
+!
+
+call mc_mdl_var_admin
+
 !        
 ! ------------------- write mif file ---------------------------
 !
