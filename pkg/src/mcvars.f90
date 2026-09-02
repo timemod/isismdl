@@ -8,7 +8,6 @@ module mcvars
     type(model), save :: mdl
     integer(kind = MC_IKIND), dimension(:), allocatable, save :: &
 &       vtype, maxlag, mxlead
-    character(len = MAXFLEN), save :: mdlpath, mifnam, xrfnam
     character(len = 256), save :: errstr
     integer, save :: nerror
     integer, save :: maxref
