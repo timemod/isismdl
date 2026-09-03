@@ -36,7 +36,7 @@ mcheck.o : mcedef.o mcstak.o mdl_name_utils.o model_type.o msufstack.o \
 mcirfb.o : kinds.o mccedp.o mcordr.o mdl_name_utils.o model_type.o \
     output_utils.o
 
-mcisis_utils.o : filenameutils.o mccedp.o mcpars.o mcvars.o mdordr.o \
+mcisis_utils.o : filenameutils.o mccedp.o mcpars.o mcvars.o mdl_flen.o mdordr.o \
     model_params.o output_utils.o
 
 mcisis.o : invpol.o kinds.o mccedp.o mcisis_utils.o mcordr.o mcpars.o mcvars.o \

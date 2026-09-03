@@ -17,42 +17,39 @@ module mcisis_utils
 
 contains
 
-! Sets the model name
-
-!  Return code: 
-!   0 OK
-!  40 Empty model name.
-!   7 Model name too long
-
-!  sets global error string, but does not produce error message
 integer function mc_set_mdl_name(mdlnam) result(res)
   use filenameutils
+  use mdl_flen
   character(len = *), intent(in) :: mdlnam
 
-  character(len = MAXFLEN) :: mdlpath, basename, tmpstr
-  character(len = 1)       :: dirsep
+  ! Stores the model name in the mdl object.
+  ! Argument mdlnam is the path of the mdl file.
+ 
+  !  Return code: 
+  !   0 OK
+  !   1 Empty model name.
+  !   2 Model name too long.
 
-   res = 0
+  !  On error, sets global error string, but does not produce error message
 
-   if (len_trim(mdlnam) == 0) then
-       res = 40
-       errstr = "Empty model name"
-       return
-   endif
+  character(len = len_trim(mdlnam)) :: bname
+  integer :: namelen
 
-   ! TODO: could we simplify this code?
-   call split_path(mdlnam, mdlpath, basename, dirsep)
-   call remove_extension(basename, tmpstr)
+  call get_basename_sans_ext(mdlnam, bname)
 
-   mdl%cnamelen = len_trim(tmpstr)
-   if (mdl%cnamelen > len(mdl%cname)) then
-       res = 7
-       write(errstr,'(A21, I3, A11)') &
-             'Model name longer than ', len(mdl%cname), ' characters'
-       return
-   endif
-   mdl%cname = tmpstr(:mdl%cnamelen)
-return
+  namelen = len_trim(bname)
+  if (namelen == 0) then
+      res = 1
+      errstr = "Empty model name"
+  else if (namelen > MAXMOLEN) then
+      res = 2
+      write(errstr,'(A23, I4, A11)') &
+            'Model name longer than ', MAXMOLEN, ' characters'
+  else
+      res = 0 
+      mdl%cnamelen = namelen
+      mdl%cname = bname(:namelen)
+  endif
 end function mc_set_mdl_name
 
 !-----------------------------------------------------------------------
