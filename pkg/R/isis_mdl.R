@@ -195,7 +195,8 @@ isis_mdl <- function(model_file, period, data, ca, fix_values,
   include_dirs <- parse_options$include_dirs
 
   if (silent) {
-    sink("/dev/null")
+    null_device <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+    sink(null_device)
     on.exit(sink(), add = TRUE)
   }
   .Call(C_compile_mdl_c, model_file, mif_file, mrf_file,
