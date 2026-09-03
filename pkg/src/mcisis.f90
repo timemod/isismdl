@@ -47,7 +47,11 @@ integer :: mcstat, orderr, ier, ios
 integer :: fbcpar(2)
 logical :: has_error
 
-character(len = MAXFLEN) :: mdlnam, mifnam, xrfnam, ppfname
+! filenames
+character(len = modelnaml) :: mdlnam
+character(len = mifnaml)   :: mifnam
+character(len = mrfnaml)   :: xrfnam
+character(len = ppfnaml)   :: ppfname
 
 ! initialise local variables
 has_error = .false.
@@ -61,23 +65,7 @@ call mcimsg(1, 0)
 ! ------------------------ file name admin ------------------------
 !
 
-! check length of filenames
-if (modelnaml > MAXFLEN) then
-    errstr = "Length of model filename too long"
-    has_error = .true.
-else if (mifnaml > MAXFLEN) then
-    errstr = "Length of filename for mif file too long"
-    has_error = .true.
-else if (mrfnaml > MAXFLEN) then
-    errstr = "Length of filename for mrf file too long"
-    has_error = .true.
-else if (ppfnaml > MAXFLEN) then
-    errstr = "Length of filename for preproc file too long"
-    has_error = .true.
-endif
-if (has_error) goto 2000
-
-! generate names of the mdl, mif, mrf and ppf file
+! convert byte string to fortran characters
 call byasf7(modelnams, 1, modelnaml, mdlnam)
 call byasf7(mifnams,   1, mifnaml,   mifnam)
 call byasf7(mrfnams,   1, mrfnaml,   xrfnam)

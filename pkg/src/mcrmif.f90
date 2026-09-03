@@ -5,14 +5,13 @@ module mcrmif
   
   contains
   
-  subroutine read_mif_file(mdl, modelnmlen, modelnm, reorder_names, ier, fstat)
+  subroutine read_mif_file(mdl, mifnam, reorder_names, ier, fstat)
     use model_type
     use mif_file
     use invpol
     
     type(model), intent(inout)        :: mdl
-    integer, intent(in)               :: modelnmlen
-    integer, dimension(*), intent(in) :: modelnm
+    character(len = *), intent(in)    :: mifnam
     logical, intent(in)               :: reorder_names
     integer, intent(out)              :: ier, fstat
     
@@ -32,7 +31,7 @@ module mcrmif
     ! clear current model
     call deallocate_model(mdl)
   
-    call rdmifh(mdl, ier, fstat, modelnmlen, modelnm, fbosiz)
+    call rdmifh(mdl, ier, fstat, mifnam, fbosiz)
     if (ier /= 0) return
   
     eqCharCount    = mdl%ielast / 64
@@ -93,7 +92,7 @@ module mcrmif
   
   !-----------------------------------------------------------------------
   
-  subroutine rdmifh(mdl, ier, fstat, modelnmlen, modelnm, fbosiz)
+  subroutine rdmifh(mdl, ier, fstat, mifnam, fbosiz)
   use model_type
   use mif_file
   
@@ -104,17 +103,20 @@ module mcrmif
   !       2  read error mif file (iostat in fstat)
   !       3  invalid identification string on file
   !       4  file is corrupted
-  
-  type(model), intent(inout)        :: mdl
-  integer ::  ier, fstat, modelnmlen, modelnm(*)
+ 
+  type(model), intent(inout)            :: mdl
+  integer, intent(out)                  :: ier, fstat
+  character(len = *), intent(in)        :: mifnam
+  integer(kind = MC_IKIND), intent(out) :: fbosiz
   
   logical(kind = MC_LKIND) :: ldum1
-  integer(kind = MC_IKIND) :: idum1, fbosiz
+  integer(kind = MC_IKIND) :: idum1
   
   ier = 1
-  
-  call byasf7(modelnm, 1, modelnmlen, pathnm)
-  open(MIFUNT, file = pathnm, status = 'OLD', access = 'STREAM', &
+  fstat = 0
+  fbosiz = 0
+
+  open(MIFUNT, file = mifnam, status = 'OLD', access = 'STREAM', &
   &    action = 'READ', err=894)
   
   !   MIF version has the form MIFISIS.Xn where X = A..Z and num = 01..99.

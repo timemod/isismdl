@@ -12,7 +12,6 @@ module mif_file
 
     ! auxiliarry variables (is save really necessary here?)
     integer, save ::  cnamelen, mifvernum
-    character(len = MAXFLEN), save  :: pathnm
     character(len = MAXMOLEN), save :: cname
     character(len = 11), save :: fcode
 

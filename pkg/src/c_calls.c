@@ -26,10 +26,10 @@
 #define INACTIVE 3
 
 extern void F77_NAME(init_modules_fortran)(void);
-extern void F77_NAME(read_model_fortran)(int *modelnmlen, const char *modelnm,
+extern void F77_NAME(read_model_fortran)(int *mifnmlen, const char *mifnm,
                                          int *model_index, int *reorder_names, 
                                          int *ier);
-extern void F77_NAME(write_model_fortran)(int *modelnmlen, const char *modelnm,
+extern void F77_NAME(write_model_fortran)(int *mifnmlen, const char *mifnm,
                                           int *model_index, int *ier);
 extern void F77_NAME(get_data_fortran)(int *model_index, int *nvar, int *ivar,
                                        int *ntime, int *jtb,
@@ -100,11 +100,11 @@ SEXP init_modules_c(void) {
 
 SEXP read_mdl_c(SEXP filename, SEXP reorder_names_) {
 
-    const char *modelnm = CHAR(STRING_ELT(filename, 0));
-    int modelnmlen = strlen(modelnm);
+    const char *mifnm = CHAR(STRING_ELT(filename, 0));
+    int mifnmlen = strlen(mifnm);
     int model_index, ier;
     int reorder_names = asInteger(reorder_names_);
-    F77_CALL(read_model_fortran)(&modelnmlen, modelnm, &model_index, 
+    F77_CALL(read_model_fortran)(&mifnmlen, mifnm, &model_index, 
                                  &reorder_names, &ier);
 
     if (ier == 0) {
@@ -112,7 +112,7 @@ SEXP read_mdl_c(SEXP filename, SEXP reorder_names_) {
     } else {
         switch (ier) {
         case 1:
-            error("Cannot open Mif file %s", modelnm);
+            error("Cannot open Mif file %s", mifnm);
             break;
         case 3:
             error("Model not correct (see output)");
@@ -121,7 +121,7 @@ SEXP read_mdl_c(SEXP filename, SEXP reorder_names_) {
             error("Out of memory");
             break;
         default:
-            error("Unknown error reading Mif file %s", modelnm);
+            error("Unknown error reading Mif file %s", mifnm);
             break;
         }
         return ScalarInteger(-1);
@@ -133,19 +133,19 @@ SEXP read_mdl_c(SEXP filename, SEXP reorder_names_) {
 SEXP write_mdl_c(SEXP filename, SEXP model_index_) {
 
     int model_index = asInteger(model_index_);
-    const char *modelnm = CHAR(STRING_ELT(filename, 0));
-    int modelnmlen = strlen(modelnm);
+    const char *mifnm = CHAR(STRING_ELT(filename, 0));
+    int mifnmlen = strlen(mifnm);
     int ier;
 
-    F77_CALL(write_model_fortran)(&modelnmlen, modelnm, &model_index, &ier);
+    F77_CALL(write_model_fortran)(&mifnmlen, mifnm, &model_index, &ier);
 
     if (ier != 0) {
         if (ier == 5) {
-            error("Cannot open Mif file %s for writing\n", modelnm);
+            error("Cannot open Mif file %s for writing\n", mifnm);
         } else if (ier == 6) {
-             error("Error writing MIF file %s\n", modelnm);
+             error("Error writing MIF file %s\n", mifnm);
         } else {
-             error("Unknown error %d writing Mif file %s\n", ier, modelnm);
+             error("Unknown error %d writing Mif file %s\n", ier, mifnm);
         }
     }
     return R_NilValue;

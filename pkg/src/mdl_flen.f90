@@ -1,8 +1,5 @@
 module mdl_flen
 
-! maximum filename including path and extension.
-integer, parameter :: MAXFLEN = 4096
-
 ! maximum length of the modelname (excluding extension):
 integer, parameter :: MAXMOLEN = 1024
 
