@@ -80,26 +80,12 @@ endif
 ! -------------- open scratch files ---------------
 !
 
-! unit parunt first for parameter list,
-! later for model structure (ordering information)
+! unit parunt for parameter list, polunt for equation code
+! and ufnunt for function code.
 open(parunt, status = 'scratch', form = 'unformatted', iostat = ios)
-if (ios .ne. 0) then
-    errstr = 'Internal - Cannot open scratch file'
-    has_error = .true.
-    goto 2000
-endif
-
-! unit polunt for equation code
-open(polunt, form = 'UNFORMATTED', status = 'scratch', iostat = ios)
-if (ios .ne. 0) then
-    errstr = 'Internal - Cannot open scratch file'
-    has_error = .true.
-    goto 2000
-endif
-
-! unit ufnunt for function code
-open(ufnunt, form = 'UNFORMATTED', status = 'scratch', iostat = ios)
-if (ios .ne. 0) then
+if (ios == 0) open(polunt, form = 'UNFORMATTED', status = 'scratch', iostat = ios)
+if (ios == 0) open(ufnunt, form = 'UNFORMATTED', status = 'scratch', iostat = ios)
+if (ios /= 0) then
     errstr = 'Internal - Cannot open scratch file'
     has_error = .true.
     goto 2000
