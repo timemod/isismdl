@@ -19,7 +19,6 @@ contains
 
 integer function mc_set_mdl_name(mdlnam) result(res)
   use filenameutils
-  use mdl_flen
   character(len = *), intent(in) :: mdlnam
 
   ! Stores the model name in the mdl object.

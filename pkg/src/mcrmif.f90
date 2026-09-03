@@ -1,13 +1,15 @@
 ! Read mif file
 module mcrmif
+  use model_type
+
+  integer, parameter, private :: MIFUNT = 8
+  character(len = 11), parameter, private :: MIFVER = 'MIFISIS.A04' ! current version 
 
   private :: rdmifh, rdmifc 
-  
+
   contains
   
   subroutine read_mif_file(mdl, mifnam, reorder_names, ier, fstat)
-    use model_type
-    use mif_file
     use invpol
     
     type(model), intent(inout)        :: mdl
@@ -93,8 +95,6 @@ module mcrmif
   !-----------------------------------------------------------------------
   
   subroutine rdmifh(mdl, ier, fstat, mifnam, fbosiz)
-  use model_type
-  use mif_file
   
   !     reads header of model code file
   !     error status in ier and fstat
@@ -111,6 +111,8 @@ module mcrmif
   
   logical(kind = MC_LKIND) :: ldum1
   integer(kind = MC_IKIND) :: idum1
+  character(len = 11) :: fcode
+  integer :: mifvernum
   
   ier = 1
   fstat = 0
@@ -174,13 +176,11 @@ module mcrmif
   
   900 close(MIFUNT,iostat=fstat)
   return
-  end
+  end subroutine rdmifh
   
   !-----------------------------------------------------------------------
   
     subroutine rdmifc(mdl, ier,fstat)
-    use model_type
-    use mif_file
     
     
     !     reads index arrays from model code file

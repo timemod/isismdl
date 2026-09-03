@@ -36,7 +36,7 @@ mcheck.o : mcedef.o mcstak.o mdl_name_utils.o model_type.o msufstack.o \
 mcirfb.o : kinds.o mccedp.o mcordr.o mdl_name_utils.o model_type.o \
     output_utils.o
 
-mcisis_utils.o : filenameutils.o mccedp.o mcpars.o mcvars.o mdl_flen.o mdordr.o \
+mcisis_utils.o : filenameutils.o mccedp.o mcpars.o mcvars.o mdordr.o \
     model_params.o output_utils.o
 
 mcisis.o : invpol.o kinds.o mccedp.o mcisis_utils.o mcordr.o mcpars.o mcvars.o \
@@ -50,7 +50,7 @@ mcordr.o : kinds.o mccedp.o model_type.o output_utils.o
 
 mcosjc.o : mdl_name_utils.o model_params.o
 
-mcrmif.o : invpol.o mif_file.o model_type.o
+mcrmif.o : invpol.o model_type.o
 
 mcvars.o : model_type.o
 
@@ -68,9 +68,7 @@ mdlvars.o : kinds.o model_params.o mws_params.o nuna.o
 mdordr.o : kinds.o mccedp.o mcfbor.o mcirfb.o mcordr.o mdl_name_utils.o \
     model_type.o output_utils.o
 
-mif_file.o : mdl_flen.o
-
-model_type.o : mdl_flen.o mdl_name_utils.o model_params.o utils.o
+model_type.o : mdl_name_utils.o model_params.o utils.o
 
 modelworkspaces.o : mws_type.o output_utils.o
 
@@ -116,7 +114,7 @@ msolot.o : mdl_name_utils.o msimot.o msvars.o nuna.o
 msordr.o : mccedp.o mcordr.o mdordr.o modelworkspaces.o msorpr.o mws_type.o \
     output_utils.o
 
-msorpr.o : kinds.o mcjsbl.o mcxref.o mdl_flen.o mdl_name_utils.o model_type.o \
+msorpr.o : kinds.o mcjsbl.o mcxref.o mdl_name_utils.o model_type.o \
     output_utils.o
 
 msrchk.o : msfbvl.o msolot.o msutil.o
@@ -160,5 +158,5 @@ svd_anal.o : kinds.o mdl_name_utils.o model_params.o msimot.o msvars.o nucnst.o 
 
 utils.o : model_params.o
 
-write_model.o : mdl_flen.o modelworkspaces.o
+write_model.o : modelworkspaces.o
 

@@ -6,5 +6,7 @@ module model_params
     integer, parameter :: MCNYI4 = 4
     integer, parameter :: MCNWR8 = 2
 
+    ! maximum length of the modelname (excluding extension):
+    integer, parameter :: MAXMOLEN = 1024
 
 end module model_params
