@@ -6,6 +6,7 @@ exclusions <- list(
 
 library(lintr)
 library(testthat)
+library(isismdl)
 source("pkg/tests/testthat/tools/solve_report_tools.R")
 source("pkg/tests/testthat/tools/expect_known_output_multi.R")
 
