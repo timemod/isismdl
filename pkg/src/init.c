@@ -54,7 +54,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"clear_fix_c", (DL_FUNC) &clear_fix_c, 1},
     {"clone_mws_c", (DL_FUNC) &clone_mws_c, 1},
     {"set_period_c", (DL_FUNC) &set_period_c, 4},
-    {"compile_mdl_c", (DL_FUNC) &compile_mdl_c, 5},
+    {"compile_mdl_c", (DL_FUNC) &compile_mdl_c, 6},
     {"convert_mdl_file_c", (DL_FUNC) &convert_mdl_file_c, 5},
     {"gen_dep_file", (DL_FUNC) &gen_dep_file, 2},
     {"get_fit_opts_c", (DL_FUNC) &get_fit_opts_c, 1},

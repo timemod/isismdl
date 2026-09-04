@@ -106,6 +106,7 @@ contains
    jdel = 0
    maxdo = 0
    jsum = 0
+   ndel = 0
 
    ! includes definitions for special ipcode data arrays
    ! !! all are 0-base and must be declared as such in

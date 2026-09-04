@@ -17,7 +17,7 @@
 #define Is_Impleqn(e)   (e)->eqtype & 2
 
 /* 
- * Declaration of Fortran subroutines (see file src/libf7/mcisis.rf7)
+ * Declaration of Fortran subroutines (see file mcisis.f90)
  * called in the functions in this file.
  */
 void FNAME(mc_alloc)(MCINT *, MCINT *, MCINT *, MCINT *, MCINT *, 

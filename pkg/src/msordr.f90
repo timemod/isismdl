@@ -11,6 +11,7 @@ subroutine msordr(model_index, genfbo_specified, genfbo, &
     use output_utils
     use modelworkspaces
     use msorpr
+    use mcordr
     integer(c_int), intent(in) :: model_index, genfbo_specified, genfbo
     integer(c_int), intent(in) ::  orfnmlen, orfnm(*)
 
@@ -25,6 +26,8 @@ subroutine msordr(model_index, genfbo_specified, genfbo, &
     integer :: fbrdcnt, fbor_err
     character(len = 80) :: msg
     type(model), pointer :: mdl
+
+    errflg = 0
 
     mdl => mws_array(model_index)%mdl
 
@@ -57,7 +60,6 @@ subroutine msordr(model_index, genfbo_specified, genfbo, &
     call order_mdl(mdl, fbrdcnt = fbrdcnt, errflg = errflg, fbor_err = fbor_err)
 
     if (errflg /= 0) then
-        call isismdl_error("Error ordering model")
         goto 999
     endif
 
@@ -83,10 +85,11 @@ subroutine msordr(model_index, genfbo_specified, genfbo, &
     if (orfnmlen > 0) call print_orf(mdl, orfnmlen, orfnm, .false., &
                                      .false., .true.)
 
-
 999 continue
 
     call clear_edep
+
+    if (errflg /= 0) call mcoerr(errflg)
 
     return
 

@@ -1,18 +1,19 @@
 ! Read mif file
 module mcrmif
+  use model_type
+
+  integer, parameter, private :: MIFUNT = 8
+  character(len = 11), parameter, private :: MIFVER = 'MIFISIS.A04' ! current version 
 
   private :: rdmifh, rdmifc 
-  
+
   contains
   
-  subroutine read_mif_file(mdl, modelnmlen, modelnm, reorder_names, ier, fstat)
-    use model_type
-    use mif_file
+  subroutine read_mif_file(mdl, mifnam, reorder_names, ier, fstat)
     use invpol
     
     type(model), intent(inout)        :: mdl
-    integer, intent(in)               :: modelnmlen
-    integer, dimension(*), intent(in) :: modelnm
+    character(len = *), intent(in)    :: mifnam
     logical, intent(in)               :: reorder_names
     integer, intent(out)              :: ier, fstat
     
@@ -32,7 +33,7 @@ module mcrmif
     ! clear current model
     call deallocate_model(mdl)
   
-    call rdmifh(mdl, ier, fstat, modelnmlen, modelnm, fbosiz)
+    call rdmifh(mdl, ier, fstat, mifnam, fbosiz)
     if (ier /= 0) return
   
     eqCharCount    = mdl%ielast / 64
@@ -93,9 +94,7 @@ module mcrmif
   
   !-----------------------------------------------------------------------
   
-  subroutine rdmifh(mdl, ier, fstat, modelnmlen, modelnm, fbosiz)
-  use model_type
-  use mif_file
+  subroutine rdmifh(mdl, ier, fstat, mifnam, fbosiz)
   
   !     reads header of model code file
   !     error status in ier and fstat
@@ -104,17 +103,22 @@ module mcrmif
   !       2  read error mif file (iostat in fstat)
   !       3  invalid identification string on file
   !       4  file is corrupted
-  
-  type(model), intent(inout)        :: mdl
-  integer ::  ier, fstat, modelnmlen, modelnm(*)
+ 
+  type(model), intent(inout)            :: mdl
+  integer, intent(out)                  :: ier, fstat
+  character(len = *), intent(in)        :: mifnam
+  integer(kind = MC_IKIND), intent(out) :: fbosiz
   
   logical(kind = MC_LKIND) :: ldum1
-  integer(kind = MC_IKIND) :: idum1, fbosiz
+  integer(kind = MC_IKIND) :: idum1
+  character(len = 11) :: fcode
+  integer :: mifvernum
   
   ier = 1
-  
-  call byasf7(modelnm, 1, modelnmlen, pathnm)
-  open(MIFUNT, file = pathnm, status = 'OLD', access = 'STREAM', &
+  fstat = 0
+  fbosiz = 0
+
+  open(MIFUNT, file = mifnam, status = 'OLD', access = 'STREAM', &
   &    action = 'READ', err=894)
   
   !   MIF version has the form MIFISIS.Xn where X = A..Z and num = 01..99.
@@ -172,13 +176,11 @@ module mcrmif
   
   900 close(MIFUNT,iostat=fstat)
   return
-  end
+  end subroutine rdmifh
   
   !-----------------------------------------------------------------------
   
     subroutine rdmifc(mdl, ier,fstat)
-    use model_type
-    use mif_file
     
     
     !     reads index arrays from model code file

@@ -118,7 +118,7 @@ integer, intent(out) :: ier
 !        Out    Ier          Integer          error flag
 !                                             0  : o.k.
 !                                             10 : not enough memory
-!                                             other: see mcodep.rf7
+!                                             other: see mcodep.f90
 
 
 integer ::  i,k, curep,vn, stat
@@ -181,6 +181,7 @@ use invpol
 use mcdep
 use mcpars
 use mcodep
+use msufstack
 
 integer, intent(out) :: ier
 
@@ -195,8 +196,9 @@ integer, intent(out) :: ier
 !        Out    Ier          Integer          error flag
 !                                             0  : o.k.
 !                                             10 : not enough memory
-!                                             other: see mcodep.rf7
+!                                             other: see mcodep.f90
 
+! If ier /= 0, the error string in mcvars is set, but error message is produced.
 
 integer ::  i, j, ios, fstat, stat
 integer(kind = MC_IKIND) :: ipol
@@ -262,7 +264,28 @@ goto 920
 if (allocated(mdl%nrecuf)) deallocate(mdl%nrecuf)
 if (allocated(mdl%equat)) deallocate(mdl%equat)
 
-return
+! store error message in string
+select case (ier)
+  case (1)
+      write(errstr, '(a, i5, a)') &
+&      'Too many variables in equation (max =', MAXRHS, ')'
+  case (2)
+      errstr = 'Internal error: problem in equation code'
+  case (3)
+      errstr = 'Internal error: invalid operator code'
+  case (4)
+      errstr = 'Equation too long: ran out of stack'
+  case (5)
+      write(errstr, '(a, i3, a)') 'Too many nested user functions (max =', &
+&        MAX_USERF_STACK, ')'
+  case (10)
+      errstr = 'Out of memory'
+  case default
+      errstr = 'Unknown error in mcodep'
+
+  end select
+
+  return
 end subroutine mc_analyse_model
 
 !-----------------------------------------------------------------------
@@ -294,7 +317,6 @@ end subroutine init_dep
 !-----------------------------------------------------------------------
 
 subroutine clear_edep
-    integer :: stat
     if (allocated(equno)) deallocate(equno)
     if (allocated(edptr)) deallocate(edptr)
     if (allocated(eqdep)) deallocate(eqdep)

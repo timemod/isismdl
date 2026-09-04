@@ -4,7 +4,7 @@ module mcxref
 
     contains
 
-subroutine write_xref(ier, mrfopt, fbcopt,prifbi, prisjc)
+subroutine write_xref(xrfnam, ier, mrfopt, fbcopt, prifbi, prisjc)
 use mcvars
 use mcpars
 use kinds
@@ -23,15 +23,16 @@ use mcdep
 !       6    internal error 3 in mcxref
 !       7    cannot allocate enough memory
 
-!     sets global error string
-!     but does not produce error message
+! If ier /= 0, the error string in mcvars is set, but error message is produced.
 
-integer ::   ier
-integer ::    mrfopt(*)
-integer ::    fbcopt(*)
-logical ::    prifbi,prisjc
+character(len = *), intent(in) :: xrfnam
+integer, intent(out) :: ier
+integer, intent(in) :: mrfopt(2)
+integer, intent(in) :: fbcopt(2)
+logical, intent(in) :: prifbi, prisjc
 
-logical ::  rfshrt
+integer :: lenxrf 
+logical :: rfshrt
 
 integer(kind = MC_IKIND), dimension(:), allocatable :: &
 & ivref,ipref,ieref,ixref, equno
@@ -66,7 +67,11 @@ integer  :: cntrdv, nzrcnt
 integer(kind = MC_IKIND) :: lhsnum
 integer :: stat, retcod
 
+integer :: filerr, filios
+
 ier = 0
+filerr = 0
+filios = 0
 
 maxref = max(1,maxref)
 rfshrt = mrfopt(2) .eq. 1
@@ -642,7 +647,7 @@ endif
 goto 1000
 
 900 continue
-errstr = 'Insufficient memory for cross-reference'
+errstr = 'Insufficient memory'
 ier = 1
 goto 999
 

@@ -1,232 +1,138 @@
-subroutine mcisis(modelnaml,modelnams, &
-&                 mifnaml, mifnams, ppfnaml, ppfnams, &
-&                 idofbrd, igenfbo, iprifbi, iprisjc, &
-&                 mrfopt, fbcopt, mcstat)
+subroutine mcisis(modelnaml, modelnams, mifnaml, mifnams, &
+                  mrfnaml,   mrfnams,   ppfnaml, ppfnams)
 use mcvars
-use mccedp
-use mdordr
 use mcpars
 use mcxref
+use mccedp
 use output_utils
+use mcisis_utils
+use mcordr
 use iso_c_binding, only : C_NULL_CHAR
-
-interface
-    function mcip(mfname, ppfname) bind(c)
-        use iso_c_binding, only : c_int, c_char
-        integer(c_int) :: mcip
-        character(kind = c_char), dimension(*), intent(in) :: mfname, ppfname
-    end function mcip
-end interface
 
 !     Isis model compiler
 !      input is mdl file
 !      converted to MIF file
 !      cross reference info written to MRF file
-!      errors written to ERR file
 
 !     Arguments
 
 !         In    modelnaml   Integer     length of modelname (bytes)
 !         In    modelnams   Integer(*)  modelname
-!         In    idofbrd     Integer     1 for    remove redundant fb vars
-!                                       0 to NOT remove redundant fb vars
+!         In    mifnaml     Integer     length of the name of the mif file (bytes)
+!         In    mifnams     Integer(*)  name of the mif file
+!         In    mrfnaml     Integer     length of the name of the mrf file (bytes)
+!         In    mrfnams     Integer(*)  name of the mrf file
+!         In    ppfnaml     Integer     length of the name of the post processor file (bytes)
+!         In    ppfnams     Integer(*)  name of the post processor file
 
-!         In    igenfbo     Integer     1 for generate feedback ordering
-!                                       0 to NOT generate fb ordering
+integer, intent(in) :: modelnaml, modelnams(*)
+integer, intent(in) :: mifnaml,   mifnams(*)
+integer, intent(in) :: mrfnaml,   mrfnams(*)
+integer, intent(in) :: ppfnaml,   ppfnams(*)
 
-!         In    iprifbi     Integer     0 to print in crossreference info
-!                                             on how each fb var was chosen
-!                                       1 to not print this info
+! mrf option
+integer, parameter :: mrfopt(2) = [ &
+    128,  &  ! maximum length width
+      1 ]    ! 1 or 0 for short or long mrf 
 
-!         In    iprisjc     Integer     0 to print rhs symbolic jacobian
-!                                            + statistics
-!                                       1 to not print
+! feedback cycle option
+integer, parameter :: fbcopt(2) = [ &
+      0,  &  ! ???
+    200 ]    ! maximum length of feedback chain to print
 
-!         In    mrfopt      Integer(2)  options/flags for cross reference
+logical, parameter :: dofbrd = .true., genfbo = .true., &
+                      prifbi = .false., prisjc = .false.
 
-!         In    fbcopt      Integer(2)  options for printing feedback cycle
-!                                       passed to mcxref
+integer :: mcstat, orderr, ier, ios
+integer :: fbcpar(2)
+logical :: has_error
 
-!         Out   mcstat      Integer     status flag
-!                                         0 all ok
-!                                         1 model file does not exist
-!                                         2 error in model compilation
-!                                         3 other errors
-!                                           (model ordering, writing mif
-!                                            or mrf)
-!                                         4 not enough memory to compile
-!                                           the model
+! filenames
+character(len = modelnaml) :: mdlnam
+character(len = mifnaml)   :: mifnam
+character(len = mrfnaml)   :: xrfnam
+character(len = ppfnaml)   :: ppfname
 
-!     adapted from Lahey source of tomci (Don/E)
-!     many changes
-!     more restrictive in syntax (no $ as replacement for ;)
-!                                (no redundant , )
-!     different error handling
-!     different intermediate code and output files
+! initialise local variables
+has_error = .false.
+orderr = 0
 
-integer, intent(out) :: mcstat
-integer, intent(in) ::  modelnaml, modelnams(*)
-integer, intent(in) ::  mifnaml, mifnams(*)
-integer, intent(in) ::  ppfnaml, ppfnams(*)
-integer, intent(in) ::  idofbrd, igenfbo, iprifbi, iprisjc
-integer, intent(in) ::  mrfopt(*), fbcopt(*)
-
-
-logical ::  dofbrd, genfbo, fbomif, prifbi, prisjc
-
-! for copy of fbcopt
-
-integer ::  fbcpar(2)
-
-! parameters that determine dimensions
-
-!   maxnuf = maximum no of functions (6 standard + rest user defined)
-!   maxnre = maximum no of equations in tsp input
-!   maxnrv = maximum no of variables in tsp input
-!   maxnrp = maximum no of names of parameters + constants in tsp input
-!   maxnrc = ditto, counting numbers rather than names
-
-!   maxnfb = maximum no of feedback variables in ordering
-
-
-! name of model file with path
-character(len = MAXFLEN + 1) pathnm, ppfname
-
-integer :: ios
-integer :: ier, errpar, mcrcod, orderr
-
-!*IF TIMER
-!     for time measurements
-!
-!      real told,tnew
-!*ENDIF
-integer ::  remove_xrffile, remove_miffile, xrf_err, mif_err
-integer ::  fbor_err
-
-
-! convert integers (passed from C) to logicals
-dofbrd = idofbrd > 0
-genfbo = igenfbo > 0
-prifbi = iprifbi > 0
-prisjc = iprisjc > 0
-
-mcstat = 0
-faterr = .false.
-nerror = 0
-filerr = 0
-filios = 0
-mcrcod = 0
-ier    = 0
+call init_mcvars(genfbo)
 
 call mcimsg(1, 0)
 
-call mcifig
+!
+! ------------------------ file name admin ------------------------
+!
 
-! check length of filenames
-if (modelnaml > MAXFLEN) then
-    call isismdl_error("Length of model filename too long")
+! convert byte string to fortran characters
+call byasf7(modelnams, 1, modelnaml, mdlnam)
+call byasf7(mifnams,   1, mifnaml,   mifnam)
+call byasf7(mrfnams,   1, mrfnaml,   xrfnam)
+call byasf7(ppfnams,   1, ppfnaml,   ppfname)
+
+if (mc_set_mdl_name(mdlnam) /= 0) then
+   has_error = .true.
+   goto 2000
 endif
-if (mifnaml > MAXFLEN) then
-    call isismdl_error("Length of filename for mif file too long")
-endif
-if (ppfnaml > MAXFLEN) then
-    call isismdl_error("Length of filename for preproc file too long")
-endif
 
-! initialise model compiler, determine pathname modelfile
-call mcfileadmin(modelnaml, modelnams, pathnm)
+!
+! -------------- open scratch files ---------------
+!
 
-
-! generate names of the mif and mrf file
-call byasf7(mifnams, 1, mifnaml, mifnam)
-call mkfnam(xrfnam,xrfext)
-
-call byasf7(ppfnams, 1, ppfnaml, ppfname)
-
-!  delete the mif and mrf file if they already exist
-mif_err = remove_miffile()
-xrf_err = remove_xrffile()
-
-if (mif_err /= 0 .or. xrf_err /= 0) then
-    mcstat = 3
+! unit parunt for parameter list, polunt for equation code
+! and ufnunt for function code.
+open(parunt, status = 'scratch', form = 'unformatted', iostat = ios)
+if (ios == 0) open(polunt, form = 'UNFORMATTED', status = 'scratch', iostat = ios)
+if (ios == 0) open(ufnunt, form = 'UNFORMATTED', status = 'scratch', iostat = ios)
+if (ios /= 0) then
+    errstr = 'Internal - Cannot open scratch file'
+    has_error = .true.
     goto 2000
 endif
 
-! open files
+!
+! -------------------call the xpc model compiler -----------------------
+!
 
-! unit parunt first for parameter list,
-! later for model structure (ordering information)
-open(parunt,status='scratch',form='unformatted',iostat=ios)
-if(ios.ne.0) goto 980
-
-! unit polunt for equation code
-open(polunt,form='UNFORMATTED',status='scratch',iostat=ios)
-if(ios.ne.0) goto 980
-
-! unit ufnunt for function code
-open(ufnunt,form='UNFORMATTED',status='scratch',iostat=ios)
-if(ios.ne.0) goto 980
-
-! initialise variables for name administration
-mdl%ivlast = 0
-mdl%iplast = 0
-mdl%ielast = 0
-mdl%iflast = 0
-mdl%iulflast = 0
-mdl%neq = 0
-nre = 0
-mdl%nrv = 0
-mdl%nrp = 0
-mdl%nrc = 0
-mdl%nuf = 0
-mdl%nulf = 0
-mdl%ufblen = 0
-mdl%eqblen = 0
-mdl%fbomem = 0
-
-if (genfbo) then
-    mdl%fboflg = 2
-else 
-    mdl%fboflg = 0
-endif
-
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-
-! call the xpc model compiler
+! the compiled code is written to temporary files 
+! (the scratch files opened before)
 
 call mcimsg(3, 0)
 
-mcstat = mcip(trim(pathnm) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR)
+mcstat = mcip(trim(mdlnam) // C_NULL_CHAR, trim(ppfname) // C_NULL_CHAR)
 
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Model compilation             ', told, tnew)
-!*ENDIF
-
-if (mcstat /= 0) goto 2000
+if (mcstat /= 0) then
+    select case (mcstat)
+        case (1)
+            errstr = 'The model file ' // trim(mdlnam) // ' does not exist' // achar(10)
+        case (2)
+            errstr = 'Error detected in compilation of model ' // trim(mdlnam) // &
+                      achar(10) // 'Check the .err file'
+        case (4)
+             errstr = 'Not enough memory to compile the model ' // trim(mdlnam)
+        case default
+             errstr = 'Error detected in compilation of model ' // trim(mdlnam)
+    end select
+    has_error = .true.
+    goto 2000
+endif
 
 mdl%neq = nre
 
-!   sort names
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
+! sort names
 call sort_names(mdl)
 
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Sorting names                 ', told, tnew)
-!*ENDIF
-
-!     read coefficients from file
+! read coefficients from file
 call read_coef
 
-call mcimsg(8, int(mdl%neq, ISIS_IKIND))
+call mcimsg(8, int(mdl%neq, MC_IKIND))
 
-if (mdl%neq .le. 0) goto 850
-
+if (mdl%neq .le. 0) then
+    has_error = .true.
+    errstr = 'Model has no equations'
+    goto 2000
+endif
 
 ! set unused bytes in string memory to zero
 call mcszer(mdl%enames, mdl%ielast, size(mdl%enames))
@@ -235,112 +141,60 @@ call mcszer(mdl%pnames, mdl%iplast, size(mdl%pnames))
 call mcszer(mdl%fnames, mdl%iflast, size(mdl%fnames))
 if (mdl%nulf > 0) call mcszer(mdl%ulfnames, mdl%iulflast, size(mdl%ulfnames))
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-
-
-! analyse dependency structure and write dependencies to scratch
-! file depunt
-
 call mcimsg(4, 0)
 
-call mc_analyse_model(ier)
+!
+! ------------------- determine dependency structure ---------------------
+!
 
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Analysing dependencies        ', told, tnew)
-!*ENDIF
+ier = mc_gen_dep()
 if (ier /= 0) then
-    if (ier == 10) then
-        mcstat = 4
-    else
-        call mcdeperr(ier)
-        mcstat = 3
-    endif
+    has_error = .true.
     goto 2000
 endif
 
+! 
+! ---------------- Order the model --------------------------------------
+!
 
-! generate dependency data structure for ordering
-
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-call mcrddp(mdl, orderr, errpar)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('mcrddp                        ',told,tnew)
-!*ENDIF
+orderr = mc_order_mdl(dofbrd, genfbo)
 if (orderr .ne. 0) then
-    if (orderr == 1) then
-        mcstat = 4
-        goto 2000
-    else
-        goto 975
-    endif
+    has_error = .true.
+    goto 2000
 endif
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-call order_mdl(mdl, dofbrd = dofbrd, errflg = orderr, fbor_err = fbor_err)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Total time ordering model            ',told,tnew)
-!*ENDIF
-if (orderr .ne. 0 ) then
-    if (orderr == 20) then
-        mcstat = 4
-        goto 2000
-    else
-        goto 975
-    endif
-endif
-if (genfbo .and. mdl%nfb > 1) then
-    call mcimsg(12,0)
-endif
-if (genfbo .and. mdl%nfb > 1 .and. fbor_err /= 0) then
-    if (fbor_err == 2) then
-        call mcimsg(13, 0)
-    else if (fbor_err == 3) then
-        call mcimsg(14, mdl%fbomem)
-    endif
-    call mcimsg(15,0)
-endif
+!
+! -----------------set compilation time and date in mdl ----------
+!
 
 call datim(mdl%time, 1)
 call datim(mdl%date, 2)
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-call check_variables
-call mcwmif(mdl, mifnam, ier)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Mcwmif                        ',told,tnew)
-!*ENDIF
-if (ier .ne. 0 ) then
-    if (ier == 5) then
-        errstr = 'Cannot open MIF file for write'
-    elseif (ier == 6) then
-        errstr = 'Write error on MIF file'
-    elseif (ier == 7) then
-        errstr = 'Read error on scratch file'
-    else
-        errstr = 'Unknown error while writing the mif file.'
-    endif
-    goto 976
+!
+! ----------------- model variable administration --------------------
+!
+
+call mc_mdl_var_admin
+
+!        
+! ------------------- write mif file ---------------------------
+!
+
+ier = mc_write_mif(mifnam)
+if (ier /= 0) then
+    errstr = 'Error writing the mif file (' // trim(errstr) // ")"
+    has_error = .true.
+    goto 2000
 endif
 
-! write cross-reference file
+!
+! ----------------- write xrf file ------------------------
+!
+
 call mcimsg(6, 0)
 
-
-!  TEMPORARY
-!      turn print feedback chain on
-!      set max print length to   something reasonable
+! turn print feedback chain on
+! set max print length to something reasonable
 
 if (mdl%fbomem .gt. 0) then
     fbcpar(1) = fbcopt(1)
@@ -364,445 +218,41 @@ if (mdl%fboflg > 0 .and. fbcpar(1) .eq. 0 ) then
     if (allocated(mdl%fbordr)) deallocate(mdl%fbordr)
 endif
 
-!*IF TIMER
-!      call xtime(told)
-!*ENDIF
-call write_xref(ier, mrfopt, fbcpar, prifbi, prisjc)
-!*IF TIMER
-!      call xtime(tnew)
-!      call mctimer('Mcxref                        ',told,tnew)
-!*ENDIF
-
-if( ier .ne. 0 ) then
-!        an error occurred in mcxref
-   call mcxerr
-   call mcgerr(4)
-   mcstat = 3
+call write_xref(xrfnam, ier, mrfopt, fbcpar, prifbi, prisjc)
+if (ier .ne. 0) then
+    ! an error occurred in mcxref, errstr contains error message
+    errstr = 'Error generating cross reference (' // trim(errstr) // ")"
+    has_error = .true.
+    goto 2000
 endif
+
+!
+! ------------------------ Finished -----------------------
+!
 
 call mcimsg(7, 0)
 
 
-! FINISHED
-goto 2000
-
-850 continue
-! no equations
-mcrcod = 1
-goto 999
-
-975 continue
-! error in ordering model
-mcrcod = 101
-goto 999
-
-976 continue
-! errors in mcwmif
-call mcxerr
-mcrcod = 3
-goto 999
-
-980 continue
-filerr = 2
-filios = ios
-goto 999
-
-! FALL THROUGH
-
-999 continue
-if (filerr .ne. 0) then
-   call mcferr
-elseif (mcrcod .gt. 100) then
-   call mcoerr(orderr)
-else
-   call mcgerr(mcrcod)
-endif
-mcstat = 3
-
 2000 continue
 
-close(parunt,iostat=ios)
-close(polunt,iostat=ios)
-close(ufnunt,iostat=ios)
+close(parunt, iostat = ios)
+close(polunt, iostat = ios)
+close(ufnunt, iostat = ios)
 
 call deallocate_model(mdl)
 call clear_edep
 call clear_mcvars
-return
-end
 
-!-----------------------------------------------------------------------
-
-subroutine mcifig
-use mcvars
-
-!     default configuration
-
-!     currently length of line in mrf file only
-
-lenxrf = 128
-
-return
-end
-
-!-----------------------------------------------------------------------
-
-subroutine mcfileadmin(modelnaml, modelnams, pathnm)
-use mcvars
-use filenameutils
-integer, intent(in) :: modelnaml, modelnams(*)
-character(len = *), intent(out) :: pathnm
-
-!     performs filename administration for the model compiler
-
-!     errors are recorded in global
-!       faterr
-!       filerr/filios
-
-character(len = MAXFLEN) :: basename, tmpstr
-character(len = 1)       :: dirsep
-
-call byasf7(modelnams, 1, modelnaml, pathnm)
-if (len_trim(pathnm) == 0) goto 900
-
-call split_path(pathnm, mdlpath, basename, dirsep)
-
-! mdlpath holds directory path of modelfile (including trailing \ or /)
-mdlpath = mdlpath(:len_trim(mdlpath)) // dirsep
-
-call remove_extension(basename, tmpstr)
-mdl%cnamelen = len_trim(tmpstr)
-mdl%cname = tmpstr(:mdl%cnamelen)
-if (mdl%cnamelen > len(mdl%cname)) goto 920
-
-return
-
-900 continue
-filerr = 40
-goto 999
-
-920 continue
-filerr = 7
-
-999 faterr = .true.
-
-return
-end
-
-!-----------------------------------------------------------------------
-
-subroutine mkfnam(fnam, ext)
-use mcvars
-character*(*) fnam, ext
-
-!     make a file name from
-!           mdlpath, mdl%cname and the extension supplied in <ext>
-!     return  in <fnam>
-
-integer ::  cnmlen, mdplen
-
-cnmlen = len_trim(mdl%cname)
-if( mdlpath .eq. '' ) then
-  fnam = mdl%cname(1:cnmlen) // ext
-else
-  mdplen = len_trim(mdlpath)
-  fnam = mdlpath(1:mdplen) // mdl%cname(1:cnmlen) // ext
+if (has_error) then
+    if (orderr /= 0) then
+       call mcoerr(orderr)
+    else 
+       call isismdl_error(errstr)
+    endif
 endif
 
 return
-end
-
-!-----------------------------------------------------------------------
-
-subroutine mcoerr(errcod)
-
-!     ordering error message
-
-!     In    errcod   Integer    type error
-
-integer, intent(in) ::  errcod
-character(len = 80) :: errmsg
-
-select case (errcod)
-case (1)
-    errmsg = 'No diagonal match'
-case (2)
-    errmsg = 'No ordering found'
-case (3)
-    errmsg = 'Diagonal element not found'
-case (4)
-    errmsg = 'Equations still unordered'
-case (5)
-    errmsg = 'cannot mdl%order feedbacks'
-case (6)
-    errmsg = 'duplicate lhs var'
-case (7)
-    errmsg = 'too many arcs in model'
-case (8)
-    errmsg = 'Error reading scratch file'
-case (9)
-    errmsg = 'End of file on scratch file'
-case (10)
-    errmsg = 'prepos not finished'
-case (11)
-    errmsg = 'too many feedbacks'
-case (12)
-    errmsg = 'non zero element in single'
-case (13)
-    errmsg = 'cannot choose feedback'
-case default
-    errmsg = 'Unknown error'
-end select
-
-return
-end subroutine mcoerr
-
-!-----------------------------------------------------------------------
-
-subroutine mcdeperr(errcod)
-use msufstack
-use mcdep
-
-integer ::  errcod
-
-!           error message in mcodep
-
-!     In    errcod   Integer    type error
-
-
-  character(len = 50) :: errmsg
-
-  select case (errcod)
-  case (1)
-      write(errmsg, '(a, i5, a)') &
-&      'Too many variables in equation (max =', MAXRHS, ')'
-  case (2)
-      errmsg = 'Internal error: problem in equation code'
-  case (3)
-      errmsg = 'Internal error: invalid operator code'
-  case (4)
-      errmsg = 'Equation too long: ran out of stack'
-  case (5)
-      write(errmsg, '(a, i3, a)') 'Too many nested user functions (max =', &
-&        MAX_USERF_STACK, ')'
-  case default
-      errmsg = 'Unknown error in mcodep'
-
-  end select
-
-  !call fmtlog('B5*' // errmsg(:len_trim(errmsg)) // '*EX')
-
-  return
-
-end subroutine mcdeperr
-
-!-----------------------------------------------------------------------
-
-subroutine mcgerr( errcod)
-    use output_utils
-
-    ! general error message for a variety of errors
-
-    !  In    errcod   Integer    type error
-
-    integer, intent(in) ::  errcod
-    character(len = 50) :: errmsg
-
-    select case(errcod)
-    case (1)
-        errmsg = 'Model has no equations'
-    case (2)
-        errmsg = 'Error ordering model'
-    case (3)
-        errmsg = 'Problem writing MIF file'
-    case (4)
-        errmsg = 'Problem generating cross reference'
-    case default
-        errmsg = 'Unknown error in mcisis'
-    end select
-    
-    call isismdl_error(errmsg)
-
-    return
-end subroutine mcgerr
-
-!-----------------------------------------------------------------------
-
-subroutine mcferr
-use mcvars
-use output_utils
-
-! error message for a file (read/write) error
-
-character(len = 80) :: errmsg
-
-if( filerr .eq. 1 ) then
-    errmsg = 'Cannot open error file'
-
-elseif( filerr .eq. 2 ) then
-    errmsg = 'Cannot open scratch file'
-
-elseif( filerr .eq. 3 ) then
-    errmsg = 'Cannot open MDL file'
-
-elseif( filerr .eq. 4 ) then
-    errmsg = 'Cannot open MIF file for write'
-
-elseif( filerr .eq. 6 ) then
-    errmsg = 'Cannot open MRF file for write'
-
-elseif( filerr .eq. 7) then
-              write(errmsg,'(A21, I3, A11)') &
-& 'Model name longer than ', len(mdl%cname), ' characters'
-
-elseif( filerr .eq. 10) then
-    errmsg = 'Write error on ERR file'
-
-elseif( filerr .eq. 12) then
-    errmsg = 'Write error on MIF file'
-
-elseif( filerr .eq. 13) then
-    errmsg = 'Write error on MRF file'
-
-elseif( filerr .eq. 14) then
-    errmsg = 'Write error on scratch file'
-
-elseif( filerr .eq. 20) then
-    errmsg = 'Read error on MDL file'
-
-elseif( filerr .eq. 21) then
-    errmsg = 'Read error on scratch file'
-
-elseif( filerr .eq. 30) then
-    errmsg = 'Unexpected eof on MDL file'
-
-elseif( filerr .eq. 40) then
-    errmsg = '(Internal) empty model name'
-
-else
-    errmsg = '(Internal) unknown file error'
-
-endif
-
-call isismdl_warn(errmsg)
-
-return
-end
-
-!-----------------------------------------------------------------------
-
-subroutine mcxerr
-use mcvars
-use output_utils
-
-    ! error message during scanning/compiling model
-    ! message is in common variable errstr
-    ! write is now written to the Isis log file and to the .err file
-    ! errtyp == 1 implies a continuation message
-
-    call isismdl_warn(errstr)
-
-    return
-end subroutine mcxerr
-
-!-----------------------------------------------------------------------
-
-subroutine mcimsg(msgnum, mpar)
-use output_utils
-integer, intent(in) ::  msgnum, mpar
-
-! print progress .. messages
-
-character(len = 80) :: str
-
-select case (msgnum)
-
-case (1)
-    str = 'Isis Model Compiler 3.00'
-
-case (3) 
-    str = 'Compiling model ...'
-
-case (4)
-    str = 'Ordering equations ...'
-
-case (6)
-    str = 'Writing cross-reference file ...'
-
-case (7)
-    str = 'End compilation'
-
-case (8) 
-    str = '         equations processed'
-    write(str(4:8),'(i5)' ) mpar
-
-case (12)
-    str = 'Generating feedback variable ordering'
-
-case (13)
-    str = 'Feedback jacobian too dense (< 10% step reduction)'
-
-case (14)
-    str = 'Out of memory for feedback ordering'
-
-case (15)
-    str = 'NO feedback ordering generated and installed'
-
-case default
-return
-
-end select
-
-call isismdl_out(str)
-
-return
-end subroutine mcimsg
-
-!-----------------------------------------------------------------------
-
-subroutine mcszer(names, lastp, kmax)
-    use model_params
-
-    ! set unused bytes to 0 in names
-
-    integer(kind = MC_IKIND), intent(inout) :: names(*)
-    integer(kind = MC_IKIND), intent(in) :: lastp, kmax
-
-    integer :: end
-
-    ! last used byte
-    end = lastp / 64
-
-    call byszer(names, end + 1, kmax * MCNYI4 - (end + 1) + 1)
-
-    return
-end subroutine mcszer
-
-!--------------------------------------------------------------------------
-
-subroutine read_coef
-  use mcvars
-  use mcpars
-
-!     read parameters from parunt and set mdl%nvalp and mdl%cfptr arrays
-!     mdl%nvalp(i)  number of values for parameter i
-!     mdl%cfptr(i)  start in mdl%coef for parameter i
-
-integer ::  k, icoef, nrval
-
-  rewind parunt
-
-  icoef = 1
-  do k =1, mdl%nrp
-      mdl%cfptr(k) = icoef
-      read(parunt) nrval,  mdl%coef(icoef : icoef + nrval - 1)
-      mdl%nvalp(k) = nrval
-      icoef = icoef + nrval
-      mdl%nrc = mdl%nrc + nrval
-  end do
-
-end subroutine read_coef
-
+end subroutine mcisis
 
 !******************************************************************************
 !      The following subroutines are called by the xpc model compiler
@@ -1034,90 +484,3 @@ subroutine add_ulfuncname(k, nmlen, name)
 &               mdl%nulf, size(mdl%ulfnames), mdl%iulflast)
 
 end subroutine add_ulfuncname
-
-! -----------------------------------------------------------
-
-integer function remove_xrffile()
-  use mcvars
-
-  integer :: delete_file
-
-  remove_xrffile = delete_file(xrfnam)
-
-  if (remove_xrffile /= 0) then
-      errstr = 'Cannot open mrf file for write'
-      call mcxerr
-      call mcgerr(4)
-  endif
-
-end function remove_xrffile
-
-! -----------------------------------------------------------
-
-integer function remove_miffile()
-  use mcvars
-
-  integer :: delete_file
-
-  remove_miffile = delete_file(mifnam)
-
-  if (remove_miffile /= 0) then
-      errstr = 'Cannot open mif file for write'
-      call mcxerr
-      call mcgerr(3)
-  endif
-
-end function remove_miffile
-
-! -----------------------------------------------------------
-
-subroutine check_variables
-  use mcvars
-
-  integer :: k, i, nd2
-  integer, external :: bysget
-
-  mdl%nd1    = 0
-  nd2        = 0
-  mdl%nendex = 0
-  mdl%nca    = 0
-
-  do k =1, mdl%nrv
-
-      mdl%ibx1(k) = mdl%nd1 + 1
-      mdl%nd1     = mdl%nd1 + maxlag(k)
-      mdl%ibx2(k) = nd2 + 1
-      nd2     = nd2 + mxlead(k)
-      mdl%aci(k)  = 0
-
-      if (char(bysget(vtype,k)) .eq. 'E') then
-           ! exogenous variable
-           mdl%lik(k) = .false.
-      else
-          ! endogenous variable
-          mdl%lik(k) = .true.
-          if (char(bysget(vtype,k)) .eq. 'B') then
-              ! frml variable
-              mdl%nca = mdl%nca + 1
-              mdl%ica(mdl%nca) = k
-              mdl%aci(k) = mdl%nca
-          endif
-      endif
-
-      if (mxlead(k) > 0 .and. mdl%lik(k)) then
-          mdl%nendex = mdl%nendex + 1
-          mdl%iendex(mdl%nendex) = k
-      endif
-
-  end do
-
-  mdl%ibx1(mdl%nrv+1) = mdl%nd1 + 1
-  mdl%ibx2(mdl%nrv+1) = nd2 + 1
-
-  do i = 1, mdl%nrv + 1
-      mdl%ibx2(i) = mdl%nd1 + mdl%ibx2(i)
-  end do
-  mdl%nd = mdl%nd1 + nd2
-
-end subroutine check_variables
-

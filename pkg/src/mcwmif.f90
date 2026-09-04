@@ -13,12 +13,6 @@ use mcpars
 !        7        read error scratch file (only possible when mcwmif is called
 !                 from mcisis)
 
-
-!     Sets global error message string
-!     but no error message is written (caller must do)
-
-!     file errors also set global filerr/filios variables
-
 type(model), intent(in)         :: mdl
 character(len = *), intent(in)  :: mifnam
 integer, intent(out)            :: ier
