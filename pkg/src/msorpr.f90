@@ -9,7 +9,6 @@ module msorpr
         use model_type
         use mcjsbl
         use mcxref
-        use mdl_flen
         use mdl_name_utils
         use kinds
         use output_utils

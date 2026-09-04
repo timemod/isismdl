@@ -10,7 +10,7 @@
 
 #include "fname.h"
 
-#define DPSEP "\\/:"
+#define DPSEP "\\/"
 #define EXSEP '.'
 
 void    fnsplit( char *fname, char *path, char *base, char *ext)
@@ -52,19 +52,23 @@ void    fnsplit( char *fname, char *path, char *base, char *ext)
 
 }
 
-char *get_path_name(char *fname) 
-{
-    /*
-     * Returns the path name for the specified file name 
-     */
+/*
+ * Returns the path name (directory name) of the specified file name,
+ * including the final separator, or an empty string ("") if fname 
+ * does not contain a directory separator. 
+ * The return value is a heap allocated string (caller must free).
+ */
+char *get_path_name(const char *fname) {
 
-     char *pstart, *bstart, *p, *path_name;
+     const char *pstart, *bstart, *p;
+     char  *path_name;
      size_t  n;
 
      pstart = bstart = p = fname;
 
-     while( (p = strpbrk(p, DPSEP)) != NULL )
+     while ((p = strpbrk(p, DPSEP)) != NULL) {
          bstart = ++p;
+     }
 
      n = bstart - pstart;
      path_name = malloc(n + 1);

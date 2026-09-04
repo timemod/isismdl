@@ -32,4 +32,21 @@ test_that("file does not exist", {
                  sprintf("'%s' is a directory", normalizePath(filename)))
   }
 
+  expect_output(
+    expect_error(
+      isis_mdl(model_file = ""),
+      "Empty model name"
+    ),
+    "Isis Model Compiler 3.00"
+  )
+
+  filename <- file.path(tempdir(), ".mdl")
+  writeLines("x = 1;", filename)
+  expect_output(
+    expect_error(
+      isis_mdl(model_file = filename),
+      "Empty model name"
+    ),
+    "Isis Model Compiler 3.00"
+  )
 })

@@ -1,0 +1,4 @@
+#ELSEIF after #ELSE is not allowed at line 5 of model_text
+Line: 5 of file model_text
+ #elseif b
+       ^

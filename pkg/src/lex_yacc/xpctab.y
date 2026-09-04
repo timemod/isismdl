@@ -4,21 +4,19 @@
  * uses Bison
  */
 
+
 %{
 
 #include <ctype.h>
-#include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
+#include <Rinternals.h>
 
-#include "symbol.h"
+#include "ecode.h"
 #include "mcinit.h"
 #include "xpcdef.h"
 #include "mchdr.h"
 #include "util.h"
-#include "ecode.h"
 #include "outmdl.h"
 #include "isismdl_types.h"
 #include "dependencies.h"
@@ -58,6 +56,10 @@ void FNAME(save_parameter)(FINT *, FREAL8 *);
 
 %}
 
+%code requires {
+#include "ecode.h"
+}
+
 %union
 {
         int     ival;
@@ -71,7 +73,7 @@ void FNAME(save_parameter)(FINT *, FREAL8 *);
 %type    <ival>  opt_sign '-' '+' sinteger
 %type    <dval>  snumber
 
-%type    <sp>    lhsexpl lhsimpl stmt stmtlist model keywd
+%type    <sp>    lhsexpl lhsimpl keywd
 
 %type    <ep>    var fargs ufargs ufarg rexpr lexpr sexpr expr ifexpr ifthen 
 %type    <ep>    ifpart1 elseif elseifl
@@ -120,10 +122,11 @@ void FNAME(save_parameter)(FINT *, FREAL8 *);
 %%
 
 model   : stmtlist opt_end
+        | opt_end
         ;
 
 opt_end : /* nix */
-        | T_END ';' {reset_scanner(); YYACCEPT;} /* ignore all following stuff */
+        | T_END ';' {YYACCEPT;}  /* Stop the parser after an end; statement */
         ;
 
 stmtlist: stmt
@@ -146,7 +149,7 @@ stmt    : T_FUNCTION fstmt
         | eqtyp eqname
           lhsimpl '=' expr  ';'   { eqn_epilogue($2, $1, $3, $5, 1);}
 
-        | /* nix */         ';'   { $$ = NULL;}
+        | /* nix */         ';'    /* empty statement */
         | error             ';'   { cleanup(0); yyerrok; }
         ;
 
@@ -267,10 +270,10 @@ sexpr   : T_NUMBER                         { $$ = mk_const($1); }
         ;
 
 expr    : sexpr
-	| var                              { do_lag($1);}
+      	| var                       {do_lag($1);}
         ;
 
-ifexpr  : ifpart1 T_ELSE expr   {$$ = add_elsepart($1, $3);}
+ifexpr  : ifpart1 T_ELSE expr       {$$ = add_elsepart($1, $3);}
         ; 
 
 ifpart1 : ifthen                    {$$ = $1;}
@@ -1036,26 +1039,13 @@ void    xpcerrmsg( char *fmt, ... )
     ++errflag;
 }
 
-void make_param(Symbol *sp)
-{
-    /*
-     * create a parameter variable
-     */
+/*
+ * create a parameter variable
+ */
+void make_param(Symbol *sp) {
 
     curpcnt = 0;
     Curparam = sp;
-
-    /*
-     * for non-strict compilation (parameters may be used
-     * before they have been defined), the model has already
-     * been scanned for parameters. All parameters are already 
-     * in the symbol table
-     */
-    if (!options.Strict) {
-       return;
-    }
-
-    /* the following code is for the strict compilation */
 
     char *pname = sp->name;
 
@@ -1098,16 +1088,12 @@ void set_parval()
      * save parameter values
      */
 
-     Param *p;
+    Param *p;
 
-     if (options.Strict) {
-         /* create a Param, and set its length.
-          * (for non-strict compilation this has already
-          * been done while scanning parameters */
-         Curparam->u.parp = p = emalloc( sizeof(Param) );
-         p->cnt = curpcnt;
-         p->par_index = parCount++; /* variable index (first variable has index 0) */
-     }
+    /* create a Param, and set its length */
+    Curparam->u.parp = p = emalloc( sizeof(Param) );
+    p->cnt = curpcnt;
+    p->par_index = parCount++; /* variable index (first variable has index 0) */
 
     if (options.McIsisMdl) {
         FNAME(save_parameter)((FINT *) &curpcnt, pval);

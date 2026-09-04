@@ -1,7 +1,8 @@
 !
-! read a model from the mif file
+! Read a model from the mif file
+! This function is called directly from C.
 !
-subroutine read_model_fortran(modelnmlen, modelnm, model_index, & 
+subroutine read_model_fortran(mifnmlen, mifnm, model_index, & 
                               reorder_names_, ier)
     ! ier: error flag
     !  0   ok
@@ -17,15 +18,19 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, &
     use mcrmif
     use iso_c_binding, only : c_int
 
-    integer(c_int), intent(in)               :: modelnmlen
-    integer(c_int), dimension(*), intent(in) :: modelnm
+    integer(c_int), intent(in)               :: mifnmlen
+    integer(c_int), dimension(*), intent(in) :: mifnm
     integer(c_int), intent(out)              :: model_index, ier
     integer(c_int), intent(in)               :: reorder_names_
-
 
     character(len = 80) :: str
     integer :: fstat, nerr, fbo_err
     logical :: reorder_names
+
+    character(len = mifnmlen) :: mifnam
+
+    ! convert byte string to fortran character
+    call byasf7(mifnm, 1, mifnmlen, mifnam)
 
     reorder_names = reorder_names_ /= 0
 
@@ -33,8 +38,8 @@ subroutine read_model_fortran(modelnmlen, modelnm, model_index, &
 
     if (model_index < 0) return
 
-    call read_mif_file(mws_array(model_index)%mdl, modelnmlen, modelnm, &
-                       reorder_names, ier, fstat)
+    call read_mif_file(mws_array(model_index)%mdl, mifnam, reorder_names, &
+                       ier, fstat)
     if (ier /= 0) then
         if (ier == 1) then
             ier = 1

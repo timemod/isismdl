@@ -10,9 +10,9 @@ void    *erealloc( void *, size_t );
 void    *ecalloc ( size_t , size_t );
 
 void    efree( void *p );
-char    *estrdup( char *s );
+char    *estrdup(const char *s);
 
-FILE    *efopen( const char *fname, char *amode);
+FILE    *efopen(const char *fname, const char *amode);
 
 int strlcmp(const char *s1, const char *s2);
 

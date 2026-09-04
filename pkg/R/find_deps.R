@@ -239,8 +239,10 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     ok <- calculable || observed || is_solvable
 
     # Set vertex attributes ok, calculable and color:
+
     # New versions of lintr complain about the <<- operator,
     # so use 'nolint start' and 'nolint end' here.
+
     # nolint start
     g <<- set_vertex_attr(g, "ok", index = idx, value = ok)
     g <<- set_vertex_attr(g, "calculable", index = idx, value = calculable)

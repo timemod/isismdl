@@ -18,7 +18,7 @@ void prepare_compiler(SEXP flags, SEXP include_dirs) {
     }
 
     /* include directories */
-    init_include_dirs();
+    reset_include_paths();
     if (!Rf_isNull(include_dirs)) {
         for (i = 0; i < length(include_dirs); i++) {
             const char *dir = CHAR(STRING_ELT(include_dirs, i));

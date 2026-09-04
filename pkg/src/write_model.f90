@@ -3,14 +3,13 @@ subroutine write_model_fortran(mifnmlen, mifnm, model_index, ier)
     ! write the model workspace to a mif file
     !
     use modelworkspaces
-    use mdl_flen
 
     integer, intent(in)               :: mifnmlen
     integer, dimension(*), intent(in) :: mifnm
     integer, intent(in)               :: model_index
     integer, intent(out)              :: ier
 
-    character(len = MAXFLEN)               :: mifnam
+    character(len = mifnmlen) :: mifnam
 
     call byasf7(mifnm, 1, mifnmlen, mifnam)
 

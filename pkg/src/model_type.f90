@@ -1,7 +1,6 @@
 module model_type
 
     use model_params
-    use mdl_flen
 
     !
     ! Model paramters

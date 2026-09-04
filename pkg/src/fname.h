@@ -8,5 +8,5 @@
  */
 
 void    fnsplit( char *fname, char *path, char *base, char *ext);
-char    *get_path_name(char *fname);
+char    *get_path_name(const char *fname);
 char    *fnjoin ( char *fname, char *path, char *base, char *ext);

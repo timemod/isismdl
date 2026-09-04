@@ -12,34 +12,36 @@
 #include "mcopt.h"
 #include "include_paths.h"
 
-extern  size_t   errcnt;
-extern  size_t   warncnt;
+extern size_t   errcnt;
+extern size_t   warncnt;
 
-extern  FILE    *mcin;
-extern  int     mcdebug;
-extern  int     scanning;
+extern FILE    *mcin;
+extern int     mcdebug;
+extern int     scanning;
 
-extern  int     mcparse();
-extern  void    mcparse_init(void);
+int    mcparse();
+void   mcparse_init(void);
 
-extern  int     mclex(void);
-extern  void    init_scanner(char *filename, const char *filename_preproc);
-extern  void    reset_scanner(void);
-extern  void    showbuf( FILE *fout );
+int    mclex(void);
+void   init_scanner(char *filename, const char *filename_preproc);
+void   close_scanner(void);
+void   showbuf( FILE *fout );
 
-extern  void    mcrestart(FILE *);
+void   mcrestart(FILE *);
 
-extern  int     mcerror(const char *fmt, ... );
-extern  void    mcwarn(const char *fmt, ... );
+int    mcerror(const char *fmt, ... );
+void   mcwarn(const char *fmt, ... );
 
-extern  void    mcerrmessage(const char *, va_list);
-extern  void    xpcerrmsg(char *, ... );
+void   stop_parsing(void);
 
-extern  void    mc_scan_params(void);
-extern  void    export_names(void);
+void   mcerrmessage(const char *, va_list);
+void   xpcerrmsg(char *, ... );
+
+void   export_names(void);
 
 extern Mcopt options;
 
-extern  int     mcexec(const char *mfname, const char *outputfile, 
-		       const Mcopt *options);
+int mcexec(const char *mfname, const char *outputfile, 
+	 	       const Mcopt *options);
+
 #endif

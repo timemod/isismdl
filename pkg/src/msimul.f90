@@ -45,6 +45,8 @@ module msimul
     retcod = 0 
     mws%simerr = 0
     chklead = .true.
+    ndiver = 0
+    retcod = 0
     
     ! set report option and print solve option
     repopt = opts%repopt
@@ -68,8 +70,6 @@ module msimul
     
     call cpu_time(told)
     
-    ndiver = 0
-    
     ! set scale = 1. for Newton/Broyden method
     if (mode /= 'R') then
         if (method == 'N' .or. method == 'B' .or. method == 'Q') then
@@ -82,7 +82,7 @@ module msimul
     
     ! warning message for unavailable previous starting values first period
     ! if using strict previous method
-    if (opts%start == 'P' .and. jf == 1) then
+    if (opts%start == 'P' .and. jf == 1 .and. mdl%mxlag == 0) then
        call simot2
     endif
     
@@ -108,7 +108,7 @@ module msimul
     ! or fix them at original values of the mws
     update_lags = mode == 'D' .or. mode == 'X'
     forwards = mode /= 'B'
-        
+     
     if (mode == 'X') then
         call simulx(ndiver, retcod)
     else
@@ -403,7 +403,7 @@ module msimul
     
         jtd = jt + mdl%mxlag
     
-        ! set ca's (constant adjustments)
+        ! set curvars (current variables)
         ! if usedat is 1 then
         !     set current starting values and exogenous vars
         ! else if usedat = 2 then
