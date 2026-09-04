@@ -36,6 +36,4 @@ test_that("empty model text", {
     ),
     omsg
   )
-
 })
-

@@ -96,9 +96,9 @@ test_that("complex conditional expression", {
 
   for (flag in flags) {
     expect_known_output(
-     cat(compile_mdl(model_text, flags = strsplit(flag, "__")[[1]])),
-     sprintf("expected_output/conditional2_%s.txt", flag),
-     update = update_expected
-   )
+      cat(compile_mdl(model_text, flags = strsplit(flag, "__")[[1]])),
+      sprintf("expected_output/conditional2_%s.txt", flag),
+      update = update_expected
+    )
   }
 })

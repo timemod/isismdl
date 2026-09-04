@@ -19,6 +19,8 @@ extern void F77_SUB(set_fit_accurate_jac)(int *);
 extern void F77_SUB(set_fit_zealous)(int *);
 extern void F77_SUB(set_fit_warn_zero_row)(int *);
 extern void F77_SUB(set_fit_warn_zero_col)(int *);
+extern void F77_SUB(set_fit_dbgopts)(int *prica, int *prijac, int *store_jac,
+                                     int *supsot);
 extern void F77_SUB(set_fit_repopt)(int *);
 extern void F77_SUB(set_fit_scale_method)(int *);
 extern void F77_SUB(set_fit_chkjac)(int *);
