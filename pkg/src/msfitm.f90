@@ -28,10 +28,11 @@ module msfitm
 &           save :: w, delw, dddelw, b, du0, djtau, delu, resold, &
 &                   zsav, work_fit, u_scale, w_scale, dj_rownorm, dj_colnorm
     real(kind = SOLVE_RKIND), dimension(:, :), allocatable, private, save :: dj, fit_jac
+    logical, private, save :: fit_jac_stored = .false.
 
     private allocate_fit_work, allocate_fit_mat, get_nw_max, fitone, mkdelw, mkdelu, &
             mkb, mkdu0, mkdjac, mkdqr, mdlpas, msfuck, wfinit, msgstp, &
-            msgjac, get_lwork_fit
+            msgjac, get_lwork_fit, clear_fit_jac
 
 
 contains
@@ -296,9 +297,10 @@ contains
         nw = 0
         nu_max = 0
         nw_max = 0
-        if (allocated(numu))      deallocate(numu)
-        if (allocated(numw))      deallocate(numw)
-        if (allocated(fit_jac))   deallocate(fit_jac)
+        fit_jac_stored = .false.
+        if (allocated(numu))    deallocate(numu)
+        if (allocated(numw))    deallocate(numw)
+        if (allocated(fit_jac)) deallocate(fit_jac)
     end subroutine clear_fit_jac
 
 !-----------------------------------------------------------------------
@@ -378,7 +380,7 @@ contains
         parameter(Qzero = 0.0_SOLVE_RKIND)
         
         logical ::  deval, devalp, fcvgd,prihdr, zealous
-        integer ::  i, j
+        integer ::  i
         integer ::  fiscod,fiter,wmxidx,wmxtyp,djcnt, smxidx, smxtyp
         integer ::  xcod
         real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, delsmx, &
@@ -470,11 +472,8 @@ contains
         
                if (opts%fit%store_jac) then
                    ! Save a copy of matrix dj 
-                   do i = 1, nw
-                      do j = 1, nu
-                          fit_jac(i, j) = dj(j, i)
-                      end do
-                   end do
+                   fit_jac = transpose(dj)
+                   fit_jac_stored = .true.
                endif
        
                ! QR factorize Dj
@@ -1334,7 +1333,7 @@ contains
 
     subroutine get_fit_jac_dim(nu_out, nw_out)
       integer, intent(out) :: nu_out, nw_out
-      if (opts%fit%store_jac) then
+      if (fit_jac_stored) then
           nu_out = nu
           nw_out = nw
       else 
@@ -1356,7 +1355,10 @@ contains
         do w = 1, nw
            jac(w, u) = fit_jac(w, u)
         end do
-     end do
+      end do
+
+      ! now we can deallocate the fit jacobian
+      call clear_fit_jac
 
     end subroutine get_fit_jac_info
 

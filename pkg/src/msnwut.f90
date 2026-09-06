@@ -20,7 +20,7 @@ integer, intent(in)  :: itr
 !  generate jacobian by calling appropriate routines
 
 
-integer :: ier, i, j, stat
+integer :: ier, stat
 
 if (mdl%fboflg == 0 .or. mdl%fbomem <= 0) then
     ! full slow method
@@ -47,17 +47,16 @@ endif
 
 if (opts%store_jac) then
     ! save a copy of the Jacobian
-    allocate(jac_stored(mdl%nfb, mdl%nfb), stat = stat)
-    if (stat /= 0) then
-        ! TODO: message?
-        retcod = 10
-        return
+    if (.not. allocated(solve_jac)) then
+        allocate(solve_jac(mdl%nfb, mdl%nfb), stat = stat)
+        if (stat /= 0) then
+            ! TODO: message?
+            retcod = 10
+            return
+        endif
     endif
-    do i = 1, mdl%nfb
-        do j = 1, mdl%nfb
-            jac_stored(i, j) = jacob(i, j)
-        enddo
-    enddo
+    solve_jac = jacob(:, 1:mdl%nfb)
+    solve_jac_stored = .true.
 endif
 
 if( ier .eq. 1 ) then
@@ -67,7 +66,7 @@ endif
 
 ! determine scale factors from jacobian and scale jacobian
 if (opts%scalmd /= NO_SCALING) then
-    call scale_matrix(jacob, jacdim, mdl%nfb, scale, opts%scalmd, ier)
+    call scale_matrix(jacob, mdl%nfb, mdl%nfb, scale, opts%scalmd, ier)
 endif
 
 if (opts%prscal .and. opts%scalmd >= 0) then
@@ -795,7 +794,7 @@ enddo
 do k = 1, mdl%nfb
 
    if (mdl%lik(mdl%numfb(k)) ) then
-       rsum = dasum(nfbk, jacob(k,1), int(jacdim, ISIS_IKIND))
+       rsum = dasum(nfbk, jacob(k,1), int(mdl%nfb, ISIS_IKIND))
        if (rsum == Rzero ) then
            call msczot(k, 1, 'R')
            if (retcod == 0) then

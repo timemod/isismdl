@@ -1,3 +1,9 @@
+!
+! This file contains Fortran functions to called directly from C.
+!
+
+! TODO: create a fortran_calls.h file ?
+
 subroutine get_max_lag_lead_fortran(model_index, maxlag, maxlead)
     use modelworkspaces
     use iso_c_binding, only : c_int
@@ -426,23 +432,18 @@ subroutine check_active_eqs_fortran(model_index)
     call check_active_equations(mws_array(model_index)%mdl)
 end subroutine check_active_eqs_fortran
 
-subroutine get_fit_jac_dim_fortran(nu, nw)
+subroutine get_fit_jac_dim_wrap(nu, nw)
     use msfitm
     use iso_c_binding
     integer(c_int), intent(out) :: nu, nw
     call get_fit_jac_dim(nu, nw)
-end subroutine get_fit_jac_dim_fortran
+end subroutine get_fit_jac_dim_wrap
 
-subroutine get_fit_jac_info_fortran(numu, numw, jac, nu, nw)
+subroutine get_fit_jac_info_wrap(numu, numw, jac, nu, nw)
     use msfitm
     use iso_c_binding
     integer(c_int), intent(out) :: numu(nu), numw(nw)
     real(c_double), dimension(nw, nu), intent(out) :: jac
     integer :: nu, nw
     call get_fit_jac_info(numu, numw, jac)
-end subroutine get_fit_jac_info_fortran
-
-subroutine clear_fit_jac_wrap
-    use msfitm
-    call clear_fit_jac
-end subroutine clear_fit_jac_wrap
+end subroutine get_fit_jac_info_wrap

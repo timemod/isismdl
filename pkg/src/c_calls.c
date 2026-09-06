@@ -90,10 +90,10 @@ extern int F77_NAME(clone_mws_fortran)(int *model_index);
 extern int F77_NAME(set_period_fortran)(int *model_index, int *start, int *end, 
                                         int *freq);
 extern void F77_NAME(check_active_eqs_fortran)(int *model_index);
-extern void F77_NAME(get_fit_jac_dim_fortran)(int *nu, int *nw);
-extern void F77_NAME(get_fit_jac_info_fortran)(int *numu, int *numw, double *jac,
-                                               int *nu, int *nw);
-extern void F77_NAME(clear_fit_jac_wrap)(void);
+extern void F77_NAME(get_fit_jac_dim_wrap)(int *nu, int *nw);
+extern void F77_NAME(get_fit_jac_info_wrap)(int *numu, int *numw, double *jac,
+                                       int *nu, int *nw);
+extern int F77_NAME(get_solve_jac_dim)(void);
 
 SEXP get_lags_or_leads(int model_index, int type);
 
@@ -601,6 +601,50 @@ SEXP get_rms_c(SEXP model_index_) {
         return ret;
     }
 }
+/* Extracts the solve Jacobian from Fortran memory. Returns an unprotected SEXP
+   holding the Jacobian, or R_NilValue if the Jacobian was not stored */
+SEXP get_solve_jac_c(int model_index) {
+
+    /* TODO: check number feedback variables > 0
+     * and check solve option store_jac */
+
+    /* Determine the dimension of the jacobian:
+       nu (number of residuals) and nw (number of observations */
+    int n;
+    n = F77_CALL(get_solve_jac_dim)();
+
+    if (n == 0) {
+        // No feedback variables, or fit option store_jac is FALSE.
+        return R_NilValue;
+    }
+
+    /* Extract variable indices and Jacobian from Fortran memory */
+    int *numfb = (int *) R_alloc(n, sizeof(int));
+    SEXP jac = PROTECT(allocVector(REALSXP, n * n));
+    //F77_CALL(get_fit_jac_info_fortran)(numu, numw, REAL(jac), &nu, &nw);
+
+    /* Convert variable indices to variable names */
+    //SEXP u_names = PROTECT(get_variable_names(numu, nu, model_index));
+    //SEXP w_names = PROTECT(get_variable_names(numw, nw, model_index));
+
+    /* Now create the matrix */
+/*
+    SEXP dim = PROTECT(allocVector(INTSXP, 2));
+    INTEGER(dim)[0] = nw;
+    INTEGER(dim)[1] = nu;
+    setAttrib(jac, R_DimSymbol, dim);
+
+    SEXP dnames = PROTECT(allocVector(VECSXP, 2));
+    SET_VECTOR_ELT(dnames, 0, w_names);
+    SET_VECTOR_ELT(dnames, 1, u_names);
+    setAttrib(jac, R_DimNamesSymbol, dnames);
+*/
+
+    UNPROTECT(5);
+
+    /* Return unprotected result */
+    return jac;
+}
 
 /* Extracts the fit Jacobian from Fortran memory. Returns an unprotected SEXP
    holding the Jacobian, or R_NilValue if no fit Jacobian was available */
@@ -609,10 +653,10 @@ SEXP get_fit_jac_c(int model_index) {
     /* Determine the dimension of the jacobian:
        nu (number of residuals) and nw (number of observations */
     int nu, nw;
-    F77_CALL(get_fit_jac_dim_fortran)(&nu, &nw);
+    F77_CALL(get_fit_jac_dim_wrap)(&nu, &nw);
 
     if (nu == 0 || nw == 0) {
-        // No fit called
+        // No fit called, or fit option store_jac is FALSE.
         return R_NilValue;
     }
 
@@ -620,7 +664,7 @@ SEXP get_fit_jac_c(int model_index) {
     int *numu = (int *) R_alloc(nu, sizeof(int));
     int *numw = (int *) R_alloc(nw, sizeof(int));
     SEXP jac = PROTECT(allocVector(REALSXP, nw * nu));
-    F77_CALL(get_fit_jac_info_fortran)(numu, numw, REAL(jac), &nu, &nw);
+    F77_CALL(get_fit_jac_info_wrap)(numu, numw, REAL(jac), &nu, &nw);
 
     /* Convert variable indices to variable names */
     SEXP u_names = PROTECT(get_variable_names(numu, nu, model_index));
@@ -675,9 +719,6 @@ SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
 
     /* Fit Jacobian */
     SEXP fit_jac = PROTECT(get_fit_jac_c(model_index));
-
-    /* Now clear fit jacobian from memory */
-    F77_CALL(clear_fit_jac_wrap)();
 
     /* allocate list (VECSXP) of length 3 and protect it */
     SEXP ret = PROTECT(allocVector(VECSXP, 2));
