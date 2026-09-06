@@ -321,7 +321,7 @@ else
         matrix = .false.
     elseif (method == "B") then
         call msbrup(mdl%nfb, jacob, jacob(:, mdl%nfb + 1: 2 * mdl%nfb), &
-&                 jacdim, fbfun, la_work, ier)
+&                 mdl%nfb, fbfun, la_work, ier)
         if (ier /= 0) then
             if (njcmat < opts%maxmat) then
                  matrix = .false.

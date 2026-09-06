@@ -51,12 +51,12 @@ subroutine msbstp
     
     ! fbwork = - trans(Q) * f
     call dgemm('T', 'N', mdl%nfb, 1_LAPACK_IKIND, mdl%nfb, Rone, &
-    &         jacob, jacdim, fbstep, mdl%nfb, Rzero, fbwork, mdl%nfb)
+    &         jacob, mdl%nfb, fbstep, mdl%nfb, Rzero, fbwork, mdl%nfb)
     ! **** solve R * fbstep = fbwork
     call dcopy(mdl%nfb, fbwork, 1_LAPACK_IKIND, fbstep, &
     &          1_LAPACK_IKIND)
     call dtrtrs('U', 'N', 'N', mdl%nfb, 1_LAPACK_IKIND, &
-    &           jacob(1, mdl%nfb + 1), jacdim, fbstep, mdl%nfb, info)
+    &           jacob(1, mdl%nfb + 1), mdl%nfb, fbstep, mdl%nfb, info)
     
     ! unscale stepsize + calculate new fb values
     
@@ -97,8 +97,8 @@ integer ::  i, stat
 ! allocate jacobian if required
 !
 if (.not. allocated(jacob)) then
-    jacdim = mdl%nfb
-    allocate(jacob(jacdim, 2 * mdl%nfb), stat = stat)
+    mdl%nfb = mdl%nfb
+    allocate(jacob(mdl%nfb, 2 * mdl%nfb), stat = stat)
     if (stat /= 0) then
         call jacot7
         retcod = 10
@@ -117,7 +117,7 @@ if (retcod /= 0) return
 
 ! QR decomposition of scaled jacobian
 ! estimate inverse condition of R ==> inverse condition of jacobian
-call qrco(jacob, jacdim, mdl%nfb, mdl%nfb, fbwork, rcond, la_work, la_lwork)
+call qrco(jacob, mdl%nfb, mdl%nfb, mdl%nfb, fbwork, rcond, la_work, la_lwork)
 
 if( Rone + rcond == Rone) then
    ier = 1
@@ -141,7 +141,7 @@ do j = 1, mdl%nfb
     call dcopy(j, jacob(1,j), 1_LAPACK_IKIND, jacob(1,j + mdl%nfb), &
 &              1_LAPACK_IKIND)
 enddo
-call dorgqr(mdl%nfb, mdl%nfb, mdl%nfb, jacob, jacdim, fbwork, &
+call dorgqr(mdl%nfb, mdl%nfb, mdl%nfb, jacob, mdl%nfb, fbwork, &
 &           la_work, la_lwork, info)
 
 !     jacob(1..n,1  ..n ) contains expanded Q
