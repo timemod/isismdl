@@ -471,8 +471,8 @@ contains
                if (.not. is_square) call mkdu0(ca, delu)
         
                if (opts%fit%store_jac) then
-                   ! Save a copy of matrix dj 
-                   fit_jac = transpose(dj)
+                   ! Save a copy of the fit jaconian
+                   fit_jac(1:nw, 1:nu) = transpose(dj(1:nu, 1:nw))
                    fit_jac_stored = .true.
                endif
        
@@ -1346,16 +1346,9 @@ contains
       integer, intent(out) :: numu_out(:), numw_out(:)
       real(kind = SOLVE_RKIND), intent(out) :: jac(:, :)
 
-      integer :: u, w
-
       numu_out = numu(1:nu)
       numw_out = numw(1:nw)
-
-      do u = 1, nu
-        do w = 1, nw
-           jac(w, u) = fit_jac(w, u)
-        end do
-      end do
+      jac = fit_jac(1:nw, 1:nu)
 
       ! now we can deallocate the fit jacobian
       call clear_fit_jac

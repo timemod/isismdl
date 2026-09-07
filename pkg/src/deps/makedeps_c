@@ -2,8 +2,9 @@ by.o : isismdl_types.h
 
 c_call_tools.o : c_call_tools.h get_info.h isismdl_types.h
 
-c_calls.o : c_call_tools.h c_calls.h get_info.h init_set_get_options.h \
-    isismdl_types.h option_utils.h set_fit_options.h set_solve_options.h
+c_calls.o : c_call_tools.h c_calls.h fortran_calls.h get_info.h \
+    get_solve_jac_info.h init_set_get_options.h isismdl_types.h option_utils.h \
+    set_fit_options.h set_solve_options.h
 
 compile_mdl_c.o : compile_mdl_c.h prepare_compiler.h
 

@@ -2,6 +2,7 @@
 #include <Rdefines.h>
 #include <string.h>
 #include "get_info.h"
+#include "fortran_calls.h"
 #include "c_calls.h"
 #include "set_solve_options.h"
 #include "set_fit_options.h"
@@ -9,6 +10,7 @@
 #include "init_set_get_options.h"
 #include "isismdl_types.h"
 #include "c_call_tools.h"
+#include "get_solve_jac_info.h"
 
 #define ALL  1
 #define FRML 2
@@ -32,71 +34,62 @@ extern void F77_NAME(read_model_fortran)(int *mifnmlen, const char *mifnm,
                                          int *ier);
 extern void F77_NAME(write_model_fortran)(int *mifnmlen, const char *mifnm,
                                           int *model_index, int *ier);
-extern void F77_NAME(get_data_fortran)(int *model_index, int *nvar, int *ivar,
-                                       int *ntime, int *jtb,
-                                       int *jte, double *data);
-extern void F77_NAME(get_ca_fortran)(int *model_index, int *nca, int *ica,
-                                     int *ntime, int *jtb,
-                                     int *jte, double *data);
-extern void F77_NAME(get_fix_fit_fortran)(int *model_index, int *nvar, int *ivar,
-                                          int *ntime, int *jtb, double *mat,
-                                          int *fix_);
-extern void F77_NAME(get_param_fortran)(int *model_index, int *ip, double *value,
-                                        int *par_len);
-extern int F77_NAME(set_param_fortran)(int *model_index, int *ipar, double *data,
-                                        int *len);
-extern void F77_NAME(set_data_fortran)(int *model_index, int *nvar, int *ivar,
-                                       int *ntime, int *jtb, int *jte,
-                                       double *data, int *icol, int *upd_mode);
-extern void F77_NAME(set_ca_fortran)(int *model_index, int *, int *ivar,
-                                       int *ntime, int *jtb, int *jte,
-                                       double *data, int *icol, int *upd_mode);
-extern void F77_NAME(set_fix_fit_fortran)(int *model_index, int *, int *ivar,
-                                      int *ntime, int *jtb, int *jte,
-                                      double *data, int *icol, int *fix,
-                                      int *upd_mode);
-extern void F77_NAME(solve_fortran)(int *model_index, int *startp, int *endp,
-                                    int *opts_present, int *error);
-extern void F77_NAME(filmdt_fortran)(int *model_index, int *startp, int *endp,
-                                     int *report_type, int *include_frmls_int);
-extern void F77_NAME(set_rms_fortran)(int *model_index, int *var_index,
-                                      double *value);
-extern int F77_NAME(has_rms_fortran)(int *model_index);
-extern void F77_NAME(get_rms_fortran)(int *model_index, double *values);
-extern void F77_NAME(set_test)(int *model_index, int *var_index, double *value);
-extern double F77_NAME(get_test)(int *model_index, int *var_index, int *alphabet);
-extern void F77_NAME(activate_equation)(int *model_index, int *var_index);
-extern void F77_NAME(deactivate_equation)(int *model_index, int *var_index);
-extern void F77_NAME(set_ftrelax)(int *model_index, int *var_index, double *value);
-extern double F77_NAME(get_ftrelax)(int *model_index, int *var_index);
-extern void F77_SUB(init_set_options)(int *model_index, int *use_mws);
-extern int F77_NAME(get_simerr)(int *model_index);
-extern int F77_NAME(has_lag)(int *model_index, int *iv);
-extern int F77_NAME(has_lead)(int *model_index, int *iv);
-extern int F77_NAME(has_free_mws_fortran)(void);
-extern void F77_NAME(get_max_lag_lead_fortran)(int *model_index, int *maxlag, int *maxlead);
-extern void F77_NAME(remove_mws_fortran)(int *model_index);
-extern void F77_NAME(remove_all_mwss_fortran)(void);
-extern void F77_NAME(set_dbgeqn_fortran)(int *model_index, int *dbgeqn);	
-extern int F77_NAME(get_dbgeqn_fortran)(int *model_index);	
-extern void F77_NAME(run_eqn_fortran)(int *model_index, int *neq, int *eqnums,
-                                       int *jtb, int *jte, int *updval_,
-                                       int *by_period_);	
-extern int F77_NAME(get_jc_fortran)(int * model_index);	
-extern void F77_NAME(set_jc_fortran)(int *model_index, int *jc);
-extern void F77_NAME(clear_fit_fortran)(int *model_index);
-extern void F77_NAME(clear_fix_fortran)(int *model_index);
-extern int F77_NAME(clone_mws_fortran)(int *model_index);
-extern int F77_NAME(set_period_fortran)(int *model_index, int *start, int *end, 
-                                        int *freq);
-extern void F77_NAME(check_active_eqs_fortran)(int *model_index);
-extern void F77_NAME(get_fit_jac_dim_wrap)(int *nu, int *nw);
-extern void F77_NAME(get_fit_jac_info_wrap)(int *numu, int *numw, double *jac,
-                                       int *nu, int *nw);
-extern int F77_NAME(get_solve_jac_dim)(void);
 
-SEXP get_lags_or_leads(int model_index, int type);
+static inline SEXP get_lags_or_leads(int model_index, int type) {
 
+    /* returns a character vector with the names of lags or leads */
+
+    int nv = F77_CALL(get_variable_count)(&model_index);
+    int *ivars = (int *) R_alloc(nv, sizeof(int));
+
+    int (*has_lag_or_lead)(int *, int *);
+    if (type == LAGS) {
+        has_lag_or_lead = F77_CALL(has_lag);
+    } else {
+        has_lag_or_lead = F77_CALL(has_lead);
+    }
+
+    // get indices of variables
+    int iv, ok, cnt = 0;
+    for (iv = 1; iv <= nv; iv++) {
+      ok = (*has_lag_or_lead)(&model_index, &iv);
+      if (ok) {
+          ivars[cnt++] = iv;
+      }
+    }
+
+    return get_variable_names(ivars, cnt, model_index);
+}
+
+
+/* Returns an unprotected SEXP that holds a numerical matrix */
+static inline SEXP create_matrix(int nrows, int ncols) {
+
+   SEXP mat = PROTECT(allocVector(REALSXP, nrows * ncols));
+
+   SEXP dim = PROTECT(allocVector(INTSXP, 2));
+   INTEGER(dim)[0] = nrows;
+   INTEGER(dim)[1] = ncols;
+   setAttrib(mat, R_DimSymbol, dim);
+ 
+   UNPROTECT(2);
+
+   return mat;
+}
+
+/* Add row and column names to an SEXP that holds matrix */
+static inline SEXP add_row_and_column_names(SEXP mat, SEXP row_names,
+                                            SEXP col_names) {
+
+    SEXP dnames = PROTECT(allocVector(VECSXP, 2));
+    SET_VECTOR_ELT(dnames, 0, row_names);
+    SET_VECTOR_ELT(dnames, 1, col_names);
+    setAttrib(mat, R_DimNamesSymbol, dnames);
+
+    UNPROTECT(1);
+
+    return mat;
+}
 
 SEXP init_modules_c(void) {
     F77_CALL(init_modules_fortran)();	
@@ -234,32 +227,6 @@ SEXP get_var_names_c(SEXP type_, SEXP model_index_) {
     }
     UNPROTECT(1);
     return names;
-}
-
-SEXP get_lags_or_leads(int model_index, int type) {
-
-    /* returns a character vector with the names of lags or leads */
-
-    int nv = F77_CALL(get_variable_count)(&model_index);
-    int *ivars = (int *) R_alloc(nv, sizeof(int));
-
-    int (*has_lag_or_lead)(int *, int *);
-    if (type == LAGS) {
-        has_lag_or_lead = F77_CALL(has_lag);
-    } else {
-        has_lag_or_lead = F77_CALL(has_lead);
-    }
-
-    // get indices of variables
-    int iv, ok, cnt = 0;
-    for (iv = 1; iv <= nv; iv++) {
-      ok = (*has_lag_or_lead)(&model_index, &iv);
-      if (ok) {
-          ivars[cnt++] = iv;
-      }
-    }
-
-    return get_variable_names(ivars, cnt, model_index);
 }
 
 SEXP get_eq_names_c(SEXP model_index_, SEXP status_, SEXP solve_order_,
@@ -425,17 +392,10 @@ SEXP get_data_c(SEXP type_, SEXP model_index_, SEXP names, SEXP jtb_, SEXP jte_)
     }
 
     /* get the data */
-    SEXP data = PROTECT(allocVector(REALSXP, ntime * cnt));
+    SEXP data = PROTECT(create_matrix(ntime, cnt));
     (*get_dat)(&model_index, &cnt, ivar, &ntime, &jtb, &jte, REAL(data));
 
-    /* set the dimension of the matrix */
-    SEXP dim = PROTECT(allocVector(INTSXP, 2));
-    INTEGER(dim)[0] = ntime;
-    INTEGER(dim)[1] = cnt;
-    setAttrib(data, R_DimSymbol, dim);
-
-
-    UNPROTECT(2);
+    UNPROTECT(1);
     return data;
 }
 
@@ -549,16 +509,10 @@ SEXP get_fix_fit_c(SEXP type_, SEXP model_index_) {
     }
 
     int ntime = jte - jtb + 1;
-    SEXP mat = PROTECT(allocVector(REALSXP, ntime * nvar));
+    SEXP mat = PROTECT(create_matrix(ntime, nvar));
     int *ivar = (int *) R_alloc(nvar, sizeof(int));
     F77_CALL(get_fix_fit_fortran)(&model_index, &nvar, ivar, &ntime, &jtb,
                                   REAL(mat), &fix);
-
-    /* set the dimension of the matrix */
-    SEXP dim = PROTECT(allocVector(INTSXP, 2));
-    INTEGER(dim)[0] = ntime;
-    INTEGER(dim)[1] = nvar;
-    setAttrib(mat, R_DimSymbol, dim);
 
     SEXP names = PROTECT(get_variable_names(ivar, nvar, model_index));
 
@@ -568,7 +522,7 @@ SEXP get_fix_fit_c(SEXP type_, SEXP model_index_) {
     SET_VECTOR_ELT(list, 1, mat);
     SET_VECTOR_ELT(list, 2, names);
 
-    UNPROTECT(4);
+    UNPROTECT(3);
     return list;
 }
 
@@ -601,46 +555,31 @@ SEXP get_rms_c(SEXP model_index_) {
         return ret;
     }
 }
+
 /* Extracts the solve Jacobian from Fortran memory. Returns an unprotected SEXP
    holding the Jacobian, or R_NilValue if the Jacobian was not stored */
 SEXP get_solve_jac_c(int model_index) {
 
-    /* TODO: check number feedback variables > 0
-     * and check solve option store_jac */
-
     /* Determine the dimension of the jacobian:
        nu (number of residuals) and nw (number of observations */
-    int n;
-    n = F77_CALL(get_solve_jac_dim)();
-
-    if (n == 0) {
+    int nfb = F77_CALL(get_solve_jac_dim)();
+    if (nfb == 0) {
         // No feedback variables, or fit option store_jac is FALSE.
         return R_NilValue;
     }
 
+    SEXP jac = PROTECT(create_matrix(nfb, nfb));
+
     /* Extract variable indices and Jacobian from Fortran memory */
-    int *numfb = (int *) R_alloc(n, sizeof(int));
-    SEXP jac = PROTECT(allocVector(REALSXP, n * n));
-    //F77_CALL(get_fit_jac_info_fortran)(numu, numw, REAL(jac), &nu, &nw);
+    int *numfb = (int *) R_alloc(nfb, sizeof(int));
+    F77_CALL(get_solve_jac_info)(numfb, REAL(jac));
 
-    /* Convert variable indices to variable names */
-    //SEXP u_names = PROTECT(get_variable_names(numu, nu, model_index));
-    //SEXP w_names = PROTECT(get_variable_names(numw, nw, model_index));
+    /* Convert variable indices to names of the feedback variables */
+    SEXP fb_names = PROTECT(get_variable_names(numfb, nfb, model_index));
 
-    /* Now create the matrix */
-/*
-    SEXP dim = PROTECT(allocVector(INTSXP, 2));
-    INTEGER(dim)[0] = nw;
-    INTEGER(dim)[1] = nu;
-    setAttrib(jac, R_DimSymbol, dim);
+    jac = add_row_and_column_names(jac, fb_names, fb_names);
 
-    SEXP dnames = PROTECT(allocVector(VECSXP, 2));
-    SET_VECTOR_ELT(dnames, 0, w_names);
-    SET_VECTOR_ELT(dnames, 1, u_names);
-    setAttrib(jac, R_DimNamesSymbol, dnames);
-*/
-
-    UNPROTECT(5);
+    UNPROTECT(2);
 
     /* Return unprotected result */
     return jac;
@@ -660,28 +599,21 @@ SEXP get_fit_jac_c(int model_index) {
         return R_NilValue;
     }
 
+    /* Create jacobian matrix */
+    SEXP jac = PROTECT(create_matrix(nw, nu));
+
     /* Extract variable indices and Jacobian from Fortran memory */
     int *numu = (int *) R_alloc(nu, sizeof(int));
     int *numw = (int *) R_alloc(nw, sizeof(int));
-    SEXP jac = PROTECT(allocVector(REALSXP, nw * nu));
     F77_CALL(get_fit_jac_info_wrap)(numu, numw, REAL(jac), &nu, &nw);
 
     /* Convert variable indices to variable names */
     SEXP u_names = PROTECT(get_variable_names(numu, nu, model_index));
     SEXP w_names = PROTECT(get_variable_names(numw, nw, model_index));
 
-    /* Now create the matrix */
-    SEXP dim = PROTECT(allocVector(INTSXP, 2));
-    INTEGER(dim)[0] = nw;
-    INTEGER(dim)[1] = nu;
-    setAttrib(jac, R_DimSymbol, dim);
+    jac = add_row_and_column_names(jac, w_names, u_names);
 
-    SEXP dnames = PROTECT(allocVector(VECSXP, 2));
-    SET_VECTOR_ELT(dnames, 0, w_names);
-    SET_VECTOR_ELT(dnames, 1, u_names);
-    setAttrib(jac, R_DimNamesSymbol, dnames);
-
-    UNPROTECT(5);
+    UNPROTECT(3);
 
     /* Return unprotected result */
     return jac;
@@ -715,25 +647,32 @@ SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
     F77_CALL(solve_fortran)(&model_index, &startp, &endp, &opts_present, &error);
 
     /* Return simerr  */
+    // TODO: let solve_fortran return simerr, then this function
+    // is no longer required.
     int simerr = F77_CALL(get_simerr)(&model_index);
+
+    /* Solve Jacobian */
+    SEXP solve_jac = PROTECT(get_fit_jac_c(model_index));
 
     /* Fit Jacobian */
     SEXP fit_jac = PROTECT(get_fit_jac_c(model_index));
 
     /* allocate list (VECSXP) of length 3 and protect it */
-    SEXP ret = PROTECT(allocVector(VECSXP, 2));
+    SEXP ret = PROTECT(allocVector(VECSXP, 3));
     SET_VECTOR_ELT(ret, 0, ScalarInteger(simerr));
-    SET_VECTOR_ELT(ret, 1, fit_jac);
+    SET_VECTOR_ELT(ret, 1, solve_jac);
+    SET_VECTOR_ELT(ret, 2, fit_jac);
 
     /* allocate character vector for names (STRSXP) and fill it */
-    SEXP names = PROTECT(allocVector(STRSXP, 2));
+    SEXP names = PROTECT(allocVector(STRSXP, 3));
     SET_STRING_ELT(names, 0, mkChar("simerr"));
+    SET_STRING_ELT(names, 1, mkChar("solve_jac"));
     SET_STRING_ELT(names, 1, mkChar("fit_jac"));
 
     /* attach names attribute */
     setAttrib(ret, R_NamesSymbol, names);
 
-    UNPROTECT(3);
+    UNPROTECT(4);
 
     return ret;
 }
