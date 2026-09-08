@@ -1,4 +1,4 @@
-fortran_calls.o : modelworkspaces.o msfill.o msfitm.o msimul.o msslvq.o \
+fortran_calls.o : modelworkspaces.o msfill.o msfitm.o msimul.o msruneqn.o \
     msvars.o
 
 get_fit_opts_fortran.o : get_options.o
@@ -119,7 +119,7 @@ msorpr.o : kinds.o mcjsbl.o mcxref.o mdl_name_utils.o model_type.o \
 
 msrchk.o : msfbvl.o msolot.o msutil.o
 
-msslvq.o : mdlvars.o mssneq.o msvars.o nuna.o
+msruneqn.o : mssneq.o msvars.o
 
 mssneq.o : mdl_name_utils.o mscalc.o msimot.o msvars.o nuna.o
 

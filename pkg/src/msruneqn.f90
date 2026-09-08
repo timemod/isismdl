@@ -1,12 +1,47 @@
-module msslvq
+module msruneqn
+use msvars
+
+private :: solve_equation
 
 contains
 
+subroutine run_eqn(mws_in, neq, eqnums, jtb, jte, updval, by_period)
+    type(modelworkspace), target, intent(inout) :: mws_in
+    integer, intent(in) :: neq, eqnums(neq), jtb, jte
+    logical, intent(in) :: updval, by_period
+  
+    !
+    ! run a number of equations
+    !
+
+    integer :: ieq, errflg, step, j
+
+    call msvarsinit(mws_in)
+
+    if (by_period) then
+        ! the inner loop is over the equations
+        if (jte >= jtb) then
+            step = 1
+        else
+            step = -1
+        endif
+        do j = jtb, jte, step
+            do ieq = 1, neq
+                call solve_equation(eqnums(ieq), updval, j, j, errflg)
+            enddo
+        end do
+    else
+        ! run each equation by_period for all periods.
+        ! the loop over the time is in function solve_equation
+        do ieq = 1, neq
+            call solve_equation(eqnums(ieq), updval, jtb, jte, errflg)
+        end do
+    endif
+
+end subroutine run_eqn
+
 subroutine solve_equation(eqnum, updval, jt1, jt2, errflg)
-use msvars
 use mssneq
-use nuna
-use mdlvars
  
 ! solves equation eqnum for all periods between jt1 and jt2
 ! if updval == .true.  then do not store NA or missing result
@@ -163,4 +198,4 @@ end do
 return
 end subroutine solve_equation
 
-end module msslvq
+end module msruneqn

@@ -163,41 +163,23 @@ end subroutine get_rms_fortran
 subroutine run_eqn_fortran(model_index, neq, eqnums, jtb, jte, updval_, &
                            by_period_)
     use modelworkspaces
-    use iso_c_binding
-    use msvars
-    use msslvq
+    use iso_c_binding, only : c_int
+    use msruneqn
     integer(c_int), intent(in) :: model_index, neq, jtb, jte
     integer(c_int), intent(in) :: eqnums(neq)
     integer(c_int), intent(in) :: updval_, by_period_
+
     ! 
-    ! run a number of equations
+    ! run a number of equations, called from C
     !
-    integer :: ieq, errflg, step, j
+
     logical :: updval, by_period
 
-    call msvarsinit(mws_array(model_index))
     updval = updval_ /= 0
     by_period = by_period_ /= 0
 
-    if (by_period) then 
-        ! the inner loop is over the equations
-        if (jte >= jtb) then
-            step = 1
-        else 
-            step = -1
-        endif
-        do j = jtb, jte, step
-            do ieq = 1, neq
-                call solve_equation(eqnums(ieq), updval, j, j, errflg)
-            enddo
-        end do
-    else
-        ! run each equation by_period for all periods.
-        ! the loop over the time is in function solve_equation
-        do ieq = 1, neq
-            call solve_equation(eqnums(ieq), updval, jtb, jte, errflg)
-        end do
-    endif
+    call run_eqn(mws_array(model_index), neq, eqnums, jtb, jte, updval, &
+                 by_period)
 
 end subroutine run_eqn_fortran
 
