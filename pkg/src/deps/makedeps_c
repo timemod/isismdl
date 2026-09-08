@@ -88,14 +88,19 @@ run_mcexec.o : include_paths.h mchdr.h mcopt.h prepare_compiler.h run_mcexec.h
 scan.o : dependencies.h ecode.h flags.h fname.h include_paths.h ipcode.h \
     mchdr.h mcinit.h mcopt.h symbol.h util.h xpctab.h
 
-set_fit_opts_c.o : fit_options.h get_fit_opts_fortran.h init_set_get_options.h \
-    set_fit_options.h set_fit_opts_c.h set_option_utils.h
+set_fit_options.o : fit_options.h get_fit_opts_fortran.h init_set_get_options.h \
+    set_fit_options.h set_fit_opts_c.h set_fit_opts.h set_option_utils.h
+
+set_fit_opts_c.o : init_set_get_options.h set_fit_options.h set_fit_opts_c.h
 
 set_option_utils.o : set_option_utils.h
 
-set_solve_opts_c.o : get_solve_opts_fortran.h init_set_get_options.h \
+set_solve_options.o : get_solve_opts_fortran.h init_set_get_options.h \
     set_option_utils.h set_solve_options.h set_solve_opts_c.h set_solve_opts.h \
     solve_options.h
+
+set_solve_opts_c.o : init_set_get_options.h set_solve_options.h \
+    set_solve_opts_c.h
 
 solve_options.o : option_utils.h solve_options.h
 

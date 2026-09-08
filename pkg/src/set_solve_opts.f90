@@ -145,6 +145,13 @@ subroutine set_erropt(erropt)
     options_set%erropt = erropt
 end subroutine set_erropt
 
+subroutine set_store_jac(store_jac)
+    use set_options
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: store_jac
+    options_set%store_jac = store_jac /= 0
+end subroutine set_store_jac
+
 subroutine check_options
     use set_options
     use output_utils

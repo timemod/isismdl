@@ -407,6 +407,9 @@ IsisMdl <- R6Class("IsisMdl",
     get_jacobian = function() {
       return(private$jacobian)
     },
+    get_solve_jac = function() {
+      private$solve_jac
+    },
     get_fit_jac = function() {
       private$fit_jac
     },
@@ -865,7 +868,7 @@ IsisMdl <- R6Class("IsisMdl",
                                  xmaxiter, xupdate, dbgopt, erropt,
                                  report, ratreport, ratreport_rep,
                                  ratfullreport_rep, bktmax, xtfac,
-                                 svdtest_tol) {
+                                 store_jac) {
       # create a list of supplied options
       names <- names(match.call()[-1])
       options <- lapply(names, FUN = function(x) eval(parse(text = x)))
@@ -875,8 +878,8 @@ IsisMdl <- R6Class("IsisMdl",
     },
     set_fit_options = function(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca,
                                warn_ca, accurate_jac, zealous, scale_method,
-                               warn_zero_row, warn_zero_col, chkjac, report,
-                               dbgopt, svdtest_tol) {
+                               warn_zero_row, warn_zero_col, chkjac, store_jac,
+                               report, dbgopt, svdtest_tol) {
       names <- names(match.call()[-1])
       options <- lapply(names, FUN = function(x) eval(parse(text = x)))
       names(options) <- names
@@ -902,6 +905,7 @@ IsisMdl <- R6Class("IsisMdl",
       )
 
       private$solve_status <- simerr_to_solve_status(ret$simerr)
+      if (!is.null(ret$solve_jac)) private$solve_jac <- ret$solve_jac
       if (!is.null(ret$fit_jac)) private$fit_jac <- ret$fit_jac
       return(invisible(self))
     },
@@ -1142,6 +1146,7 @@ IsisMdl <- R6Class("IsisMdl",
   ),
   private = list(
     jacobian = NULL,
+    solve_jac = NULL,
     fit_jac = NULL,
     model_text = NA_character_,
     maxlag = NA_integer_,

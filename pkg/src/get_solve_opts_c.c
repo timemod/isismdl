@@ -9,7 +9,7 @@
 #include "get_solve_opts_fortran.h"
 #include "option_builder.h"
 
-#define N_OPTS 20
+#define N_OPTS 21
 
 static SEXP get_debug_option(void);
 
@@ -23,37 +23,38 @@ SEXP get_solve_opts_c(SEXP model_index_) {
     F77_CALL(init_get_options)(&model_index);
 
     int imode, istart, maxit, maxmat, mratex, uplead, erropt, repopt, 
-        ratrepopt, ratreport_rep, ratfullreport_rep, bktmax;
+        ratrepopt, ratreport_rep, ratfullreport_rep, bktmax, store_jac;
     double rlxspeed, rlxmin, rlxmax, cstpbk, cnmtrx, xrelax, xtfac;
     F77_CALL(get_solve_options)(&imode, &istart, &maxit, &maxmat, &rlxspeed,
                                 &rlxmin, &rlxmax, &cstpbk, &cnmtrx, &xrelax,
                                 &mratex, &uplead, &erropt, &repopt, &ratrepopt,
                                 &ratreport_rep, &ratfullreport_rep, &bktmax, 
-                                &xtfac);
+                                &xtfac, &store_jac);
     /*
      * Create a named list with the options
      */
     OptionBuilder *b = ob_create(N_OPTS);
-    ob_add_string(b, "mode",              get_mode_text(imode));
-    ob_add_string(b, "fbstart",           get_start_text(istart));
-    ob_add_int   (b, "maxiter",           maxit);
-    ob_add_int   (b, "maxjacupd",         maxmat);
-    ob_add_real  (b, "rlxspeed",          rlxspeed);
-    ob_add_real  (b, "rlxmin",            rlxmin);
-    ob_add_real  (b, "rlxmax",            rlxmax);
-    ob_add_real  (b, "cstpbk",            cstpbk);
-    ob_add_real  (b, "cnmtrx",            cnmtrx);
-    ob_add_real  (b, "bktmax",            bktmax);
-    ob_add_real  (b, "xrelax",            xrelax);
-    ob_add_int   (b, "xmaxiter",          mratex);
-    ob_add_string(b, "xupdate",           get_xupdate_text(uplead));
-    ob_add_real  (b, "xtfac",             xtfac);
-    ob_add_string(b, "erropt",            get_erropt_text(erropt));
-    ob_add_string(b, "report",            get_repopt_text(repopt));
-    ob_add_string(b, "ratreport",         get_ratrepopt_text(ratrepopt));
-    ob_add_int   (b, "ratreport_rep",     ratreport_rep);
-    ob_add_int   (b, "ratfullreport_rep", ratfullreport_rep);
-    ob_add_sexp  (b, "dbgopt",            get_debug_option());
+    ob_add_string (b, "mode",              get_mode_text(imode));
+    ob_add_string (b, "fbstart",           get_start_text(istart));
+    ob_add_int    (b, "maxiter",           maxit);
+    ob_add_int    (b, "maxjacupd",         maxmat);
+    ob_add_real   (b, "rlxspeed",          rlxspeed);
+    ob_add_real   (b, "rlxmin",            rlxmin);
+    ob_add_real   (b, "rlxmax",            rlxmax);
+    ob_add_real   (b, "cstpbk",            cstpbk);
+    ob_add_real   (b, "cnmtrx",            cnmtrx);
+    ob_add_real   (b, "bktmax",            bktmax);
+    ob_add_real   (b, "xrelax",            xrelax);
+    ob_add_int    (b, "xmaxiter",          mratex);
+    ob_add_string (b, "xupdate",           get_xupdate_text(uplead));
+    ob_add_real   (b, "xtfac",             xtfac);
+    ob_add_string (b, "erropt",            get_erropt_text(erropt));
+    ob_add_string (b, "report",            get_repopt_text(repopt));
+    ob_add_string (b, "ratreport",         get_ratrepopt_text(ratrepopt));
+    ob_add_int    (b, "ratreport_rep",     ratreport_rep);
+    ob_add_int    (b, "ratfullreport_rep", ratfullreport_rep);
+    ob_add_sexp   (b, "dbgopt",            get_debug_option());
+    ob_add_logical(b, "store_jac",         store_jac);
 
     return ob_get(b);
 }
