@@ -7,6 +7,7 @@
 #include "set_fit_opts_c.h"
 #include "get_fit_opts_fortran.h"
 
+// TODO: in set_fit_opts_fortran.h?
 extern void F77_SUB(init_set_solve_opts)(int *model_index, int *use_mws);
 extern void F77_SUB(init_get_solve_opts)(int *model_index);
 extern void F77_SUB(set_fit_maxit)(int *);
@@ -19,11 +20,11 @@ extern void F77_SUB(set_fit_accurate_jac)(int *);
 extern void F77_SUB(set_fit_zealous)(int *);
 extern void F77_SUB(set_fit_warn_zero_row)(int *);
 extern void F77_SUB(set_fit_warn_zero_col)(int *);
-extern void F77_SUB(set_fit_dbgopts)(int *prica, int *prijac, int *store_jac,
-                                     int *supsot);
+extern void F77_SUB(set_fit_dbgopts)(int *prica, int *prijac, int *supsot);
 extern void F77_SUB(set_fit_repopt)(int *);
 extern void F77_SUB(set_fit_scale_method)(int *);
 extern void F77_SUB(set_fit_chkjac)(int *);
+extern void F77_SUB(set_fit_store_jac)(int *);
 
 static void set_fit_option(const char *name, SEXP value);
 static void set_fit_debug_opts(SEXP option);
@@ -99,6 +100,10 @@ static void set_fit_option(const char *name, SEXP value) {
         CHECK_LENGTH(name, value);
         i = get_logical(name, value);
         F77_CALL(set_fit_chkjac)(&i);
+    } else if (!strcmp(name, "store_jac")) {
+        CHECK_LENGTH(name, value);
+        i = get_logical(name, value);
+        F77_CALL(set_fit_store_jac)(&i);
     } else if (!strcmp(name, "dbgopt")) {
         set_fit_debug_opts(value);
     } else if (!strcmp(name, "report")) {
@@ -117,7 +122,7 @@ static void set_fit_option(const char *name, SEXP value) {
 static void set_fit_debug_opts(SEXP option) {
 
     int prica, prijac, store_jac, supsot;
-    F77_CALL(get_fit_dbgopts)(&prica, &prijac, &store_jac, &supsot);
+    F77_CALL(get_fit_dbgopts)(&prica, &prijac, &supsot);
     int i;
     for (i = 0; i < length(option); i++) {
         const char *opt = CHAR(STRING_ELT(option, i));
@@ -127,8 +132,6 @@ static void set_fit_debug_opts(SEXP option) {
             prica = positive;
         } else if (!strcmp(s, FIT_PRIJAC_OPTS[1])) {
             prijac = positive;
-        } else if (!strcmp(s, FIT_STORE_JAC_OPTS[1])) {
-            store_jac = positive;
         } else if (!strcmp(s, FIT_SUPSOT_OPTS[1])) {
             supsot = positive;
         } else {
@@ -136,5 +139,5 @@ static void set_fit_debug_opts(SEXP option) {
                     opt);
         }
     }
-    F77_CALL(set_fit_dbgopts)(&prica, &prijac, &store_jac, &supsot);
+    F77_CALL(set_fit_dbgopts)(&prica, &prijac, &supsot);
 }

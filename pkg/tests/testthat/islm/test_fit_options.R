@@ -54,12 +54,13 @@ test_that("get_fit_options / set_fit_options", {
   expect_identical(mdl$get_fit_options(), default_opts)
 
   mdl2$set_fit_options(dbgopt = c("prica", "nosupsot"))
-  expect_identical(mdl2$get_fit_options()[["dbgopt"]],
-                   c("prica", "noprijac", "nostorejac", "nosupsot"))
-  expect_false(mdl2$get_fit_options()[["warn_ca"]])
-  expect_true(mdl2$get_fit_options()[["zero_ca"]])
 
   opts <- mdl2$get_fit_options()
+  expect_identical(opts$dbgopt, c("prica", "noprijac", "nosupsot"))
+  expect_false(opts$warn_ca)
+  expect_true(opts$zero_ca)
+  expect_false(opts$store_jac)
+
   mdl3 <- mdl2$clone(deep = TRUE)
   do.call(mdl3$set_fit_options, opts)
   expect_identical(mdl3$get_fit_options(), opts)

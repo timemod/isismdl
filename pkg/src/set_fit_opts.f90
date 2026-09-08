@@ -83,14 +83,13 @@ subroutine set_fit_scale_method(scale_method)
     options_set%fit%scale_method = scale_method
 end subroutine set_fit_scale_method
 
-subroutine set_fit_dbgopts(prica, prijac, store_jac, supsot)
+subroutine set_fit_dbgopts(prica, prijac, supsot)
     use set_options
     use iso_c_binding, only : c_int
-    integer(c_int), intent(in) :: prica, prijac, store_jac, supsot
+    integer(c_int), intent(in) :: prica, prijac, supsot
 
     options_set%fit%prica  = prica /= 0
     options_set%fit%prijac = prijac /= 0
-    options_set%fit%store_jac = store_jac /= 0
     options_set%fit%supsot = supsot /= 0
 end subroutine set_fit_dbgopts
 
@@ -100,3 +99,10 @@ subroutine set_fit_chkjac(chkjac)
     integer(c_int), intent(in) :: chkjac
     options_set%fit%chkjac  = chkjac /= 0
 end subroutine set_fit_chkjac
+
+subroutine set_fit_store_jac(store_jac)
+    use set_options
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: store_jac
+    options_set%fit%store_jac  = store_jac /= 0
+end subroutine set_fit_store_jac

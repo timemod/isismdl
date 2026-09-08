@@ -18,7 +18,7 @@ names(rms) <- paste0("x", 1:3)
 
 mdl$set_fit(fit)
 mdl$set_rms(rms)
-mdl$set_fit_options(dbgopt = c("prijac", "storejac"))
+mdl$set_fit_options(store_jac = TRUE, dbgopt = "prijac")
 
 test_that("report correct", {
   expect_warning(

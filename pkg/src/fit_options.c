@@ -8,7 +8,6 @@
 static const char *FITREP_OPTIONS[] = {"minimal", "fullrep"};
 const char *FIT_PRICA_OPTS[] =  {"noprica",     "prica"};
 const char *FIT_PRIJAC_OPTS[] = {"noprijac",    "prijac"};
-const char *FIT_STORE_JAC_OPTS[] = {"nostorejac", "storejac"};
 const char *FIT_SUPSOT_OPTS[] = {"nosupsot",    "supsot"};
 const char *FIT_SCALE_METHODS[] = {"none", "row"};
 

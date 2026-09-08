@@ -22,8 +22,8 @@ islm_model$set_rms(rms_values)
 test_that("Correct type of report created", {
   expect_warning(
     report <- capture.output(
-      islm_model$solve(fit_options = list(accurate_jac = TRUE,
-                                          dbgopt = c("prijac", "storejac")))
+      islm_model$solve(fit_options = list(accurate_jac = TRUE, store_jac = TRUE,
+                                          dbgopt = "prijac"))
     ),
     "Simulation not possible"
   )

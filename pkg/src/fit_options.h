@@ -5,5 +5,4 @@ const char *get_fit_scale_method_text(int scale_method);
 
 extern const char *FIT_PRICA_OPTS[];
 extern const char *FIT_PRIJAC_OPTS[];
-extern const char *FIT_STORE_JAC_OPTS[];
 extern const char *FIT_SUPSOT_OPTS[];
