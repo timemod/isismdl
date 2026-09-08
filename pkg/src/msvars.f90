@@ -39,23 +39,22 @@ module msvars
            opts = opts_in
         end subroutine msoptsinit
 
+        ! initialise msvars except for opts, which is initialized separately in msoptsinit
         subroutine msvarsinit(mws_in)
             type(modelworkspace), target, intent(inout) :: mws_in
 
             mws => mws_in
             mdl => mws%mdl
 
-            !
-            ! make sure that all allocated arrays are deallocated
-            !
-            call msclear
-
+            ! initialisations
             solve_jac_stored = .false.
+            mws%simerr = 0
 
+            ! make sure that all allocated arrays are deallocated
+            call msclear
         end subroutine msvarsinit
 
-        subroutine prepare_solve(mws_in, jf_in, jl_in, error)
-            type(modelworkspace), target, intent(inout) :: mws_in
+        subroutine prepare_solve(jf_in, jl_in, error)
             integer, intent(in)  :: jf_in, jl_in
             integer, intent(out) :: error
             ! error = 0 if ok
@@ -69,8 +68,6 @@ module msvars
             jf = jf_in
             jl = jl_in
             itrtot = 0
-
-            call msvarsinit(mws_in)
 
             mode = opts%mode
             if (mode == "?") then

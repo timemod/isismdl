@@ -12,12 +12,15 @@ module msimul
 
     contains
     
-    subroutine simul
+    subroutine simul(mws_in, jtb, jte, simerr)
     use msutil
     use msimot
     use msfitm
     use msfix
     use nucnst
+    type(modelworkspace), target, intent(inout) :: mws_in
+    integer, intent(in) :: jtb, jte
+    integer, intent(out) :: simerr
     
     !     simulates the model under current settings
     !     Warning: here we must have jf >= 1 and jl <= mws%perlen
@@ -34,20 +37,31 @@ module msimul
     !     no need to print any messages (already done)
     !     variable can be used for cleanup purposes
     
-    logical ::  quit
-    integer ::  usedat, ndiver, retcod, fit_err
-    real    ::  told, tnew
+    logical :: quit
+    integer :: usedat, ndiver, retcod, fit_err
+    real    :: told, tnew
+    integer :: errflg
     
     ! set error flag in global common to 0
     ! initialize output system
     ! initialize lags and leads (and check for validity)
    
     retcod = 0 
-    mws%simerr = 0
     chklead = .true.
     ndiver = 0
     retcod = 0
-    
+
+    call msvarsinit(mws_in)
+
+    call check_active_equations(mws%mdl)
+
+    call prepare_solve(jtb, jte, errflg)
+    if (errflg /= 0) then
+        ! out of memory
+        mws%simerr = 6
+        goto 999
+    endif
+
     ! set report option and print solve option
     repopt = opts%repopt
     call print_solve_options
@@ -56,7 +70,6 @@ module msimul
     if (quit) then
         mws%jc = jf
         mws%simerr = 4
-        call report_solve_error
         goto 999
     endif
     
@@ -64,7 +77,6 @@ module msimul
     if (quit) then
         mws%jc = jf
         mws%simerr = 3
-        call report_solve_error
         goto 999
     endif
     
@@ -97,7 +109,6 @@ module msimul
                 ! No CAs available for fit
                 mws%simerr = 1
             endif
-            call report_solve_error
             goto 999
        endif
     else
@@ -124,7 +135,6 @@ module msimul
     
     if (retcod /= 0)  then
         mws%simerr = retcod
-        call report_solve_error
     endif
     
     ! final messages about CPU secs and total iterations/divergence
@@ -134,12 +144,18 @@ module msimul
     change = .true.
     
     999 continue
-    
+
+    if (mws%simerr /= 0) call report_solve_error
+
+    call msclear(.false.)
+
     call clear_msfix
  
     ! clear fit work excluding information about fit_jac
     if (mode /= 'R') call clear_fit_work(.false.)
-    
+
+    simerr = mws%simerr
+
     return
     end subroutine simul
     
