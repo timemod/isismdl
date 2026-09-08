@@ -15,7 +15,7 @@ init_get_options.o : get_options.o modelworkspaces.o
 
 init_modules.o : mcedef.o nuna.o
 
-init_set_options.o : modelworkspaces.o set_options.o
+init_set_options.o : modelworkspaces.o msvars.o set_options.o
 
 invpol.o : model_params.o
 

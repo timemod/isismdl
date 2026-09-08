@@ -627,12 +627,13 @@ SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
     int startp = asInteger(startp_);
     int endp= asInteger(endp_);
 
+    /* initiale the solve options in msvars (copy from mws) */
+    F77_CALL(msoptsinit_wrap)(&model_index);
+
     int opts_present = length(options) > 0;
     int fit_opts_present = length(fit_options) > 0;
 
-    opts_present = opts_present || fit_opts_present;
-
-    if (opts_present) {
+    if (opts_present || fit_opts_present) {
         int use_mws = 0;
         F77_CALL(init_set_options)(&model_index, &use_mws);
     }
@@ -643,13 +644,10 @@ SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
     if (fit_opts_present) {
         set_fit_options(&model_index, fit_options);
     }
-    int error;
-    F77_CALL(solve_fortran)(&model_index, &startp, &endp, &opts_present, &error);
 
-    /* Return simerr  */
-    // TODO: let solve_fortran return simerr, then this function
-    // is no longer required.
-    int simerr = F77_CALL(get_simerr)(&model_index);
+    /* Now run solve */
+    int simerr;
+    F77_CALL(solve_fortran)(&model_index, &startp, &endp, &simerr);
 
     /* Solve Jacobian */
     SEXP solve_jac = PROTECT(get_fit_jac_c(model_index));

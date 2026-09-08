@@ -25,13 +25,19 @@ module msvars
 
     type(modelworkspace), pointer :: mws
     type(model), pointer :: mdl
-    type(solve_options), pointer :: opts
+    type(solve_options), target, save :: opts
     character(len = 1), save :: mode
     character(len = 1) :: method
 
     private :: get_lwork
 
     contains
+
+        ! create a local copy of the solve options stored in the mws
+        subroutine msoptsinit(opts_in) 
+           type(solve_options), intent(in) :: opts_in 
+           opts = opts_in
+        end subroutine msoptsinit
 
         subroutine msvarsinit(mws_in)
             type(modelworkspace), target, intent(inout) :: mws_in
@@ -48,9 +54,8 @@ module msvars
 
         end subroutine msvarsinit
 
-        subroutine prepare_solve(mws_in, opts_in, jf_in, jl_in, error)
+        subroutine prepare_solve(mws_in, jf_in, jl_in, error)
             type(modelworkspace), target, intent(inout) :: mws_in
-            type(solve_options), target, intent(in) :: opts_in
             integer, intent(in)  :: jf_in, jl_in
             integer, intent(out) :: error
             ! error = 0 if ok
@@ -63,7 +68,6 @@ module msvars
 
             jf = jf_in
             jl = jl_in
-            opts => opts_in
             itrtot = 0
 
             call msvarsinit(mws_in)

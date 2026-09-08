@@ -33,8 +33,8 @@ extern void F77_NAME(get_rms_fortran)(int *model_index, double *values);
 extern void F77_NAME(run_eqn_fortran)(int *model_index, int *neq, int *eqnums,
                                       int *jtb, int *jte, int *updval_,
                                       int *by_period_);
-extern void F77_NAME(solve_fortran)(int *model_index, int *jtb, int *jte,
-                                    int *opts_present, int *error);
+extern void F77_NAME(msoptsinit_wrap)(int *model_index);
+extern void F77_NAME(solve_fortran)(int *model_index, int *jtb, int *jte, int *error);
 extern void F77_NAME(filmdt_fortran)(int *model_index, int *jtb, int *jte,
                                      int *report_type, int *include_frmls_int);
 extern void F77_NAME(remove_mws_fortran)(int *model_index);

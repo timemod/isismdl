@@ -201,31 +201,30 @@ subroutine run_eqn_fortran(model_index, neq, eqnums, jtb, jte, updval_, &
 
 end subroutine run_eqn_fortran
 
-subroutine solve_fortran(model_index, jtb, jte, opts_present, error)
+! initialise solve_options in msvars
+subroutine msoptsinit_wrap(model_index)
     use modelworkspaces
-    use iso_c_binding
+    use iso_c_binding, only : c_int
+    use msvars, only : msoptsinit
+    integer(c_int), intent(in) :: model_index
+    call msoptsinit(mws_array(model_index)%solve_opts)
+end subroutine msoptsinit_wrap
+
+subroutine solve_fortran(model_index, jtb, jte, error)
+    use modelworkspaces
+    use iso_c_binding, only : c_int
     use msvars
     use msimul
     use set_options
     use msimot
-    integer(c_int), intent(in) :: model_index, jtb, jte, opts_present
+    integer(c_int), intent(in) :: model_index, jtb, jte
     integer(c_int), intent(out) :: error
 
     integer :: errflg
-    type(solve_options), pointer :: opt
 
     call check_active_equations(mws_array(model_index)%mdl)
 
-    if (opts_present /= 0) then
-        ! Options specified by user in the call of solve.
-        ! The options are present in module set_solve_opts.
-        opt => options_set
-    else 
-        ! use options of the mws
-        opt => mws_array(model_index)%solve_opts
-    endif
-
-    call prepare_solve(mws_array(model_index), opt, jtb, jte, errflg)
+    call prepare_solve(mws_array(model_index), jtb, jte, errflg)
 
     call simul
 
