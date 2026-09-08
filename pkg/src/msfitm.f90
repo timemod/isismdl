@@ -261,7 +261,7 @@ contains
         logical :: do_clear_fit_jac_local
 
         if (present(do_clear_fit_jac)) then
-            do_clear_fit_jac_local = do_clear_fit_jac .or. .not. opts%fit%store_jac
+            do_clear_fit_jac_local = do_clear_fit_jac
         else 
             do_clear_fit_jac_local = .true.
         endif

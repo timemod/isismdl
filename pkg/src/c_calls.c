@@ -650,7 +650,7 @@ SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
     F77_CALL(solve_fortran)(&model_index, &startp, &endp, &simerr);
 
     /* Solve Jacobian */
-    SEXP solve_jac = PROTECT(get_fit_jac_c(model_index));
+    SEXP solve_jac = PROTECT(get_solve_jac_c(model_index));
 
     /* Fit Jacobian */
     SEXP fit_jac = PROTECT(get_fit_jac_c(model_index));
@@ -665,7 +665,7 @@ SEXP solve_c(SEXP model_index_, SEXP startp_, SEXP endp_, SEXP options,
     SEXP names = PROTECT(allocVector(STRSXP, 3));
     SET_STRING_ELT(names, 0, mkChar("simerr"));
     SET_STRING_ELT(names, 1, mkChar("solve_jac"));
-    SET_STRING_ELT(names, 1, mkChar("fit_jac"));
+    SET_STRING_ELT(names, 2, mkChar("fit_jac"));
 
     /* attach names attribute */
     setAttrib(ret, R_NamesSymbol, names);

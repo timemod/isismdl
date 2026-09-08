@@ -144,7 +144,7 @@ module msvars
             matrix = .false.
 
             if (present(do_clear_solve_jac)) then
-                do_clear_solve_jac_local = do_clear_solve_jac .or. .not. opts%store_jac
+                do_clear_solve_jac_local = do_clear_solve_jac
             else
                 do_clear_solve_jac_local = .true.
             endif

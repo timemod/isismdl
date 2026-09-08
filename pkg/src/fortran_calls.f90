@@ -230,7 +230,7 @@ subroutine solve_fortran(model_index, jtb, jte, error)
 
     error = mws_array(model_index)%simerr
 
-    call msclear
+    call msclear(.false.)
 
 end subroutine solve_fortran
 
