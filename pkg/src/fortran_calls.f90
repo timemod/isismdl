@@ -2,8 +2,6 @@
 ! This file contains Fortran functions to called directly from C.
 !
 
-! TODO: create a fortran_calls.h
-
 subroutine get_max_lag_lead_fortran(model_index, maxlag, maxlead)
     use modelworkspaces
     use iso_c_binding, only : c_int
