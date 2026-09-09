@@ -32,6 +32,9 @@ test_that("Comparing the results of solve for the lazy fit procedure", {
   expect_identical(dif$missing_names1, character(0))
   expect_identical(dif$missing_names2, character(0))
   expect_identical(dif$difnames, character(0))
+
+  # check that a fit jacobian has not been created
+  expect_null(islm_model$get_fit_jac())
 })
 
 #  now remove fit targets and solve again
