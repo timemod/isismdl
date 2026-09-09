@@ -510,13 +510,67 @@ NULL
 #' @seealso \code{\link{set_period}}
 NULL
 
+#' \code{\link{IsisMdl}} method: Return the Last Computed Solve or Fit Jacobian
+#'
+#' @name get_jac-methods
+#' @aliases get_solve_jac get_fit_jac
+#'
+#' @description
+#' Depending on the solve and fit options, \code{\link{solve}} stores the
+#' last computed solve or fit Jacobian in the \code{\link{IsisMdl}} object.
+#' Methods `get_solve_jac()` and `get_fit_jac()`
+#' can be used to retrieve them; both return `NULL` if the corresponding
+#' `store_jac` option is `FALSE` or not set.
+#'
+#' Two separate `store_jac` options exist: one for the solve Jacobian and
+#' one for the fit Jacobian (both default to `FALSE`). They can be set in
+#' two ways: with methods \code{\link{set_solve_options}()} (for the solve
+#' Jacobian) and \code{\link{set_fit_options}()} (for the fit Jacobian),
+#' or by directly specifying the \code{options} argument (for the solve
+#' Jacobian) and the \code{fit_options} argument (for the fit Jacobian) of
+#' method \code{\link{solve}()}.
+#'
+#' Each call to `solve()` resets any previously stored Jacobians in the
+#' `IsisMdl` object to `NULL`.
+#'
+#' The **solve Jacobian** is computed to numerically solve the feedback
+#' variables using the Broyden method. For models without feedback
+#' variables, `get_solve_jac()` returns `NULL`.
+#'
+#' The **fit Jacobian** is used during the fit procedure. If the fit
+#' procedure was not executed in the most recent call to `solve()`,
+#' `get_fit_jac()` returns `NULL`.
+#'
+#' These Jacobians can be used, for example, to diagnose numerical
+#' problems such as matrix singularity. One approach is Singular Value
+#' Decomposition (SVD), as explained in Vignette
+#' \href{../doc/svd_analysis.pdf}{\emph{"SVD Analysis"}}.
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_solve_jac() # solve Jacobian
+#' mdl$get_fit_jac()   # fit Jacobian
+#' }
+#' where \code{mdl} is an \code{\link{IsisMdl}} object.
+#'
+#' @seealso \code{\link{set_solve_options}}, \code{\link{set_fit_options}}
+#'           and \code{\link{get_jacobian}}.
+#' @examples
+#' mdl <- islm_mdl(period = "2016Q1/2016Q2")
+#' # solve the model; option prijac prints each calculated Jacobian
+#' # to the standard output
+#' mdl$solve(options = list(store_jac = TRUE, dbgopt = "prijac"))
+#' print(mdl$get_solve_jac())
+NULL
+
 #' \code{\link{IsisMdl}} method: returns the Jacobian matrix from the last numerical solution
+#' of `fill_mdl_data` or `solve_exo`
 #' @name get_jacobian
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the Jacobian
-#' matrix from the last numerical solution (currently only for
-#' \code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}).
+#' matrix from the last numerical solution of methods
+#' \code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}.
 #'
 #' @section Usage:
 #' \preformatted{
@@ -525,6 +579,8 @@ NULL
 #' }
 #'
 #' \code{mdl} is an \code{IsisMdl} object
+#'
+#' @seealso \code{\link{get_solve_jac}} and \code{\link{get_fit_jac}}.
 NULL
 
 #' \code{\link{IsisMdl}} method: Solves the model.
@@ -638,6 +694,7 @@ NULL
 #'  * \code{"Fair-Taylor has not converged"}
 #'  * \code{"Out of memory. Simulation not successful"}
 #'  * \code{"Unknown problem in solve. Simulation not successful"}
+#'  * \code{"Unknown"} (this signifies an internal error)
 #'
 #' @seealso \code{\link{solve}}, \code{\link{solve_exo}},
 #' \code{\link{fill_mdl_data_solve}}, and \code{\link{fill_mdl_data}}.
@@ -1748,7 +1805,7 @@ NULL
 #'                       rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
 #'                       xmaxiter, xupdate, dbgopt, erropt,
 #'                       report, ratreport, ratreport_rep, ratfullreport_rep,
-#'                       bktmax, xtfac)
+#'                       bktmax, xtfac, store_jac)
 #'
 #' mdl$get_solve_options()
 #' }
@@ -1846,6 +1903,9 @@ NULL
 #' Suppose for example that some variable has a convergence criterion of `1e-5`
 #' and assume a value of 10 for the multiplier.
 #' Then its endogenous lead will be regarded as converged.}
+#' \item{\code{store_jac}}{A logical (default `FALSE`). If `TRUE`, the last
+#' computed Jacobian is stored in the `IsisMdl` object. This Jacobian
+#' can be retrieved with method \code{\link{get_solve_jac}()}.}
 #' }
 #'
 #' @section Solution modes:
@@ -1959,7 +2019,7 @@ NULL
 #' The default values for \code{ratreport_rep}  and \code{ratfullreport_rep}
 #' are 1 and \code{NA}, respectively.
 #'
-#' @seealso \code{\link{set_debug_eqn}}
+#' @seealso \code{\link{set_fit_options}} and \code{\link{set_debug_eqn}}.
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$set_solve_options(maxiter = 100)
@@ -1981,7 +2041,7 @@ NULL
 #' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca,
 #'                    accurate_jac, zealous, scale_method,
 #'                    warn_zero_row, warn_zero_col,
-#'                    chkjac, report, dbgopt)
+#'                    chkjac, store_jac, report, dbgopt)
 #'
 #' mdl$get_fit_options()
 #'
@@ -2065,6 +2125,9 @@ NULL
 #' Jacobian may become small, which can lead to inaccurate or even unstable
 #' solutions. If `FALSE`, the fit procedure is only terminated when the
 #' inverse condition is exactly zero.}
+#' \item{\code{store_jac}}{A logical (default `FALSE`). If `TRUE`, the last
+#' computed fit Jacobian is stored in the `IsisMdl` object. This Jacobian
+#' can be retrieved with method \code{\link{get_fit_jac}()}.}
 #' \item{\code{report}}{A character string specifying the
 #' type of report of the fit procedure for each period.
 #' Possible values are \code{"fullrep"}
@@ -2211,60 +2274,14 @@ NULL
 #' }
 #' The default debug options are \code{c("noprica", "noprijac", "supsot")}
 #'
-#' @section SVD Analysis:
-#'
-#' If the inverse condition of the fit Jacobian is exactly zero,
-#' then it is impossible to solve the equations of the fit procedure,
-#' and the fit procedure is terminated. When the inverse condition
-#' is small but non-zero, the solution is often inaccurate or even unstable.
-#' In some cases the (near) singularity is caused by (almost) zero rows
-#' or columns of the fit Jacobian.  It is also possible that
-#' some rows or columns are linearly dependent. The example below shows
-#' a case where the rows are dependent.
-#'
-#' The Singular Value Decomposition (SVD) (see the Wikipedia article
-#' about SVD (\url{https://en.wikipedia.org/wiki/Singular_value_decomposition})
-#' may help to find the linear dependent rows and columns. The SVD analysis can be
-#' enabled by specifying debug option `storejac` for `set_fit_options`.
-#'
-#' First we create an Isis model and prepare fit data.
-#' ```{r results = "hide"}
-#' mdl <- islm_mdl("2020Q1")
-#' y <- regts(985, start = "2020q1")
-#' yd <- regts(800, start = "2020q1")
-#' c <- regts(600, start = "2020q1")
-#' fit <- cbind(y, yd, c)
-#' mdl$set_fit(fit)
-#' mdl$set_rms(c(c = 5.0, i = 21, md = 2))
-#' ```
-#'
-#' So we have the following fit targets:
-#' ```{r}
-#' mdl$get_fit()
-#' ````
-#'
-#' TODO: aanpasssen
-#' We specify fit options so that fit jacobian is stored:
-#' ```{r}
-#' #mdl$set_fit_options(dbgopt = "storejac")
-#' ```
-#'
-#' Next solve the model. Because y and yd are related according to `y = yd - t`
-#' (`t` is also linearly related to `y`, so there is a linear relation between
-#' `y` and `yd`),
-#' the fit Jacobian contains dependent rows.
-#' ```{r}
-#' mdl$solve()
-#' #fit_jac <- mdl$get_fit_jac()
-#' #svd(fit_jac)
-#' ```
-#'
 #' @examples
 #'
 #' mdl <- islm_mdl("2020Q1")
 #'
 #' # print constant adjustment and Jacobian  for each fit iteration
 #' mdl$set_fit_options(zealous = TRUE, dbgopt = c("prica", "prijac"))
+#'
+#' @seealso \code{\link{set_solve_options}} and \code{\link{solve}}.
 NULL
 
 #'

@@ -2,11 +2,12 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{get_jacobian}
 \alias{get_jacobian}
-\title{\code{\link{IsisMdl}} method: returns the Jacobian matrix from the last numerical solution}
+\title{\code{\link{IsisMdl}} method: returns the Jacobian matrix from the last numerical solution
+of \code{fill_mdl_data} or \code{solve_exo}}
 \description{
 This method of R6 class \code{\link{IsisMdl}} returns the Jacobian
-matrix from the last numerical solution (currently only for
-\code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}).
+matrix from the last numerical solution of methods
+\code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}.
 }
 \section{Usage}{
 
@@ -18,3 +19,6 @@ mdl$get_jacobian()
 \code{mdl} is an \code{IsisMdl} object
 }
 
+\seealso{
+\code{\link{get_solve_jac}} and \code{\link{get_fit_jac}}.
+}

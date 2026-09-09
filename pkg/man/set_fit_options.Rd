@@ -17,7 +17,7 @@ Method \code{get_fit_options} returns the solve options as a named list
 mdl$set_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca,
                    accurate_jac, zealous, scale_method,
                    warn_zero_row, warn_zero_col,
-                   chkjac, report, dbgopt)
+                   chkjac, store_jac, report, dbgopt)
 
 mdl$get_fit_options()
 
@@ -103,6 +103,9 @@ When a model is badly scaled, the inverse condition number of the
 Jacobian may become small, which can lead to inaccurate or even unstable
 solutions. If \code{FALSE}, the fit procedure is only terminated when the
 inverse condition is exactly zero.}
+\item{\code{store_jac}}{A logical (default \code{FALSE}). If \code{TRUE}, the last
+computed fit Jacobian is stored in the \code{IsisMdl} object. This Jacobian
+can be retrieved with method \code{\link{get_fit_jac}()}.}
 \item{\code{report}}{A character string specifying the
 type of report of the fit procedure for each period.
 Possible values are \code{"fullrep"}
@@ -257,94 +260,14 @@ process. Output will be a mess if this option is used.}
 The default debug options are \code{c("noprica", "noprijac", "supsot")}
 }
 
-\section{SVD Analysis}{
-
-
-If the inverse condition of the fit Jacobian is exactly zero,
-then it is impossible to solve the equations of the fit procedure,
-and the fit procedure is terminated. When the inverse condition
-is small but non-zero, the solution is often inaccurate or even unstable.
-In some cases the (near) singularity is caused by (almost) zero rows
-or columns of the fit Jacobian.  It is also possible that
-some rows or columns are linearly dependent. The example below shows
-a case where the rows are dependent.
-
-The Singular Value Decomposition (SVD) (see the Wikipedia article
-about SVD (\url{https://en.wikipedia.org/wiki/Singular_value_decomposition})
-may help to find the linear dependent rows and columns. The SVD analysis can be
-enabled by specifying debug option \code{storejac} for \code{set_fit_options}.
-
-First we create an Isis model and prepare fit data.
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{mdl <- islm_mdl("2020Q1")
-y <- regts(985, start = "2020q1")
-yd <- regts(800, start = "2020q1")
-c <- regts(600, start = "2020q1")
-fit <- cbind(y, yd, c)
-mdl$set_fit(fit)
-mdl$set_rms(c(c = 5.0, i = 21, md = 2))
-}\if{html}{\out{</div>}}
-
-So we have the following fit targets:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{mdl$get_fit()
-#>          c   y  yd
-#> 2020Q1 600 985 800
-}\if{html}{\out{</div>}}
-
-TODO: aanpasssen
-We specify fit options so that fit jacobian is stored:
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{#mdl$set_fit_options(dbgopt = "storejac")
-}\if{html}{\out{</div>}}
-
-Next solve the model. Because y and yd are related according to \code{y = yd - t}
-(\code{t} is also linearly related to \code{y}, so there is a linear relation between
-\code{y} and \code{yd}),
-the fit Jacobian contains dependent rows.
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{mdl$solve()
-#>  
-#> Model Solve Options
-#> Solution period               2020Q1/2020Q1
-#> Simulation mode               dynamic
-#> Feedback starting values      current period
-#> Maximum iterations per period 50
-#> Relaxation minimum            0.500E-01
-#>            maximum            1.00
-#>            shrinkage          0.500
-#> Criteria stepback             1.30
-#>           matrix              0.900
-#> Maximum updates Newton matrix per period                 10
-#> Maximum number of line searches with old Jacobian        5
-#> Criterion for line search decisions etc.                 geometric
-#>  
-#>  
-#>      3 CAs used by Fit:
-#>      c  i  md
-#>    1 steps for Newton matrix at iteration   0 (1/condscal =  1.43E-01)
-#> Convergence for 2020Q1 in    4 iterations
-#>  Fiter     Icond       Delwmx       Delsmx Deltyp        Ratio Type Name
-#>      0                0.00652              w                   Rel  c
-#> Fit Warning - D matrix is ill conditioned.
-#> Inverse condition=  6.75E-16 < Machine prec**.5=  1.49E-08
-#> Derivatives of fit targets are dependent or
-#> for one or more fit targets all derivatives are (almost) zero ...
-#> Tip: try to use svd analysis and/or fit option 'warn_zero_row' or warn_zero_col'.
-#> See documentation of method set_fit_options.
-#> Warning in mdl$solve(): Simulation not possible
-#> Total number of iterations   14
-#> Solve model used     0.00 CPU secs
-#> 
-#fit_jac <- mdl$get_fit_jac()
-#svd(fit_jac)
-}\if{html}{\out{</div>}}
-}
-
 \examples{
 
 mdl <- islm_mdl("2020Q1")
 
 # print constant adjustment and Jacobian  for each fit iteration
 mdl$set_fit_options(zealous = TRUE, dbgopt = c("prica", "prijac"))
+
+}
+\seealso{
+\code{\link{set_solve_options}} and \code{\link{solve}}.
 }

@@ -18,7 +18,7 @@ mdl$set_solve_options(mode, fbstart, maxiter, maxjacupd, rlxspeed,
                       rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
                       xmaxiter, xupdate, dbgopt, erropt,
                       report, ratreport, ratreport_rep, ratfullreport_rep,
-                      bktmax, xtfac)
+                      bktmax, xtfac, store_jac)
 
 mdl$get_solve_options()
 }
@@ -118,6 +118,9 @@ for each endogenous variable if the variable has an endogenous lead.
 Suppose for example that some variable has a convergence criterion of \code{1e-5}
 and assume a value of 10 for the multiplier.
 Then its endogenous lead will be regarded as converged.}
+\item{\code{store_jac}}{A logical (default \code{FALSE}). If \code{TRUE}, the last
+computed Jacobian is stored in the \code{IsisMdl} object. This Jacobian
+can be retrieved with method \code{\link{get_solve_jac}()}.}
 }
 }
 
@@ -245,5 +248,5 @@ mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$set_solve_options(maxiter = 100)
 }
 \seealso{
-\code{\link{set_debug_eqn}}
+\code{\link{set_fit_options}} and \code{\link{set_debug_eqn}}.
 }

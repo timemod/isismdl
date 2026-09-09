@@ -895,6 +895,9 @@ IsisMdl <- R6Class("IsisMdl",
       period <- private$convert_period_arg_solve(period)
       js <- private$get_period_indices(period)
 
+      private$fit_jac <- NULL
+      private$solve_jac <- NULL
+
       ret <- .Call(
         C_solve_c,
         model_index = private$model_index,
@@ -1558,6 +1561,8 @@ IsisMdl <- R6Class("IsisMdl",
         data_period = private$data_period,
         solve_status = private$solve_status,
         jacobian = private$jacobian,
+        solve_jac = private$solve_jac,
+        fit_jac = private$fit_jac,
         debug_eqn = self$get_debug_eqn(),
         solve_options = self$get_solve_options(),
         fit_options = self$get_fit_options(),
@@ -1620,13 +1625,11 @@ IsisMdl <- R6Class("IsisMdl",
         }
       }
 
-      if (!is.null(x$solve_status)) {
-        private$solve_status <- x$solve_status
-      }
-
-      if (!is.null(x$jacobian)) {
-        private$jacobian <- x$jacobian
-      }
+      private$solve_status <- if (is.null(x$solve_status)) "Unknown" else
+        x$solve_status
+      private$jacobian  <- x$jacobian
+      private$solve_jac <- x$solve_jac
+      private$fit_jac   <- x$fit_jac
 
       return(invisible(self))
     },

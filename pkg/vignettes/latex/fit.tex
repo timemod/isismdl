@@ -1,0 +1,466 @@
+\documentclass[english,memorandum,old,sectionpage]{cpbart}
+%\documentclass[english,memorandum,old]{cpbart}
+\usepackage[english]{babel}
+\usepackage{cpbfonts}
+\usepackage{amsmath}
+\usepackage[psamsfonts]{amsfonts}
+%
+\newcommand{\Ina}{$\qquad$}
+\newcommand{\Inb}{\Ina\Ina}
+\newcommand{\Inc}{\Ina\Inb}
+%
+%
+% margins for ruled figure
+%
+\makeatletter
+\def\Rf@margininit{%
+\setlength\leftmargini{\unit@indent}%
+\setlength\leftmarginii{\unit@indent}%
+\setlength\leftmarginiii{\unit@indent}%
+\setlength\leftmarginiv{\unit@indent}%
+\setlength\leftmarginv{\unit@indent}%
+\setlength\leftmarginvi{1em}%
+\setlength\leftmargin{\leftmargini}%
+\setlength\mathindent{\leftmargini}%
+}
+%
+% figure with horizontal rule before and after
+%
+\newenvironment{Rfigure}%
+{\begin{figure}\rule{\linewidth}{0.1mm}}%
+{\rule{\linewidth}{0.1mm}\end{figure}}%
+%
+% for large algorithm
+%
+\newcommand{\Algofont}{}%{\footnotesize}
+\makeatletter
+%\newenvironment{progalg}{\addvspace{-0.75\baselineskip}\begin{boxit}\parindent\z@\obeylines\Algofont}%
+%{\end{boxit}}
+\newenvironment{progalg}{\Rf@margininit\parindent\z@\obeylines\Algofont}%
+{}
+\makeatother
+%
+%
+\newcommand{\Bfrac}[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+\newcommand{\extravspace}{\vspace{.5\baselineskip}}
+%
+\newcommand{\V}[1]{\mathit{#1}}
+\newcommand{\Rbb}{\mathbb{R}}
+%
+% for keywords in algorithm
+%
+\newcommand*{\Pkword}[1]{\textbf{#1}}
+%
+\newcommand*{\Wlin}[1]{D #1 + w - h(#1)}
+\newcommand*{\ubar}{\bar{u}}
+\newcommand*{\Dbar}{\bar{D}}
+%
+%
+\begin{document}
+
+\documentname{A Newton algorithm for solving an underdetermined system of equations}
+\CPBafdeling{OMD}
+\Notitienummer{2006/OMD/1}
+\author{B.H. Hasselman}
+\title{A Newton algorithm for solving an underdetermined system of equations}
+\date{\today}
+\begin{abstract}
+When making short term macro-economic forecasts, there is often
+no clear transition from a period with a known and given history
+to a period with only forecasts.
+Often some information for a few economic variables such as
+unemployment, inflation and interest rates are already available for the first
+few quarters of a forecasting period.
+
+When a macro-economic model is used as a tool for forecasting, it would be very
+useful if any available partial  information on some economic variables
+could be used to make a conditional forecast.
+
+This paper describes the method to achieve this that the CPB has implemented
+in its proprietary software package for econometric modelling.
+It also provides technical background information for the computer implementation.
+\Bpar
+I wish to thank Arie ten Cate, Debby Lanser, Hans Lunsing and Bert Smid for their
+comments and suggestions.
+\end{abstract}
+%
+\maketitle
+%
+\tableofcontents
+
+\section{Introduction}
+%\footnote{This memorandum is a modified and extended version of a
+%memorandum with the same title published in 1997.}
+When an econometric model is used for forecasting, it may be beneficial or
+required to use preliminary observations in the forecasting period
+on certain economic quantities
+such as unemployment or inflation. These observations provide partial
+additional information for the forecast and one would like to make a forecast with
+the model conditional on these observations.
+\cite*{sdbfit} formulate the problem as follows
+
+\begin{quotation}\itshape
+Economic time-series can be predicted by the solution, period after period, of
+the equations of a model that uses exogenous projections and past endogenous
+variables as inputs.
+
+For the more distant past, statistical information about all variables will be
+available. If these data are substituted in the model, the behavioural equations
+show non-zero residuals.
+
+In the more recent periods, still in the past, a limited set of variables has
+already been observed. To produce an up-to-date forecast it is important to
+incorporate this recent statistical information.
+\end{quotation}
+%
+%
+The most natural way to do this is to find values for error terms in the
+model such that the forecasted values for the observed
+quantities are equal to the observations.
+
+Sometimes it may be necessary for an econometric model
+to yield predetermined outcomes for certain endogenous variables.
+Examples are
+
+\begin{itemize}
+\item making an annual model reproduce forecasts made with a quarterly model.
+\item making sectoral forecasts conditional on macroeconomic forecasts,
+which serve as the recent observations.
+\item forcing a model to generate a ``desired outcome'', for example
+a required medium term growth of GDP.
+\item one may wish to investigate the behaviour of a model for
+a zero government budget deficit.
+\end{itemize}
+%
+In all these cases the desired result may be achieved
+by manipulating  error terms to force the model to yield
+the required outcome.
+
+Usually a model has many more relevant error terms than
+observations.
+Therefore generally speaking there are infinitely many solutions
+for the error terms.
+From a statistical point of view it seems natural to require that the
+vector of error terms has minimum Euclidean norm.
+The  problem can be formulated mathematically as follows
+\begin{gather*}
+\min _u \quad u^T u    \\
+\mbox{subject to} \quad w = h(u)
+\end{gather*}
+with $u \in \Rbb^n$, $w \in \Rbb^m$, $h:\Rbb^n \rightarrow \Rbb^m$
+and $m \le n$.
+The vector $w$ represents the
+targets for some endogenous variables of the underlying system of equations.
+The vector $u$ represents the error terms to be used for achieving the targets.
+The vector valued function $h$ represents the -- usually implicit --
+reduced form equations relating the targeted endogenous variables to the residuals.
+The error terms in this formulation of the problem
+are equal to the model error terms scaled with a positive factor
+such as a standard deviation or a root-mean-squared-error.
+
+In the following sections first the mathematics of the problem are discussed.
+Then the computation of the jacobian matrix is discussed and
+the algorithm is presented in the form of pseudo code;
+it is based on \cite{sanfit}.
+Finally, some cautionary remarks are made and
+possible extensions are discussed.
+
+\section{Mathematics}
+As stated in the introduction the task is to solve
+the following minimisation program
+\begin{subequations}\label{eqn:min}
+\begin{gather}
+\min _u \quad u^T u    \\
+\mbox{subject to} \quad w = h(u)
+\end{gather}
+\end{subequations}
+with $u \in \Rbb^n$, $w \in \Rbb^m$, $h:\Rbb^n \rightarrow \Rbb^m$
+and $m \le n$.
+When $m < n$ the system of equations $w = h(u)$ is underdetermined and
+the minimisation is equivalent to finding the minimum norm solution of
+\begin{equation}\label{eqn:orgweqh}
+w = h(u)
+\end{equation}
+We assume that a solution exists.
+
+\subsection*{Lagrange method}
+Using the Lagrange method the problem can be reformulated as
+\begin{equation}\label{eqn:lagrangefull}
+\min_{u, \lambda} \tfrac{1}{2} u^T u + \lambda \bigl(w - h(u)\bigr)
+\end{equation}
+with $\lambda \in \Rbb^m$.
+%
+The first order necessary conditions are
+\begin{subequations}
+\begin{align}
+u &= D^T \lambda \label{eqn:ueqdtl} \\
+w &=h(u)  \label{eqn:weqh}
+\end{align}
+\end{subequations}
+%
+where $D \in \Rbb^{m \times n}$.
+The matrix $D$ is the jacobian of $h$ with
+$D_{ij} = \partial h_i / \partial u_j$. The matrix $D$ is assumed to
+have full row rank ($\operatorname{rank}(D)=m$).
+
+In order to arrive at an explicit expression for $u$ it is necessary
+to linearise equation \eqref{eqn:weqh}
+in a neighbourhood of $\ubar$
+\begin{equation} \label{eqn:uw}
+w = h(\ubar) + D \bigl( u - \ubar \bigr)
+\end{equation}
+%
+Rearrange this equation to read
+\begin{equation} \label{eqn:uwa}
+D u =  w - h(\ubar) + D\ubar
+\end{equation}
+%
+Premultiply equation \eqref{eqn:ueqdtl} with $D$ to get
+\begin{equation}
+D u = (D D^T) \lambda
+\end{equation}
+%
+Substitute this into equation \eqref{eqn:uwa} and rearrange to get
+the following expression for $\lambda$
+\begin{equation}
+\lambda = (D D^T)^{-1} \bigl( \Wlin{\ubar} \bigr)
+\end{equation}
+%
+Finally, substitute this into equation \eqref{eqn:ueqdtl} to obtain
+the following expression for $u$
+\begin{equation}
+u = D^T (D D^T)^{-1} \bigl( \Wlin{\ubar} \bigr)
+\end{equation}
+
+\subsection*{Linear equation method}
+
+Exactly the same -- approximate -- solution to the original
+optimisation problem can be obtained by first linearising
+equation~\eqref{eqn:orgweqh}.
+But then application of Lagrange's method  in equation \eqref{eqn:lagrangefull}
+is equivalent to finding the minimum norm solution of the system of
+linear equations
+%
+\begin{equation}
+D u =  D \ubar+ w - h(\ubar)
+\end{equation}
+%
+where $D$ is the jacobian of $h(\ubar)$.
+The minimum norm solution for this system of linear equations is
+(see \cite*{nlaopt} and \cite*{clineplemmons})
+%
+\begin{equation}\label{eqn:slnfrank}
+u = D^T (D D^T)^{-1} \bigl( \Wlin{\ubar} \bigr)
+\end{equation}
+or more generally
+This can also be written as
+\begin{equation}\label{eqn:slnmp1}
+u = D^{+} \bigl( \Wlin{\ubar} \bigr)
+\end{equation}
+where $D^{+}$ is the Moore-Penrose inverse of $D$.%
+\footnote{This equation also holds when $D$ does not have full row rank.
+See \cite{nlaopt} and \cite{matcomp}.}
+
+If $\ubar$ was calculated in a similar manner with a matrix
+$\Dbar$ identically equal to the current matrix $D$,
+then  $\ubar$ is the minimum norm solution of a system $D u = b$.
+That implies $\ubar = D^+ b$ and $D^+ D \ubar = D^+ b = \ubar$.
+Then equation~\eqref{eqn:slnmp1} can be simplified to
+\begin{equation}\label{eqn:slnmp2}
+u = \ubar+ D^+ \bigl(w - h(\ubar)\bigr)
+\end{equation}
+%
+When the jacobian $D$  is evaluated at every iteration of a
+full Newton-like algorithm then  equation~\eqref{eqn:slnmp1}
+should be used to obtain a minimum norm residual vector at each iteration.
+However, when the jacobian $D$  is not evaluated at every iteration
+-- for whatever reason --
+then  equation~\eqref{eqn:slnmp2} may be used
+whenever the jacobian is retained across iterations.
+
+It is inadvisable to compute $D^+$ directly using $D D^T$
+since this can lead to loss of numerical accuracy. If
+$\kappa(D)$ is the condition number of matrix $D$ then the condition number
+of $D D^T$ will be $\kappa(D)^2$.
+This implies that even a moderately ill-conditioned $D$ can lead
+to numerical inaccuracy.\footnote{See \cite{clineplemmons}.}
+
+When $D$ has full row rank, $D^+$ can be computed from the
+$\V{QR}$ factorisation of $D^T$%
+\begin{displaymath}
+D^T = QR \quad \Rightarrow \quad D^+ = Q R^{-T}
+\end{displaymath}
+where $Q\in \Rbb^{n \times m}$ has orthonormal columns\footnote{Therefore $Q^TQ=I$.}
+and $R \in \Rbb^{m \times m}$ is upper triangular.%
+\footnote{where $R^{-T}=(R^T)^{-1}$.}
+Hence $u = D^+ b$ can be computed with the following two steps
+
+\begin{enumerate}
+\item solve $R^T z = b$
+\item set $u = Q z$
+\end{enumerate}
+This procedure is numerically stable.
+See \cite{matcomp} and \cite{nlaopt} for more details.
+
+In numerical libraries a $\V{QR}$ factorisation will often overwrite
+the original matrix. As a result calculation of $D \ubar$ would
+have to be done using $R^T Q^T$, which could introduce numerical
+inaccuracies. These may be avoided by using equation~\eqref{eqn:slnmp2}
+whenever appropriate.
+
+%If allowance must be made for loss of rank of $D$, then other methods
+%for determining $D^+$ have to be used such as the \textsl{QR} factorisation with
+%column pivoting or even the \textsl{SVD} decomposition.
+
+\section{Computing the jacobian $D$}\label{sec:calcD}
+Column $j$ of the fit jacobian matrix $D$ contains the derivatives
+of the target endogenous variables with respect to the residual $u_j$.
+If the matrix can only be computed numerically, the following
+steps are taken to calculate a column of the $D$ matrix.
+We assume a baseline solution has been calculated.
+Let $u$ be the vector of \emph{scaled} residuals and
+let $\ubar$ be the vector of current values of
+the residuals. Let $q$ represent the vector of endogenous
+variables which are being targeted.
+And let $\bar{q}$ be the vector of current values of the targeted
+endogenous variables.
+
+The method for computing the successive columns of the jacobian $D$
+proceeds as follows
+
+\begin{enumerate}
+\item Change a residual with a small perturbation ($\delta$)
+\begin{displaymath}
+u_j = \ubar_j + \delta
+\end{displaymath}
+
+\item Solve the model to a specified convergence level
+\item Calculate column $j$ of the $D$ matrix
+\begin{displaymath}
+D_{.,j} = (q - \bar{q})/\delta
+\end{displaymath}
+Remember that $D$ is the jacobian with respect to the \emph{scaled} residuals.
+\end{enumerate}
+%
+The constant $\delta$ is set to $0.1$, which has proven to be adequate.
+
+In our computer implementation\footnote{which uses the feedback method
+for solving normalised systems of equations; see \cite{dongallo}.}
+the steps for solving the model in this case are as follows
+
+\begin{enumerate}
+\item Make one pass through the model equations
+\item Compute the Newton step for the feedback variables
+\item Adjust the feedback variables
+\item Make a second pass through the model equations.
+\end{enumerate}
+%
+The model is not solved to a specified convergence tolerance but
+two Newton iterations are taken.
+It has proven to be sufficient for achieving sensible outcomes.
+
+
+\newpage
+
+\section{Algorithm}
+
+An algorithm for computing the minimum norm solution of our nonlinear
+system of equations should allow for retaining the Jacobian $D$
+between iterations, to avoid possibly very expensive calculations.
+A norm on $w - h(u)$ is used for testing
+convergence. Define $Z=w-h(u)$.
+When the norm on $Z$ does not show a certain minimal reduction and the jacobian
+matrix is up to date, the algorithm stops due to lack of progress.
+Finally, if convergence is slow as measured by insufficient relative
+reduction in the norm on $Z$, the Jacobian is recalculated.
+The algorithm in pseudo code is given in figure~\ref{figalg}.
+The condition of the jacobian $D$ with full row rank is estimated
+with the \textsc{Linpack} condition estimator;
+if the estimated \emph{inverse condition number} of $D$ is
+less than the square root of the machine precision, then
+the algorithm stops; the jacobian is too ill-conditioned for
+the algorithm to proceed sensibly.
+
+The norm on $Z$ used in the algorithm for testing
+convergence and progress may be any norm (Euclidian, infinity or scaled
+infinity).
+The constant $\eta_w$ should be small, typically $10^{-3}$, but must
+be larger than the accuracy with which
+$Z$ has been computed. For example, if $Z$ has been computed using a
+convergence test of $10^{-4}$ then $\eta_w$ should be larger than $10^{-4}$.
+
+The fixed constant $\gamma_p \in (0,1)$
+is intended to ensure sufficient decrease;
+it should be close to $1$. In the actual computer implementation
+it has been set to $0.95$; experiments in the distant past
+have shown that a larger value less than $1.$ was never
+successful as remedy for any numerical difficulties.
+
+Finally the constant $\eta_s \in (0,\gamma_p)$ determines when to
+recalculate the jacobian $D$ (the default is $0.5$).
+
+
+\begin{Rfigure}
+\caption{Fit algorithm}\label{figalg}
+\input{fitalg}
+\end{Rfigure}
+
+\clearpage
+\section{Remarks}
+The algorithm has been tested on
+
+\begin{itemize}
+
+\item a historic medium-size (approximately 1500 equations) quarterly
+forecasting macro economic model using 27 residuals,
+6 observations on the first forecasting quarter and 3 observations
+in the following three forecasting quarters. The algorithm
+needs two iterations in each quarter to converge.
+
+\item a current quarterly forecasting model with approximately 2500 equations,
+using 22 residuals
+and 22 observations and targets for the first quarter of the
+forecasting period and 8 residuals for the remaining 11 quarters.
+Here too, the algorithm needs two iterations to converge.
+
+\item the current annual medium term macroeconomic forecasting model,
+having approximately 2500 equations,
+using 22 residuals and 2 targets (unemployment and enterprise production).
+The algorithm needs 1 iteration to converge.
+\end{itemize}
+%
+The procedure has also been used with success with much larger models and
+using large number of residuals and observations or targets.
+
+These tests and others not mentioned explicitly give
+rise to the following remarks
+
+\begin{enumerate}
+\item when the functions relating targets and residuals
+      -- the function $h$ in equation~\ref{eqn:orgweqh} --
+      are implicitly determined by an iterative process
+      as would normally be the case for an econometric model, great care
+      must be taken in specifying
+      the convergence threshold. It should not be smaller than the
+      convergence threshold used in solving the underlying system and
+      may even have to be considerably larger.
+
+\item no global strategy such as a line search has been incorporated in
+      the algorithm. Experiments with a backtracking line search did not
+      yield satisfactory results, which may also have been caused by the
+      method of solving the underlying system. Numerical problems
+      could always be avoided by changing
+      the specification of the underlying model.
+
+\item since evaluating the Jacobian can be a very expensive process
+      it may be worthwhile to investigate secant like adjustments to the
+      Jacobian analogous to Broyden's method for square nonlinear
+      equations.
+\end{enumerate}
+
+\clearpage
+\bibliography{../newt}
+\bibliographystyle{cpblit}
+
+\end{document}
+
