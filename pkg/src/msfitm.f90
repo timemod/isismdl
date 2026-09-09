@@ -95,7 +95,7 @@ contains
         endif
 
         ! allocate fit_jac, which will be used to save a copy of the fit
-        ! jacobian
+        ! jacobian.
         if (opts%fit%store_jac) then
             allocate(fit_jac(nw_max, nu_max), stat = stat)
             if (stat /= 0) then
@@ -441,7 +441,7 @@ contains
         if (.not. allocated(dj)) then
             call allocate_fit_mat(stat)
             if (stat /= 0) then
-                retcod = 2
+                retcod = 6
                 return
             endif
         endif
@@ -477,7 +477,7 @@ contains
                if (.not. is_square) call mkdu0(ca, delu)
         
                if (opts%fit%store_jac) then
-                   ! Save a copy of the fit jaconian
+                   ! Save a copy of the fit jacobian
                    fit_jac(1:nw, 1:nu) = transpose(dj(1:nu, 1:nw))
                    fit_jac_stored = .true.
                endif
