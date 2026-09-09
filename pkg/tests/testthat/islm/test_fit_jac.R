@@ -80,8 +80,21 @@ test_that("fixed rms", {
   mdl$solve(period = "2015Q2")
   expect_equal(mdl$get_fit_jac(), jac_2015Q2_2, tolerance = 1e-6)
 
-  mdl$solve(period = "2015Q3/2015Q4")
+  # also check combination fit and solve jac
+  mdl$solve(period = "2015Q3/2015Q4",
+            options = list(store_jac = TRUE))
   expect_equal(mdl$get_fit_jac(), jac_2015Q4_2, tolerance = 1e-6)
+
+  solve_jac <- jac_2015Q2_2 <- matrix(
+    c(
+      -0.119298142223, 0.0010997645428,
+      16.649832500041, 0.4685999999999
+    ),
+    nrow = 2,
+    byrow = TRUE,
+    dimnames = list(c("r", "y"), c("r", "y"))
+  )
+  expect_equal(mdl$get_solve_jac(), solve_jac)
 
   mdl$solve(period = "2015Q3/2015Q4")
   expect_equal(mdl$get_fit_jac(), jac_2015Q4_2, tolerance = 1e-6)
