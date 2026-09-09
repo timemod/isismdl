@@ -2,7 +2,7 @@
 /*
  * Operator constants for the inverse polish code.
  * The constants should be the same as in src/libf90/mcedef.rf9
- * TODO: generate mcedef.rf9 based on ipcode.h, or vice versa,
+ * TODO: generate mcedef.f90 based on ipcode.h, or vice versa,
  * with a Python script.
  */
 
