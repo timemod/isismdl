@@ -314,6 +314,11 @@ contains
         ! To understand what is going on in this code you
         ! must read the separate paper detailing the mathematics of the
         ! Fit procedure
+
+        !     retcod <> 0 implies an error has occurred
+        !     retcod 1 : simulation not possible
+        !     retcod 2 : simulation stopped
+        !     retcod 6 : out of memory
         
         ! initialize arrays for period jt (with checks)
         call wfinit(jt, fiterr, quit)
@@ -346,7 +351,7 @@ contains
 
     !-----------------------------------------------------------------------
     
-    subroutine fitone(retcod,ndiver)
+    subroutine fitone(retcod, ndiver)
         use msvars
         use msutil
         use msnwut
@@ -365,9 +370,10 @@ contains
         !     Minimum residuals to that effect are stored in CA.
         !     The solution is stored in Z.
         
-        !     retcod <> 0 impies an error has occurred
+        !     retcod <> 0 implies an error has occurred
         !     retcod 1 : simulation not possible
         !     retcod 2 : simulation stopped
+        !     retcod 6 : out of memory
         
         integer, intent(inout) :: ndiver
         integer, intent(inout) :: retcod

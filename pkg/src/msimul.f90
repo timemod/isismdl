@@ -393,6 +393,11 @@ module msimul
     ! simulates the model under current settings
     ! no rational expectations
 
+    ! Error code retcod:
+    ! 1 for missing/invalid exo's or starting values
+    ! 2 for numerical problems, non-convergence
+    ! 6 out of memory
+
     integer, intent(in) :: usedat
     integer, intent(out) :: ndiver, retcod
 
@@ -444,13 +449,13 @@ module msimul
        ! solve current period
        call soljtc(retcod, ndiver, jt)
     
-       if (retcod == 1) then
-    
-           return
-    
-       elseif (retcod == 2) then
+       if (retcod == 2) then
     
            call store_solution(jt)
+           return
+    
+       elseif (retcod /= 0) then
+    
            return
     
        elseif (jt == jend) then
@@ -555,9 +560,10 @@ module msimul
     ! at call, curvars contains starting values
     ! the result is stored in curvars
     
-    ! alternate return 1 for missing/invalid exo's or starting values
-    ! alternate return 2 for numerical problems or non-convergence
-    ! alternate return 3 for other errors (write)
+    ! Error code retcod:
+    ! 1 for missing/invalid exo's or starting values
+    ! 2 for numerical problems, non-convergence
+    ! 6 out of memory
     
     integer, intent(out) :: retcod
     integer, intent(inout) :: ndiver

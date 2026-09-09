@@ -155,11 +155,20 @@ end subroutine jacot6
 
 subroutine jacot7
 
-!        print message about insufficient memory to allocate the Jacobian
+   ! print message about insufficient memory to allocate the Jacobian
 
    str = 'Not enough memory to allocate the Jacobian'
    call strout(O_ERRF)
 
 end subroutine jacot7
+
+subroutine jacot8
+
+   ! print message about insufficient memory to allocate the Jacobian for storage
+
+   str = 'Not enough memory to store the solve Jacobian'
+   call strout(O_ERRF)
+
+end subroutine jacot8
 
 end module msjcot

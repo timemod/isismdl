@@ -50,7 +50,7 @@ if (opts%store_jac) then
     if (.not. allocated(solve_jac)) then
         allocate(solve_jac(mdl%nfb, mdl%nfb), stat = stat)
         if (stat /= 0) then
-            ! TODO: message?
+            call jacot8
             retcod = 10
             return
         endif
