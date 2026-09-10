@@ -2041,7 +2041,7 @@ NULL
 #' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca,
 #'                    accurate_jac, zealous, scale_method,
 #'                    warn_zero_row, warn_zero_col,
-#'                    chkjac, store_jac, report, dbgopt)
+#'                    chkjac, report, dbgopt, store_jac)
 #'
 #' mdl$get_fit_options()
 #'
@@ -2125,16 +2125,16 @@ NULL
 #' Jacobian may become small, which can lead to inaccurate or even unstable
 #' solutions. If `FALSE`, the fit procedure is only terminated when the
 #' inverse condition is exactly zero.}
-#' \item{\code{store_jac}}{A logical (default `FALSE`). If `TRUE`, the last
-#' computed fit Jacobian is stored in the `IsisMdl` object. This Jacobian
-#' can be retrieved with method \code{\link{get_fit_jac}()}.}
 #' \item{\code{report}}{A character string specifying the
 #' type of report of the fit procedure for each period.
 #' Possible values are \code{"fullrep"}
 #' (the default, an iteration report is printed for each period)
 #' and  \code{"minimal"} (for a one line summary).}
 #' \item{\code{dbgopt}}{A character vector specifying one or more debugging
-#' options. See section "Debugging Options" below}
+#' options. See section "Debugging Options" below.}
+#' \item{\code{store_jac}}{A logical (default `FALSE`). If `TRUE`, the last
+#' computed fit Jacobian is stored in the `IsisMdl` object. This Jacobian
+#' can be retrieved with method \code{\link{get_fit_jac}()}.}
 #' }
 #'
 #' @section Details:

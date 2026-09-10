@@ -27,36 +27,30 @@ SEXP get_fit_opts_c(SEXP model_index_) {
         warn_zero_row, warn_zero_col, chkjac, store_jac;
     double cvgabs, mkdcrt, cvgrel;
     F77_CALL(get_fit_options)(&maxiter, &cvgabs, &mkdcrt, &cvgrel, &zero_ca, 
-                              &warn_ca, &repopt, &acc_jac, 
+                              &warn_ca, &repopt, &store_jac, &acc_jac, 
                               &zealous, &scale_method, 
-                              &warn_zero_row, &warn_zero_col, &chkjac,
-                              &store_jac);
+                              &warn_zero_row, &warn_zero_col, &chkjac);
 
     /*
      * Create a named list with the options
      */
     OptionBuilder *b = ob_create(N_OPTS);
-
     ob_add_int    (b, "maxiter",  maxiter);
     ob_add_real   (b, "cvgabs",   cvgabs);
     ob_add_real   (b, "mkdcrt",   mkdcrt);
     ob_add_real   (b, "cvgrel",   cvgrel);
-
     ob_add_logical(b, "zero_ca",  zero_ca);
     ob_add_logical(b, "warn_ca",  warn_ca);
     ob_add_logical(b, "accurate_jac", acc_jac);
     ob_add_logical(b, "zealous",  zealous);
-
     ob_add_string (b, "scale_method",
                    get_fit_scale_method_text(scale_method));
-
     ob_add_logical(b, "warn_zero_row", warn_zero_row);
     ob_add_logical(b, "warn_zero_col", warn_zero_col);
     ob_add_logical(b, "chkjac",        chkjac);
-    ob_add_logical(b, "store_jac",     store_jac);
-
     ob_add_string (b, "report", get_fit_repopt_text(repopt));
     ob_add_sexp   (b, "dbgopt",  get_debug_option());
+    ob_add_logical(b, "store_jac",     store_jac);
 
     return ob_get(b); 
 }

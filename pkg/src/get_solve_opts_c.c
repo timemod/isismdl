@@ -48,13 +48,13 @@ SEXP get_solve_opts_c(SEXP model_index_) {
     ob_add_int    (b, "xmaxiter",          mratex);
     ob_add_string (b, "xupdate",           get_xupdate_text(uplead));
     ob_add_real   (b, "xtfac",             xtfac);
+    ob_add_logical(b, "store_jac",         store_jac);
     ob_add_string (b, "erropt",            get_erropt_text(erropt));
     ob_add_string (b, "report",            get_repopt_text(repopt));
     ob_add_string (b, "ratreport",         get_ratrepopt_text(ratrepopt));
     ob_add_int    (b, "ratreport_rep",     ratreport_rep);
     ob_add_int    (b, "ratfullreport_rep", ratfullreport_rep);
     ob_add_sexp   (b, "dbgopt",            get_debug_option());
-    ob_add_logical(b, "store_jac",         store_jac);
 
     return ob_get(b);
 }
