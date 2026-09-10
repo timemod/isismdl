@@ -1,4 +1,4 @@
-# this is  a Gnu makefile used tp check dependencies of Fortran- and C-files.
+# this is  a Gnu makefile used to check dependencies of Fortran- and C-files.
 
 TOOLDIR = tools
 SRC_DIR = pkg/src

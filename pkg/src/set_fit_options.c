@@ -91,7 +91,7 @@ static void set_fit_option(const char *name, SEXP value) {
 
 static void set_fit_debug_opts(SEXP option) {
 
-    int prica, prijac, store_jac, supsot;
+    int prica, prijac, supsot;
     F77_CALL(get_fit_dbgopts)(&prica, &prijac, &supsot);
     int i;
     for (i = 0; i < length(option); i++) {

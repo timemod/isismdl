@@ -157,6 +157,8 @@ contains
         integer, intent(out) :: ier
 
         integer ::  larc, i
+         
+        ier = 0
 
         get_maxarc = 1
 

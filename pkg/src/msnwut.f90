@@ -101,6 +101,9 @@ integer ::       fbnum, i, j
 
 real(kind = SOLVE_RKIND) :: delta
 
+retcod = 0
+matitr = 0
+
 ! reset all feedback values to initial state
 do i = 1, mdl%nfb
    curvars(mdl%numfb(i)) = fbval(i)
@@ -109,8 +112,6 @@ end do
 !*IF PRZFBC
 !      call przfbc(xvnlen, 0)
 !*ENDIF
-
-matitr = 0
 
 do i = 1, mdl%nfb
 
@@ -200,6 +201,9 @@ integer, intent(out) :: retcod, matitr
 integer :: fbnum, i, j, k
 real(kind = SOLVE_RKIND) :: delta
 
+retcod = 0
+matitr = 0
+
 ! reset all feedback values to initial state
 do i = 1, mdl%nfb
     curvars(mdl%numfb(i)) = fbval(i)
@@ -209,7 +213,6 @@ end do
 !      call przfbc(xvnlen,0)
 !*ENDIF
 
-matitr = 0
 
 do i = 1, mdl%nfb
 
