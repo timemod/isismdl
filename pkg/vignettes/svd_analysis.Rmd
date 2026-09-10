@@ -96,7 +96,7 @@ knitr::opts_chunk$set(collapse = FALSE, comment = "", prompt = TRUE)
  ```
  
  ```{r}
- svd(fit_jac)
+ svd_analysis(fit_jac)
  ```
 
 # References
