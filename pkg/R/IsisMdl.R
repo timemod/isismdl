@@ -908,8 +908,8 @@ IsisMdl <- R6Class("IsisMdl",
       )
 
       private$solve_status <- simerr_to_solve_status(ret$simerr)
-      if (!is.null(ret$solve_jac)) private$solve_jac <- ret$solve_jac
-      if (!is.null(ret$fit_jac)) private$fit_jac <- ret$fit_jac
+      private$solve_jac <- ret$solve_jac
+      private$fit_jac <- ret$fit_jac
       return(invisible(self))
     },
     get_solve_status = function() {
