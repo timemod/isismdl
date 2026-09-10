@@ -124,6 +124,13 @@ subroutine set_xtfac(xtfac)
     options_set%xtfac = xtfac
 end subroutine set_xtfac
 
+subroutine set_store_jac(store_jac)
+    use set_options
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: store_jac
+    options_set%store_jac = store_jac /= 0
+end subroutine set_store_jac
+
 subroutine set_solve_dbgopts(priter, prexen, jacprt, suptst, xsuptt, prscal)
     use set_options
     use iso_c_binding, only : c_int
@@ -144,13 +151,6 @@ subroutine set_erropt(erropt)
     integer(c_int), intent(in) :: erropt
     options_set%erropt = erropt
 end subroutine set_erropt
-
-subroutine set_store_jac(store_jac)
-    use set_options
-    use iso_c_binding, only : c_int
-    integer(c_int), intent(in) :: store_jac
-    options_set%store_jac = store_jac /= 0
-end subroutine set_store_jac
 
 subroutine check_options
     use set_options

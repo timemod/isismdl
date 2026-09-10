@@ -33,15 +33,17 @@ module msvars
 
     contains
 
-        ! create a local copy of the solve options stored in the mws
         subroutine msoptsinit(opts_in) 
            type(solve_options), intent(in) :: opts_in 
+           ! create a local copy of the solve options stored in the mws
            opts = opts_in
         end subroutine msoptsinit
 
-        ! initialise msvars except for opts, which is initialized separately in msoptsinit
         subroutine msvarsinit(mws_in)
             type(modelworkspace), target, intent(inout) :: mws_in
+
+            ! initialise msvars except for opts, which is initialized separately in 
+            ! subroutine msoptsinit
 
             mws => mws_in
             mdl => mws%mdl
@@ -57,6 +59,7 @@ module msvars
         subroutine prepare_solve(jf_in, jl_in, error)
             integer, intent(in)  :: jf_in, jl_in
             integer, intent(out) :: error
+
             ! error = 0 if ok
             !       = 1 if not enough memory available
 

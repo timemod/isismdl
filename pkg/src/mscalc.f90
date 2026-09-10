@@ -1,6 +1,8 @@
 module mscalc
 use mws_type
 
+private :: evaleq
+
 contains
 
    subroutine modequ(retcod, result, ipequb, ipequl)

@@ -97,15 +97,14 @@ integer ::  i, stat
 ! allocate jacobian if required
 !
 if (.not. allocated(jacob)) then
-    mdl%nfb = mdl%nfb
     allocate(jacob(mdl%nfb, 2 * mdl%nfb), stat = stat)
     if (stat /= 0) then
         call jacot7
         retcod = 10
         return
     endif
-    jacob = 0
 endif
+jacob = 0
 
 
 ! generate jacobian for feedback variables

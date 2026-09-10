@@ -25,7 +25,7 @@ module msimul
     !     simulates the model under current settings
     !     Warning: here we must have jf >= 1 and jl <= mws%perlen
     
-    !     variable mws%simerr signals errors
+    !     variable simerr signals errors
     !                 0    all ok
     !                 1    simulation not possible
     !                 2    simulation stopped
@@ -49,7 +49,6 @@ module msimul
     retcod = 0 
     chklead = .true.
     ndiver = 0
-    retcod = 0
 
     call msvarsinit(mws_in)
 
@@ -176,11 +175,14 @@ module msimul
     !     5     if Fair Taylor has NOT converged
     !     0     if all ok
     
-    integer, intent(out) ::  ndiver, retcod
+    integer, intent(out) :: ndiver, retcod
 
     integer ::  usedat, iratex, noncvg, imax, jmax, ratfullrep
     
     real(kind = SOLVE_RKIND) :: xomax, xnmax, dismax
+
+    ndiver = 0
+    retcod = 0
     
     ! initialisation for simulb in first iteration
     if (opts%start == 'C') then
@@ -394,6 +396,7 @@ module msimul
     ! no rational expectations
 
     ! Error code retcod:
+    ! 0 OK
     ! 1 for missing/invalid exo's or starting values
     ! 2 for numerical problems, non-convergence
     ! 6 out of memory
@@ -405,6 +408,7 @@ module msimul
     integer  :: jstart, jend, jt, step, jtd
     
     ndiver = 0
+    retcod = 0
     
     if (forwards) then
        jstart = jf

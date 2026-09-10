@@ -45,7 +45,6 @@ module solve_options_type
         integer(kind = ISIS_IKIND) :: scale_method
         logical(kind = ISIS_IKIND) :: prica
         logical(kind = ISIS_IKIND) :: prijac
-        logical(kind = ISIS_IKIND) :: store_jac
         logical(kind = ISIS_IKIND) :: zeroca
         logical(kind = ISIS_IKIND) :: warnca
         logical(kind = ISIS_IKIND) :: newjac
@@ -53,6 +52,7 @@ module solve_options_type
         logical(kind = ISIS_IKIND) :: chkjac
         logical(kind = ISIS_IKIND) :: accurate_jac
         integer(kind = ISIS_IKIND) :: repopt
+        logical(kind = ISIS_IKIND) :: store_jac
         logical(kind = ISIS_IKIND) :: zealous
         logical(kind = ISIS_IKIND) :: warn_zero_row
         logical(kind = ISIS_IKIND) :: warn_zero_col
@@ -63,23 +63,23 @@ module solve_options_type
         character(len = 1) :: method
         character(len = 1) :: start
         integer(kind = ISIS_IKIND) :: bktmax
-        real(kind = ISIS_RKIND) :: cstpbk
-        real(kind = ISIS_RKIND) :: cnmtrx
-        real(kind = ISIS_RKIND) :: crelax
-        real(kind = ISIS_RKIND) :: grelax
+        real(kind = ISIS_RKIND)    :: cstpbk
+        real(kind = ISIS_RKIND)    :: cnmtrx
+        real(kind = ISIS_RKIND)    :: crelax
+        real(kind = ISIS_RKIND)    :: grelax
         integer(kind = ISIS_IKIND) :: maxit
         integer(kind = ISIS_IKIND) :: maxmat
         logical(kind = ISIS_IKIND) :: arith
-        real(kind = ISIS_RKIND) :: rlxmin
-        real(kind = ISIS_RKIND) :: rlxmax
-        real(kind = ISIS_RKIND) :: rlxspeed
+        real(kind = ISIS_RKIND)    :: rlxmin
+        real(kind = ISIS_RKIND)    :: rlxmax
+        real(kind = ISIS_RKIND)    :: rlxspeed
         integer(kind = ISIS_IKIND) :: scalmd
+        logical(kind = ISIS_IKIND) :: store_jac
 
         ! debug options
         logical(kind = ISIS_IKIND) :: priter
         logical(kind = ISIS_IKIND) :: prexen
         logical(kind = ISIS_IKIND) :: jacprt
-        logical(kind = ISIS_IKIND) :: store_jac
         logical(kind = ISIS_IKIND) :: suptst
         logical(kind = ISIS_IKIND) :: xsuptt
         logical(kind = ISIS_IKIND) :: prscal
@@ -128,12 +128,12 @@ contains
         options%rlxspeed = 0.5_ISIS_RKIND
         options%njacpd = 0
         options%scalmd = NORMBAL
+        options%store_jac = .false.
 
         ! debug options
         options%priter = .false.
         options%prexen = .false.
         options%jacprt = .false.
-        options%store_jac = .false.
         options%suptst = .true.
         options%xsuptt = .true.
         options%prscal = .false.
@@ -161,13 +161,13 @@ contains
         options%fit%accurate_jac = .true.
         options%fit%prica  = .false.
         options%fit%prijac = .false.
-        options%fit%store_jac = .false.
         options%fit%zeroca = .false.
         options%fit%warnca = .true.
         options%fit%newjac = .true.
         options%fit%supsot = .true.
         options%fit%chkjac = .true.
         options%fit%repopt = FITREP_FULLREP
+        options%fit%store_jac = .false.
         options%fit%zealous = .true.
         options%fit%warn_zero_row = .false.
         options%fit%warn_zero_col = .false.
