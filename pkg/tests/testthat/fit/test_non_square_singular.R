@@ -27,8 +27,7 @@ test_that("report correct", {
   )
   expect_known_report_multi(report,
                             "expected_output/non_square_singular_rep1",
-                            update = update_expected,
-                            replace_all_numbers = TRUE)
+                            update = update_expected)
 })
 
 test_that("jacobian correct", {
