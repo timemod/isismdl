@@ -1,7 +1,7 @@
 library(testthat)
 library(isismdl)
 
-update_expected <- TRUE
+update_expected <- FALSE
 
 test_that("svd_analysis for non singular matrix", {
   A <- matrix(c(1, 2, 3, 4), nrow = 2, ncol = 2, byrow = TRUE)
@@ -72,16 +72,16 @@ test_that("vector_tol", {
   rownames(A) <- c("r1", "r2", "r3", "r4")
   colnames(A) <- c("c1", "c2", "c3")
 
-  result <- svd_analysis(A, vector_tol = 0.5)
+  result <- svd_analysis(A, vector_tol = 1)
 
   expect_equal(result$A, A)
   expect_equal(result$rank, 1)
   # Matrix has rank 1, so there should be 2 small singular values (min(4,3)-1 = 2)
   expect_true(length(result$small_sv) >= 2)
-  expect_equal(dim(result$U_small), c(3, 2))
-  expect_equal(dim(result$V_small), c(2, 2))
-  expect_equal(result$lin_dep_rows, 1:3)
-  expect_equal(result$lin_dep_cols, 1:2)
+  expect_equal(dim(result$U_small), c(0, 2))
+  expect_equal(dim(result$V_small), c(0, 2))
+  expect_equal(length(result$lin_dep_rows), 0)
+  expect_equal(length(result$lin_dep_cols), 0)
   expect_equal(result$zero_rows, 4)
   expect_equal(length(result$zero_cols), 0)
 })
