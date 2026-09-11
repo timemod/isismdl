@@ -20,12 +20,13 @@ test_that("svd_analysis for non singular matrix", {
         small_sv     = numeric(0),
         U_small      = NULL,
         V_small      = NULL,
-        lin_dep_rows = character(0),
-        lin_dep_cols = character(0),
+        lin_dep_rows = integer(0),
+        lin_dep_cols = integer(0),
         zero_rows    = integer(0),
         zero_cols    = integer(0),
         sv_tol       =  sqrt(.Machine$double.eps),
-        vector_tol      =  sqrt(.Machine$double.eps)
+        vector_tol   =  sqrt(.Machine$double.eps),
+        zero_tol     =  sqrt(.Machine$double.eps)
       ),
       class = "svd_analysis"
     )

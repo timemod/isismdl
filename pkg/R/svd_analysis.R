@@ -32,7 +32,7 @@
 #' row/column numbers instead.
 #'
 #' @param A          numeric matrix (m x n, may be non-square), for example
-#'                   a solve fit Jacobian.
+#'                   a solve or fit Jacobian.
 #' @param sv_tol     singular values below this count as "zero"
 #'                   (default the square root of the machine precision).
 #' @param vector_tol threshold for "negligible" entries in the singular
@@ -50,17 +50,17 @@
 #'
 #' @return an object of class \code{svd_analysis} (a list, invisibly) with
 #' elements:
-#'   - `A`              the input matrix (with generated names if needed)
-#'   - `d`              all singular values
+#'   - `A`              the input matrix (m x n)
+#'   - `d`              all singular values (a vector of length min(m, n))
 #'   - `rank`           numerical rank of A
-#'   - `small_sv`       the "zero" singular values themselves
-#'   - `U_small`        cleaned left singular vectors  (m x k)
-#'   - `V_small`        cleaned right singular vectors (n x k)
+#'   - `small_sv`       the (near)-zero singular values
+#'   - `U_small`        cleaned left singular vectors  (n x length(small_sv))
+#'   - `V_small`        cleaned right singular vectors (n x length(small_sv))
 #'   - `lin_dep_rows`   indices of rows participating in a dependency
 #'   - `lin_dep_cols`   indices of columns participating in a dependency
 #'   - `zero_rows`      indices of all-(near-)zero rows of A
 #'   - `zero_cols`      indices of all-(near-)zero columns of A
-#'   - `sv_tol`, `zero_tol`, `vector_tol`  the settings used
+#'   - `sv_tol`, `vector_tol`, `zero_tol` the specified tolerances
 #'
 #' @examples
 #'
@@ -112,12 +112,13 @@ svd_analysis <- function(A, sv_tol = sqrt(.Machine$double.eps),
         small_sv     = numeric(0),
         U_small      = NULL,
         V_small      = NULL,
-        lin_dep_rows = character(0),
-        lin_dep_cols = character(0),
+        lin_dep_rows = integer(0),
+        lin_dep_cols = integer(0),
         zero_rows    = zero_rows,
         zero_cols    = zero_cols,
         sv_tol       = sv_tol,
-        vector_tol      = vector_tol
+        vector_tol   = vector_tol,
+        zero_tol     = zero_tol
       ),
       class = "svd_analysis"
     ))
@@ -153,7 +154,8 @@ svd_analysis <- function(A, sv_tol = sqrt(.Machine$double.eps),
       zero_rows    = zero_rows,
       zero_cols    = zero_cols,
       sv_tol       = sv_tol,
-      vector_tol      = vector_tol
+      vector_tol   = vector_tol,
+      zero_tol     = zero_tol
     ),
     class = "svd_analysis"
   )
@@ -163,7 +165,7 @@ svd_analysis <- function(A, sv_tol = sqrt(.Machine$double.eps),
 # S3 print method for class "svd_analysis"
 # -------------------------------------------------------------------------
 #' @export
-print.svd_analysis <- function(x, ...) {
+print.svd_analysis <- function(x, digits = getOption("digits"), ...) {
 
   m <- nrow(x$A)
   n <- ncol(x$A)
@@ -171,62 +173,78 @@ print.svd_analysis <- function(x, ...) {
   r_names <- rownames(x$A)
   c_names <- colnames(x$A)
 
+  sv_tol_rounded <- signif(x$sv_tol, digits = digits)
+  vector_tol_rounded <- signif(x$vector_tol, digits = digits)
+
   cat("== SVD analysis of a", m, "x", n, "matrix ==\n")
-  cat("Singular values: ", x$d, "\n", sep = "")
-  cat("Rank = ", x$rank, "; number of small singular values (< ", x$sv_tol, "): ",
-      length(x$small_sv), "\n\n", sep = "")
+  cat("\nRank = ", x$rank, "; number of small singular values (< ",
+      sv_tol_rounded, "): ", length(x$small_sv), "\n", sep = "")
+  cat("\nSmallest Singular Value: ", signif(min(x$d), digits = digits)
+      , "\n", sep = "")
 
   if (length(x$small_sv) == 0) {
     if (length(x$zero_rows) > 0 || length(x$zero_cols) > 0) {
-      cat("Rows/cols with only zero values:\n")
+      cat("\nRows/cols with only zero values:\n")
     }
-    report_zero(x, r_names, c_names)
+    report_zero_rows_cols(x, r_names, c_names, digits = digits)
     cat("Full numerical rank: no linear dependencies found.\n")
 
     return(invisible(x))
   }
 
-  cat("-- Left singular vectors with sv < ", x$sv_tol, " (row relations);\n",
-      "   rows in which ALL |values| < ", x$vector_tol, " were removed --\n",
-      sep = "")
-  print(x$U_small)
+  cat("\n-- Singular values with sv < ", sv_tol_rounded, " --\n", sep = "")
+  print(x$small_sv, digits = digits)
 
-  cat("\n-- Right singular vectors with sv < ", x$sv_tol, " (column relations);\n",
-      "   rows in which ALL |values| < ", x$vector_tol, " were removed --\n",
+  cat("\n-- Left singular vectors with sv < ", sv_tol_rounded, " (row relations);\n",
+      "   rows in which ALL |values| < ", vector_tol_rounded, " were removed --\n",
       sep = "")
-  print(x$V_small)
+  print(x$U_small, digits = digits)
+
+  cat("\n-- Right singular vectors with sv < ", sv_tol_rounded, " (column relations);\n",
+      "   rows in which ALL |values| < ", vector_tol_rounded, " were removed --\n",
+      sep = "")
+  print(x$V_small, digits = digits)
 
   cat("\nInterpretation:\n")
   cat(" * Left singular vectors  = linear dependencies among the ROWS of A.\n")
   cat(" * Right singular vectors = linear dependencies among the COLUMNS of A.\n")
   if (length(x$lin_dep_rows) > 0) {
-    rows <- if (is.null(r_names)) x$lin_dep_rows else r_names[x$lin_dep_rows]
-    cat(" * Rows    of A involved in a dependency: ",
-        paste(rows, collapse = ", "), "\n", sep = "")
+    cat(" * Rows    of A involved in a dependency:\n")
+    report_rows_or_cols(x$lin_dep_rows, r_names)
   }
   if (length(x$lin_dep_cols) > 0) {
-    cols <- if (is.null(c_names)) x$lin_dep_cols else c_names[x$lin_dep_cols]
-    cat(" * Columns of A involved in a dependency: ",
-        paste(cols, collapse = ", "), "\n", sep = "")
+    cat(" * Columns of A involved in a dependency:\n")
+    report_rows_or_cols(x$lin_dep_cols, c_names)
   }
 
-  report_zero(x, r_names, c_names)
+  report_zero_rows_cols(x, r_names, c_names, digits = digits)
   invisible(x)
 }
 
+# helper: report row/column names or indices.
+# indices is a numerical vector with row or column indices.
+# rc_names is a character vector with row or column names (may be NULL)
+report_rows_or_cols <- function(indices, rc_names) {
+  rc_names <- if (is.null(rc_names)) indices else rc_names[indices]
+  names_list <- paste0(paste(rc_names, collapse = ", "), ".")
+  writeLines(strwrap(names_list, width = 80, indent = 6, exdent = 6))
+}
+
 # helper: report all-(near-)zero rows and columns of A
-report_zero <- function(x, r_names, c_names) {
+report_zero_rows_cols <- function(x, r_names, c_names, digits) {
+  output <- FALSE
+  zero_tol_rounded <- signif(x$zero_tol, digits = digits)
   if (length(x$zero_rows) > 0) {
-    rows <- if (is.null(r_names)) x$zero_rows else r_names[x$zero_rows]
-    cat(" * Rows    of A with only zero values (< ", x$vector_tol, "): ",
-        paste(rows, collapse = ", "), "\n", sep = "")
+    cat(" * Rows    of A with only zero values (< ", zero_tol_rounded, "):\n",
+        sep = "")
+    report_rows_or_cols(x$zero_rows, r_names)
+    output <- TRUE
   }
   if (length(x$zero_cols) > 0) {
-    cols <- if (is.null(c_names)) x$zero_cols else c_names[x$zero_cols]
-    cat(" * Columns of A with only zero values (< ", x$vector_tol, "): ",
-        paste(cols, collapse = ", "), "\n", sep = "")
+    cat(" * Columns of A with only zero values (< ", zero_tol_rounded, "):\n",
+        sep = "")
+    report_rows_or_cols(x$zero_cols, c_names)
+    output <- TRUE
   }
-  if (length(x$zero_rows) > 0 || length(x$zero_cols) > 0) {
-    cat("\n")
-  }
+  if (output) cat("\n")
 }

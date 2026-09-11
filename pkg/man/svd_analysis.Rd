@@ -14,7 +14,7 @@ svd_analysis(
 }
 \arguments{
 \item{A}{numeric matrix (m x n, may be non-square), for example
-a solve fit Jacobian.}
+a solve or fit Jacobian.}
 
 \item{sv_tol}{singular values below this count as "zero"
 (default the square root of the machine precision).}
@@ -37,17 +37,17 @@ rows/columns
 an object of class \code{svd_analysis} (a list, invisibly) with
 elements:
 \itemize{
-\item \code{A}              the input matrix (with generated names if needed)
-\item \code{d}              all singular values
+\item \code{A}              the input matrix (m x n)
+\item \code{d}              all singular values (a vector of length min(m, n))
 \item \code{rank}           numerical rank of A
-\item \code{small_sv}       the "zero" singular values themselves
-\item \code{U_small}        cleaned left singular vectors  (m x k)
-\item \code{V_small}        cleaned right singular vectors (n x k)
+\item \code{small_sv}       the (near)-zero singular values
+\item \code{U_small}        cleaned left singular vectors  (n x length(small_sv))
+\item \code{V_small}        cleaned right singular vectors (n x length(small_sv))
 \item \code{lin_dep_rows}   indices of rows participating in a dependency
 \item \code{lin_dep_cols}   indices of columns participating in a dependency
 \item \code{zero_rows}      indices of all-(near-)zero rows of A
 \item \code{zero_cols}      indices of all-(near-)zero columns of A
-\item \code{sv_tol}, \code{zero_tol}, \code{vector_tol}  the settings used
+\item \code{sv_tol}, \code{vector_tol}, \code{zero_tol} the specified tolerances
 }
 }
 \description{
