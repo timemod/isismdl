@@ -46,9 +46,9 @@ module msimul
     ! initialize output system
     ! initialize lags and leads (and check for validity)
    
-    retcod = 0 
     chklead = .true.
     ndiver = 0
+    retcod = 0 
 
     call msvarsinit(mws_in)
 
