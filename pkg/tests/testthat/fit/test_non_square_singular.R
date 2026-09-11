@@ -31,14 +31,23 @@ test_that("report correct", {
 })
 
 test_that("jacobian correct", {
-
-  fit_jac <- mdl$get_fit_jac()
-
   expect_equal(
-    fit_jac,
+    mdl$get_fit_jac(),
     matrix(rep(1, 6), ncol = 3, nrow = 2,
            dimnames = list(c("w1", "w2"), c("x1", "x2", "x3")))
   )
+})
+
+test_that("svd analysis", {
+
+  fit_jac <- mdl$get_fit_jac()
+  result <- svd_analysis(fit_jac)
+  expect_equal(result$rank, 1)
+  expect_true(length(result$small_sv) == 1)
+  expect_equal(result$lin_dep_rows, 1:2)
+  expect_equal(result$lin_dep_cols, 1:3)
+  expect_equal(length(result$zero_rows), 0)
+  expect_equal(length(result$zero_cols), 0)
 })
 
 test_that("zero columns", {
@@ -52,11 +61,25 @@ test_that("zero columns", {
   expect_equal(mdl2$get_solve_status(), "OK")
   expect_equal(mdl2$get_data(pattern = "^w[12345]"), mdl2$get_fit(),
                tolerance = 1e-6)
+
+  # check fit jac
+  fit_jac <- mdl2$get_fit_jac()
+
   expect_equal(
-    mdl2$get_fit_jac(),
+    fit_jac,
     matrix(c(1, 2, 2, 2, 0, 0), ncol = 3, nrow = 2,
            dimnames = list(c("w1", "w2"), c("x1", "x2", "x3")))
   )
+
+  # svd analysis
+  result <- svd_analysis(fit_jac)
+  expect_output(print(result), "Full numerical rank")
+  expect_equal(result$rank, 2)
+  expect_true(length(result$small_sv) == 0)
+  expect_null(result$U_small)
+  expect_null(result$V_small)
+  expect_equal(length(result$zero_rows), 0)
+  expect_equal(result$zero_cols, 3)
 
   #  Column 3 zero, columns 1 and 2 equal -----
 
@@ -69,11 +92,22 @@ test_that("zero columns", {
                             "expected_output/non_square_singular_rep2",
                             update = update_expected)
 
+  # fit jac
+  fit_jac <- mdl2$get_fit_jac()
   expect_equal(
-    mdl2$get_fit_jac(),
+    fit_jac,
     matrix(c(2, 2, 2, 2, 0, 0), ncol = 3, nrow = 2,
            dimnames = list(c("w1", "w2"), c("x1", "x2", "x3")))
   )
+
+  # svd analysis
+  result <- svd_analysis(fit_jac)
+  expect_equal(result$rank, 1)
+  expect_true(length(result$small_sv) == 1)
+  expect_equal(result$lin_dep_rows, 1:2)
+  expect_equal(result$lin_dep_cols, 1:2)
+  expect_equal(length(result$zero_rows), 0)
+  expect_equal(result$zero_cols, 3)
 
   expect_warning(
     report3 <- capture.output(
@@ -113,10 +147,23 @@ test_that("zero columns", {
                             "expected_output/non_square_singular_rep5",
                             update = update_expected,
                             replace_all_numbers = TRUE)
+  # fit jac
+  fit_jac <- mdl2$get_fit_jac()
 
   expect_equal(
-    mdl2$get_fit_jac(),
+    fit_jac,
     matrix(c(1, 2, 1e-8, 0, 0, 0), ncol = 3, nrow = 2,
            dimnames = list(c("w1", "w2"), c("x1", "x2", "x3")))
   )
+
+  result <- svd_analysis(fit_jac, vector_tol = 1e-12)
+  expect_equal(result$rank, 1)
+  expect_true(length(result$small_sv) == 1)
+  expect_equal(result$lin_dep_rows, 1:2)
+  expect_equal(result$lin_dep_cols, 1:2)
+  expect_equal(length(result$zero_rows), 0)
+  expect_equal(result$zero_cols, 2:3)
+
+  result2 <- svd_analysis(fit_jac, vector_tol = 1e-12, zero_tol = 1e-20)
+  expect_equal(result2$zero_cols, 3)
 })

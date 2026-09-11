@@ -6,11 +6,13 @@
 \alias{get_fit_jac}
 \title{\code{\link{IsisMdl}} method: Return the Last Computed Solve or Fit Jacobian}
 \description{
-Depending on the solve and fit options, \code{\link{solve}} stores the
-last computed solve or fit Jacobian in the \code{\link{IsisMdl}} object.
+Depending on the solve and fit options \code{store_jac}, \code{\link{solve}}
+stores the last computed solve or fit Jacobian in the \code{\link{IsisMdl}} object.
 Methods \code{get_solve_jac()} and \code{get_fit_jac()}
 can be used to retrieve them; both return \code{NULL} if the corresponding
 \code{store_jac} option is \code{FALSE} or not set.
+Each call to \code{solve()} resets any previously stored Jacobians in the
+\code{IsisMdl} object to \code{NULL}.
 
 Two separate \code{store_jac} options exist: one for the solve Jacobian and
 one for the fit Jacobian (both default to \code{FALSE}). They can be set in
@@ -19,9 +21,6 @@ Jacobian) and \code{\link{set_fit_options}()} (for the fit Jacobian),
 or by directly specifying the \code{options} argument (for the solve
 Jacobian) and the \code{fit_options} argument (for the fit Jacobian) of
 method \code{\link{solve}()}.
-
-Each call to \code{solve()} resets any previously stored Jacobians in the
-\code{IsisMdl} object to \code{NULL}.
 
 The \strong{solve Jacobian} is computed to numerically solve the feedback
 variables using the Broyden method. For models without feedback
@@ -34,7 +33,8 @@ procedure was not executed in the most recent call to \code{solve()},
 These Jacobians can be used, for example, to diagnose numerical
 problems such as matrix singularity. One approach is Singular Value
 Decomposition (SVD), as explained in Vignette
-\href{../doc/svd_analysis.pdf}{\emph{"SVD Analysis"}}.
+\href{../doc/svd_analysis.pdf}{\emph{"SVD Analysis"}}, for which
+function \code{\link{svd_analysis}} may be used.
 }
 \section{Usage}{
 
@@ -53,6 +53,6 @@ mdl$solve(options = list(store_jac = TRUE, dbgopt = "prijac"))
 print(mdl$get_solve_jac())
 }
 \seealso{
-\code{\link{set_solve_options}}, \code{\link{set_fit_options}}
-and \code{\link{get_jacobian}}.
+\code{\link{set_solve_options}}, \code{\link{set_fit_options}},
+\code{\link{get_jacobian}} and \code{\link{svd_analysis}}.
 }

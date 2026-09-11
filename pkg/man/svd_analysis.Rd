@@ -7,19 +7,29 @@
 svd_analysis(
   A,
   sv_tol = sqrt(.Machine$double.eps),
-  row_tol = sqrt(.Machine$double.eps),
+  vector_tol = sqrt(.Machine$double.eps),
+  zero_tol = sqrt(.Machine$double.eps),
   ...
 )
 }
 \arguments{
 \item{A}{numeric matrix (m x n, may be non-square), for example
-a solve of fit Jacobian.}
+a solve fit Jacobian.}
 
-\item{sv_tol}{singular values below this count as "zero" (default the
-square_root of the machine precision).}
+\item{sv_tol}{singular values below this count as "zero"
+(default the square root of the machine precision).}
 
-\item{row_tol}{threshold for "negligible" entries in the singular
-vectors (default the square root of the machine precision).}
+\item{vector_tol}{threshold for "negligible" entries in the singular
+vectors: rows of the singular-vector matrices in
+which ALL absolute values are below \code{vector_tol}
+are discarded
+(default the square root of the machine precision).}
+
+\item{zero_tol}{threshold for negligible entries of A itself:
+rows and columns of A with maximum absolute value
+below \code{zero_tol} are reported as all-zero
+rows/columns
+(default the square root of the machine precision).}
 
 \item{...}{(unused, present for S3 method compatibility)}
 }
@@ -27,26 +37,51 @@ vectors (default the square root of the machine precision).}
 an object of class \code{svd_analysis} (a list, invisibly) with
 elements:
 \itemize{
-\item \code{A}                 the input matrix
-\item \code{d}                  all singular values
-\item \code{rank}               numerical rank of A
-\item \code{small_sv}           the "zero" singular values themselves
-\item \code{U_small}            cleaned left singular vectors  (m x k)
-\item \code{V_small}            cleaned right singular vectors (n x k)
-\item \code{lin_dep_rows}       row names or indices of the rows that participate in a dependency relation
-\item \code{lin_dep_cols}       column names or indices of the colums that participate in a dependency relation
-\item \code{sv_dtol}, \code{row_tol} the settings used.
+\item \code{A}              the input matrix (with generated names if needed)
+\item \code{d}              all singular values
+\item \code{rank}           numerical rank of A
+\item \code{small_sv}       the "zero" singular values themselves
+\item \code{U_small}        cleaned left singular vectors  (m x k)
+\item \code{V_small}        cleaned right singular vectors (n x k)
+\item \code{lin_dep_rows}   indices of rows participating in a dependency
+\item \code{lin_dep_cols}   indices of columns participating in a dependency
+\item \code{zero_rows}      indices of all-(near-)zero rows of A
+\item \code{zero_cols}      indices of all-(near-)zero columns of A
+\item \code{sv_tol}, \code{zero_tol}, \code{vector_tol}  the settings used
 }
 }
 \description{
 Rows of A that are linearly dependent show up as left singular vectors
 belonging to (near-)zero singular values; dependent columns show up as
 right singular vectors belonging to (near-)zero singular values.
+This function reports these singular vectors, which may help to identify
+(near) linear dependencies among rows and columns.
+\cr\cr
+The function also reports all rows and columns that only contain near-zero
+entries. These zero rows and columns are trivially dependent, but
+are usually worth a separate warning. Note that while a zero row or
+column always implies rank loss for a square matrix, this is not the case
+for a non-square matrix.
+\cr\cr
+The function uses three tolerances, each with its own scope:
+\describe{
+\item{\code{sv_tol}}{applied to the singular values of A: singular
+values below \code{sv_tol} are treated as zero. The number of
+singular values >= \code{sv_tol} is the numerical rank of A.}
+\item{\code{vector_tol}}{applied to the entries of the singular
+vectors belonging to the ~zero singular values: rows of these
+vector matrices in which every entry has absolute value below
+\code{vector_tol} are discarded, because they correspond to
+rows/columns of A that play no role in any dependency relation.}
+\item{\code{zero_tol}}{applied to the entries of A itself:
+rows and columns of A in which every entry has absolute value below
+\code{zero_tol} (all-zero rows/columns) are reported separately
+as all-zero rows and columns.}
+}
 }
 \details{
-Rows of both vector matrices in which every entry is (absolutely) smaller
-than \code{row_tol} are discarded, because they correspond to variables
-that take negligible part in any dependency relation.
+If A has no row names or column names, the print method reports
+row/column numbers instead.
 }
 \examples{
 
@@ -62,4 +97,8 @@ mdl$solve()
 fit_jac <- mdl$get_fit_jac()
 print(fit_jac)
 svd_analysis(fit_jac)
+}
+\seealso{
+\code{\link{get_solve_jac}}, \code{\link{get_fit_jac}}
+and \code{\link{get_jacobian}}.
 }

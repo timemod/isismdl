@@ -516,11 +516,13 @@ NULL
 #' @aliases get_solve_jac get_fit_jac
 #'
 #' @description
-#' Depending on the solve and fit options, \code{\link{solve}} stores the
-#' last computed solve or fit Jacobian in the \code{\link{IsisMdl}} object.
+#' Depending on the solve and fit options `store_jac`, \code{\link{solve}}
+#' stores the last computed solve or fit Jacobian in the \code{\link{IsisMdl}} object.
 #' Methods `get_solve_jac()` and `get_fit_jac()`
 #' can be used to retrieve them; both return `NULL` if the corresponding
 #' `store_jac` option is `FALSE` or not set.
+#' Each call to `solve()` resets any previously stored Jacobians in the
+#' `IsisMdl` object to `NULL`.
 #'
 #' Two separate `store_jac` options exist: one for the solve Jacobian and
 #' one for the fit Jacobian (both default to `FALSE`). They can be set in
@@ -529,9 +531,6 @@ NULL
 #' or by directly specifying the \code{options} argument (for the solve
 #' Jacobian) and the \code{fit_options} argument (for the fit Jacobian) of
 #' method \code{\link{solve}()}.
-#'
-#' Each call to `solve()` resets any previously stored Jacobians in the
-#' `IsisMdl` object to `NULL`.
 #'
 #' The **solve Jacobian** is computed to numerically solve the feedback
 #' variables using the Broyden method. For models without feedback
@@ -544,7 +543,8 @@ NULL
 #' These Jacobians can be used, for example, to diagnose numerical
 #' problems such as matrix singularity. One approach is Singular Value
 #' Decomposition (SVD), as explained in Vignette
-#' \href{../doc/svd_analysis.pdf}{\emph{"SVD Analysis"}}.
+#' \href{../doc/svd_analysis.pdf}{\emph{"SVD Analysis"}}, for which
+#' function \code{\link{svd_analysis}} may be used.
 #'
 #' @section Usage:
 #' \preformatted{
@@ -553,8 +553,8 @@ NULL
 #' }
 #' where \code{mdl} is an \code{\link{IsisMdl}} object.
 #'
-#' @seealso \code{\link{set_solve_options}}, \code{\link{set_fit_options}}
-#'           and \code{\link{get_jacobian}}.
+#' @seealso \code{\link{set_solve_options}}, \code{\link{set_fit_options}},
+#'           \code{\link{get_jacobian}} and \code{\link{svd_analysis}}.
 #' @examples
 #' mdl <- islm_mdl(period = "2016Q1/2016Q2")
 #' # solve the model; option prijac prints each calculated Jacobian
@@ -572,6 +572,12 @@ NULL
 #' matrix from the last numerical solution of methods
 #' \code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}.
 #'
+#' This Jacobian can be used, for example, to diagnose numerical
+#' problems such as matrix singularity. One approach is Singular Value
+#' Decomposition (SVD), as explained in Vignette
+#' \href{../doc/svd_analysis.pdf}{\emph{"SVD Analysis"}}, for which
+#' function \code{\link{svd_analysis}} may be used.
+#'
 #' @section Usage:
 #' \preformatted{
 #' mdl$get_jacobian()
@@ -580,7 +586,8 @@ NULL
 #'
 #' \code{mdl} is an \code{IsisMdl} object
 #'
-#' @seealso \code{\link{get_solve_jac}} and \code{\link{get_fit_jac}}.
+#' @seealso \code{\link{get_solve_jac}}, \code{\link{get_fit_jac}} and
+#' and \code{\link{svd_analysis}}.
 NULL
 
 #' \code{\link{IsisMdl}} method: Solves the model.

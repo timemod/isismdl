@@ -52,9 +52,16 @@ test_that("test2 (severer singular case, solution not possible)", {
   expect_identical(mdl2$get_solve_status(), "Simulation not possible")
   expect_false(isTRUE(all.equal(mdl2$get_data(pattern = "^w\\d"), fit)))
 
-  mdl2$set_fit_options(chkjac = FALSE, maxiter = 2)
+  mdl2$set_fit_options(chkjac = FALSE, maxiter = 2, store_jac = TRUE)
 
   expect_warning(mdl2$solve(options = list(report = "none")),
                  "Simulation stopped")
   expect_identical(mdl2$get_solve_status(), "Simulation stopped")
+
+  fit_jac <- mdl2$get_fit_jac()
+  result <- svd_analysis(fit_jac)
+  expect_equal(result$rank, 5)
+  expect_true(length(result$small_sv) == 1)
+  expect_equal(result$lin_dep_rows, c(3, 5))
+  expect_equal(result$lin_dep_cols, 1:6)
 })

@@ -8,6 +8,12 @@ of \code{fill_mdl_data} or \code{solve_exo}}
 This method of R6 class \code{\link{IsisMdl}} returns the Jacobian
 matrix from the last numerical solution of methods
 \code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}.
+
+This Jacobian can be used, for example, to diagnose numerical
+problems such as matrix singularity. One approach is Singular Value
+Decomposition (SVD), as explained in Vignette
+\href{../doc/svd_analysis.pdf}{\emph{"SVD Analysis"}}, for which
+function \code{\link{svd_analysis}} may be used.
 }
 \section{Usage}{
 
@@ -20,5 +26,6 @@ mdl$get_jacobian()
 }
 
 \seealso{
-\code{\link{get_solve_jac}} and \code{\link{get_fit_jac}}.
+\code{\link{get_solve_jac}}, \code{\link{get_fit_jac}} and
+and \code{\link{svd_analysis}}.
 }

@@ -22,7 +22,7 @@ mdl$set_rms(rms)
 test_that("row with almost zeros", {
   mdl2 <- mdl$copy()
   mdl2$set_param(list(r2 = c(0, 0, 1e-9, 0, 0, 0)))
-  mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE)
+  mdl2$set_fit_options(scale_method = "none", warn_ca = FALSE, store_jac = TRUE)
 
   # without row scaling simulation is not possible
   expect_warning(
@@ -33,6 +33,7 @@ test_that("row with almost zeros", {
                       "expected_output/square_zero_rows_rep1.txt",
                       update = update_expected,
                       replace_all_numbers = TRUE)
+
 
   # without row scaling simulation is not possible
   expect_warning(
@@ -57,6 +58,24 @@ test_that("row with almost zeros", {
   expect_silent(mdl2$solve(options = list(report = "none")))
   expect_identical(mdl2$get_solve_status(), "OK")
   expect_equal(mdl2$get_data(pattern = "^w\\d"), fit, tolerance = 1e-6)
+
+  # svd_analysis
+  fit_jac <- mdl2$get_fit_jac()
+  result <- svd_analysis(fit_jac)
+  expect_equal(result$rank, 5)
+  expect_true(length(result$small_sv) == 1)
+  expect_equal(result$lin_dep_rows, 2)
+  expect_equal(result$lin_dep_cols, 1:6)
+  expect_equal(result$zero_rows, 2)
+  expect_equal(length(result$zero_cols), 0)
+
+  result2 <- svd_analysis(fit_jac, zero_tol = 1e-12)
+  expect_equal(result2$rank, 5)
+  expect_true(length(result2$small_sv) == 1)
+  expect_equal(result2$lin_dep_rows, 2)
+  expect_equal(result2$lin_dep_cols, 1:6)
+  expect_equal(length(result2$zero_rows), 0)
+  expect_equal(length(result2$zero_cols), 0)
 })
 
 test_that("row with only zeros", {
