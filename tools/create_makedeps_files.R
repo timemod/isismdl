@@ -40,10 +40,11 @@ src_pattern <- paste0("\\.",  src_ext_c, "$")
 src_files <- grep(src_pattern, names(deps_c), value = TRUE)
 src_files <- sort(src_files)
 
-write_dep_file_c(
+write_dep_file(
   src_files = src_files,
   dep_file = dep_file_c,
-  g = g
+  g = g,
+  is_f90 = FALSE
 )
 toc()
 
@@ -75,10 +76,11 @@ src_pattern <- paste0("\\.",  src_ext_f90, "$")
 src_files <- grep(src_pattern, names(deps_f90), value = TRUE)
 src_files <- sort(src_files)
 
-write_dep_file_f90(
+write_dep_file(
   src_files = src_files,
   dep_file = dep_file_f90,
-  g = g_f90
+  g = g_f90,
+  is_f90 = TRUE
 )
 toc()
 
