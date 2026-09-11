@@ -72,18 +72,24 @@ test_that("vector_tol", {
   rownames(A) <- c("r1", "r2", "r3", "r4")
   colnames(A) <- c("c1", "c2", "c3")
 
-  result <- svd_analysis(A, vector_tol = 1)
+  result <- svd_analysis(A, vector_tol = 0)
 
   expect_equal(result$A, A)
   expect_equal(result$rank, 1)
   # Matrix has rank 1, so there should be 2 small singular values (min(4,3)-1 = 2)
   expect_true(length(result$small_sv) >= 2)
-  expect_equal(dim(result$U_small), c(0, 2))
-  expect_equal(dim(result$V_small), c(0, 2))
-  expect_equal(length(result$lin_dep_rows), 0)
-  expect_equal(length(result$lin_dep_cols), 0)
+  expect_equal(dim(result$U_small), c(4, 2))
+  expect_equal(dim(result$V_small), c(3, 2))
+  expect_equal(result$lin_dep_rows, 1:4)
+  expect_equal(result$lin_dep_cols, 1:3)
   expect_equal(result$zero_rows, 4)
   expect_equal(length(result$zero_cols), 0)
+
+  result2 <- svd_analysis(A, vector_tol = 1)
+  expect_equal(dim(result2$U_small), c(0, 2))
+  expect_equal(dim(result2$V_small), c(0, 2))
+  expect_equal(length(result2$lin_dep_rows), 0)
+  expect_equal(length(result2$lin_dep_cols), 0)
 })
 
 test_that("svd_analysis throws error for non-numeric input", {
