@@ -90,9 +90,11 @@ test:
 test_covr:
 	R --slave -f  test_covr.R
 
-check: cleanx syntax
+makedeps: install_deps
+	R --slave -f tools/create_makedeps_files.R
+
+check: cleanx syntax makedeps
 	@echo " *** Running R CMD check ***"
-	$(MAKE) -f Makedeps
 	R CMD build $(PKGDIR)
 	R CMD check $(RCHECKARG) $(PKGTAR)
 	@rm -f  $(PKGTAR)
@@ -124,25 +126,21 @@ else
 	./drat.sh --pkg=$(PKGTAR)
 endif
 
-bin: install_deps
-	$(MAKE) -f Makedeps
+bin: install_deps makedeps
 	-@rm -rf tmp
 	mkdir tmp
 	R CMD build $(PKGDIR)
 	R CMD INSTALL $(INSTALL_FLAGS) -l ./tmp --build $(PKGTAR)
 
-document: install_deps
-	$(MAKE) -f Makedeps
+document: install_deps makdeps
 	-@rm -f refman.pdf
 	R -e "devtools::document('"$(PKGDIR)"')"
 	R CMD Rd2pdf --no-preview $(PKGDIR) -o refman.pdf 2>&1 > refman.log
 
-install: install_deps
-	$(MAKE) -f Makedeps
+install: install_deps makedeps
 	R CMD INSTALL $(INSTALL_FLAGS) $(PKGDIR)
 
-installv: install_deps
-	$(MAKE) -f Makedeps
+installv: install_deps makedeps
 	R CMD build $(PKGDIR)
 	R CMD INSTALL $(INSTALL_FLAGS) $(PKGTAR)
 
@@ -167,12 +165,10 @@ else
 	$(BISON_CMD) -Wno-yacc -d -p $(LYPREFIX) -o $(SRC_DIR)/xpctab.c $(LEX_YACC_DIR)/xpctab.y
 endif
 
-makedeps: install_deps
 uninstall:
 	R CMD REMOVE $(PKG)
 
 clean:
-	$(MAKE) -f Makedeps clean
 	rm -fr $(PKGDIR).Rcheck
 	rm -fr tmp
 	rm -f $(PKGTAR)
