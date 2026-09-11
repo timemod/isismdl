@@ -31,7 +31,7 @@ tic("Construct dependency graph for C code")
 to <- rep(names(deps_c), lengths(deps_c))
 from   <- unlist(deps_c, use.names = FALSE)
 edges_df <- unique(data.frame(from = from, to = to, stringsAsFactors = FALSE))
-g <- graph_from_data_frame(edges_df, directed = TRUE)
+g_c <- graph_from_data_frame(edges_df, directed = TRUE)
 toc()
 
 tic("Writing dep_file_c")
@@ -43,7 +43,7 @@ src_files <- sort(src_files)
 write_dep_file(
   src_files = src_files,
   dep_file = dep_file_c,
-  g = g,
+  g = g_c,
   is_f90 = FALSE
 )
 toc()
