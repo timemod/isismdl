@@ -130,7 +130,8 @@ mssolve.o : msbrdn.o msfbvl.o msnwut.o msolot.o msutil.o msvars.o nucnst.o
 msutil.o : kinds.o model_params.o msimob.o msimod.o msolot.o msvars.o nucnst.o \
     nuna.o
 
-msvars.o : kinds.o liqrco.o liqrsq.o mws_type.o solve_options_type.o
+msvars.o : kinds.o liqrco.o liqrsq.o modelworkspaces.o mws_type.o \
+    solve_options_type.o
 
 mws_type.o : kinds.o mdlvars.o model_type.o mws_params.o nucnst.o nuna.o \
     output_utils.o period_type.o solve_options_type.o

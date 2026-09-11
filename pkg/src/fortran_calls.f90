@@ -160,7 +160,6 @@ end subroutine get_rms_fortran
 
 subroutine run_eqn_fortran(model_index, neq, eqnums, jtb, jte, updval_, &
                            by_period_)
-    use modelworkspaces
     use iso_c_binding, only : c_int
     use msruneqn
     integer(c_int), intent(in) :: model_index, neq, jtb, jte
@@ -176,33 +175,27 @@ subroutine run_eqn_fortran(model_index, neq, eqnums, jtb, jte, updval_, &
     updval = updval_ /= 0
     by_period = by_period_ /= 0
 
-    call run_eqn(mws_array(model_index), neq, eqnums, jtb, jte, updval, &
-                 by_period)
+    call run_eqn(model_index, neq, eqnums, jtb, jte, updval, by_period)
 
 end subroutine run_eqn_fortran
 
 ! initialise solve_options in msvars
 subroutine msoptsinit_wrap(model_index)
-    use modelworkspaces
     use iso_c_binding, only : c_int
     use msvars, only : msoptsinit
     integer(c_int), intent(in) :: model_index
-    call msoptsinit(mws_array(model_index)%solve_opts)
+    call msoptsinit(model_index)
 end subroutine msoptsinit_wrap
 
 subroutine solve_fortran(model_index, jtb, jte, simerr)
-    use modelworkspaces
     use iso_c_binding, only : c_int
     use msimul
     integer(c_int), intent(in) :: model_index, jtb, jte
     integer(c_int), intent(out) :: simerr
-
-    call simul(mws_array(model_index), jtb, jte, simerr)
-
+    call simul(model_index, jtb, jte, simerr)
 end subroutine solve_fortran
 
 subroutine filmdt_fortran(model_index, jtb, jte, report_type, include_frmls_int)
-    use modelworkspaces
     use msfill
     use iso_c_binding, only : c_int
     integer(c_int), intent(in) :: model_index, jtb, jte, report_type, &
@@ -211,8 +204,7 @@ subroutine filmdt_fortran(model_index, jtb, jte, report_type, include_frmls_int)
     logical:: include_frmls
     include_frmls = include_frmls_int /= 0
 
-    call fill_mdl_data(mws_array(model_index), jtb, jte, report_type, &
-                       include_frmls)
+    call fill_mdl_data(model_index, jtb, jte, report_type, include_frmls)
 
 end subroutine filmdt_fortran
 

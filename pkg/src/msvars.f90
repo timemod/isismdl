@@ -33,19 +33,24 @@ module msvars
 
     contains
 
-        subroutine msoptsinit(opts_in) 
-           type(solve_options), intent(in) :: opts_in 
-           ! create a local copy of the solve options stored in the mws
-           opts = opts_in
+        subroutine msoptsinit(model_index) 
+            use modelworkspaces
+            integer, intent(in) :: model_index
+            ! create a local copy of the solve options stored in the mws
+            ! a local copy is used, because set_solve_options or set_fit_options
+            ! may modify the options is msvars that should not be written to
+            ! the mws
+            opts = mws_array(model_index)%solve_opts
         end subroutine msoptsinit
 
-        subroutine msvarsinit(mws_in)
-            type(modelworkspace), target, intent(inout) :: mws_in
+        subroutine msvarsinit(model_index)
+            use modelworkspaces
+            integer, intent(in) :: model_index
 
             ! initialise msvars except for opts, which is initialized separately in 
             ! subroutine msoptsinit
 
-            mws => mws_in
+            mws => mws_array(model_index)
             mdl => mws%mdl
 
             ! initialisations

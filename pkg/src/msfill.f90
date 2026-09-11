@@ -5,11 +5,10 @@ integer, parameter, private :: MIN_REP    = 2  ! minimal report
 integer, parameter, private :: PERIOD_REP = 3  ! report per period
 
 contains
-subroutine fill_mdl_data(mws_in, jt1, jt2, report_type, include_frmls)
+subroutine fill_mdl_data(model_index, jt1, jt2, report_type, include_frmls)
     use msvars
     use msimot
-    type(modelworkspace), target, intent(inout) :: mws_in
-    integer, intent(in) :: jt1, jt2, report_type
+    integer, intent(in) :: model_index, jt1, jt2, report_type
     logical, intent(in) :: include_frmls
 
     ! fills missing values by running identities for period jt1 .. jt2
@@ -21,7 +20,7 @@ subroutine fill_mdl_data(mws_in, jt1, jt2, report_type, include_frmls)
     integer ::  jtime, ngain, tgain, itnum
     logical ::  didfb
 
-    call msvarsinit(mws_in)
+    call msvarsinit(model_index)
 
     call check_active_equations(mws%mdl)
 

@@ -12,14 +12,13 @@ module msimul
 
     contains
     
-    subroutine simul(mws_in, jtb, jte, simerr)
+    subroutine simul(model_index, jtb, jte, simerr)
     use msutil
     use msimot
     use msfitm
     use msfix
     use nucnst
-    type(modelworkspace), target, intent(inout) :: mws_in
-    integer, intent(in) :: jtb, jte
+    integer, intent(in) :: model_index, jtb, jte
     integer, intent(out) :: simerr
     
     !     simulates the model under current settings
@@ -50,7 +49,7 @@ module msimul
     ndiver = 0
     retcod = 0 
 
-    call msvarsinit(mws_in)
+    call msvarsinit(model_index)
 
     call check_active_equations(mws%mdl)
 

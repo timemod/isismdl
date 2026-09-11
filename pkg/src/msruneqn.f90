@@ -5,9 +5,8 @@ private :: solve_equation
 
 contains
 
-subroutine run_eqn(mws_in, neq, eqnums, jtb, jte, updval, by_period)
-    type(modelworkspace), target, intent(inout) :: mws_in
-    integer, intent(in) :: neq, eqnums(neq), jtb, jte
+subroutine run_eqn(model_index, neq, eqnums, jtb, jte, updval, by_period)
+    integer, intent(in) :: model_index, neq, eqnums(neq), jtb, jte
     logical, intent(in) :: updval, by_period
   
     !
@@ -16,7 +15,7 @@ subroutine run_eqn(mws_in, neq, eqnums, jtb, jte, updval, by_period)
 
     integer :: ieq, errflg, step, j
 
-    call msvarsinit(mws_in)
+    call msvarsinit(model_index)
 
     if (by_period) then
         ! the inner loop is over the equations
