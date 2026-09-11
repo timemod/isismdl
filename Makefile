@@ -132,7 +132,7 @@ bin: install_deps makedeps
 	R CMD build $(PKGDIR)
 	R CMD INSTALL $(INSTALL_FLAGS) -l ./tmp --build $(PKGTAR)
 
-document: install_deps makdeps
+document: install_deps makedeps
 	-@rm -f refman.pdf
 	R -e "devtools::document('"$(PKGDIR)"')"
 	R CMD Rd2pdf --no-preview $(PKGDIR) -o refman.pdf 2>&1 > refman.log

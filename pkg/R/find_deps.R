@@ -29,7 +29,7 @@
 #' @importFrom igraph add_vertices V set_vertex_attr
 #' @importFrom dplyr mutate anti_join
 #' @importFrom rlang .data
-#'
+#' @importFrom utils capture.output
 #' @noRd
 
 find_deps_internal <- function(final_destinations, final_sources = NULL,

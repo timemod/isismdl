@@ -223,20 +223,20 @@ IsisMdl <- R6Class("IsisMdl",
       has_free_mws <- .Call(C_has_free_mws_c)
       if (!has_free_mws) gc(verbose = FALSE)
 
-      if (!silent) {
-        if (reorder_names) {
-          cat(paste0(
-            "\nModel names will be reordered because the IsisMdl ",
-            "object\nwas created with isismdl version < 1.9.0.\n\n"
-          ))
-        }
-        private$model_index <- .Call(C_read_mdl_c, mif_file, reorder_names)
-        cat("\n")
-      } else {
-        output <- capture.output({
-          private$model_index <- .Call(C_read_mdl_c, mif_file, reorder_names)
-        })
+      if (reorder_names && !silent) {
+        cat(
+          "\nModel names will be reordered because the IsisMdl object\n",
+          "was created with isismdl version < 1.9.0.\n\n",
+          sep = ""
+        )
       }
+      if (silent) {
+        null_device <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+        sink(null_device)
+        on.exit(sink(), add = TRUE)
+      }
+      private$model_index <- .Call(C_read_mdl_c, mif_file, reorder_names)
+
       if (!missing(serialized_mdl)) {
         unlink(mif_file)
       }
@@ -1096,13 +1096,11 @@ IsisMdl <- R6Class("IsisMdl",
         return(invisible())
       }
       if (silent) {
-        output <- capture.output({
-          call_order_mdl_c()
-        })
-      } else {
-        call_order_mdl_c()
-        cat("\n")
+        null_device <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+        sink(null_device)
+        on.exit(sink(), add = TRUE)
       }
+      call_order_mdl_c()
       return(invisible(self))
     },
     copy = function() {
