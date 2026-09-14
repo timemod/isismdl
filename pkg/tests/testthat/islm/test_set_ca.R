@@ -4,8 +4,7 @@ library(testthat)
 
 rm(list = ls())
 
-
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 new_ca <-  mdl$get_ca()
 new_ca["2015Q3", "c"] <- NA
@@ -32,6 +31,3 @@ test_that("set_ca update mode updval", {
                        "used.\nThe duplicated names are: c, md\\."))
   expect_equal(mdl2$get_ca(), mdl$get_ca())
 })
-
-
-

@@ -36,13 +36,15 @@ test_that("get_param", {
 
 test_that("warnings and errors for set_param", {
   expect_error(islm_model$set_param(2), "Argument p has no names")
-  expect_error(islm_model$set_param(list(2,3)), "Argument p has no names")
-  expect_warning(islm_model$set_param(list(c0 = 120, xx = c(1,2))),
+  expect_error(islm_model$set_param(list(2, 3)), "Argument p has no names")
+  expect_warning(islm_model$set_param(list(c0 = 120, xx = c(1, 2))),
                  "'xx' is not a parameter")
-  expect_error(islm_model$set_param(list(c0 = 120, xx = c(1,2)), name_err = "stop"),
+  expect_error(islm_model$set_param(list(c0 = 120, xx = c(1, 2)), name_err = "stop"),
                "'xx' is not a parameter")
-  expect_error(islm_model$set_param(list(c0 = c(120, 120))),
-               "Value for parameter c0 has an incorrect length. Required length: 1. Actual length: 2")
+  expect_error(
+    islm_model$set_param(list(c0 = c(120, 120))),
+    "Value for parameter c0 has an incorrect length. Required length: 1. Actual length: 2"
+  )
   expect_error(islm_model$set_param(list(c0 = "xxx", i1 = 2)),
                "'c0' is not numeric")
   expect_error(islm_model$set_param(list(c0 = "xxx", i1 = FALSE)),
@@ -85,8 +87,10 @@ test_that("set_param_values", {
   #
   expect_error(islm_model$set_param_values("xxx"),
                "Argument 'value' should be a numeric vector")
-  expect_error(islm_model$set_param_values(1:2),
-               "Value for parameter c0 has an incorrect length. Required length: 1. Actual length: 2")
+  expect_error(
+    islm_model$set_param_values(1:2),
+    "Value for parameter c0 has an incorrect length. Required length: 1. Actual length: 2"
+  )
   expect_error(islm_model$set_param_values(3, names = "xxx"),
                "'xxx' is not a parameter.")
 })

@@ -51,12 +51,12 @@ subroutine msbstp
     
     ! fbwork = - trans(Q) * f
     call dgemm('T', 'N', mdl%nfb, 1_LAPACK_IKIND, mdl%nfb, Rone, &
-    &         jacob, jacdim, fbstep, mdl%nfb, Rzero, fbwork, mdl%nfb)
+    &         jacob, mdl%nfb, fbstep, mdl%nfb, Rzero, fbwork, mdl%nfb)
     ! **** solve R * fbstep = fbwork
     call dcopy(mdl%nfb, fbwork, 1_LAPACK_IKIND, fbstep, &
     &          1_LAPACK_IKIND)
     call dtrtrs('U', 'N', 'N', mdl%nfb, 1_LAPACK_IKIND, &
-    &           jacob(1, mdl%nfb + 1), jacdim, fbstep, mdl%nfb, info)
+    &           jacob(1, mdl%nfb + 1), mdl%nfb, fbstep, mdl%nfb, info)
     
     ! unscale stepsize + calculate new fb values
     
@@ -75,7 +75,6 @@ subroutine msbjac(retcod, itr)
 use msnwut
 use msjcot
 use liqrco
-use svd_anal
 integer, intent(out) :: retcod
 integer, intent(in) :: itr
 
@@ -92,21 +91,20 @@ integer ::   matitr, ier
 integer(kind = LAPACK_IKIND) :: j, info
 
 real(kind = ISIS_RKIND), dimension(:,:), allocatable :: jac
-integer ::  i, stat, svd_err
+integer ::  i, stat
 
 !
 ! allocate jacobian if required
 !
 if (.not. allocated(jacob)) then
-    jacdim = mdl%nfb
-    allocate(jacob(jacdim, 2 * mdl%nfb), stat = stat)
+    allocate(jacob(mdl%nfb, 2 * mdl%nfb), stat = stat)
     if (stat /= 0) then
         call jacot7
         retcod = 10
         return
     endif
-    jacob = 0
 endif
+jacob = 0
 
 
 ! generate jacobian for feedback variables
@@ -116,25 +114,9 @@ endif
 call msjac(retcod, itr, matitr)
 if (retcod /= 0) return
 
-if (opts%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
-    !  save Jacobian for svd analysis
-    allocate(jac(mdl%nfb, mdl%nfb), stat = stat)
-    if (stat /= 0) then
-        !call svdot1
-        retcod = 10
-        return
-    endif
-    do i = 1, mdl%nfb
-        do j = 1, mdl%nfb
-            jac(i, j) = jacob(i, j)
-        enddo
-     enddo
-endif
-
-
 ! QR decomposition of scaled jacobian
 ! estimate inverse condition of R ==> inverse condition of jacobian
-call qrco(jacob, jacdim, mdl%nfb, mdl%nfb, fbwork, rcond, la_work, la_lwork)
+call qrco(jacob, mdl%nfb, mdl%nfb, mdl%nfb, fbwork, rcond, la_work, la_lwork)
 
 if( Rone + rcond == Rone) then
    ier = 1
@@ -144,36 +126,21 @@ endif
 
 call jacot2(matitr, itr, rcond)
 
-if (rcond <= opts%svdtest_tol .and. opts%repopt /= REP_NONE) then
-    call svd_analysis(jac, mdl%nfb, mdl%nfb, mdl%nfb, mdl%numfb, &
-                      mdl%numfb, .false., opts%svdtest_tol, svd_err)
-    svd_err = 0
-else
-    svd_err = 0
-endif
-if (opts%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
-    deallocate(jac, stat = stat)
-endif
-if (svd_err == 1) then
-    retcod = 10
-    return
-endif
-
 if (ier /= 0) then
     call jacot5(ier)
     retcod = 1
     return
 endif
 
-!     copy the upper triangular part of a QR decomposition
-!     contained in Rjac into Rjac(,n+1..)
-!     generate full Q
+! copy the upper triangular part of a QR decomposition
+! contained in Rjac into Rjac(,n+1..)
+! generate full Q
 
 do j = 1, mdl%nfb
     call dcopy(j, jacob(1,j), 1_LAPACK_IKIND, jacob(1,j + mdl%nfb), &
 &              1_LAPACK_IKIND)
 enddo
-call dorgqr(mdl%nfb, mdl%nfb, mdl%nfb, jacob, jacdim, fbwork, &
+call dorgqr(mdl%nfb, mdl%nfb, mdl%nfb, jacob, mdl%nfb, fbwork, &
 &           la_work, la_lwork, info)
 
 !     jacob(1..n,1  ..n ) contains expanded Q

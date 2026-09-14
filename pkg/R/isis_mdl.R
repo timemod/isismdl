@@ -142,7 +142,6 @@
 #' @importFrom regts end_period
 #' @importFrom readr read_file
 #' @importFrom tools file_ext
-#' @importFrom utils capture.output
 #' @export
 isis_mdl <- function(model_file, period, data, ca, fix_values,
                      parse_options, silent = FALSE, model_text) {

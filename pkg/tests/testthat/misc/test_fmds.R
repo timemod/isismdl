@@ -144,12 +144,17 @@ test_that("fill_mdl_data_solve handles solve_df without initial_guess column", {
     test_period,        "C",   "obs3",            "y3",            "invalid"
   )
 
-  expect_error({
-    mdl_solved <- mdl$fill_mdl_data_solve(
-      solve_df = solve_df3,
-      report = "no"
-    )
-  }, "Use only numerical or NA values in the initial_guess column.\nOffending values at rows: 1, 2, 3", fixed = TRUE)
+  expect_error(
+    {
+      mdl_solved <- mdl$fill_mdl_data_solve(
+        solve_df = solve_df3,
+        report = "no"
+      )
+    },
+    paste0("Use only numerical or NA values in the initial_guess column.\n",
+           "Offending values at rows: 1, 2, 3"),
+    fixed = TRUE
+  )
 })
 
 test_that("fill_mdl_data_solve validates initial_guess values", {
@@ -300,8 +305,8 @@ test_that("fill_mdl_data_solve errors when model has feedback variables", {
   mdl <- isismdl::isis_mdl(model_text = mdl_content, period = "2020", silent = TRUE)
 
   solve_df <- tribble(
-    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
-    "2020"        , "A"    , "obs"              , "y"             , 0.1
+    ~solve_period, ~group,  ~observed_variable, ~solve_variable, ~initial_guess,
+    "2020",            "A",               "obs",             "y",            0.1
   )
 
   expect_error(
@@ -313,6 +318,7 @@ test_that("fill_mdl_data_solve errors when model has feedback variables", {
     fixed = TRUE
   )
 })
+
 test_that("fill_mdl_data_solve errors when solve variable is not NA", {
   mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
   var_names <- mdl$get_var_names()
@@ -329,14 +335,14 @@ test_that("fill_mdl_data_solve errors when solve variable is not NA", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-      paste0(
-        "Some solve variables are not NA. Non-NA values for the following variables and periods:\n",
-        "  solve_variable solve_period\n",
-        "1             y1         2011"
-      ),
-      fixed = TRUE
-    )
-  })
+    paste0(
+      "Some solve variables are not NA. Non-NA values for the following variables and periods:\n",
+      "  solve_variable solve_period\n",
+      "1             y1         2011"
+    ),
+    fixed = TRUE
+  )
+})
 
 test_that("fill_mdl_data_solve reports multiple non-NA solve variables", {
   mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
@@ -356,15 +362,15 @@ test_that("fill_mdl_data_solve reports multiple non-NA solve variables", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-      paste0(
-        "Some solve variables are not NA. Non-NA values for the following variables and periods:\n",
-        "  solve_variable solve_period\n",
-        "1             y1         2011\n",
-        "2             y2         2012"
-      ),
-      fixed = TRUE
-    )
-  })
+    paste0(
+      "Some solve variables are not NA. Non-NA values for the following variables and periods:\n",
+      "  solve_variable solve_period\n",
+      "1             y1         2011\n",
+      "2             y2         2012"
+    ),
+    fixed = TRUE
+  )
+})
 
 test_that("fill_mdl_data_solve errors when variables are not endogenous", {
   mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
@@ -407,8 +413,8 @@ test_that("fill_mdl_data_solve errors when model has leads", {
   mdl <- isismdl::isis_mdl(model_text = mdl_content, period = "2020/2021", silent = TRUE)
 
   solve_df <- tribble(
-    ~solve_period , ~group , ~observed_variable , ~solve_variable , ~initial_guess ,
-    "2020"        , "A"    , "obs"              , "y"             , 0.1
+    ~solve_period, ~group, ~observed_variable, ~solve_variable, ~initial_guess,
+    "2020",            "A",             "obs",              "y",           0.1
   )
 
   expect_error(
@@ -436,7 +442,10 @@ test_that("fill_mdl_data_solve errors when solve_period is outside period argume
 
   expect_error(
     mdl$fill_mdl_data_solve(period = "2011/2012", solve_df = solve_df, report = "no"),
-    "One or more solve periods in solve_df are outside the specified period range (2011/2012). Offending periods:\n 2013",
+    paste(
+      "One or more solve periods in solve_df are outside the specified period range (2011/2012).",
+      "Offending periods:\n 2013"
+    ),
     fixed = TRUE
   )
 })
@@ -457,14 +466,14 @@ test_that("fill_mdl_data_solve errors when observed variable is NA", {
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-      paste0(
-        "Some observed variables are NA. NA values for the following variables and periods:\n",
-        "  observed_variable solve_period\n",
-        "1              obs3         2011"
-      ),
-      fixed = TRUE
-    )
-  })
+    paste0(
+      "Some observed variables are NA. NA values for the following variables and periods:\n",
+      "  observed_variable solve_period\n",
+      "1              obs3         2011"
+    ),
+    fixed = TRUE
+  )
+})
 
 test_that("fill_mdl_data_solve errors when solve_df$observed_variable contains NA", {
   mdl <- isis_mdl(model_text = simple_lag_model_text, period = period, silent = TRUE)
@@ -519,7 +528,8 @@ test_that("fill_mdl_data_solve errors when solve_df contains duplicate observed 
 
   expect_error(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "no"),
-    "The following observed variables are specified more than once for the same period:\nobs1[2011].",
+    paste0("The following observed variables are specified more than once for ",
+           "the same period:\nobs1[2011]."),
     fixed = TRUE
   )
 })
@@ -628,7 +638,7 @@ test_that("fill_mdl_data_solve: print_jacobian prints when TRUE, silent when FAL
   # Note: report must be "period" for Jacobian to be printed.
   output_printed <- capture.output(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "period",
-                             jacobian = TRUE, print_jacobian = TRUE)
+                            jacobian = TRUE, print_jacobian = TRUE)
   )
   expect_true(any(grepl("Final estimated jacobian matrix:", output_printed)))
 
@@ -636,7 +646,7 @@ test_that("fill_mdl_data_solve: print_jacobian prints when TRUE, silent when FAL
   mdl$init_data(data = data_init)
   output_silent <- capture.output(
     mdl$fill_mdl_data_solve(solve_df = solve_df, report = "period",
-                             jacobian = TRUE, print_jacobian = FALSE)
+                            jacobian = TRUE, print_jacobian = FALSE)
   )
   expect_false(any(grepl("Final estimated jacobian matrix:", output_silent)))
 })

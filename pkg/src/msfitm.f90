@@ -28,10 +28,11 @@ module msfitm
 &           save :: w, delw, dddelw, b, du0, djtau, delu, resold, &
 &                   zsav, work_fit, u_scale, w_scale, dj_rownorm, dj_colnorm
     real(kind = SOLVE_RKIND), dimension(:, :), allocatable, private, save :: dj, fit_jac
+    logical, private, save :: fit_jac_stored = .false.
 
     private allocate_fit_work, allocate_fit_mat, get_nw_max, fitone, mkdelw, mkdelu, &
             mkb, mkdu0, mkdjac, mkdqr, mdlpas, msfuck, wfinit, msgstp, &
-            msgjac, get_lwork_fit
+            msgjac, get_lwork_fit, clear_fit_jac
 
 
 contains
@@ -94,8 +95,8 @@ contains
         endif
 
         ! allocate fit_jac, which will be used to save a copy of the fit
-        ! jacobian for the svd analysis
-        if (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
+        ! jacobian.
+        if (opts%fit%store_jac) then
             allocate(fit_jac(nw_max, nu_max), stat = stat)
             if (stat /= 0) then
                call clear_fit_work
@@ -253,11 +254,19 @@ contains
 
     end subroutine prepare_fit
 
-    subroutine clear_fit_work
+    subroutine clear_fit_work(do_clear_fit_jac)
 
-        if (allocated(numu))             deallocate(numu)
+        logical, intent(in), optional :: do_clear_fit_jac
+
+        logical :: do_clear_fit_jac_local
+
+        if (present(do_clear_fit_jac)) then
+            do_clear_fit_jac_local = do_clear_fit_jac
+        else 
+            do_clear_fit_jac_local = .true.
+        endif
+
         if (allocated(numr))             deallocate(numr)
-        if (allocated(numw))             deallocate(numw)
         if (allocated(numu_tot))         deallocate(numu_tot)
         if (allocated(numu_fixed))       deallocate(numu_fixed)
         if (allocated(numu_fixed_prev))  deallocate(numu_fixed_prev)
@@ -276,15 +285,23 @@ contains
         if (allocated(dj))               deallocate(dj)
         if (allocated(dj_rownorm))       deallocate(dj_rownorm)
         if (allocated(dj_colnorm))       deallocate(dj_colnorm)
-        if (allocated(fit_jac))          deallocate(fit_jac)
 
+        nfixed = 0
+        lwork_fit = 0
+
+        if (do_clear_fit_jac_local) call clear_fit_jac
+    end subroutine clear_fit_work
+
+    subroutine clear_fit_jac
         nu = 0
         nw = 0
         nu_max = 0
         nw_max = 0
-        nfixed = 0
-        lwork_fit = 0
-    end subroutine clear_fit_work
+        fit_jac_stored = .false.
+        if (allocated(numu))    deallocate(numu)
+        if (allocated(numw))    deallocate(numw)
+        if (allocated(fit_jac)) deallocate(fit_jac)
+    end subroutine clear_fit_jac
 
 !-----------------------------------------------------------------------
 
@@ -297,6 +314,11 @@ contains
         ! To understand what is going on in this code you
         ! must read the separate paper detailing the mathematics of the
         ! Fit procedure
+
+        !     retcod <> 0 implies an error has occurred
+        !     retcod 1 : simulation not possible
+        !     retcod 2 : simulation stopped
+        !     retcod 6 : out of memory
         
         ! initialize arrays for period jt (with checks)
         call wfinit(jt, fiterr, quit)
@@ -329,12 +351,11 @@ contains
 
     !-----------------------------------------------------------------------
     
-    subroutine fitone(retcod,ndiver)
+    subroutine fitone(retcod, ndiver)
         use msvars
         use msutil
         use msnwut
         use mssolve
-        use svd_anal
         
         !     Solves the model for current period jc with constraints
         !     on some endogenous variables.
@@ -349,9 +370,10 @@ contains
         !     Minimum residuals to that effect are stored in CA.
         !     The solution is stored in Z.
         
-        !     retcod <> 0 impies an error has occurred
+        !     retcod <> 0 implies an error has occurred
         !     retcod 1 : simulation not possible
         !     retcod 2 : simulation stopped
+        !     retcod 6 : out of memory
         
         integer, intent(inout) :: ndiver
         integer, intent(inout) :: retcod
@@ -364,12 +386,12 @@ contains
         parameter(Qzero = 0.0_SOLVE_RKIND)
         
         logical ::  deval, devalp, fcvgd,prihdr, zealous
-        integer ::  i, j
+        integer ::  i
         integer ::  fiscod,fiter,wmxidx,wmxtyp,djcnt, smxidx, smxtyp
         integer ::  xcod
-        real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, svd_tol, delsmx, &
+        real(kind = ISIS_RKIND) :: delwmx, dlwmxp, dcond, delsmx, &
                                    delsmxp
-        integer :: svd_err, stat, matitr, deltyp, deltypp
+        integer :: stat, matitr, deltyp, deltypp
         logical :: error
 
         !     fiscod is fit iteration status
@@ -419,7 +441,7 @@ contains
         if (.not. allocated(dj)) then
             call allocate_fit_mat(stat)
             if (stat /= 0) then
-                retcod = 2
+                retcod = 6
                 return
             endif
         endif
@@ -454,28 +476,14 @@ contains
                ! compute D*u = trans(Dj)*u
                if (.not. is_square) call mkdu0(ca, delu)
         
-               if (opts%fit%svdtest_tol >= 0 .and. opts%repopt /= REP_NONE) then
-                   ! Save a copy of matrix dj for the svdtest in cause of problems
-                   do i = 1, nw
-                      do j = 1, nu
-                          fit_jac(i, j) = dj(j, i)
-                      end do
-                   end do
+               if (opts%fit%store_jac) then
+                   ! Save a copy of the fit jacobian
+                   fit_jac(1:nw, 1:nu) = transpose(dj(1:nu, 1:nw))
+                   fit_jac_stored = .true.
                endif
        
                ! QR factorize Dj
                call mkdqr(dcond, opts%fit%chkjac, xcod)
-        
-               if (dcond <= opts%fit%svdtest_tol .and. opts%repopt /= REP_NONE) then
-                   svd_tol = max(opts%fit%svdtest_tol, sqrt(Rmeps))
-                   call svd_analysis(fit_jac, nw_max, nw,  nu, numw, numu, &
-                                     .true., svd_tol, svd_err)
-                   if (svd_err /= 0) then
-                       retcod = 2
-                       return
-                   endif
-               endif
-
                if (xcod /= 0) goto 9000
             endif
         
@@ -1326,5 +1334,31 @@ contains
         get_lwork_fit = max(lwrk1, lwrk2)
         return
     end function get_lwork_fit
+    
+    !-----------------------------------------------------------------------
+
+    subroutine get_fit_jac_dim(nu_out, nw_out)
+      integer, intent(out) :: nu_out, nw_out
+      if (fit_jac_stored) then
+          nu_out = nu
+          nw_out = nw
+      else 
+          nu_out = 0
+          nw_out = 0
+      endif
+    end subroutine get_fit_jac_dim
+
+    subroutine get_fit_jac_info(numu_out, numw_out, jac)
+      integer, intent(out) :: numu_out(:), numw_out(:)
+      real(kind = SOLVE_RKIND), intent(out) :: jac(:, :)
+
+      numu_out = numu(1:nu)
+      numw_out = numw(1:nw)
+      jac = fit_jac(1:nw, 1:nu)
+
+      ! now we can deallocate the fit jacobian
+      call clear_fit_jac
+
+    end subroutine get_fit_jac_info
 
 end module msfitm

@@ -510,13 +510,74 @@ NULL
 #' @seealso \code{\link{set_period}}
 NULL
 
+#' \code{\link{IsisMdl}} method: Return the Last Computed Solve or Fit Jacobian
+#'
+#' @name get_jac-methods
+#' @aliases get_solve_jac get_fit_jac
+#'
+#' @description
+#' Depending on the solve and fit options `store_jac`, \code{\link{solve}}
+#' stores the last computed solve or fit Jacobian in the \code{\link{IsisMdl}} object.
+#' Methods `get_solve_jac()` and `get_fit_jac()`
+#' can be used to retrieve them; both return `NULL` if the corresponding
+#' `store_jac` option is `FALSE` or not set.
+#' Each call to `solve()` resets any previously stored Jacobians in the
+#' `IsisMdl` object to `NULL`.
+#'
+#' Two separate `store_jac` options exist: one for the solve Jacobian and
+#' one for the fit Jacobian. Both default to `FALSE` and can be set in two ways:
+#' \itemize{
+#'   \item \strong{Solve Jacobian}: use method \code{\link{set_solve_options}()}
+#'         or the \code{options} argument of method \code{\link{solve}()}.
+#'   \item \strong{Fit Jacobian}: use method \code{\link{set_fit_options}()}
+#'         or the \code{fit_options} argument of method \code{\link{solve}()}.
+#' }
+#'
+#' The **solve Jacobian** is computed to numerically solve the feedback
+#' variables using the Broyden method. For models without feedback
+#' variables, `get_solve_jac()` returns `NULL`.
+#'
+#' The **fit Jacobian** is used during the fit procedure. If the fit
+#' procedure was not executed in the most recent call to `solve()`,
+#' `get_fit_jac()` returns `NULL`.
+#'
+#' These Jacobians can be used, for example, to diagnose numerical
+#' problems such as matrix singularity. One approach is Singular Value
+#' Decomposition (SVD), as explained in Vignette
+#' \href{../doc/svd_analysis.pdf}{\emph{"SVD Analysis"}}, for which
+#' function \code{\link{svd_analysis}} may be used.
+#'
+#' @section Usage:
+#' \preformatted{
+#' mdl$get_solve_jac() # solve Jacobian
+#' mdl$get_fit_jac()   # fit Jacobian
+#' }
+#' where \code{mdl} is an \code{\link{IsisMdl}} object.
+#'
+#' @seealso \code{\link{set_solve_options}}, \code{\link{set_fit_options}},
+#'           \code{\link{get_jacobian}} and \code{\link{svd_analysis}}.
+#' @examples
+#' mdl <- islm_mdl(period = "2016Q1/2016Q2")
+#' # solve the model; option prijac prints each calculated Jacobian
+#' # to the standard output
+#' mdl$solve(options = list(store_jac = TRUE, dbgopt = "prijac"))
+#' print(mdl$get_solve_jac())
+NULL
+
 #' \code{\link{IsisMdl}} method: returns the Jacobian matrix from the last numerical solution
+#' of `fill_mdl_data` or `solve_exo`
 #' @name get_jacobian
 #'
 #' @description
 #' This method of R6 class \code{\link{IsisMdl}} returns the Jacobian
-#' matrix from the last numerical solution (currently only for
-#' \code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}).
+#' matrix from the last numerical solution of methods
+#' \code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}.
+#'
+#' This Jacobian can be used, for example, to diagnose numerical
+#' problems such as matrix singularity. One approach is Singular Value
+#' Decomposition (SVD), as explained in Vignette
+#' \href{../doc/svd_analysis.pdf}{\emph{"SVD Analysis"}}, for which
+#' function \code{\link{svd_analysis}} may be used.
 #'
 #' @section Usage:
 #' \preformatted{
@@ -525,6 +586,9 @@ NULL
 #' }
 #'
 #' \code{mdl} is an \code{IsisMdl} object
+#'
+#' @seealso \code{\link{get_solve_jac}}, \code{\link{get_fit_jac}} and
+#' and \code{\link{svd_analysis}}.
 NULL
 
 #' \code{\link{IsisMdl}} method: Solves the model.
@@ -638,6 +702,7 @@ NULL
 #'  * \code{"Fair-Taylor has not converged"}
 #'  * \code{"Out of memory. Simulation not successful"}
 #'  * \code{"Unknown problem in solve. Simulation not successful"}
+#'  * \code{"Unknown"} (this signifies an internal error)
 #'
 #' @seealso \code{\link{solve}}, \code{\link{solve_exo}},
 #' \code{\link{fill_mdl_data_solve}}, and \code{\link{fill_mdl_data}}.
@@ -1748,7 +1813,7 @@ NULL
 #'                       rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
 #'                       xmaxiter, xupdate, dbgopt, erropt,
 #'                       report, ratreport, ratreport_rep, ratfullreport_rep,
-#'                       bktmax, xtfac, svdtest_tol)
+#'                       bktmax, xtfac, store_jac)
 #'
 #' mdl$get_solve_options()
 #' }
@@ -1846,18 +1911,9 @@ NULL
 #' Suppose for example that some variable has a convergence criterion of `1e-5`
 #' and assume a value of 10 for the multiplier.
 #' Then its endogenous lead will be regarded as converged.}
-#' \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
-#' parameter.
-#' If the inverse condition of the Jacobian is smaller than this parameter,
-#' then an SVD analysis of the Jacobian is performed. This may help to
-#' find the equations that cause (near) singularity of the Jacobian.
-#' The default value is \code{-1}, which implies that the SVD test is never
-#' performed. Specify a number between 0 and 1 to enable an SVD analysis depending
-#' on the inverse condition of the Jacobian.
-#' When this option has been specified a copy of the Jacobian is kept in memory,
-#' even if the Jacobian is not ill-conditioned.
-#' This option should therefore only be used during testing. It should be turned
-#' off in production calculations.}
+#' \item{\code{store_jac}}{A logical (default `FALSE`). If `TRUE`, the last
+#' computed Jacobian is stored in the `IsisMdl` object. This Jacobian
+#' can be retrieved with method \code{\link{get_solve_jac}()}.}
 #' }
 #'
 #' @section Solution modes:
@@ -1971,7 +2027,7 @@ NULL
 #' The default values for \code{ratreport_rep}  and \code{ratfullreport_rep}
 #' are 1 and \code{NA}, respectively.
 #'
-#' @seealso \code{\link{set_debug_eqn}}
+#' @seealso \code{\link{set_fit_options}} and \code{\link{set_debug_eqn}}.
 #' @examples
 #' mdl <- islm_mdl(period = "2017Q1/2018Q4")
 #' mdl$set_solve_options(maxiter = 100)
@@ -1993,7 +2049,7 @@ NULL
 #' mdl$set_fit_options(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca, warn_ca,
 #'                    accurate_jac, zealous, scale_method,
 #'                    warn_zero_row, warn_zero_col,
-#'                    chkjac, report, dbgopt, svdtest_tol)
+#'                    chkjac, report, dbgopt, store_jac)
 #'
 #' mdl$get_fit_options()
 #'
@@ -2083,21 +2139,10 @@ NULL
 #' (the default, an iteration report is printed for each period)
 #' and  \code{"minimal"} (for a one line summary).}
 #' \item{\code{dbgopt}}{A character vector specifying one or more debugging
-#' options. See section "Debugging Options" below}
-#' \item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
-#' parameter. The default value for argument `svdtest_tol` is \code{-1},
-#' which implies that the SVD test is never performed.
-#' Specify a number between 0 and 1
-#' to enable an SVD analysis, depending on the inverse condition of the Jacobian.
-#' See section "SVD Analysis'.
-#' If scaling has been applied (see argument `scale_method`), then the SVD
-#' analysis is performed for the scaled Jacobian.
-#' Sometimes it is easier to interpret the result of the SVD analysis by turning
-#' off row scaling.
-#' When this option has been specified, a copy of the fit Jacobian is kept in memory,
-#' even if the Jacobian is not ill-conditioned.
-#' For large models this option should therefore only be used during testing,
-#' and should be turned off in production calculations}
+#' options. See section "Debugging Options" below.}
+#' \item{\code{store_jac}}{A logical (default `FALSE`). If `TRUE`, the last
+#' computed fit Jacobian is stored in the `IsisMdl` object. This Jacobian
+#' can be retrieved with method \code{\link{get_fit_jac}()}.}
 #' }
 #'
 #' @section Details:
@@ -2237,64 +2282,14 @@ NULL
 #' }
 #' The default debug options are \code{c("noprica", "noprijac", "supsot")}
 #'
-#' @section SVD Analysis:
-#'
-#' If the inverse condition of the fit Jacobian is exactly zero,
-#' then it is impossible to solve the equations of the fit procedure,
-#' and the fit procedure is terminated. When the inverse condition
-#' is small but non-zero, the solution is often inaccurate or even unstable.
-#' In some cases the (near) singularity is caused by (almost) zero rows
-#' or columns of the fit Jacobian.  It is also possible that
-#' some rows or columns are linearly dependent. The example below shows
-#' a case where the rows are dependent.
-#'
-#' The Singular Value Decomposition (SVD) (see the Wikipedia article
-#' about SVD (\url{https://en.wikipedia.org/wiki/Singular_value_decomposition})
-#' may help to find the linear dependent rows and columns. The SVD analysis can be
-#' enabled by specifying argument `svdtest_tol` of `set_fit_options`.
-#'
-#' The output of the SVD analysis are the left and right singular vectors of
-#' the Jacobian. A left singular vector is a linear combination of the rows
-#' of the Jacobian that is almost zero. A right singular vector is a linear
-#' combination of the columns that is almost zero. An example for the ISLM model
-#' is shown below.
-#'
-#' First we create an Isis model and prepare fit data.
-#' ```{r results = "hide"}
-#' mdl <- islm_mdl("2020Q1")
-#' y <- regts(985, start = "2020q1")
-#' yd <- regts(800, start = "2020q1")
-#' c <- regts(600, start = "2020q1")
-#' fit <- cbind(y, yd, c)
-#' mdl$set_fit(fit)
-#' mdl$set_rms(c(c = 5.0, i = 21, md = 2))
-#' ```
-#'
-#' So we have the following fit targets:
-#' ```{r}
-#' mdl$get_fit()
-#' ````
-#'
-#' We specify fit options so that the SVD analysis is performed and the
-#' fit Jacobian is printed.
-#' ```{r}
-#' mdl$set_fit_options(svdtest_tol = 1e-8, dbgopt = "prijac")
-#' ```
-#'
-#' Next solve the model. Because y and yd are related according to `y = yd - t`
-#' (`t` is also linearly related to `y`, so there is a linear relation between
-#' `y` and `yd`),
-#' the fit Jacobian contains dependent rows.
-#' ```{r}
-#' mdl$solve()
-#' ```
-#'
 #' @examples
 #'
 #' mdl <- islm_mdl("2020Q1")
 #'
 #' # print constant adjustment and Jacobian  for each fit iteration
 #' mdl$set_fit_options(zealous = TRUE, dbgopt = c("prica", "prijac"))
+#'
+#' @seealso \code{\link{set_solve_options}} and \code{\link{solve}}.
 NULL
 
 #'

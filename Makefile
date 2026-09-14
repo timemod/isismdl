@@ -132,7 +132,7 @@ bin: install_deps makedeps
 	R CMD build $(PKGDIR)
 	R CMD INSTALL $(INSTALL_FLAGS) -l ./tmp --build $(PKGTAR)
 
-document: install_deps makdeps
+document: install_deps makedeps
 	-@rm -f refman.pdf
 	R -e "devtools::document('"$(PKGDIR)"')"
 	R CMD Rd2pdf --no-preview $(PKGDIR) -o refman.pdf 2>&1 > refman.log
@@ -169,20 +169,20 @@ uninstall:
 	R CMD REMOVE $(PKG)
 
 clean:
-	rm -fr $(PKGDIR).Rcheck
-	rm -fr tmp
-	rm -f $(PKGTAR)
-	rm -f $(PKGDIR).pdf
-	rm -f $(PKGDIR).log
-	rm -f $(PKGDIR)/src/*.o
-	rm -f $(PKGDIR)/src/*.so
-	rm -f $(PKGDIR)/src/*.dll
-	rm -f $(PKGDIR)/src/mod/*.mod
-	rm -f $(PKGDIR)/deps/*.pkl
-	rm -f $(PKGDIR)/tests/testthat/islm/mdl/*.mif
-	rm -f $(PKGDIR)/tests/testthat/islm/mdl/*.mrf
-	rm -f $(PKGDIR)/data-raw/*.mif
-	rm -f $(PKGDIR)/data-raw/*.mrf
-	rm -f examples/*.mrf
-	rm -f examples/*.mif
-	rm -f examples/*.err
+	-rm -fr $(PKGDIR).Rcheck
+	-rm -fr tmp
+	-rm -f $(PKGTAR)
+	-rm -f $(PKGDIR).pdf
+	-rm -f $(PKGDIR).log
+	-rm -f $(PKGDIR)/src/*.o
+	-rm -f $(PKGDIR)/src/*.so
+	-rm -f $(PKGDIR)/src/*.dll
+	-rm -f $(PKGDIR)/src/mod/*.mod
+	-rm -f $(PKGDIR)/deps/*.pkl
+	-rm -f $(PKGDIR)/tests/testthat/islm/mdl/*.mif
+	-rm -f $(PKGDIR)/tests/testthat/islm/mdl/*.mrf
+	-rm -f $(PKGDIR)/data-raw/*.mif
+	-rm -f $(PKGDIR)/data-raw/*.mrf
+	-rm -f examples/*.mrf
+	-rm -f examples/*.mif
+	-rm -f examples/*.err

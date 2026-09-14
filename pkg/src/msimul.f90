@@ -12,17 +12,19 @@ module msimul
 
     contains
     
-    subroutine simul
+    subroutine simul(model_index, jtb, jte, simerr)
     use msutil
     use msimot
     use msfitm
     use msfix
     use nucnst
+    integer, intent(in) :: model_index, jtb, jte
+    integer, intent(out) :: simerr
     
     !     simulates the model under current settings
     !     Warning: here we must have jf >= 1 and jl <= mws%perlen
     
-    !     variable mws%simerr signals errors
+    !     variable simerr signals errors
     !                 0    all ok
     !                 1    simulation not possible
     !                 2    simulation stopped
@@ -34,19 +36,30 @@ module msimul
     !     no need to print any messages (already done)
     !     variable can be used for cleanup purposes
     
-    logical ::  quit
-    integer ::  usedat, ndiver, retcod, fit_err
-    real    ::  told, tnew
+    logical :: quit
+    integer :: usedat, ndiver, retcod, fit_err
+    real    :: told, tnew
+    integer :: errflg
     
     ! set error flag in global common to 0
     ! initialize output system
     ! initialize lags and leads (and check for validity)
-    
-    mws%simerr = 0
+   
     chklead = .true.
     ndiver = 0
-    retcod = 0
-    
+    retcod = 0 
+
+    call msvarsinit(model_index)
+
+    call check_active_equations(mws%mdl)
+
+    call prepare_solve(jtb, jte, errflg)
+    if (errflg /= 0) then
+        ! out of memory
+        mws%simerr = 6
+        goto 999
+    endif
+
     ! set report option and print solve option
     repopt = opts%repopt
     call print_solve_options
@@ -55,7 +68,6 @@ module msimul
     if (quit) then
         mws%jc = jf
         mws%simerr = 4
-        call report_solve_error
         goto 999
     endif
     
@@ -63,7 +75,6 @@ module msimul
     if (quit) then
         mws%jc = jf
         mws%simerr = 3
-        call report_solve_error
         goto 999
     endif
     
@@ -96,7 +107,6 @@ module msimul
                 ! No CAs available for fit
                 mws%simerr = 1
             endif
-            call report_solve_error
             goto 999
        endif
     else
@@ -123,7 +133,6 @@ module msimul
     
     if (retcod /= 0)  then
         mws%simerr = retcod
-        call report_solve_error
     endif
     
     ! final messages about CPU secs and total iterations/divergence
@@ -133,9 +142,18 @@ module msimul
     change = .true.
     
     999 continue
-    
+
+    if (mws%simerr /= 0) call report_solve_error
+
+    call msclear(.false.)
+
     call clear_msfix
-    
+ 
+    ! clear fit work excluding information about fit_jac
+    if (mode /= 'R') call clear_fit_work(.false.)
+
+    simerr = mws%simerr
+
     return
     end subroutine simul
     
@@ -156,11 +174,14 @@ module msimul
     !     5     if Fair Taylor has NOT converged
     !     0     if all ok
     
-    integer, intent(out) ::  ndiver, retcod
+    integer, intent(out) :: ndiver, retcod
 
     integer ::  usedat, iratex, noncvg, imax, jmax, ratfullrep
     
     real(kind = SOLVE_RKIND) :: xomax, xnmax, dismax
+
+    ndiver = 0
+    retcod = 0
     
     ! initialisation for simulb in first iteration
     if (opts%start == 'C') then
@@ -373,6 +394,12 @@ module msimul
     ! simulates the model under current settings
     ! no rational expectations
 
+    ! Error code retcod:
+    ! 0 OK
+    ! 1 for missing/invalid exo's or starting values
+    ! 2 for numerical problems, non-convergence
+    ! 6 out of memory
+
     integer, intent(in) :: usedat
     integer, intent(out) :: ndiver, retcod
 
@@ -380,6 +407,7 @@ module msimul
     integer  :: jstart, jend, jt, step, jtd
     
     ndiver = 0
+    retcod = 0
     
     if (forwards) then
        jstart = jf
@@ -424,13 +452,13 @@ module msimul
        ! solve current period
        call soljtc(retcod, ndiver, jt)
     
-       if (retcod == 1) then
-    
-           return
-    
-       elseif (retcod == 2) then
+       if (retcod == 2) then
     
            call store_solution(jt)
+           return
+    
+       elseif (retcod /= 0) then
+    
            return
     
        elseif (jt == jend) then
@@ -535,9 +563,10 @@ module msimul
     ! at call, curvars contains starting values
     ! the result is stored in curvars
     
-    ! alternate return 1 for missing/invalid exo's or starting values
-    ! alternate return 2 for numerical problems or non-convergence
-    ! alternate return 3 for other errors (write)
+    ! Error code retcod:
+    ! 1 for missing/invalid exo's or starting values
+    ! 2 for numerical problems, non-convergence
+    ! 6 out of memory
     
     integer, intent(out) :: retcod
     integer, intent(inout) :: ndiver

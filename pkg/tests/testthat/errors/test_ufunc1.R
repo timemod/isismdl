@@ -19,4 +19,3 @@ test_that("error file correct", {
   expect_known_output(cat(error_txt), "expected_output/ulfunc1.txt",
                       update = update_expected)
 })
-

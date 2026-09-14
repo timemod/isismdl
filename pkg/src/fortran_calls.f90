@@ -1,3 +1,7 @@
+!
+! This file contains Fortran functions to called directly from C.
+!
+
 subroutine get_max_lag_lead_fortran(model_index, maxlag, maxlead)
     use modelworkspaces
     use iso_c_binding, only : c_int
@@ -156,77 +160,42 @@ end subroutine get_rms_fortran
 
 subroutine run_eqn_fortran(model_index, neq, eqnums, jtb, jte, updval_, &
                            by_period_)
-    use modelworkspaces
-    use iso_c_binding
-    use msvars
-    use msslvq
+    use iso_c_binding, only : c_int
+    use msruneqn
     integer(c_int), intent(in) :: model_index, neq, jtb, jte
     integer(c_int), intent(in) :: eqnums(neq)
     integer(c_int), intent(in) :: updval_, by_period_
+
     ! 
-    ! run a number of equations
+    ! run a number of equations, called from C
     !
-    integer :: ieq, errflg, step, j
+
     logical :: updval, by_period
 
-    call msvarsinit(mws_array(model_index))
     updval = updval_ /= 0
     by_period = by_period_ /= 0
 
-    if (by_period) then 
-        ! the inner loop is over the equations
-        if (jte >= jtb) then
-            step = 1
-        else 
-            step = -1
-        endif
-        do j = jtb, jte, step
-            do ieq = 1, neq
-                call solve_equation(eqnums(ieq), updval, j, j, errflg)
-            enddo
-        end do
-    else
-        ! run each equation by_period for all periods.
-        ! the loop over the time is in function solve_equation
-        do ieq = 1, neq
-            call solve_equation(eqnums(ieq), updval, jtb, jte, errflg)
-        end do
-    endif
+    call run_eqn(model_index, neq, eqnums, jtb, jte, updval, by_period)
 
 end subroutine run_eqn_fortran
 
-subroutine solve_fortran(model_index, jtb, jte, opts_present, error)
-    use modelworkspaces
-    use iso_c_binding
-    use msvars
+! initialise solve_options in msvars
+subroutine msoptsinit_wrap(model_index)
+    use iso_c_binding, only : c_int
+    use msvars, only : msoptsinit
+    integer(c_int), intent(in) :: model_index
+    call msoptsinit(model_index)
+end subroutine msoptsinit_wrap
+
+subroutine solve_fortran(model_index, jtb, jte, simerr)
+    use iso_c_binding, only : c_int
     use msimul
-    use set_options
-    use msimot
-    integer(c_int), intent(in) :: model_index, jtb, jte, opts_present
-    integer(c_int), intent(out) :: error
-
-    integer :: errflg
-    type(solve_options), pointer :: opt
-
-    call check_active_equations(mws_array(model_index)%mdl)
-
-    if (opts_present /= 0) then
-        ! Options specified by user in the call of solve.
-        ! The options are present in module set_solve_opts.
-        opt => options_set
-    else 
-        ! use options of the mws
-        opt => mws_array(model_index)%solve_opts
-    endif
-    call prepare_solve(mws_array(model_index), opt, jtb, jte, errflg)
-    call simul
-    error = mws_array(model_index)%simerr
-    call msclear
+    integer(c_int), intent(in) :: model_index, jtb, jte
+    integer(c_int), intent(out) :: simerr
+    call simul(model_index, jtb, jte, simerr)
 end subroutine solve_fortran
 
 subroutine filmdt_fortran(model_index, jtb, jte, report_type, include_frmls_int)
-    use modelworkspaces
-    use msvars
     use msfill
     use iso_c_binding, only : c_int
     integer(c_int), intent(in) :: model_index, jtb, jte, report_type, &
@@ -235,9 +204,7 @@ subroutine filmdt_fortran(model_index, jtb, jte, report_type, include_frmls_int)
     logical:: include_frmls
     include_frmls = include_frmls_int /= 0
 
-    call check_active_equations(mws_array(model_index)%mdl)
-    call msvarsinit(mws_array(model_index))
-    call fill_mdl_data(jtb, jte, report_type, include_frmls)
+    call fill_mdl_data(model_index, jtb, jte, report_type, include_frmls)
 
 end subroutine filmdt_fortran
 
@@ -420,3 +387,19 @@ subroutine check_active_eqs_fortran(model_index)
     integer(c_int), intent(in) :: model_index
     call check_active_equations(mws_array(model_index)%mdl)
 end subroutine check_active_eqs_fortran
+
+subroutine get_fit_jac_dim_wrap(nu, nw)
+    use msfitm
+    use iso_c_binding
+    integer(c_int), intent(out) :: nu, nw
+    call get_fit_jac_dim(nu, nw)
+end subroutine get_fit_jac_dim_wrap
+
+subroutine get_fit_jac_info_wrap(numu, numw, jac, nu, nw)
+    use msfitm
+    use iso_c_binding
+    integer(c_int), intent(out) :: numu(nu), numw(nw)
+    real(c_double), dimension(nw, nu), intent(out) :: jac
+    integer :: nu, nw
+    call get_fit_jac_info(numu, numw, jac)
+end subroutine get_fit_jac_info_wrap

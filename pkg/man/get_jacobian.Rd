@@ -2,11 +2,18 @@
 % Please edit documentation in R/IsisMdl_doc.R
 \name{get_jacobian}
 \alias{get_jacobian}
-\title{\code{\link{IsisMdl}} method: returns the Jacobian matrix from the last numerical solution}
+\title{\code{\link{IsisMdl}} method: returns the Jacobian matrix from the last numerical solution
+of \code{fill_mdl_data} or \code{solve_exo}}
 \description{
 This method of R6 class \code{\link{IsisMdl}} returns the Jacobian
-matrix from the last numerical solution (currently only for
-\code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}).
+matrix from the last numerical solution of methods
+\code{\link{fill_mdl_data_solve}} and \code{\link{solve_exo}}.
+
+This Jacobian can be used, for example, to diagnose numerical
+problems such as matrix singularity. One approach is Singular Value
+Decomposition (SVD), as explained in Vignette
+\href{../doc/svd_analysis.pdf}{\emph{"SVD Analysis"}}, for which
+function \code{\link{svd_analysis}} may be used.
 }
 \section{Usage}{
 
@@ -18,3 +25,7 @@ mdl$get_jacobian()
 \code{mdl} is an \code{IsisMdl} object
 }
 
+\seealso{
+\code{\link{get_solve_jac}}, \code{\link{get_fit_jac}} and
+and \code{\link{svd_analysis}}.
+}

@@ -7,9 +7,9 @@ rm(list = ls())
 
 capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
 
-i <- regts(200, start = '2015Q2')
-c <- regts(c(600, NA, 600), start = '2015Q2')
-y <- regts(c(990, NA, 1010), start = '2015Q2')
+i <- regts(200, start = "2015Q2")
+c <- regts(c(600, NA, 600), start = "2015Q2")
+y <- regts(c(990, NA, 1010), start = "2015Q2")
 fit <- cbind(i, c, y)
 ts_labels(fit) <- c("investment", "consumption", "income")
 
@@ -44,7 +44,7 @@ test_that("set_fit for update mode upd (second test)", {
   fit_mdl2 <- fit_mdl$clone(deep = TRUE)
   fit_mdl2$set_fit(fit2, upd_mode = "upd")
 
-  fit_combi <- update_ts(fit, fit2, method = "upd")[ ,  c("c", "y")]
+  fit_combi <- update_ts(fit, fit2, method = "upd")[,  c("c", "y")]
 
   expect_equal(fit_mdl2$get_fit(), fit_combi)
   expect_equal(fit_mdl2$get_data(), mdl$get_data())
@@ -69,6 +69,3 @@ test_that("set_fit_values", {
   fit_mdl2$set_fit_values(NA, names = c("c", "i", "y"), period = "2015Q2")
   expect_null(fit_mdl2$get_fit())
 })
-
-
-

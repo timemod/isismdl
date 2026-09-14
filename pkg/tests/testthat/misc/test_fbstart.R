@@ -22,9 +22,9 @@ test_that("fbstart (a)", {
   expect_false(isTRUE(all.equal(mdl_curr, mdl_prev)))
 
   expect_warning(
-      mdl_curr$solve(),
-      "Simulation not possible",
-      fixed = TRUE
+    mdl_curr$solve(),
+    "Simulation not possible",
+    fixed = TRUE
   )
 
   expect_output(

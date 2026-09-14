@@ -5,7 +5,7 @@ library(isismdl)
 
 mdl <- isis_mdl("../mdl/mrf_example1.mdl", period = "2018/2020")
 
-data = mdl$get_data()
+data <- mdl$get_data()
 data[] <- seq_along(data)
 mdl$set_data(data)
 print(mdl$get_data())

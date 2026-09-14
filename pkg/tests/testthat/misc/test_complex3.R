@@ -22,8 +22,8 @@ mdl$set_values(seq_len(nperiod(data_per)), names = paste0("X", 1:2))
 mdl$set_solve_options(report = "none")
 
 # convert model by using function substitution
-outp <- capture.output(convert_mdl_file(mdl_filename, mdl_subst_filename,
-                       conversion_options = list(substitute = TRUE)))
+convert_mdl_file(mdl_filename, mdl_subst_filename,
+                 conversion_options = list(substitute = TRUE))
 
 # create model with substituted user functions
 outp <- capture.output(mdl_subst <- isis_mdl(mdl_subst_filename, period = period))
@@ -51,7 +51,7 @@ test_that("model is solved correctly", {
 
   mdl$solve()
   expect_known_value(mdl$get_data(), file = expected_output_file,
-		      update = update)
+                     update = update)
 
   mdl_subst$solve()
   expect_equal(mdl$get_data(), mdl_subst$get_data())
@@ -63,4 +63,3 @@ test_that("check mrf", {
                       update = update, print = TRUE)
 
 })
-

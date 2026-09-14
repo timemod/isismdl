@@ -6,8 +6,9 @@ module msvars
     use kinds
     use solve_options_type
 
-    integer(kind = LI_IKIND), save :: jacdim,  la_lwork
-    real(kind = MWS_RKIND), dimension(:, :), allocatable, save :: jacob
+    integer(kind = LI_IKIND), save :: la_lwork
+    real(kind = MWS_RKIND), dimension(:, :), allocatable, save :: jacob, solve_jac
+    logical, save :: solve_jac_stored = .false.
     integer(kind = MC_IKIND), dimension(:), allocatable, save :: pivot
     real(kind = MWS_RKIND), dimension(:), allocatable, save :: qrtau, la_work
     real(kind = MWS_RKIND), dimension(:), allocatable, target, &
@@ -15,7 +16,6 @@ module msvars
     real(kind = MWS_RKIND), dimension(:), allocatable, save :: &
 &         lags_leads, ca, fbval, fbfun, scale, fbwork, fbstep, dx, df
     real(kind = MWS_RKIND), dimension(:, :), allocatable, save :: endo_leads
-
 
     logical, save :: matrix = .false.
     integer, save :: jf, jl  ! first and last period to solve
@@ -25,7 +25,7 @@ module msvars
 
     type(modelworkspace), pointer :: mws
     type(model), pointer :: mdl
-    type(solve_options), pointer :: opts
+    type(solve_options), target, save :: opts
     character(len = 1), save :: mode
     character(len = 1) :: method
 
@@ -33,24 +33,38 @@ module msvars
 
     contains
 
-        subroutine msvarsinit(mws_in)
-            type(modelworkspace), target, intent(inout) :: mws_in
+        subroutine msoptsinit(model_index) 
+            use modelworkspaces
+            integer, intent(in) :: model_index
+            ! create a local copy of the solve options stored in the mws
+            ! a local copy is used, because set_solve_options or set_fit_options
+            ! may modify the options is msvars that should not be written to
+            ! the mws
+            opts = mws_array(model_index)%solve_opts
+        end subroutine msoptsinit
 
-            mws => mws_in
+        subroutine msvarsinit(model_index)
+            use modelworkspaces
+            integer, intent(in) :: model_index
+
+            ! initialise msvars except for opts, which is initialized separately in 
+            ! subroutine msoptsinit
+
+            mws => mws_array(model_index)
             mdl => mws%mdl
 
-            !
-            ! make sure that all allocated arrays are deallocated
-            !
-            call msclear
+            ! initialisations
+            solve_jac_stored = .false.
+            mws%simerr = 0
 
+            ! make sure that all allocated arrays are deallocated
+            call msclear
         end subroutine msvarsinit
 
-        subroutine prepare_solve(mws_in, opts_in, jf_in, jl_in, error)
-            type(modelworkspace), target, intent(inout) :: mws_in
-            type(solve_options), target, intent(in) :: opts_in
+        subroutine prepare_solve(jf_in, jl_in, error)
             integer, intent(in)  :: jf_in, jl_in
             integer, intent(out) :: error
+
             ! error = 0 if ok
             !       = 1 if not enough memory available
 
@@ -61,10 +75,7 @@ module msvars
 
             jf = jf_in
             jl = jl_in
-            opts => opts_in
             itrtot = 0
-
-            call msvarsinit(mws_in)
 
             mode = opts%mode
             if (mode == "?") then
@@ -108,7 +119,6 @@ module msvars
             if (mode == 'R' .or. method == 'G') return
 
             la_lwork = get_lwork()
-
             allocate(la_work(la_lwork), stat = stat)
             if (stat == 0) allocate(fbval(mdl%nfb), stat = stat)
             if (stat == 0) allocate(fbfun(mdl%nfb), stat = stat)
@@ -131,9 +141,18 @@ module msvars
 
         end subroutine prepare_solve
 
-        subroutine msclear
+        subroutine msclear(do_clear_solve_jac)
+
+            logical, intent(in), optional :: do_clear_solve_jac
+            logical :: do_clear_solve_jac_local
 
             matrix = .false.
+
+            if (present(do_clear_solve_jac)) then
+                do_clear_solve_jac_local = do_clear_solve_jac
+            else
+                do_clear_solve_jac_local = .true.
+            endif
 
             if (allocated(jacob))      deallocate(jacob)
             if (allocated(pivot))      deallocate(pivot)
@@ -153,7 +172,15 @@ module msvars
             if (allocated(df))         deallocate(df)
             if (allocated(endo_leads)) deallocate(endo_leads)
 
+            if (do_clear_solve_jac_local) call clear_solve_jac
+
         end subroutine msclear
+
+        ! deallocate the stored jacobian
+        subroutine clear_solve_jac 
+            solve_jac_stored = .false.
+            if (allocated(solve_jac)) deallocate(solve_jac)
+        end subroutine clear_solve_jac
 
         integer function get_lwork()
             use kinds

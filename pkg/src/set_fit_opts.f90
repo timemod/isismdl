@@ -93,12 +93,12 @@ subroutine set_fit_dbgopts(prica, prijac, supsot)
     options_set%fit%supsot = supsot /= 0
 end subroutine set_fit_dbgopts
 
-subroutine set_fit_svdtest_tol(tol)
+subroutine set_fit_store_jac(store_jac)
     use set_options
-    use iso_c_binding, only : c_double
-    real(c_double), intent(in) :: tol
-    options_set%fit%svdtest_tol = tol
-end subroutine set_fit_svdtest_tol
+    use iso_c_binding, only : c_int
+    integer(c_int), intent(in) :: store_jac
+    options_set%fit%store_jac  = store_jac /= 0
+end subroutine set_fit_store_jac
 
 subroutine set_fit_chkjac(chkjac)
     use set_options

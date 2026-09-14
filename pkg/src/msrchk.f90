@@ -10,6 +10,10 @@ subroutine reschk(retcod)
     ! at call, curvars contains starting values
     ! the result is stored in curvars.
 
+    ! Error code retcod:
+    ! 0  OK
+    ! 1  for missing/invalid exo's or starting values
+
     logical :: quit
 
     retcod = 0

@@ -11,7 +11,7 @@ default_opts <- mdl$get_solve_options()
 
 test_that("default option the same as before", {
   expect_known_value(default_opts,
-                      file = "expected_output/default_solve_opts.rds")
+                     file = "expected_output/default_solve_opts.rds")
 })
 
 test_that("the default options not overwritten by method solve", {

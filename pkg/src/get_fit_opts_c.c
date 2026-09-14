@@ -4,55 +4,55 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "fit_options.h"
-#include "get_option_utils.h"
 #include "init_set_get_options.h"
 #include "get_fit_opts_c.h"
+#include "get_fit_opts_fortran.h"
+#include "option_builder.h"
 
 #define N_OPTS 15
-
-extern void F77_CALL(get_fit_options)(int *maxiter, double *cvgabs, 
-              double *mkdcrt, double *cvgrel, int *zero_ca, int *warn_ca, 
-              int *repopt, double *svdtest_tol, int *acc_jac, int *zealous, 
-              int *scale_method, int *warn_zero_row, int *warn_zero_col, int *chkjac);
-extern void F77_CALL(get_fit_dbgopts)(int *, int *, int *);
 
 static SEXP get_debug_option(void);
 
 SEXP get_fit_opts_c(SEXP model_index_) {
 
+    /*
+     * Extract fit options from Fortran memory
+     */
+
     int model_index = asInteger(model_index_);
 
     F77_CALL(init_get_options)(&model_index);
 
-    init_options(N_OPTS);
-
     int maxiter, repopt, zero_ca, warn_ca, acc_jac, zealous, scale_method, 
-        warn_zero_row, warn_zero_col, chkjac;
-    double cvgabs, mkdcrt, cvgrel, svdtest_tol;
+        warn_zero_row, warn_zero_col, chkjac, store_jac;
+    double cvgabs, mkdcrt, cvgrel;
     F77_CALL(get_fit_options)(&maxiter, &cvgabs, &mkdcrt, &cvgrel, &zero_ca, 
-                              &warn_ca, &repopt, &svdtest_tol, &acc_jac, 
+                              &warn_ca, &repopt, &store_jac, &acc_jac, 
                               &zealous, &scale_method, 
                               &warn_zero_row, &warn_zero_col, &chkjac);
 
-    add_option("maxiter",  PROTECT(ScalarInteger(maxiter)));
-    add_option("cvgabs",   PROTECT(ScalarReal(cvgabs)));
-    add_option("mkdcrt",   PROTECT(ScalarReal(mkdcrt)));
-    add_option("cvgrel",   PROTECT(ScalarReal(cvgrel)));
-    add_option("zero_ca",  PROTECT(ScalarLogical(zero_ca)));
-    add_option("warn_ca",  PROTECT(ScalarLogical(warn_ca)));
-    add_option("accurate_jac",  PROTECT(ScalarLogical(acc_jac)));
-    add_option("zealous",  PROTECT(ScalarLogical(zealous)));
-    add_option("scale_method", 
-               PROTECT(mkString(get_fit_scale_method_text(scale_method))));
-    add_option("warn_zero_row", PROTECT(ScalarLogical(warn_zero_row)));
-    add_option("warn_zero_col", PROTECT(ScalarLogical(warn_zero_col)));
-    add_option("chkjac", PROTECT(ScalarLogical(chkjac)));
-    add_option("report", PROTECT(mkString(get_fit_repopt_text(repopt))));
-    add_option("dbgopt", get_debug_option());
-    add_option("svdtest_tol", PROTECT(ScalarReal(svdtest_tol)));
+    /*
+     * Create a named list with the options
+     */
+    OptionBuilder *b = ob_create(N_OPTS);
+    ob_add_int    (b, "maxiter",  maxiter);
+    ob_add_real   (b, "cvgabs",   cvgabs);
+    ob_add_real   (b, "mkdcrt",   mkdcrt);
+    ob_add_real   (b, "cvgrel",   cvgrel);
+    ob_add_logical(b, "zero_ca",  zero_ca);
+    ob_add_logical(b, "warn_ca",  warn_ca);
+    ob_add_logical(b, "accurate_jac", acc_jac);
+    ob_add_logical(b, "zealous",  zealous);
+    ob_add_string (b, "scale_method",
+                   get_fit_scale_method_text(scale_method));
+    ob_add_logical(b, "warn_zero_row", warn_zero_row);
+    ob_add_logical(b, "warn_zero_col", warn_zero_col);
+    ob_add_logical(b, "chkjac",        chkjac);
+    ob_add_string (b, "report", get_fit_repopt_text(repopt));
+    ob_add_sexp   (b, "dbgopt",  get_debug_option());
+    ob_add_logical(b, "store_jac",     store_jac);
 
-    UNPROTECT(N_OPTS);
-    return get_options();
+    return ob_get(b); 
 }
 
 static SEXP get_debug_option(void) {
@@ -64,5 +64,6 @@ static SEXP get_debug_option(void) {
     SET_STRING_ELT(value, 0, mkChar(FIT_PRICA_OPTS[prica]));
     SET_STRING_ELT(value, 1, mkChar(FIT_PRIJAC_OPTS[prijac]));
     SET_STRING_ELT(value, 2, mkChar(FIT_SUPSOT_OPTS[supsot]));
+    UNPROTECT(1);
     return value;
 }

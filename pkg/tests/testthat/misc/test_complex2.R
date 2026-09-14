@@ -3,8 +3,7 @@ library(isismdl)
 library(testthat)
 
 rm(list = ls())
-update <- FALSE
-
+update_expected <- FALSE
 
 source("../tools/read_mrf.R")
 
@@ -22,15 +21,16 @@ mdl$set_values(seq_len(nperiod(data_per)), names = paste0("x", 1:3))
 mdl$set_solve_options(report = "none")
 
 # convert model by using function substitution
-outp <- capture.output(convert_mdl_file(mdl_filename, mdl_subst_filename,
-                       conversion_options = list(substitute = TRUE)))
+convert_mdl_file(mdl_filename, mdl_subst_filename,
+                 conversion_options = list(substitute = TRUE))
+
 
 # create model with substituted user functions
-outp <- capture.output(mdl_subst <- isis_mdl(
+mdl_subst <- isis_mdl(
   model_file = mdl_subst_filename,
   period = period,
   silent = TRUE
-))
+)
 mdl_subst$set_values(seq_len(nperiod(data_per)), names = paste0("x", 1:3))
 mdl_subst$set_solve_options(report = "none")
 
@@ -55,7 +55,7 @@ test_that("model is solved correctly", {
 
   mdl$solve()
   expect_known_value(mdl$get_data(), file = expected_output_file,
-		      update = update)
+                     update = update_expected)
 
   mdl_subst$solve()
   expect_equal(mdl$get_data(), mdl_subst$get_data())
@@ -64,6 +64,6 @@ test_that("model is solved correctly", {
 test_that("check mrf", {
   mrf_data <- read_mrf(mdl_filename)
   expect_known_output(cat(mrf_data), file = "expected_output/complex2_mrf.txt",
-                      update = update, print = TRUE)
+                      update = update_expected, print = TRUE)
 
 })

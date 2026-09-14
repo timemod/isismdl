@@ -12,9 +12,10 @@ subroutine solone(retcod, ndiver)
     ! at call, curvars contains starting values
     ! the result is stored in curvars
      
-    ! alternate return 1 for missing/invalid exo's or starting values
-    ! alternate return 2 for numerical problems or non-convergence
-    ! alternate return 3 for other errors (write)
+    ! Error code retcod:
+    ! 1 for missing/invalid exo's or starting values
+    ! 2 for numerical problems or non-convergence
+    ! 6 out of memory
      
     integer, intent(out) :: retcod
     integer, intent(inout) :: ndiver
@@ -41,8 +42,6 @@ subroutine solnw(retcod, ndiver)
 use msutil
 use msnwut
 use msbrdn
-!use msnwto
-!use msnwqr
 use msfbvl
 use msolot
 
@@ -58,7 +57,8 @@ use msolot
  
 !     retcod
 !      1 for missing/invalid exo's or starting values
-!      2 for numerical problems or non-convergence
+!      2 for numerical problems, non-convergence
+!      6 out of memory
 
 integer, intent(out) :: retcod
 integer, intent(inout) :: ndiver
@@ -202,15 +202,14 @@ endif
 
 if (method == "B") then
     call solve_brdn(xcod, itr)
-    continue
-!elseif (method == "N") then
-!    call solve_nwtn(xcod, itr)
-!elseif (method == "Q") then
-!    call solve_nwqr(xcod, itr)
 endif
 
 if (xcod .ne. 0 ) then
-    retcod = 2
+    if (xcod .eq. 10) then
+        retcod = 6 
+    else 
+        retcod = 2 
+    endif
     return
 endif
 
@@ -321,7 +320,7 @@ else
         matrix = .false.
     elseif (method == "B") then
         call msbrup(mdl%nfb, jacob, jacob(:, mdl%nfb + 1: 2 * mdl%nfb), &
-&                 jacdim, fbfun, la_work, ier)
+&                 mdl%nfb, fbfun, la_work, ier)
         if (ier /= 0) then
             if (njcmat < opts%maxmat) then
                  matrix = .false.
@@ -401,7 +400,6 @@ endif
          
         ! retcod 1 for missing/invalid exo's or starting values
         ! retcod 2 for numerical problems or non-convergence
-        ! retcod 3 for write error
          
         integer, intent(out) :: retcod
         integer, intent(inout) :: ndiver

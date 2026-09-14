@@ -12,13 +12,15 @@ use scalemat
 integer, intent(out) :: retcod, matitr
 integer, intent(in)  :: itr
 
-!   retcod  1 if jacobian is near to singular
-!                      or other problems
+!  retcod 
+!     0: ok
+!     1: if jacobian is near to singular or other problems
+!    10: not enough memory to store a copy of the jacobian.
 
-!     generate jacobian by calling appropriate routines
+!  generate jacobian by calling appropriate routines
 
 
-integer ::   ier
+integer :: ier, stat
 
 if (mdl%fboflg == 0 .or. mdl%fbomem <= 0) then
     ! full slow method
@@ -33,14 +35,28 @@ if (retcod /= 0) return
 itrtot = itrtot + matitr
 njcmat = njcmat + 1
 
-!     check for (almost) 0 columns
-!     print jacobian if required
-!     and only then quit on zero check errors
+! check for (almost) 0 columns
+! print jacobian if required
+! and only then quit on zero check errors
 
 call msczjc(ier)
 
 if (opts%jacprt) then
    call jacot3(itr)
+endif
+
+if (opts%store_jac) then
+    ! save a copy of the Jacobian
+    if (.not. allocated(solve_jac)) then
+        allocate(solve_jac(mdl%nfb, mdl%nfb), stat = stat)
+        if (stat /= 0) then
+            call jacot8
+            retcod = 10
+            return
+        endif
+    endif
+    solve_jac = jacob(:, 1:mdl%nfb)
+    solve_jac_stored = .true.
 endif
 
 if( ier .eq. 1 ) then
@@ -50,7 +66,7 @@ endif
 
 ! determine scale factors from jacobian and scale jacobian
 if (opts%scalmd /= NO_SCALING) then
-    call scale_matrix(jacob, jacdim, mdl%nfb, scale, opts%scalmd, ier)
+    call scale_matrix(jacob, mdl%nfb, mdl%nfb, scale, opts%scalmd, ier)
 endif
 
 if (opts%prscal .and. opts%scalmd >= 0) then
@@ -85,6 +101,9 @@ integer ::       fbnum, i, j
 
 real(kind = SOLVE_RKIND) :: delta
 
+retcod = 0
+matitr = 0
+
 ! reset all feedback values to initial state
 do i = 1, mdl%nfb
    curvars(mdl%numfb(i)) = fbval(i)
@@ -93,8 +112,6 @@ end do
 !*IF PRZFBC
 !      call przfbc(xvnlen, 0)
 !*ENDIF
-
-matitr = 0
 
 do i = 1, mdl%nfb
 
@@ -184,6 +201,9 @@ integer, intent(out) :: retcod, matitr
 integer :: fbnum, i, j, k
 real(kind = SOLVE_RKIND) :: delta
 
+retcod = 0
+matitr = 0
+
 ! reset all feedback values to initial state
 do i = 1, mdl%nfb
     curvars(mdl%numfb(i)) = fbval(i)
@@ -193,7 +213,6 @@ end do
 !      call przfbc(xvnlen,0)
 !*ENDIF
 
-matitr = 0
 
 do i = 1, mdl%nfb
 
@@ -778,7 +797,7 @@ enddo
 do k = 1, mdl%nfb
 
    if (mdl%lik(mdl%numfb(k)) ) then
-       rsum = dasum(nfbk, jacob(k,1), int(jacdim, ISIS_IKIND))
+       rsum = dasum(nfbk, jacob(k,1), int(mdl%nfb, ISIS_IKIND))
        if (rsum == Rzero ) then
            call msczot(k, 1, 'R')
            if (retcod == 0) then

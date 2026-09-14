@@ -11,10 +11,10 @@ PKG_FCFLAGS = -fimplicit-none -cpp -Iinclude -J$(MOD_DIR) -I$(MOD_DIR) -Wuniniti
 all: $(SHLIB)
 
 # dependencies of object files on header files
-include deps/makedeps_c
+include makedeps_c.mk
 
 # dependencies of object files files on mod files
-include deps/makedeps_f90
+include makedeps_f90.mk
 
 # dependencies of object files on include files
 mscalc.o : include/mspushf.inc  include/mspushv.inc  include/msshift.inc

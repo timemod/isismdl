@@ -8,7 +8,7 @@ update <- FALSE
 mdl_file <- "mdl/test_run_eqn_1.mdl"
 
 lag_data <- regts(matrix(1:2, ncol = 2), start = 2020,
-                   names = c("x1", "y1"))
+                  names = c("x1", "y1"))
 lead_data <- regts(matrix(3:4, ncol = 2), start = 2025,
                    names = c("x2", "y2"))
 init_data <- cbind(lag_data, lead_data)
@@ -44,11 +44,11 @@ test_that("argument update_mode", {
 
 test_that("run_eqn without solve order", {
   mdl2 <- isis_mdl(mdl_file, silent = TRUE, period = solve_per,
-                  data = init_data)
+                   data = init_data)
 
   mdl2$run_eqn(names = c("x1", "y1"), period = period_range(2021, 2025))
   mdl2$run_eqn(names = c("x2", "y2"), period = period_range(2020, 2024),
-              forwards = FALSE)
+               forwards = FALSE)
   data <- mdl2$get_data()
   expected_result <- init_data[, colnames(data)]
   expected_result$y1 <- 2
@@ -64,6 +64,3 @@ test_that("run_eqn without solve order", {
   expect_error(mdl2$run_eqn(forwards = NA), msg, fixed = TRUE)
   expect_error(mdl2$run_eqn(forwards = c(TRUE, TRUE)), msg, fixed = TRUE)
 })
-
-
-

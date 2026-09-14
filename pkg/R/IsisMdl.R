@@ -223,20 +223,20 @@ IsisMdl <- R6Class("IsisMdl",
       has_free_mws <- .Call(C_has_free_mws_c)
       if (!has_free_mws) gc(verbose = FALSE)
 
-      if (!silent) {
-        if (reorder_names) {
-          cat(paste0(
-            "\nModel names will be reordered because the IsisMdl ",
-            "object\nwas created with isismdl version < 1.9.0.\n\n"
-          ))
-        }
-        private$model_index <- .Call(C_read_mdl_c, mif_file, reorder_names)
-        cat("\n")
-      } else {
-        output <- capture.output({
-          private$model_index <- .Call(C_read_mdl_c, mif_file, reorder_names)
-        })
+      if (reorder_names && !silent) {
+        cat(
+          "\nModel names will be reordered because the IsisMdl object\n",
+          "was created with isismdl version < 1.9.0.\n\n",
+          sep = ""
+        )
       }
+      if (silent) {
+        null_device <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+        sink(null_device)
+        on.exit(sink(), add = TRUE)
+      }
+      private$model_index <- .Call(C_read_mdl_c, mif_file, reorder_names)
+
       if (!missing(serialized_mdl)) {
         unlink(mif_file)
       }
@@ -406,6 +406,12 @@ IsisMdl <- R6Class("IsisMdl",
     },
     get_jacobian = function() {
       return(private$jacobian)
+    },
+    get_solve_jac = function() {
+      private$solve_jac
+    },
+    get_fit_jac = function() {
+      private$fit_jac
     },
     set_labels = function(labels) {
       private$update_labels(labels)
@@ -862,7 +868,7 @@ IsisMdl <- R6Class("IsisMdl",
                                  xmaxiter, xupdate, dbgopt, erropt,
                                  report, ratreport, ratreport_rep,
                                  ratfullreport_rep, bktmax, xtfac,
-                                 svdtest_tol) {
+                                 store_jac) {
       # create a list of supplied options
       names <- names(match.call()[-1])
       options <- lapply(names, FUN = function(x) eval(parse(text = x)))
@@ -873,7 +879,7 @@ IsisMdl <- R6Class("IsisMdl",
     set_fit_options = function(maxiter, cvgabs, mkdcrt, cvgrel, zero_ca,
                                warn_ca, accurate_jac, zealous, scale_method,
                                warn_zero_row, warn_zero_col, chkjac, report,
-                               dbgopt, svdtest_tol) {
+                               dbgopt, store_jac) {
       names <- names(match.call()[-1])
       options <- lapply(names, FUN = function(x) eval(parse(text = x)))
       names(options) <- names
@@ -884,11 +890,15 @@ IsisMdl <- R6Class("IsisMdl",
                      fit_options = list()) {
       "Solve the model for the specified period"
       if (is.null(private$model_period)) stop(private$period_error_msg)
-      private$check_options(options, type = "solve_options")
-      private$check_options(options, type = "fit_options")
+      if (!missing(options)) check_named_list(options)
+      if (!missing(fit_options)) check_named_list(fit_options)
       period <- private$convert_period_arg_solve(period)
       js <- private$get_period_indices(period)
-      simerr <- .Call(
+
+      private$fit_jac <- NULL
+      private$solve_jac <- NULL
+
+      ret <- .Call(
         C_solve_c,
         model_index = private$model_index,
         jtb = js$startp,
@@ -896,7 +906,10 @@ IsisMdl <- R6Class("IsisMdl",
         options,
         fit_options
       )
-      private$solve_status <- simerr_to_solve_status(simerr)
+
+      private$solve_status <- simerr_to_solve_status(ret$simerr)
+      private$solve_jac <- ret$solve_jac
+      private$fit_jac <- ret$fit_jac
       return(invisible(self))
     },
     get_solve_status = function() {
@@ -1083,13 +1096,11 @@ IsisMdl <- R6Class("IsisMdl",
         return(invisible())
       }
       if (silent) {
-        output <- capture.output({
-          call_order_mdl_c()
-        })
-      } else {
-        call_order_mdl_c()
-        cat("\n")
+        null_device <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+        sink(null_device)
+        on.exit(sink(), add = TRUE)
       }
+      call_order_mdl_c()
       return(invisible(self))
     },
     copy = function() {
@@ -1136,6 +1147,8 @@ IsisMdl <- R6Class("IsisMdl",
   ),
   private = list(
     jacobian = NULL,
+    solve_jac = NULL,
+    fit_jac = NULL,
     model_text = NA_character_,
     maxlag = NA_integer_,
     maxlead = NA_integer_,
@@ -1546,6 +1559,8 @@ IsisMdl <- R6Class("IsisMdl",
         data_period = private$data_period,
         solve_status = private$solve_status,
         jacobian = private$jacobian,
+        solve_jac = private$solve_jac,
+        fit_jac = private$fit_jac,
         debug_eqn = self$get_debug_eqn(),
         solve_options = self$get_solve_options(),
         fit_options = self$get_fit_options(),
@@ -1568,8 +1583,15 @@ IsisMdl <- R6Class("IsisMdl",
       }
       private$labels <- x$labels
       self$set_debug_eqn(x$debug_eqn)
+
+      # solve options
+      x$solve_options$svdtest_tol <- NULL # this option has been removed
       do.call(self$set_solve_options, x$solve_options)
+
+      # fit options:
+      x$fit_options$svdtest_tol <- NULL # this option has been removed
       do.call(self$set_fit_options, x$fit_options)
+
       .Call(C_set_cvgcrit_init_mws_c, private$model_index, x$cvgcrit)
       .Call(C_set_ftrelax_init_mws_c, private$model_index, x$ftrelax)
       if (!is.null(x$model_period)) {
@@ -1601,13 +1623,11 @@ IsisMdl <- R6Class("IsisMdl",
         }
       }
 
-      if (!is.null(x$solve_status)) {
-        private$solve_status <- x$solve_status
-      }
-
-      if (!is.null(x$jacobian)) {
-        private$jacobian <- x$jacobian
-      }
+      private$solve_status <- if (is.null(x$solve_status)) "Unknown" else
+        x$solve_status
+      private$jacobian  <- x$jacobian
+      private$solve_jac <- x$solve_jac
+      private$fit_jac   <- x$fit_jac
 
       return(invisible(self))
     },
@@ -1667,19 +1687,6 @@ IsisMdl <- R6Class("IsisMdl",
           "data period (", private$data_period, "). The period should lie ",
           "within the range ", private$model_period_max, "."
         )
-      }
-      return(invisible(NULL))
-    },
-    check_options = function(options, type) {
-      if (!is.list(options)) {
-        stop(paste("The", type, "should be a named list"))
-      }
-      if (length(options) == 0) {
-        return(invisible(NULL))
-      }
-      names <- names(options)
-      if (is.null(names) || !is.na(Position(f = function(x) x == "", names))) {
-        stop(paste("The", type, "should be a named list"))
       }
       return(invisible(NULL))
     },

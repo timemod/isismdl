@@ -18,7 +18,7 @@ mdl_solved$solve()
 
 names <- mdl$get_var_names()
 expected_result <- regts(matrix(1, nrow = 1, ncol = length(names)),
-                        period = period, names = names)
+                         period = period, names = names)
 
 test_that("run_eqn", {
   mdl2 <- mdl$copy()

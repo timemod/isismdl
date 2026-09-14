@@ -52,7 +52,7 @@ module solve_options_type
         logical(kind = ISIS_IKIND) :: chkjac
         logical(kind = ISIS_IKIND) :: accurate_jac
         integer(kind = ISIS_IKIND) :: repopt
-        real(kind = ISIS_RKIND)    :: svdtest_tol
+        logical(kind = ISIS_IKIND) :: store_jac
         logical(kind = ISIS_IKIND) :: zealous
         logical(kind = ISIS_IKIND) :: warn_zero_row
         logical(kind = ISIS_IKIND) :: warn_zero_col
@@ -63,18 +63,18 @@ module solve_options_type
         character(len = 1) :: method
         character(len = 1) :: start
         integer(kind = ISIS_IKIND) :: bktmax
-        real(kind = ISIS_RKIND) :: cstpbk
-        real(kind = ISIS_RKIND) :: cnmtrx
-        real(kind = ISIS_RKIND) :: crelax
-        real(kind = ISIS_RKIND) :: grelax
+        real(kind = ISIS_RKIND)    :: cstpbk
+        real(kind = ISIS_RKIND)    :: cnmtrx
+        real(kind = ISIS_RKIND)    :: crelax
+        real(kind = ISIS_RKIND)    :: grelax
         integer(kind = ISIS_IKIND) :: maxit
         integer(kind = ISIS_IKIND) :: maxmat
         logical(kind = ISIS_IKIND) :: arith
-        real(kind = ISIS_RKIND) :: rlxmin
-        real(kind = ISIS_RKIND) :: rlxmax
-        real(kind = ISIS_RKIND) :: rlxspeed
+        real(kind = ISIS_RKIND)    :: rlxmin
+        real(kind = ISIS_RKIND)    :: rlxmax
+        real(kind = ISIS_RKIND)    :: rlxspeed
         integer(kind = ISIS_IKIND) :: scalmd
-        real(kind = ISIS_RKIND) :: svdtest_tol
+        logical(kind = ISIS_IKIND) :: store_jac
 
         ! debug options
         logical(kind = ISIS_IKIND) :: priter
@@ -128,7 +128,7 @@ contains
         options%rlxspeed = 0.5_ISIS_RKIND
         options%njacpd = 0
         options%scalmd = NORMBAL
-        options%svdtest_tol = -1.0_ISIS_RKIND;
+        options%store_jac = .false.
 
         ! debug options
         options%priter = .false.
@@ -167,7 +167,7 @@ contains
         options%fit%supsot = .true.
         options%fit%chkjac = .true.
         options%fit%repopt = FITREP_FULLREP
-        options%fit%svdtest_tol = -1.0_ISIS_RKIND
+        options%fit%store_jac = .false.
         options%fit%zealous = .true.
         options%fit%warn_zero_row = .false.
         options%fit%warn_zero_col = .false.

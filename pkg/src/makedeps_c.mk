@@ -2,8 +2,9 @@
 
 by.o : isismdl_types.h
 
-c_calls.o : c_calls.h get_info.h init_set_get_options.h isismdl_types.h \
-    option_utils.h set_fit_options.h set_solve_options.h
+c_calls.o : c_calls.h fortran_calls.h get_info.h get_solve_jac_info.h \
+    init_set_get_options.h isismdl_types.h option_utils.h set_fit_options.h \
+    set_solve_options.h
 
 compile_mdl_c.o : compile_mdl_c.h prepare_compiler.h
 
@@ -25,13 +26,11 @@ futils.o : futils.h
 
 gen_dep_file.o : gen_dep_file.h include_paths.h mchdr.h mcopt.h run_mcexec.h
 
-get_fit_opts_c.o : fit_options.h get_fit_opts_c.h get_option_utils.h \
-    init_set_get_options.h
+get_fit_opts_c.o : fit_options.h get_fit_opts_c.h get_fit_opts_fortran.h \
+    init_set_get_options.h option_builder.h
 
-get_option_utils.o : get_option_utils.h
-
-get_solve_opts_c.o : get_option_utils.h get_solve_opts_c.h init_get_options.h \
-    solve_options.h
+get_solve_opts_c.o : get_solve_opts_c.h get_solve_opts_fortran.h \
+    init_get_options.h option_builder.h solve_options.h
 
 include_paths.o : futils.h include_paths.h util.h
 
@@ -53,6 +52,8 @@ mcopt_init.o : mcopt.h
 mdldef.o : dependencies.h mcinit.h mdldef.h symbol.h util.h xpcdef.h
 
 oprintf.o : isismdl.h oprintf.h util.h
+
+option_builder.o : option_builder.h
 
 option_utils.o : option_utils.h
 
@@ -87,13 +88,19 @@ run_mcexec.o : include_paths.h mchdr.h mcopt.h prepare_compiler.h run_mcexec.h
 scan.o : dependencies.h ecode.h flags.h fname.h include_paths.h ipcode.h \
     mchdr.h mcinit.h mcopt.h symbol.h util.h xpctab.h
 
-set_fit_opts_c.o : fit_options.h init_set_get_options.h set_fit_options.h \
-    set_fit_opts_c.h set_option_utils.h
+set_fit_options.o : fit_options.h get_fit_opts_fortran.h init_set_get_options.h \
+    set_fit_options.h set_fit_opts_c.h set_fit_opts.h set_option_utils.h
+
+set_fit_opts_c.o : init_set_get_options.h set_fit_options.h set_fit_opts_c.h
 
 set_option_utils.o : set_option_utils.h
 
-set_solve_opts_c.o : init_set_get_options.h set_option_utils.h \
-    set_solve_options.h set_solve_opts_c.h set_solve_opts.h solve_options.h
+set_solve_options.o : get_solve_opts_fortran.h init_set_get_options.h \
+    set_option_utils.h set_solve_options.h set_solve_opts_c.h set_solve_opts.h \
+    solve_options.h
+
+set_solve_opts_c.o : init_set_get_options.h set_solve_options.h \
+    set_solve_opts_c.h
 
 solve_options.o : option_utils.h solve_options.h
 

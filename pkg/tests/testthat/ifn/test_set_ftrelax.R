@@ -72,7 +72,7 @@ test_that("errors", {
   )
 
   emsg <- "value should be a finite number"
-  expect_error(ifn_mdl$set_ftrelax(1/0), emsg)
+  expect_error(ifn_mdl$set_ftrelax(1 / 0), emsg)
 
   emsg <- "The following names are not endogenous leads: 'A' and 'ETA'."
   expect_error(

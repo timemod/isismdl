@@ -1,0 +1,104 @@
+\documentclass [english,memo]{xarticle}
+%
+\usepackage[english]{babel}
+\usepackage{cpbfonts}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage{url}
+\usepackage{cpbextra}
+%
+\makeatletter
+\def\section@font{\head@style\normalfont\sffamily\large\bfseries}
+\makeatother
+%
+\usepackage{needspace}
+%
+\usepackage{xspace}
+\usepackage{shortvrb}
+\usepackage{amsmath}
+\usepackage[psamsfonts]{amsfonts}
+
+\MakeShortVerb{\|}
+%
+\newcommand*{\IsisTool}{\textsf{IsisTool}\xspace}
+\newcommand*{\Deckisis}{\texttt{Deckisis}\xspace}
+%
+\newcommand*{\FtnWord}[1]{\texttt{#1}}
+\newcommand{\Rbb}{\mathbb{R}}
+%
+\newenvironment{leftindent}%
+{\begin{list}{}{\setlength{\leftmargin}{1cm}}\item[]}%
+{\end{list}}
+
+%
+%
+%
+
+\begin{document}
+
+\To{Isis users}
+\author{Rob van Harrevelt}
+\date{\today}
+\Subject{The SVD analysis for rank loss in matrices}
+%
+\maketitle
+%
+
+
+\section{Introduction}
+
+\section{The SVD}
+
+The SVD of a matrix $A \in \Rbb^{m \times n}$ is given by (see \cite{matcomp})
+\begin{equation}
+A = U \: \Sigma \: V^T
+\end{equation}
+where $U \in \Rbb^{m \times m}$ and  $U \in \Rbb^{n \times n}$ are
+orthogonal matrices and the matrix $\Sigma \in \Rbb^{m \times n}$
+is given by
+\begin{equation}
+\Sigma_{ij} = \begin{cases}
+               \sigma_i & \text{if $i = j$} \\
+	       0 & \text{if $i \neq j$}
+              \end{cases}
+\end{equation}
+The $\sigma_i$'s, called the singular values, are ordered such that
+\begin{equation}
+\sigma_1 \ge \sigma_2 \ge ... \ge \sigma_p \ge 0  \qquad p = \text{min}\{m, n\}
+\end{equation}
+
+The column vectors $u_i$ and $v_j$ are called the left and right singular
+vectors respectively. These vectors obey the relation
+(see \cite{matcomp})
+\begin{equation}\label{eq:singular_vectors}
+\left.
+\begin{array}{llcl}
+A   & v_i & = & \sigma_i u_i \\
+A^T & u_i & = & \sigma_i v_i
+\end{array}
+\right\}
+i = \text{min}\{m, n\}
+\end{equation}
+
+\section{Rank loss and SVD analysis}
+
+The rank $r$ of the matrix $A$ is equal to the number of non-zero singular values.
+Thus $r \leq \text{min}\{m, n\}$.
+If case $r < \text{min}\{m, n\}$ is called rank loss.
+
+If $\sigma_k = 0$, then from Eq. \ref{eq:singular_vectors} it follows that
+\begin{equation}\label{eq:null_vectors}
+\begin{array}{llcl}
+A   &v_k & = & 0 \\
+A^T & u_k & = & 0
+\end{array}
+\end{equation}
+
+Thus the vector $v_k$ is the linear combination of columns of
+matrix $A$ that yields 0, and the vector $u_k$ is the linear combination
+of rows of $A$ that yields zero. The vector $v_k$ and $u_i$ thus
+give information about linearly dependent rows and columns in matrix $A$.
+
+\bibliography{svd_analysis}
+\bibliographystyle{cpblit}
+
+\end{document}

@@ -10,10 +10,10 @@ period <- as.period_range("476")
 mdl_filename <- "mdl/conditional1.mdl"
 mdl_subst_filename <- "mdl/conditional1_subst.mdl"
 
-flags_1 <- c("no_flag", "no_flag" , "one"    , "one"     , "two"    , "two" ,
+flags_1 <- c("no_flag",  "no_flag",     "one",      "one",     "two",      "two",
              "two")
 flags_2 <- c("no_flag", "times_10", "no_flag", "times_10", "no_flag", "times_10",
-            "times_100")
+             "times_100")
 
 test_that("the parse flags are handled correctly", {
   results <- numeric(length(flags_1))
@@ -30,7 +30,7 @@ test_that("the parse flags are handled correctly", {
 
 test_that("convert_mdl_file also handles flags correctly", {
   parse_options <- list(flags = c("two", "times_100"))
-  convert_mdl_file(model_file = mdl_filename, 
+  convert_mdl_file(model_file = mdl_filename,
                    output_file = mdl_subst_filename,
                    parse_options = parse_options)
   expect_known_output(cat(paste(readLines(mdl_subst_filename), collapse = "\n")),

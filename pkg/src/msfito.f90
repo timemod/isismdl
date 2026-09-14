@@ -406,7 +406,7 @@ subroutine fitot15
     
     if (opts%repopt == REP_NONE) return
     
-    str = 'Not enough memory for the svd analysis of the fit jacobian'
+    str = 'Not enough memory to store the fit jacobian'
     call strout(O_ERRM)
     return
 end subroutine fitot15

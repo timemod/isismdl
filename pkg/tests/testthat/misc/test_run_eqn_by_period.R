@@ -70,9 +70,9 @@ test_that("inactive equation", {
   mdl1$set_eq_status(names = "x1", status = "inactive")
   expect_error(
     mdl1$run_eqn(names = c("x2", "x0", "x1"),
-               by_period = TRUE, forwards = FALSE),
-    "\"x1\" is not an active equation.", fixed = TRUE)
-
+                 by_period = TRUE, forwards = FALSE),
+    "\"x1\" is not an active equation.", fixed = TRUE
+  )
   mdl1$run_eqn(by_period = TRUE, forwards = FALSE)
   expected_result <- cbind(x0 = regts(NA_real_, period = mdp),
                            x1 = NA,
@@ -92,5 +92,3 @@ test_that("fixed equation", {
   expect_equal(mdl1$get_ca(),
                cbind(x1 = regts(c(0, 8, 0, 0), period = mdp)))
 })
-
-

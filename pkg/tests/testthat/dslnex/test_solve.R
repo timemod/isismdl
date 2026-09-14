@@ -32,12 +32,12 @@ test_that("model also solved with small rlxmax", {
                                             report = "none")), msg)
 
   expect_silent(model$solve(options = list(rlxmax = 0.05, maxiter = 500,
-                                            report = "none")))
+                                           report = "none")))
   expect_equal(model$get_data(names = c("x1", "x2")), correct_result)
 
   msg <- "rlxmin is smaller than rlxmax"
   expect_error(model$solve(options = list(rlxmax = 0.05, rlxmin = 0.08,
-                                           report = "none")), msg)
+                                          report = "none")), msg)
 })
 
 test_that("check mrf", {
@@ -46,6 +46,3 @@ test_that("check mrf", {
                       file = "expected_output/solve_mrf.txt",
                       update = update, print = TRUE)
 })
-
-
-

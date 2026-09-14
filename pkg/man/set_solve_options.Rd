@@ -18,7 +18,7 @@ mdl$set_solve_options(mode, fbstart, maxiter, maxjacupd, rlxspeed,
                       rlxmin, rlxmax, cstpbk, cnmtrx, xrelax,
                       xmaxiter, xupdate, dbgopt, erropt,
                       report, ratreport, ratreport_rep, ratfullreport_rep,
-                      bktmax, xtfac, svdtest_tol)
+                      bktmax, xtfac, store_jac)
 
 mdl$get_solve_options()
 }
@@ -118,18 +118,9 @@ for each endogenous variable if the variable has an endogenous lead.
 Suppose for example that some variable has a convergence criterion of \code{1e-5}
 and assume a value of 10 for the multiplier.
 Then its endogenous lead will be regarded as converged.}
-\item{\code{svdtest_tol}}{Singular Value Decomposition (SVD) test tolerance
-parameter.
-If the inverse condition of the Jacobian is smaller than this parameter,
-then an SVD analysis of the Jacobian is performed. This may help to
-find the equations that cause (near) singularity of the Jacobian.
-The default value is \code{-1}, which implies that the SVD test is never
-performed. Specify a number between 0 and 1 to enable an SVD analysis depending
-on the inverse condition of the Jacobian.
-When this option has been specified a copy of the Jacobian is kept in memory,
-even if the Jacobian is not ill-conditioned.
-This option should therefore only be used during testing. It should be turned
-off in production calculations.}
+\item{\code{store_jac}}{A logical (default \code{FALSE}). If \code{TRUE}, the last
+computed Jacobian is stored in the \code{IsisMdl} object. This Jacobian
+can be retrieved with method \code{\link{get_solve_jac}()}.}
 }
 }
 
@@ -257,5 +248,5 @@ mdl <- islm_mdl(period = "2017Q1/2018Q4")
 mdl$set_solve_options(maxiter = 100)
 }
 \seealso{
-\code{\link{set_debug_eqn}}
+\code{\link{set_fit_options}} and \code{\link{set_debug_eqn}}.
 }

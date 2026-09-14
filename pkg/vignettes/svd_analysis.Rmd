@@ -1,0 +1,103 @@
+---
+title: "SVD Analysis (Draft)"
+author: "Rob van Harrevelt"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+    number_sections: yes
+  html_document:
+    toc: yes
+    toc_depth: '3'
+    df_print: paged
+  word_document:
+    toc: yes
+    toc_depth: '3'
+bibliography: isismdl.bib
+linkcolor: blue
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{caption}
+- \captionsetup[table]{position=bottom}
+vignette: |
+  %\VignetteIndexEntry{Introduction to Package isismdl} 
+  %\VignetteEngine{knitr::rmarkdown} 
+  %\VignetteEncoding{UTF-8}
+---
+
+<!--   
+PREPARATIONS
+-->
+```{r echo = FALSE, message = FALSE}
+
+library(isismdl)
+
+# input/output chunks are separated
+# R inputlines start with >, outputlines with nothing
+knitr::opts_chunk$set(collapse = FALSE, comment = "", prompt = TRUE)
+```
+
+# Introduction \label{sec:intro}
+
+ This vigette provides an example for the usage of the SVD analysis.
+ This is still a first version that has simply been created by
+ copying the paragraph "SVD Analysis" in the original documentation
+ of method `set_fit_options()`. This vignette needs much more explanations.
+ The explanation of the SVD method in file  `latex/svd_analysis.tex`, 
+ which was originally written for Isis users,
+ may be also be incorporated in this vignette.
+
+# Example: fit jacobian
+
+ If the inverse condition of the fit Jacobian is exactly zero,
+ then it is impossible to solve the equations of the fit procedure,
+ and the fit procedure is terminated. When the inverse condition
+ is small but non-zero, the solution is often inaccurate or even unstable.
+ In some cases the (near) singularity is caused by (almost) zero rows
+ or columns of the fit Jacobian.  It is also possible that
+ some rows or columns are linearly dependent. The example below shows
+ a case where the rows are dependent.
+
+ The Singular Value Decomposition (SVD) (see the Wikipedia article
+ about SVD (\url{https://en.wikipedia.org/wiki/Singular_value_decomposition})
+ may help to find the linear dependent rows and columns. The SVD analysis can be
+ enabled by specifying debug option `storejac` for `set_fit_options`.
+
+ First we create an Isis model and prepare fit data.
+ ```{r results = "hide"}
+ mdl <- islm_mdl("2020Q1")
+ y <- regts(985, start = "2020q1")
+ yd <- regts(800, start = "2020q1")
+ c <- regts(600, start = "2020q1")
+ fit <- cbind(y, yd, c)
+ mdl$set_fit(fit)
+ mdl$set_rms(c(c = 5.0, i = 21, md = 2))
+ ```
+
+ So we have the following fit targets:
+ ```{r}
+ mdl$get_fit()
+ ```
+
+ We specify fit options so that fit jacobian is stored:
+ ```{r}
+ mdl$set_fit_options(store_jac = TRUE)
+ ```
+
+ Next solve the model. Because y and yd are related according to `y = yd - t`
+ (`t` is also linearly related to `y`, so there is a linear relation between
+ `y` and `yd`),
+ the fit Jacobian contains dependent rows.
+ ```{r}
+ mdl$solve()
+ fit_jac <- mdl$get_fit_jac()
+ fit_jac
+ ```
+ 
+ ```{r}
+ svd_analysis(fit_jac)
+ ```
+
+# References
+

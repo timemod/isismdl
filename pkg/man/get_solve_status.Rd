@@ -35,6 +35,7 @@ or feedback variables have \code{NA} values)
 \item \code{"Fair-Taylor has not converged"}
 \item \code{"Out of memory. Simulation not successful"}
 \item \code{"Unknown problem in solve. Simulation not successful"}
+\item \code{"Unknown"} (this signifies an internal error)
 }
 }
 
