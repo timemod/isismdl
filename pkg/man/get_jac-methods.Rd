@@ -15,12 +15,13 @@ Each call to \code{solve()} resets any previously stored Jacobians in the
 \code{IsisMdl} object to \code{NULL}.
 
 Two separate \code{store_jac} options exist: one for the solve Jacobian and
-one for the fit Jacobian (both default to \code{FALSE}). They can be set in
-two ways: with methods \code{\link{set_solve_options}()} (for the solve
-Jacobian) and \code{\link{set_fit_options}()} (for the fit Jacobian),
-or by directly specifying the \code{options} argument (for the solve
-Jacobian) and the \code{fit_options} argument (for the fit Jacobian) of
-method \code{\link{solve}()}.
+one for the fit Jacobian. Both default to \code{FALSE} and can be set in two ways:
+\itemize{
+\item \strong{Solve Jacobian}: use method \code{\link{set_solve_options}()}
+or the \code{options} argument of method \code{\link{solve}()}.
+\item \strong{Fit Jacobian}: use method \code{\link{set_fit_options}()}
+or the \code{fit_options} argument of method \code{\link{solve}()}.
+}
 
 The \strong{solve Jacobian} is computed to numerically solve the feedback
 variables using the Broyden method. For models without feedback
