@@ -8,7 +8,7 @@ c <- regts(c(990, NA, 1010), start = "2015Q2")
 fix <- cbind(c, i)
 ts_labels(fix) <- c("consumption", "investment")
 
-capture_output(mdl <- read_mdl("islm_model.ismdl"))
+mdl <- read_mdl("islm_model.ismdl", silent = TRUE)
 
 mdl$set_fix(fix)
 
@@ -34,9 +34,7 @@ test_that("Testing get_fix after cloning", {
 
 test_that("Testing fix values after reading the model", {
   mdl$write_mdl("temp.ismdl")
-  capture.output(
-    mdl4 <- read_mdl("temp.ismdl")
-  )
+  mdl4 <- read_mdl("temp.ismdl", silent = TRUE)
   unlink("temp.ismdl")
   expect_identical(mdl4$get_fix(), fix)
 })

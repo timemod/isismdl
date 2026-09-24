@@ -5,7 +5,7 @@ library(utils)
 rm(list = ls())
 
 
-capture_output(mdl <- read_mdl("islm_model.ismdl"))
+mdl <- read_mdl("islm_model.ismdl", silent = TRUE)
 
 default_opts <- mdl$get_solve_options()
 
@@ -43,7 +43,7 @@ test_that("get_solve_options / set_solve_options", {
   expect_identical(mdl3$get_solve_options(), opts)
 
   mdl2$write_mdl("temp.ismdl")
-  capture_output(mdl4 <- read_mdl("temp.ismdl"))
+  mdl4 <- read_mdl("temp.ismdl", silent = TRUE)
   unlink("temp.ismdl")
   expect_identical(mdl4$get_solve_options(), opts)
 

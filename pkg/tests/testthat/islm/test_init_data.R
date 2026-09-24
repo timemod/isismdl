@@ -4,7 +4,7 @@ library(testthat)
 
 rm(list = ls())
 
-invisible(capture.output(mdl <- islm_mdl()))
+mdl <- islm_mdl(silent = TRUE)
 
 test_that("errors", {
 

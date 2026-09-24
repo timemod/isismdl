@@ -127,7 +127,7 @@ test_that("get_residuals extended cases", {
 
 # 5. Label existence and duplication check
 test_that("get_residuals includes one label column", {
-  capture.output(mdl <- islm_mdl(period = "2017Q1/2018Q4"))
+  mdl <- islm_mdl(period = "2017Q1/2018Q4", silent = TRUE)
   mdl$solve(options = list(report = "none"))
   mdl$set_values(1000, names = "y", period = "2017Q2")
   res <- mdl$get_residuals(period = "2017Q2")
