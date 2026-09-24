@@ -79,7 +79,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
 
   vertices_observed <- to_vertex_names(observed_data)
 
-  g <- make_empty_graph()
+  env <- new.env(parent = emptyenv())
+  env$g <- make_empty_graph()
 
   # Function to create a new vertex.
   add_vertex <- function(g, vertex_name, observed, is_endo, is_final_dest,
@@ -99,7 +100,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Recursion is stopped when the period is smaller than min_period_data - 1
 
     vertex_name <- as.character(var_per)
-    vertex_exists <- vertex_name %in% V(g)$name
+    vertex_exists <- vertex_name %in% V(env$g)$name
 
     # If the vertex already exists in the graph, then check if the recursion
     # for this vertex has already been completed. This is the case when
@@ -107,8 +108,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # of this vertex.
     if (vertex_exists) {
       # Compute the index of the vertex with name 'vertex_name':
-      idx <- which(V(g)$name == vertex_name)
-      ok <- V(g)[idx]$ok
+      idx <- which(V(env$g)$name == vertex_name)
+      ok <- V(env$g)[idx]$ok
       if (!is.na(ok)) {
         return(ok)
       }
@@ -124,11 +125,11 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
 
     # Create a new vertex.
     if (!vertex_exists) {
-      g <<- add_vertex(g, vertex_name = vertex_name, observed = observed,
-                       is_endo = is_endo, is_final_dest = is_final_dest,
-                       is_solvable = is_solvable)
+      env$g <- add_vertex(env$g, vertex_name = vertex_name, observed = observed,
+                          is_endo = is_endo, is_final_dest = is_final_dest,
+                          is_solvable = is_solvable)
       # Compute the index of the vertex with name 'vertex_name':
-      idx <- which(V(g)$name == vertex_name)
+      idx <- which(V(env$g)$name == vertex_name)
     }
 
     # Color for vertex with an error.
@@ -137,19 +138,19 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Check if vertex is a final source, in that case return.
     if (has_final_sources) {
       is_final_src <- vertex_name %in% vertices_final_src
-      g <<- set_vertex_attr(g, "is_final_src", index = idx, value = is_final_src)
+      env$g <- set_vertex_attr(env$g, "is_final_src", index = idx, value = is_final_src)
       if (is_final_src) {
-        g <<- set_vertex_attr(g, "ok", index = idx, value = TRUE)
-        g <<- set_vertex_attr(g, "color", index = idx, value = COLOR_FINAL_SRC)
+        env$g <- set_vertex_attr(env$g, "ok", index = idx, value = TRUE)
+        env$g <- set_vertex_attr(env$g, "color", index = idx, value = COLOR_FINAL_SRC)
         return(TRUE)
       }
     }
 
     # Check if the variable is observed.
     if (observed && (!is_final_dest || stop_if_final_dest_observed)) {
-      g <<- set_vertex_attr(g, "ok", index = idx, value = TRUE)
-      g <<- set_vertex_attr(
-        g, "color", index = idx,
+      env$g <- set_vertex_attr(env$g, "ok", index = idx, value = TRUE)
+      env$g <- set_vertex_attr(
+        env$g, "color", index = idx,
         value = if (is_final_dest) COLOR_FINAL_DEST_OK else COLOR_OBSERVED
       )
       return(TRUE)
@@ -158,17 +159,17 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     # Check if the variable is exogenous. This is an error, because the variable
     # is not observed.
     if (!is_endo) {
-      g <<- set_vertex_attr(g, "ok", index = idx, value = FALSE)
-      g <<- set_vertex_attr(g, "msg", index = idx, value = "Missing exo")
-      g <<- set_vertex_attr(g, "color", index = idx, value = color_not_ok)
+      env$g <- set_vertex_attr(env$g, "ok", index = idx, value = FALSE)
+      env$g <- set_vertex_attr(env$g, "msg", index = idx, value = "Missing exo")
+      env$g <- set_vertex_attr(env$g, "color", index = idx, value = color_not_ok)
       return(FALSE)
     }
 
     # Break the recursion if the period is before min_period_data - 1.
     if (per < min_period_data - 1) {
-      g <<- set_vertex_attr(g, "ok", index = idx, value = FALSE)
-      g <<- set_vertex_attr(g, "color", index = idx, value = color_not_ok)
-      g <<- set_vertex_attr(g, "msg", index = idx, value = "outside period range")
+      env$g <- set_vertex_attr(env$g, "ok", index = idx, value = FALSE)
+      env$g <- set_vertex_attr(env$g, "color", index = idx, value = color_not_ok)
+      env$g <- set_vertex_attr(env$g, "msg", index = idx, value = "outside period range")
       return(FALSE)
     }
 
@@ -189,9 +190,9 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       # The variable is endogenous but has no dependencies.
       # This is the case for equations such as x = 0 (the right hand side
       # of the equation only contains constants or parameters).
-      g <<- set_vertex_attr(g, "ok", index = idx, value = TRUE)
-      g <<- set_vertex_attr(g, "calculable", index = idx, value = TRUE)
-      g <<- set_vertex_attr(g, "color", index = idx, value = color_endo_ok)
+      env$g <- set_vertex_attr(env$g, "ok", index = idx, value = TRUE)
+      env$g <- set_vertex_attr(env$g, "calculable", index = idx, value = TRUE)
+      env$g <- set_vertex_attr(env$g, "color", index = idx, value = color_endo_ok)
       return(TRUE)
     }
 
@@ -202,9 +203,9 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       deps_new <- anti_join(deps_new, observed_data,  by = c("var", "period"))
       if (nrow(deps_new) == 0) {
         # The variable only depends on observed variables.
-        g <<- set_vertex_attr(g, "ok", index = idx, value = TRUE)
-        g <<- set_vertex_attr(g, "calculable", index = idx, value = TRUE)
-        g <<- set_vertex_attr(g, "color", index = idx, value = color_endo_ok)
+        env$g <- set_vertex_attr(env$g, "ok", index = idx, value = TRUE)
+        env$g <- set_vertex_attr(env$g, "calculable", index = idx, value = TRUE)
+        env$g <- set_vertex_attr(env$g, "color", index = idx, value = color_endo_ok)
         return(TRUE)
       }
     }
@@ -219,7 +220,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
       vertex_ok <- .find_deps(dep_new)
       vertex_name_dep <- as.character(dep_new)
       if (vertex_ok || is_final_dest) {
-        g <<- add_edges(g, c(vertex_name_dep, vertex_name))
+        env$g <- add_edges(env$g, c(vertex_name_dep, vertex_name))
       }
       if (!vertex_ok && calculable) {
         calculable <- FALSE
@@ -228,7 +229,7 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
         if (!is_final_dest) {
           # Remove incoming edges from an incalculable node if this is not a
           # final
-          g <<- delete_edges(g, incident(g, vertex_name, mode = "in"))
+          env$g <- delete_edges(env$g, incident(env$g, vertex_name, mode = "in"))
           break
         }
       }
@@ -239,16 +240,10 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
     ok <- calculable || observed || is_solvable
 
     # Set vertex attributes ok, calculable and color:
-
-    # New versions of lintr complain about the <<- operator,
-    # so use 'nolint start' and 'nolint end' here.
-
-    # nolint start
-    g <<- set_vertex_attr(g, "ok", index = idx, value = ok)
-    g <<- set_vertex_attr(g, "calculable", index = idx, value = calculable)
-    g <<- set_vertex_attr(g, "color", index = idx,
-                          value = if (ok) color_endo_ok else color_not_ok)
-    # nolint end
+    env$g <- set_vertex_attr(env$g, "ok", index = idx, value = ok)
+    env$g <- set_vertex_attr(env$g, "calculable", index = idx, value = calculable)
+    env$g <- set_vertex_attr(env$g, "color", index = idx,
+                             value = if (ok) color_endo_ok else color_not_ok)
     return(ok)
   }
 
@@ -257,6 +252,8 @@ find_deps_internal <- function(final_destinations, final_sources = NULL,
                               final_destinations$period[[i]])
     .find_deps(var_per)
   }
+
+  g <- env$g
 
   # --- PRUNING PHASE ---
   # The recursive search identifies all potential dependencies, but the resulting
