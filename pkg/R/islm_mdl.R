@@ -11,7 +11,7 @@
 #' @return a \code{\link{IsisMdl}} object
 #' @examples
 #' mdl <- islm_mdl()
-#' mdl_silent <- islm_mdl(silent = TRUE)
+#' mdl <- islm_mdl(silent = TRUE) # suppress output
 #' @export
 islm_mdl <- function(period = NULL, silent = FALSE) {
   mdl_file <- tempfile(pattern = "isismdl_", fileext = ".mdl")
