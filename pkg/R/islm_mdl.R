@@ -6,15 +6,18 @@
 #' is ready to be solved.
 #'
 #' @param period the model period for the ISLM model
+#' @param silent A logical (default \code{FALSE}). If \code{TRUE}, then
+#' output of the model parser is suppressed.
 #' @return a \code{\link{IsisMdl}} object
 #' @examples
 #' mdl <- islm_mdl()
+#' mdl <- islm_mdl(silent = TRUE) # suppress output
 #' @export
-islm_mdl <- function(period = NULL) {
+islm_mdl <- function(period = NULL, silent = FALSE) {
   mdl_file <- tempfile(pattern = "isismdl_", fileext = ".mdl")
   mdl_file_orig <- system.file("models", "islm.mdl", package = "isismdl")
   file.copy(mdl_file_orig, mdl_file)
-  mdl <- isis_mdl(mdl_file)
+  mdl <- isis_mdl(mdl_file, silent = silent)
 
   unlink(mdl_file)
 

@@ -5,7 +5,7 @@ library(testthat)
 rm(list = ls())
 
 
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 mdl$set_solve_options(mode = "reschk", report = "none")
 

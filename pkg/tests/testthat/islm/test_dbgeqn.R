@@ -27,7 +27,7 @@ test_that("comparing models", {
 
 test_that("reading/writing model", {
   mdl$write_mdl("temp.ismdl")
-  dum <- capture.output(mdl2 <- read_mdl("temp.ismdl"))
+  mdl2 <- read_mdl("temp.ismdl", silent = TRUE)
   unlink("temp.ismdl")
   expect_true(mdl2$get_debug_eqn())
   expect_equal(mdl, mdl2)

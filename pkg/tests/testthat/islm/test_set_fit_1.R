@@ -5,7 +5,7 @@ library(testthat)
 rm(list = ls())
 
 
-capture_output(mdl <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 i <- regts(200, start = "2015Q2")
 c <- regts(c(600, NA, 600), start = "2015Q2")

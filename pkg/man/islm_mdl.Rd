@@ -4,10 +4,13 @@
 \alias{islm_mdl}
 \title{Returns an example ISLM model}
 \usage{
-islm_mdl(period = NULL)
+islm_mdl(period = NULL, silent = FALSE)
 }
 \arguments{
 \item{period}{the model period for the ISLM model}
+
+\item{silent}{A logical (default \code{FALSE}). If \code{TRUE}, then
+output of the model parser is suppressed.}
 }
 \value{
 a \code{\link{IsisMdl}} object
@@ -20,4 +23,5 @@ is ready to be solved.
 }
 \examples{
 mdl <- islm_mdl()
+mdl_silent <- islm_mdl(silent = TRUE)
 }

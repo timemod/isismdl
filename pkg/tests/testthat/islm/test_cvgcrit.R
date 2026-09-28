@@ -4,8 +4,8 @@ library(testthat)
 rm(list = ls())
 
 
-rep1 <- capture_output(mdl <- read_mdl("islm_model.ismdl"))
-rep2 <- capture_output(mdl_solved <- read_mdl("islm_model_solved.ismdl"))
+mdl <- read_mdl("islm_model.ismdl", silent = TRUE)
+mdl_solved <- read_mdl("islm_model_solved.ismdl", silent = TRUE)
 
 mdl$set_cvgcrit(0.01)
 mdl$set_cvgcrit(0.005, names = c("c", "r"))
@@ -24,7 +24,7 @@ test_that("also ok after copy and reading /writign to file", {
 
   ismdl_file <- tempfile(fileext = ".ismdl")
   mdl$write_mdl(ismdl_file)
-  rep <- capture.output(mdl3 <- read_mdl(ismdl_file))
+  mdl3 <- read_mdl(ismdl_file, silent = TRUE)
   expect_identical(mdl3$get_cvgcrit(), expected_result)
 })
 

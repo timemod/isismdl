@@ -66,7 +66,7 @@ test_that("get_fit_options / set_fit_options", {
   expect_identical(mdl3$get_fit_options(), opts)
 
   mdl2$write_mdl("temp.ismdl")
-  capture_output(mdl4 <- read_mdl("temp.ismdl"))
+  mdl4 <- read_mdl("temp.ismdl", silent = TRUE)
   unlink("temp.ismdl")
   expect_identical(mdl4$get_fit_options(), opts)
 })

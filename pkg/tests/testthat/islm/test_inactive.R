@@ -69,7 +69,7 @@ test_that("Testing equation status after reading the model", {
   mdl2 <<- mdl$clone(deep = TRUE)
   mdl2$set_eq_status("inactive", names = "c")
   mdl2$write_mdl("temp.ismdl")
-  capture.output(mdl3 <- read_mdl("temp.ismdl"))
+  mdl3 <- read_mdl("temp.ismdl", silent = TRUE)
   unlink("temp.ismdl")
   expect_identical(mdl3$get_eq_names(status = "inactive"), "c")
 })

@@ -44,7 +44,7 @@ test_that("get_rms with NA and 0 values", {
     "IsisMdl object written to file 'tmp.ismdl'",
     fixed = TRUE
   )
-  capture.output(mdl5 <- read_mdl("tmp.ismdl"))
+  mdl5 <- read_mdl("tmp.ismdl", silent = TRUE)
   unlink("tmp.ismdl")
   expect_identical(mdl5$get_rms(), rms_values2[c("c", "md")])
 })
@@ -57,7 +57,7 @@ mdl6$set_rms(rms_values3)
 test_that("get_rms with NA and 0 values", {
   expect_identical(mdl6$get_rms(), numeric(0))
   mdl6$write_mdl("tmp.ismdl")
-  capture.output(mdl7 <- read_mdl("tmp.ismdl"))
+  mdl7 <- read_mdl("tmp.ismdl", silent = TRUE)
   unlink("tmp.ismdl")
   expect_identical(mdl7$get_rms(), numeric(0))
 })
