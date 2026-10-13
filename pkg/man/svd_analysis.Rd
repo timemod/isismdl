@@ -41,8 +41,8 @@ elements:
 \item \code{d}              all singular values (a vector of length min(m, n))
 \item \code{rank}           numerical rank of A
 \item \code{small_sv}       the (near)-zero singular values
-\item \code{U_small}        cleaned left singular vectors  (n x length(small_sv))
-\item \code{V_small}        cleaned right singular vectors (n x length(small_sv))
+\item \code{U_small}        cleaned left singular vectors  (<= m x length(small_sv))
+\item \code{V_small}        cleaned right singular vectors (<= n x length(small_sv))
 \item \code{lin_dep_rows}   indices of rows participating in a dependency
 \item \code{lin_dep_cols}   indices of columns participating in a dependency
 \item \code{zero_rows}      indices of all-(near-)zero rows of A

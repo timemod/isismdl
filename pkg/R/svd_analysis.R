@@ -54,8 +54,8 @@
 #'   - `d`              all singular values (a vector of length min(m, n))
 #'   - `rank`           numerical rank of A
 #'   - `small_sv`       the (near)-zero singular values
-#'   - `U_small`        cleaned left singular vectors  (n x length(small_sv))
-#'   - `V_small`        cleaned right singular vectors (n x length(small_sv))
+#'   - `U_small`        cleaned left singular vectors  (<= m x length(small_sv))
+#'   - `V_small`        cleaned right singular vectors (<= n x length(small_sv))
 #'   - `lin_dep_rows`   indices of rows participating in a dependency
 #'   - `lin_dep_cols`   indices of columns participating in a dependency
 #'   - `zero_rows`      indices of all-(near-)zero rows of A

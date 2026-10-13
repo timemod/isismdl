@@ -1,28 +1,21 @@
 ---
-title: "SVD Analysis (Draft)"
-author: "Rob van Harrevelt"
+title: "Singular Value Decomposition (SVD) Analysis for Model Diagnosis"
+author: "Rob van Harrevelt and Elanur Akbas"
 date: "`r Sys.Date()`"
 output:
   pdf_document:
-    toc: yes
+    toc: true
     toc_depth: 3
-    number_sections: yes
+    number_sections: true
   html_document:
-    toc: yes
-    toc_depth: '3'
+    toc: true
+    toc_depth: 3
     df_print: paged
-  word_document:
-    toc: yes
-    toc_depth: '3'
-bibliography: isismdl.bib
 linkcolor: blue
-header-includes:
-- \usepackage{booktabs}
-- \usepackage{caption}
-- \captionsetup[table]{position=bottom}
-vignette: |
-  %\VignetteIndexEntry{Introduction to Package isismdl} 
-  %\VignetteEngine{knitr::rmarkdown} 
+bibliography: isismdl.bib
+vignette: >
+  %\VignetteIndexEntry{SVD Analysis for Model Diagnosis}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -30,74 +23,685 @@ vignette: |
 PREPARATIONS
 -->
 ```{r echo = FALSE, message = FALSE}
-
 library(isismdl)
 
 # input/output chunks are separated
-# R inputlines start with >, outputlines with nothing
+# R input lines start with >, output lines with nothing
 knitr::opts_chunk$set(collapse = FALSE, comment = "", prompt = TRUE)
 ```
 
-# Introduction \label{sec:intro}
+# Introduction
 
- This vigette provides an example for the usage of the SVD analysis.
- This is still a first version that has simply been created by
- copying the paragraph "SVD Analysis" in the original documentation
- of method `set_fit_options()`. This vignette needs much more explanations.
- The explanation of the SVD method in file  `latex/svd_analysis.tex`, 
- which was originally written for Isis users,
- may be also be incorporated in this vignette.
+In macroeconomic modeling and policy analysis, large dynamic systems of simultaneous
+equations are routinely solved and calibrated. During simulation and forecasting,
+two central computational procedures rely heavily on Jacobian matrices:
 
-# Example: fit jacobian
+1. **Model Simulation (`solve()`)**: When solving simultaneous non-linear equation
+   blocks via Newton-Raphson, the algorithm computes and inverts the *solve Jacobian*
+   (the derivative of equation residuals with respect to endogenous feedback variables).
+2. **Model Calibration and Target Matching (`fit()`)**: When adjusting model
+   projections to match external benchmarks or published historical data (often via Constant
+   Adjustments / RMS add-factors), the algorithm constructs the *fit Jacobian*
+   (the sensitivity of chosen target variables with respect to the selected instruments).
 
- If the inverse condition of the fit Jacobian is exactly zero,
- then it is impossible to solve the equations of the fit procedure,
- and the fit procedure is terminated. When the inverse condition
- is small but non-zero, the solution is often inaccurate or even unstable.
- In some cases the (near) singularity is caused by (almost) zero rows
- or columns of the fit Jacobian.  It is also possible that
- some rows or columns are linearly dependent. The example below shows
- a case where the rows are dependent.
+When a Jacobian matrix becomes singular or ill-conditioned, the numerical solver
+breaks down. In `isismdl`, this typically produces warnings such as:
 
- The Singular Value Decomposition (SVD) (see the Wikipedia article
- about SVD (\url{https://en.wikipedia.org/wiki/Singular_value_decomposition})
- may help to find the linear dependent rows and columns. The SVD analysis can be
- enabled by specifying debug option `storejac` for `set_fit_options`.
+```text
+Fit Error - D matrix is rank deficient (the inverse condition is exactly zero).
+Derivatives of fit targets are dependent or
+for one or more fit targets all derivatives are (almost) zero ...
+Warning: Simulation not possible
+```
 
- First we create an Isis model and prepare fit data.
- ```{r results = "hide"}
- mdl <- islm_mdl("2020Q1")
- y <- regts(985, start = "2020q1")
- yd <- regts(800, start = "2020q1")
- c <- regts(600, start = "2020q1")
- fit <- cbind(y, yd, c)
- mdl$set_fit(fit)
- mdl$set_rms(c(c = 5.0, i = 21, md = 2))
- ```
+or:
 
- So we have the following fit targets:
- ```{r}
- mdl$get_fit()
- ```
+```text
+Fit Warning - D matrix is ill conditioned.
+Inverse condition < Machine prec**.5
+```
 
- We specify fit options so that fit jacobian is stored:
- ```{r}
- mdl$set_fit_options(store_jac = TRUE)
- ```
+In small textbook models, a modeler might spot a collinear relationship by manual
+inspection. In real-world macroeconomic systems consisting of dozens or hundreds of
+equations, identifying *which* equations or targets conflict, or *which* instruments
+are redundant or disconnected, is a challenging task.
 
- Next solve the model. Because y and yd are related according to `y = yd - t`
- (`t` is also linearly related to `y`, so there is a linear relation between
- `y` and `yd`),
- the fit Jacobian contains dependent rows.
- ```{r}
- mdl$solve()
- fit_jac <- mdl$get_fit_jac()
- fit_jac
- ```
- 
- ```{r}
- svd_analysis(fit_jac)
- ```
+The function `svd_analysis()` automates this diagnostic process using Singular Value
+Decomposition (SVD). It inspects the singular values and singular vectors of the
+Jacobian to cleanly isolate:
+
+* **Linearly dependent rows** (e.g., mutually dependent target variables or redundant equations),
+* **Linearly dependent columns** (e.g., collinear instruments or feedback variables),
+* **All-zero rows and columns** (e.g., ineffective instruments or uncoupled equations).
+
+This vignette explains the mathematical foundations of SVD analysis and provides
+three step-by-step case studies:
+
+* **Case Study 1 (Model 0)**: Introductory Income, Consumption, and Savings
+  (a minimal 3-equation model illustrating target collinearity from an accounting identity and an uncoupled instrument),
+* **Case Study 2 (Model A)**: Cost-Push Inflation & Real Wage Markup (demonstrating
+  intertemporal diamond dependencies and target row collinearity arising from accounting identities),
+* **Case Study 3 (Model B)**: Monetary Policy Transmission & Housing Demand (demonstrating
+  transmission chain instrument collinearity and uncoupled zero columns).
+
+
+# Function Reference and Documentation
+
+The function `svd_analysis()` is designed to analyze any numeric matrix $A$
+(dimension $m \times n$, square or rectangular), such as a solve Jacobian returned by
+`mdl$get_solve_jac()` or a fit Jacobian returned by `mdl$get_fit_jac()`.
+
+## Usage and Arguments
+
+```r
+svd_analysis(A,
+             sv_tol = sqrt(.Machine$double.eps),
+             vector_tol = sqrt(.Machine$double.eps),
+             zero_tol = sqrt(.Machine$double.eps),
+             ...)
+```
+
+The function accepts four arguments:
+
+* `A`: A numeric matrix of dimension $m \times n$ (for example, a solve or fit Jacobian).
+* `sv_tol`: Numerical cutoff for singular values. Singular values satisfying
+  $\sigma_i < \text{sv\_tol}$ are classified as zero. The count of singular values with
+  $\sigma_i \ge \text{sv\_tol}$ defines the numerical rank of $A$. The default is
+  $\sqrt{\epsilon_{\text{mach}}} \approx 1.49 \times 10^{-8}$.
+* `vector_tol`: Numerical threshold for entries in singular vectors. Rows of the
+  singular-vector matrices ($U$ and $V$) in which *all* entries have absolute values below
+  `vector_tol` are discarded, filtering out variables that play no role in any dependency.
+  The default is $\sqrt{\epsilon_{\text{mach}}} \approx 1.49 \times 10^{-8}$.
+* `zero_tol`: Numerical threshold for entries of $A$ itself. Rows and columns of $A$ with
+  maximum absolute value below `zero_tol` are flagged and reported separately as all-zero
+  rows/columns. The default is $\sqrt{\epsilon_{\text{mach}}} \approx 1.49 \times 10^{-8}$.
+
+## Return Value
+
+The function returns an object of S3 class `svd_analysis` (a list, returned invisibly),
+containing the following elements:
+
+* `A`: The original input matrix ($m \times n$).
+* `d`: Vector containing all computed singular values (length $\min(m, n)$).
+* `rank`: The numerical rank of $A$ (number of singular values $\ge \text{sv\_tol}$).
+* `small_sv`: Vector of singular values that fall below `sv_tol`.
+* `U_small`: Cleaned matrix of left singular vectors corresponding to `small_sv`, with
+  negligible rows removed (dimension $\le m \times \text{length}(small\_sv)$). Rows correspond
+  to rows of $A$.
+* `V_small`: Cleaned matrix of right singular vectors corresponding to `small_sv`, with
+  negligible rows removed (dimension $\le n \times \text{length}(small\_sv)$). Rows correspond
+  to columns of $A$.
+* `lin_dep_rows`: Integer vector of row indices of $A$ participating in dependencies.
+* `lin_dep_cols`: Integer vector of column indices of $A$ participating in dependencies.
+* `zero_rows`: Integer vector of row indices of $A$ that contain only near-zero entries.
+* `zero_cols`: Integer vector of column indices of $A$ that contain only near-zero entries.
+* `sv_tol`, `vector_tol`, `zero_tol`: The tolerance thresholds applied.
+
+
+# Mathematical Foundations of SVD Analysis
+
+## The Singular Value Decomposition
+
+Following @matcomp, any real matrix $A \in \mathbb{R}^{m \times n}$ (whether square
+or rectangular) can be factored as:
+
+$$A = U \Sigma V^T$$
+
+where:
+
+* $U \in \mathbb{R}^{m \times m}$ is an orthogonal matrix ($U^T U = I_m$). Its columns
+  $u_1, \dots, u_m$ are called the *left singular vectors*.
+* $V \in \mathbb{R}^{n \times n}$ is an orthogonal matrix ($V^T V = I_n$). Its columns
+  $v_1, \dots, v_n$ are called the *right singular vectors*.
+* $\Sigma \in \mathbb{R}^{m \times n}$ is a diagonal matrix containing non-negative
+  singular values $\sigma_i$ along its main diagonal, ordered non-increasingly:
+
+$$\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_p \ge 0, \qquad p = \min(m, n)$$
+
+The singular vectors and singular values satisfy the fundamental relations:
+
+$$A v_i = \sigma_i u_i \quad \text{and} \quad A^T u_i = \sigma_i v_i, \qquad i = 1, \dots, p$$
+
+## Rank Loss and Null Spaces
+
+The numerical rank $r$ of $A$ is the number of non-zero singular values ($r \le p = \min(m, n)$).
+When $r < p$, the matrix suffers from **rank loss** (it is rank deficient).
+
+When a singular value is zero ($\sigma_k = 0$), the fundamental relations reduce to:
+
+$$A v_k = 0$$
+
+$$A^T u_k = 0 \iff u_k^T A = 0$$
+
+These two relations provide direct economic and structural interpretations:
+
+1. **Row Dependencies via Left Singular Vectors ($u_k$)**:  
+   Expanding $u_k^T A = 0$ reveals:
+
+$$\sum_{i=1}^m u_{ik} \, (\text{row } i \text{ of } A) = 0$$
+
+   The entries of $u_k$ represent the exact coefficients of a linear combination of the
+   **rows of $A$** that sums to zero. In a fit Jacobian, rows correspond to target variables.
+   Therefore, non-zero entries in $u_k$ pinpoint exactly which target variables are linearly
+   dependent.
+
+2. **Column Dependencies via Right Singular Vectors ($v_k$)**:  
+   Expanding $A v_k = 0$ reveals:
+
+$$\sum_{j=1}^n v_{jk} \, (\text{column } j \text{ of } A) = 0$$
+
+   The entries of $v_k$ represent the linear combination of the **columns of $A$** that
+   sums to zero. In a fit Jacobian, columns correspond to instruments (residuals).
+   Therefore, non-zero entries in $v_k$ pinpoint collinear instruments whose effects on
+   the target variables are redundant.
+
+
+# Case Study 1: Introductory Example -- Income, Consumption, and Savings (Model 0)
+
+## Economic Context & Specification
+
+To build intuition before examining larger macroeconomic systems, consider a minimal
+3-equation textbook model of national income, private consumption, and savings:
+
+1. **Consumption ($c$)**: Real consumption is modeled as a behavioral equation depending on
+   disposable income ($y$), with a marginal propensity to consume of 0.8:
+   $$c = 0.8 \cdot y$$
+2. **Investment ($i$)**: Autonomous private investment scales with economic activity:
+   $$i = 0.2 \cdot y$$
+3. **Savings Identity ($s$)**: By accounting identity, private savings equals disposable income
+   minus consumption:
+   $$s \equiv y - c$$
+
+In Isis model syntax:
+
+```{r}
+model_0_text <- "
+frml c = 0.8 * y;   ? Consumption function
+frml i = 0.2 * y;   ? Investment function
+ident s = y - c;    ? Savings accounting identity
+"
+```
+
+## Creating the Model and Solving Baseline
+
+We compile the model with `isis_mdl()` using `model_text`, supply baseline values ($y = 100$,
+$c = 80$, $i = 20$, $s = 20$ for 2020Q1), and solve:
+
+```{r results = "hide"}
+mdl_0 <- isis_mdl(model_text = model_0_text, period = "2020Q1", silent = TRUE)
+
+# Populate baseline series
+mdl_0$set_data(regts(100, period = "2020Q1"), names = "y")
+mdl_0$set_data(regts(80, period = "2020Q1"), names = "c")
+mdl_0$set_data(regts(20, period = "2020Q1"), names = "i")
+mdl_0$set_data(regts(20, period = "2020Q1"), names = "s")
+
+mdl_0$solve(options = list(report = "none"))
+```
+
+Checking the solve status confirms that the baseline solves cleanly:
+
+```{r}
+mdl_0$get_solve_status()
+```
+
+## Formulating an Ill-Posed Fit Problem
+
+Suppose an analyst wishes to calibrate the model to meet external targets for both
+consumption ($c = 85$) and savings ($s = 25$). To achieve these two targets, two instruments
+are selected: the residual add-factors on `c` and `i`.
+
+This calibration problem suffers from two fundamental defects:
+
+1. **Dependent Target Rows**: Because $s \equiv y - c$ and income $y$ is exogenous, any
+   change in consumption $\Delta c$ mechanically shifts savings by $-\Delta c$. The target
+   rows in the fit Jacobian are therefore linearly dependent:
+   $$\text{row}(s) = -\text{row}(c) \iff \text{row}(c) + \text{row}(s) = 0$$
+   Targeting both variables independently is mathematically impossible.
+2. **Uncoupled Instrument Column**: The investment residual ($i$) has no direct or indirect
+   effect on consumption ($c$) or savings ($s$). Its column in the fit Jacobian consists
+   entirely of zeros:
+   $$\text{col}(i) = \begin{bmatrix} 0 \\ 0 \end{bmatrix}$$
+
+We configure the fit problem and enable `store_jac = TRUE`:
+
+```{r}
+mdl_0_ill <- mdl_0$copy()
+fit_targets_0 <- regts(matrix(c(85, 25), nrow = 1),
+                       period = "2020Q1",
+                       names = c("c", "s"))
+mdl_0_ill$set_fit(fit_targets_0)
+mdl_0_ill$set_rms(c(c = 1, i = 1))
+mdl_0_ill$set_fit_options(store_jac = TRUE)
+```
+
+Attempting to solve fails due to rank deficiency:
+
+```{r}
+suppressWarnings(mdl_0_ill$solve(options = list(report = "none")))
+mdl_0_ill$get_solve_status()
+```
+
+## Diagnosing with `svd_analysis()`
+
+We retrieve the fit Jacobian with `get_fit_jac()` and pass it to `svd_analysis()`:
+
+```{r}
+fit_jac_0 <- mdl_0_ill$get_fit_jac()
+fit_jac_0
+res_0 <- svd_analysis(fit_jac_0)
+print(res_0)
+```
+
+## Interpreting the Output
+
+The SVD analysis cleanly reveals both structural defects:
+
+1. **Rank Loss**: The $2 \times 2$ matrix has numerical rank 1. Exactly one singular value
+   is zero ($0 < 1.49 \times 10^{-8}$).
+2. **All-Zero Column**:  
+   `* Columns of A with only zero values (< 1.490116e-08): i.`  
+   The function directly flags that instrument `i` has zero effect on any of the selected targets.
+3. **Left Singular Vector (Row Dependency)**:  
+   The left singular vector corresponding to the zero singular value is:
+   $$u_1 = \begin{bmatrix} c \\ s \end{bmatrix} = \begin{bmatrix} 0.7071068 \\ 0.7071068 \end{bmatrix} = \frac{1}{\sqrt{2}} \begin{bmatrix} 1 \\ 1 \end{bmatrix}$$
+   This confirms:
+   $$1 \cdot \text{row}(c) + 1 \cdot \text{row}(s) = 0 \iff \text{row}(s) = -\text{row}(c)$$
+   The non-zero entries in $u_1$ isolate `c` and `s` as the mutually dependent targets.
+
+## Remediation
+
+To make the calibration well-posed:
+
+1. Remove the identity variable $s$ from the target list, allowing savings to be determined
+   endogenously from $s = y - c$.
+2. Target the independent behavioral components: consumption ($c = 85$) and investment ($i = 15$),
+   paired with their own instruments `c` and `i`:
+
+```{r}
+mdl_0_clean <- mdl_0$copy()
+fit_targets_0_clean <- regts(matrix(c(85, 15), nrow = 1),
+                             period = "2020Q1",
+                             names = c("c", "i"))
+mdl_0_clean$set_fit(fit_targets_0_clean)
+mdl_0_clean$set_rms(c(c = 1, i = 1))
+mdl_0_clean$set_fit_options(store_jac = TRUE)
+
+mdl_0_clean$solve(options = list(report = "none"))
+mdl_0_clean$get_solve_status()
+```
+
+Checking the updated Jacobian confirms full rank 2 with no dependencies:
+
+```{r}
+fit_jac_0_clean <- mdl_0_clean$get_fit_jac()
+fit_jac_0_clean
+svd_analysis(fit_jac_0_clean)
+```
+
+
+# Case Study 2: Cost-Push Inflation & Real Wage Markup (Model A)
+
+## Economic Context & Specification
+
+Model A represents a cost-push inflation and wage-price markup block inspired by the
+Congressional Budget Office (CBO) wage-price forecasting framework and the FRB/US Phillips
+curve system.
+
+The model contains 5 equations:
+
+1. **Nominal Wage Setting ($w$)**: Nominal wage growth responds to lagged inflation expectations
+   ($c_{-1}$) and labor productivity gains ($pr$).
+2. **Unit Labor Costs ($u$)**: Wage growth in excess of productivity raises unit labor costs.
+3. **Producer Price Markup ($p$)**: Producer prices are set by marking up unit labor costs and
+   imported raw material prices ($rm$).
+4. **Consumer Price Index ($c$)**: Consumer prices reflect producer prices plus indirect taxes ($tx$).
+5. **Real Wage Definition ($rw$)**: By accounting identity, the real wage equals the nominal wage
+   minus the consumer price index ($rw \equiv w - c$).
+
+In Isis model syntax, behavioral equations subject to residual adjustments (constant adjustments)
+are declared with `frml`, while exact accounting identities without residuals are declared with `ident`.
+Comments start with `?`:
+
+```{r}
+model_a_text <- "
+frml w  = 0.8 * c(-1) + 0.5 * pr;  ? Nominal wage setting
+frml u  = w - pr;                  ? Unit labor cost (ULC)
+frml p  = 0.6 * u + 0.4 * rm;      ? Producer price markup
+ident c  = p + tx;                 ? Consumer price index (CPI)
+ident rw = w - c;                  ? Real wage rate (identity)
+"
+```
+
+## Creating the Model and Solving Baseline
+
+We compile the model with `isis_mdl()`, and populate baseline data:
+
+```{r results = "hide"}
+mdl_a <- isis_mdl(model_text = model_a_text, period = "2020Q1", silent = TRUE)
+
+# Populate baseline series (including 2019Q4 lag for c)
+data_per <- mdl_a$get_data_period()
+p_ts <- regts(100, period = data_per)
+for (v in mdl_a$get_var_names()) {
+  mdl_a$set_data(p_ts, names = v)
+}
+
+# Solve baseline
+mdl_a$solve(options = list(report = "none"))
+```
+
+Checking the solve status confirms the baseline solves cleanly:
+
+```{r}
+mdl_a$get_solve_status()
+```
+
+## Formulating Conflicting Fit Targets
+
+Suppose an economic forecaster wishes to calibrate the model to an external consensus forecast.
+The forecaster specifies targets for nominal wages ($w = 105$), consumer prices ($c = 102$),
+and real wages ($rw = 3$).
+
+To achieve these three targets, three instruments are selected: the residual add-factors on
+equations `w`, `u`, and `p`.
+
+Notice the economic inconsistency: because $rw \equiv w - c$ is an exact identity, setting
+target values for all three variables means the targets cannot be independently matched unless
+the target values satisfy the identity and the model derivatives allow it. In terms of the
+Jacobian, the derivatives of $rw$ with respect to any instrument are mathematically equal
+to the derivative of $w$ minus the derivative of $c$.
+
+Let us set these targets and attempt to solve the model with fit option `store_jac = TRUE`:
+
+```{r}
+mdl_a_ill <- mdl_a$copy()
+fit_targets <- regts(matrix(c(105, 102, 3), nrow = 1),
+                     period = "2020Q1",
+                     names = c("w", "c", "rw"))
+mdl_a_ill$set_fit(fit_targets)
+mdl_a_ill$set_rms(c(w = 1, u = 1, p = 1))
+mdl_a_ill$set_fit_options(store_jac = TRUE)
+```
+
+We now call `solve()`. As expected, the solver detects rank deficiency:
+
+```{r}
+suppressWarnings(mdl_a_ill$solve(options = list(report = "none")))
+mdl_a_ill$get_solve_status()
+```
+
+## Diagnosing with `svd_analysis()`
+
+Because `store_jac = TRUE` was specified, the fit Jacobian at the point of failure is stored
+in the model object. We retrieve it with `get_fit_jac()`:
+
+```{r}
+fit_jac_a <- mdl_a_ill$get_fit_jac()
+fit_jac_a
+```
+
+Examining the matrix rows shows:
+
+* Row `w`: `[1.0,  0.0,  0]`
+* Row `c`: `[0.6,  0.6,  1]`
+* Row `rw`: `[0.4, -0.6, -1]`
+
+Notice that:
+
+$$\text{row}(w) - \text{row}(c) = [1.0 - 0.6, \; 0.0 - 0.6, \; 0 - 1] = [0.4, -0.6, -1] = \text{row}(rw)$$
+
+Thus, $\text{row}(rw) - \text{row}(w) + \text{row}(c) = 0$.
+
+We now run `svd_analysis()` on the Jacobian:
+
+```{r}
+res_a <- svd_analysis(fit_jac_a)
+print(res_a)
+```
+
+## Interpreting the Output
+
+1. **Rank Loss**: The $3 \times 3$ matrix has numerical rank 2. Exactly one singular value
+   is near zero ($1.55 \times 10^{-16} < 1.49 \times 10^{-8}$).
+2. **Left Singular Vectors (Row Dependencies)**:  
+   The vector corresponding to the zero singular value is:
+
+$$u_1 = \begin{bmatrix} w \\ c \\ rw \end{bmatrix} = \begin{bmatrix} -0.5773503 \\ 0.5773503 \\ 0.5773503 \end{bmatrix} = \frac{1}{\sqrt{3}} \begin{bmatrix} -1 \\ 1 \\ 1 \end{bmatrix}$$
+
+   This confirms that:
+
+$$-1 \cdot \text{row}(w) + 1 \cdot \text{row}(c) + 1 \cdot \text{row}(rw) = 0 \iff \text{row}(rw) = \text{row}(w) - \text{row}(c)$$
+
+   The left singular vector cleanly identifies the exact economic identity causing the rank deficiency.
+3. **Reported Rows Involved**:  
+   `svd_analysis()` lists `w, c, rw` as the rows involved in the dependency.
+
+## Remediation
+
+To eliminate the rank loss, the forecaster must remove the redundant identity target.
+We keep the primary targets $w$ and $c$, letting the model identity determine $rw$ endogenously,
+and use two instruments ($w$ and $p$):
+
+```{r}
+mdl_a_clean <- mdl_a$copy()
+fit_targets_clean <- regts(matrix(c(105, 102), nrow = 1),
+                           period = "2020Q1",
+                           names = c("w", "c"))
+mdl_a_clean$set_fit(fit_targets_clean)
+mdl_a_clean$set_rms(c(w = 1, p = 1))
+mdl_a_clean$set_fit_options(store_jac = TRUE)
+
+mdl_a_clean$solve(options = list(report = "none"))
+mdl_a_clean$get_solve_status()
+```
+
+The fit procedure now converges with status `"OK"`. Inspecting the new fit Jacobian with
+`svd_analysis()` verifies full numerical rank:
+
+```{r}
+fit_jac_clean <- mdl_a_clean$get_fit_jac()
+fit_jac_clean
+svd_analysis(fit_jac_clean)
+```
+
+
+# Case Study 3: Monetary Policy Transmission & Housing Demand (Model B)
+
+## Economic Context & Specification
+
+Model B captures the interest rate transmission mechanism from the central bank policy
+rate to the residential housing market. It is structured as a 5-step unidirectional transmission
+chain:
+
+1. **Central Bank Policy Rate ($pr$)**: Taylor-type monetary policy rule reacting to inflation
+   gap ($ti$) and output gap ($og$).
+2. **Financial Market Benchmark Yield ($mr$)**: Adds a market risk premium ($rp$) to the policy rate.
+3. **Retail Mortgage Rate ($mg$)**: Adds a commercial bank lending spread ($bm$) to the market yield.
+4. **Residential Housing Demand ($hd$)**: Contracts as mortgage rates rise and expands with disposable income ($di$).
+5. **House Price Stock-Flow Adjustment ($hp$)**: House prices adjust gradually to clear excess housing demand
+   over housing supply ($hs$).
+
+```{r}
+model_b_text <- "
+frml pr = 0.5 * pr(-1) + 0.5 * (ti + og);   ? Policy rate rule
+frml mr = pr + rp;                         ? Market benchmark rate
+frml mg = mr + bm;                         ? Retail mortgage rate
+frml hd = 100 - 5 * mg + 2 * di;           ? Housing demand schedule
+frml hp = hp(-1) + 0.1 * (hd - hs);        ? House price adjustment
+"
+```
+
+## Creating the Model and Solving Baseline
+
+```{r results = "hide"}
+
+mdl_b <- isis_mdl(model_text = model_b_text, period = "2020Q1", silent = TRUE)
+
+# Populate baseline series
+data_per_b <- mdl_b$get_data_period()
+p_ts_b <- regts(10, period = data_per_b)
+for (v in mdl_b$get_var_names()) {
+  mdl_b$set_data(p_ts_b, names = v)
+}
+
+mdl_b$solve(options = list(report = "none"))
+```
+
+Checking baseline solve status:
+
+```{r}
+mdl_b$get_solve_status()
+```
+
+## Formulating an Ill-Posed Fit Problem
+
+In this case study, we examine two common pitfalls in selecting fit instruments and targets
+along an economic transmission chain:
+
+1. **Collinear Instruments**: Using both the policy rate residual ($pr$) and the market rate
+   residual ($mr$) as instruments. Because $mr = pr + rp$, any adjustment to $pr$ shifts $mr$
+   one-for-one. Downstream targets ($mr, mg, hd$) cannot distinguish an adjustment in $pr$
+   from an adjustment in $mr$.
+2. **Uncoupled / Zero-Effect Instruments**: Using the downstream house price residual ($hp$) as
+   an instrument to hit upstream targets ($mr, mg, hd$). Because the transmission is strictly
+   unidirectional, house price shocks do not feed back into interest rates or housing demand,
+   resulting in an all-zero column in the Jacobian.
+
+Let us set targets for $mr$, $mg$, and $hd$, and choose instruments $pr$, $mr$, and $hp$:
+
+```{r}
+mdl_b_ill <- mdl_b$copy()
+fit_targets_b <- regts(matrix(c(12, 14, 80), nrow = 1),
+                       period = "2020Q1",
+                       names = c("mr", "mg", "hd"))
+mdl_b_ill$set_fit(fit_targets_b)
+mdl_b_ill$set_rms(c(pr = 1, mr = 1, hp = 1))
+mdl_b_ill$set_fit_options(store_jac = TRUE)
+```
+
+Attempting to solve fails:
+
+```{r}
+suppressWarnings(mdl_b_ill$solve(options = list(report = "none")))
+mdl_b_ill$get_solve_status()
+```
+
+## Diagnosing with `svd_analysis()`
+
+We extract and analyze the fit Jacobian:
+
+```{r}
+fit_jac_b <- mdl_b_ill$get_fit_jac()
+fit_jac_b
+```
+
+Notice immediately:
+
+* Columns `pr` and `mr` are identical: $[1, 1, -5]^T$.
+* Column `hp` contains exclusively zeros: $[0, 0, 0]^T$.
+* Rows `mr` and `mg` are identical: $[1, 1, 0]$.
+
+We run `svd_analysis()`:
+
+```{r}
+res_b <- svd_analysis(fit_jac_b)
+print(res_b)
+```
+
+## Interpreting the Output
+
+The SVD analysis clearly dissects all three defects:
+
+1. **All-Zero Column Detection**:  
+   `* Columns of A with only zero values (< 1.490116e-08): hp.`  
+   `svd_analysis()` immediately flags that instrument `hp` has no effect on any of the
+   targeted variables.
+2. **Right Singular Vectors (Column / Instrument Collinearity)**:  
+   Vector 1 has non-zero entries for `pr` ($0.7071$) and `mr` ($-0.7071$), which is
+   $\frac{1}{\sqrt{2}} [1, -1]^T$. This confirms that column `pr` and column `mr` are
+   perfectly collinear ($1 \cdot \text{col}(pr) - 1 \cdot \text{col}(mr) = 0$).
+3. **Left Singular Vectors (Row / Target Dependencies)**:  
+   The left singular vectors identify dependencies among target rows `mr, mg, hd`,
+   arising because $mg = mr + bm$ is a parallel shift of $mr$.
+
+## Remediation
+
+To make the problem well-posed:
+
+1. Target independent stages of the transmission chain: the market rate ($mr$) and housing demand ($hd$).
+2. Assign independent instruments that directly control each target: instrument $mr$ for the interest rate
+   block and instrument $hd$ for the housing demand block.
+
+```{r}
+mdl_b_clean <- mdl_b$copy()
+fit_targets_b_clean <- regts(matrix(c(12, 80), nrow = 1),
+                             period = "2020Q1",
+                             names = c("mr", "hd"))
+mdl_b_clean$set_fit(fit_targets_b_clean)
+mdl_b_clean$set_rms(c(mr = 1, hd = 1))
+mdl_b_clean$set_fit_options(store_jac = TRUE)
+
+mdl_b_clean$solve(options = list(report = "none"))
+mdl_b_clean$get_solve_status()
+```
+
+The fit procedure now completes successfully. Inspecting the Jacobian:
+
+```{r}
+fit_jac_b_clean <- mdl_b_clean$get_fit_jac()
+fit_jac_b_clean
+svd_analysis(fit_jac_b_clean)
+```
+
+The clean Jacobian has full rank 2 with no dependencies.
+
+
+# Non-Square Matrices and Underdetermined Systems
+
+In many practical calibration exercises, the number of instruments exceeds the number of
+targets ($n > m$). In this underdetermined setting, the normal equations have infinitely
+many solutions, and `isismdl` computes the unique minimum-norm adjustment (minimizing the
+sum of squared RMS changes, see @sandb1984 and @hasselman2003).
+
+Even in non-square matrices, `svd_analysis()` accurately evaluates numerical rank
+($\min(m, n)$) and identifies dependencies:
+
+```{r}
+# 2 targets (w, c) with 3 instruments (w, u, p) in Model A
+mdl_under <- mdl_a$copy()
+fit_under <- regts(matrix(c(105, 102), nrow = 1),
+                   period = "2020Q1",
+                   names = c("w", "c"))
+mdl_under$set_fit(fit_under)
+mdl_under$set_rms(c(w = 1, u = 1, p = 1))
+mdl_under$set_fit_options(store_jac = TRUE)
+
+mdl_under$solve(options = list(report = "none"))
+fit_jac_under <- mdl_under$get_fit_jac()
+fit_jac_under
+
+svd_analysis(fit_jac_under)
+```
+
+The $2 \times 3$ matrix has full row rank 2. The fit procedure succeeds, and `svd_analysis()`
+reports no linear dependencies among the rows.
+
+
+# Diagnostic Workflow Checklist
+
+When encountering numerical singularity or slow convergence in `isismdl`, follow this
+systematic checklist:
+
+| Step | Action | Description |
+| :--- | :--- | :--- |
+| **1. Enable storage** | `mdl$set_fit_options(store_jac = TRUE)` or `mdl$set_solve_options(store_jac = TRUE)` | Preserves the last computed Jacobian before termination. |
+| **2. Extract Jacobian** | `jac <- mdl$get_fit_jac()` or `jac <- mdl$get_solve_jac()` | Retrieves the numeric matrix from the model object. |
+| **3. Run SVD** | `res <- svd_analysis(jac)` | Computes singular values and cleans singular vectors. |
+| **4. Check zero columns** | Inspect `res$zero_cols` / printed output | Identifies uncoupled instruments that have zero impact on targets. |
+| **5. Check left vectors** | Inspect `res$U_small` / printed output | Identifies linearly dependent target equations (e.g. accounting identities). |
+| **6. Check right vectors** | Inspect `res$V_small` / printed output | Identifies collinear instruments with identical transmission effects. |
+| **7. Re-specify** | Drop redundant targets or swap instruments | Eliminates rank deficiency and re-solves model with status `"OK"`. |
+
 
 # References
-
